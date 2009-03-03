@@ -158,7 +158,6 @@ localEntity_t  *CG_SmokePuff(const vec3_t p, const vec3_t vel,
 	return le;
 }
 
-#ifdef MISSIONPACK
 /*
 ===============
 CG_LightningBoltBeam
@@ -178,13 +177,11 @@ void CG_LightningBoltBeam(vec3_t start, vec3_t end)
 	beam = &le->refEntity;
 
 	VectorCopy(start, beam->origin);
-	// this is the end point
 	VectorCopy(end, beam->oldorigin);
 
 	beam->reType = RT_LIGHTNING;
 	beam->customShader = cgs.media.lightningShader;
 }
-#endif
 
 /*
 ==================
@@ -218,7 +215,6 @@ void CG_KamikazeEffect(vec3_t org)
 
 }
 
-#ifdef MISSIONPACK
 /*
 ==================
 CG_ObeliskExplode
@@ -266,7 +262,7 @@ void CG_ObeliskPain(vec3_t org)
 	trap_S_StartSound(org, ENTITYNUM_NONE, CHAN_BODY, sfx);
 }
 
-
+#ifdef MISSIONPACK
 /*
 ==================
 CG_InvulnerabilityImpact
@@ -681,7 +677,7 @@ void CG_FireEffect(vec3_t org, vec3_t mins, vec3_t maxs, float flameSize, int pa
 	int				i;
 
 	memset(&re, 0, sizeof(re));
-	
+
 	//Configure sprite
 	VectorCopy(org, re.origin);
 	re.origin[2] += flameSize * 0.7;
@@ -695,7 +691,7 @@ void CG_FireEffect(vec3_t org, vec3_t mins, vec3_t maxs, float flameSize, int pa
 	//Add light that flickers
 	intensity = (intensity / 2) + abs(intensity * sin(cg.time / 128) / 2) + abs(intensity * sin(cg.time / 50) / 4);
 	trap_R_AddLightToScene(org, intensity, 0.99f, 0.54f, 0.21f);
-	
+
 	i= random() * 10;
 
 	//Add extra particles
@@ -747,7 +743,7 @@ void CG_Fire(centity_t * cent)
 
 	VectorSubtract(cent->currentState.origin2, cent->lerpOrigin, maxs);
 	VectorSubtract(cent->lerpOrigin, cent->currentState.origin2, mins);
-	
+
 	CG_FireEffect(cent->lerpOrigin, mins, maxs, (float)cent->currentState.generic1, cent->currentState.weapon, (float)cent->currentState.constantLight);
 }
 
@@ -782,7 +778,7 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 	//Spawn debris ents
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
-	
+
 	//Initialize type
 	le->leType = LE_FRAGMENT;
 	le->startTime = cg.time;
@@ -815,7 +811,7 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 	le->pos.trTime = cg.time;
 	//Randomly offset base within model bounds
 	VectorRandom(le->pos.trBase, mins, maxs);
-	
+
 	//Debug
 	//Com_Printf("...pos.trBase %f %f %f \n", le->pos.trBase[0], le->pos.trBase[1], le->pos.trBase[2]);
 
@@ -916,7 +912,7 @@ CG_ExplosiveDust(vec3_t org, vec3_t mins, vec3_t maxs, int smokes, int dusts)
 		p->vel[0] = crandom() * 180;
 		p->vel[1] = crandom() * 180;
 		p->vel[2] = crandom() * 100;
-		
+
 		p->accel[0] = p->accel[1] = p->accel[2] = 0;
 
 		p->accel[2] = -100;
@@ -958,7 +954,7 @@ CG_ExplosivePlaster(vec3_t org, vec3_t mins, vec3_t maxs, int plasters)
 		p->vel[0] = crandom() * 180;
 		p->vel[1] = crandom() * 180;
 		p->vel[2] = crandom() * 100;
-		
+
 		p->accel[0] = p->accel[1] = p->accel[2] = 0;
 
 		p->accel[2] = -100;
@@ -1018,7 +1014,7 @@ void CG_ExplosiveSmoke(vec3_t org, vec3_t mins, vec3_t maxs, int smokes)
 void CG_ExplosiveFire(vec3_t org, vec3_t mins, vec3_t maxs, int fires)
 {
 	localEntity_t  *le;
-	
+
 	le = CG_AllocLocalEntity();
 	VectorCopy(org, le->pos.trBase);
 	le->radius = fires;
@@ -1075,17 +1071,17 @@ void CG_ExplosiveExplode(centity_t * cent)
 		case ENTMAT_TILES:
 			//Dust
 			CG_ExplosiveDust(
-				cent->lerpOrigin, 
-				mins, 
-				maxs, 
-				(2 * cent->currentState.torsoAnim + cent->currentState.legsAnim), 
+				cent->lerpOrigin,
+				mins,
+				maxs,
+				(2 * cent->currentState.torsoAnim + cent->currentState.legsAnim),
 				(10 * cent->currentState.torsoAnim +  5 * cent->currentState.legsAnim + 2 * cent->currentState.weapon));
 			break;
 		case ENTMAT_PLASTER:
 			//Dust & flakes?
 			CG_ExplosivePlaster(
-				cent->lerpOrigin, 
-				mins, 
+				cent->lerpOrigin,
+				mins,
 				maxs,
 				(5 * cent->currentState.torsoAnim +  2 * cent->currentState.legsAnim + 1 * cent->currentState.weapon));
 			break;
@@ -1098,9 +1094,9 @@ void CG_ExplosiveExplode(centity_t * cent)
 		case ENTMAT_SMOKE:
 			//Smoke
 			CG_ExplosiveSmoke(
-				cent->lerpOrigin, 
-				mins, 
-				maxs, 
+				cent->lerpOrigin,
+				mins,
+				maxs,
 				(8 * cent->currentState.torsoAnim +  4 * cent->currentState.legsAnim + 2 * cent->currentState.weapon));
 			break;
 		case ENTMAT_GAS:
@@ -1108,8 +1104,8 @@ void CG_ExplosiveExplode(centity_t * cent)
 		case ENTMAT_FIRE:
 			//Flames
 			CG_ExplosiveFire(
-				cent->lerpOrigin, 
-				mins, 
+				cent->lerpOrigin,
+				mins,
 				maxs,
 				(9 * cent->currentState.torsoAnim +  5 * cent->currentState.legsAnim + 3 * cent->currentState.weapon));
 			break;

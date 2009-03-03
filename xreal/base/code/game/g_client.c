@@ -805,7 +805,6 @@ void ClientUserinfoChanged(int clientNum)
 	int             teamTask, teamLeader, team, health;
 	char           *s;
 	char            model[MAX_QPATH];
-	char            headModel[MAX_QPATH];
 	char            oldname[MAX_STRING_CHARS];
 	gclient_t      *client;
 	char            c1[MAX_INFO_STRING];
@@ -891,7 +890,6 @@ void ClientUserinfoChanged(int clientNum)
 
 	// set model
 	Q_strncpyz(model, Info_ValueForKey(userinfo, "model"), sizeof(model));
-	Q_strncpyz(headModel, Info_ValueForKey(userinfo, "headmodel"), sizeof(headModel));
 
 	// bots set their team a few frames later
 	if(g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT)
@@ -1003,7 +1001,7 @@ void ClientUserinfoChanged(int clientNum)
 	{
 		Com_sprintf(userinfo, sizeof(userinfo),
 					"n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-					client->pers.netname, team, model, headModel, redTeam, blueTeam, c1, c2, client->pers.maxHealth,
+					client->pers.netname, team, model, "", redTeam, blueTeam, c1, c2, client->pers.maxHealth,
 					client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 
@@ -1500,14 +1498,13 @@ void ClientDisconnect(int clientNum)
 		// They don't get to take powerups with them!
 		// Especially important for stuff like CTF flags
 		TossClientItems(ent);
-#ifdef MISSIONPACK
+#if defined(MISSIONPACK)
 		TossClientPersistantPowerups(ent);
+#endif
 		if(g_gametype.integer == GT_HARVESTER)
 		{
 			TossClientCubes(ent);
 		}
-#endif
-
 	}
 
 	G_LogPrintf("ClientDisconnect: %i\n", clientNum);

@@ -32,15 +32,9 @@ vec4_t          blueTeamColor = { 0.2f, 0.0f, 0.9f, 0.80f };
 vec4_t          baseTeamColor = { 1.0f, 1.0f, 1.0f, 0.80f };
 
 
-#ifdef MISSIONPACK
-#include "../ui/ui_shared.h"
 
-// used for scoreboard
-extern displayContextDef_t cgDC;
-menuDef_t      *menuScoreboard = NULL;
-#else
+
 int             drawTeamOverlayModificationCount = -1;
-#endif
 
 int             sortedTeamPlayers[TEAM_MAXOVERLAY];
 int             numSortedTeamPlayers;
@@ -239,7 +233,6 @@ CG_DrawField
 Draws large numbers for status bar and powerups
 ==============
 */
-#ifndef MISSIONPACK
 static void CG_DrawField(int x, int y, int width, int value, float size)
 {
 	char            num[16], *ptr;
@@ -297,7 +290,6 @@ static void CG_DrawField(int x, int y, int width, int value, float size)
 		l--;
 	}
 }
-#endif							// MISSIONPACK
 
 /*
 ================
@@ -568,8 +560,6 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 CG_DrawStatusBarHead
 ================
 */
-#ifndef MISSIONPACK
-
 static void CG_DrawStatusBarHead(float x)
 {
 	vec3_t          angles;
@@ -625,20 +615,16 @@ static void CG_DrawStatusBarHead(float x)
 
 	CG_DrawHead(x, 480 - size, size, size, cg.snap->ps.clientNum, angles);
 }
-#endif							// MISSIONPACK
 
 /*
 ================
 CG_DrawStatusBarFlag
-
 ================
 */
-#ifndef MISSIONPACK
 static void CG_DrawStatusBarFlag(float x, int team)
 {
 	CG_DrawFlagModel(x, 480 - ICON_SIZE, ICON_SIZE, ICON_SIZE, team, qfalse);
 }
-#endif							// MISSIONPACK
 
 /*
 ================
@@ -1105,6 +1091,11 @@ void CG_DrawStatusBarNew(void)
 	vec4_t          ammocolor = { 1.0f, 1.0f, 1.0f, 0.80f };
 	vec4_t          scorecolor = { 1.0f, 1.0f, 1.0f, 0.80f };
 
+	vec4_t          hcolor;
+	vec3_t          angles;
+	vec3_t          origin;
+	qhandle_t       handle;
+
 	ps = &cg.snap->ps;
 	cent = &cg_entities[cg.snap->ps.clientNum];
 
@@ -1121,8 +1112,7 @@ void CG_DrawStatusBarNew(void)
 	// top stats bar
 	if(cgs.gametype >= GT_TEAM)
 	{
-		//background middle - score limit
-
+		// background middle - score limit
 		if(cgs.gametype >= GT_CTF)
 			score = cgs.capturelimit;
 		else
@@ -1135,7 +1125,7 @@ void CG_DrawStatusBarNew(void)
 		VectorCopy4(color, scorecolor);
 		scorecolor[3] = 0.8f;
 
-		//tdm/ctf frag/capturelimit
+		// tdm/ctf frag/capturelimit
 		s = va("%i", score);
 		fontsize = HUD_SCORELIMITSIZETEAM;
 		if(score > 99)
@@ -1153,8 +1143,7 @@ void CG_DrawStatusBarNew(void)
 		trap_R_SetColor(NULL);
 
 
-		//background left - red team
-
+		// background left - red team
 		VectorCopy4(redTeamColor, color);
 
 		score = cgs.scores1;
@@ -1173,7 +1162,8 @@ void CG_DrawStatusBarNew(void)
 		}
 
 		VectorSet4(scorecolor, 1.0f, 1.0f, 1.0f, 0.80f);
-		//digits
+
+		// digits
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZETEAM;
 		CG_DrawHudString(255, 15, s, fontsize, UI_CENTER, scorecolor);
@@ -1183,7 +1173,7 @@ void CG_DrawStatusBarNew(void)
 		CG_DrawPic(320 - 10 - 100, 3, 100, 40, cgs.media.hud_top_team_left_overlay);
 		trap_R_SetColor(NULL);
 
-		//background right - blue team
+		// background right - blue team
 		VectorCopy4(blueTeamColor, color);
 		score = cgs.scores2;
 
@@ -1201,7 +1191,8 @@ void CG_DrawStatusBarNew(void)
 		}
 
 		VectorSet4(scorecolor, 1.0f, 1.0f, 1.0f, 0.80f);
-		//digits
+
+		// digits
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZETEAM;
 		CG_DrawHudString(385, 15, s, fontsize, UI_CENTER, scorecolor);
@@ -1215,14 +1206,14 @@ void CG_DrawStatusBarNew(void)
 	{
 		// FFA
 
-		//background middle - your score
+		// background middle - your score
 		score = cg.snap->ps.persistant[PERS_SCORE];
 
 		trap_R_SetColor(basecolor);
 		CG_DrawPic(320 - 25, 0, 50, 40, cgs.media.hud_top_ffa_middle);
 		trap_R_SetColor(NULL);
 
-		//blink your score if on first or second place
+		// blink your score if on first or second place
 		VectorCopy4(colorWhite, scorecolor);
 
 		scorecolor[3] = 0.8f;
@@ -1232,8 +1223,7 @@ void CG_DrawStatusBarNew(void)
 		else if(score == cgs.scores2)
 			scorecolor[1] = scorecolor[2] = 0.66f + 0.33f * sin(cg.time / 100.0f);
 
-		//digits
-
+		// digits
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZE;
 		if(score > 99)
@@ -1250,7 +1240,7 @@ void CG_DrawStatusBarNew(void)
 		trap_R_SetColor(NULL);
 
 
-		//background left - fraglimit
+		// background left - fraglimit
 		score = cgs.fraglimit;
 
 		trap_R_SetColor(basecolor);
@@ -1258,16 +1248,14 @@ void CG_DrawStatusBarNew(void)
 		trap_R_SetColor(NULL);
 
 
-
-		//blink fraglimit if close enough
+		// blink fraglimit if close enough
 		VectorCopy4(colorWhite, scorecolor);
 		scorecolor[3] = 0.8f;
 
 		if(score > 0 && score - cgs.scores1 < 5)
 			scorecolor[2] = scorecolor[1] = sin(cg.time / 200.0f);
 
-		//digits
-
+		// digits
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZE * 0.8f;
 
@@ -1278,8 +1266,7 @@ void CG_DrawStatusBarNew(void)
 		CG_DrawPic(320 - 25 - 66, 0, 66, 40, cgs.media.hud_top_ffa_left_overlay);
 		trap_R_SetColor(NULL);
 
-		//background right - first place score if self not first, or second place score if on first place
-
+		// background right - first place score if self not first, or second place score if on first place
 		if(cgs.scores1 == cg.snap->ps.persistant[PERS_SCORE])	//on first place, so draw second
 			score = cgs.scores2;
 		else					// not on first place, so draw first
@@ -1295,8 +1282,8 @@ void CG_DrawStatusBarNew(void)
 
 		VectorCopy4(colorWhite, scorecolor);
 		scorecolor[3] = 0.8f;
-		//digits
 
+		// digits
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZE * 0.8f;
 
@@ -1309,11 +1296,9 @@ void CG_DrawStatusBarNew(void)
 
 	}
 
-	//draw countdown
-
+	// draw countdown
 	if(cgs.timelimit > 0)
 	{
-
 		msec = ((cgs.timelimit * 60 * 1000) - cg.time - cgs.levelStartTime);
 
 		if(msec > 0)
@@ -1327,11 +1312,10 @@ void CG_DrawStatusBarNew(void)
 			s = va("%i:%i%i", mins, tens, seconds);
 
 			CG_DrawHudString(320, 5, s, 0.2f, UI_CENTER, scorecolor);
-
 		}
 	}
 
-	//left - health
+	// left - health
 	trap_R_SetColor(basecolor);
 	CG_DrawPic(HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, cgs.media.hud_bar_left);
 	trap_R_SetColor(NULL);
@@ -1358,16 +1342,12 @@ void CG_DrawStatusBarNew(void)
 	fontsize = HUD_STATSIZE;
 	CG_DrawHudString(80, 453, s, fontsize, UI_CENTER, healthcolor);
 
-
 	trap_R_SetColor(colorOverlay);
 	CG_DrawPic(HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, cgs.media.hud_bar_left_overlay);
 	trap_R_SetColor(NULL);
 
-
-
 	if(pickup > 0 && pickup < 300)
 	{
-
 		if(bg_itemlist[cg.itemPickup].giType == IT_HEALTH)
 		{
 			// flash health
@@ -1380,21 +1360,16 @@ void CG_DrawStatusBarNew(void)
 			arflash = pickup / 10;
 		}
 
-
 		if(bg_itemlist[cg.itemPickup].giType == IT_AMMO)
 		{
 			// ammo health
 			amflash = pickup / 10;
 		}
-
 	}
 	else
 	{
-
 		pickup = 0;
-
 	}
-
 
 	VectorCopy4(basecolor, color);
 	color[3] = 0.75f + 0.25f * sin(cg.time / 400.0f);
@@ -1433,8 +1408,7 @@ void CG_DrawStatusBarNew(void)
 	trap_R_SetColor(NULL);
 
 
-	//ammo - TODO
-
+	// ammo - TODO
 	value = ps->ammo[cent->currentState.weapon];
 
 	s = va("%i", value);
@@ -1447,8 +1421,7 @@ void CG_DrawStatusBarNew(void)
 	CG_DrawPic(201, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 238, 50, cgs.media.hud_bar_middle_overlay);
 	trap_R_SetColor(NULL);
 
-	//right, armor
-
+	// right, armor
 	value = ps->stats[STAT_ARMOR];
 
 	if(value <= 0)
@@ -1475,6 +1448,41 @@ void CG_DrawStatusBarNew(void)
 	trap_R_SetColor(color);
 	CG_DrawPic(610 - 17 - arflash / 2, 435 - arflash / 2, 30 + arflash, 30 + arflash, cgs.media.hud_icon_armor);
 
+	// FIXME support harvester cubes
+#if 0
+	if(cgs.gametype == GT_HARVESTER)
+	{
+		origin[0] = 90;
+		origin[1] = 0;
+		origin[2] = -10;
+		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+			handle = cgs.media.blueCubeModel;
+		else
+			handle = cgs.media.redCubeModel;
+
+		CG_Draw3DModel(640 - (TEXT_ICON_SPACE + ICON_SIZE), 416, ICON_SIZE, ICON_SIZE, handle, 0, origin, angles);
+
+		value = ps->generic1;
+		if(value > 99)
+			value = 99;
+
+		trap_R_SetColor(colors[0]);
+		CG_DrawField(640 - (CHAR_WIDTH * 2 + TEXT_ICON_SPACE + ICON_SIZE), 445, 2, value);
+		trap_R_SetColor(NULL);
+
+		// if we didn't draw a 3D icon, draw a 2D icon for armor
+		if(!cg_draw3dIcons.integer && cg_drawIcons.integer)
+		{
+			if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+				handle = cgs.media.redCubeIcon;
+			else
+				handle = cgs.media.blueCubeIcon;
+
+			CG_DrawPic(640 - (TEXT_ICON_SPACE + ICON_SIZE), 445, ICON_SIZE, ICON_SIZE, handle);
+		}
+	}
+#endif
 
 	trap_R_SetColor(NULL);
 }
@@ -2105,7 +2113,6 @@ CG_DrawScores
 Draw the small two score display
 =================
 */
-#ifndef MISSIONPACK
 static float CG_DrawScores(float y)
 {
 	const char     *s;
@@ -2187,7 +2194,6 @@ static float CG_DrawScores(float y)
 			}
 		}
 
-#ifdef MISSIONPACK
 		if(cgs.gametype == GT_1FCTF)
 		{
 			// Display flag status
@@ -2202,7 +2208,7 @@ static float CG_DrawScores(float y)
 				}
 			}
 		}
-#endif
+
 		if(cgs.gametype >= GT_CTF)
 		{
 			v = cgs.capturelimit;
@@ -2296,7 +2302,6 @@ static float CG_DrawScores(float y)
 
 	return y1 - 8;
 }
-#endif							// MISSIONPACK
 
 /*
 ================
@@ -2419,10 +2424,8 @@ gitem_t        *item;
 /*
 =====================
 CG_DrawLowerRight
-
 =====================
 */
-#ifndef MISSIONPACK
 static void CG_DrawLowerRight(void)
 {
 	float           y;
@@ -2437,14 +2440,12 @@ static void CG_DrawLowerRight(void)
 	y = CG_DrawScores(y);
 //	y = CG_DrawPowerups(y);
 }
-#endif							// MISSIONPACK
 
 /*
 ===================
 CG_DrawPickupItem
 ===================
 */
-#ifndef MISSIONPACK
 static int CG_DrawPickupItem(int y)
 {
 	int             value;
@@ -2477,15 +2478,12 @@ static int CG_DrawPickupItem(int y)
 
 	return y;
 }
-#endif							// MISSIONPACK
 
 /*
 =====================
 CG_DrawLowerLeft
-
 =====================
 */
-#ifndef MISSIONPACK
 static void CG_DrawLowerLeft(void)
 {
 	float           y;
@@ -2497,10 +2495,8 @@ static void CG_DrawLowerLeft(void)
 		y = CG_DrawTeamOverlay(y, qfalse, qfalse);
 	}
 
-
 	y = CG_DrawPickupItem(y);
 }
-#endif							// MISSIONPACK
 
 
 //===========================================================================================
@@ -2510,7 +2506,6 @@ static void CG_DrawLowerLeft(void)
 CG_DrawTeamInfo
 =================
 */
-#ifndef MISSIONPACK
 static void CG_DrawTeamInfo(void)
 {
 	int             w, h;
@@ -2585,14 +2580,12 @@ static void CG_DrawTeamInfo(void)
 		}
 	}
 }
-#endif							// MISSIONPACK
 
 /*
 ===================
 CG_DrawHoldableItem
 ===================
 */
-#ifndef MISSIONPACK
 /*static void CG_DrawHoldableItem(void)
 {
 	int             value;
@@ -2606,7 +2599,6 @@ CG_DrawHoldableItem
 
 }
 */
-#endif							// MISSIONPACK
 
 /*
 ===================
@@ -3442,85 +3434,10 @@ static void CG_DrawTeamVote(void)
 
 static qboolean CG_DrawScoreboard(void)
 {
-
-#ifdef MISSIONPACK
-	static qboolean firstTime = qtrue;
-	float           fade, *fadeColor;
-
-	if(menuScoreboard)
-	{
-		menuScoreboard->window.flags &= ~WINDOW_FORCED;
-	}
-
-	// should never happen in Team Arena
-	if(cgs.gametype == GT_SINGLE_PLAYER && cg.predictedPlayerState.pm_type == PM_INTERMISSION)
-	{
-		cg.deferredPlayerLoading = 0;
-		firstTime = qtrue;
-		return qfalse;
-	}
-
-	// don't draw scoreboard during death while warmup up
-	if(cg.warmup && !cg.showScores)
-	{
-		return qfalse;
-	}
-
-	if(cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD || cg.predictedPlayerState.pm_type == PM_INTERMISSION)
-	{
-		fade = 1.0;
-		fadeColor = colorWhite;
-	}
-	else
-	{
-		fadeColor = CG_FadeColor(cg.scoreFadeTime, FADE_TIME);
-		if(!fadeColor)
-		{
-			// next time scoreboard comes up, don't print killer
-			cg.deferredPlayerLoading = 0;
-			cg.killerName[0] = 0;
-			firstTime = qtrue;
-			return qfalse;
-		}
-		fade = *fadeColor;
-	}
-
-
-	if(menuScoreboard == NULL)
-	{
-		if(cgs.gametype >= GT_TEAM)
-		{
-			menuScoreboard = Menus_FindByName("teamscore_menu");
-		}
-		else
-		{
-			menuScoreboard = Menus_FindByName("score_menu");
-		}
-	}
-
-	if(menuScoreboard)
-	{
-		if(firstTime)
-		{
-			CG_SetScoreSelection(menuScoreboard);
-			firstTime = qfalse;
-		}
-		Menu_Paint(menuScoreboard, qtrue);
-	}
-
-	// load any models that have been deferred
-	if(++cg.deferredPlayerLoading > 10)
-	{
-		CG_LoadDeferredPlayers();
-	}
-
-	return qtrue;
-#else
 	if(cg_drawStatus.integer == 3)
 		return CG_DrawScoreboardNew();
 
 	return CG_DrawOldScoreboard();
-#endif
 }
 
 /*
@@ -3530,13 +3447,12 @@ CG_DrawIntermission
 */
 static void CG_DrawIntermission(void)
 {
-#ifndef MISSIONPACK
 	if(cgs.gametype == GT_SINGLE_PLAYER)
 	{
 		CG_DrawCenterString();
 		return;
 	}
-#endif
+
 	cg.scoreFadeTime = cg.time;
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 }
@@ -3592,7 +3508,6 @@ static void CG_DrawAmmoWarning(void)
 	}
 }
 
-#ifdef MISSIONPACK
 /*
 =================
 CG_DrawProxWarning
@@ -3637,7 +3552,6 @@ static void CG_DrawProxWarning(void)
 	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 	CG_DrawBigStringColor(320 - w / 2, 64 + BIGCHAR_HEIGHT, s, (float *)g_color_table[ColorIndex(COLOR_RED)]);
 }
-#endif
 
 /*
 =================
@@ -3708,7 +3622,6 @@ static void CG_DrawWarmup(void)
 		else if(cgs.gametype == GT_CTF)
 		{
 			s = "Capture the Flag";
-#ifdef MISSIONPACK
 		}
 		else if(cgs.gametype == GT_1FCTF)
 		{
@@ -3721,12 +3634,12 @@ static void CG_DrawWarmup(void)
 		else if(cgs.gametype == GT_HARVESTER)
 		{
 			s = "Harvester";
-#endif
 		}
 		else
 		{
 			s = "";
 		}
+
 		CG_Text_PaintAligned(320, 90, s, 0.4f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 	}
 
@@ -3781,27 +3694,7 @@ static void CG_DrawWarmup(void)
 
 //==================================================================================
 
-#ifdef MISSIONPACK
-/*
-=================
-CG_DrawTimedMenus
-=================
-*/
-void CG_DrawTimedMenus(void)
-{
-	if(cg.voiceTime)
-	{
-		int             t = cg.time - cg.voiceTime;
 
-		if(t > 2500)
-		{
-			Menus_CloseByName("voiceMenu");
-			trap_Cvar_Set("cl_conXOffset", "0");
-			cg.voiceTime = 0;
-		}
-	}
-}
-#endif
 
 //************** otty debug  ***************//
 
@@ -3994,41 +3887,27 @@ static void CG_Draw2D(void)
 		// don't draw any status if dead or the scoreboard is being explicitly shown
 		if(!cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0)
 		{
-
-#ifdef MISSIONPACK
-			if(cg_drawStatus.integer)
-			{
-				Menu_PaintAll();
-				CG_DrawTimedMenus();
-			}
-#else
 			CG_DrawStatusBar();
 
 			CG_DrawSideBar();
 			CG_DrawPowerups ();
-#endif
 
 			CG_DrawAmmoWarning();
 
-#ifdef MISSIONPACK
 			CG_DrawProxWarning();
-#endif
+
 			CG_DrawCrosshair();
 			CG_DrawCrosshairNames();
 			CG_DrawWeaponSelect();
 
-#ifndef MISSIONPACK
 			//CG_DrawHoldableItem();
-#endif
 
 			CG_DrawReward();
 		}
 
 		if(cgs.gametype >= GT_TEAM)
 		{
-#ifndef MISSIONPACK
 			CG_DrawTeamInfo();
-#endif
 		}
 	}
 
@@ -4039,10 +3918,8 @@ static void CG_Draw2D(void)
 
 	CG_DrawUpperRight();
 
-#ifndef MISSIONPACK
 	CG_DrawLowerRight();
 	CG_DrawLowerLeft();
-#endif
 
 	if(!CG_DrawFollow())
 	{
@@ -4060,9 +3937,7 @@ static void CG_Draw2D(void)
 
 static void CG_DrawTourneyScoreboard(void)
 {
-#ifndef MISSIONPACK
 	CG_DrawOldTourneyScoreboard();
-#endif
 }
 
 /*

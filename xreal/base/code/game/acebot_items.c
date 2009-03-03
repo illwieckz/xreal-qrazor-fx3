@@ -284,30 +284,29 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 		case IT_TEAM:
 		{
 			// team items, such as flags
-#ifdef MISSIONPACK
-			if(gametype == GT_1FCTF)
+			if(g_gametype.integer == GT_1FCTF)
 			{
 				// neutral flag can always be picked up
 				if(itemEnt->item->giTag == PW_NEUTRALFLAG)
 				{
-					return qtrue;
+					return 40.0f;
 				}
 				if(self->client->ps.persistant[PERS_TEAM] == TEAM_RED)
 				{
-					if(item->giTag == PW_BLUEFLAG && client->self->ps.powerups[PW_NEUTRALFLAG])
+					if(item->giTag == PW_BLUEFLAG && self->client->ps.powerups[PW_NEUTRALFLAG])
 					{
-						return qtrue;
+						return 40.0f;
 					}
 				}
-				else if(ps->persistant[PERS_TEAM] == TEAM_BLUE)
+				else if(self->client->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 				{
-					if(item->giTag == PW_REDFLAG && ps->powerups[PW_NEUTRALFLAG])
+					if(item->giTag == PW_REDFLAG && self->client->ps.powerups[PW_NEUTRALFLAG])
 					{
-						return qtrue;
+						return 40.0f;
 					}
 				}
 			}
-#endif
+
 			if(g_gametype.integer == GT_CTF)
 			{
 				// ent->modelindex2 is non-zero on items if they are dropped
@@ -328,12 +327,12 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 						return 40.0f;
 				}
 			}
-#ifdef MISSIONPACK
+
 			if(g_gametype.integer == GT_HARVESTER)
 			{
-				return qtrue;
+				return 40.0f;
 			}
-#endif
+
 			return 0.0f;
 		}
 

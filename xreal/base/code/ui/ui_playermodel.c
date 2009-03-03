@@ -192,7 +192,6 @@ PlayerModel_SaveChanges
 static void PlayerModel_SaveChanges(void)
 {
 	trap_Cvar_Set("model", s_playermodel.modelskin);
-	trap_Cvar_Set("headmodel", s_playermodel.modelskin);
 }
 
 /*

@@ -1220,13 +1220,12 @@ static void CG_HasteTrail(centity_t * cent)
 	smoke->leType = LE_SCALE_FADE;
 }
 
-#ifdef MISSIONPACK
 /*
 ===============
 CG_BreathPuffs
 ===============
 */
-static void CG_BreathPuffs(centity_t * cent, refEntity_t * head)
+void CG_BreathPuffs(centity_t * cent, const vec3_t headOrigin, const vec3_t headDirection)
 {
 	clientInfo_t   *ci;
 	vec3_t          up, origin;
@@ -1246,7 +1245,7 @@ static void CG_BreathPuffs(centity_t * cent, refEntity_t * head)
 	{
 		return;
 	}
-	contents = trap_CM_PointContents(head->origin, 0);
+	contents = trap_CM_PointContents(headOrigin, 0);
 	if(contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
 	{
 		return;
@@ -1257,8 +1256,9 @@ static void CG_BreathPuffs(centity_t * cent, refEntity_t * head)
 	}
 
 	VectorSet(up, 0, 0, 8);
-	VectorMA(head->origin, 8, head->axis[0], origin);
-	VectorMA(origin, -4, head->axis[2], origin);
+	VectorMA(headOrigin, 8, headDirection, origin);
+	//VectorMA(origin, -4, head->axis[2], origin);
+
 	CG_SmokePuff(origin, up, 16, 1, 1, 1, 0.66f, 1500, cg.time, cg.time + 400, LEF_PUFF_DONT_SCALE,
 				 cgs.media.shotgunSmokePuffShader);
 	ci->breathPuffTime = cg.time + 2000;
@@ -1269,7 +1269,7 @@ static void CG_BreathPuffs(centity_t * cent, refEntity_t * head)
 CG_DustTrail
 ===============
 */
-static void CG_DustTrail(centity_t * cent)
+void CG_DustTrail(centity_t * cent)
 {
 	int             anim;
 	localEntity_t  *dust;
@@ -1307,10 +1307,9 @@ static void CG_DustTrail(centity_t * cent)
 	end[2] -= 16;
 
 	VectorSet(vel, 0, 0, -30);
-	dust = CG_SmokePuff(end, vel, 24, .8f, .8f, 0.7f, 0.33f, 500, cg.time, 0, 0, cgs.media.dustPuffShader);
+	dust = CG_SmokePuff(end, vel, 24, .8f, .8f, 0.7f, 0.33f, 500, cg.time, 0, 0, cgs.media.shotgunSmokePuffShader); //cgs.media.dustPuffShader);
 }
 
-#endif
 
 /*
 ===============
@@ -1391,7 +1390,6 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso
 
 	if(updateangles)
 	{
-
 		VectorCopy(cent->currentState.pos.trDelta, dir);
 		// add gravity
 		dir[2] += 100;
@@ -1468,13 +1466,12 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso
 }
 
 
-#ifdef MISSIONPACK				// bk001204
 /*
 ===============
 CG_PlayerTokens
 ===============
 */
-static void CG_PlayerTokens(centity_t * cent, int renderfx)
+void CG_PlayerTokens(centity_t * cent, int renderfx)
 {
 	int             tokens, i, j;
 	float           angle;
@@ -1545,7 +1542,6 @@ static void CG_PlayerTokens(centity_t * cent, int renderfx)
 		VectorCopy(trail->positions[i], origin);
 	}
 }
-#endif
 
 
 /*

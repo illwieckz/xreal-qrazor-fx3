@@ -893,7 +893,7 @@ Only in CTF games
 /* sounds */ ""
 	 }
 	,
-
+#endif
 	/*QUAKED team_CTF_neutralflag (0 0 1) (-16 -16 -16) (16 16 16)
 	   Only in One Flag CTF games
 	 */
@@ -944,23 +944,8 @@ Only in CTF games
 /* sounds */ ""
 	 }
 	,
-/*QUAKED weapon_nailgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-	{
-	 "weapon_nailgun",
-	 "sound/misc/w_pkup.ogg",
-	 {"models/weapons/nailgun/nailgun.md3",
-	  0, 0, 0}
-	 ,
-/* icon */ "icons/weapon_nailgun",
-/* pickup */ "Nailgun",
-	 10,
-	 IT_WEAPON,
-	 WP_NAILGUN,
-/* precache */ "",
-/* sounds */ ""
-	 }
-	,
+
+#ifdef MISSIONPACK
 
 /*QUAKED weapon_prox_launcher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
@@ -1253,7 +1238,6 @@ qboolean BG_CanItemBeGrabbed(int gametype, const entityState_t * ent, const play
 #endif
 
 		case IT_TEAM:			// team items, such as flags
-#ifdef MISSIONPACK
 			if(gametype == GT_1FCTF)
 			{
 				// neutral flag can always be picked up
@@ -1276,7 +1260,7 @@ qboolean BG_CanItemBeGrabbed(int gametype, const entityState_t * ent, const play
 					}
 				}
 			}
-#endif
+
 			if(gametype == GT_CTF)
 			{
 				// ent->modelindex2 is non-zero on items if they are dropped
@@ -1298,12 +1282,11 @@ qboolean BG_CanItemBeGrabbed(int gametype, const entityState_t * ent, const play
 				}
 			}
 
-#ifdef MISSIONPACK
 			if(gametype == GT_HARVESTER)
 			{
 				return qtrue;
 			}
-#endif
+
 			return qfalse;
 
 		case IT_HOLDABLE:

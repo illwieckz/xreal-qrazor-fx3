@@ -602,9 +602,7 @@ int             G_InvulnerabilityEffect(gentity_t * targ, vec3_t dir, vec3_t poi
 void            body_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int meansOfDeath);
 void            TossClientItems(gentity_t * self);
 
-#ifdef MISSIONPACK
 void            TossClientPersistantPowerups(gentity_t * self);
-#endif
 void            TossClientCubes(gentity_t * self);
 
 // damage flags

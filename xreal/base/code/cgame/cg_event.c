@@ -1004,7 +1004,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_KAMIKAZE");
 			CG_KamikazeEffect(cent->lerpOrigin);
 			break;
-#ifdef MISSIONPACK
 		case EV_OBELISKEXPLODE:
 			DEBUGNAME("EV_OBELISKEXPLODE");
 			CG_ObeliskExplode(cent->lerpOrigin, es->eventParm);
@@ -1013,6 +1012,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_OBELISKPAIN");
 			CG_ObeliskPain(cent->lerpOrigin);
 			break;
+#ifdef MISSIONPACK
 		case EV_INVUL_IMPACT:
 			DEBUGNAME("EV_INVUL_IMPACT");
 			CG_InvulnerabilityImpact(cent->lerpOrigin, cent->currentState.angles);
@@ -1021,11 +1021,12 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_JUICED");
 			CG_InvulnerabilityJuiced(cent->lerpOrigin);
 			break;
+#endif
 		case EV_LIGHTNINGBOLT:
 			DEBUGNAME("EV_LIGHTNINGBOLT");
 			CG_LightningBoltBeam(es->origin2, es->pos.trBase);
 			break;
-#endif
+
 		case EV_SCOREPLUM:
 			DEBUGNAME("EV_SCOREPLUM");
 			CG_ScorePlum(cent->currentState.otherEntityNum, cent->lerpOrigin, cent->currentState.time);
@@ -1149,20 +1150,16 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 					{
 						if(cgs.clientinfo[cg.clientNum].team == TEAM_BLUE)
 						{
-#ifdef MISSIONPACK
 							if(cgs.gametype == GT_1FCTF)
 								CG_AddBufferedSound(cgs.media.yourTeamTookTheFlagSound);
 							else
-#endif
 								CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
 						}
 						else if(cgs.clientinfo[cg.clientNum].team == TEAM_RED)
 						{
-#ifdef MISSIONPACK
 							if(cgs.gametype == GT_1FCTF)
 								CG_AddBufferedSound(cgs.media.enemyTookTheFlagSound);
 							else
-#endif
 								CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
 						}
 					}
@@ -1176,20 +1173,16 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 					{
 						if(cgs.clientinfo[cg.clientNum].team == TEAM_RED)
 						{
-#ifdef MISSIONPACK
 							if(cgs.gametype == GT_1FCTF)
 								CG_AddBufferedSound(cgs.media.yourTeamTookTheFlagSound);
 							else
-#endif
 								CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
 						}
 						else if(cgs.clientinfo[cg.clientNum].team == TEAM_BLUE)
 						{
-#ifdef MISSIONPACK
 							if(cgs.gametype == GT_1FCTF)
 								CG_AddBufferedSound(cgs.media.enemyTookTheFlagSound);
 							else
-#endif
 								CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
 						}
 					}

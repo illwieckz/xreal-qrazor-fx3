@@ -25,10 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // executed by a key binding
 
 #include "cg_local.h"
-//#include "../q3_ui/ui_shared.h"
-#ifdef MISSIONPACK
-extern menuDef_t *menuScoreboard;
-#endif
 
 
 
@@ -126,54 +122,6 @@ static void CG_ScoresUp_f(void)
 		cg.scoreFadeTime = cg.time;
 	}
 }
-
-#ifdef MISSIONPACK
-extern menuDef_t *menuScoreboard;
-void            Menu_Reset();	// FIXME: add to right include file
-
-static void CG_LoadHud_f(void)
-{
-	char            buff[1024];
-	const char     *hudSet;
-
-	memset(buff, 0, sizeof(buff));
-
-	String_Init();
-	Menu_Reset();
-
-	trap_Cvar_VariableStringBuffer("cg_hudFiles", buff, sizeof(buff));
-	hudSet = buff;
-	if(hudSet[0] == '\0')
-	{
-		hudSet = "ui/hud.txt";
-	}
-
-	CG_LoadMenus(hudSet);
-	menuScoreboard = NULL;
-}
-
-
-static void CG_scrollScoresDown_f(void)
-{
-	if(menuScoreboard && cg.scoreBoardShowing)
-	{
-		Menu_ScrollFeeder(menuScoreboard, FEEDER_SCOREBOARD, qtrue);
-		Menu_ScrollFeeder(menuScoreboard, FEEDER_REDTEAM_LIST, qtrue);
-		Menu_ScrollFeeder(menuScoreboard, FEEDER_BLUETEAM_LIST, qtrue);
-	}
-}
-
-
-static void CG_scrollScoresUp_f(void)
-{
-	if(menuScoreboard && cg.scoreBoardShowing)
-	{
-		Menu_ScrollFeeder(menuScoreboard, FEEDER_SCOREBOARD, qfalse);
-		Menu_ScrollFeeder(menuScoreboard, FEEDER_REDTEAM_LIST, qfalse);
-		Menu_ScrollFeeder(menuScoreboard, FEEDER_BLUETEAM_LIST, qfalse);
-	}
-}
-#endif
 
 static void CG_TellTarget_f(void)
 {
@@ -532,7 +480,6 @@ static consoleCommand_t commands[] = {
 
 
 #ifdef MISSIONPACK
-	{"loadhud", CG_LoadHud_f},
 	{"nextTeamMember", CG_NextTeamMember_f},
 	{"prevTeamMember", CG_PrevTeamMember_f},
 	{"nextOrder", CG_NextOrder_f},
@@ -552,11 +499,6 @@ static consoleCommand_t commands[] = {
 	{"tauntTaunt", CG_TauntTaunt_f},
 	{"tauntDeathInsult", CG_TauntDeathInsult_f},
 	{"tauntGauntlet", CG_TauntGauntlet_f},
-#endif
-
-#ifdef MISSIONPACK
-	{"scoresDown", CG_scrollScoresDown_f},
-	{"scoresUp", CG_scrollScoresUp_f},
 #endif
 
 #ifdef LUA

@@ -82,17 +82,14 @@ vmCvar_t        g_smoothClients;
 vmCvar_t        g_rankings;
 vmCvar_t        g_listEntity;
 
-#ifdef MISSIONPACK
 vmCvar_t        g_obeliskHealth;
 vmCvar_t        g_obeliskRegenPeriod;
 vmCvar_t        g_obeliskRegenAmount;
 vmCvar_t        g_obeliskRespawnDelay;
 vmCvar_t        g_cubeTimeout;
-vmCvar_t        g_redteam;
-vmCvar_t        g_blueteam;
-vmCvar_t        g_singlePlayer;
 vmCvar_t        g_enableDust;
 vmCvar_t        g_enableBreath;
+#ifdef MISSIONPACK
 vmCvar_t        g_proxMineTimeout;
 #endif
 
@@ -182,21 +179,20 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse},
 	{&g_listEntity, "g_listEntity", "0", 0, 0, qfalse},
 
-#ifdef MISSIONPACK
 	{&g_obeliskHealth, "g_obeliskHealth", "2500", 0, 0, qfalse},
 	{&g_obeliskRegenPeriod, "g_obeliskRegenPeriod", "1", 0, 0, qfalse},
 	{&g_obeliskRegenAmount, "g_obeliskRegenAmount", "15", 0, 0, qfalse},
 	{&g_obeliskRespawnDelay, "g_obeliskRespawnDelay", "10", CVAR_SERVERINFO, 0, qfalse},
 
 	{&g_cubeTimeout, "g_cubeTimeout", "30", 0, 0, qfalse},
-	{&g_redteam, "g_redteam", "Stroggs", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO, 0, qtrue, qtrue},
-	{&g_blueteam, "g_blueteam", "Pagans", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO, 0, qtrue, qtrue},
-	{&g_singlePlayer, "ui_singlePlayerActive", "", 0, 0, qfalse, qfalse},
 
 	{&g_enableDust, "g_enableDust", "0", CVAR_SERVERINFO, 0, qtrue, qfalse},
 	{&g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qtrue, qfalse},
+
+#ifdef MISSIONPACK
 	{&g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, qfalse},
 #endif
+
 	{&g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 
 	{&g_rocketAcceleration, "g_rocketAcceleration", "0", 0, 0, qfalse},
@@ -378,21 +374,7 @@ void G_FindTeams(void)
 	G_Printf("%i teams with %i entities\n", c, c2);
 }
 
-void G_RemapTeamShaders()
-{
-#ifdef MISSIONPACK
-	char            string[1024];
-	float           f = level.time * 0.001;
 
-	Com_sprintf(string, sizeof(string), "team_icon/%s_red", g_redteam.string);
-	AddRemap("textures/ctf2/redteam01", string, f);
-	AddRemap("textures/ctf2/redteam02", string, f);
-	Com_sprintf(string, sizeof(string), "team_icon/%s_blue", g_blueteam.string);
-	AddRemap("textures/ctf2/blueteam01", string, f);
-	AddRemap("textures/ctf2/blueteam02", string, f);
-	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
-#endif
-}
 
 
 /*
@@ -404,23 +386,12 @@ void G_RegisterCvars(void)
 {
 	int             i;
 	cvarTable_t    *cv;
-	qboolean        remapped = qfalse;
 
 	for(i = 0, cv = gameCvarTable; i < gameCvarTableSize; i++, cv++)
 	{
 		trap_Cvar_Register(cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags);
 		if(cv->vmCvar)
 			cv->modificationCount = cv->vmCvar->modificationCount;
-
-		if(cv->teamShader)
-		{
-			remapped = qtrue;
-		}
-	}
-
-	if(remapped)
-	{
-		G_RemapTeamShaders();
 	}
 
 	// check some things
@@ -447,7 +418,6 @@ void G_UpdateCvars(void)
 {
 	int             i;
 	cvarTable_t    *cv;
-	qboolean        remapped = qfalse;
 
 	for(i = 0, cv = gameCvarTable; i < gameCvarTableSize; i++, cv++)
 	{
@@ -463,18 +433,8 @@ void G_UpdateCvars(void)
 				{
 					trap_SendServerCommand(-1, va("print \"Server: %s changed to %s\n\"", cv->cvarName, cv->vmCvar->string));
 				}
-
-				if(cv->teamShader)
-				{
-					remapped = qtrue;
-				}
 			}
 		}
-	}
-
-	if(remapped)
-	{
-		G_RemapTeamShaders();
 	}
 }
 
@@ -603,8 +563,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	ACEND_LoadNodes();
 	ACESP_InitBots(restart);
 #endif
-
-	G_RemapTeamShaders();
 
 }
 
@@ -1156,20 +1114,12 @@ void BeginIntermission(void)
 	level.intermissiontime = level.time;
 	FindIntermissionPoint();
 
-#ifdef MISSIONPACK
-	if(g_singlePlayer.integer)
-	{
-		trap_Cvar_Set("ui_singlePlayerActive", "0");
-		UpdateTournamentInfo();
-	}
-#else
 	// if single player game
 	if(g_gametype.integer == GT_SINGLE_PLAYER)
 	{
 		UpdateTournamentInfo();
 		//SpawnModelsOnVictoryPads();
 	}
-#endif
 
 	// move all clients to the intermission point
 	for(i = 0; i < level.maxclients; i++)

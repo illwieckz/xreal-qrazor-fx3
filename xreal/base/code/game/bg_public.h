@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
 
-#define	GAME_VERSION		"XreaL-rev2"	// Tr3B: always increase if you change the ET_, EV_ or WP_ types
+#define	GAME_VERSION		"XreaL-rev3"	// Tr3B: always increase if you change the ET_, EV_, GT_ or WP_ types
 
 // Tr3B: define this to use the new Quake4 like player model system
 #define XPPM 1
@@ -121,6 +121,8 @@ typedef enum
 	GT_TOURNAMENT,				// one on one tournament
 	GT_SINGLE_PLAYER,			// single player ffa
 
+//	GT_KING_OF_THE_HILL			// TODO kill the king Unreal 1 style
+
 	//-- team games go after this --
 
 	GT_TEAM,					// team deathmatch
@@ -128,6 +130,7 @@ typedef enum
 	GT_1FCTF,
 	GT_OBELISK,
 	GT_HARVESTER,
+
 	GT_MAX_GAME_TYPE
 } gametype_t;
 

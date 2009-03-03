@@ -140,7 +140,6 @@ void TossClientItems(gentity_t * self)
 	}
 }
 
-#ifdef MISSIONPACK
 
 /*
 =================
@@ -206,6 +205,7 @@ void TossClientCubes(gentity_t * self)
 TossClientPersistantPowerups
 =================
 */
+#if defined(MISSIONPACK)
 void TossClientPersistantPowerups(gentity_t * ent)
 {
 	gentity_t      *powerup;
@@ -231,7 +231,6 @@ void TossClientPersistantPowerups(gentity_t * ent)
 	ent->client->persistantPowerup = NULL;
 }
 #endif
-
 
 /*
 ==================
@@ -694,13 +693,15 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			Team_ReturnFlag(TEAM_BLUE);
 		}
 	}
-#ifdef MISSIONPACK
+
+#if defined(MISSIONPACK)
 	TossClientPersistantPowerups(self);
+#endif
+
 	if(g_gametype.integer == GT_HARVESTER)
 	{
 		TossClientCubes(self);
 	}
-#endif
 
 	Cmd_Score_f(self);			// show scores
 	// send updated scores to any clients that are following this one,
@@ -1000,12 +1001,12 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		}
 		return;
 	}
-#ifdef MISSIONPACK
+
 	if(g_gametype.integer == GT_OBELISK && CheckObeliskAttack(targ, attacker))
 	{
 		return;
 	}
-#endif
+
 	// reduce damage by the attacker's handicap value
 	// unless they are rocket jumping
 	if(attacker->client && attacker != targ)
@@ -1202,13 +1203,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	}
 
 	// See if it's the player hurting the emeny flag carrier
-#ifdef MISSIONPACK
 	if(g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF)
 	{
-#else
-	if(g_gametype.integer == GT_CTF)
-	{
-#endif
 		Team_CheckHurtCarrier(targ, attacker);
 	}
 

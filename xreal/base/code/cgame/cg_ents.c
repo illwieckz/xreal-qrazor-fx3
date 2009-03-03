@@ -468,7 +468,6 @@ static void CG_Item(centity_t * cent)
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
 
-#ifdef MISSIONPACK
 	if(item->giType == IT_WEAPON && wi->barrelModel)
 	{
 		refEntity_t     barrel;
@@ -488,7 +487,6 @@ static void CG_Item(centity_t * cent)
 
 		trap_R_AddRefEntityToScene(&barrel);
 	}
-#endif
 
 	// accompanying rings / spheres for powerups
 	if(!cg_simpleItems.integer)
@@ -1204,18 +1202,12 @@ CG_TeamBase
 static void CG_TeamBase(centity_t * cent)
 {
 	refEntity_t     model;
-
-#ifdef MISSIONPACK
 	vec3_t          angles;
 	int             t, h;
 	float           c;
 
 	if(cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF)
 	{
-#else
-	if(cgs.gametype == GT_CTF)
-	{
-#endif
 		// show the flag base
 		memset(&model, 0, sizeof(model));
 		model.reType = RT_MODEL;
@@ -1236,7 +1228,6 @@ static void CG_TeamBase(centity_t * cent)
 		}
 		trap_R_AddRefEntityToScene(&model);
 	}
-#ifdef MISSIONPACK
 	else if(cgs.gametype == GT_OBELISK)
 	{
 		// show the obelisk
@@ -1247,6 +1238,7 @@ static void CG_TeamBase(centity_t * cent)
 		AnglesToAxis(cent->currentState.angles, model.axis);
 
 		model.hModel = cgs.media.overloadBaseModel;
+
 		trap_R_AddRefEntityToScene(&model);
 		// if hit
 		if(cent->currentState.frame == 1)
@@ -1368,7 +1360,6 @@ static void CG_TeamBase(centity_t * cent)
 		}
 		trap_R_AddRefEntityToScene(&model);
 	}
-#endif
 }
 
 /*
@@ -1479,7 +1470,7 @@ void CG_AddPacketEntities(void)
 	}
 	else
 	{
-		cg.frameInterpolation = 0;	// actually, it should never be used, because 
+		cg.frameInterpolation = 0;	// actually, it should never be used, because
 		// no entities should be marked as interpolating
 	}
 

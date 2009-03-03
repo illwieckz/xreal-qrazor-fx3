@@ -1112,12 +1112,11 @@ void CG_XPPM_Player(centity_t * cent)
 		renderfx |= RF_SHADOW_PLANE;
 	}
 	renderfx |= RF_LIGHTING_ORIGIN;	// use the same origin for all
-#ifdef MISSIONPACK
+
 	if(cgs.gametype == GT_HARVESTER)
 	{
 		CG_PlayerTokens(cent, renderfx);
 	}
-#endif
 
 	// add the body
 	body.hModel = ci->bodyModel;
@@ -1270,6 +1269,18 @@ void CG_XPPM_Player(centity_t * cent)
 
 	// add body to renderer
 	CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
+
+
+#if 0
+	// Tr3B: it might be better to have a tag_mouth bone joint
+	boneIndex = trap_R_BoneIndex(body.hModel, ci->neckControlBoneName);
+	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
+	{
+		CG_BreathPuffs(cent, body.skeleton.bones[boneIndex]);
+	}
+#endif
+
+	CG_DustTrail(cent);
 
 	if(cent->currentState.eFlags & EF_KAMIKAZE)
 	{

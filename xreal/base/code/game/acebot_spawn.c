@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-//  acebot_spawn.c - This file contains all of the 
+//  acebot_spawn.c - This file contains all of the
 //                   spawing support routines for the ACE bot.
 
 
@@ -443,14 +443,6 @@ void ACESP_SpawnBot(char *name, float skill, char *team)
 		model = DEFAULT_MODEL;
 	}
 	Info_SetValueForKey(userinfo, key, model);
-
-	key = "headmodel";
-	headmodel = Info_ValueForKey(botinfo, key);
-	if(!*headmodel)
-	{
-		headmodel = model;
-	}
-	Info_SetValueForKey(userinfo, key, headmodel);
 
 	key = "gender";
 	s = Info_ValueForKey(botinfo, key);
