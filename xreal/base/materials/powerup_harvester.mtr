@@ -1,0 +1,106 @@
+
+models/powerups/harvester/skull1
+{
+	twoSided
+	
+	diffuseMap	models/powerups/harvester/skull1_ao.png
+	normalMap	models/powerups/harvester/skull1_normal.png
+}
+
+// TODO glowing eyes
+models/powerups/harvester/skull2
+{
+	twoSided
+	
+	diffuseMap	models/powerups/harvester/skull2_ao.png
+	normalMap	models/powerups/harvester/skull2_normal.png
+	
+}
+
+models/powerups/harvester/skull3
+{
+	twoSided
+	
+	diffuseMap	models/powerups/harvester/skull3_ao.png
+	normalMap	models/powerups/harvester/skull3_normal.png
+}
+
+
+
+
+models/powerups/harvester/skull1_red
+{
+	twoSided
+	
+	diffuseMap	models/powerups/harvester/skull1_ao.png
+	normalMap	models/powerups/harvester/skull1_normal.png
+	{
+		blend add
+		map models/powerups/harvester/skull1_ao.png
+		color 1, 0, 0, 1
+	}
+}
+
+models/powerups/harvester/skull2_red
+{
+	twoSided
+	
+	{
+		blend add
+		map _white
+		color 1, 0, 0, 1
+	}
+}
+
+models/powerups/harvester/skull3_red
+{
+	twoSided
+	
+	diffuseMap	models/powerups/harvester/skull3_ao.png
+	normalMap	models/powerups/harvester/skull3_normal.png
+	{
+		blend add
+		map models/powerups/harvester/skull1_ao.png
+		color 1, 0, 0, 1
+	}
+}
+
+
+
+models/powerups/harvester/skull1_blue
+{
+	twoSided
+	
+	diffuseMap	models/powerups/harvester/skull1_ao.png
+	normalMap	models/powerups/harvester/skull1_normal.png
+	{
+		blend add
+		map models/powerups/harvester/skull1_ao.png
+		color 0, 0, 1, 1
+	}
+}
+
+models/powerups/harvester/skull2_blue
+{
+	twoSided
+	
+	{
+		blend add
+		map _white
+		color 0, 0, 1, 1
+	}
+}
+
+models/powerups/harvester/skull3_blue
+{
+	twoSided
+	
+	diffuseMap	models/powerups/harvester/skull3_ao.png
+	normalMap	models/powerups/harvester/skull3_normal.png
+	{
+		blend add
+		map models/powerups/harvester/skull1_ao.png
+		color 0, 0, 1, 1
+	}
+}
+

@@ -328,8 +328,7 @@ void CG_DrawScoreboardUnderlineNew(void)
 
 	if(cgs.gametype >= GT_TEAM)	// team based scoreboard
 	{
-
-		// current players 
+		// current players
 		s = va("Players: %i/%i", cg.numScores, cgs.maxclients);
 
 		CG_Text_PaintAligned(294, 408, s, 0.2f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
@@ -341,16 +340,30 @@ void CG_DrawScoreboardUnderlineNew(void)
 			CG_Text_PaintAligned(344, 408, ts, 0.2f, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 
-		if(cgs.gametype == GT_CTF)
+		if(cgs.gametype >= GT_CTF)
 		{
-			s = va("CTF on %s", mapname);
+			if(cgs.gametype == GT_1FCTF)
+			{
+				s = va("One Flag CTF on %s", mapname);
+			}
+			else if(cgs.gametype == GT_OBELISK)
+			{
+				s = va("Overload on %s", mapname);
+			}
+			else if(cgs.gametype == GT_HARVESTER)
+			{
+				s = va("Harvester on %s", mapname);
+			}
+			else
+			{
+				s = va("CTF on %s", mapname);
+			}
 
 			CG_Text_PaintAligned(SCOREBOARD_RED + 15, 408, s, 0.2f, UI_LEFT | UI_DROPSHADOW, colorWhite,
 								 &cgs.media.freeSansBoldFont);
 
 			s = va("Capturelimit: %i", cgs.capturelimit);
 			CG_Text_PaintAligned(576, 408, s, 0.2f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
 		}
 		else
 		{
@@ -361,7 +374,6 @@ void CG_DrawScoreboardUnderlineNew(void)
 			s = va("Fraglimit: %i", cgs.fraglimit);
 
 			CG_Text_PaintAligned(576, 408, s, 0.2f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
 		}
 
 	}
@@ -438,7 +450,7 @@ void CG_DrawScoreboardStatNew(clientInfo_t * ci, score_t * score, int count, int
 		CG_Text_PaintAligned(pos[0], 160 + num * height, s, fontsize, UI_LEFT | UI_DROPSHADOW, fontcolor,
 							 &cgs.media.freeSansBoldFont);
 
-		// name 
+		// name
 		s = va("%s", ci->name);
 		w1 = w + 3;
 		w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
@@ -550,7 +562,7 @@ qboolean CG_DrawScoreboardNew(void)
 	}
 
 
-	//draw scoreboard 
+	//draw scoreboard
 
 	max_height = SCOREBOARD_HEIGHT;
 	max_display = cg.numScores;

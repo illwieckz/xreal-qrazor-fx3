@@ -1516,13 +1516,15 @@ void CG_PlayerTokens(centity_t * cent, int renderfx)
 	}
 
 	memset(&ent, 0, sizeof(ent));
+	ent.hModel = cgs.media.harvesterSkullModel;
+
 	if(cgs.clientinfo[cent->currentState.clientNum].team == TEAM_BLUE)
 	{
-		ent.hModel = cgs.media.redCubeModel;
+		ent.customSkin = cgs.media.redSkullSkin;
 	}
 	else
 	{
-		ent.hModel = cgs.media.blueCubeModel;
+		ent.customSkin = cgs.media.blueSkullSkin;
 	}
 	ent.renderfx = renderfx;
 

@@ -1031,10 +1031,11 @@ static void CG_RegisterGraphics(void)
 
 	if(cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER)
 	{
-		cgs.media.redCubeModel = trap_R_RegisterModel("models/powerups/orb/r_orb.md3", qtrue);
-		cgs.media.blueCubeModel = trap_R_RegisterModel("models/powerups/orb/b_orb.md3", qtrue);
-		cgs.media.redCubeIcon = trap_R_RegisterShader("icons/skull_red");
-		cgs.media.blueCubeIcon = trap_R_RegisterShader("icons/skull_blue");
+		cgs.media.harvesterSkullModel = trap_R_RegisterModel("models/powerups/harvester/skull.md5mesh", qtrue);
+		cgs.media.redSkullSkin = trap_R_RegisterSkin("models/powerups/harvester/skull_red.skin");
+		cgs.media.blueSkullSkin = trap_R_RegisterSkin("models/powerups/harvester/skull_blue.skin");
+		cgs.media.redSkullIcon = trap_R_RegisterShader("icons/skull_red");
+		cgs.media.blueSkullIcon = trap_R_RegisterShader("icons/skull_blue");
 	}
 
 	CG_LoadingString("icons", qfalse);

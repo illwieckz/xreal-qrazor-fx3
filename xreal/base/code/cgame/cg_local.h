@@ -913,10 +913,6 @@ typedef struct
 	qhandle_t       charsetProp2;
 	qhandle_t       whiteShader;
 
-	qhandle_t       redCubeModel;
-	qhandle_t       blueCubeModel;
-	qhandle_t       redCubeIcon;
-	qhandle_t       blueCubeIcon;
 	qhandle_t       redFlagModel;
 	qhandle_t       blueFlagModel;
 	qhandle_t       neutralFlagModel;
@@ -945,6 +941,12 @@ typedef struct
 	qhandle_t       harvesterRedSkin;
 	qhandle_t       harvesterBlueSkin;
 	qhandle_t       harvesterNeutralModel;
+
+	qhandle_t       harvesterSkullModel;
+	qhandle_t       redSkullSkin;
+	qhandle_t       blueSkullSkin;
+	qhandle_t       redSkullIcon;
+	qhandle_t       blueSkullIcon;
 
 	qhandle_t       armorModel;
 	qhandle_t       armorIcon;

@@ -737,9 +737,9 @@ static void CG_DrawStatusBarQ3(void)
 		origin[2] = -10;
 		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
 		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-			handle = cgs.media.blueCubeModel;
+			handle = cgs.media.blueSkullModel;
 		else
-			handle = cgs.media.redCubeModel;
+			handle = cgs.media.redSkullModel;
 
 		CG_Draw3DModel(640 - (TEXT_ICON_SPACE + ICON_SIZE), 416, ICON_SIZE, ICON_SIZE, handle, 0, origin, angles);
 	}
@@ -834,9 +834,9 @@ static void CG_DrawStatusBarQ3(void)
 		if(!cg_draw3dIcons.integer && cg_drawIcons.integer)
 		{
 			if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-				handle = cgs.media.redCubeIcon;
+				handle = cgs.media.redSkullIcon;
 			else
-				handle = cgs.media.blueCubeIcon;
+				handle = cgs.media.blueSkullIcon;
 
 			CG_DrawPic(640 - (TEXT_ICON_SPACE + ICON_SIZE), 445, ICON_SIZE, ICON_SIZE, handle);
 		}
@@ -1457,9 +1457,9 @@ void CG_DrawStatusBarNew(void)
 		origin[2] = -10;
 		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
 		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-			handle = cgs.media.blueCubeModel;
+			handle = cgs.media.blueSkullModel;
 		else
-			handle = cgs.media.redCubeModel;
+			handle = cgs.media.redSkullModel;
 
 		CG_Draw3DModel(640 - (TEXT_ICON_SPACE + ICON_SIZE), 416, ICON_SIZE, ICON_SIZE, handle, 0, origin, angles);
 
@@ -1475,9 +1475,9 @@ void CG_DrawStatusBarNew(void)
 		if(!cg_draw3dIcons.integer && cg_drawIcons.integer)
 		{
 			if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-				handle = cgs.media.redCubeIcon;
+				handle = cgs.media.redSkullIcon;
 			else
-				handle = cgs.media.blueCubeIcon;
+				handle = cgs.media.blueSkullIcon;
 
 			CG_DrawPic(640 - (TEXT_ICON_SPACE + ICON_SIZE), 445, ICON_SIZE, ICON_SIZE, handle);
 		}
