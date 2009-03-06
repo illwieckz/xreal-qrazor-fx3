@@ -398,7 +398,7 @@ static void CG_EditHud_f( void ) {
 CG_StartOrbit_f
 ==================
 */
-
+#ifdef MISSIONPACK
 static void CG_StartOrbit_f(void)
 {
 	char            var[MAX_TOKEN_CHARS];
@@ -408,6 +408,7 @@ static void CG_StartOrbit_f(void)
 	{
 		return;
 	}
+
 	if(cg_cameraOrbit.value != 0)
 	{
 		trap_Cvar_Set("cg_cameraOrbit", "0");
@@ -421,6 +422,7 @@ static void CG_StartOrbit_f(void)
 		trap_Cvar_Set("cg_thirdPersonRange", "100");
 	}
 }
+#endif
 
 /*
 static void CG_Camera_f( void ) {
@@ -478,7 +480,6 @@ static consoleCommand_t commands[] = {
 	{"+osd", CG_OSDUp_f},
 	{"-osd", CG_OSDDown_f},
 
-
 #ifdef MISSIONPACK
 	{"nextTeamMember", CG_NextTeamMember_f},
 	{"prevTeamMember", CG_PrevTeamMember_f},
@@ -499,12 +500,12 @@ static consoleCommand_t commands[] = {
 	{"tauntTaunt", CG_TauntTaunt_f},
 	{"tauntDeathInsult", CG_TauntDeathInsult_f},
 	{"tauntGauntlet", CG_TauntGauntlet_f},
+	{"startOrbit", CG_StartOrbit_f},
 #endif
 
 #ifdef LUA
 	{"restartLuaCGameVM", CG_RestartLua_f},
 #endif
-	{"startOrbit", CG_StartOrbit_f},
 	//{ "camera", CG_Camera_f },
 	{"loaddeferred", CG_LoadDeferredPlayers}
 };

@@ -1091,11 +1091,6 @@ void CG_DrawStatusBarNew(void)
 	vec4_t          ammocolor = { 1.0f, 1.0f, 1.0f, 0.80f };
 	vec4_t          scorecolor = { 1.0f, 1.0f, 1.0f, 0.80f };
 
-	vec4_t          hcolor;
-	vec3_t          angles;
-	vec3_t          origin;
-	qhandle_t       handle;
-
 	ps = &cg.snap->ps;
 	cent = &cg_entities[cg.snap->ps.clientNum];
 
@@ -1448,41 +1443,51 @@ void CG_DrawStatusBarNew(void)
 	trap_R_SetColor(color);
 	CG_DrawPic(610 - 17 - arflash / 2, 435 - arflash / 2, 30 + arflash, 30 + arflash, cgs.media.hud_icon_armor);
 
-	// FIXME support harvester cubes
-#if 0
+	// support harvester skulls
 	if(cgs.gametype == GT_HARVESTER)
 	{
+#if 1
+		vec4_t          hcolor;
+		vec3_t          angles;
+		vec3_t          origin;
+		qhandle_t       model;
+		qhandle_t		skin;
+		qhandle_t		icon;
+
 		origin[0] = 90;
 		origin[1] = 0;
 		origin[2] = -10;
-		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
-		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-			handle = cgs.media.blueSkullModel;
-		else
-			handle = cgs.media.redSkullModel;
 
-		CG_Draw3DModel(640 - (TEXT_ICON_SPACE + ICON_SIZE), 416, ICON_SIZE, ICON_SIZE, handle, 0, origin, angles);
+		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+
+		model = cgs.media.harvesterSkullModel;
+		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+			skin = cgs.media.blueSkullSkin;
+		else
+			skin = cgs.media.redSkullSkin;
+
+		CG_Draw3DModel(640 - (TEXT_ICON_SPACE + ICON_SIZE), 416, ICON_SIZE, ICON_SIZE, model, skin, origin, angles);
 
 		value = ps->generic1;
 		if(value > 99)
 			value = 99;
 
-		trap_R_SetColor(colors[0]);
-		CG_DrawField(640 - (CHAR_WIDTH * 2 + TEXT_ICON_SPACE + ICON_SIZE), 445, 2, value);
+		trap_R_SetColor(basecolor);
+		CG_DrawField(640 - (CHAR_WIDTH * 2 + TEXT_ICON_SPACE + ICON_SIZE), 445, 2, value, 1.0f);
 		trap_R_SetColor(NULL);
 
 		// if we didn't draw a 3D icon, draw a 2D icon for armor
 		if(!cg_draw3dIcons.integer && cg_drawIcons.integer)
 		{
 			if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-				handle = cgs.media.redSkullIcon;
+				icon = cgs.media.redSkullIcon;
 			else
-				handle = cgs.media.blueSkullIcon;
+				icon = cgs.media.blueSkullIcon;
 
-			CG_DrawPic(640 - (TEXT_ICON_SPACE + ICON_SIZE), 445, ICON_SIZE, ICON_SIZE, handle);
+			CG_DrawPic(640 - (TEXT_ICON_SPACE + ICON_SIZE), 445, ICON_SIZE, ICON_SIZE, icon);
 		}
-	}
 #endif
+	}
 
 	trap_R_SetColor(NULL);
 }

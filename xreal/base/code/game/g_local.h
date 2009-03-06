@@ -50,7 +50,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define REWARD_SPRITE_TIME	2000
 
 #define	INTERMISSION_DELAY_TIME	1000
-#define	SP_INTERMISSION_DELAY_TIME	5000
+#define	SP_INTERMISSION_DELAY_TIME	1000
 
 // gentity->flags
 #define	FL_GODMODE				0x00000010

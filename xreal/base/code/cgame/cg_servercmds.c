@@ -1105,6 +1105,7 @@ void CG_VoiceChat(int mode)
 
 static void CG_spWin(void)
 {
+#ifdef MISSIONPACK
 	trap_Cvar_Set("cg_cameraOrbit", "2");
 	trap_Cvar_Set("cg_cameraOrbitDelay", "35");
 	trap_Cvar_Set("cg_thirdPerson", "1");
@@ -1113,10 +1114,12 @@ static void CG_spWin(void)
 	//CG_AddBufferedSound(cgs.media.winnerSound);
 	//trap_S_StartLocalSound(cgs.media.winnerSound, CHAN_ANNOUNCER);
 	//CG_CenterPrint("YOU WIN!", SCREEN_HEIGHT * .30, 0);
+#endif
 }
 
 static void CG_spLose(void)
 {
+#ifdef MISSIONPACK
 	trap_Cvar_Set("cg_cameraOrbit", "2");
 	trap_Cvar_Set("cg_cameraOrbitDelay", "35");
 	trap_Cvar_Set("cg_thirdPerson", "1");
@@ -1125,6 +1128,7 @@ static void CG_spLose(void)
 	//CG_AddBufferedSound(cgs.media.loserSound);
 	//trap_S_StartLocalSound(cgs.media.loserSound, CHAN_ANNOUNCER);
 	//CG_CenterPrint("YOU LOSE...", SCREEN_HEIGHT * .30, 0);
+#endif
 }
 
 /*

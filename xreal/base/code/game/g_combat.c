@@ -595,7 +595,6 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 			if(meansOfDeath == MOD_GAUNTLET)
 			{
-
 				// play humiliation on player
 				attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
 

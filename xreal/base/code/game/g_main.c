@@ -1327,7 +1327,7 @@ void LogExit(const char *string)
 		}
 #endif
 
-#if 1
+#if 0
 		// give everyone a UT 3 style level exit with an orbital camera
 		won = qfalse;
 		if(g_gametype.integer == GT_FFA || g_gametype.integer == GT_TOURNAMENT || g_gametype.integer == GT_SINGLE_PLAYER)
