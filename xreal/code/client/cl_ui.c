@@ -1217,9 +1217,21 @@ CL_InitUI
 void CL_InitUI(void)
 {
 	int             v;
+	vmInterpret_t   interpret = VMI_NATIVE;
 
-	// load the vm
-	uivm = VM_Create("ui", CL_UISystemCalls);
+#if defined(USE_LLVM)
+	// load the dll or bytecode
+	if(cl_connectedToPureServer != 0)
+	{
+		// if sv_pure is set we only allow llvms to be loaded
+		interpret = VMI_BYTECODE;
+	}
+	else
+	{
+		interpret = Cvar_VariableValue("vm_ui");
+	}
+#endif
+	uivm = VM_Create("ui", CL_UISystemCalls, interpret);
 	if(!uivm)
 	{
 		Com_Error(ERR_FATAL, "VM_Create on UI failed");

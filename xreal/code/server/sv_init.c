@@ -434,15 +434,16 @@ SV_TouchCGame
 */
 void SV_TouchCGame(void)
 {
+#ifdef USE_LLVM
 	fileHandle_t    f;
-	char            filename[MAX_QPATH];
 
-	Com_sprintf(filename, sizeof(filename), "vm/%s.qvm", "cgame");
-	FS_FOpenFileRead(filename, &f, qfalse);
+	// LLVM - even if the server doesn't use llvm itself, it should still add the references.
+	FS_FOpenFileRead("cgamellvm.bc", &f, qfalse);
 	if(f)
 	{
 		FS_FCloseFile(f);
 	}
+#endif
 }
 
 /*

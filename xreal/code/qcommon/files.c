@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 XREAL FILESYSTEM
 
-All of Quake's data access is through a hierarchical file system, but the contents of 
+All of Quake's data access is through a hierarchical file system, but the contents of
 the file system can be transparently merged from several sources.
 
 A "qpath" is a reference to game file data.  MAX_ZPATH is 256 characters, which must include
@@ -615,7 +615,7 @@ qboolean FS_FileExists(const char *file)
 ================
 FS_SV_FileExists
 
-Tests if the file exists 
+Tests if the file exists
 ================
 */
 qboolean FS_SV_FileExists(const char *file)
@@ -1088,7 +1088,7 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 
 	// make absolutely sure that it can't back up the path.
 	// The searchpaths do guarantee that something will always
-	// be prepended, so we don't need to worry about "c:" or "//limbo" 
+	// be prepended, so we don't need to worry about "c:" or "//limbo"
 	if(strstr(filename, "..") || strstr(filename, "::"))
 	{
 		*file = 0;
@@ -1137,9 +1137,9 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 					// found it!
 
 					// mark the pak as having been referenced and mark specifics on cgame and ui
-					// shaders, txt, arena files  by themselves do not count as a reference as 
-					// these are loaded from all pk3s 
-					// from every pk3 file.. 
+					// shaders, txt, arena files  by themselves do not count as a reference as
+					// these are loaded from all pk3s
+					// from every pk3 file..
 					l = strlen(filename);
 					if(!(pak->referenced & FS_GENERAL_REF))
 					{
@@ -1157,18 +1157,20 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 						}
 					}
 
-					if(!(pak->referenced & FS_QAGAME_REF) && strstr(filename, "qagame.qvm"))
+#ifdef USE_LLVM
+					if(!(pak->referenced & FS_QAGAME_REF) && strstr(filename, "qagamellvm.bc"))
 					{
 						pak->referenced |= FS_QAGAME_REF;
 					}
-					if(!(pak->referenced & FS_CGAME_REF) && strstr(filename, "cgame.qvm"))
+					if(!(pak->referenced & FS_CGAME_REF) && strstr(filename, "cgamellvm.bc"))
 					{
 						pak->referenced |= FS_CGAME_REF;
 					}
-					if(!(pak->referenced & FS_UI_REF) && strstr(filename, "ui.qvm"))
+					if(!(pak->referenced & FS_UI_REF) && strstr(filename, "uillvm.bc"))
 					{
 						pak->referenced |= FS_UI_REF;
 					}
+#endif
 
 					if(uniqueFILE)
 					{
@@ -1557,7 +1559,7 @@ int FS_FileIsInPAK(const char *filename, int *pChecksum)
 
 	// make absolutely sure that it can't back up the path.
 	// The searchpaths do guarantee that something will always
-	// be prepended, so we don't need to worry about "c:" or "//limbo" 
+	// be prepended, so we don't need to worry about "c:" or "//limbo"
 	if(strstr(filename, "..") || strstr(filename, "::"))
 	{
 		return -1;
@@ -3136,7 +3138,7 @@ const char     *FS_LoadedPakChecksums(void)
 
 	for(search = fs_searchpaths; search; search = search->next)
 	{
-		// is the element a pak file? 
+		// is the element a pak file?
 		if(!search->pack)
 		{
 			continue;
@@ -3199,7 +3201,7 @@ const char     *FS_LoadedPakPureChecksums(void)
 
 	for(search = fs_searchpaths; search; search = search->next)
 	{
-		// is the element a pak file? 
+		// is the element a pak file?
 		if(!search->pack)
 		{
 			continue;
@@ -3216,7 +3218,7 @@ const char     *FS_LoadedPakPureChecksums(void)
 FS_ReferencedPakChecksums
 
 Returns a space separated string containing the checksums of all referenced pk3 files.
-The server will send this to the clients so they can check which files should be auto-downloaded. 
+The server will send this to the clients so they can check which files should be auto-downloaded.
 =====================
 */
 const char     *FS_ReferencedPakChecksums(void)
@@ -3247,7 +3249,7 @@ const char     *FS_ReferencedPakChecksums(void)
 FS_ReferencedPakPureChecksums
 
 Returns a space separated string containing the pure checksums of all referenced pk3 files.
-Servers with sv_pure set will get this string back from clients for pure validation 
+Servers with sv_pure set will get this string back from clients for pure validation
 
 The string has a specific order, "cgame ui @ ref1 ref2 ref3 ..."
 =====================
@@ -3305,7 +3307,7 @@ const char     *FS_ReferencedPakPureChecksums(void)
 FS_ReferencedPakNames
 
 Returns a space separated string containing the names of all referenced pk3 files.
-The server will send this to the clients so they can check which files should be auto-downloaded. 
+The server will send this to the clients so they can check which files should be auto-downloaded.
 =====================
 */
 const char     *FS_ReferencedPakNames(void)
@@ -3438,7 +3440,7 @@ FS_PureServerSetReferencedPaks
 
 The checksums and names of the pk3 files referenced at the server
 are sent to the client and stored here. The client will use these
-checksums to see if any pk3 files need to be auto-downloaded. 
+checksums to see if any pk3 files need to be auto-downloaded.
 =====================
 */
 void FS_PureServerSetReferencedPaks(const char *pakSums, const char *pakNames)

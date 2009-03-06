@@ -4100,7 +4100,7 @@ void CL_GlobalServers_f(void)
 		Q_strcat(command, sizeof(command), Cmd_Argv(i));
 	}
 
-	Com_DPrintf("CL_GlobalServers_f: command = '%s'\n", command);
+	//Com_DPrintf("CL_GlobalServers_f: command = '%s'\n", command);
 
 	NET_OutOfBandPrint(NS_SERVER, to, "%s", command);
 }

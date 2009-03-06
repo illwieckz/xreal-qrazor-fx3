@@ -314,10 +314,19 @@ VIRTUAL MACHINE
 ==============================================================
 */
 
+
+typedef enum
+{
+	VMI_NATIVE,
+#if USE_LLVM
+	VMI_BYTECODE
+#endif
+} vmInterpret_t;
+
 typedef struct
 {
-	intptr_t(*systemCall) (intptr_t * parms);
-	intptr_t(QDECL * entryPoint) (int callNum, ...);
+	intptr_t		(*systemCall) (intptr_t * parms);
+	intptr_t		(QDECL * entryPoint) (int callNum, ...);
 
 	char            name[MAX_QPATH];
 	void           *dllHandle;
@@ -326,6 +335,13 @@ typedef struct
 
 	// fqpath member added 7/20/02 by T.Ray
 	char            fqpath[MAX_QPATH + 1];
+
+#if USE_LLVM
+	// for llvm modules
+	void           *llvmModuleProvider;
+#endif
+
+	vmInterpret_t	interpret;
 } vm_t;
 
 extern vm_t    *currentVM;
@@ -347,7 +363,7 @@ typedef enum
 } sharedTraps_t;
 
 void            VM_Init(void);
-vm_t           *VM_Create(const char *module, intptr_t(*systemCalls) (intptr_t *));
+vm_t           *VM_Create(const char *module, intptr_t(*systemCalls) (intptr_t *), vmInterpret_t interpret);
 
 void            VM_Free(vm_t * vm);
 void            VM_Clear(void);

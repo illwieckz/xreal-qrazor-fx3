@@ -2,6 +2,7 @@ import os, string, sys
 import SCons
 import SCons.Errors
 
+
 #
 # set configuration options
 #
@@ -13,13 +14,14 @@ opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations
 opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
 #opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'core2duo')))
 opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symmetric multiprocessor support', 0))
-#opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking for vm/*.qvm modules in paks', 0))
+opts.Add(BoolOption('llvm', 'Set to 1 to compile the engine and game with LLVM support', 0))
+#opts.Add(BoolOption('purevm', 'Set to 1 to compile the engine with strict checking for vm/*.qvm modules in paks', 0))
 opts.Add(BoolOption('radiant', 'Set to 1 to compile the XreaLRadiant level editor', 0))
 opts.Add(BoolOption('xmap', 'Set to 1 to compile the XMap(2) map compilers', 0))
-#opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
-#opts.Add(BoolOption('xppm', 'Set to 1 to compile game with alternative XreaL-PPM support', 0))
+#opts.Add(BoolOption('vectorize', 'Set to 1 to compile the engine with auto-vectorization support', 0))
+#opts.Add(BoolOption('xppm', 'Set to 1 to compile the game with alternative XreaL-PPM support', 0))
 opts.Add(EnumOption('curl', 'Choose http-download redirection support for the engine', 'compile', allowed_values=('none', 'compile', 'dlopen')))
-#opts.Add(BoolOption('openal', 'Set to 1 to compile engine with OpenAL support', 0))
+#opts.Add(BoolOption('openal', 'Set to 1 to compile the engine with OpenAL support', 0))
 opts.Add(BoolOption('dedicated', 'Set to 1 to only compile the dedicated server', 0))
 opts.Add(BoolOption('master', 'Set to 1 to compile the master server', 0))
 opts.Add(BoolOption('tremulous', 'Set to 1 to compile the Tremulous game', 0))
@@ -27,7 +29,7 @@ opts.Add(BoolOption('tremulous', 'Set to 1 to compile the Tremulous game', 0))
 #
 # initialize compiler environment base
 #
-env = Environment(ENV = {'PATH' : os.environ['PATH']}, options = opts)
+env = Environment(ENV = {'PATH' : os.environ['PATH']}, options = opts, tools = ['default'])
 #env = Environment(ENV = {'PATH' : os.environ['PATH']}, options = opts, tools = ['mingw'])
 
 Help(opts.GenerateHelpText(env))
@@ -93,11 +95,21 @@ Export('env')
 if env['dedicated'] == 1:
 	SConscript('SConscript_xrealded', build_dir='build/xrealded', duplicate=0)
 	SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
+	
+	if env['llvm'] == 1:
+		SConscript('SConscript_base_gamellvm', build_dir='build/base/gamellvm', duplicate=0)
+	
 else:
 	SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
 	SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
 	SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 	SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)
+	
+	if env['llvm'] == 1:
+		SConscript('SConscript_base_cgamellvm', build_dir='build/base/cgamellvm', duplicate=0)
+		SConscript('SConscript_base_gamellvm', build_dir='build/base/gamellvm', duplicate=0)
+		SConscript('SConscript_base_uillvm', build_dir='build/base/uillvm', duplicate=0)
+		
 
 if env['radiant'] == 1:
 	SConscript('SConscript_xrealradiant', build_dir='build/xrealradiant', duplicate=0)

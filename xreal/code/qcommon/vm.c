@@ -36,6 +36,43 @@ vm_t           *lastVM = NULL;	// bk001212
 #define	MAX_VM		3
 vm_t            vmTable[MAX_VM];
 
+
+
+/*
+==============
+VM_VmInfo_f
+==============
+*/
+static void VM_VmInfo_f(void)
+{
+	vm_t           *vm;
+	int             i;
+
+	Com_Printf("Registered virtual machines:\n");
+	for(i = 0; i < MAX_VM; i++)
+	{
+		vm = &vmTable[i];
+		if(!vm->name[0])
+		{
+			break;
+		}
+		Com_Printf("%s : ", vm->name);
+		if(vm->dllHandle)
+		{
+			Com_Printf("native\n");
+			continue;
+		}
+
+#if USE_LLVM
+		if(vm->llvmModuleProvider)
+		{
+			Com_Printf("llvm\n");
+			continue;
+		}
+#endif
+	}
+}
+
 /*
 ==============
 VM_Init
@@ -43,7 +80,13 @@ VM_Init
 */
 void VM_Init(void)
 {
-	// clear the vm table
+	Cvar_Get("vm_cgame", "1", CVAR_ARCHIVE);
+	Cvar_Get("vm_game", "1", CVAR_ARCHIVE);
+	Cvar_Get("vm_ui", "1", CVAR_ARCHIVE);
+
+//	Cmd_AddCommand("vmprofile", VM_VmProfile_f);
+	Cmd_AddCommand("vminfo", VM_VmInfo_f);
+
 	Com_Memset(vmTable, 0, sizeof(vmTable));
 }
 
@@ -59,15 +102,17 @@ vm_t           *VM_Restart(vm_t * vm)
 {
 	// DLL's can't be restarted in place
 	char            name[MAX_QPATH];
+	vmInterpret_t	interpret;
 
 	intptr_t(*systemCall) (intptr_t * parms);
 
 	systemCall = vm->systemCall;
 	Q_strncpyz(name, vm->name, sizeof(name));
+	interpret = vm->interpret;
 
 	VM_Free(vm);
 
-	vm = VM_Create(name, systemCall);
+	vm = VM_Create(name, systemCall, interpret);
 	return vm;
 }
 
@@ -76,7 +121,7 @@ vm_t           *VM_Restart(vm_t * vm)
 VM_Create
 ================
 */
-vm_t           *VM_Create(const char *module, intptr_t(*systemCalls) (intptr_t *))
+vm_t           *VM_Create(const char *module, intptr_t(*systemCalls) (intptr_t *), vmInterpret_t interpret)
 {
 	vm_t           *vm;
 	int             i, remaining;
@@ -117,13 +162,36 @@ vm_t           *VM_Create(const char *module, intptr_t(*systemCalls) (intptr_t *
 	Q_strncpyz(vm->name, module, sizeof(vm->name));
 	vm->systemCall = systemCalls;
 
-	// try to load as a system dll
-	Com_Printf("Loading vm file %s.\n", vm->name);
-	vm->dllHandle = Sys_LoadDll(module, vm->fqpath, &vm->entryPoint, VM_DllSyscall);
-	if(vm->dllHandle)
+#ifdef USE_LLVM
+	if(interpret == VMI_NATIVE)
+#endif
 	{
+		// try to load as a system dll
+		Com_Printf("Loading dll file '%s'.\n", vm->name);
+		vm->dllHandle = Sys_LoadDll(module, vm->fqpath, &vm->entryPoint, VM_DllSyscall);
+		if(vm->dllHandle)
+		{
+			vm->interpret = VMI_NATIVE;
+			return vm;
+		}
+
+#if USE_LLVM
+		Com_Printf("Failed to load dll, looking for llvm.\n");
+#endif
+	}
+
+#if USE_LLVM
+	// try to load the llvm
+	Com_Printf("Loading llvm file '%s'.\n", vm->name);
+	vm->llvmModuleProvider = VM_LoadLLVM(vm, VM_DllSyscall);
+	if(vm->llvmModuleProvider)
+	{
+		vm->interpret = VMI_BYTECODE;
 		return vm;
 	}
+
+	Com_Printf("Failed to load llvm.\n");
+#endif
 
 	return NULL;
 }
@@ -140,6 +208,14 @@ void VM_Free(vm_t * vm)
 		Sys_UnloadDll(vm->dllHandle);
 		Com_Memset(vm, 0, sizeof(*vm));
 	}
+
+#if USE_LLVM
+	if(vm->llvmModuleProvider)
+	{
+		VM_UnloadLLVM(vm->llvmModuleProvider);
+		Com_Memset(vm, 0, sizeof(*vm));
+	}
+#endif
 
 	Com_Memset(vm, 0, sizeof(*vm));
 
