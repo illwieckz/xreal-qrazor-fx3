@@ -2597,7 +2597,7 @@ static void PM_Weapon(void)
 				break;
 
 			default:
-				// ignore primary BUTTON_ATTACK
+				// ignore secondary BUTTON_ATTACK
 				pm->ps->weaponTime = 0;
 				pm->ps->weaponstate = WEAPON_READY;
 				return;

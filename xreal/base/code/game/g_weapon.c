@@ -383,29 +383,6 @@ void weapon_supershotgun_fire(gentity_t * ent)
 /*
 ======================================================================
 
-GRENADE LAUNCHER
-
-======================================================================
-*/
-
-void weapon_grenadelauncher_fire(gentity_t * ent)
-{
-	gentity_t      *m;
-
-	// extra vertical velocity
-	forward[2] += 0.2f;
-	VectorNormalize(forward);
-
-	m = fire_grenade(ent, muzzle, forward);
-	m->damage *= s_quadFactor;
-	m->splashDamage *= s_quadFactor;
-
-//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
-}
-
-/*
-======================================================================
-
 ROCKET
 
 ======================================================================
@@ -756,12 +733,12 @@ void Weapon_LightningFire(gentity_t * ent)
 /*
 ======================================================================
 
-NAILGUN
+FLAK CANNON
 
 ======================================================================
 */
 
-void Weapon_Nailgun_Fire(gentity_t * ent)
+static void Weapon_FlakCannon_FireNails(gentity_t * ent)
 {
 	gentity_t      *m;
 	int             count;
@@ -775,6 +752,24 @@ void Weapon_Nailgun_Fire(gentity_t * ent)
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
+
+
+static void Weapon_FlakCannon_FireFlakGrenade(gentity_t * ent)
+{
+	gentity_t      *m;
+
+	// extra vertical velocity
+	forward[2] += 0.2f;
+	VectorNormalize(forward);
+
+	m = fire_flakgrenade(ent, muzzle, forward);
+	m->damage *= s_quadFactor;
+	m->splashDamage *= s_quadFactor;
+
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+}
+
+
 
 #ifdef MISSIONPACK
 /*
@@ -1005,7 +1000,7 @@ void FireWeapon(gentity_t * ent)
 			}
 			break;
 		case WP_FLAK_CANNON:
-			Weapon_Nailgun_Fire(ent);
+			Weapon_FlakCannon_FireNails(ent);
 			break;
 		case WP_ROCKET_LAUNCHER:
 			Weapon_RocketLauncher_FireMissile(ent);
@@ -1020,9 +1015,6 @@ void FireWeapon(gentity_t * ent)
 			BFG_Fire(ent);
 			break;
 #ifdef MISSIONPACK
-		case WP_NAILGUN:
-			Weapon_Nailgun_Fire(ent);
-			break;
 		case WP_PROX_LAUNCHER:
 			weapon_proxlauncher_fire(ent);
 			break;
@@ -1101,7 +1093,7 @@ void FireWeapon2(gentity_t * ent)
 			*/
 
 		case WP_FLAK_CANNON:
-			weapon_grenadelauncher_fire(ent);
+			Weapon_FlakCannon_FireFlakGrenade(ent);
 			break;
 
 		case WP_ROCKET_LAUNCHER:

@@ -2111,6 +2111,7 @@ void G_RunFrame(int levelTime)
 	end = trap_Milliseconds();
 
 	start = trap_Milliseconds();
+
 	// perform final fixups on the players
 	ent = &g_entities[0];
 	for(i = 0; i < level.maxclients; i++, ent++)

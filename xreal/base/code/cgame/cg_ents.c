@@ -1072,6 +1072,32 @@ static void CG_AI_Link(centity_t * cent)
 }
 
 /*
+===============
+JUHOX: CG_DrawLineSegment
+===============
+*/
+float CG_DrawLineSegment(const vec3_t start, const vec3_t end,
+						 float totalLength, float segmentSize, float scrollspeed, qhandle_t shader)
+{
+	float           frac;
+	refEntity_t     ent;
+
+	frac = totalLength / segmentSize;
+	frac -= (int)frac;
+
+	memset(&ent, 0, sizeof(ent));
+	ent.reType = RT_LIGHTNING;
+	ent.customShader = shader;
+	VectorCopy(start, ent.origin);
+	VectorCopy(end, ent.oldorigin);
+
+	ent.shaderTime = frac / -scrollspeed;
+	trap_R_AddRefEntityToScene(&ent);
+
+	return totalLength + Distance(start, end);
+}
+
+/*
 =========================
 CG_AdjustPositionForMover
 

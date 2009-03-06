@@ -1727,6 +1727,10 @@ void            CG_PainEvent(centity_t * cent, int health);
 void            CG_SetEntitySoundPosition(centity_t * cent);
 void            CG_AddPacketEntities(void);
 void            CG_Beam(centity_t * cent);
+
+float           CG_DrawLineSegment(const vec3_t start, const vec3_t end,
+								   float totalLength, float segmentSize, float scrollspeed, qhandle_t shader);
+
 void            CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out);
 
 void            CG_PositionEntityOnTag(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName);

@@ -100,6 +100,72 @@ void G_ExplodeMissile(gentity_t * ent)
 	trap_LinkEntity(ent);
 }
 
+void G_ExplodeIntoNails(gentity_t *ent)
+{
+	float			angle, angle2;
+	vec3_t			forward, forward2, up;
+	vec3_t			nailForward, nailRight, nailUp;
+	vec3_t          dir;
+	vec3_t          origin;
+
+	BG_EvaluateTrajectory(&ent->s.pos, level.time, origin);
+	SnapVector(origin);
+	G_SetOrigin(ent, origin);
+
+	// we don't have a valid direction, so just point straight up
+	dir[0] = dir[1] = 0;
+	dir[2] = 1;
+
+	// Tr3B: don't change the entity type because it is required by the EV_PROJECTILE_* events
+	// the ent->freeAfterEvent = qtrue; will do the same effect
+	//ent->s.eType = ET_GENERAL;
+
+	G_AddEvent(ent, EV_PROJECTILE_MISS, DirToByte(dir));
+
+	ent->freeAfterEvent = qtrue;
+
+	// splash damage
+	if(ent->splashDamage)
+	{
+		if(G_RadiusDamage(ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent, ent->splashMethodOfDeath))
+		{
+			g_entities[ent->r.ownerNum].client->accuracy_hits++;
+		}
+	}
+
+	// create orthogonal vector to main direction
+	PerpendicularVector(dir, forward);
+	//VectorScale(forward, 40, forward);
+
+	origin[2] += 10;
+
+	// spread nails in all directions
+	for(angle = 0; angle < 360; angle += 60.0f)
+	{
+		RotatePointAroundVector(forward2, dir, forward, angle);
+
+		for(angle2 = 0; angle2 < 360; angle2 += 60.0f)
+		{
+			RotatePointAroundVector(up, forward, dir, angle2);
+
+			VectorAdd(forward2, up, nailForward);
+			VectorNormalize(nailForward);
+
+			PerpendicularVector(nailRight, nailForward);
+			CrossProduct(nailForward, nailRight, nailUp);
+#if 1
+			fire_gravnail(ent, origin, nailForward, nailRight, nailUp);
+#else
+			VectorAdd(forward2, dir, forward2);
+			fire_clustergrenade(ent, origin, forward2);
+#endif
+		}
+	}
+
+	trap_LinkEntity(ent);
+}
+
+
 
 #ifdef MISSIONPACK
 /*
@@ -312,6 +378,12 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 		return;
 	}
 
+	if(ent->s.weapon == WP_FLAK_CANNON && ent->s.eType == ET_PROJECTILE2)
+	{
+		G_ExplodeIntoNails(ent);
+		return;
+	}
+
 #ifdef MISSIONPACK
 	if(other->takedamage)
 	{
@@ -354,6 +426,7 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 			{
 				velocity[2] = 1;	// stepped on a grenade
 			}
+
 			G_Damage(other, ent, &g_entities[ent->r.ownerNum], velocity, ent->s.origin, ent->damage, 0, ent->methodOfDeath);
 		}
 	}
@@ -548,7 +621,9 @@ void G_RunMissile(gentity_t * ent)
 			G_FreeEntity(ent);
 			return;
 		}
+
 		G_MissileImpact(ent, &tr);
+
 		if(ent->s.eType != ET_PROJECTILE && ent->s.eType != ET_PROJECTILE2)
 		{
 			return;				// exploded
@@ -660,6 +735,87 @@ gentity_t      *fire_grenade(gentity_t * self, vec3_t start, vec3_t dir)
 
 	return bolt;
 }
+
+
+/*
+=================
+fire_flakgrenade
+Tr3B: throws a grenade that explodes by the first hit similar to UT99
+=================
+*/
+gentity_t      *fire_flakgrenade(gentity_t * self, vec3_t start, vec3_t dir)
+{
+	gentity_t      *bolt;
+
+	VectorNormalize(dir);
+
+	bolt = G_Spawn();
+	bolt->classname = "grenade";
+	bolt->nextthink = level.time + 2500;
+	bolt->think = G_ExplodeIntoNails;
+	bolt->s.eType = ET_PROJECTILE2;
+	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	bolt->s.weapon = WP_FLAK_CANNON;
+	bolt->s.eFlags = EF_BOUNCE_HALF;
+	bolt->r.ownerNum = self->s.number;
+	bolt->parent = self;
+	bolt->damage = 100;
+	bolt->splashDamage = 100;
+	bolt->splashRadius = 150;
+	bolt->methodOfDeath = MOD_GRENADE;
+	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
+	bolt->clipmask = MASK_SHOT;
+	bolt->target_ent = NULL;
+
+	bolt->s.pos.trType = TR_GRAVITY;
+	bolt->s.pos.trAcceleration = g_gravity.value;
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
+	VectorCopy(start, bolt->s.pos.trBase);
+	VectorScale(dir, 700, bolt->s.pos.trDelta);
+	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
+
+	VectorCopy(start, bolt->r.currentOrigin);
+
+	return bolt;
+}
+
+
+gentity_t *fire_clustergrenade(gentity_t *self, vec3_t start, vec3_t dir)
+{
+	gentity_t      *bolt;
+
+	VectorNormalize(dir);
+
+	bolt = G_Spawn();
+	bolt->classname = "grenade";
+	bolt->nextthink = level.time + 2000;
+	bolt->think = G_ExplodeMissile;
+	bolt->s.eType = ET_PROJECTILE2;
+	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	bolt->s.weapon = WP_FLAK_CANNON;
+	bolt->s.eFlags = EF_BOUNCE_HALF;
+	bolt->r.ownerNum = self->s.number;
+	bolt->parent = self;
+	bolt->damage = 100;
+	bolt->splashDamage = 100;
+	bolt->splashRadius = 150;
+	bolt->methodOfDeath = MOD_GRENADE;
+	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
+	bolt->clipmask = MASK_SHOT;
+
+	bolt->s.pos.trType = TR_GRAVITY;
+	bolt->s.pos.trAcceleration = g_gravity.value;
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
+	VectorCopy(start, bolt->s.pos.trBase );
+
+	VectorScale(dir, 800, bolt->s.pos.trDelta);
+	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
+
+	VectorCopy(start, bolt->r.currentOrigin);
+
+	return bolt;
+}
+
 
 //=============================================================================
 
@@ -1001,11 +1157,12 @@ gentity_t      *fire_nail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t
 
 	bolt = G_Spawn();
 	bolt->classname = "nail";
-	bolt->nextthink = level.time + 10000;
-	bolt->think = G_ExplodeMissile;
+	bolt->nextthink = level.time + 1500;
+	bolt->think = G_FreeEntity;
 	bolt->s.eType = ET_PROJECTILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_FLAK_CANNON;
+	bolt->s.eFlags = EF_BOUNCE_HALF;
 	bolt->r.ownerNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = 20;
@@ -1014,6 +1171,52 @@ gentity_t      *fire_nail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
+	bolt->s.pos.trTime = level.time;
+	VectorCopy(start, bolt->s.pos.trBase);
+
+	r = random() * M_PI * 2.0f;
+	u = sin(r) * crandom() * NAILGUN_SPREAD * 16;
+	r = cos(r) * crandom() * NAILGUN_SPREAD * 16;
+	VectorMA(start, 8192 * 16, forward, end);
+	VectorMA(end, r, right, end);
+	VectorMA(end, u, up, end);
+	VectorSubtract(end, start, dir);
+	VectorNormalize(dir);
+
+	scale = 555 + random() * 1800;
+	VectorScale(dir, scale, bolt->s.pos.trDelta);
+	SnapVector(bolt->s.pos.trDelta);
+
+	VectorCopy(start, bolt->r.currentOrigin);
+
+	return bolt;
+}
+
+gentity_t      *fire_gravnail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up)
+{
+	gentity_t      *bolt;
+	vec3_t          dir;
+	vec3_t          end;
+	float           r, u, scale;
+
+	bolt = G_Spawn();
+	bolt->classname = "nail";
+	bolt->nextthink = level.time + 500;
+	bolt->think = G_FreeEntity;
+	bolt->s.eType = ET_PROJECTILE;
+	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	bolt->s.weapon = WP_FLAK_CANNON;
+	bolt->s.eFlags = EF_BOUNCE_HALF;
+	bolt->r.ownerNum = self->s.number;
+	bolt->parent = self;
+	bolt->damage = 20;
+	bolt->methodOfDeath = MOD_NAIL;
+	bolt->clipmask = MASK_SHOT;
+	bolt->target_ent = NULL;
+
+	//bolt->s.pos.trType = TR_GRAVITY;
+	bolt->s.pos.trType = TR_LINEAR;
+	bolt->s.pos.trAcceleration = g_gravity.value;
 	bolt->s.pos.trTime = level.time;
 	VectorCopy(start, bolt->s.pos.trBase);
 

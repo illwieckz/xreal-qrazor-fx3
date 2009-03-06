@@ -1,7 +1,8 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2002 Juergen Hoffmann
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -949,7 +950,7 @@ void CG_RegisterWeapon(int weaponNum)
 #endif
 
 		case WP_FLAK_CANNON:
-			weaponInfo->projectileModel = trap_R_RegisterModel("models/projectiles/spike/spike.md3", qtrue);
+			weaponInfo->projectileModel = trap_R_RegisterModel("models/projectiles/shuriken/shuriken1.md5mesh", qtrue);
 			weaponInfo->ejectBrassFunc = CG_NailgunEjectBrass;
 			weaponInfo->projectileTrailFunc = CG_NailTrail;
 			//weaponInfo->projectileSound = trap_S_RegisterSound( "sound/weapons/flakcannon/wnalflit.ogg", qfalse );
@@ -1389,20 +1390,151 @@ static void CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles)
 
 /*
 ===============
-CG_LightningBolt
+JUHOX: CG_CurvedLine
+===============
+*/
+static void CG_CurvedLine(const vec3_t start, const vec3_t end, const vec3_t startDir,
+						  qhandle_t shader, float segmentLen, float scrollSpeed)
+{
+	float           dist;
+	vec3_t          dir1;
+	vec3_t          dir2;
+	int             n;
+	float           totalLength;
+	vec3_t          currentPos;
+	int             i;
 
-Origin will be the exact tag point, which is slightly
-different than the muzzle point used for determining hits.
-The cent should be the non-predicted cent if it is from the player,
-so the endpoint will reflect the simulated strike (lagging the predicted
-angle)
+	VectorSubtract(end, start, dir2);
+	dist = VectorLength(dir2);
+	VectorScale(startDir, dist, dir1);
+	n = dist / 20;
+	if(n <= 0)
+		n = 1;
+	dist /= n;					// segment length
+
+	totalLength = 0;
+	VectorCopy(start, currentPos);
+	for(i = 0; i < n; i++)
+	{
+		float           x;
+		vec3_t          p1, p2;
+		vec3_t          nextPos;
+
+		x = (i + 1.0f) / (float)n;
+		VectorMA(start, x, dir1, p1);
+		VectorMA(start, x, dir2, p2);
+		VectorSubtract(p2, p1, p2);
+		VectorMA(p1, x * x * x, p2, nextPos);
+
+		totalLength = CG_DrawLineSegment(currentPos, nextPos, totalLength, segmentLen, scrollSpeed, shader);
+
+		VectorCopy(nextPos, currentPos);
+	}
+}
+
+/*
+===============
+JUHOX: CG_LightningBolt (new version)
 ===============
 */
 static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 {
+#if 0
+refEntity_t     beam;
+	vec3_t          startPoint, endPoint;
+	vec3_t          forward;
+	vec3_t          right;
+	int             target;
+
+	if(cent->currentState.weapon != WP_LIGHTNING)
+		return;
+
+	memset(&beam, 0, sizeof(beam));
+	AngleVectors(cent->lerpAngles, forward, right, NULL);
+
+	target = cent->currentState.otherEntityNum2;
+	if(target >= 0 && target < ENTITYNUM_MAX_NORMAL)
+	{
+		centity_t      *targetCent;
+
+		targetCent = &cg_entities[target];
+		VectorCopy(origin, startPoint);
+		if(targetCent->currentValid)
+		{
+			CG_CalcEntityLerpPositions(targetCent);
+			VectorCopy(targetCent->lerpOrigin, endPoint);
+
+			//endPoint[2] += BG_PlayerTargetOffset(&targetCent->currentState, LIGHTNING_TARGET_POS);
+		}
+		else
+		{
+			VectorCopy(cent->currentState.origin2, endPoint);
+		}
+
+		{
+			int             r;
+			sfxHandle_t     sfx;
+
+			r = rand() & 3;
+			if(r < 2)
+			{
+				sfx = cgs.media.sfx_lghit2;
+			}
+			else if(r == 2)
+			{
+				sfx = cgs.media.sfx_lghit1;
+			}
+			else
+			{
+				sfx = cgs.media.sfx_lghit3;
+			}
+			trap_S_StartSound(endPoint, target, CHAN_AUTO, sfx);
+		}
+
+		CG_CurvedLine(origin, endPoint, forward, cgs.media.lightningShader, 256.0, -2.0);
+
+		// impact flare
+		{
+			vec3_t          angles;
+			vec3_t          dir;
+			vec3_t          pos;
+
+			VectorSubtract(endPoint, origin, dir);
+			VectorNormalize(dir);
+			VectorMA(endPoint, -16, dir, pos);
+
+			memset(&beam, 0, sizeof(beam));
+			beam.hModel = cgs.media.lightningExplosionModel;
+			VectorCopy(pos, beam.origin);
+
+			// make a random orientation
+			angles[0] = rand() % 360;
+			angles[1] = rand() % 360;
+			angles[2] = rand() % 360;
+			AnglesToAxis(angles, beam.axis);
+			trap_R_AddRefEntityToScene(&beam);
+		}
+	}
+	else
+	{
+		vec3_t          start;
+
+		VectorMA(origin, +1.75, right, start);
+		AddDischargeFlash(start, cent->lerpAngles, &cent->gunFlash1, cent->currentState.number,
+						  vec3_origin, vec3_origin, cgs.media.dischargeFlashShader);
+
+		VectorMA(origin, -1.75, right, start);
+		AddDischargeFlash(start, cent->lerpAngles, &cent->gunFlash2, cent->currentState.number,
+						  vec3_origin, vec3_origin, cgs.media.dischargeFlashShader);
+	}
+
+	// add the impact flare if it hit something
+#else
 	trace_t         trace;
 	refEntity_t     beam;
-	vec3_t          forward;
+	vec3_t			randomAngles;
+	float			angle;
+	vec3_t          forward, right, up;
 	vec3_t          muzzlePoint, endPoint;
 	vec3_t			surfNormal;
 	int				anim;
@@ -1467,7 +1599,7 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 		}
 
 		// !CPMA
-		AngleVectors(cent->lerpAngles, forward, NULL, NULL);
+		AngleVectors(cent->lerpAngles, forward, right, up);
 		VectorCopy(cent->lerpOrigin, muzzlePoint);
 	}
 
@@ -1489,6 +1621,7 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 	// see if it hit a wall
 	CG_Trace(&trace, muzzlePoint, vec3_origin, vec3_origin, endPoint, cent->currentState.number, MASK_SHOT);
 
+#if 1
 	// this is the endpoint
 	VectorCopy(trace.endpos, beam.oldorigin);
 
@@ -1499,6 +1632,42 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 	beam.reType = RT_LIGHTNING;
 	beam.customShader = cgs.media.lightningShader;
 	trap_R_AddRefEntityToScene(&beam);
+
+#else
+	// Tr3B: new lightning curves
+	if(trace.fraction != 1.0f)
+	{
+		/*
+		VectorInverse(forward);
+
+		angle = AngleBetweenVectors(trace.plane.normal, forward);
+		if(angle > 45.0f)
+		{
+			LerpVect
+		}
+		*/
+
+		// collided with a surface so calculate the lightning curve backwards to the player
+		CG_CurvedLine(trace.endpos, origin, trace.plane.normal, cgs.media.lightningShader, 256.0, -2.0);
+	}
+	else
+	{
+#if 0
+		matrix_t	rot;
+
+		// we did hit anything so let the lightning bolt play crazy
+		randomAngles[PITCH] = crandom() * 10;
+		randomAngles[YAW] = crandom() * 1;
+		randomAngles[ROLL] = crandom() * 5;
+
+		MatrixFromAngles(rot, randomAngles[PITCH], randomAngles[YAW], randomAngles[ROLL]);
+		MatrixTransformNormal2(rot, forward);
+#endif
+		CG_CurvedLine(origin, trace.endpos, forward, cgs.media.lightningShader, 256.0, -2.0);
+	}
+#endif
+	
+#endif
 }
 
 /*

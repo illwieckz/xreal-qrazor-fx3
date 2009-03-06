@@ -262,7 +262,7 @@ gitem_t         bg_itemlist[] = {
 	{
 	 "weapon_flak_cannon",
 	 "sound/misc/w_pkup.ogg",
-	 {"models/weapons/grenadel/grenadel.md3",
+	 {"models/weapons/rocketl/rocketl.md3",	// FIXME
 	  0, 0, 0}
 	 ,
 /* icon */ "icons/weapon_grenade",

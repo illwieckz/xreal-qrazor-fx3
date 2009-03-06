@@ -620,11 +620,14 @@ void            G_RunMissile(gentity_t * ent);
 gentity_t      *fire_blaster(gentity_t * self, vec3_t start, vec3_t aimdir);
 gentity_t      *fire_plasma(gentity_t * self, vec3_t start, vec3_t aimdir);
 gentity_t      *fire_grenade(gentity_t * self, vec3_t start, vec3_t aimdir);
+gentity_t      *fire_flakgrenade(gentity_t * self, vec3_t start, vec3_t aimdir);
+gentity_t      *fire_clustergrenade(gentity_t * self, vec3_t start, vec3_t aimdir);
 gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_homing(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_bfg(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_nail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up);
+gentity_t      *fire_gravnail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up);
 gentity_t      *fire_prox(gentity_t * self, vec3_t start, vec3_t aimdir);
 
 
