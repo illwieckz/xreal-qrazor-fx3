@@ -3,8 +3,8 @@ Version 2
 {
 "classname" "worldspawn"
 "_lightmapscale" "0.5"
-"editor_drLastCameraPos" "1319.6 335.161 484.187"
-"editor_drLastCameraAngle" "-27.9 -35.9081 0"
+"editor_drLastCameraPos" "1771.57 -317.411 359.809"
+"editor_drLastCameraAngle" "-36 38.7919 0"
 // primitive 0
 {
 brushDef3
@@ -610,4 +610,16 @@ brushDef3
 "name" "item_quad_3"
 "origin" "2496 0 44"
 "spawnflags" "1"
+}
+// entity 83
+{
+"classname" "weapon_flak_cannon"
+"name" "weapon_flak_cannon_1"
+"origin" "2048 384 40"
+}
+// entity 84
+{
+"classname" "weapon_flak_cannon"
+"name" "weapon_flak_cannon_3"
+"origin" "2048 -384 40"
 }
