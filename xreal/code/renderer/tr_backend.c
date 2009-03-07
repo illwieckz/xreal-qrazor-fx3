@@ -7314,16 +7314,19 @@ static void RB_RenderView(void)
 				                       GL_COLOR_BUFFER_BIT,
 				                       GL_NEAREST);
 			}
+#if 0
+			// FIXME: this trashes the OpenGL context for an unknown reason
 			else if(glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
 			{
 				// copy main context to portalRenderFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
-				qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
-									   0, 0, tr.portalRenderFBO->width, tr.portalRenderFBO->height,
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   GL_COLOR_BUFFER_BIT,
 									   GL_NEAREST);
 			}
+#endif
 			else
 			{
 				// capture current color buffer
