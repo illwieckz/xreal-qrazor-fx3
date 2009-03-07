@@ -275,6 +275,7 @@ typedef enum
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
 	LE_KAMIKAZE,
+	LE_RAILEXPLOSION,
 	LE_FIRE,
 #ifdef MISSIONPACK
 	LE_INVULIMPACT,
@@ -473,6 +474,7 @@ typedef struct weaponInfo_s
 	qhandle_t       ammoModel;
 
 	qhandle_t       projectileModel;
+	qhandle_t		projectileSkin;
 	sfxHandle_t     projectileSound;
 	void            (*projectileTrailFunc) (centity_t *, const struct weaponInfo_s * wi);
 	float           projectileLight;
@@ -1795,9 +1797,9 @@ localEntity_t  *CG_SmokePuff(const vec3_t p,
 							 float r, float g, float b, float a,
 							 float duration, int startTime, int fadeInTime, int leFlags, qhandle_t hShader);
 void            CG_BubbleTrail(vec3_t start, vec3_t end, float spacing);
-void            CG_ShockWaveEffect(vec3_t org);
 
 void            CG_KamikazeEffect(vec3_t org);
+void            CG_RailExplode(vec3_t org);
 
 void            CG_ObeliskExplode(vec3_t org, int entityNum);
 void            CG_ObeliskPain(vec3_t org);

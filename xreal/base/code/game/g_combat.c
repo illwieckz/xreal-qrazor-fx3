@@ -62,8 +62,16 @@ void AddScore(gentity_t * ent, vec3_t origin, int score)
 	{
 		return;
 	}
+
+	// Tr3B: don't draw zero skills scores
+	if(score == 0)
+	{
+		return;
+	}
+
 	// show score plum
 	ScorePlum(ent, origin, score);
+
 	//
 	ent->client->ps.persistant[PERS_SCORE] += score;
 	if(g_gametype.integer == GT_TEAM)
@@ -655,7 +663,8 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	if(meansOfDeath == MOD_SUICIDE)
 	{
 		if(self->client->ps.powerups[PW_NEUTRALFLAG])
-		{						// only happens in One Flag CTF
+		{
+			// only happens in One Flag CTF
 			Team_ReturnFlag(TEAM_FREE);
 			self->client->ps.powerups[PW_NEUTRALFLAG] = 0;
 		}
@@ -920,6 +929,7 @@ int G_InvulnerabilityEffect(gentity_t * targ, vec3_t dir, vec3_t point, vec3_t i
 	}
 }
 #endif
+
 /*
 ============
 T_Damage
@@ -941,11 +951,13 @@ dflags		these flags are used to control how T_Damage works
 	DAMAGE_NO_ARMOR			armor does not protect from this damage
 	DAMAGE_NO_KNOCKBACK		do not affect velocity, just view angles
 	DAMAGE_NO_PROTECTION	kills godmode, armor, everything
+
+return qtrue if the target was damaged
 ============
 */
 
-void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
-			  vec3_t dir, vec3_t point, int damage, int dflags, int mod)
+qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
+			  const vec3_t dir, const vec3_t point, int damage, int dflags, int mod)
 {
 	gclient_t      *client;
 	int             take;
@@ -960,14 +972,14 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 
 	if(!targ->takedamage)
 	{
-		return;
+		return qfalse;
 	}
 
 	// the intermission has allready been qualified for, so don't
 	// allow any extra scoring
 	if(level.intermissionQueued)
 	{
-		return;
+		return qfalse;
 	}
 #ifdef MISSIONPACK
 	if(targ->client && mod != MOD_JUICED)
@@ -978,7 +990,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 			{
 				G_InvulnerabilityEffect(targ, dir, point, impactpoint, bouncedir);
 			}
-			return;
+			return qfalse;
 		}
 	}
 #endif
@@ -986,6 +998,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	{
 		inflictor = &g_entities[ENTITYNUM_WORLD];
 	}
+
 	if(!attacker)
 	{
 		attacker = &g_entities[ENTITYNUM_WORLD];
@@ -998,12 +1011,12 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		{
 			targ->use(targ, inflictor, attacker);
 		}
-		return;
+		return qfalse;
 	}
 
 	if(g_gametype.integer == GT_OBELISK && CheckObeliskAttack(targ, attacker))
 	{
-		return;
+		return qfalse;
 	}
 
 	// reduce damage by the attacker's handicap value
@@ -1026,7 +1039,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	{
 		if(client->noclip)
 		{
-			return;
+			return qfalse;
 		}
 	}
 
@@ -1084,10 +1097,14 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		}
 	}
 
-	// check for completely getting out of the damage
-	if(!(dflags & DAMAGE_NO_PROTECTION))
+	if(attacker->s.weapon == WP_RAILGUN && targ->s.eType == ET_PROJECTILE && targ->s.weapon == WP_RAILGUN)
 	{
-
+		// Tr3B: added this special case to shoot railgun spheres
+		// railgun spheres can be shot by any raigun user
+	}
+	// check for completely getting out of the damage
+	else if(!(dflags & DAMAGE_NO_PROTECTION))
+	{
 		// if TF_NO_FRIENDLY_FIRE is set, don't do damage to the target
 		// if the attacker was on the same team
 #ifdef MISSIONPACK
@@ -1099,7 +1116,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 #endif
 			if(!g_friendlyFire.integer)
 			{
-				return;
+				return qfalse;
 			}
 		}
 #ifdef MISSIONPACK
@@ -1107,11 +1124,11 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		{
 			if(inflictor && inflictor->parent && OnSameTeam(targ, inflictor->parent))
 			{
-				return;
+				return qfalse;
 			}
 			if(targ == attacker)
 			{
-				return;
+				return qfalse;
 			}
 		}
 #endif
@@ -1119,7 +1136,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		// check for godmode
 		if(targ->flags & FL_GODMODE)
 		{
-			return;
+			return qfalse;
 		}
 	}
 
@@ -1130,7 +1147,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		G_AddEvent(targ, EV_POWERUP_BATTLESUIT, 0);
 		if((dflags & DAMAGE_RADIUS) || (mod == MOD_FALLING))
 		{
-			return;
+			return qfalse;
 		}
 		damage *= 0.5;
 	}
@@ -1186,9 +1203,11 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		{
 			client->ps.persistant[PERS_ATTACKER] = ENTITYNUM_WORLD;
 		}
+
 		client->damage_armor += asave;
 		client->damage_blood += take;
 		client->damage_knockback += knockback;
+
 		if(dir)
 		{
 			VectorCopy(dir, client->damage_from);
@@ -1233,7 +1252,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 
 			targ->enemy = attacker;
 			targ->die(targ, inflictor, attacker, take, mod);
-			return;
+
+			return qfalse;
 		}
 		else if(targ->pain)
 		{

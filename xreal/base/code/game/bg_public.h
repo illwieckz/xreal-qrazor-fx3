@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
 
-#define	GAME_VERSION		"XreaL-rev3"	// Tr3B: always increase if you change the ET_, EV_, GT_ or WP_ types
+#define	GAME_VERSION		"XreaL-rev4"	// Tr3B: always increase if you change the ET_, EV_, GT_ or WP_ types
 
 // Tr3B: define this to use the new Quake4 like player model system
 #define XPPM 1
@@ -495,6 +495,7 @@ typedef enum
 	EV_PROXIMITY_MINE_STICK,
 	EV_PROXIMITY_MINE_TRIGGER,
 	EV_KAMIKAZE,				// kamikaze explodes
+	EV_RAILEXLOSION,
 	EV_OBELISKEXPLODE,			// obelisk explodes
 	EV_OBELISKPAIN,				// obelisk is in pain
 	EV_INVUL_IMPACT,			// invulnerability sphere impact
@@ -656,6 +657,7 @@ typedef enum
 	MOD_PLASMA,
 	MOD_PLASMA_SPLASH,
 	MOD_RAILGUN,
+	MOD_RAILGUN_SPLASH,
 	MOD_LIGHTNING,
 	MOD_BFG,
 	MOD_BFG_SPLASH,
@@ -748,7 +750,7 @@ qboolean        BG_CanItemBeGrabbed(int gametype, const entityState_t * ent, con
 #define	MASK_DEADSOLID			(CONTENTS_SOLID|CONTENTS_PLAYERCLIP)
 #define	MASK_WATER				(CONTENTS_WATER|CONTENTS_LAVA|CONTENTS_SLIME)
 #define	MASK_OPAQUE				(CONTENTS_SOLID|CONTENTS_SLIME|CONTENTS_LAVA)
-#define	MASK_SHOT				(CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE)
+#define	MASK_SHOT				(CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE|CONTENTS_SHOOTABLE)
 
 
 //
@@ -811,21 +813,53 @@ qboolean        BG_RotateAxis(vec3_t surfNormal, vec3_t inAxis[3], vec3_t outAxi
 #define KAMI_SHOCKWAVE_STARTTIME		0
 #define KAMI_SHOCKWAVEFADE_STARTTIME	1500
 #define KAMI_SHOCKWAVE_ENDTIME			2000
+
 // explosion/implosion times
 #define KAMI_EXPLODE_STARTTIME			250
 #define KAMI_IMPLODE_STARTTIME			2000
 #define KAMI_IMPLODE_ENDTIME			2250
+
 // 2nd shockwave times
 #define KAMI_SHOCKWAVE2_STARTTIME		2000
 #define KAMI_SHOCKWAVE2FADE_STARTTIME	2500
 #define KAMI_SHOCKWAVE2_ENDTIME			3000
+
 // radius of the models without scaling
 #define KAMI_SHOCKWAVEMODEL_RADIUS		88
 #define KAMI_BOOMSPHEREMODEL_RADIUS		72
+
 // maximum radius of the models during the effect
 #define KAMI_SHOCKWAVE_MAXRADIUS		1320
 #define KAMI_BOOMSPHERE_MAXRADIUS		720
 #define KAMI_SHOCKWAVE2_MAXRADIUS		704
+
+
+
+// Railgun
+
+// 1st shockwave times
+#define RAILGUN_SHOCKWAVE_STARTTIME		0
+#define RAILGUN_SHOCKWAVEFADE_STARTTIME	150
+#define RAILGUN_SHOCKWAVE_ENDTIME		200
+
+// explosion/implosion times
+#define RAILGUN_EXPLODE_STARTTIME		25
+#define RAILGUN_IMPLODE_STARTTIME		200
+#define RAILGUN_IMPLODE_ENDTIME			225
+
+// 2nd shockwave times
+#define RAILGUN_SHOCKWAVE2_STARTTIME		200
+#define RAILGUN_SHOCKWAVE2FADE_STARTTIME	250
+#define RAILGUN_SHOCKWAVE2_ENDTIME			300
+
+// radius of the models without scaling
+#define RAILGUN_SHOCKWAVEMODEL_RADIUS	40
+#define RAILGUN_BOOMSPHEREMODEL_RADIUS	32
+
+// maximum radius of the models during the effect
+#define RAILGUN_SHOCKWAVE_MAXRADIUS		132
+#define RAILGUN_BOOMSPHERE_MAXRADIUS	72
+#define RAILGUN_SHOCKWAVE2_MAXRADIUS	70
 
 
 // entity->materialType

@@ -980,10 +980,22 @@ void CG_RegisterWeapon(int weaponNum)
 		case WP_RAILGUN:
 			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/railgun/rg_hum.wav");
 			MAKERGB(weaponInfo->flashLightColor, 1, 0.5f, 0);
+
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.ogg");
+
 			cgs.media.railRingsShader = trap_R_RegisterShader("railDisc");
 			cgs.media.railRings2Shader = trap_R_RegisterShader("railRing");
 			cgs.media.railCoreShader = trap_R_RegisterShader("railCore");
+
+			weaponInfo->projectileModel = trap_R_RegisterModel("models/projectiles/railsphere/shocksphere.md5mesh", qfalse);
+			weaponInfo->projectileSound = trap_S_RegisterSound("sound/weapons/rocket/rockfly.ogg");
+			//weaponInfo->projectileTrailFunc = CG_RocketTrail;
+			weaponInfo->projectileLight = 100;
+			weaponInfo->wiTrailTime = 2000;
+			weaponInfo->trailRadius = 64;
+
+			MAKERGB(weaponInfo->projectileLightColor, 0.6f, 0.6f, 1.0f);
+			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
 			break;
 
 		case WP_BFG:
@@ -1666,7 +1678,7 @@ refEntity_t     beam;
 		CG_CurvedLine(origin, trace.endpos, forward, cgs.media.lightningShader, 256.0, -2.0);
 	}
 #endif
-	
+
 #endif
 }
 
@@ -3087,11 +3099,18 @@ void CG_MissileHitWall(int weapon, int entityType, int clientNum, vec3_t origin,
 			// TODO CG_ParticleExplosion("explode1", partOrigin, partVel, 700, 60, 240);
 			break;
 		case WP_RAILGUN:
-			sfx = cgs.media.sfx_plasmaexp;
-			mark = cgs.media.energyMarkShader;
-			radius = 24;
+			if(entityType == ET_PROJECTILE)
+			{
+				//sfx = cgs.media.sfx_ric1;
+			}
+			else
+			{
+				sfx = cgs.media.sfx_plasmaexp;
+				mark = cgs.media.energyMarkShader;
+				radius = 24;
 
-			CG_ParticleRailRick(origin, dir, cgs.clientinfo[clientNum].color2);
+				CG_ParticleRailRick(origin, dir, cgs.clientinfo[clientNum].color2);
+			}
 			break;
 
 		case WP_PLASMAGUN:

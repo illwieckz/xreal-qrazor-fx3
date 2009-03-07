@@ -80,7 +80,7 @@ qboolean CheckGauntletAttack(gentity_t * ent)
 	// set aiming directions
 	AngleVectors(ent->client->ps.viewangles, forward, right, up);
 
-	CalcMuzzlePoint(ent, forward, right, up, muzzle, WP_GAUNTLET);
+	CalcMuzzlePoint(ent, forward, right, up, muzzle, WP_GAUNTLET, qfalse);
 
 	VectorMA(muzzle, 32, forward, end);
 
@@ -209,6 +209,7 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage)
 				{
 					G_BounceProjectile(muzzle, impactpoint, bouncedir, end);
 					VectorCopy(impactpoint, muzzle);
+
 					// the player can hit him/herself with the bounced rail
 					passent = ENTITYNUM_NONE;
 				}
@@ -445,7 +446,7 @@ weapon_railgun_fire
 =================
 */
 #define	MAX_RAIL_HITS	4
-void weapon_railgun_fire(gentity_t * ent)
+static void Weapon_Railgun_Fire(gentity_t * ent)
 {
 	vec3_t          end;
 
@@ -472,7 +473,7 @@ void weapon_railgun_fire(gentity_t * ent)
 	passent = ent->s.number;
 	do
 	{
-		trap_Trace(&trace, muzzle, NULL, NULL, end, passent, MASK_SHOT);
+		trap_Trace(&trace, muzzle, NULL, NULL, end, ENTITYNUM_NONE, MASK_SHOT);
 		if(trace.entityNum >= ENTITYNUM_MAX_NORMAL)
 		{
 			break;
@@ -486,19 +487,24 @@ void weapon_railgun_fire(gentity_t * ent)
 				if(G_InvulnerabilityEffect(traceEnt, forward, trace.endpos, impactpoint, bouncedir))
 				{
 					G_BounceProjectile(muzzle, impactpoint, bouncedir, end);
+
 					// snap the endpos to integers to save net bandwidth, but nudged towards the line
 					SnapVectorTowards(trace.endpos, muzzle);
+
 					// send railgun beam effect
 					tent = G_TempEntity(trace.endpos, EV_RAILTRAIL);
+
 					// set player number for custom colors on the railtrail
 					tent->s.clientNum = ent->s.clientNum;
 					VectorCopy(muzzle, tent->s.origin2);
+
 					// move origin a bit to come closer to the drawn gun muzzle
 					VectorMA(tent->s.origin2, 4, right, tent->s.origin2);
 					VectorMA(tent->s.origin2, -1, up, tent->s.origin2);
 					tent->s.eventParm = 255;	// don't make the explosion at the end
-					//
+
 					VectorCopy(impactpoint, muzzle);
+
 					// the player can hit him/herself with the bounced rail
 					passent = ENTITYNUM_NONE;
 				}
@@ -516,6 +522,8 @@ void weapon_railgun_fire(gentity_t * ent)
 			{
 				hits++;
 			}
+
+			//G_Printf("railgun: hit entity %i\n", traceEnt->s.number);
 			G_Damage(traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_RAILGUN);
 #endif
 		}
@@ -586,7 +594,17 @@ void weapon_railgun_fire(gentity_t * ent)
 		}
 		ent->client->accuracy_hits++;
 	}
+}
 
+void Weapon_Railgun_FireSphere(gentity_t * ent)
+{
+	gentity_t      *m;
+
+	m = fire_railsphere(ent, muzzle, forward);
+	m->damage *= s_quadFactor;
+	m->splashDamage *= s_quadFactor;
+
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
 
 
@@ -766,7 +784,7 @@ static void Weapon_FlakCannon_FireFlakGrenade(gentity_t * ent)
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
 
-//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+//  VectorAdd(m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta);  // "real" physics
 }
 
 
@@ -848,7 +866,7 @@ CalcMuzzlePoint
 set muzzle location relative to pivoting eye
 ===============
 */
-void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint, int weapon)
+void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint, int weapon, qboolean secondary)
 {
 	vec3_t			surfNormal;
 	vec3_t			offset;
@@ -883,6 +901,17 @@ void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, v
 			VectorSet(offset, 14, 8, -16);
 			G_ProjectSource(muzzlePoint, offset, forward, right, muzzlePoint);
 			break;
+#if 0
+		case WP_RAILGUN:
+			if(secondary)
+			{
+				AngleVectors(ent->client->ps.viewangles, forward, right, up);
+
+				VectorSet(offset, 14, 8, -16);
+				G_ProjectSource(muzzlePoint, offset, forward, right, muzzlePoint);
+			}
+			break;
+#endif
 
 		default:
 			AngleVectors(ent->client->ps.viewangles, forward, right, up);
@@ -969,7 +998,7 @@ void FireWeapon(gentity_t * ent)
 	if(ent->client)
 	{
 		// set aiming directions
-		CalcMuzzlePoint(ent, forward, right, up, muzzle, ent->s.weapon);
+		CalcMuzzlePoint(ent, forward, right, up, muzzle, ent->s.weapon, qfalse);
 	}
 	else
 	{
@@ -1009,7 +1038,7 @@ void FireWeapon(gentity_t * ent)
 			Weapon_Plasmagun_Fire(ent);
 			break;
 		case WP_RAILGUN:
-			weapon_railgun_fire(ent);
+			Weapon_Railgun_Fire(ent);
 			break;
 		case WP_BFG:
 			BFG_Fire(ent);
@@ -1075,7 +1104,7 @@ void FireWeapon2(gentity_t * ent)
 	if(ent->client)
 	{
 		// set aiming directions
-		CalcMuzzlePoint(ent, forward, right, up, muzzle, ent->s.weapon);
+		CalcMuzzlePoint(ent, forward, right, up, muzzle, ent->s.weapon, qtrue);
 	}
 	else
 	{
@@ -1098,6 +1127,10 @@ void FireWeapon2(gentity_t * ent)
 
 		case WP_ROCKET_LAUNCHER:
 			Weapon_RocketLauncher_FireHomingMissile(ent);
+			break;
+
+		case WP_RAILGUN:
+			Weapon_Railgun_FireSphere(ent);
 			break;
 
 		default:
@@ -1343,7 +1376,7 @@ void G_StartKamikaze(gentity_t * ent)
 	explosion->s.eType = ET_EVENTS + EV_KAMIKAZE;
 	explosion->eventTime = level.time;
 
-	if(ent->client)
+	if(!ent->client)
 	{
 		VectorCopy(ent->s.pos.trBase, snapped);
 	}
@@ -1368,10 +1401,9 @@ void G_StartKamikaze(gentity_t * ent)
 
 	if(ent->client)
 	{
-		//
 		explosion->activator = ent;
-		//
 		ent->s.eFlags &= ~EF_KAMIKAZE;
+
 		// nuke the guy that used it
 		G_Damage(ent, ent, ent, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_KAMIKAZE);
 	}

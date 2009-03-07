@@ -2594,6 +2594,7 @@ static void PM_Weapon(void)
 			//case WP_GAUNTLET:
 			case WP_FLAK_CANNON:
 			case WP_ROCKET_LAUNCHER:
+			case WP_RAILGUN:
 				break;
 
 			default:
@@ -2679,7 +2680,10 @@ static void PM_Weapon(void)
 			addTime = 100;
 			break;
 		case WP_RAILGUN:
-			addTime = 1500;
+			if(pm->cmd.buttons & BUTTON_ATTACK2)
+				addTime = 800;
+			else
+				addTime = 1500;
 			break;
 		case WP_BFG:
 			addTime = 200;

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -86,6 +86,7 @@ void G_ExplodeMissile(gentity_t * ent)
 
 	G_AddEvent(ent, EV_PROJECTILE_MISS, DirToByte(dir));
 
+	ent->s.modelindex = 0;
 	ent->freeAfterEvent = qtrue;
 
 	// splash damage
@@ -394,6 +395,7 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 				//
 				VectorCopy(ent->s.pos.trDelta, forward);
 				VectorNormalize(forward);
+
 				if(G_InvulnerabilityEffect(other, forward, ent->s.pos.trBase, impactpoint, bouncedir))
 				{
 					VectorCopy(bouncedir, trace->plane.normal);
@@ -592,6 +594,7 @@ void G_RunMissile(gentity_t * ent)
 		// ignore interactions with the missile owner
 		passent = ent->r.ownerNum;
 	}
+
 	// trace a line from the previous position to the current position
 	trap_Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask);
 
@@ -647,6 +650,17 @@ void G_RunMissile(gentity_t * ent)
 
 	// check think function after bouncing
 	G_RunThink(ent);
+}
+
+/*
+================
+G_Missile_Die
+================
+*/
+static void G_Missile_Die(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, int damage, int mod)
+{
+	ent->nextthink = level.time + 1;
+	ent->think = G_ExplodeMissile;
 }
 
 
@@ -869,6 +883,8 @@ fire_rocket
 gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *bolt;
+	vec3_t          mins = { -8, -8, -8 };
+	vec3_t			maxs = { 8, 8, 8 };
 
 	VectorNormalize(dir);
 
@@ -888,6 +904,14 @@ gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
+
+	// make the rocket shootable
+	bolt->r.contents = CONTENTS_SHOOTABLE;
+	VectorCopy(mins, bolt->r.mins);
+	VectorCopy(maxs, bolt->r.maxs);
+	bolt->takedamage = qtrue;
+	bolt->health = 50;
+	bolt->die = G_Missile_Die;
 
 	if(g_rocketAcceleration.integer)
 	{
@@ -1058,6 +1082,8 @@ fire_homing
 gentity_t      *fire_homing(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *bolt;
+	vec3_t          mins = { -8, -8, -8 };
+	vec3_t			maxs = { 8, 8, 8 };
 
 	VectorNormalize(dir);
 
@@ -1077,6 +1103,14 @@ gentity_t      *fire_homing(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
+
+	// make the rocket shootable
+	bolt->r.contents = CONTENTS_SHOOTABLE;
+	VectorCopy(mins, bolt->r.mins);
+	VectorCopy(maxs, bolt->r.maxs);
+	bolt->takedamage = qtrue;
+	bolt->health = 50;
+	bolt->die = G_Missile_Die;
 
 	if(g_rocketAcceleration.integer)
 	{
@@ -1214,7 +1248,7 @@ gentity_t      *fire_gravnail(gentity_t * self, vec3_t start, vec3_t forward, ve
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
 
-	//bolt->s.pos.trType = TR_GRAVITY;
+//	bolt->s.pos.trType = TR_GRAVITY;
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trAcceleration = g_gravity.value;
 	bolt->s.pos.trTime = level.time;
@@ -1267,6 +1301,7 @@ gentity_t      *fire_prox(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->splashMethodOfDeath = MOD_PROXIMITY_MINE;
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
+
 	// count is used to check if the prox mine left the player bbox
 	// if count == 1 then the prox mine left the player bbox and can attack to it
 	bolt->count = 0;
@@ -1286,3 +1321,323 @@ gentity_t      *fire_prox(gentity_t * self, vec3_t start, vec3_t dir)
 	return bolt;
 }
 #endif
+
+
+
+//=============================================================================
+
+
+
+
+
+/*
+===============
+RailSphereRadiusDamage
+===============
+*/
+static void RailSphereRadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float radius)
+{
+	float           dist;
+	gentity_t      *ent;
+	int             entityList[MAX_GENTITIES];
+	int             numListedEntities;
+	vec3_t          mins, maxs;
+	vec3_t          v;
+	vec3_t          dir;
+	int             i, e;
+
+	if(radius < 1)
+	{
+		radius = 1;
+	}
+
+	for(i = 0; i < 3; i++)
+	{
+		mins[i] = origin[i] - radius;
+		maxs[i] = origin[i] + radius;
+	}
+
+	numListedEntities = trap_EntitiesInBox(mins, maxs, entityList, MAX_GENTITIES);
+
+	for(e = 0; e < numListedEntities; e++)
+	{
+		ent = &g_entities[entityList[e]];
+
+		if(!ent->takedamage)
+		{
+			continue;
+		}
+
+		// dont hit things we have already hit
+		if(ent->kamikazeTime > level.time)
+		{
+			continue;
+		}
+
+		// find the distance from the edge of the bounding box
+		for(i = 0; i < 3; i++)
+		{
+			if(origin[i] < ent->r.absmin[i])
+			{
+				v[i] = ent->r.absmin[i] - origin[i];
+			}
+			else if(origin[i] > ent->r.absmax[i])
+			{
+				v[i] = origin[i] - ent->r.absmax[i];
+			}
+			else
+			{
+				v[i] = 0;
+			}
+		}
+
+		dist = VectorLength(v);
+		if(dist >= radius)
+		{
+			continue;
+		}
+
+//      if( CanDamage (ent, origin) ) {
+		VectorSubtract(ent->r.currentOrigin, origin, dir);
+		// push the center of mass higher than the origin so players
+		// get knocked into the air more
+		dir[2] += 24;
+		G_Damage(ent, NULL, attacker, dir, origin, damage, DAMAGE_RADIUS | DAMAGE_NO_TEAM_PROTECTION, MOD_KAMIKAZE);
+		ent->kamikazeTime = level.time + 3000;
+//      }
+	}
+}
+
+/*
+===============
+RailSphereShockWave
+===============
+*/
+static void RailSphereShockWave(vec3_t origin, gentity_t * attacker, float damage, float push, float radius)
+{
+	float           dist;
+	gentity_t      *ent;
+	int             entityList[MAX_GENTITIES];
+	int             numListedEntities;
+	vec3_t          mins, maxs;
+	vec3_t          v;
+	vec3_t          dir;
+	int             i, e;
+
+	if(radius < 1)
+		radius = 1;
+
+	for(i = 0; i < 3; i++)
+	{
+		mins[i] = origin[i] - radius;
+		maxs[i] = origin[i] + radius;
+	}
+
+	numListedEntities = trap_EntitiesInBox(mins, maxs, entityList, MAX_GENTITIES);
+
+	for(e = 0; e < numListedEntities; e++)
+	{
+		ent = &g_entities[entityList[e]];
+
+		// dont hit things we have already hit
+		if(ent->kamikazeShockTime > level.time)
+		{
+			continue;
+		}
+
+		// find the distance from the edge of the bounding box
+		for(i = 0; i < 3; i++)
+		{
+			if(origin[i] < ent->r.absmin[i])
+			{
+				v[i] = ent->r.absmin[i] - origin[i];
+			}
+			else if(origin[i] > ent->r.absmax[i])
+			{
+				v[i] = origin[i] - ent->r.absmax[i];
+			}
+			else
+			{
+				v[i] = 0;
+			}
+		}
+
+		dist = VectorLength(v);
+		if(dist >= radius)
+		{
+			continue;
+		}
+
+//      if( CanDamage (ent, origin) ) {
+		VectorSubtract(ent->r.currentOrigin, origin, dir);
+		dir[2] += 24;
+		G_Damage(ent, NULL, attacker, dir, origin, damage, DAMAGE_RADIUS | DAMAGE_NO_TEAM_PROTECTION, MOD_KAMIKAZE);
+		//
+		dir[2] = 0;
+		VectorNormalize(dir);
+		if(ent->client)
+		{
+			ent->client->ps.velocity[0] = dir[0] * push;
+			ent->client->ps.velocity[1] = dir[1] * push;
+			ent->client->ps.velocity[2] = 100;
+		}
+		ent->kamikazeShockTime = level.time + 3000;
+//      }
+	}
+}
+
+/*
+===============
+RailSphereDamage
+===============
+*/
+static void RailSphereDamage(gentity_t * self)
+{
+	int             i;
+	float           t;
+	gentity_t      *ent;
+	vec3_t          newangles;
+	int				damage;
+
+	self->count += 100;
+	damage = 200; // FIXME * s_quadFactor;
+
+	if(self->count >= RAILGUN_SHOCKWAVE_STARTTIME)
+	{
+		// shockwave push back
+		t = self->count - RAILGUN_SHOCKWAVE_STARTTIME;
+		RailSphereShockWave(self->s.pos.trBase, self->activator, 25, 200,
+						  (int)(float)t * RAILGUN_SHOCKWAVE_MAXRADIUS / (RAILGUN_SHOCKWAVE_ENDTIME - RAILGUN_SHOCKWAVE_STARTTIME));
+	}
+
+	//
+	if(self->count >= RAILGUN_EXPLODE_STARTTIME)
+	{
+		// do our damage
+		t = self->count - RAILGUN_EXPLODE_STARTTIME;
+		RailSphereRadiusDamage(self->s.pos.trBase, self->activator, 200,
+							 (int)(float)t * RAILGUN_BOOMSPHERE_MAXRADIUS / (RAILGUN_IMPLODE_STARTTIME - RAILGUN_EXPLODE_STARTTIME));
+	}
+
+	// either cycle or kill self
+	if(self->count >= RAILGUN_SHOCKWAVE_ENDTIME)
+	{
+		G_FreeEntity(self);
+		return;
+	}
+	self->nextthink = level.time + 100;
+
+#if 0
+	// add earth quake effect
+	newangles[0] = crandom() * 2;
+	newangles[1] = crandom() * 2;
+	newangles[2] = 0;
+	for(i = 0; i < MAX_CLIENTS; i++)
+	{
+		ent = &g_entities[i];
+		if(!ent->inuse)
+			continue;
+		if(!ent->client)
+			continue;
+
+		if(ent->client->ps.groundEntityNum != ENTITYNUM_NONE)
+		{
+			ent->client->ps.velocity[0] += crandom() * 120;
+			ent->client->ps.velocity[1] += crandom() * 120;
+			ent->client->ps.velocity[2] = 30 + random() * 25;
+		}
+
+		ent->client->ps.delta_angles[0] += ANGLE2SHORT(newangles[0] - self->movedir[0]);
+		ent->client->ps.delta_angles[1] += ANGLE2SHORT(newangles[1] - self->movedir[1]);
+		ent->client->ps.delta_angles[2] += ANGLE2SHORT(newangles[2] - self->movedir[2]);
+	}
+	VectorCopy(newangles, self->movedir);
+#endif
+}
+
+/*
+================
+RailSphere_Die
+================
+*/
+static void RailSphere_Die(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, int damage, int mod)
+{
+	gentity_t      *explosion;
+	vec3_t			snapped;
+
+	// start up the explosion logic
+	explosion = G_Spawn();
+
+	explosion->s.eType = ET_EVENTS + EV_RAILEXLOSION;
+	explosion->eventTime = level.time;
+
+	//VectorCopy(ent->s.pos.trBase, snapped);
+	VectorCopy(ent->r.currentOrigin, snapped);
+	SnapVector(snapped);		// save network bandwidth
+	G_SetOrigin(explosion, snapped);
+
+	explosion->classname = "kamikaze";
+	explosion->s.pos.trType = TR_STATIONARY;
+
+	explosion->kamikazeTime = level.time;
+
+	explosion->think = RailSphereDamage;
+	explosion->nextthink = level.time + 10;
+	explosion->count = 0;
+	VectorClear(explosion->movedir);
+
+	trap_LinkEntity(explosion);
+
+	G_FreeEntity(ent);
+}
+
+/*
+=================
+fire_railsphere
+=================
+*/
+gentity_t      *fire_railsphere(gentity_t * self, vec3_t start, vec3_t dir)
+{
+	gentity_t      *bolt;
+	vec3_t          mins = { -16, -16, -16 };
+	vec3_t			maxs = { 16, 16, 16 };
+
+	VectorNormalize(dir);
+
+	bolt = G_Spawn();
+	bolt->classname = "rocket";
+	bolt->nextthink = level.time + 15000;
+//	bolt->think = RailSphereDamage;
+	bolt->think = G_ExplodeMissile;
+	bolt->s.eType = ET_PROJECTILE;
+	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	bolt->s.weapon = WP_RAILGUN;
+	bolt->r.ownerNum = self->s.number;
+	bolt->parent = self;
+	bolt->damage = 100;
+	bolt->splashDamage = 100;
+	bolt->splashRadius = 120;
+	bolt->methodOfDeath = MOD_RAILGUN_SPLASH;
+	bolt->splashMethodOfDeath = MOD_RAILGUN_SPLASH;
+	bolt->clipmask = MASK_SHOT;
+	bolt->target_ent = NULL;
+
+	// make the sphere shootable
+	bolt->r.contents = CONTENTS_SHOOTABLE;
+	VectorCopy(mins, bolt->r.mins);
+	VectorCopy(maxs, bolt->r.maxs);
+	bolt->takedamage = qtrue;
+	bolt->health = 25;
+	bolt->die = RailSphere_Die;
+
+	bolt->s.pos.trType = TR_LINEAR;
+	VectorScale(dir, 400, bolt->s.pos.trDelta);
+
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
+	VectorCopy(start, bolt->s.pos.trBase);
+
+	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
+	VectorCopy(start, bolt->r.currentOrigin);
+
+	return bolt;
+}

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-//  acebot_movement.c - This file contains all of the 
+//  acebot_movement.c - This file contains all of the
 //                      movement routines for the ACE bot
 
 
@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // Checks if bot can move (really just checking the ground)
 // Also, this is not a real accurate check, but does a
-// pretty good job and looks for lava/slime. 
+// pretty good job and looks for lava/slime.
 qboolean ACEMV_CanMove(gentity_t * self, int direction)
 {
 #if 1
@@ -173,9 +173,9 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 
 	// let them move to targets by walls
 	if(!self->bs.moveTarget)
-		VectorSet(offset, 200, 0, 4);	// focalpoint 
+		VectorSet(offset, 200, 0, 4);	// focalpoint
 	else
-		VectorSet(offset, 36, 0, 4);	// focalpoint 
+		VectorSet(offset, 36, 0, 4);	// focalpoint
 
 	G_ProjectSource(self->client->ps.origin, offset, forward, right, focalpoint);
 
@@ -214,7 +214,7 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 	trap_Trace(&traceRight, rightstart, NULL, NULL, focalpoint, self->s.number, MASK_PLAYERSOLID);
 	trap_Trace(&traceLeft, leftstart, NULL, NULL, focalpoint, self->s.number, MASK_PLAYERSOLID);
 
-	// wall checking code, this will degenerate progressivly so the least cost 
+	// wall checking code, this will degenerate progressivly so the least cost
 	// check will be done first.
 
 	// if open space move ok
@@ -260,7 +260,7 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 
 // Make the change in angles a little more gradual, not so snappy
 // Subtle, but noticeable.
-// 
+//
 // Modified from the original id ChangeYaw code...
 void ACEMV_ChangeBotAngle(gentity_t * ent)
 {
@@ -444,7 +444,7 @@ void ACEMV_Move(gentity_t * self)
 	if(currentNodeType == NODE_PLATFORM && nextNodeType == NODE_PLATFORM)
 	{
 		// move to the center
-		self->bs.moveVector[2] = 0;	// kill z movement    
+		self->bs.moveVector[2] = 0;	// kill z movement
 
 		if(VectorLength(self->bs.moveVector) > 10)
 			self->client->pers.cmd.forwardmove = 200;	// walk to center
@@ -550,7 +550,7 @@ void ACEMV_Move(gentity_t * self)
 }
 
 
-// Wandering code (based on old ACE movement code) 
+// Wandering code (based on old ACE movement code)
 void ACEMV_Wander(gentity_t * self)
 {
 	vec3_t          tmp;
@@ -702,7 +702,7 @@ void ACEMV_Attack(gentity_t * self)
 	float           distance;
 	vec3_t          angles;
 	vec3_t          oldAimVec;
-	float           aimTremble[2] = { 0.15, 0.15 };
+	float           aimTremble[2] = { 0.11, 0.11 };
 	float           slowness = 0.35;	//lower is slower
 
 	// randomly choose a movement direction
@@ -760,7 +760,17 @@ void ACEMV_Attack(gentity_t * self)
 	// don't attack too much
 	if(random() < 0.8 && ACEMV_CheckShot(self, target))
 	{
-		self->client->pers.cmd.buttons = BUTTON_ATTACK;
+		switch(self->client->pers.cmd.weapon)
+		{
+			case WP_FLAK_CANNON:
+			case WP_ROCKET_LAUNCHER:
+				self->client->pers.cmd.buttons = (random() < 0.5) ? BUTTON_ATTACK : BUTTON_ATTACK2;
+				break;
+
+			default:
+				self->client->pers.cmd.buttons = BUTTON_ATTACK;
+				break;
+		}
 	}
 
 //  if(ace_debug.integer)

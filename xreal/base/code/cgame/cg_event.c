@@ -332,6 +332,10 @@ static void CG_Obituary(entityState_t * ent)
 			case MOD_RAILGUN:
 				message = "was railed by";
 				break;
+			case MOD_RAILGUN_SPLASH:
+				message = "was blasted by";
+				message2 = "'s railgun";
+				break;
 			case MOD_LIGHTNING:
 				message = "was electrocuted by";
 				break;
@@ -1004,6 +1008,12 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_KAMIKAZE");
 			CG_KamikazeEffect(cent->lerpOrigin);
 			break;
+
+		case EV_RAILEXLOSION:
+			DEBUGNAME("EV_RAILEXPLOSION");
+			CG_RailExplode(cent->lerpOrigin);
+			break;
+
 		case EV_OBELISKEXPLODE:
 			DEBUGNAME("EV_OBELISKEXPLODE");
 			CG_ObeliskExplode(cent->lerpOrigin, es->eventParm);

@@ -595,7 +595,7 @@ const char     *BuildShaderStateConfig();
 // g_combat.c
 //
 qboolean        CanDamage(gentity_t * targ, vec3_t origin);
-void            G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker, vec3_t dir, vec3_t point, int damage,
+qboolean        G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker, const vec3_t dir, const vec3_t point, int damage,
 						 int dflags, int mod);
 qboolean        G_RadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float radius, gentity_t * ignore, int mod);
 int             G_InvulnerabilityEffect(gentity_t * targ, vec3_t dir, vec3_t point, vec3_t impactpoint, vec3_t bouncedir);
@@ -629,6 +629,7 @@ gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_nail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up);
 gentity_t      *fire_gravnail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up);
 gentity_t      *fire_prox(gentity_t * self, vec3_t start, vec3_t aimdir);
+gentity_t      *fire_railsphere(gentity_t * self, vec3_t start, vec3_t aimdir);
 
 
 //
@@ -661,7 +662,7 @@ void            DropPortalDestination(gentity_t * ent);
 // g_weapon.c
 //
 qboolean        LogAccuracyHit(gentity_t * target, gentity_t * attacker);
-void            CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint, int weapon);
+void            CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint, int weapon, qboolean secondary);
 qboolean        CheckGauntletAttack(gentity_t * ent);
 void            Weapon_HookFree(gentity_t * ent);
 void            Weapon_HookThink(gentity_t * ent);

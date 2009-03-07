@@ -212,8 +212,40 @@ void CG_KamikazeEffect(vec3_t org)
 	re->hModel = cgs.media.kamikazeEffectModel;
 
 	VectorCopy(org, re->origin);
-
 }
+
+
+/*
+==================
+CG_RailExplode
+==================
+*/
+void CG_RailExplode(vec3_t org)
+{
+	localEntity_t  *le;
+	refEntity_t    *re;
+
+	le = CG_AllocLocalEntity();
+	le->leFlags = 0;
+	le->leType = LE_RAILEXPLOSION;
+	le->startTime = cg.time;
+	le->endTime = cg.time + 3000;	//2250;
+	le->lifeRate = 1.0 / (le->endTime - le->startTime);
+
+	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
+
+	VectorClear(le->angles.trBase);
+
+	re = &le->refEntity;
+
+	re->reType = RT_MODEL;
+	re->shaderTime = -cg.time / 1000.0f;
+
+	re->hModel = cgs.media.kamikazeEffectModel;
+
+	VectorCopy(org, re->origin);
+}
+
 
 /*
 ==================
