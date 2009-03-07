@@ -1555,6 +1555,8 @@ static void RailSphereDamage(gentity_t * self)
 #endif
 }
 
+
+
 /*
 ================
 RailSphere_Die
@@ -1608,14 +1610,15 @@ gentity_t      *fire_railsphere(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->classname = "rocket";
 	bolt->nextthink = level.time + 15000;
 //	bolt->think = RailSphereDamage;
-	bolt->think = G_ExplodeMissile;
+//	bolt->think = G_ExplodeMissile;
+	bolt->think = G_FreeEntity; // FIXME
 	bolt->s.eType = ET_PROJECTILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_RAILGUN;
 	bolt->r.ownerNum = self->s.number;
 	bolt->parent = self;
-	bolt->damage = 100;
-	bolt->splashDamage = 100;
+	bolt->damage = 75;
+	bolt->splashDamage = 50;
 	bolt->splashRadius = 120;
 	bolt->methodOfDeath = MOD_RAILGUN_SPLASH;
 	bolt->splashMethodOfDeath = MOD_RAILGUN_SPLASH;
