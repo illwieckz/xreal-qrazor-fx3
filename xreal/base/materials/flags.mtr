@@ -2,49 +2,79 @@
 
 models/flags/flagpole
 {
-	diffuseMap		 models/flags/flagpole_diffuse.png
-	normalMap		 models/flags/flagpole_normal.png
-	specularMap	 	 models/flags/flagpole_specular.png
+	twoSided
+	diffuseMap		 models/flags/mic-flags/flagpole_diff
+	normalMap		 models/flags/mic-flags/flagpole_NRM
+	specularMap	 	 models/flags/mic-flags/flagpole_diff
 }
+models/flags/topding
+{
+	twoSided
+	// deformVertexes wave 100 sin 5 5 .5 2	
+	normalMap		models/flags/mic-flags/topding_NRM
+	specularMap		models/flags/mic-flags/topding_diff
 
+	{
+	blend diffusemap
+	map     models/flags/mic-flags/topding_diff
+	alphatest .5
+	}
+}
 
 models/flags/blueflag
 {
-	//polygonOffset
-	//noshadows
 	twoSided
-	deformVertexes wave 100 sin 5 5 .5 2
-	
-	diffuseMap		models/flags/blueflag_diffuse.png
-	normalMap		models/flags/blueflag_normal.png
-	specularMap		models/flags/blueflag_specular.png
-	glowMap			models/flags/blueflag_glow.png
+	 //deformVertexes wave 100 sin 5 5 .5 2	
+	normalMap		models/flags/mic-flags/flag_NRM
+	specularMap		models/flags/mic-flags/flag_spec
+
+	{
+	blend diffusemap
+	map     models/flags/mic-flags/flag_b_diff
+	alphatest .5
+	}
+	{
+	map     models/flags/mic-flags/flag_b_glo
+	blend add
+	alphatest .5
+	}
 }
 
 
 models/flags/redflag
 {
-	//polygonOffset
-	//noshadows
 	twoSided
-	deformVertexes wave 100 sin 5 5 .5 2
-	
-	diffuseMap		models/flags/redflag_diffuse.png
-	normalMap		models/flags/redflag_normal.png
-	specularMap		models/flags/redflag_specular.png
-	//glowMap			models/flags/redflag_glow.png
+	 //deformVertexes wave 100 sin 5 5 .5 2	
+	normalMap		models/flags/mic-flags/flag_NRM
+	specularMap		models/flags/mic-flags/flag_spec
+
+	{
+	blend diffusemap
+	map     models/flags/mic-flags/flag_r_diff
+	alphatest .5
+	}
+	{
+	map     models/flags/mic-flags/flag_r_glo
+	blend add
+	alphatest .5
+	}
 }
-
-
 
 models/flags/neutralflag
 {
-	//polygonOffset
-	//noshadows
 	twoSided
-	deformVertexes wave 100 sin 5 5 .5 2
-	
-	diffuseMap		models/flags/neutralflag_diffuse.png
-	normalMap		models/flags/neutralflag_normal.png
-	specularMap		models/flags/neutralflag_specular.png
+	 //deformVertexes wave 100 sin 5 5 .5 2	
+	normalMap		models/flags/mic-flags/flag_NRM
+	specularMap		models/flags/mic-flags/flag_spec
+
+	{
+	blend diffusemap
+	map     models/flags/mic-flags/flag_n_diff
+	alphatest .5
+	}
+	{
+	map     models/flags/mic-flags/flag_n_glo
+	blend add
+	alphatest .5
+	}
 }
