@@ -844,7 +844,7 @@ Only in CTF games
 	 "team_CTF_neutralflag",
 	 NULL,
 	 {"models/flags/flag.md5mesh", 0, 0, 0},
-	 {"models/flags/flag_neutgral.skin", NULL, NULL, NULL},
+	 {"models/flags/flag_neutral.skin", NULL, NULL, NULL},
 /* icon */ "icons/iconf_neutral1",
 /* pickup */ "Neutral Flag",
 	 0,

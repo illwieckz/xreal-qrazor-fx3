@@ -1176,7 +1176,7 @@ CG_RunLerpFrame
 copy of CG_RunLerpFrame
 ===============
 */
-static void CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation, float speedScale)
+void CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation, float speedScale)
 {
 	int             f, numFrames;
 	animation_t    *anim;
@@ -1416,6 +1416,8 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso
 	*/
 
 	CG_RunLerpFrame(&cent->pe.flag, cgs.media.flagAnimations, MAX_FLAG_ANIMATIONS, flagAnim, 1);
+
+	memcpy(&flag.skeleton, &cent->pe.flag.skeleton, sizeof(refSkeleton_t));
 
 	// transform relative bones to absolute ones required for vertex skinning
 	CG_TransformSkeleton(&flag.skeleton, NULL);

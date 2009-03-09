@@ -510,6 +510,7 @@ typedef struct
 	qboolean        registered;
 	qhandle_t       models[MAX_ITEM_MODELS];
 	qhandle_t       skins[MAX_ITEM_MODELS];
+	lerpFrame_t     lerpFrame;
 	qhandle_t       icon;
 } itemInfo_t;
 
@@ -1965,6 +1966,12 @@ void            CG_DrawOSD(void);
 void            CG_OSDNext_f(void);
 void            CG_OSDPrev_f(void);
 void            CG_OSDInput(void);
+
+
+//
+// cg_animation.c
+//
+void			CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation, float speedScale);
 
 #ifdef XPPM
 
