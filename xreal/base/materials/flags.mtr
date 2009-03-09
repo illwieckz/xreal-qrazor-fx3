@@ -3,20 +3,20 @@
 models/flags/flagpole
 {
 	twoSided
-	diffuseMap		 models/flags/mic-flags/flagpole_diff
-	normalMap		 models/flags/mic-flags/flagpole_NRM
-	specularMap	 	 models/flags/mic-flags/flagpole_diff
+	diffuseMap		 models/flags/flagpole_diff
+	normalMap		 models/flags/flagpole_NRM
+	specularMap	 	 models/flags/flagpole_diff
 }
 models/flags/topding
 {
 	twoSided
 	// deformVertexes wave 100 sin 5 5 .5 2	
-	normalMap		models/flags/mic-flags/topding_NRM
-	specularMap		models/flags/mic-flags/topding_diff
+	normalMap		models/flags/topding_NRM
+	specularMap		models/flags/topding_diff
 
 	{
 	blend diffusemap
-	map     models/flags/mic-flags/topding_diff
+	map     models/flags/topding_diff
 	alphatest .5
 	}
 }
@@ -25,16 +25,16 @@ models/flags/blueflag
 {
 	twoSided
 	 //deformVertexes wave 100 sin 5 5 .5 2	
-	normalMap		models/flags/mic-flags/flag_NRM
-	specularMap		models/flags/mic-flags/flag_spec
+	normalMap		models/flags/flag_NRM
+	specularMap		models/flags/flag_spec
 
 	{
 	blend diffusemap
-	map     models/flags/mic-flags/flag_b_diff
+	map     models/flags/flag_b_diff
 	alphatest .5
 	}
 	{
-	map     models/flags/mic-flags/flag_b_glo
+	map     models/flags/flag_b_glo
 	blend add
 	alphatest .5
 	}
@@ -45,16 +45,16 @@ models/flags/redflag
 {
 	twoSided
 	 //deformVertexes wave 100 sin 5 5 .5 2	
-	normalMap		models/flags/mic-flags/flag_NRM
-	specularMap		models/flags/mic-flags/flag_spec
+	normalMap		models/flags/flag_NRM
+	specularMap		models/flags/flag_spec
 
 	{
 	blend diffusemap
-	map     models/flags/mic-flags/flag_r_diff
+	map     models/flags/flag_r_diff
 	alphatest .5
 	}
 	{
-	map     models/flags/mic-flags/flag_r_glo
+	map     models/flags/flag_r_glo
 	blend add
 	alphatest .5
 	}
@@ -64,16 +64,16 @@ models/flags/neutralflag
 {
 	twoSided
 	 //deformVertexes wave 100 sin 5 5 .5 2	
-	normalMap		models/flags/mic-flags/flag_NRM
-	specularMap		models/flags/mic-flags/flag_spec
+	normalMap		models/flags/flag_NRM
+	specularMap		models/flags/flag_spec
 
 	{
 	blend diffusemap
-	map     models/flags/mic-flags/flag_n_diff
+	map     models/flags/flag_n_diff
 	alphatest .5
 	}
 	{
-	map     models/flags/mic-flags/flag_n_glo
+	map     models/flags/flag_n_glo
 	blend add
 	alphatest .5
 	}
