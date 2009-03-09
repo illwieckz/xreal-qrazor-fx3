@@ -582,16 +582,22 @@ typedef enum
 	TORSO_AFFIRMATIVE,
 	TORSO_NEGATIVE,
 
-	MAX_ANIMATIONS,
-
 	LEGS_BACKCR,
 	LEGS_BACKWALK,
 	FLAG_RUN,
 	FLAG_STAND,
 	FLAG_STAND2RUN,
 
-	MAX_TOTALANIMATIONS
+	MAX_PLAYER_ANIMATIONS
 } playerAnimNumber_t;
+
+typedef enum
+{
+	FLAG_IDLE,
+	FLAG_RUNNING,
+
+	MAX_FLAG_ANIMATIONS
+} flagAnimNumber_t;
 
 typedef struct animation_s
 {
@@ -708,8 +714,8 @@ typedef struct gitem_s
 {
 	char           *classname;	// spawning name
 	char           *pickup_sound;
-	char           *world_model[MAX_ITEM_MODELS];
-
+	char           *models[MAX_ITEM_MODELS];
+	char           *skins[MAX_ITEM_MODELS];
 	char           *icon;
 	char           *pickup_name;	// for printing on pickup
 

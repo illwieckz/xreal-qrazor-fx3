@@ -465,6 +465,12 @@ static void CG_Item(centity_t * cent)
 		ent.nonNormalizedAxes = qtrue;
 	}
 
+	// Tr3B: added skins support so we don't need multiple versions of the same team models
+	if(item->skins[0])
+	{
+		ent.customSkin = cg_items[es->modelindex].skins[0];
+	}
+
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
 

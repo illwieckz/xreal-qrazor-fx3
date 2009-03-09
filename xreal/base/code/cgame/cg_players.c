@@ -689,175 +689,7 @@ void CG_LoadDeferredPlayers(void)
 	}
 }
 
-/*
-=============================================================================
 
-PLAYER ANIMATION
-
-=============================================================================
-*/
-
-
-/*
-===============
-CG_SetLerpFrameAnimation
-
-may include ANIM_TOGGLEBIT
-===============
-*/
-static void CG_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, int newAnimation)
-{
-	animation_t    *anim;
-
-	lf->animationNumber = newAnimation;
-	newAnimation &= ~ANIM_TOGGLEBIT;
-
-	if(newAnimation < 0 || newAnimation >= MAX_TOTALANIMATIONS)
-	{
-		CG_Error("bad player animation number: %i", newAnimation);
-	}
-
-	anim = &ci->animations[newAnimation];
-
-	lf->animation = anim;
-	lf->animationTime = lf->frameTime + anim->initialLerp;
-
-	if(cg_debugPlayerAnim.integer)
-	{
-		CG_Printf("player anim: %i\n", newAnimation);
-	}
-}
-
-/*
-===============
-CG_RunLerpFrame
-
-Sets cg.snap, cg.oldFrame, and cg.backlerp
-cg.time should be between oldFrameTime and frameTime after exit
-===============
-*/
-static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimation, float speedScale)
-{
-	int             f, numFrames;
-	animation_t    *anim;
-
-	// debugging tool to get no animations
-	if(cg_animSpeed.integer == 0)
-	{
-		lf->oldFrame = lf->frame = lf->backlerp = 0;
-		return;
-	}
-
-	// see if the animation sequence is switching
-	if(newAnimation != lf->animationNumber || !lf->animation)
-	{
-		CG_SetLerpFrameAnimation(ci, lf, newAnimation);
-
-		if(!lf->animation)
-		{
-			memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
-		}
-
-
-	}
-
-	// if we have passed the current frame, move it to
-	// oldFrame and calculate a new frame
-	if(cg.time >= lf->frameTime)
-	{
-
-
-		lf->oldFrame = lf->frame;
-		lf->oldFrameTime = lf->frameTime;
-
-
-		// get the next frame based on the animation
-		anim = lf->animation;
-		if(!anim->frameTime)
-		{
-			return;				// shouldn't happen
-		}
-
-		if(cg.time < lf->animationTime)
-		{
-			lf->frameTime = lf->animationTime;	// initial lerp
-		}
-		else
-		{
-			lf->frameTime = lf->oldFrameTime + anim->frameTime;
-		}
-		f = (lf->frameTime - lf->animationTime) / anim->frameTime;
-		f *= speedScale;		// adjust for haste, etc
-
-		numFrames = anim->numFrames;
-
-		if(anim->flipflop)
-		{
-			numFrames *= 2;
-		}
-
-		if(f >= numFrames)
-		{
-			f -= numFrames;
-
-			if(anim->loopFrames)
-			{
-				f %= anim->loopFrames;
-				f += anim->numFrames - anim->loopFrames;
-			}
-			else
-			{
-				f = numFrames - 1;
-				// the animation is stuck at the end, so it
-				// can immediately transition to another sequence
-				lf->frameTime = cg.time;
-			}
-		}
-
-		if(anim->reversed)
-		{
-			lf->frame = anim->firstFrame + anim->numFrames - 1 - f;
-		}
-		else if(anim->flipflop && f >= anim->numFrames)
-		{
-			lf->frame = anim->firstFrame + anim->numFrames - 1 - (f % anim->numFrames);
-		}
-		else
-		{
-			lf->frame = anim->firstFrame + f;
-		}
-
-		if(cg.time > lf->frameTime)
-		{
-			lf->frameTime = cg.time;
-			if(cg_debugPlayerAnim.integer)
-			{
-				CG_Printf("clamp player lf->frameTime\n");
-			}
-		}
-	}
-
-	if(lf->frameTime > cg.time + 200)
-	{
-		lf->frameTime = cg.time;
-	}
-
-	if(lf->oldFrameTime > cg.time)
-	{
-		lf->oldFrameTime = cg.time;
-	}
-
-	// calculate current lerp value
-	if(lf->frameTime == lf->oldFrameTime)
-	{
-		lf->backlerp = 0;
-	}
-	else
-	{
-		lf->backlerp = 1.0 - (float)(cg.time - lf->oldFrameTime) / (lf->frameTime - lf->oldFrameTime);
-	}
-
-}
 
 
 /*
@@ -868,62 +700,12 @@ CG_ClearLerpFrame
 static void CG_ClearLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int animationNumber)
 {
 	lf->frameTime = lf->oldFrameTime = cg.time;
-	CG_SetLerpFrameAnimation(ci, lf, animationNumber);
+	CG_XPPM_SetLerpFrameAnimation(ci, lf, animationNumber);
 	lf->oldFrame = lf->frame = lf->animation->firstFrame;
 }
 
 
-/*
-===============
-CG_PlayerAnimation
-===============
-*/
-static void CG_PlayerAnimation(centity_t * cent, int *legsOld, int *legs, float *legsBackLerp,
-							   int *torsoOld, int *torso, float *torsoBackLerp)
-{
-	clientInfo_t   *ci;
-	int             clientNum;
-	float           speedScale;
 
-	clientNum = cent->currentState.clientNum;
-
-	if(cg_noPlayerAnims.integer)
-	{
-		*legsOld = *legs = *torsoOld = *torso = 0;
-		return;
-	}
-
-	if(cent->currentState.powerups & (1 << PW_HASTE))
-	{
-		speedScale = 1.5;
-	}
-	else
-	{
-		speedScale = 1;
-	}
-
-	ci = &cgs.clientinfo[clientNum];
-
-	// do the shuffle turn frames locally
-	if(cent->pe.legs.yawing && (cent->currentState.legsAnim & ~ANIM_TOGGLEBIT) == LEGS_IDLE)
-	{
-		CG_RunLerpFrame(ci, &cent->pe.legs, LEGS_TURN, speedScale);
-	}
-	else
-	{
-		CG_RunLerpFrame(ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale);
-	}
-
-	*legsOld = cent->pe.legs.oldFrame;
-	*legs = cent->pe.legs.frame;
-	*legsBackLerp = cent->pe.legs.backlerp;
-
-	CG_RunLerpFrame(ci, &cent->pe.torso, cent->currentState.torsoAnim, speedScale);
-
-	*torsoOld = cent->pe.torso.oldFrame;
-	*torso = cent->pe.torso.frame;
-	*torsoBackLerp = cent->pe.torso.backlerp;
-}
 
 /*
 =============================================================================
@@ -1316,7 +1098,7 @@ void CG_DustTrail(centity_t * cent)
 CG_TrailItem
 ===============
 */
-static void CG_TrailItem(centity_t * cent, qhandle_t hModel)
+static void CG_TrailItem(centity_t * cent, qhandle_t hModel, qhandle_t hSkin)
 {
 	refEntity_t     ent;
 	vec3_t          angles;
@@ -1334,9 +1116,233 @@ static void CG_TrailItem(centity_t * cent, qhandle_t hModel)
 	AnglesToAxis(angles, ent.axis);
 
 	ent.hModel = hModel;
+	ent.customSkin = hSkin;
 	trap_R_AddRefEntityToScene(&ent);
 }
 
+
+void CG_SetLerpFrameAnimation(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation)
+{
+	animation_t    *anim;
+
+	// save old animation
+	lf->old_animationNumber = lf->animationNumber;
+	lf->old_animation = lf->animation;
+
+	lf->animationNumber = newAnimation;
+	newAnimation &= ~ANIM_TOGGLEBIT;
+
+	if(newAnimation < 0 || newAnimation >= animsNum)
+	{
+		CG_Error("CG_SetLerpFrameAnimation: bad animation number: %i", newAnimation);
+	}
+
+	anim = &anims[newAnimation];
+
+	lf->animation = anim;
+	lf->animationTime = lf->frameTime + anim->initialLerp;
+
+	if(lf->old_animationNumber <= 0)
+	{							// skip initial / invalid blending
+		lf->blendlerp = 0.0f;
+		return;
+	}
+
+	// TODO: blend through two blendings!
+
+	if((lf->blendlerp <= 0.0f))
+		lf->blendlerp = 1.0f;
+	else
+		lf->blendlerp = 1.0f - lf->blendlerp;	// use old blending for smooth blending between two blended animations
+
+	memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
+
+	//Com_Printf("new: %i old %i\n", newAnimation,lf->old_animationNumber);
+
+	if(!trap_R_BuildSkeleton
+	   (&lf->oldSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->blendlerp, lf->old_animation->clearOrigin))
+	{
+		CG_Printf("CG_SetLerpFrameAnimation: can't blend skeleton\n");
+		return;
+	}
+
+
+}
+
+/*
+===============
+CG_RunLerpFrame
+
+copy of CG_RunLerpFrame
+===============
+*/
+static void CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation, float speedScale)
+{
+	int             f, numFrames;
+	animation_t    *anim;
+	qboolean        animChanged;
+
+	// debugging tool to get no animations
+	if(cg_animSpeed.integer == 0)
+	{
+		lf->oldFrame = lf->frame = lf->backlerp = 0;
+		return;
+	}
+
+	// see if the animation sequence is switching
+	if(newAnimation != lf->animationNumber || !lf->animation)
+	{
+		CG_SetLerpFrameAnimation(lf, anims, animsNum, newAnimation);
+
+		if(!lf->animation)
+		{
+			memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
+		}
+
+		animChanged = qtrue;
+	}
+	else
+	{
+		animChanged = qfalse;
+	}
+
+	// if we have passed the current frame, move it to
+	// oldFrame and calculate a new frame
+	if(cg.time >= lf->frameTime || animChanged)
+	{
+		if(animChanged)
+		{
+			lf->oldFrame = 0;
+			lf->oldFrameTime = cg.time;
+		}
+		else
+
+		{
+			lf->oldFrame = lf->frame;
+			lf->oldFrameTime = lf->frameTime;
+		}
+
+		// get the next frame based on the animation
+		anim = lf->animation;
+		if(!anim->frameTime)
+		{
+			return;				// shouldn't happen
+		}
+
+		if(cg.time < lf->animationTime)
+		{
+			lf->frameTime = lf->animationTime;	// initial lerp
+		}
+		else
+		{
+			lf->frameTime = lf->oldFrameTime + anim->frameTime;
+		}
+		f = (lf->frameTime - lf->animationTime) / anim->frameTime;
+		f *= speedScale;		// adjust for haste, etc
+
+		numFrames = anim->numFrames;
+
+		if(anim->flipflop)
+		{
+			numFrames *= 2;
+		}
+
+		if(f >= numFrames)
+		{
+			f -= numFrames;
+
+			if(anim->loopFrames)
+			{
+				f %= anim->loopFrames;
+				f += anim->numFrames - anim->loopFrames;
+			}
+			else
+			{
+				f = numFrames - 1;
+				// the animation is stuck at the end, so it
+				// can immediately transition to another sequence
+				lf->frameTime = cg.time;
+			}
+		}
+
+		if(anim->reversed)
+		{
+			lf->frame = anim->firstFrame + anim->numFrames - 1 - f;
+		}
+		else if(anim->flipflop && f >= anim->numFrames)
+		{
+			lf->frame = anim->firstFrame + anim->numFrames - 1 - (f % anim->numFrames);
+		}
+		else
+		{
+			lf->frame = anim->firstFrame + f;
+		}
+
+		if(cg.time > lf->frameTime)
+		{
+			lf->frameTime = cg.time;
+		}
+	}
+
+	if(lf->frameTime > cg.time + 200)
+	{
+		lf->frameTime = cg.time;
+	}
+
+	if(lf->oldFrameTime > cg.time)
+	{
+		lf->oldFrameTime = cg.time;
+	}
+
+	// calculate current lerp value
+	if(lf->frameTime == lf->oldFrameTime)
+	{
+		lf->backlerp = 0;
+	}
+	else
+	{
+		lf->backlerp = 1.0 - (float)(cg.time - lf->oldFrameTime) / (lf->frameTime - lf->oldFrameTime);
+	}
+
+	// blend old and current animation
+	if(cg_animBlend.value <= 0.0f)
+	{
+		lf->blendlerp = 0.0f;
+	}
+
+	if((lf->blendlerp > 0.0f) && (cg.time > lf->blendtime))
+	{
+#if 0
+		// linear blending
+		lf->blendlerp -= 0.025f;
+#else
+		// exp blending
+		lf->blendlerp -= lf->blendlerp / cg_animBlend.value;
+#endif
+		if(lf->blendlerp <= 0.0f)
+			lf->blendlerp = 0.0f;
+		if(lf->blendlerp >= 1.0f)
+			lf->blendlerp = 1.0f;
+
+		lf->blendtime = cg.time + 10;
+	}
+
+	if(!trap_R_BuildSkeleton
+	   (&lf->skeleton, lf->animation->handle, lf->oldFrame, lf->frame, 1.0 - lf->backlerp, lf->animation->clearOrigin))
+	{
+		CG_Printf("Can't build lf->skeleton\n");
+	}
+
+	// lerp between old and new animation if possible
+	if(lf->blendlerp > 0.0f)
+	{
+		if(!trap_R_BlendSkeleton(&lf->skeleton, &lf->oldSkeleton, lf->blendlerp))
+		{
+			CG_Printf("Can't blend\n");
+			return;
+		}
+	}
+}
 
 /*
 ===============
@@ -1346,36 +1352,39 @@ CG_PlayerFlag
 static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso)
 {
 	clientInfo_t   *ci;
-	refEntity_t     pole;
 	refEntity_t     flag;
 	vec3_t          angles, dir;
 	int             legsAnim, flagAnim, updateangles;
 	float           angle, d;
+	vec3_t          axis[3];
 
-	// show the flag pole model
-	memset(&pole, 0, sizeof(pole));
-	pole.hModel = cgs.media.flagPoleModel;
-	VectorCopy(torso->lightingOrigin, pole.lightingOrigin);
-	pole.shadowPlane = torso->shadowPlane;
-	pole.renderfx = torso->renderfx;
-	CG_PositionEntityOnTag(&pole, torso, torso->hModel, "tag_flag");
-	trap_R_AddRefEntityToScene(&pole);
+	VectorCopy(cent->lerpAngles, angles);
+	angles[PITCH] = 0;
+	angles[ROLL] = 0;
+	AnglesToAxis(angles, axis);
 
 	// show the flag model
 	memset(&flag, 0, sizeof(flag));
-	flag.hModel = cgs.media.flagFlapModel;
+	flag.hModel = cgs.media.flagModel;
 	flag.customSkin = hSkin;
 	VectorCopy(torso->lightingOrigin, flag.lightingOrigin);
 	flag.shadowPlane = torso->shadowPlane;
 	flag.renderfx = torso->renderfx;
 
+	VectorMA(cent->lerpOrigin, -16, axis[0], flag.origin);
+	flag.origin[2] += 16;
+	angles[YAW] += 90;
+	AnglesToAxis(angles, flag.axis);
+
 	VectorClear(angles);
 
 	updateangles = qfalse;
 	legsAnim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
+
+#if 0
 	if(legsAnim == LEGS_IDLE || legsAnim == LEGS_IDLECR)
 	{
-		flagAnim = FLAG_STAND;
+		flagAnim = FLAG_IDLE;
 	}
 	else if(legsAnim == LEGS_WALK || legsAnim == LEGS_WALKCR)
 	{
@@ -1387,19 +1396,45 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso
 		flagAnim = FLAG_RUN;
 		updateangles = qtrue;
 	}
+#else
+	flagAnim = FLAG_IDLE;
+#endif
 
+	/*
+	if(cgs.media.flagAnimation.handle)
+	{
+		// HACK: just lerp
+		static int frame;
+
+		if(!trap_R_BuildSkeleton(&flag.skeleton, cgs.media.flagIdleAnimation.handle,
+										 cg.testModelEntity.oldframe,
+										 cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
+		{
+			CG_Printf("CG_PlayerFlag: can't build idle animation\n");
+		}
+	}
+	*/
+
+	CG_RunLerpFrame(&cent->pe.flag, cgs.media.flagAnimations, MAX_FLAG_ANIMATIONS, flagAnim, 1);
+
+	// transform relative bones to absolute ones required for vertex skinning
+	CG_TransformSkeleton(&flag.skeleton, NULL);
+
+#if 0
 	if(updateangles)
 	{
 		VectorCopy(cent->currentState.pos.trDelta, dir);
+
 		// add gravity
 		dir[2] += 100;
 		VectorNormalize(dir);
-		d = DotProduct(pole.axis[2], dir);
+		d = DotProduct(flag.axis[2], dir);
+
 		// if there is anough movement orthogonal to the flag pole
 		if(fabs(d) < 0.9)
 		{
 			//
-			d = DotProduct(pole.axis[0], dir);
+			d = DotProduct(flag.axis[0], dir);
 			if(d > 1.0f)
 			{
 				d = 1.0f;
@@ -1410,7 +1445,7 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso
 			}
 			angle = acos(d);
 
-			d = DotProduct(pole.axis[1], dir);
+			d = DotProduct(flag.axis[1], dir);
 			if(d < 0)
 			{
 				angles[YAW] = 360 - angle * 180 / M_PI;
@@ -1452,15 +1487,18 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso
 
 	// set the yaw angle
 	angles[YAW] = cent->pe.flag.yawAngle;
+
 	// lerp the flag animation frames
 	ci = &cgs.clientinfo[cent->currentState.clientNum];
 	CG_RunLerpFrame(ci, &cent->pe.flag, flagAnim, 1);
+
 	flag.oldframe = cent->pe.flag.oldFrame;
 	flag.frame = cent->pe.flag.frame;
 	flag.backlerp = cent->pe.flag.backlerp;
 
 	AnglesToAxis(angles, flag.axis);
-	CG_PositionRotatedEntityOnTag(&flag, &pole, pole.hModel, "tag_flag");
+//	CG_PositionRotatedEntityOnTag(&flag, &pole, pole.hModel, "tag_flag");
+#endif
 
 	trap_R_AddRefEntityToScene(&flag);
 }
@@ -1602,14 +1640,7 @@ void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShadowID)
 	// redflag
 	if(powerups & (1 << PW_REDFLAG))
 	{
-		if(ci->newAnims)
-		{
-			CG_PlayerFlag(cent, cgs.media.redFlagFlapSkin, torso);
-		}
-		else
-		{
-			CG_TrailItem(cent, cgs.media.redFlagModel);
-		}
+		CG_PlayerFlag(cent, cgs.media.redFlagSkin, torso);
 
 		// add light
 		memset(&light, 0, sizeof(refLight_t));
@@ -1638,14 +1669,7 @@ void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShadowID)
 	// blueflag
 	if(powerups & (1 << PW_BLUEFLAG))
 	{
-		if(ci->newAnims)
-		{
-			CG_PlayerFlag(cent, cgs.media.blueFlagFlapSkin, torso);
-		}
-		else
-		{
-			CG_TrailItem(cent, cgs.media.blueFlagModel);
-		}
+		CG_PlayerFlag(cent, cgs.media.blueFlagSkin, torso);
 
 		// add light
 		memset(&light, 0, sizeof(refLight_t));
@@ -1674,14 +1698,7 @@ void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShadowID)
 	// neutralflag
 	if(powerups & (1 << PW_NEUTRALFLAG))
 	{
-		if(ci->newAnims)
-		{
-			CG_PlayerFlag(cent, cgs.media.neutralFlagFlapSkin, torso);
-		}
-		else
-		{
-			CG_TrailItem(cent, cgs.media.neutralFlagModel);
-		}
+		CG_PlayerFlag(cent, cgs.media.neutralFlagSkin, torso);
 
 		// add light
 		memset(&light, 0, sizeof(refLight_t));

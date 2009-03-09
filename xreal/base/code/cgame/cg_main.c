@@ -606,6 +606,44 @@ static void CG_RegisterItemSounds(int itemNum)
 }
 
 
+static qboolean CG_RegisterAnimation(animation_t * anim, const char *filename,
+										   qboolean loop, qboolean reversed, qboolean clearOrigin)
+{
+	int             frameRate;
+
+	anim->handle = trap_R_RegisterAnimation(filename);
+	if(!anim->handle)
+	{
+		Com_Printf("Failed to load animation file %s\n", filename);
+		return qfalse;
+	}
+
+	anim->firstFrame = 0;
+	anim->numFrames = trap_R_AnimNumFrames(anim->handle);
+	frameRate = trap_R_AnimFrameRate(anim->handle);
+
+	if(frameRate == 0)
+	{
+		frameRate = 1;
+	}
+	anim->frameTime = 1000 / frameRate;
+	anim->initialLerp = 1000 / frameRate;
+
+	if(loop)
+	{
+		anim->loopFrames = anim->numFrames;
+	}
+	else
+	{
+		anim->loopFrames = 0;
+	}
+
+	anim->reversed = reversed;
+	anim->clearOrigin = clearOrigin;
+
+	return qtrue;
+}
+
 /*
 =================
 CG_RegisterSounds
@@ -1042,23 +1080,21 @@ static void CG_RegisterGraphics(void)
 
 	if(cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER)
 	{
-		cgs.media.redFlagModel = trap_R_RegisterModel("models/flags/r_flag.md3", qfalse);
-		cgs.media.blueFlagModel = trap_R_RegisterModel("models/flags/b_flag.md3", qfalse);
+		cgs.media.flagModel = trap_R_RegisterModel("models/flags/flag.md5mesh", qfalse);
+		CG_RegisterAnimation(&cgs.media.flagAnimations[FLAG_IDLE], "models/flags/flag_idle.md5anim", qtrue, qfalse, qtrue);
+
+		cgs.media.redFlagSkin = trap_R_RegisterSkin("models/flags/flag_red.skin");
+		cgs.media.blueFlagSkin = trap_R_RegisterSkin("models/flags/flag_blue.skin");
+
 		cgs.media.redFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_red1");
 		cgs.media.redFlagShader[1] = trap_R_RegisterShaderNoMip("icons/iconf_red2");
 		cgs.media.redFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_red3");
+
 		cgs.media.blueFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_blu1");
 		cgs.media.blueFlagShader[1] = trap_R_RegisterShaderNoMip("icons/iconf_blu2");
 		cgs.media.blueFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_blu3");
 
 #ifdef MISSIONPACK
-		cgs.media.flagPoleModel = trap_R_RegisterModel("models/flag2/flagpole.md3");
-		cgs.media.flagFlapModel = trap_R_RegisterModel("models/flag2/flagflap3.md3");
-
-		cgs.media.redFlagFlapSkin = trap_R_RegisterSkin("models/flag2/red.skin");
-		cgs.media.blueFlagFlapSkin = trap_R_RegisterSkin("models/flag2/blue.skin");
-		cgs.media.neutralFlagFlapSkin = trap_R_RegisterSkin("models/flag2/white.skin");
-
 		cgs.media.redFlagBaseModel = trap_R_RegisterModel("models/mapobjects/flagbase/red_base.md3");
 		cgs.media.blueFlagBaseModel = trap_R_RegisterModel("models/mapobjects/flagbase/blue_base.md3");
 		cgs.media.neutralFlagBaseModel = trap_R_RegisterModel("models/mapobjects/flagbase/ntrl_base.md3");
@@ -1067,7 +1103,8 @@ static void CG_RegisterGraphics(void)
 
 	if(cgs.gametype == GT_1FCTF)
 	{
-		cgs.media.neutralFlagModel = trap_R_RegisterModel("models/flags/n_flag.md3", qfalse);
+		cgs.media.neutralFlagSkin = trap_R_RegisterSkin("models/flags/flag_neutral.skin");
+
 		cgs.media.flagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_neutral1");
 		cgs.media.flagShader[1] = trap_R_RegisterShaderNoMip("icons/iconf_red2");
 		cgs.media.flagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_blu2");

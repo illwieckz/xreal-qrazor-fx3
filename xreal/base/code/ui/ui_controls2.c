@@ -156,7 +156,6 @@ typedef struct
 	menutext_s      banner;
 	//menubitmap_s    framel;
 	//menubitmap_s    framer;
-	menubitmap_s    player;
 
 	menubitmap_s    movement;
 	menubitmap_s    looking;
@@ -545,9 +544,6 @@ static void Controls_UpdateModel(int anim)
 		default:
 			break;
 	}
-
-	UI_PlayerInfo_SetInfo(&s_controls.playerinfo, s_controls.playerLegs, s_controls.playerTorso, s_controls.playerViewangles,
-						  s_controls.playerMoveangles, s_controls.playerWeapon, s_controls.playerChat);
 }
 
 
@@ -795,29 +791,6 @@ static void Controls_StatusBar(void *self)
 				  UI_CENTER | UI_PULSE, &uis.freeSansBoldFont);
 
 
-}
-
-
-/*
-=================
-Controls_DrawPlayer
-=================
-*/
-static void Controls_DrawPlayer(void *self)
-{
-	menubitmap_s   *b;
-	char            buf[MAX_QPATH];
-
-	trap_Cvar_VariableStringBuffer("model", buf, sizeof(buf));
-	if(strcmp(buf, s_controls.playerModel) != 0)
-	{
-		UI_PlayerInfo_SetModel(&s_controls.playerinfo, buf);
-		strcpy(s_controls.playerModel, buf);
-		Controls_UpdateModel(ANIM_IDLE);
-	}
-
-	b = (menubitmap_s *) self;
-	UI_DrawPlayer(b->generic.x, b->generic.y, b->width, b->height, &s_controls.playerinfo, uis.realtime / 2);
 }
 
 
@@ -1232,38 +1205,7 @@ static void Controls_ActionEvent(void *ptr, int event)
 	}
 }
 
-/*
-=================
-Controls_InitModel
-=================
-*/
-static void Controls_InitModel(void)
-{
-	memset(&s_controls.playerinfo, 0, sizeof(playerInfo_t));
 
-	UI_PlayerInfo_SetModel(&s_controls.playerinfo, UI_Cvar_VariableString("model"));
-
-	Controls_UpdateModel(ANIM_IDLE);
-}
-
-/*
-=================
-Controls_InitWeapons
-=================
-*/
-static void Controls_InitWeapons(void)
-{
-	gitem_t        *item;
-
-	for(item = bg_itemlist + 1; item->classname; item++)
-	{
-		if(item->giType != IT_WEAPON)
-		{
-			continue;
-		}
-		trap_R_RegisterModel(item->world_model[0], qtrue);
-	}
-}
 
 /*
 =================
@@ -1406,14 +1348,6 @@ static void Controls_MenuInit(void)
 	s_controls.back.generic.caption.font = &uis.buttonFont;
 	s_controls.back.generic.caption.color = text_color_normal;
 	s_controls.back.generic.caption.focuscolor = text_color_highlight;
-
-	s_controls.player.generic.type = MTYPE_BITMAP;
-	s_controls.player.generic.flags = QMF_INACTIVE;
-	s_controls.player.generic.ownerdraw = Controls_DrawPlayer;
-	s_controls.player.generic.x = 400;
-	s_controls.player.generic.y = -40;
-	s_controls.player.width = 32 * 10;
-	s_controls.player.height = 56 * 10;
 
 	s_controls.walkforward.generic.type = MTYPE_ACTION;
 	s_controls.walkforward.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
@@ -1705,8 +1639,6 @@ static void Controls_MenuInit(void)
 //  Menu_AddItem(&s_controls.menu, &s_controls.framel);
 //  Menu_AddItem(&s_controls.menu, &s_controls.framer);
 
-//otty: do we need model preview here ?
-//  Menu_AddItem(&s_controls.menu, &s_controls.player);
 //  Menu_AddItem(&s_controls.menu, &s_controls.name);
 
 	Menu_AddItem(&s_controls.menu, &s_controls.looking);
@@ -1771,14 +1703,6 @@ static void Controls_MenuInit(void)
 
 	// initialize the current config
 	Controls_GetConfig();
-
-
-//otty: do we need model preview here ?
-	// intialize the model
-//  Controls_InitModel();
-
-	// intialize the weapons
-//  Controls_InitWeapons();
 
 	// initial default section
 	s_controls.section = C_LOOKING;

@@ -778,7 +778,7 @@ void CG_RegisterWeapon(int weaponNum)
 	CG_RegisterItemVisuals(item - bg_itemlist);
 
 	// load cmodel before model so filecache works
-	weaponInfo->weaponModel = trap_R_RegisterModel(item->world_model[0], qtrue);
+	weaponInfo->weaponModel = trap_R_RegisterModel(item->models[0], qtrue);
 
 	// calc midpoint for rotation
 	trap_R_ModelBounds(weaponInfo->weaponModel, mins, maxs);
@@ -797,34 +797,34 @@ void CG_RegisterWeapon(int weaponNum)
 			break;
 		}
 	}
-	if(ammo->classname && ammo->world_model[0])
+	if(ammo->classname && ammo->models[0])
 	{
-		weaponInfo->ammoModel = trap_R_RegisterModel(ammo->world_model[0], qtrue);
+		weaponInfo->ammoModel = trap_R_RegisterModel(ammo->models[0], qtrue);
 	}
 
-	strcpy(path, item->world_model[0]);
+	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_flash.md3");
 	weaponInfo->flashModel = trap_R_RegisterModel(path, qtrue);
 
-	strcpy(path, item->world_model[0]);
+	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_barrel.md3");
 	weaponInfo->barrelModel = trap_R_RegisterModel(path, qtrue);
 
-	strcpy(path, item->world_model[0]);
+	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_hand.md3");
 	weaponInfo->handsModel = trap_R_RegisterModel(path, qfalse);
 
-	strcpy(path, item->world_model[0]);
+	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_view.md5mesh");
 	weaponInfo->viewModel = trap_R_RegisterModel(path, qfalse);
 
 	if(weaponInfo->viewModel)
 	{
-		strcpy(path, item->world_model[0]);
+		strcpy(path, item->models[0]);
 		Com_StripExtension(path, path, sizeof(path));
 		strcat(path, "_view_idle.md5anim");
 		if(!CG_RegisterWeaponAnimation(&weaponInfo->viewModel_animations[WEAPON_READY], path, qtrue, qfalse, qfalse))
@@ -841,17 +841,17 @@ void CG_RegisterWeapon(int weaponNum)
 			weaponInfo->viewModel_animations[i] = weaponInfo->viewModel_animations[WEAPON_READY];
 		}
 
-		strcpy(path, item->world_model[0]);
+		strcpy(path, item->models[0]);
 		Com_StripExtension(path, path, sizeof(path));
 		strcat(path, "_view_raise.md5anim");
 		CG_RegisterWeaponAnimation(&weaponInfo->viewModel_animations[WEAPON_RAISING], path, qfalse, qfalse, qfalse);
 
-		strcpy(path, item->world_model[0]);
+		strcpy(path, item->models[0]);
 		Com_StripExtension(path, path, sizeof(path));
 		strcat(path, "_view_lower.md5anim");
 		CG_RegisterWeaponAnimation(&weaponInfo->viewModel_animations[WEAPON_DROPPING], path, qfalse, qfalse, qfalse);
 
-		strcpy(path, item->world_model[0]);
+		strcpy(path, item->models[0]);
 		Com_StripExtension(path, path, sizeof(path));
 		strcat(path, "_view_fire.md5anim");
 		CG_RegisterWeaponAnimation(&weaponInfo->viewModel_animations[WEAPON_FIRING], path, qtrue, qfalse, qfalse);
@@ -1042,7 +1042,11 @@ void CG_RegisterItemVisuals(int itemNum)
 	memset(itemInfo, 0, sizeof(&itemInfo));
 	itemInfo->registered = qtrue;
 
-	itemInfo->models[0] = trap_R_RegisterModel(item->world_model[0], qtrue);
+	itemInfo->models[0] = trap_R_RegisterModel(item->models[0], qtrue);
+	if(item->skins[0])
+	{
+		itemInfo->skins[0] = trap_R_RegisterSkin(item->skins[0]);
+	}
 
 	itemInfo->icon = trap_R_RegisterShader(item->icon);
 
@@ -1054,9 +1058,14 @@ void CG_RegisterItemVisuals(int itemNum)
 	// powerups have an accompanying ring or sphere
 	if(item->giType == IT_POWERUP || item->giType == IT_HEALTH || item->giType == IT_ARMOR || item->giType == IT_HOLDABLE)
 	{
-		if(item->world_model[1])
+		if(item->models[1])
 		{
-			itemInfo->models[1] = trap_R_RegisterModel(item->world_model[1], qtrue);
+			itemInfo->models[1] = trap_R_RegisterModel(item->models[1], qtrue);
+		}
+
+		if(item->skins[1])
+		{
+			itemInfo->skins[1] = trap_R_RegisterSkin(item->skins[1]);
 		}
 	}
 }

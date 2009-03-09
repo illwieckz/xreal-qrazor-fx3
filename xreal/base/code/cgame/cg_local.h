@@ -125,7 +125,6 @@ typedef struct
 	int             oldFrame;
 	int             oldFrameTime;	// time when ->oldFrame was exactly on
 
-
 	refSkeleton_t   skeleton;
 	int             frame;
 	int             frameTime;	// time when ->frame will be exactly on
@@ -436,7 +435,7 @@ typedef struct
 
 	qhandle_t       modelIcon;
 
-	animation_t     animations[MAX_TOTALANIMATIONS];
+	animation_t     animations[MAX_PLAYER_ANIMATIONS];
 
 	sfxHandle_t     sounds[MAX_CUSTOM_SOUNDS];
 } clientInfo_t;
@@ -510,6 +509,7 @@ typedef struct
 {
 	qboolean        registered;
 	qhandle_t       models[MAX_ITEM_MODELS];
+	qhandle_t       skins[MAX_ITEM_MODELS];
 	qhandle_t       icon;
 } itemInfo_t;
 
@@ -915,19 +915,15 @@ typedef struct
 	qhandle_t       charsetProp2;
 	qhandle_t       whiteShader;
 
-	qhandle_t       redFlagModel;
-	qhandle_t       blueFlagModel;
-	qhandle_t       neutralFlagModel;
+	qhandle_t       flagModel;
+	animation_t     flagAnimations[MAX_FLAG_ANIMATIONS];
+	qhandle_t		redFlagSkin;
+	qhandle_t       blueFlagSkin;
+	qhandle_t       neutralFlagSkin;
+
 	qhandle_t       redFlagShader[3];
 	qhandle_t       blueFlagShader[3];
 	qhandle_t       flagShader[4];
-
-	qhandle_t       flagPoleModel;
-	qhandle_t       flagFlapModel;
-
-	qhandle_t       redFlagFlapSkin;
-	qhandle_t       blueFlagFlapSkin;
-	qhandle_t       neutralFlagFlapSkin;
 
 	qhandle_t       redFlagBaseModel;
 	qhandle_t       blueFlagBaseModel;

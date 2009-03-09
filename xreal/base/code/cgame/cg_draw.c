@@ -484,21 +484,19 @@ Used for both the status bar and the scoreboard
 */
 void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean force2D)
 {
-	qhandle_t       cm;
 	float           len;
 	vec3_t          origin, angles;
 	vec3_t          mins, maxs;
-	qhandle_t       handle;
+	qhandle_t       model, skin;
 
 	if(!force2D && cg_draw3dIcons.integer)
 	{
-
 		VectorClear(angles);
 
-		cm = cgs.media.redFlagModel;
+		model = cgs.media.flagModel;
 
 		// offset the origin y and z to center the flag
-		trap_R_ModelBounds(cm, mins, maxs);
+		trap_R_ModelBounds(model, mins, maxs);
 
 		origin[2] = -0.5 * (mins[2] + maxs[2]);
 		origin[1] = 0.5 * (mins[1] + maxs[1]);
@@ -512,21 +510,22 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 
 		if(team == TEAM_RED)
 		{
-			handle = cgs.media.redFlagModel;
+			skin = cgs.media.redFlagSkin;
 		}
 		else if(team == TEAM_BLUE)
 		{
-			handle = cgs.media.blueFlagModel;
+			skin = cgs.media.blueFlagSkin;
 		}
 		else if(team == TEAM_FREE)
 		{
-			handle = cgs.media.neutralFlagModel;
+			skin = cgs.media.neutralFlagSkin;
 		}
 		else
 		{
 			return;
 		}
-		CG_Draw3DModel(x, y, w, h, handle, 0, origin, angles);
+
+		CG_Draw3DModel(x, y, w, h, model, skin, origin, angles);
 	}
 	else if(cg_drawIcons.integer)
 	{

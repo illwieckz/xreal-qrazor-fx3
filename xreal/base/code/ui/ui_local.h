@@ -502,7 +502,7 @@ typedef struct
 	qhandle_t       headModel;
 	qhandle_t       headSkin;
 
-	animation_t     animations[MAX_ANIMATIONS];
+	animation_t     animations[MAX_PLAYER_ANIMATIONS];
 
 #ifdef XPPM
 	// XPPM support for the UI
@@ -521,45 +521,15 @@ typedef struct
 
 #endif
 
-
-	qhandle_t       weaponModel;
-	qhandle_t       barrelModel;
-	qhandle_t       flashModel;
-	vec3_t          flashLightColor;
-	int             muzzleFlashTime;
-
 	// currently in use drawing parms
 	vec3_t          viewAngles;
 	vec3_t          moveAngles;
-	weapon_t        currentWeapon;
 	int             legsAnim;
 	int             torsoAnim;
-
-	// animation vars
-	weapon_t        weapon;
-	weapon_t        lastWeapon;
-	weapon_t        pendingWeapon;
-	int             weaponTimer;
-	int             pendingLegsAnim;
-	int             torsoAnimationTimer;
-
-	int             pendingTorsoAnim;
-	int             legsAnimationTimer;
-
-	qboolean        chat;
-	qboolean        newModel;
-
-	qboolean        barrelSpinning;
-	float           barrelAngle;
-	int             barrelTime;
-
-	int             realWeapon;
 } playerInfo_t;
 
 void            UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int time);
 void            UI_PlayerInfo_SetModel(playerInfo_t * pi, const char *model);
-void            UI_PlayerInfo_SetInfo(playerInfo_t * pi, int legsAnim, int torsoAnim, vec3_t viewAngles, vec3_t moveAngles,
-									  weapon_t weaponNum, qboolean chat);
 qboolean        UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName);
 
 #ifdef XPPM

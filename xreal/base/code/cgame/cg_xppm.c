@@ -289,7 +289,7 @@ qboolean CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, c
 		}
 
 		// make LEGS_IDLE the default animation
-		for(i = 0; i < MAX_ANIMATIONS; i++)
+		for(i = 0; i < MAX_PLAYER_ANIMATIONS; i++)
 		{
 			if(i == LEGS_IDLE)
 				continue;
@@ -650,19 +650,18 @@ CG_XPPM_SetLerpFrameAnimation
 may include ANIM_TOGGLEBIT
 ===============
 */
-static void CG_XPPM_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, int newAnimation)
+void CG_XPPM_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, int newAnimation)
 {
 	animation_t    *anim;
 
 	//save old animation
-
 	lf->old_animationNumber = lf->animationNumber;
 	lf->old_animation = lf->animation;
 
 	lf->animationNumber = newAnimation;
 	newAnimation &= ~ANIM_TOGGLEBIT;
 
-	if(newAnimation < 0 || newAnimation >= MAX_TOTALANIMATIONS)
+	if(newAnimation < 0 || newAnimation >= MAX_PLAYER_ANIMATIONS)
 	{
 		CG_Error("bad player animation number: %i", newAnimation);
 	}
@@ -677,7 +676,6 @@ static void CG_XPPM_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, i
 		CG_Printf("player anim: %i\n", newAnimation);
 	}
 
-
 	debug_anim_current = lf->animationNumber;
 	debug_anim_old = lf->old_animationNumber;
 
@@ -687,7 +685,7 @@ static void CG_XPPM_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, i
 		return;
 	}
 
-	//TODO: blend through two blendings!
+	// TODO: blend through two blendings!
 
 	if((lf->blendlerp <= 0.0f))
 		lf->blendlerp = 1.0f;
@@ -708,9 +706,8 @@ static void CG_XPPM_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, i
 
 }
 
-//TODO: choose propper values and use blending speed from character.cfg
+// TODO: choose propper values and use blending speed from character.cfg
 // blending is slow for testing issues
-
 static void CG_XPPM_BlendLerpFrame(lerpFrame_t * lf)
 {
 
@@ -722,7 +719,6 @@ static void CG_XPPM_BlendLerpFrame(lerpFrame_t * lf)
 
 	if((lf->blendlerp > 0.0f) && (cg.time > lf->blendtime))
 	{
-
 #if 0
 		//linear blending
 		lf->blendlerp -= 0.025f;
@@ -739,7 +735,6 @@ static void CG_XPPM_BlendLerpFrame(lerpFrame_t * lf)
 
 		debug_anim_blend = lf->blendlerp;
 	}
-
 }
 
 
@@ -775,20 +770,16 @@ static void CG_XPPM_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAni
 		}
 
 		animChanged = qtrue;
-
-
 	}
 	else
 	{
 		animChanged = qfalse;
 	}
 
-
 	// if we have passed the current frame, move it to
 	// oldFrame and calculate a new frame
 	if(cg.time >= lf->frameTime || animChanged)
 	{
-
 		if(animChanged)
 		{
 			lf->oldFrame = 0;
@@ -887,7 +878,7 @@ static void CG_XPPM_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAni
 		lf->backlerp = 1.0 - (float)(cg.time - lf->oldFrameTime) / (lf->frameTime - lf->oldFrameTime);
 	}
 
-	//blend old and current animation
+	// blend old and current animation
 	CG_XPPM_BlendLerpFrame(lf);
 
 	if(!trap_R_BuildSkeleton
@@ -905,7 +896,6 @@ static void CG_XPPM_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAni
 			return;
 		}
 	}
-
 }
 
 /*

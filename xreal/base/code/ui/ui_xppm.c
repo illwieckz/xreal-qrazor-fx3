@@ -207,7 +207,7 @@ static qboolean UI_XPPM_RegisterPlayerAnimation(playerInfo_t * pi, const char *m
 
 /*
 ==========================
-qbooleanUI_XPPM_RegisterModel
+UI_XPPM_RegisterModel
 ==========================
 */
 
@@ -245,7 +245,7 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
 		}
 
 		// make LEGS_IDLE the default animation
-		for(i = 0; i < MAX_ANIMATIONS; i++)
+		for(i = 0; i < MAX_PLAYER_ANIMATIONS; i++)
 		{
 			if(i == LEGS_IDLE)
 				continue;
@@ -298,8 +298,6 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
 			Com_Printf("Body skin load failure: %s\n", filename);
 			return qfalse;
 		}
-
-
 	}
 
 	return qtrue;
