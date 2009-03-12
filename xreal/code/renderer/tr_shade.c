@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -31,41 +31,49 @@ This file deals with applying shaders to surface data in the tess struct.
 =================================================================================
 */
 
-static char    *GLSL_PrintInfoLog(GLhandleARB object)
+static void GLSL_PrintInfoLog(GLhandleARB object, qboolean developerOnly)
 {
-	static char     msg[4096 * 2];
+	char           *msg;
+	static char     msgPart[1024];
 	int             maxLength = 0;
+	int             i;
 
 	qglGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
 
-	if(maxLength >= (int)sizeof(msg))
-	{
-		ri.Error(ERR_DROP, "RB_PrintInfoLog: max length >= sizeof(msg)");
-		return NULL;
-	}
+	msg = Com_Allocate(maxLength);
 
 	qglGetInfoLogARB(object, maxLength, &maxLength, msg);
 
-	return msg;
+	if(developerOnly)
+	{
+		ri.Printf(PRINT_DEVELOPER, "compile log:\n");
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "compile log:\n");
+	}
+
+	for(i = 0; i < maxLength; i += 1024)
+	{
+		Q_strncpyz(msgPart, msg + i, sizeof(msgPart));
+
+		if(developerOnly)
+			ri.Printf(PRINT_DEVELOPER, "%s\n", msgPart);
+		else
+			ri.Printf(PRINT_ALL, "%s\n", msgPart);
+	}
+
+	Com_Dealloc(msg);
 }
 
 static void GLSL_PrintShaderSource(GLhandleARB object)
 {
-	//static char     msg[4096];
 	char           *msg;
 	static char     msgPart[1024];
 	int             maxLength = 0;
 	int             i;
 
 	qglGetObjectParameterivARB(object, GL_OBJECT_SHADER_SOURCE_LENGTH_ARB, &maxLength);
-
-	/*
-	   if(maxLength >= (int)sizeof(msg))
-	   {
-	   ri.Error(ERR_DROP, "RB_PrintShaderSource: max length >= sizeof(msg)");
-	   return NULL;
-	   }
-	 */
 
 	msg = Com_Allocate(maxLength);
 
@@ -76,6 +84,8 @@ static void GLSL_PrintShaderSource(GLhandleARB object)
 		Q_strncpyz(msgPart, msg + i, sizeof(msgPart));
 		ri.Printf(PRINT_ALL, "%s\n", msgPart);
 	}
+
+	Com_Dealloc(msg);
 }
 
 static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum shaderType)
@@ -439,12 +449,13 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 	if(!compiled)
 	{
 		GLSL_PrintShaderSource(shader);
-		ri.Error(ERR_DROP, "Couldn't compile %s", GLSL_PrintInfoLog(shader));
+		GLSL_PrintInfoLog(shader, qfalse);
+		ri.Error(ERR_DROP, "Couldn't compile %s", filename);
 		ri.FS_FreeFile(buffer);
 		return;
 	}
 
-	ri.Printf(PRINT_DEVELOPER, "GLSL compile log:\n%s\n", GLSL_PrintInfoLog(shader));
+	GLSL_PrintInfoLog(shader, qtrue);
 	//ri.Printf(PRINT_ALL, "%s\n", GLSL_PrintShaderSource(shader));
 
 	// attach shader to program
@@ -465,7 +476,8 @@ static void GLSL_LinkProgram(GLhandleARB program)
 	qglGetObjectParameterivARB(program, GL_OBJECT_LINK_STATUS_ARB, &linked);
 	if(!linked)
 	{
-		ri.Error(ERR_DROP, "%s\nshaders failed to link", GLSL_PrintInfoLog(program));
+		GLSL_PrintInfoLog(program, qfalse);
+		ri.Error(ERR_DROP, "%s\nshaders failed to link");
 	}
 }
 
@@ -478,7 +490,8 @@ static void GLSL_ValidateProgram(GLhandleARB program)
 	qglGetObjectParameterivARB(program, GL_OBJECT_VALIDATE_STATUS_ARB, &validated);
 	if(!validated)
 	{
-		ri.Error(ERR_DROP, "%s\nshaders failed to validate", GLSL_PrintInfoLog(program));
+		GLSL_PrintInfoLog(program, qfalse);
+		ri.Error(ERR_DROP, "%s\nshaders failed to validate");
 	}
 }
 
