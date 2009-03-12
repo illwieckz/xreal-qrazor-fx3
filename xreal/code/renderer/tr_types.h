@@ -276,6 +276,7 @@ typedef struct
 	int             maxVaryingFloats;
 	int             maxVertexAttribs;
 	qboolean        vboVertexSkinningAvailable;
+	int				maxVertexSkinningBones;
 
 	qboolean		texture3DAvailable;
 	qboolean        textureNPOTAvailable;

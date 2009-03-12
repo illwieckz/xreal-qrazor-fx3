@@ -29,7 +29,7 @@ attribute vec3		attr_Normal;
 attribute vec4		attr_BoneIndexes;
 attribute vec4		attr_BoneWeights;
 uniform int			u_VertexSkinning;
-uniform mat4		u_BoneMatrix[128];
+uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
 #endif
 
 uniform mat4		u_NormalTextureMatrix;

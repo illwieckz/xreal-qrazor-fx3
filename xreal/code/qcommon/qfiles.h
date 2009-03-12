@@ -227,6 +227,63 @@ typedef struct
 
 
 /*
+========================================================================
+
+.PSK / .PSA skeletal triangle model file format
+
+========================================================================
+*/
+
+#define PSK_IDENTSTRING		"ACTRHEAD"
+#define PSK_IDENTLEN		8
+#define PSK_VERSION			1
+
+
+typedef struct
+{
+	char            ident[20];
+	int             flags;
+
+	int				dataSize;	// sizeof(struct)
+	int				numData;	// number of structs put into this data chunk
+} pskChunkHeader_t;
+
+typedef struct
+{
+	float			point[3];
+} pskPoint_t;
+
+typedef struct
+{
+	unsigned short	pointIndex;
+	unsigned short	unknownA;
+	float			st[2];
+	byte			materialIndex;
+	byte			reserved;		// we don't care about this one
+	unsigned short	unknownB;
+} pskVertex_t;
+
+typedef struct
+{
+	unsigned short	indexes[3];
+	byte			materialIndex;
+	byte			materialIndex2;
+	unsigned int	smoothingGroups;
+} pskTriangle_t;
+
+typedef struct
+{
+	char            name[64];
+	int             shaderIndex;	// for in-game use
+	unsigned int	polyFlags;
+	int				auxMaterial;
+	unsigned int	auxFlags;
+	int				lodBias;
+	int				lodStyle;
+} pskMaterial_t;
+
+
+/*
 ==============================================================================
 
   .BSP file format

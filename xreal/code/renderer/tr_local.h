@@ -1307,6 +1307,12 @@ typedef struct srfVBOMD5Mesh_s
 	struct md5Model_s *md5Model;
 	struct shader_s *shader;	// FIXME move this to somewhere else
 
+	int				skinIndex;
+
+	int				numBoneRemap;
+	int				boneRemap[MAX_BONES];
+	int				boneRemapInverse[MAX_BONES];
+
 	// backEnd stats
 	int             numIndexes;
 	int             numVerts;
@@ -1692,7 +1698,7 @@ typedef enum
 	MOD_BAD,
 	MOD_BSP,
 	MOD_MDX,
-	MOD_MD5,
+	MOD_MD5
 } modtype_t;
 
 typedef struct model_s

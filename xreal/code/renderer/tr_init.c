@@ -1220,7 +1220,7 @@ void GfxInfo_f(void)
 
 	if(glConfig.vboVertexSkinningAvailable)
 	{
-		ri.Printf(PRINT_ALL, "Using GPU vertex skinning\n");
+		ri.Printf(PRINT_ALL, "Using GPU vertex skinning with max %i bones in a single pass\n", glConfig.maxVertexSkinningBones);
 	}
 
 	if(glConfig.smpActive)

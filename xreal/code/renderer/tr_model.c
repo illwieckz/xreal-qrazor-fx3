@@ -26,8 +26,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	LL(x) x=LittleLong(x)
 #define	LF(x) x=LittleFloat(x)
 
-static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *name, qboolean forceStatic);
-static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *name);
+static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, const char *name, qboolean forceStatic);
+static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const char *name);
+static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *name);
 
 model_t        *loadmodel;
 
@@ -171,7 +172,11 @@ qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
 
 		if(!Q_stricmpn((const char *)buffer, "MD5Version", 10))
 		{
-			loaded = R_LoadMD5(mod, buffer, name);
+			loaded = R_LoadMD5(mod, buffer, bufferLen, name);
+		}
+		else if(!Q_stricmpn((const char *)buffer, PSK_IDENTSTRING, PSK_IDENTLEN))
+		{
+			loaded = R_LoadPSK(mod, buffer, bufferLen, name);
 		}
 		else
 		{
@@ -181,7 +186,7 @@ qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
 				goto fail;
 			}
 
-			loaded = R_LoadMD3(mod, lod, buffer, name, forceStatic);
+			loaded = R_LoadMD3(mod, lod, buffer, bufferLen, name, forceStatic);
 		}
 
 		ri.FS_FreeFile(buffer);
@@ -265,7 +270,7 @@ static int MDXSurfaceCompare(const void *a, const void *b)
 R_LoadMD3
 =================
 */
-static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modName, qboolean forceStatic)
+static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, const char *modName, qboolean forceStatic)
 {
 	int             i, j, k, l;
 
@@ -870,14 +875,427 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 	return qtrue;
 }
 
+//=============================================================================
+
+
+typedef struct
+{
+	int             indexes[3];
+	md5Vertex_t    *vertexes[3];
+	qboolean		referenced;
+} skelTriangle_t;
+
+static int CompareBoneIndices(const void *a, const void *b)
+{
+	return *(int *)a - *(int *)b;
+}
+
+static int CompareTrianglesByBoneReferences(const void *a, const void *b)
+{
+	int             i, j, k;
+
+	skelTriangle_t *t1, *t2;
+	md5Vertex_t    *v1, *v2;
+	int				b1[MAX_BONES], b2[MAX_BONES];
+	int				s1, s2;
+
+	t1 = (skelTriangle_t *) *(void **)a;
+	t2 = (skelTriangle_t *) *(void **)b;
+
+#if 1
+	for(i = 0; i < MAX_BONES; i++)
+	{
+		b1[i] = b2[i] = 0;
+	}
+
+	for(i = 0; i < 3; i++)
+	{
+		v1 = t1->vertexes[i];
+		v2 = t1->vertexes[i];
+
+		for(j = 0; j < MAX_WEIGHTS; j++)
+		{
+			if(j < v1->numWeights)
+			{
+				b1[v1->weights[j]->boneIndex]++;
+			}
+
+			if(j < v2->numWeights)
+			{
+				b1[v2->weights[j]->boneIndex]++;
+			}
+		}
+	}
+
+	qsort(b1, MAX_WEIGHTS * 3, sizeof(int), CompareBoneIndices);
+	qsort(b2, MAX_WEIGHTS * 3, sizeof(int), CompareBoneIndices);
+
+	for(j = 0; j < MAX_BONES; j++)
+	{
+		if(b1[j] < b2[j])
+			return -1;
+
+		if(b1[j] > b2[j])
+			return 1;
+	}
+#else
+
+	// calculate the bone sums
+	s1 = s2 = 0;
+	for(i = 0; i < 3; i++)
+	{
+		v1 = t1->vertexes[i];
+		v2 = t1->vertexes[i];
+
+		for(j = 0; j < MAX_WEIGHTS; j++)
+		{
+			s1 = (j < v1->numWeights) ? (v1->weights[j]->boneIndex * v1->weights[j]->boneWeight) : 0;
+			s2 = (j < v2->numWeights) ? (v2->weights[j]->boneIndex * v2->weights[j]->boneWeight) : 0;
+		}
+	}
+
+	if(s1 < s2)
+		return -1;
+
+	if(s1 > s2)
+		return 1;
+
+#endif
+
+	return 0;
+}
+
+static void ReferenceBone_r(int boneReferences[MAX_BONES], int boneIndex)
+{
+	if(boneIndex == 0)
+	{
+		return 0;
+	}
+	else
+	{
+		return ReferenceBone_r(boneReferences, boneIndex - 1);
+	}
+}
+
+static qboolean AddTriangleToVBOTriangleList(growList_t * vboTriangles, skelTriangle_t * tri, int * numBoneReferences, int boneReferences[MAX_BONES])
+{
+	int				i, j, k;
+	md5Vertex_t    *v;
+	int				boneIndex;
+	int				numNewReferences;
+	int				newReferences[MAX_WEIGHTS * 3];	// a single triangle can have up to 12 new bone references !
+	qboolean		hasWeights;
+
+	hasWeights = qfalse;
+
+	numNewReferences = 0;
+	Com_Memset(newReferences, -1, sizeof(newReferences));
+
+	for(i = 0; i < 3; i++)
+	{
+		v = tri->vertexes[i];
+
+		// can the bones be referenced?
+		for(j = 0; j < MAX_WEIGHTS; j++)
+		{
+			if(j < v->numWeights)
+			{
+				boneIndex = v->weights[j]->boneIndex;
+				hasWeights = qtrue;
+
+				// is the bone already referenced?
+				if(!boneReferences[boneIndex])
+				{
+					// the bone isn't yet and we have to test if we can give the mesh this bone at all
+					if((*numBoneReferences + numNewReferences) >= glConfig.maxVertexSkinningBones)
+					{
+						return qfalse;
+					}
+					else
+					{
+						for(k = 0; k < (MAX_WEIGHTS * 3); k++)
+						{
+							if(newReferences[k] == boneIndex)
+								break;
+						}
+
+						if(k == (MAX_WEIGHTS * 3))
+						{
+							newReferences[numNewReferences] = boneIndex;
+							numNewReferences++;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// reference them!
+	for(j = 0; j < numNewReferences; j++)
+	{
+		boneIndex = newReferences[j];
+
+		boneReferences[boneIndex]++;
+
+		*numBoneReferences = *numBoneReferences + 1;
+	}
+
+#if 0
+	if(numNewReferences)
+	{
+		ri.Printf(PRINT_ALL, "bone indices: %i %i %i %i %i %i %i %i %i %i %i %i\n",
+				newReferences[0],
+				newReferences[1],
+				newReferences[2],
+				newReferences[3],
+				newReferences[4],
+				newReferences[5],
+				newReferences[6],
+				newReferences[7],
+				newReferences[8],
+				newReferences[9],
+				newReferences[10],
+				newReferences[11]);
+	}
+#endif
+
+	if(hasWeights)
+	{
+		Com_AddToGrowList(vboTriangles, tri);
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
+static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * vboTriangles, md5Model_t * md5, md5Surface_t * surf, int skinIndex, int numBoneReferences, int boneReferences[MAX_BONES])
+{
+	int				i, j, k;
+
+	int             vertexesNum;
+	byte           *data;
+	int             dataSize;
+	int             dataOfs;
+
+	GLuint          ofsTexCoords;
+	GLuint          ofsTangents;
+	GLuint          ofsBinormals;
+	GLuint          ofsNormals;
+	GLuint          ofsColors;
+	GLuint          ofsBoneIndexes;
+	GLuint          ofsBoneWeights;
+
+	int             indexesNum;
+	byte           *indexes;
+	int             indexesSize;
+	int             indexesOfs;
+
+	skelTriangle_t  *tri;
+
+	vec4_t          tmp;
+	int             index;
+
+	srfVBOMD5Mesh_t *vboSurf;
+	md5Vertex_t     *v;
+
+	vec4_t          tmpColor = { 1, 1, 1, 1 };
+
+	vertexesNum = surf->numVerts;
+	indexesNum = vboTriangles->currentElements * 3;
+
+	// create surface
+	vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
+	Com_AddToGrowList(vboSurfaces, vboSurf);
+
+	vboSurf->surfaceType = SF_VBO_MD5MESH;
+	vboSurf->md5Model = md5;
+	vboSurf->shader = R_GetShaderByHandle(surf->shaderIndex);
+	vboSurf->skinIndex = skinIndex;
+	vboSurf->numIndexes = indexesNum;
+	vboSurf->numVerts = vertexesNum;
+
+	dataSize = vertexesNum * (sizeof(vec4_t) * 8);
+	data = ri.Hunk_AllocateTempMemory(dataSize);
+	dataOfs = 0;
+
+	indexesSize = indexesNum * sizeof(int);
+	indexes = ri.Hunk_AllocateTempMemory(indexesSize);
+	indexesOfs = 0;
+
+	//ri.Printf(PRINT_ALL, "AddSurfaceToVBOSurfacesList( %i verts, %i tris )\n", surf->numVerts, vboTriangles->currentElements);
+
+	vboSurf->numBoneRemap = 0;
+	Com_Memset(vboSurf->boneRemap, 0, sizeof(vboSurf->boneRemap));
+	Com_Memset(vboSurf->boneRemapInverse, 0, sizeof(vboSurf->boneRemapInverse));
+
+	//ri.Printf(PRINT_ALL, "referenced bones: ");
+	for(j = 0; j < MAX_BONES; j++)
+	{
+		if(boneReferences[j] > 0)
+		{
+			vboSurf->boneRemap[j] = vboSurf->numBoneRemap;
+			vboSurf->boneRemapInverse[vboSurf->numBoneRemap] = j;
+
+			vboSurf->numBoneRemap++;
+
+			//ri.Printf(PRINT_ALL, "(%i -> %i) ", j, vboSurf->boneRemap[j]);
+		}
+	}
+	//ri.Printf(PRINT_ALL, "\n");
+
+	//for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
+	for(j = 0; j < vboTriangles->currentElements; j++)
+	{
+		tri = Com_GrowListElement(vboTriangles, j);
+
+		for(k = 0; k < 3; k++)
+		{
+			index = tri->indexes[k];
+
+			memcpy(indexes + indexesOfs, &index, sizeof(int));
+			indexesOfs += sizeof(int);
+		}
+	}
+
+	// feed vertex XYZ
+	for(j = 0; j < vertexesNum; j++)
+	{
+		for(k = 0; k < 3; k++)
+		{
+			tmp[k] = surf->verts[j].position[k];
+		}
+		tmp[3] = 1;
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed vertex texcoords
+	ofsTexCoords = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		for(k = 0; k < 2; k++)
+		{
+			tmp[k] = surf->verts[j].texCoords[k];
+		}
+		tmp[2] = 0;
+		tmp[3] = 1;
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed vertex tangents
+	ofsTangents = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		for(k = 0; k < 3; k++)
+		{
+			tmp[k] = surf->verts[j].tangent[k];
+		}
+		tmp[3] = 1;
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed vertex binormals
+	ofsBinormals = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		for(k = 0; k < 3; k++)
+		{
+			tmp[k] = surf->verts[j].binormal[k];
+		}
+		tmp[3] = 1;
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed vertex normals
+	ofsNormals = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		for(k = 0; k < 3; k++)
+		{
+			tmp[k] = surf->verts[j].normal[k];
+		}
+		tmp[3] = 1;
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed vertex colors
+	ofsColors = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		memcpy(data + dataOfs, tmpColor, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed bone indices
+	ofsBoneIndexes = dataOfs;
+	for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+	{
+		for(k = 0; k < MAX_WEIGHTS; k++)
+		{
+			if(k < v->numWeights)
+				index = vboSurf->boneRemap[v->weights[k]->boneIndex];
+			else
+				index = 0;
+
+			memcpy(data + dataOfs, &index, sizeof(int));
+			dataOfs += sizeof(int);
+		}
+	}
+
+	// feed bone weights
+	ofsBoneWeights = dataOfs;
+	for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+	{
+		for(k = 0; k < MAX_WEIGHTS; k++)
+		{
+			if(k < v->numWeights)
+				tmp[k] = v->weights[k]->boneWeight;
+			else
+				tmp[k] = 0;
+		}
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	vboSurf->vbo = R_CreateVBO(va("staticMD5Mesh_VBO %i", vboSurfaces->currentElements), data, dataSize, GL_STATIC_DRAW_ARB);
+	vboSurf->vbo->ofsXYZ = 0;
+	vboSurf->vbo->ofsTexCoords = ofsTexCoords;
+	vboSurf->vbo->ofsLightCoords = ofsTexCoords;
+	vboSurf->vbo->ofsTangents = ofsTangents;
+	vboSurf->vbo->ofsBinormals = ofsBinormals;
+	vboSurf->vbo->ofsNormals = ofsNormals;
+	vboSurf->vbo->ofsColors = ofsColors;
+	vboSurf->vbo->ofsLightCoords = ofsColors;		// not required anyway
+	vboSurf->vbo->ofsLightDirections = ofsColors;	// not required anyway
+	vboSurf->vbo->ofsBoneIndexes = ofsBoneIndexes;
+	vboSurf->vbo->ofsBoneWeights = ofsBoneWeights;
+
+	vboSurf->ibo = R_CreateIBO(va("staticMD5Mesh_IBO %i", vboSurfaces->currentElements), indexes, indexesSize, GL_STATIC_DRAW_ARB);
+
+	ri.Hunk_FreeTempMemory(indexes);
+	ri.Hunk_FreeTempMemory(data);
+
+	// megs
+	/*
+	   ri.Printf(PRINT_ALL, "md5 mesh data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
+	   (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+	   ri.Printf(PRINT_ALL, "md5 mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
+	   (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+	 */
+}
+
 /*
 =================
 R_LoadMD5
 =================
 */
-static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
+static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const char *modName)
 {
-	int             i, j, k;
+	int             i, j, k, l;
 	md5Model_t     *md5;
 	md5Bone_t      *bone;
 	md5Surface_t   *surf;
@@ -892,7 +1310,13 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 	quat_t          boneQuat;
 	matrix_t        boneMat;
 
+	int				numRemaining;
+	growList_t		sortedTriangles;
+	growList_t      vboTriangles;
 	growList_t      vboSurfaces;
+
+	int				numBoneReferences;
+	int				boneReferences[MAX_BONES];
 
 	buf_p = (char *)buffer;
 
@@ -912,6 +1336,960 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 	mod->dataSize += sizeof(md5Model_t);
 	md5 = mod->md5 = ri.Hunk_Alloc(sizeof(md5Model_t), h_low);
 
+	// skip commandline <arguments string>
+	token = Com_ParseExt(&buf_p, qtrue);
+	token = Com_ParseExt(&buf_p, qtrue);
+//  ri.Printf(PRINT_ALL, "%s\n", token);
+
+	// parse numJoints <number>
+	token = Com_ParseExt(&buf_p, qtrue);
+	if(Q_stricmp(token, "numJoints"))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'numJoints' found '%s' in model '%s'\n", token, modName);
+		return qfalse;
+	}
+	token = Com_ParseExt(&buf_p, qfalse);
+	md5->numBones = atoi(token);
+
+	// parse numMeshes <number>
+	token = Com_ParseExt(&buf_p, qtrue);
+	if(Q_stricmp(token, "numMeshes"))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'numMeshes' found '%s' in model '%s'\n", token, modName);
+		return qfalse;
+	}
+	token = Com_ParseExt(&buf_p, qfalse);
+	md5->numSurfaces = atoi(token);
+	//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i surfaces\n", modName, md5->numSurfaces);
+
+
+	if(md5->numBones < 1)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has no bones\n", modName);
+		return qfalse;
+	}
+	if(md5->numBones > MAX_BONES)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has more than %i bones (%i)\n", modName, MAX_BONES, md5->numBones);
+		return qfalse;
+	}
+	//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i bones\n", modName, md5->numBones);
+
+	// parse all the bones
+	md5->bones = ri.Hunk_Alloc(sizeof(*bone) * md5->numBones, h_low);
+
+	// parse joints {
+	token = Com_ParseExt(&buf_p, qtrue);
+	if(Q_stricmp(token, "joints"))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'joints' found '%s' in model '%s'\n", token, modName);
+		return qfalse;
+	}
+	token = Com_ParseExt(&buf_p, qfalse);
+	if(Q_stricmp(token, "{"))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '{' found '%s' in model '%s'\n", token, modName);
+		return qfalse;
+	}
+
+	for(i = 0, bone = md5->bones; i < md5->numBones; i++, bone++)
+	{
+		token = Com_ParseExt(&buf_p, qtrue);
+		Q_strncpyz(bone->name, token, sizeof(bone->name));
+
+		//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has bone '%s'\n", modName, bone->name);
+
+		token = Com_ParseExt(&buf_p, qfalse);
+		bone->parentIndex = atoi(token);
+
+		if(bone->parentIndex >= md5->numBones)
+		{
+			ri.Error(ERR_DROP, "R_LoadMD5: '%s' has bone '%s' with bad parent index %i while numBones is %i\n", modName,
+					 bone->name, bone->parentIndex, md5->numBones);
+		}
+
+		// skip (
+		token = Com_ParseExt(&buf_p, qfalse);
+		if(Q_stricmp(token, "("))
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '(' found '%s' in model '%s'\n", token, modName);
+			return qfalse;
+		}
+
+		for(j = 0; j < 3; j++)
+		{
+			token = Com_ParseExt(&buf_p, qfalse);
+			boneOrigin[j] = atof(token);
+		}
+
+		// skip )
+		token = Com_ParseExt(&buf_p, qfalse);
+		if(Q_stricmp(token, ")"))
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected ')' found '%s' in model '%s'\n", token, modName);
+			return qfalse;
+		}
+
+		// skip (
+		token = Com_ParseExt(&buf_p, qfalse);
+		if(Q_stricmp(token, "("))
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '(' found '%s' in model '%s'\n", token, modName);
+			return qfalse;
+		}
+
+		for(j = 0; j < 3; j++)
+		{
+			token = Com_ParseExt(&buf_p, qfalse);
+			boneQuat[j] = atof(token);
+		}
+		QuatCalcW(boneQuat);
+		MatrixFromQuat(boneMat, boneQuat);
+
+		VectorCopy(boneOrigin, bone->origin);
+		QuatCopy(boneQuat, bone->rotation);
+
+		MatrixSetupTransformFromQuat(bone->inverseTransform, boneQuat, boneOrigin);
+		MatrixInverse(bone->inverseTransform);
+
+		// skip )
+		token = Com_ParseExt(&buf_p, qfalse);
+		if(Q_stricmp(token, ")"))
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '(' found '%s' in model '%s'\n", token, modName);
+			return qfalse;
+		}
+	}
+
+	// parse }
+	token = Com_ParseExt(&buf_p, qtrue);
+	if(Q_stricmp(token, "}"))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '}' found '%s' in model '%s'\n", token, modName);
+		return qfalse;
+	}
+
+	// parse all the surfaces
+	if(md5->numSurfaces < 1)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has no surfaces\n", modName);
+		return qfalse;
+	}
+	//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i surfaces\n", modName, md5->numSurfaces);
+
+	md5->surfaces = ri.Hunk_Alloc(sizeof(*surf) * md5->numSurfaces, h_low);
+	for(i = 0, surf = md5->surfaces; i < md5->numSurfaces; i++, surf++)
+	{
+		// parse mesh {
+		token = Com_ParseExt(&buf_p, qtrue);
+		if(Q_stricmp(token, "mesh"))
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'mesh' found '%s' in model '%s'\n", token, modName);
+			return qfalse;
+		}
+		token = Com_ParseExt(&buf_p, qfalse);
+		if(Q_stricmp(token, "{"))
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '{' found '%s' in model '%s'\n", token, modName);
+			return qfalse;
+		}
+
+		// change to surface identifier
+		surf->surfaceType = SF_MD5;
+
+		// give pointer to model for Tess_SurfaceMD5
+		surf->model = md5;
+
+		// parse shader <name>
+		token = Com_ParseExt(&buf_p, qtrue);
+		if(Q_stricmp(token, "shader"))
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'shader' found '%s' in model '%s'\n", token, modName);
+			return qfalse;
+		}
+		token = Com_ParseExt(&buf_p, qfalse);
+		Q_strncpyz(surf->shader, token, sizeof(surf->shader));
+
+		//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' uses shader '%s'\n", modName, surf->shader);
+
+		// FIXME .md5mesh meshes don't have surface names
+		// lowercase the surface name so skin compares are faster
+		//Q_strlwr(surf->name);
+		//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has surface '%s'\n", modName, surf->name);
+
+		// register the shaders
+		sh = R_FindShader(surf->shader, SHADER_3D_DYNAMIC, qtrue);
+		if(sh->defaultShader)
+		{
+			surf->shaderIndex = 0;
+		}
+		else
+		{
+			surf->shaderIndex = sh->index;
+		}
+
+		// parse numVerts <number>
+		token = Com_ParseExt(&buf_p, qtrue);
+		if(Q_stricmp(token, "numVerts"))
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'numVerts' found '%s' in model '%s'\n", token, modName);
+			return qfalse;
+		}
+		token = Com_ParseExt(&buf_p, qfalse);
+		surf->numVerts = atoi(token);
+
+		if(surf->numVerts > SHADER_MAX_VERTEXES)
+		{
+			ri.Error(ERR_DROP, "R_LoadMD5: '%s' has more than %i verts on a surface (%i)",
+					 modName, SHADER_MAX_VERTEXES, surf->numVerts);
+		}
+
+		surf->verts = ri.Hunk_Alloc(sizeof(*v) * surf->numVerts, h_low);
+		for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+		{
+			// skip vert <number>
+			token = Com_ParseExt(&buf_p, qtrue);
+			if(Q_stricmp(token, "vert"))
+			{
+				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'vert' found '%s' in model '%s'\n", token, modName);
+				return qfalse;
+			}
+			Com_ParseExt(&buf_p, qfalse);
+
+			// skip (
+			token = Com_ParseExt(&buf_p, qfalse);
+			if(Q_stricmp(token, "("))
+			{
+				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '(' found '%s' in model '%s'\n", token, modName);
+				return qfalse;
+			}
+
+			for(k = 0; k < 2; k++)
+			{
+				token = Com_ParseExt(&buf_p, qfalse);
+				v->texCoords[k] = atof(token);
+			}
+
+			// skip )
+			token = Com_ParseExt(&buf_p, qfalse);
+			if(Q_stricmp(token, ")"))
+			{
+				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected ')' found '%s' in model '%s'\n", token, modName);
+				return qfalse;
+			}
+
+			token = Com_ParseExt(&buf_p, qfalse);
+			v->firstWeight = atoi(token);
+
+			token = Com_ParseExt(&buf_p, qfalse);
+			v->numWeights = atoi(token);
+
+			if(v->numWeights > MAX_WEIGHTS)
+			{
+				ri.Error(ERR_DROP, "R_LoadMD5: vertex %i requires more than %i weights on surface (%i) in model '%s'",
+						 j, MAX_WEIGHTS, i, modName);
+			}
+		}
+
+		// parse numTris <number>
+		token = Com_ParseExt(&buf_p, qtrue);
+		if(Q_stricmp(token, "numTris"))
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'numTris' found '%s' in model '%s'\n", token, modName);
+			return qfalse;
+		}
+		token = Com_ParseExt(&buf_p, qfalse);
+		surf->numTriangles = atoi(token);
+
+		if(surf->numTriangles > SHADER_MAX_TRIANGLES)
+		{
+			ri.Error(ERR_DROP, "R_LoadMD5: '%s' has more than %i triangles on a surface (%i)",
+					 modName, SHADER_MAX_TRIANGLES, surf->numTriangles);
+		}
+
+		surf->triangles = ri.Hunk_Alloc(sizeof(*tri) * surf->numTriangles, h_low);
+		for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
+		{
+			// skip tri <number>
+			token = Com_ParseExt(&buf_p, qtrue);
+			if(Q_stricmp(token, "tri"))
+			{
+				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'tri' found '%s' in model '%s'\n", token, modName);
+				return qfalse;
+			}
+			Com_ParseExt(&buf_p, qfalse);
+
+			for(k = 0; k < 3; k++)
+			{
+				token = Com_ParseExt(&buf_p, qfalse);
+				tri->indexes[k] = atoi(token);
+			}
+		}
+
+		R_CalcSurfaceTriangleNeighbors(surf->numTriangles, surf->triangles);
+
+		// parse numWeights <number>
+		token = Com_ParseExt(&buf_p, qtrue);
+		if(Q_stricmp(token, "numWeights"))
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'numWeights' found '%s' in model '%s'\n", token, modName);
+			return qfalse;
+		}
+		token = Com_ParseExt(&buf_p, qfalse);
+		surf->numWeights = atoi(token);
+
+		surf->weights = ri.Hunk_Alloc(sizeof(*weight) * surf->numWeights, h_low);
+		for(j = 0, weight = surf->weights; j < surf->numWeights; j++, weight++)
+		{
+			// skip weight <number>
+			token = Com_ParseExt(&buf_p, qtrue);
+			if(Q_stricmp(token, "weight"))
+			{
+				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'weight' found '%s' in model '%s'\n", token, modName);
+				return qfalse;
+			}
+			Com_ParseExt(&buf_p, qfalse);
+
+			token = Com_ParseExt(&buf_p, qfalse);
+			weight->boneIndex = atoi(token);
+
+			token = Com_ParseExt(&buf_p, qfalse);
+			weight->boneWeight = atof(token);
+
+			// skip (
+			token = Com_ParseExt(&buf_p, qfalse);
+			if(Q_stricmp(token, "("))
+			{
+				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '(' found '%s' in model '%s'\n", token, modName);
+				return qfalse;
+			}
+
+			for(k = 0; k < 3; k++)
+			{
+				token = Com_ParseExt(&buf_p, qfalse);
+				weight->offset[k] = atof(token);
+			}
+
+			// skip )
+			token = Com_ParseExt(&buf_p, qfalse);
+			if(Q_stricmp(token, ")"))
+			{
+				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected ')' found '%s' in model '%s'\n", token, modName);
+				return qfalse;
+			}
+		}
+
+		// parse }
+		token = Com_ParseExt(&buf_p, qtrue);
+		if(Q_stricmp(token, "}"))
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '}' found '%s' in model '%s'\n", token, modName);
+			return qfalse;
+		}
+
+		// loop trough all vertices and set up the vertex weights
+		for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+		{
+			v->weights = ri.Hunk_Alloc(sizeof(*v->weights) * v->numWeights, h_low);
+
+			for(k = 0; k < v->numWeights; k++)
+			{
+				v->weights[k] = surf->weights + (v->firstWeight + k);
+			}
+		}
+	}
+
+	// loading is done now calculate the bounding box and tangent spaces
+	ClearBounds(md5->bounds[0], md5->bounds[1]);
+
+	for(i = 0, surf = md5->surfaces; i < md5->numSurfaces; i++, surf++)
+	{
+		for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+		{
+			vec3_t          tmpVert;
+			md5Weight_t    *w;
+
+			VectorClear(tmpVert);
+
+			for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
+			{
+				vec3_t          offsetVec;
+
+				bone = &md5->bones[w->boneIndex];
+
+				QuatTransformVector(bone->rotation, w->offset, offsetVec);
+				VectorAdd(bone->origin, offsetVec, offsetVec);
+
+				VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
+			}
+
+			VectorCopy(tmpVert, v->position);
+			AddPointToBounds(tmpVert, md5->bounds[0], md5->bounds[1]);
+		}
+
+		// calc tangent spaces
+		{
+			const float    *v0, *v1, *v2;
+			const float    *t0, *t1, *t2;
+			vec3_t          tangent;
+			vec3_t          binormal;
+			vec3_t          normal;
+
+			for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+			{
+				VectorClear(v->tangent);
+				VectorClear(v->binormal);
+				VectorClear(v->normal);
+			}
+
+			for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
+			{
+				v0 = surf->verts[tri->indexes[0]].position;
+				v1 = surf->verts[tri->indexes[1]].position;
+				v2 = surf->verts[tri->indexes[2]].position;
+
+				t0 = surf->verts[tri->indexes[0]].texCoords;
+				t1 = surf->verts[tri->indexes[1]].texCoords;
+				t2 = surf->verts[tri->indexes[2]].texCoords;
+
+				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
+
+				for(k = 0; k < 3; k++)
+				{
+					float          *v;
+
+					v = surf->verts[tri->indexes[k]].tangent;
+					VectorAdd(v, tangent, v);
+
+					v = surf->verts[tri->indexes[k]].binormal;
+					VectorAdd(v, binormal, v);
+
+					v = surf->verts[tri->indexes[k]].normal;
+					VectorAdd(v, normal, v);
+				}
+			}
+
+			for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+			{
+				VectorNormalize(v->tangent);
+				VectorNormalize(v->binormal);
+				VectorNormalize(v->normal);
+			}
+
+			#if 1
+			// do another extra smoothing for normals to avoid flat shading
+			for(j = 0; j < surf->numVerts; j++)
+			{
+				for(k = 0; k < surf->numVerts; k++)
+				{
+					if(j == k)
+						continue;
+
+					if(VectorCompare(surf->verts[j].position, surf->verts[k].position))
+					{
+						VectorAdd(surf->verts[j].normal, surf->verts[k].normal, surf->verts[j].normal);
+					}
+				}
+
+				VectorNormalize(surf->verts[j].normal);
+			}
+			#endif
+
+		}
+	}
+
+	// split the surfaces into VBO surfaces by the maximum number of GPU vertex skinning bones
+	Com_InitGrowList(&vboSurfaces, 10);
+
+	for(i = 0, surf = md5->surfaces; i < md5->numSurfaces; i++, surf++)
+	{
+		// sort triangles
+		Com_InitGrowList(&sortedTriangles, 1000);
+
+		for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
+		{
+			skelTriangle_t *sortTri = Com_Allocate(sizeof(*sortTri));
+
+			for(k = 0; k < 3; k++)
+			{
+				sortTri->indexes[k] = tri->indexes[k];
+				sortTri->vertexes[k] = &surf->verts[tri->indexes[k]];
+			}
+			sortTri->referenced = qfalse;
+
+			Com_AddToGrowList(&sortedTriangles, sortTri);
+		}
+
+		//qsort(sortedTriangles.elements, sortedTriangles.currentElements, sizeof(void *), CompareTrianglesByBoneReferences);
+
+#if 0
+		for(j = 0; j < sortedTriangles.currentElements; j++)
+		{
+			int		b[MAX_WEIGHTS * 3];
+
+			skelTriangle_t *sortTri = Com_GrowListElement(&sortedTriangles, j);
+
+			for(k = 0; k < 3; k++)
+			{
+				v = sortTri->vertexes[k];
+
+				for(l = 0; l < MAX_WEIGHTS; l++)
+				{
+					b[k * 3 + l] = (l < v->numWeights) ? v->weights[l]->boneIndex : 9999;
+				}
+
+				qsort(b, MAX_WEIGHTS * 3, sizeof(int), CompareBoneIndices);
+				//ri.Printf(PRINT_ALL, "bone indices: %i %i %i %i\n", b[k * 3 + 0], b[k * 3 + 1], b[k * 3 + 2], b[k * 3 + 3]);
+			}
+		}
+#endif
+
+		numRemaining = sortedTriangles.currentElements;
+		while(numRemaining)
+		{
+			numBoneReferences = 0;
+			Com_Memset(boneReferences, 0, sizeof(boneReferences));
+
+			Com_InitGrowList(&vboTriangles, 1000);
+
+			for(j = 0; j < sortedTriangles.currentElements; j++)
+			{
+				skelTriangle_t *sortTri = Com_GrowListElement(&sortedTriangles, j);
+
+				if(sortTri->referenced)
+					continue;
+
+				if(AddTriangleToVBOTriangleList(&vboTriangles, sortTri, &numBoneReferences, boneReferences))
+				{
+					sortTri->referenced = qtrue;
+				}
+			}
+
+			if(!vboTriangles.currentElements)
+			{
+				ri.Printf(PRINT_WARNING, "R_LoadMD5: could not add triangles to a remaining VBO surfaces for model '%s'\n", modName);
+				break;
+			}
+
+			AddSurfaceToVBOSurfacesList(&vboSurfaces, &vboTriangles, md5, surf, i, numBoneReferences, boneReferences);
+			numRemaining -= vboTriangles.currentElements;
+
+			Com_DestroyGrowList(&vboTriangles);
+		}
+
+		for(j = 0; j < sortedTriangles.currentElements; j++)
+		{
+			skelTriangle_t *sortTri = Com_GrowListElement(&sortedTriangles, j);
+
+			Com_Dealloc(sortTri);
+		}
+		Com_DestroyGrowList(&sortedTriangles);
+	}
+
+	// move VBO surfaces list to hunk
+	md5->numVBOSurfaces = vboSurfaces.currentElements;
+	md5->vboSurfaces = ri.Hunk_Alloc(md5->numVBOSurfaces * sizeof(*md5->vboSurfaces), h_low);
+
+	for(i = 0; i < md5->numVBOSurfaces; i++)
+	{
+		md5->vboSurfaces[i] = (srfVBOMD5Mesh_t *) Com_GrowListElement(&vboSurfaces, i);
+	}
+
+	Com_DestroyGrowList(&vboSurfaces);
+
+	return qtrue;
+}
+
+
+
+
+
+
+//=============================================================================
+
+
+
+typedef enum
+{
+	MEMSTREAM_SEEK_SET,
+	MEMSTREAM_SEEK_CUR,
+	MEMSTREAM_SEEK_END
+};
+
+typedef enum
+{
+	MEMSTREAM_FLAGS_EOF = BIT(0),
+	MEMSTREAM_FLAGS_ERR = BIT(1),
+};
+
+// helper struct for binary reads
+typedef struct memStream_s
+{
+	byte           *buffer;
+	int				bufSize;
+	byte           *curPos;
+	int             flags;
+}
+memStream_t;
+
+memStream_t *AllocMemStream(byte *buffer, int bufSize)
+{
+	memStream_t		*s;
+
+	if(buffer == NULL || bufSize <= 0)
+		return NULL;
+
+	s = Com_Allocate(sizeof(memStream_t));
+	if(s == NULL)
+		return NULL;
+
+	Com_Memset(s, 0, sizeof(memStream_t));
+
+	s->buffer 	= buffer;
+	s->curPos 	= buffer;
+	s->bufSize	= bufSize;
+	s->flags	= 0;
+
+	return s;
+}
+
+void FreeMemStream(memStream_t * s)
+{
+	Com_Dealloc(s);
+}
+
+int MemStreamRead(memStream_t *s, void *buffer, int len)
+{
+	int				ret = 1;
+
+	if(s == NULL || buffer == NULL)
+		return 0;
+
+	if(s->curPos + len > s->buffer + s->bufSize)
+	{
+		s->flags |= MEMSTREAM_FLAGS_EOF;
+		len = s->buffer + s->bufSize - s->curPos;
+		ret = 0;
+	}
+
+	Com_Memcpy(buffer, s->curPos, len);
+	s->curPos += len;
+
+	return ret;
+}
+
+int MemStreamGetC(memStream_t *s)
+{
+	int				c = 0;
+
+	if(s == NULL)
+		return -1;
+
+	if(MemStreamRead(s, &c, 1) == 0)
+		return -1;
+
+	return c;
+}
+
+static int GetLong(memStream_t * s)
+{
+	int				c = 0;
+
+	if(s == NULL)
+		return -1;
+
+	if(MemStreamRead(s, &c, 4) == 0)
+		return -1;
+
+	return LittleLong(c);
+}
+
+static int GetShort(memStream_t * s)
+{
+	int				c = 0;
+
+	if(s == NULL)
+		return -1;
+
+	if(MemStreamRead(s, &c, 2) == 0)
+		return -1;
+
+	return LittleShort(c);
+}
+
+static int GetFloat(memStream_t * s)
+{
+	floatint_t		c;
+
+	if(s == NULL)
+		return -1;
+
+	if(MemStreamRead(s, &c.i, 4) == 0)
+		return -1;
+
+	return LittleFloat(c.f);
+}
+
+static void GetChunkHeader(memStream_t *s, pskChunkHeader_t * chunkHeader)
+{
+	int             i;
+
+	for(i = 0; i < 20; i++)
+	{
+		chunkHeader->ident[i] = MemStreamGetC(s);
+	}
+
+	chunkHeader->flags = GetLong(s);
+	chunkHeader->dataSize = GetLong(s);
+	chunkHeader->numData = GetLong(s);
+}
+
+static void PrintChunkHeader(pskChunkHeader_t * chunkHeader)
+{
+	ri.Printf(PRINT_ALL, "----------------------\n");
+	ri.Printf(PRINT_ALL, "R_LoadPSK: chunk header ident: '%s'\n", chunkHeader->ident);
+	ri.Printf(PRINT_ALL, "R_LoadPSK: chunk header flags: %i\n", chunkHeader->flags);
+	ri.Printf(PRINT_ALL, "R_LoadPSK: chunk header data size: %i\n", chunkHeader->dataSize);
+	ri.Printf(PRINT_ALL, "R_LoadPSK: chunk header num items: %i\n", chunkHeader->numData);
+}
+
+/*
+=================
+R_LoadPSK
+=================
+*/
+static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modName)
+{
+	int             i, j, k;
+	memStream_t    *stream;
+
+	pskChunkHeader_t	chunkHeader;
+
+	int				numPoints;
+	pskPoint_t     *point;
+	pskPoint_t     *points;
+
+	int				numVertexes;
+	pskVertex_t    *vertex;
+	pskVertex_t    *vertexes;
+
+	int				numTriangles;
+	pskTriangle_t  *triangle;
+	pskTriangle_t  *triangles;
+
+	int				numMaterials;
+	pskMaterial_t  *material;
+	pskMaterial_t  *materials;
+
+	md5Model_t     *md5;
+	md5Bone_t      *bone;
+	md5Surface_t   *surf;
+	srfTriangle_t  *tri;
+	md5Vertex_t    *v;
+	md5Weight_t    *weight;
+	int             version;
+	shader_t       *sh;
+
+	char           *token;
+	vec3_t          boneOrigin;
+	quat_t          boneQuat;
+	matrix_t        boneMat;
+
+	growList_t      vboSurfaces;
+
+	stream = AllocMemStream(buffer, bufferSize);
+	GetChunkHeader(stream, &chunkHeader);
+
+	// check indent again
+	if(Q_stricmpn(chunkHeader.ident, "ACTRHEAD", 8))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "ACTRHEAD");
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	PrintChunkHeader(&chunkHeader);
+
+	mod->type = MOD_MD5;
+	mod->dataSize += sizeof(md5Model_t);
+	md5 = mod->md5 = ri.Hunk_Alloc(sizeof(md5Model_t), h_low);
+
+	// read points
+	GetChunkHeader(stream, &chunkHeader);
+	if(Q_stricmpn(chunkHeader.ident, "PNTS0000", 8))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "PNTS0000");
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	if(chunkHeader.dataSize != 12)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 12);
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	PrintChunkHeader(&chunkHeader);
+
+	numPoints = chunkHeader.numData;
+	points = Com_Allocate(numPoints * sizeof(pskPoint_t));
+	for(i = 0, point = points; i < numPoints; i++, point++)
+	{
+		point->point[0] = GetFloat(stream);
+		point->point[1] = GetFloat(stream);
+		point->point[2] = GetFloat(stream);
+	}
+
+	// read vertices
+	GetChunkHeader(stream, &chunkHeader);
+	if(Q_stricmpn(chunkHeader.ident, "VTXW0000", 8))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "VTXW0000");
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	if(chunkHeader.dataSize != 16)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 16);
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	PrintChunkHeader(&chunkHeader);
+
+	numVertexes = chunkHeader.numData;
+	vertexes = Com_Allocate(numVertexes * sizeof(pskVertex_t));
+	for(i = 0, vertex = vertexes; i < numVertexes; i++, vertex++)
+	{
+		vertex->pointIndex = GetShort(stream);
+		if(vertex->pointIndex < 0 || vertex->pointIndex >= numPoints)
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has vertex with point index out of range (%i while max %i)\n", modName, vertex->pointIndex, numPoints);
+			FreeMemStream(stream);
+			return qfalse;
+		}
+
+		vertex->unknownA = GetShort(stream);
+		vertex->st[0] = GetFloat(stream);
+		vertex->st[1] = GetFloat(stream);
+		vertex->materialIndex = MemStreamGetC(stream);
+		vertex->reserved = MemStreamGetC(stream);
+		vertex->unknownB = GetShort(stream);
+	}
+
+	// read triangles
+	GetChunkHeader(stream, &chunkHeader);
+	if(Q_stricmpn(chunkHeader.ident, "FACE0000", 8))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "FACE0000");
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	if(chunkHeader.dataSize != 12)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 12);
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	PrintChunkHeader(&chunkHeader);
+
+	numTriangles = chunkHeader.numData;
+	triangles = Com_Allocate(numTriangles * sizeof(pskTriangle_t));
+	for(i = 0, triangle = triangles; i < numTriangles; i++, triangle++)
+	{
+		for(j = 0; j < 3; j++)
+		{
+			triangle->indexes[j] = GetShort(stream);
+			if(triangle->indexes[j] < 0 || triangle->indexes[j] >= numVertexes)
+			{
+				ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has triangle with vertex index out of range (%i while max %i)\n", modName, triangle->indexes[j], numVertexes);
+				FreeMemStream(stream);
+				return qfalse;
+			}
+		}
+
+		triangle->materialIndex = MemStreamGetC(stream);
+		triangle->materialIndex2 = MemStreamGetC(stream);
+		triangle->smoothingGroups = GetLong(stream);
+	}
+
+	// read materials
+	GetChunkHeader(stream, &chunkHeader);
+	if(Q_stricmpn(chunkHeader.ident, "MATT0000", 8))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "MATT0000");
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	if(chunkHeader.dataSize != 88)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 88);
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	PrintChunkHeader(&chunkHeader);
+
+	numMaterials = chunkHeader.numData;
+	materials = Com_Allocate(numMaterials * sizeof(pskMaterial_t));
+	for(i = 0, material = materials; i < numMaterials; i++, material++)
+	{
+		MemStreamRead(stream, material->name, sizeof(material->name));
+
+		ri.Printf(PRINT_ALL, "R_LoadPSK: material name: '%s'\n", material->name);
+
+		material->shaderIndex = GetLong(stream);
+		material->polyFlags = GetLong(stream);
+		material->auxMaterial = GetLong(stream);
+		material->auxFlags = GetLong(stream);
+		material->lodBias = GetLong(stream);
+		material->lodStyle = GetLong(stream);
+	}
+
+	for(i = 0, vertex = vertexes; i < numVertexes; i++, vertex++)
+	{
+		if(vertex->materialIndex < 0 || vertex->materialIndex >= numMaterials)
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has vertex with material index out of range (%i while max %i)\n", modName, vertex->materialIndex, numMaterials);
+			FreeMemStream(stream);
+			return qfalse;
+		}
+	}
+
+	for(i = 0, triangle = triangles; i < numTriangles; i++, triangle++)
+	{
+		if(triangle->materialIndex < 0 || triangle->materialIndex >= numMaterials)
+		{
+			ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has triangle with material index out of range (%i while max %i)\n", modName, triangle->materialIndex, numMaterials);
+			FreeMemStream(stream);
+			return qfalse;
+		}
+	}
+
+	// read reference bones
+	GetChunkHeader(stream, &chunkHeader);
+	if(Q_stricmpn(chunkHeader.ident, "REFSKELT", 8))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "MATT0000");
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	if(chunkHeader.dataSize != 120)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 120);
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	PrintChunkHeader(&chunkHeader);
+
+#if 0
 	// skip commandline <arguments string>
 	token = Com_ParseExt(&buf_p, qtrue);
 	token = Com_ParseExt(&buf_p, qtrue);
@@ -1582,8 +2960,19 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 
 	Com_DestroyGrowList(&vboSurfaces);
 
+#endif
+
+	FreeMemStream(stream);
+	Com_Dealloc(points);
+	Com_Dealloc(vertexes);
+	Com_Dealloc(triangles);
+	Com_Dealloc(materials);
+
 	return qtrue;
 }
+
+
+//=============================================================================
 
 /*
 =================

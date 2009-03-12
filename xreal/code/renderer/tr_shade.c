@@ -386,6 +386,9 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_VertexSkinning\n#define r_VertexSkinning 1\n#endif\n");
+
+			Q_strcat(bufferExtra, sizeof(bufferExtra),
+								 va("#ifndef MAX_GLSL_BONES\n#define MAX_GLSL_BONES %i\n#endif\n", glConfig.maxVertexSkinningBones));
 		}
 
 		/*

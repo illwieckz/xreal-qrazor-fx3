@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 All bones should be an identity orientation to display the mesh exactly
 as it is specified.
 
-For all other frames, the bones represent the transformation from the 
+For all other frames, the bones represent the transformation from the
 orientation of the bone in the base frame to the orientation in this
 frame.
 ===========================================================================
@@ -629,10 +629,12 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 				shader = tr.defaultShader;
 
 				// FIXME: replace MD3_MAX_SURFACES for skin_t::surfaces
-				if(i >= 0 && i < skin->numSurfaces && skin->surfaces[i])
+				//if(i >= 0 && i < skin->numSurfaces && skin->surfaces[i])
+				if(vboSurface->skinIndex >= 0 && vboSurface->skinIndex < skin->numSurfaces && skin->surfaces[vboSurface->skinIndex])
 				{
-					shader = skin->surfaces[i]->shader;
+					shader = skin->surfaces[vboSurface->skinIndex]->shader;
 				}
+
 				if(shader == tr.defaultShader)
 				{
 					ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %i in skin %s\n", i, skin->name);
