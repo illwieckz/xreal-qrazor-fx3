@@ -779,21 +779,15 @@ static void GLimp_InitExtensions(void)
 	qglGetAttribLocationARB = NULL;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_shader"))
 	{
+		int				reservedComponents;
+
 		qglGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB, &glConfig.maxVertexUniforms);
 		qglGetIntegerv(GL_MAX_VARYING_FLOATS_ARB, &glConfig.maxVaryingFloats);
 		qglGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &glConfig.maxVertexAttribs);
 
-#if 0
-		// Tr3B: should be put this check somewhere else?
-		if(r_vboVertexSkinning->integer && glConfig.maxVertexUniforms >= 2048)
-			glConfig.vboVertexSkinningAvailable = qtrue;
-		else
-			glConfig.vboVertexSkinningAvailable = qfalse;
-#else
-		//glConfig.maxVertexSkinningBones = (int) (Q_max(glConfig.maxVertexUniforms - 5 * 16, 0) / 16);
-		glConfig.maxVertexSkinningBones = (int) Q_bound(0.0, (Q_max(glConfig.maxVertexUniforms - 5 * 16, 0) / 16), MAX_BONES);
-		glConfig.vboVertexSkinningAvailable = glConfig.maxVertexSkinningBones >= 15 ? qtrue : qfalse;
-#endif
+		reservedComponents = 16 * 10; // approximation how many uniforms we have besides the bone matrices
+		glConfig.maxVertexSkinningBones = (int) Q_bound(0.0, (Q_max(glConfig.maxVertexUniforms - reservedComponents, 0) / 16), MAX_BONES);
+		glConfig.vboVertexSkinningAvailable = glConfig.maxVertexSkinningBones >= 12 ? qtrue : qfalse;
 
 		qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) SDL_GL_GetProcAddress("glBindAttribLocationARB");
 		qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) SDL_GL_GetProcAddress("glGetActiveAttribARB");
