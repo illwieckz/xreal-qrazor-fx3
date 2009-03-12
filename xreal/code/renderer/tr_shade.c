@@ -33,7 +33,7 @@ This file deals with applying shaders to surface data in the tess struct.
 
 static char    *GLSL_PrintInfoLog(GLhandleARB object)
 {
-	static char     msg[4096];
+	static char     msg[4096 * 2];
 	int             maxLength = 0;
 
 	qglGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
