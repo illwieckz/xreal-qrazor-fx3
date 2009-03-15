@@ -1031,7 +1031,7 @@ static qboolean AddTriangleToVBOTriangleList(growList_t * vboTriangles, skelTria
 		*numBoneReferences = *numBoneReferences + 1;
 	}
 
-#if 1
+#if 0
 	if(numNewReferences)
 	{
 		ri.Printf(PRINT_ALL, "bone indices: %i %i %i %i %i %i %i %i %i %i %i %i\n",
@@ -1324,6 +1324,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 	vboSurf->surfaceType = SF_VBO_MD5MESH;
 	vboSurf->md5Model = md5;
 
+	ri.Printf(PRINT_ALL, "AddSurfaceToVBOSurfacesList2: loading shader '%s'", materialName);
 	shader = R_FindShader(materialName, SHADER_3D_DYNAMIC, qtrue);
 	if(shader->defaultShader)
 	{
@@ -2258,7 +2259,7 @@ static int GetShort(memStream_t * s)
 	return LittleShort(c);
 }
 
-static int GetFloat(memStream_t * s)
+static float GetFloat(memStream_t * s)
 {
 	floatint_t		c;
 
@@ -2416,9 +2417,9 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		return qfalse;
 	}
 
-	if(chunkHeader.dataSize != 12)
+	if(chunkHeader.dataSize != sizeof(axPoint_t))
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 12);
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, sizeof(axPoint_t));
 		FreeMemStream(stream);
 		return qfalse;
 	}
@@ -2443,9 +2444,9 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		return qfalse;
 	}
 
-	if(chunkHeader.dataSize != 16)
+	if(chunkHeader.dataSize != sizeof(axVertex_t))
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 16);
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, sizeof(axVertex_t));
 		FreeMemStream(stream);
 		return qfalse;
 	}
@@ -2470,6 +2471,23 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		vertex->materialIndex = MemStreamGetC(stream);
 		vertex->reserved = MemStreamGetC(stream);
 		vertex->unknownB = GetShort(stream);
+
+#if 0
+		ri.Printf(PRINT_ALL, "R_LoadPSK: axVertex_t(%i):\n"
+				"axVertex:pointIndex: %i\n"
+				"axVertex:unknownA: %i\n"
+				"axVertex::st: %f %f\n"
+				"axVertex:materialIndex: %i\n"
+				"axVertex:reserved: %d\n"
+				"axVertex:unknownB: %d\n",
+				i,
+				vertex->pointIndex,
+				vertex->unknownA,
+				vertex->st[0], vertex->st[1],
+				vertex->materialIndex,
+				vertex->reserved,
+				vertex->unknownB);
+#endif
 	}
 
 	// read triangles
@@ -2481,9 +2499,9 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		return qfalse;
 	}
 
-	if(chunkHeader.dataSize != 12)
+	if(chunkHeader.dataSize != sizeof(axTriangle_t))
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 12);
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, sizeof(axTriangle_t));
 		FreeMemStream(stream);
 		return qfalse;
 	}
@@ -2494,7 +2512,6 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	triangles = Com_Allocate(numTriangles * sizeof(axTriangle_t));
 	for(i = 0, triangle = triangles; i < numTriangles; i++, triangle++)
 	{
-		//for(j = 2; j >= 0; j--)
 		for(j = 0; j < 3; j++)
 		{
 			triangle->indexes[j] = GetShort(stream);
@@ -2520,9 +2537,9 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		return qfalse;
 	}
 
-	if(chunkHeader.dataSize != 88)
+	if(chunkHeader.dataSize != sizeof(axMaterial_t))
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 88);
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, sizeof(axMaterial_t));
 		FreeMemStream(stream);
 		return qfalse;
 	}
@@ -2574,9 +2591,9 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		return qfalse;
 	}
 
-	if(chunkHeader.dataSize != 120)
+	if(chunkHeader.dataSize != sizeof(axReferenceBone_t))
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 120);
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, sizeof(axReferenceBone_t));
 		FreeMemStream(stream);
 		return qfalse;
 	}
@@ -2607,9 +2624,9 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		return qfalse;
 	}
 
-	if(chunkHeader.dataSize != 12)
+	if(chunkHeader.dataSize != sizeof(axBoneWeight_t))
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 12);
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, sizeof(axBoneWeight_t));
 		FreeMemStream(stream);
 		return qfalse;
 	}
@@ -2704,7 +2721,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		}
 
 		vboVert->texCoords[0] = vertex->st[0];
-		vboVert->texCoords[1] = 1.0f - vertex->st[1];
+		vboVert->texCoords[1] = vertex->st[1];
 
 		// find number of associated weights
 		vboVert->numWeights = 0;
@@ -2749,7 +2766,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		AddPointToBounds(points[vertex->pointIndex].point, md5->bounds[0], md5->bounds[1]);
 	}
 
-#if 1
+#if 0
 	ri.Printf(PRINT_ALL, "R_LoadPSK: AABB (%i %i %i) (%i %i %i)\n",
 			(int)md5->bounds[0][0],
 			(int)md5->bounds[0][1],
