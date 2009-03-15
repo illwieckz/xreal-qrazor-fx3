@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -965,17 +965,8 @@ static int CompareTrianglesByBoneReferences(const void *a, const void *b)
 	return 0;
 }
 
-static void ReferenceBone_r(int boneReferences[MAX_BONES], int boneIndex)
-{
-	if(boneIndex == 0)
-	{
-		return 0;
-	}
-	else
-	{
-		return ReferenceBone_r(boneReferences, boneIndex - 1);
-	}
-}
+
+
 
 static qboolean AddTriangleToVBOTriangleList(growList_t * vboTriangles, skelTriangle_t * tri, int * numBoneReferences, int boneReferences[MAX_BONES])
 {
@@ -1040,7 +1031,7 @@ static qboolean AddTriangleToVBOTriangleList(growList_t * vboTriangles, skelTria
 		*numBoneReferences = *numBoneReferences + 1;
 	}
 
-#if 0
+#if 1
 	if(numNewReferences)
 	{
 		ri.Printf(PRINT_ALL, "bone indices: %i %i %i %i %i %i %i %i %i %i %i %i\n",
@@ -1286,6 +1277,256 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 	   ri.Printf(PRINT_ALL, "md5 mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
 	   (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
 	 */
+}
+
+static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * vboTriangles, growList_t * vboVertexes, md5Model_t * md5, int skinIndex, const char *materialName, int numBoneReferences, int boneReferences[MAX_BONES])
+{
+	int				i, j, k;
+
+	int             vertexesNum;
+	byte           *data;
+	int             dataSize;
+	int             dataOfs;
+
+	GLuint          ofsTexCoords;
+	GLuint          ofsTangents;
+	GLuint          ofsBinormals;
+	GLuint          ofsNormals;
+	GLuint          ofsColors;
+	GLuint          ofsBoneIndexes;
+	GLuint          ofsBoneWeights;
+
+	int             indexesNum;
+	byte           *indexes;
+	int             indexesSize;
+	int             indexesOfs;
+
+	skelTriangle_t  *tri;
+
+	vec4_t          tmp;
+	int             index;
+
+	srfVBOMD5Mesh_t *vboSurf;
+	md5Vertex_t     *v;
+
+	vec4_t          tmpColor = { 1, 1, 1, 1 };
+
+	shader_t       *shader;
+	int				shaderIndex;
+
+	vertexesNum = vboVertexes->currentElements;
+	indexesNum = vboTriangles->currentElements * 3;
+
+	// create surface
+	vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
+	Com_AddToGrowList(vboSurfaces, vboSurf);
+
+	vboSurf->surfaceType = SF_VBO_MD5MESH;
+	vboSurf->md5Model = md5;
+
+	shader = R_FindShader(materialName, SHADER_3D_DYNAMIC, qtrue);
+	if(shader->defaultShader)
+	{
+		shaderIndex = 0;
+	}
+	else
+	{
+		shaderIndex = shader->index;
+	}
+	vboSurf->shader = R_GetShaderByHandle(shaderIndex);
+
+	vboSurf->skinIndex = skinIndex;
+	vboSurf->numIndexes = indexesNum;
+	vboSurf->numVerts = vertexesNum;
+
+	dataSize = vertexesNum * (sizeof(vec4_t) * 8);
+	data = ri.Hunk_AllocateTempMemory(dataSize);
+	dataOfs = 0;
+
+	indexesSize = indexesNum * sizeof(int);
+	indexes = ri.Hunk_AllocateTempMemory(indexesSize);
+	indexesOfs = 0;
+
+	//ri.Printf(PRINT_ALL, "AddSurfaceToVBOSurfacesList( %i verts, %i tris )\n", surf->numVerts, vboTriangles->currentElements);
+
+	vboSurf->numBoneRemap = 0;
+	Com_Memset(vboSurf->boneRemap, 0, sizeof(vboSurf->boneRemap));
+	Com_Memset(vboSurf->boneRemapInverse, 0, sizeof(vboSurf->boneRemapInverse));
+
+	//ri.Printf(PRINT_ALL, "referenced bones: ");
+	for(j = 0; j < MAX_BONES; j++)
+	{
+		if(boneReferences[j] > 0)
+		{
+			vboSurf->boneRemap[j] = vboSurf->numBoneRemap;
+			vboSurf->boneRemapInverse[vboSurf->numBoneRemap] = j;
+
+			vboSurf->numBoneRemap++;
+
+			//ri.Printf(PRINT_ALL, "(%i -> %i) ", j, vboSurf->boneRemap[j]);
+		}
+	}
+	//ri.Printf(PRINT_ALL, "\n");
+
+	//for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
+	for(j = 0; j < vboTriangles->currentElements; j++)
+	{
+		tri = Com_GrowListElement(vboTriangles, j);
+
+		for(k = 0; k < 3; k++)
+		{
+			index = tri->indexes[k];
+
+			memcpy(indexes + indexesOfs, &index, sizeof(int));
+			indexesOfs += sizeof(int);
+		}
+	}
+
+	// feed vertex XYZ
+	for(j = 0; j < vertexesNum; j++)
+	{
+		v = Com_GrowListElement(vboVertexes, j);
+
+		for(k = 0; k < 3; k++)
+		{
+			tmp[k] = v->position[k];
+		}
+		tmp[3] = 1;
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed vertex texcoords
+	ofsTexCoords = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		v = Com_GrowListElement(vboVertexes, j);
+
+		for(k = 0; k < 2; k++)
+		{
+			tmp[k] = v->texCoords[k];
+		}
+		tmp[2] = 0;
+		tmp[3] = 1;
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed vertex tangents
+	ofsTangents = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		v = Com_GrowListElement(vboVertexes, j);
+
+		for(k = 0; k < 3; k++)
+		{
+			tmp[k] = v->tangent[k];
+		}
+		tmp[3] = 1;
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed vertex binormals
+	ofsBinormals = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		v = Com_GrowListElement(vboVertexes, j);
+
+		for(k = 0; k < 3; k++)
+		{
+			tmp[k] = v->binormal[k];
+		}
+		tmp[3] = 1;
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed vertex normals
+	ofsNormals = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		v = Com_GrowListElement(vboVertexes, j);
+
+		for(k = 0; k < 3; k++)
+		{
+			tmp[k] = v->normal[k];
+		}
+		tmp[3] = 1;
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed vertex colors
+	ofsColors = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		memcpy(data + dataOfs, tmpColor, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed bone indices
+	ofsBoneIndexes = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		v = Com_GrowListElement(vboVertexes, j);
+
+		for(k = 0; k < MAX_WEIGHTS; k++)
+		{
+			if(k < v->numWeights)
+				index = vboSurf->boneRemap[v->weights[k]->boneIndex];
+			else
+				index = 0;
+
+			memcpy(data + dataOfs, &index, sizeof(int));
+			dataOfs += sizeof(int);
+		}
+	}
+
+	// feed bone weights
+	ofsBoneWeights = dataOfs;
+	for(j = 0; j < vertexesNum; j++)
+	{
+		v = Com_GrowListElement(vboVertexes, j);
+
+		for(k = 0; k < MAX_WEIGHTS; k++)
+		{
+			if(k < v->numWeights)
+				tmp[k] = v->weights[k]->boneWeight;
+			else
+				tmp[k] = 0;
+		}
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	vboSurf->vbo = R_CreateVBO(va("staticMD5Mesh_VBO %i", vboSurfaces->currentElements), data, dataSize, GL_STATIC_DRAW_ARB);
+	vboSurf->vbo->ofsXYZ = 0;
+	vboSurf->vbo->ofsTexCoords = ofsTexCoords;
+	vboSurf->vbo->ofsLightCoords = ofsTexCoords;
+	vboSurf->vbo->ofsTangents = ofsTangents;
+	vboSurf->vbo->ofsBinormals = ofsBinormals;
+	vboSurf->vbo->ofsNormals = ofsNormals;
+	vboSurf->vbo->ofsColors = ofsColors;
+	vboSurf->vbo->ofsLightCoords = ofsColors;		// not required anyway
+	vboSurf->vbo->ofsLightDirections = ofsColors;	// not required anyway
+	vboSurf->vbo->ofsBoneIndexes = ofsBoneIndexes;
+	vboSurf->vbo->ofsBoneWeights = ofsBoneWeights;
+
+	vboSurf->ibo = R_CreateIBO(va("staticMD5Mesh_IBO %i", vboSurfaces->currentElements), indexes, indexesSize, GL_STATIC_DRAW_ARB);
+
+	ri.Hunk_FreeTempMemory(indexes);
+	ri.Hunk_FreeTempMemory(data);
+
+	// megs
+	/*
+	   ri.Printf(PRINT_ALL, "md5 mesh data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
+	   (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+	   ri.Printf(PRINT_ALL, "md5 mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
+	   (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+	 */
+
+	ri.Printf(PRINT_ALL, "created VBO surface %i with %i vertices and %i triangles\n", vboSurfaces->currentElements, vboSurf->numVerts, vboSurf->numIndexes / 3);
 }
 
 /*
@@ -1909,14 +2150,14 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const cha
 
 
 
-typedef enum
+enum
 {
 	MEMSTREAM_SEEK_SET,
 	MEMSTREAM_SEEK_CUR,
 	MEMSTREAM_SEEK_END
 };
 
-typedef enum
+enum
 {
 	MEMSTREAM_FLAGS_EOF = BIT(0),
 	MEMSTREAM_FLAGS_ERR = BIT(1),
@@ -2030,7 +2271,7 @@ static int GetFloat(memStream_t * s)
 	return LittleFloat(c.f);
 }
 
-static void GetChunkHeader(memStream_t *s, pskChunkHeader_t * chunkHeader)
+static void GetChunkHeader(memStream_t *s, axChunkHeader_t * chunkHeader)
 {
 	int             i;
 
@@ -2044,13 +2285,52 @@ static void GetChunkHeader(memStream_t *s, pskChunkHeader_t * chunkHeader)
 	chunkHeader->numData = GetLong(s);
 }
 
-static void PrintChunkHeader(pskChunkHeader_t * chunkHeader)
+static void PrintChunkHeader(axChunkHeader_t * chunkHeader)
 {
+#if 0
 	ri.Printf(PRINT_ALL, "----------------------\n");
 	ri.Printf(PRINT_ALL, "R_LoadPSK: chunk header ident: '%s'\n", chunkHeader->ident);
 	ri.Printf(PRINT_ALL, "R_LoadPSK: chunk header flags: %i\n", chunkHeader->flags);
 	ri.Printf(PRINT_ALL, "R_LoadPSK: chunk header data size: %i\n", chunkHeader->dataSize);
 	ri.Printf(PRINT_ALL, "R_LoadPSK: chunk header num items: %i\n", chunkHeader->numData);
+#endif
+}
+
+static void GetBone(memStream_t *s, axBone_t * bone)
+{
+	int             i;
+
+	for(i = 0; i < 4; i++)
+	{
+		bone->quat[i] = GetFloat(s);
+	}
+
+	for(i = 0; i < 3; i++)
+	{
+		bone->position[i] = GetFloat(s);
+	}
+
+	bone->length = GetFloat(s);
+
+	bone->xSize = GetFloat(s);
+	bone->ySize = GetFloat(s);
+	bone->zSize = GetFloat(s);
+}
+
+static int CompareTrianglesByMaterialIndex(const void *a, const void *b)
+{
+	axTriangle_t *t1, *t2;
+
+	t1 = (axTriangle_t *)a;
+	t2 = (axTriangle_t *)b;
+
+	if(t1->materialIndex < t2->materialIndex)
+		return -1;
+
+	if(t1->materialIndex > t2->materialIndex)
+		return 1;
+
+	return 0;
 }
 
 /*
@@ -2063,39 +2343,52 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	int             i, j, k;
 	memStream_t    *stream;
 
-	pskChunkHeader_t	chunkHeader;
+	axChunkHeader_t	chunkHeader;
 
 	int				numPoints;
-	pskPoint_t     *point;
-	pskPoint_t     *points;
+	axPoint_t      *point;
+	axPoint_t      *points;
 
 	int				numVertexes;
-	pskVertex_t    *vertex;
-	pskVertex_t    *vertexes;
+	axVertex_t     *vertex;
+	axVertex_t     *vertexes;
 
+	int				numSmoothGroups;
 	int				numTriangles;
-	pskTriangle_t  *triangle;
-	pskTriangle_t  *triangles;
+	axTriangle_t   *triangle;
+	axTriangle_t   *triangles;
 
 	int				numMaterials;
-	pskMaterial_t  *material;
-	pskMaterial_t  *materials;
+	axMaterial_t   *material;
+	axMaterial_t   *materials;
+
+	int				numReferenceBones;
+	axReferenceBone_t *refBone;
+	axReferenceBone_t *refBones;
+
+	int				numWeights;
+	axBoneWeight_t *axWeight;
+	axBoneWeight_t *axWeights;
 
 	md5Model_t     *md5;
-	md5Bone_t      *bone;
-	md5Surface_t   *surf;
-	srfTriangle_t  *tri;
-	md5Vertex_t    *v;
+	md5Bone_t      *md5Bone;
 	md5Weight_t    *weight;
-	int             version;
-	shader_t       *sh;
 
-	char           *token;
 	vec3_t          boneOrigin;
 	quat_t          boneQuat;
 	matrix_t        boneMat;
 
+	int				materialIndex, oldMaterialIndex;
+
+	int				numRemaining;
+
+	growList_t		sortedTriangles;
+	growList_t      vboVertexes;
+	growList_t      vboTriangles;
 	growList_t      vboSurfaces;
+
+	int				numBoneReferences;
+	int				boneReferences[MAX_BONES];
 
 	stream = AllocMemStream(buffer, bufferSize);
 	GetChunkHeader(stream, &chunkHeader);
@@ -2133,7 +2426,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	PrintChunkHeader(&chunkHeader);
 
 	numPoints = chunkHeader.numData;
-	points = Com_Allocate(numPoints * sizeof(pskPoint_t));
+	points = Com_Allocate(numPoints * sizeof(axPoint_t));
 	for(i = 0, point = points; i < numPoints; i++, point++)
 	{
 		point->point[0] = GetFloat(stream);
@@ -2160,7 +2453,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	PrintChunkHeader(&chunkHeader);
 
 	numVertexes = chunkHeader.numData;
-	vertexes = Com_Allocate(numVertexes * sizeof(pskVertex_t));
+	vertexes = Com_Allocate(numVertexes * sizeof(axVertex_t));
 	for(i = 0, vertex = vertexes; i < numVertexes; i++, vertex++)
 	{
 		vertex->pointIndex = GetShort(stream);
@@ -2198,9 +2491,10 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	PrintChunkHeader(&chunkHeader);
 
 	numTriangles = chunkHeader.numData;
-	triangles = Com_Allocate(numTriangles * sizeof(pskTriangle_t));
+	triangles = Com_Allocate(numTriangles * sizeof(axTriangle_t));
 	for(i = 0, triangle = triangles; i < numTriangles; i++, triangle++)
 	{
+		//for(j = 2; j >= 0; j--)
 		for(j = 0; j < 3; j++)
 		{
 			triangle->indexes[j] = GetShort(stream);
@@ -2236,7 +2530,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	PrintChunkHeader(&chunkHeader);
 
 	numMaterials = chunkHeader.numData;
-	materials = Com_Allocate(numMaterials * sizeof(pskMaterial_t));
+	materials = Com_Allocate(numMaterials * sizeof(axMaterial_t));
 	for(i = 0, material = materials; i < numMaterials; i++, material++)
 	{
 		MemStreamRead(stream, material->name, sizeof(material->name));
@@ -2275,7 +2569,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	GetChunkHeader(stream, &chunkHeader);
 	if(Q_stricmpn(chunkHeader.ident, "REFSKELT", 8))
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "MATT0000");
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "REFSKELT");
 		FreeMemStream(stream);
 		return qfalse;
 	}
@@ -2289,665 +2583,363 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 
 	PrintChunkHeader(&chunkHeader);
 
-#if 0
-	// skip commandline <arguments string>
-	token = Com_ParseExt(&buf_p, qtrue);
-	token = Com_ParseExt(&buf_p, qtrue);
-//  ri.Printf(PRINT_ALL, "%s\n", token);
-
-	// parse numJoints <number>
-	token = Com_ParseExt(&buf_p, qtrue);
-	if(Q_stricmp(token, "numJoints"))
+	numReferenceBones = chunkHeader.numData;
+	refBones = Com_Allocate(numReferenceBones * sizeof(axReferenceBone_t));
+	for(i = 0, refBone = refBones; i < numReferenceBones; i++, refBone++)
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'numJoints' found '%s' in model '%s'\n", token, modName);
+		MemStreamRead(stream, refBone->name, sizeof(refBone->name));
+
+		//ri.Printf(PRINT_ALL, "R_LoadPSK: reference bone name: '%s'\n", refBone->name);
+
+		refBone->flags = GetLong(stream);
+		refBone->numChildren = GetLong(stream);
+		refBone->parentIndex = GetLong(stream);
+
+		GetBone(stream, &refBone->bone);
+	}
+
+	// read  bone weights
+	GetChunkHeader(stream, &chunkHeader);
+	if(Q_stricmpn(chunkHeader.ident, "RAWWEIGHTS", 10))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "RAWWEIGHTS");
+		FreeMemStream(stream);
 		return qfalse;
 	}
-	token = Com_ParseExt(&buf_p, qfalse);
-	md5->numBones = atoi(token);
 
-	// parse numMeshes <number>
-	token = Com_ParseExt(&buf_p, qtrue);
-	if(Q_stricmp(token, "numMeshes"))
+	if(chunkHeader.dataSize != 12)
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'numMeshes' found '%s' in model '%s'\n", token, modName);
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, 12);
+		FreeMemStream(stream);
 		return qfalse;
 	}
-	token = Com_ParseExt(&buf_p, qfalse);
-	md5->numSurfaces = atoi(token);
-	//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i surfaces\n", modName, md5->numSurfaces);
 
+	PrintChunkHeader(&chunkHeader);
+
+	numWeights = chunkHeader.numData;
+	axWeights = Com_Allocate(numWeights * sizeof(axBoneWeight_t));
+	for(i = 0, axWeight = axWeights; i < numWeights; i++, axWeight++)
+	{
+		axWeight->weight = GetFloat(stream);
+		axWeight->pointIndex = GetLong(stream);
+		axWeight->boneIndex = GetLong(stream);
+	}
+
+
+	//
+	// convert the model to an internal MD5 representation
+	//
+	md5->numBones = numReferenceBones;
+
+	// calc numMeshes <number>
+	/*
+	numSmoothGroups = 0;
+	for(i = 0, triangle = triangles; i < numTriangles; i++, triangle++)
+	{
+		if(triangle->smoothingGroups)
+		{
+
+		}
+	}
+	*/
 
 	if(md5->numBones < 1)
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has no bones\n", modName);
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has no bones\n", modName);
 		return qfalse;
 	}
 	if(md5->numBones > MAX_BONES)
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has more than %i bones (%i)\n", modName, MAX_BONES, md5->numBones);
+		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has more than %i bones (%i)\n", modName, MAX_BONES, md5->numBones);
 		return qfalse;
 	}
-	//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i bones\n", modName, md5->numBones);
+	//ri.Printf(PRINT_ALL, "R_LoadPSK: '%s' has %i bones\n", modName, md5->numBones);
 
 	// parse all the bones
-	md5->bones = ri.Hunk_Alloc(sizeof(*bone) * md5->numBones, h_low);
+	md5->bones = ri.Hunk_Alloc(sizeof(*md5Bone) * md5->numBones, h_low);
 
-	// parse joints {
-	token = Com_ParseExt(&buf_p, qtrue);
-	if(Q_stricmp(token, "joints"))
+	for(i = 0, md5Bone = md5->bones, refBone = refBones; i < md5->numBones; i++, md5Bone++, refBone++)
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'joints' found '%s' in model '%s'\n", token, modName);
-		return qfalse;
-	}
-	token = Com_ParseExt(&buf_p, qfalse);
-	if(Q_stricmp(token, "{"))
-	{
-		ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '{' found '%s' in model '%s'\n", token, modName);
-		return qfalse;
-	}
+		Q_strncpyz(md5Bone->name, refBone->name, sizeof(md5Bone->name));
 
-	for(i = 0, bone = md5->bones; i < md5->numBones; i++, bone++)
-	{
-		token = Com_ParseExt(&buf_p, qtrue);
-		Q_strncpyz(bone->name, token, sizeof(bone->name));
+		ri.Printf(PRINT_ALL, "R_LoadPSK: '%s' has bone '%s'\n", modName, md5Bone->name);
 
-		//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has bone '%s'\n", modName, bone->name);
-
-		token = Com_ParseExt(&buf_p, qfalse);
-		bone->parentIndex = atoi(token);
-
-		if(bone->parentIndex >= md5->numBones)
+		md5Bone->parentIndex = refBone->parentIndex;
+		if(md5Bone->parentIndex >= md5->numBones)
 		{
-			ri.Error(ERR_DROP, "R_LoadMD5: '%s' has bone '%s' with bad parent index %i while numBones is %i\n", modName,
-					 bone->name, bone->parentIndex, md5->numBones);
-		}
-
-		// skip (
-		token = Com_ParseExt(&buf_p, qfalse);
-		if(Q_stricmp(token, "("))
-		{
-			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '(' found '%s' in model '%s'\n", token, modName);
-			return qfalse;
+			ri.Error(ERR_DROP, "R_LoadPSK: '%s' has bone '%s' with bad parent index %i while numBones is %i\n", modName,
+					 md5Bone->name, md5Bone->parentIndex, md5->numBones);
 		}
 
 		for(j = 0; j < 3; j++)
 		{
-			token = Com_ParseExt(&buf_p, qfalse);
-			boneOrigin[j] = atof(token);
+			boneOrigin[j] = refBone->bone.position[j];
 		}
 
-		// skip )
-		token = Com_ParseExt(&buf_p, qfalse);
-		if(Q_stricmp(token, ")"))
-		{
-			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected ')' found '%s' in model '%s'\n", token, modName);
-			return qfalse;
-		}
-
-		// skip (
-		token = Com_ParseExt(&buf_p, qfalse);
-		if(Q_stricmp(token, "("))
-		{
-			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '(' found '%s' in model '%s'\n", token, modName);
-			return qfalse;
-		}
-
+		// FIXME ?
 		for(j = 0; j < 3; j++)
 		{
-			token = Com_ParseExt(&buf_p, qfalse);
-			boneQuat[j] = atof(token);
+			boneQuat[j] = refBone->bone.quat[j];
 		}
 		QuatCalcW(boneQuat);
 		MatrixFromQuat(boneMat, boneQuat);
 
-		VectorCopy(boneOrigin, bone->origin);
-		QuatCopy(boneQuat, bone->rotation);
+		VectorCopy(boneOrigin, md5Bone->origin);
+		QuatCopy(boneQuat, md5Bone->rotation);
 
-		MatrixSetupTransformFromQuat(bone->inverseTransform, boneQuat, boneOrigin);
-		MatrixInverse(bone->inverseTransform);
-
-		// skip )
-		token = Com_ParseExt(&buf_p, qfalse);
-		if(Q_stricmp(token, ")"))
-		{
-			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '(' found '%s' in model '%s'\n", token, modName);
-			return qfalse;
-		}
+		MatrixSetupTransformFromQuat(md5Bone->inverseTransform, boneQuat, boneOrigin);
+		MatrixInverse(md5Bone->inverseTransform);
 	}
 
-	// parse }
-	token = Com_ParseExt(&buf_p, qtrue);
-	if(Q_stricmp(token, "}"))
+
+
+	Com_InitGrowList(&vboVertexes, 10000);
+	for(i = 0, vertex = vertexes; i < numVertexes; i++, vertex++)
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '}' found '%s' in model '%s'\n", token, modName);
-		return qfalse;
+		md5Vertex_t *vboVert = Com_Allocate(sizeof(*vboVert));
+
+		for(j = 0; j < 3; j++)
+		{
+			vboVert->position[j] = points[vertex->pointIndex].point[j];
+		}
+
+		vboVert->texCoords[0] = vertex->st[0];
+		vboVert->texCoords[1] = 1.0f - vertex->st[1];
+
+		// find number of associated weights
+		vboVert->numWeights = 0;
+		for(j = 0, axWeight = axWeights; j < numWeights; j++, axWeight++)
+		{
+			if(axWeight->pointIndex == vertex->pointIndex)
+			{
+				vboVert->numWeights++;
+			}
+		}
+
+		if(vboVert->numWeights > MAX_WEIGHTS)
+		{
+			ri.Error(ERR_DROP, "R_LoadPSK: vertex %i requires more than %i weights in model '%s'", i, MAX_WEIGHTS, modName);
+		}
+
+		vboVert->weights = ri.Hunk_Alloc(sizeof(*vboVert->weights) * vboVert->numWeights, h_low);
+		for(j = 0, axWeight = axWeights, k = 0; j < numWeights; j++, axWeight++)
+		{
+			if(axWeight->pointIndex == vertex->pointIndex)
+			{
+				weight = ri.Hunk_Alloc(sizeof(*weight), h_low);
+
+				weight->boneIndex = axWeight->boneIndex;
+				weight->boneWeight = axWeight->weight;
+
+				// FIXME?
+				weight->offset[0] = refBones[axWeight->boneIndex].bone.xSize;
+				weight->offset[1] = refBones[axWeight->boneIndex].bone.ySize;
+				weight->offset[2] = refBones[axWeight->boneIndex].bone.zSize;
+
+				vboVert->weights[k++] = weight;
+			}
+		}
+
+		Com_AddToGrowList(&vboVertexes, vboVert);
 	}
 
-	// parse all the surfaces
-	if(md5->numSurfaces < 1)
-	{
-		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has no surfaces\n", modName);
-		return qfalse;
-	}
-	//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i surfaces\n", modName, md5->numSurfaces);
-
-	md5->surfaces = ri.Hunk_Alloc(sizeof(*surf) * md5->numSurfaces, h_low);
-	for(i = 0, surf = md5->surfaces; i < md5->numSurfaces; i++, surf++)
-	{
-		// parse mesh {
-		token = Com_ParseExt(&buf_p, qtrue);
-		if(Q_stricmp(token, "mesh"))
-		{
-			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'mesh' found '%s' in model '%s'\n", token, modName);
-			return qfalse;
-		}
-		token = Com_ParseExt(&buf_p, qfalse);
-		if(Q_stricmp(token, "{"))
-		{
-			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '{' found '%s' in model '%s'\n", token, modName);
-			return qfalse;
-		}
-
-		// change to surface identifier
-		surf->surfaceType = SF_MD5;
-
-		// give pointer to model for Tess_SurfaceMD5
-		surf->model = md5;
-
-		// parse shader <name>
-		token = Com_ParseExt(&buf_p, qtrue);
-		if(Q_stricmp(token, "shader"))
-		{
-			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'shader' found '%s' in model '%s'\n", token, modName);
-			return qfalse;
-		}
-		token = Com_ParseExt(&buf_p, qfalse);
-		Q_strncpyz(surf->shader, token, sizeof(surf->shader));
-
-		//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' uses shader '%s'\n", modName, surf->shader);
-
-		// FIXME .md5mesh meshes don't have surface names
-		// lowercase the surface name so skin compares are faster
-		//Q_strlwr(surf->name);
-		//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has surface '%s'\n", modName, surf->name);
-
-		// register the shaders
-		sh = R_FindShader(surf->shader, SHADER_3D_DYNAMIC, qtrue);
-		if(sh->defaultShader)
-		{
-			surf->shaderIndex = 0;
-		}
-		else
-		{
-			surf->shaderIndex = sh->index;
-		}
-
-		// parse numVerts <number>
-		token = Com_ParseExt(&buf_p, qtrue);
-		if(Q_stricmp(token, "numVerts"))
-		{
-			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'numVerts' found '%s' in model '%s'\n", token, modName);
-			return qfalse;
-		}
-		token = Com_ParseExt(&buf_p, qfalse);
-		surf->numVerts = atoi(token);
-
-		if(surf->numVerts > SHADER_MAX_VERTEXES)
-		{
-			ri.Error(ERR_DROP, "R_LoadMD5: '%s' has more than %i verts on a surface (%i)",
-					 modName, SHADER_MAX_VERTEXES, surf->numVerts);
-		}
-
-		surf->verts = ri.Hunk_Alloc(sizeof(*v) * surf->numVerts, h_low);
-		for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
-		{
-			// skip vert <number>
-			token = Com_ParseExt(&buf_p, qtrue);
-			if(Q_stricmp(token, "vert"))
-			{
-				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'vert' found '%s' in model '%s'\n", token, modName);
-				return qfalse;
-			}
-			Com_ParseExt(&buf_p, qfalse);
-
-			// skip (
-			token = Com_ParseExt(&buf_p, qfalse);
-			if(Q_stricmp(token, "("))
-			{
-				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '(' found '%s' in model '%s'\n", token, modName);
-				return qfalse;
-			}
-
-			for(k = 0; k < 2; k++)
-			{
-				token = Com_ParseExt(&buf_p, qfalse);
-				v->texCoords[k] = atof(token);
-			}
-
-			// skip )
-			token = Com_ParseExt(&buf_p, qfalse);
-			if(Q_stricmp(token, ")"))
-			{
-				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected ')' found '%s' in model '%s'\n", token, modName);
-				return qfalse;
-			}
-
-			token = Com_ParseExt(&buf_p, qfalse);
-			v->firstWeight = atoi(token);
-
-			token = Com_ParseExt(&buf_p, qfalse);
-			v->numWeights = atoi(token);
-
-			if(v->numWeights > MAX_WEIGHTS)
-			{
-				ri.Error(ERR_DROP, "R_LoadMD5: vertex %i requires more than %i weights on surface (%i) in model '%s'",
-						 j, MAX_WEIGHTS, i, modName);
-			}
-		}
-
-		// parse numTris <number>
-		token = Com_ParseExt(&buf_p, qtrue);
-		if(Q_stricmp(token, "numTris"))
-		{
-			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'numTris' found '%s' in model '%s'\n", token, modName);
-			return qfalse;
-		}
-		token = Com_ParseExt(&buf_p, qfalse);
-		surf->numTriangles = atoi(token);
-
-		if(surf->numTriangles > SHADER_MAX_TRIANGLES)
-		{
-			ri.Error(ERR_DROP, "R_LoadMD5: '%s' has more than %i triangles on a surface (%i)",
-					 modName, SHADER_MAX_TRIANGLES, surf->numTriangles);
-		}
-
-		surf->triangles = ri.Hunk_Alloc(sizeof(*tri) * surf->numTriangles, h_low);
-		for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
-		{
-			// skip tri <number>
-			token = Com_ParseExt(&buf_p, qtrue);
-			if(Q_stricmp(token, "tri"))
-			{
-				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'tri' found '%s' in model '%s'\n", token, modName);
-				return qfalse;
-			}
-			Com_ParseExt(&buf_p, qfalse);
-
-			for(k = 0; k < 3; k++)
-			{
-				token = Com_ParseExt(&buf_p, qfalse);
-				tri->indexes[k] = atoi(token);
-			}
-		}
-
-		R_CalcSurfaceTriangleNeighbors(surf->numTriangles, surf->triangles);
-
-		// parse numWeights <number>
-		token = Com_ParseExt(&buf_p, qtrue);
-		if(Q_stricmp(token, "numWeights"))
-		{
-			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'numWeights' found '%s' in model '%s'\n", token, modName);
-			return qfalse;
-		}
-		token = Com_ParseExt(&buf_p, qfalse);
-		surf->numWeights = atoi(token);
-
-		surf->weights = ri.Hunk_Alloc(sizeof(*weight) * surf->numWeights, h_low);
-		for(j = 0, weight = surf->weights; j < surf->numWeights; j++, weight++)
-		{
-			// skip weight <number>
-			token = Com_ParseExt(&buf_p, qtrue);
-			if(Q_stricmp(token, "weight"))
-			{
-				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected 'weight' found '%s' in model '%s'\n", token, modName);
-				return qfalse;
-			}
-			Com_ParseExt(&buf_p, qfalse);
-
-			token = Com_ParseExt(&buf_p, qfalse);
-			weight->boneIndex = atoi(token);
-
-			token = Com_ParseExt(&buf_p, qfalse);
-			weight->boneWeight = atof(token);
-
-			// skip (
-			token = Com_ParseExt(&buf_p, qfalse);
-			if(Q_stricmp(token, "("))
-			{
-				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '(' found '%s' in model '%s'\n", token, modName);
-				return qfalse;
-			}
-
-			for(k = 0; k < 3; k++)
-			{
-				token = Com_ParseExt(&buf_p, qfalse);
-				weight->offset[k] = atof(token);
-			}
-
-			// skip )
-			token = Com_ParseExt(&buf_p, qfalse);
-			if(Q_stricmp(token, ")"))
-			{
-				ri.Printf(PRINT_WARNING, "R_LoadMD5: expected ')' found '%s' in model '%s'\n", token, modName);
-				return qfalse;
-			}
-		}
-
-		// parse }
-		token = Com_ParseExt(&buf_p, qtrue);
-		if(Q_stricmp(token, "}"))
-		{
-			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '}' found '%s' in model '%s'\n", token, modName);
-			return qfalse;
-		}
-
-		// loop trough all vertices and set up the vertex weights
-		for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
-		{
-			v->weights = ri.Hunk_Alloc(sizeof(*v->weights) * v->numWeights, h_low);
-
-			for(k = 0; k < v->numWeights; k++)
-			{
-				v->weights[k] = surf->weights + (v->firstWeight + k);
-			}
-		}
-	}
-
-	// loading is done, now calculate the bounding box, tangent spaces and VBOs
 	ClearBounds(md5->bounds[0], md5->bounds[1]);
-	Com_InitGrowList(&vboSurfaces, 10);
-
-	for(i = 0, surf = md5->surfaces; i < md5->numSurfaces; i++, surf++)
+	for(i = 0, vertex = vertexes; i < numVertexes; i++, vertex++)
 	{
-		for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+		AddPointToBounds(points[vertex->pointIndex].point, md5->bounds[0], md5->bounds[1]);
+	}
+
+#if 1
+	ri.Printf(PRINT_ALL, "R_LoadPSK: AABB (%i %i %i) (%i %i %i)\n",
+			(int)md5->bounds[0][0],
+			(int)md5->bounds[0][1],
+			(int)md5->bounds[0][2],
+			(int)md5->bounds[1][0],
+			(int)md5->bounds[1][1],
+			(int)md5->bounds[1][2]);
+#endif
+
+	// sort triangles
+	qsort(triangles, numTriangles, sizeof(axTriangle_t), CompareTrianglesByMaterialIndex);
+
+	Com_InitGrowList(&sortedTriangles, 1000);
+	for(i = 0, triangle = triangles; i < numTriangles; i++, triangle++)
+	{
+		skelTriangle_t *sortTri = Com_Allocate(sizeof(*sortTri));
+
+		for(j = 0; j < 3; j++)
 		{
-			vec3_t          tmpVert;
-			md5Weight_t    *w;
+			sortTri->indexes[j] = triangle->indexes[j];
+			sortTri->vertexes[j] = Com_GrowListElement(&vboVertexes, triangle->indexes[j]);
+		}
+		sortTri->referenced = qfalse;
 
-			VectorClear(tmpVert);
+		Com_AddToGrowList(&sortedTriangles, sortTri);
+	}
 
-			for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
-			{
-				vec3_t          offsetVec;
+	// calc tangent spaces
+	{
+		md5Vertex_t    *v0, *v1, *v2;
+		const float    *p0, *p1, *p2;
+		const float    *t0, *t1, *t2;
+		vec3_t          tangent;
+		vec3_t          binormal;
+		vec3_t          normal;
 
-				bone = &md5->bones[w->boneIndex];
+		for(j = 0; j < vboVertexes.currentElements; j++)
+		{
+			v0 = Com_GrowListElement(&vboVertexes, j);
 
-				QuatTransformVector(bone->rotation, w->offset, offsetVec);
-				VectorAdd(bone->origin, offsetVec, offsetVec);
-
-				VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
-			}
-
-			VectorCopy(tmpVert, v->position);
-			AddPointToBounds(tmpVert, md5->bounds[0], md5->bounds[1]);
+			VectorClear(v0->tangent);
+			VectorClear(v0->binormal);
+			VectorClear(v0->normal);
 		}
 
-		// calc tangent spaces
+		for(j = 0; j < sortedTriangles.currentElements; j++)
 		{
-			const float    *v0, *v1, *v2;
-			const float    *t0, *t1, *t2;
-			vec3_t          tangent;
-			vec3_t          binormal;
-			vec3_t          normal;
+			skelTriangle_t *tri = Com_GrowListElement(&sortedTriangles, j);
 
-			for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+			v0 = Com_GrowListElement(&vboVertexes, tri->indexes[0]);
+			v1 = Com_GrowListElement(&vboVertexes, tri->indexes[1]);
+			v2 = Com_GrowListElement(&vboVertexes, tri->indexes[2]);
+
+			p0 = v0->position;
+			p1 = v1->position;
+			p2 = v2->position;
+
+			t0 = v0->texCoords;
+			t1 = v1->texCoords;
+			t2 = v2->texCoords;
+
+			R_CalcTangentSpace(tangent, binormal, normal, p0, p1, p2, t0, t1, t2);
+
+			for(k = 0; k < 3; k++)
 			{
-				VectorClear(v->tangent);
-				VectorClear(v->binormal);
-				VectorClear(v->normal);
+				float          *v;
+
+				v0 = Com_GrowListElement(&vboVertexes, tri->indexes[k]);
+
+				v = v0->tangent;
+				VectorAdd(v, tangent, v);
+
+				v = v0->binormal;
+				VectorAdd(v, binormal, v);
+
+				v = v0->normal;
+				VectorAdd(v, normal, v);
 			}
+		}
 
-			for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
+		for(j = 0; j < vboVertexes.currentElements; j++)
+		{
+			v0 = Com_GrowListElement(&vboVertexes, j);
+
+			VectorNormalize(v0->tangent);
+			VectorNormalize(v0->binormal);
+			VectorNormalize(v0->normal);
+		}
+
+		#if 1
+		// do another extra smoothing for normals to avoid flat shading
+		for(j = 0; j < vboVertexes.currentElements; j++)
+		{
+			v0 = Com_GrowListElement(&vboVertexes, j);
+
+			for(k = 0; k < vboVertexes.currentElements; k++)
 			{
-				v0 = surf->verts[tri->indexes[0]].position;
-				v1 = surf->verts[tri->indexes[1]].position;
-				v2 = surf->verts[tri->indexes[2]].position;
+				if(j == k)
+					continue;
 
-				t0 = surf->verts[tri->indexes[0]].texCoords;
-				t1 = surf->verts[tri->indexes[1]].texCoords;
-				t2 = surf->verts[tri->indexes[2]].texCoords;
+				v1 = Com_GrowListElement(&vboVertexes, k);
 
-				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
-
-				for(k = 0; k < 3; k++)
+				if(VectorCompare(v0->position, v1->position))
 				{
-					float          *v;
-
-					v = surf->verts[tri->indexes[k]].tangent;
-					VectorAdd(v, tangent, v);
-
-					v = surf->verts[tri->indexes[k]].binormal;
-					VectorAdd(v, binormal, v);
-
-					v = surf->verts[tri->indexes[k]].normal;
-					VectorAdd(v, normal, v);
+					VectorAdd(v0->position, v1->normal, v0->normal);
 				}
 			}
 
-			for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
-			{
-				VectorNormalize(v->tangent);
-				VectorNormalize(v->binormal);
-				VectorNormalize(v->normal);
-			}
+			VectorNormalize(v0->normal);
+		}
+		#endif
 
-#if 1
-			// do another extra smoothing for normals to avoid flat shading
-			for(j = 0; j < surf->numVerts; j++)
+	}
+
+	// split the surfaces into VBO surfaces by the maximum number of GPU vertex skinning bones
+	Com_InitGrowList(&vboSurfaces, 10);
+
+	materialIndex = oldMaterialIndex = -1;
+	for(i = 0; i < numTriangles; i++)
+	{
+		triangle = &triangles[i];
+		materialIndex = triangle->materialIndex;
+
+		if(materialIndex != oldMaterialIndex)
+		{
+			oldMaterialIndex = materialIndex;
+
+			numRemaining = sortedTriangles.currentElements - i;
+			while(numRemaining)
 			{
-				for(k = 0; k < surf->numVerts; k++)
+				numBoneReferences = 0;
+				Com_Memset(boneReferences, 0, sizeof(boneReferences));
+
+				Com_InitGrowList(&vboTriangles, 1000);
+
+				for(j = i; j < sortedTriangles.currentElements; j++)
 				{
-					if(j == k)
+					triangle = &triangles[j];
+					materialIndex = triangle->materialIndex;
+
+					if(materialIndex != oldMaterialIndex)
 						continue;
 
-					if(VectorCompare(surf->verts[j].position, surf->verts[k].position))
+					skelTriangle_t *sortTri = Com_GrowListElement(&sortedTriangles, j);
+
+					if(sortTri->referenced)
+						continue;
+
+					if(AddTriangleToVBOTriangleList(&vboTriangles, sortTri, &numBoneReferences, boneReferences))
 					{
-						VectorAdd(surf->verts[j].normal, surf->verts[k].normal, surf->verts[j].normal);
+						sortTri->referenced = qtrue;
 					}
 				}
 
-				VectorNormalize(surf->verts[j].normal);
-			}
-#endif
-
-		}
-
-		if(!surf->numTriangles || !surf->numVerts)
-			continue;
-
-		{
-			int             vertexesNum;
-			byte           *data;
-			int             dataSize;
-			int             dataOfs;
-
-			GLuint          ofsTexCoords;
-			GLuint          ofsTangents;
-			GLuint          ofsBinormals;
-			GLuint          ofsNormals;
-			GLuint          ofsColors;
-			GLuint          ofsBoneIndexes;
-			GLuint          ofsBoneWeights;
-
-			int             indexesNum;
-			byte           *indexes;
-			int             indexesSize;
-			int             indexesOfs;
-
-			srfTriangle_t  *tri;
-
-			vec4_t          tmp;
-			int             index;
-
-			srfVBOMD5Mesh_t *vboSurf;
-
-			vec4_t          tmpColor = { 1, 1, 1, 1 };
-
-			vertexesNum = surf->numVerts;
-			indexesNum = surf->numTriangles * 3;
-
-			// create surface
-			vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
-			Com_AddToGrowList(&vboSurfaces, vboSurf);
-
-			vboSurf->surfaceType = SF_VBO_MD5MESH;
-			vboSurf->md5Model = md5;
-			vboSurf->shader = R_GetShaderByHandle(surf->shaderIndex);
-			vboSurf->numIndexes = indexesNum;
-			vboSurf->numVerts = vertexesNum;
-
-			dataSize = vertexesNum * (sizeof(vec4_t) * 8);
-			data = ri.Hunk_AllocateTempMemory(dataSize);
-			dataOfs = 0;
-
-			indexesSize = indexesNum * sizeof(int);
-			indexes = ri.Hunk_AllocateTempMemory(indexesSize);
-			indexesOfs = 0;
-
-			for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
-			{
-				for(k = 0; k < 3; k++)
+				for(j = 0; j < MAX_BONES; j++)
 				{
-					index = tri->indexes[k];
-
-					memcpy(indexes + indexesOfs, &index, sizeof(int));
-					indexesOfs += sizeof(int);
+					if(boneReferences[j] > 0)
+					{
+						ri.Printf(PRINT_ALL, "R_LoadPSK: referenced bone: '%s'\n", (j < numReferenceBones) ? refBones[j].name : NULL);
+					}
 				}
-			}
 
-			// feed vertex XYZ
-			for(j = 0; j < vertexesNum; j++)
-			{
-				for(k = 0; k < 3; k++)
+				if(!vboTriangles.currentElements)
 				{
-					tmp[k] = surf->verts[j].position[k];
+					ri.Printf(PRINT_WARNING, "R_LoadPSK: could not add triangles to a remaining VBO surface for model '%s'\n", modName);
+					break;
 				}
-				tmp[3] = 1;
-				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
+
+				// FIXME skinIndex
+				AddSurfaceToVBOSurfacesList2(&vboSurfaces, &vboTriangles, &vboVertexes, md5, vboSurfaces.currentElements, materials[materialIndex].name, numBoneReferences, boneReferences);
+				numRemaining -= vboTriangles.currentElements;
+
+				Com_DestroyGrowList(&vboTriangles);
 			}
-
-			// feed vertex texcoords
-			ofsTexCoords = dataOfs;
-			for(j = 0; j < vertexesNum; j++)
-			{
-				for(k = 0; k < 2; k++)
-				{
-					tmp[k] = surf->verts[j].texCoords[k];
-				}
-				tmp[2] = 0;
-				tmp[3] = 1;
-				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
-			}
-
-			// feed vertex tangents
-			ofsTangents = dataOfs;
-			for(j = 0; j < vertexesNum; j++)
-			{
-				for(k = 0; k < 3; k++)
-				{
-					tmp[k] = surf->verts[j].tangent[k];
-				}
-				tmp[3] = 1;
-				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
-			}
-
-			// feed vertex binormals
-			ofsBinormals = dataOfs;
-			for(j = 0; j < vertexesNum; j++)
-			{
-				for(k = 0; k < 3; k++)
-				{
-					tmp[k] = surf->verts[j].binormal[k];
-				}
-				tmp[3] = 1;
-				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
-			}
-
-			// feed vertex normals
-			ofsNormals = dataOfs;
-			for(j = 0; j < vertexesNum; j++)
-			{
-				for(k = 0; k < 3; k++)
-				{
-					tmp[k] = surf->verts[j].normal[k];
-				}
-				tmp[3] = 1;
-				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
-			}
-
-			// feed vertex colors
-			ofsColors = dataOfs;
-			for(j = 0; j < vertexesNum; j++)
-			{
-				memcpy(data + dataOfs, tmpColor, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
-			}
-
-			// feed bone indices
-			ofsBoneIndexes = dataOfs;
-			for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
-			{
-				for(k = 0; k < 4; k++)
-				{
-					if(k < v->numWeights)
-						index = v->weights[k]->boneIndex;
-					else
-						index = 0;
-
-					memcpy(data + dataOfs, &index, sizeof(int));
-					dataOfs += sizeof(int);
-				}
-			}
-
-			// feed bone weights
-			ofsBoneWeights = dataOfs;
-			for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
-			{
-				for(k = 0; k < 4; k++)
-				{
-					if(k < v->numWeights)
-						tmp[k] = v->weights[k]->boneWeight;
-					else
-						tmp[k] = 0;
-				}
-				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
-			}
-
-			vboSurf->vbo =
-				R_CreateVBO(va("staticMD5Mesh_VBO %i", vboSurfaces.currentElements), data, dataSize, GL_STATIC_DRAW_ARB);
-			vboSurf->vbo->ofsXYZ = 0;
-			vboSurf->vbo->ofsTexCoords = ofsTexCoords;
-			vboSurf->vbo->ofsLightCoords = ofsTexCoords;
-			vboSurf->vbo->ofsTangents = ofsTangents;
-			vboSurf->vbo->ofsBinormals = ofsBinormals;
-			vboSurf->vbo->ofsNormals = ofsNormals;
-			vboSurf->vbo->ofsColors = ofsColors;
-			vboSurf->vbo->ofsLightCoords = ofsColors;		// not required anyway
-			vboSurf->vbo->ofsLightDirections = ofsColors;	// not required anyway
-			vboSurf->vbo->ofsBoneIndexes = ofsBoneIndexes;
-			vboSurf->vbo->ofsBoneWeights = ofsBoneWeights;
-
-			vboSurf->ibo =
-				R_CreateIBO(va("staticMD5Mesh_IBO %i", vboSurfaces.currentElements), indexes, indexesSize, GL_STATIC_DRAW_ARB);
-
-			ri.Hunk_FreeTempMemory(indexes);
-			ri.Hunk_FreeTempMemory(data);
-
-			// megs
-			/*
-			   ri.Printf(PRINT_ALL, "md5 mesh data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
-			   (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
-			   ri.Printf(PRINT_ALL, "md5 mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
-			   (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
-			 */
 		}
 	}
+
+	for(j = 0; j < sortedTriangles.currentElements; j++)
+	{
+		skelTriangle_t *sortTri = Com_GrowListElement(&sortedTriangles, j);
+		Com_Dealloc(sortTri);
+	}
+	Com_DestroyGrowList(&sortedTriangles);
+
+	for(j = 0; j < vboVertexes.currentElements; j++)
+	{
+		md5Vertex_t *v = Com_GrowListElement(&vboVertexes, j);
+		Com_Dealloc(v);
+	}
+	Com_DestroyGrowList(&vboVertexes);
 
 	// move VBO surfaces list to hunk
 	md5->numVBOSurfaces = vboSurfaces.currentElements;
@@ -2960,13 +2952,13 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 
 	Com_DestroyGrowList(&vboSurfaces);
 
-#endif
-
 	FreeMemStream(stream);
 	Com_Dealloc(points);
 	Com_Dealloc(vertexes);
 	Com_Dealloc(triangles);
 	Com_Dealloc(materials);
+
+	ri.Printf(PRINT_ALL, "%i VBO surfaces created for PSK model '%s'\n", md5->numVBOSurfaces, modName);
 
 	return qtrue;
 }
