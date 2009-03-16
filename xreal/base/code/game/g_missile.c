@@ -1196,7 +1196,7 @@ gentity_t      *fire_nail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t
 	bolt->s.eType = ET_PROJECTILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_FLAK_CANNON;
-	bolt->s.eFlags = EF_BOUNCE_HALF;
+//	bolt->s.eFlags = EF_BOUNCE_HALF;
 	bolt->r.ownerNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = 20;
@@ -1240,7 +1240,7 @@ gentity_t      *fire_gravnail(gentity_t * self, vec3_t start, vec3_t forward, ve
 	bolt->s.eType = ET_PROJECTILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_FLAK_CANNON;
-	bolt->s.eFlags = EF_BOUNCE_HALF;
+//	bolt->s.eFlags = EF_BOUNCE_HALF;
 	bolt->r.ownerNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = 20;
