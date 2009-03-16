@@ -6390,6 +6390,9 @@ static void RB_RenderDebugUtils()
 		vec3_t          diff, tmp, tmp2, tmp3;
 		vec_t           length;
 		vec4_t          tetraVerts[4];
+		static refSkeleton_t skeleton;
+		refSkeleton_t  *skel;
+
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
@@ -6415,9 +6418,6 @@ static void RB_RenderDebugUtils()
 			if((ent->e.renderfx & RF_THIRD_PERSON) && !backEnd.viewParms.isPortal)
 				continue;
 
-			if(ent->e.skeleton.type != SK_ABSOLUTE)
-				continue;
-
 			// set up the transformation matrix
 			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
 			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
@@ -6428,144 +6428,109 @@ static void RB_RenderDebugUtils()
 			tess.numVertexes = 0;
 			tess.numIndexes = 0;
 
-			for(j = 0; j < ent->e.skeleton.numBones; j++)
+			skel = NULL;
+			if(ent->e.skeleton.type == SK_ABSOLUTE)
 			{
-				parentIndex = ent->e.skeleton.bones[j].parentIndex;
+				skel = &ent->e.skeleton;
+			}
+			else
+			{
+				model_t        *model;
+				refBone_t      *bone;
 
-				if(parentIndex < 0)
+				model = R_GetModelByHandle(ent->e.hModel);
+
+				if(model)
 				{
-					VectorClear(origin);
-				}
-				else
-				{
-					VectorCopy(ent->e.skeleton.bones[parentIndex].origin, origin);
-				}
-				VectorCopy(ent->e.skeleton.bones[j].origin, offset);
-
-
-#if 0
-				{
-					quat_t          q;
-
-					QuatFromAngles(q, 90, 0, 90);
-					QuatMultiply0(q, ent->e.skeleton.bones[i].rotation);
-					QuatToVectorsFRU(q, forward, right, up);
-				}
-#else
-				{
-					QuatToVectorsFRU(ent->e.skeleton.bones[j].rotation, forward, right, up);
-				}
-#endif
-
-				//VectorSubtract(offset, origin, forward);
-				//VectorNormalize(forward);
-				//PerpendicularVector(right, forward);
-				//CrossProduct(forward, right, up);
-
-				//VectorMA(offset, 1, forward, forward);
-				//VectorMA(offset, 1, right, right);
-				//VectorMA(offset, 1, up, up);
-
-				// draw orientation
-				//qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
-				//qglVertex3fv(offset);
-				//qglVertex3fv(forward);
-
-#if 0
-				VectorCopy(offset, tetraVerts[0]);
-				VectorMA(offset, 1, forward, tetraVerts[1]);
-				VectorMA(offset, 0.2, up, tetraVerts[2]);
-				for(k = 0; k < 3; k++)
-				{
-					tetraVerts[k][3] = 1;
-					VectorCopy4(tetraVerts[k], tess.xyz[tess.numVertexes]);
-					VectorCopy4(colorRed, tess.colors[tess.numVertexes]);
-					tess.indexes[tess.numIndexes++] = tess.numVertexes;
-					tess.numVertexes++;
-				}
-
-
-				VectorCopy(offset, tetraVerts[0]);
-				VectorMA(offset, 1, right, tetraVerts[1]);
-				VectorMA(offset, 0.2, up, tetraVerts[2]);
-				for(k = 0; k < 3; k++)
-				{
-					tetraVerts[k][3] = 1;
-					VectorCopy4(tetraVerts[k], tess.xyz[tess.numVertexes]);
-					VectorCopy4(colorGreen, tess.colors[tess.numVertexes]);
-					tess.indexes[tess.numIndexes++] = tess.numVertexes;
-					tess.numVertexes++;
-				}
-
-				VectorCopy(offset, tetraVerts[0]);
-				VectorMA(offset, 1, up, tetraVerts[1]);
-				VectorMA(offset, 0.2, forward, tetraVerts[2]);
-				for(k = 0; k < 3; k++)
-				{
-					tetraVerts[k][3] = 1;
-					VectorCopy4(tetraVerts[k], tess.xyz[tess.numVertexes]);
-					VectorCopy4(colorBlue, tess.colors[tess.numVertexes]);
-					tess.indexes[tess.numIndexes++] = tess.numVertexes;
-					tess.numVertexes++;
-				}
-#endif
-
-				//Tess_AddTetrahedron(tetraVerts, colorRed);
-
-				//qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
-				//qglVertex3fv(offset);
-				//qglVertex3fv(right);
-
-				//qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
-				//qglVertex3fv(offset);
-				//qglVertex3fv(up);
-
-				// draw bone volume
-#if 1
-				VectorSubtract(offset, origin, diff);
-				if((length = VectorNormalize(diff)))
-				{
-					PerpendicularVector(tmp, diff);
-					//VectorCopy(up, tmp);
-
-					VectorScale(tmp, length * 0.1, tmp2);
-					VectorMA(tmp2, length * 0.2, diff, tmp2);
-
-					for(k = 0; k < 3; k++)
+					switch (model->type)
 					{
-						RotatePointAroundVector(tmp3, diff, tmp2, k * 120);
-						VectorAdd(tmp3, origin, tmp3);
-						VectorCopy(tmp3, tetraVerts[k]);
-						tetraVerts[k][3] = 1;
-					}
+						case MOD_MD5:
+						{
+							// copy relative bones
+							skeleton.numBones = model->md5->numBones;
+							for(j = 0, bone = &skeleton.bones[0]; j < skeleton.numBones; j++, bone++)
+							{
+								bone->parentIndex = model->md5->bones[j].parentIndex;
+								VectorCopy(model->md5->bones[j].origin, bone->origin);
+								VectorCopy(model->md5->bones[j].rotation, bone->rotation);
+							}
 
-					VectorCopy(origin, tetraVerts[3]);
-					tetraVerts[3][3] = 1;
-					Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
+							// calculate absolute transforms
+#if 0
+							for(i = 0, bone = &skeleton.bones[0]; i < skeleton.numBones; i++, bone++)
+							{
+								if(bone->parentIndex >= 0)
+								{
+									vec3_t          rotated;
+									quat_t          quat;
 
-					VectorCopy(offset, tetraVerts[3]);
-					tetraVerts[3][3] = 1;
-					Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
-				}
-#else
-				VectorSubtract(offset, origin, diff);
-				if((length = VectorNormalize(diff)))
-				{
-					//VectorMA(origin, 1, forward, forward);
-					//VectorMA(origin, length * 0.1, right, tetraVerts[0]);
-					VectorCopy(origin, tetraVerts[0]);
-					VectorMA(origin, -length * 0.1, right, tetraVerts[1]);
-					VectorMA(origin, length * 0.1, up, tetraVerts[2]);
-					VectorCopy(offset, tetraVerts[3]);
+									refBone_t      *parent;
 
-					tetraVerts[0][3] = 1;
-					tetraVerts[1][3] = 1;
-					tetraVerts[2][3] = 1;
-					tetraVerts[3][3] = 1;
+									parent = &skeleton.bones[bone->parentIndex];
 
-					Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
-				}
+									QuatTransformVector(parent->rotation, bone->origin, rotated);
+
+									VectorAdd(parent->origin, rotated, bone->origin);
+
+									QuatMultiply1(parent->rotation, bone->rotation, quat);
+									QuatCopy(quat, bone->rotation);
+								}
+							}
 #endif
+
+							skel = &skeleton;
+							break;
+						}
+
+						default:
+							break;
+					}
+				}
+			}
+
+			if(skel)
+			{
+				for(j = 0; j < skel->numBones; j++)
+				{
+					parentIndex = skel->bones[j].parentIndex;
+
+					if(parentIndex < 0)
+					{
+						VectorClear(origin);
+					}
+					else
+					{
+						VectorCopy(skel->bones[parentIndex].origin, origin);
+					}
+					VectorCopy(skel->bones[j].origin, offset);
+					QuatToVectorsFRU(skel->bones[j].rotation, forward, right, up);
+
+					VectorSubtract(offset, origin, diff);
+					if((length = VectorNormalize(diff)))
+					{
+						PerpendicularVector(tmp, diff);
+						//VectorCopy(up, tmp);
+
+						VectorScale(tmp, length * 0.1, tmp2);
+						VectorMA(tmp2, length * 0.2, diff, tmp2);
+
+						for(k = 0; k < 3; k++)
+						{
+							RotatePointAroundVector(tmp3, diff, tmp2, k * 120);
+							VectorAdd(tmp3, origin, tmp3);
+							VectorCopy(tmp3, tetraVerts[k]);
+							tetraVerts[k][3] = 1;
+						}
+
+						VectorCopy(origin, tetraVerts[3]);
+						tetraVerts[3][3] = 1;
+						Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
+
+						VectorCopy(offset, tetraVerts[3]);
+						tetraVerts[3][3] = 1;
+						Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
+					}
+				}
 			}
 
 			Tess_UpdateVBOs();
