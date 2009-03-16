@@ -1,7 +1,0 @@
-{
-	map  "test_mapobjects"
-	longname "test_mapobjects"
-	bots  "Visor"
-	fraglimit 25
-	type  "ffa tourney team"
-}

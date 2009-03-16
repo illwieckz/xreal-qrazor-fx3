@@ -9,6 +9,7 @@
 }
 */
 
+/*
 {
 	map  "yan_test"
 	longname "YAN'S TEST by Yan 'Method' Ostretsov"
@@ -16,6 +17,7 @@
 	fraglimit 10
 	type  "single ffa tourney team"
 }
+*/
 
 {
 	map  "gwdm2"
@@ -34,6 +36,14 @@
 }
 
 {
+	map  "gaelish"
+	longname "^1Gaelish ^7by Ingar^3=^7KCT^3="
+	bots  "Shina"
+	fraglimit 10
+	type  "single ffa tourney team"
+}
+
+{
 	map  "uglyrga"
 	longname "UGLY Rail Gun Arena by Reflex"
 	bots  "Harley"
@@ -41,6 +51,7 @@
 	type  "single ffa tourney team"
 }
 
+/*
 {
 	map  "thunderstruck"
 	longname "Thunderstruck by tyrelhill"
@@ -48,3 +59,4 @@
 	fraglimit 10
 	type  "single ffa tourney team"
 }
+*/
