@@ -1644,6 +1644,8 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const cha
 		token = Com_ParseExt(&buf_p, qfalse);
 		bone->parentIndex = atoi(token);
 
+		//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has bone '%s' with parent index %i\n", modName, bone->name, bone->parentIndex);
+
 		if(bone->parentIndex >= md5->numBones)
 		{
 			ri.Error(ERR_DROP, "R_LoadMD5: '%s' has bone '%s' with bad parent index %i while numBones is %i\n", modName,
@@ -2391,6 +2393,11 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	int				numBoneReferences;
 	int				boneReferences[MAX_BONES];
 
+	matrix_t		unrealToQuake;
+
+	MatrixSetupScale(unrealToQuake, 1, -1, 1);
+	MatrixMultiplyRotation(unrealToQuake, 0, 90, 0);
+
 	stream = AllocMemStream(buffer, bufferSize);
 	GetChunkHeader(stream, &chunkHeader);
 
@@ -2430,9 +2437,18 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	points = Com_Allocate(numPoints * sizeof(axPoint_t));
 	for(i = 0, point = points; i < numPoints; i++, point++)
 	{
+		// Tr3B: HACK convert from Unreal coordinate system to the Quake one
+#if 0
+		point->point[1] = -GetFloat(stream);
+		point->point[0] = -GetFloat(stream);
+		point->point[2] = GetFloat(stream);
+#else
 		point->point[0] = GetFloat(stream);
 		point->point[1] = GetFloat(stream);
 		point->point[2] = GetFloat(stream);
+
+		MatrixTransformPoint2(unrealToQuake, point->point);
+#endif
 	}
 
 	// read vertices
@@ -2512,7 +2528,8 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	triangles = Com_Allocate(numTriangles * sizeof(axTriangle_t));
 	for(i = 0, triangle = triangles; i < numTriangles; i++, triangle++)
 	{
-		for(j = 0; j < 3; j++)
+		//for(j = 0; j < 3; j++)
+		for(j = 2; j >= 0; j--)
 		{
 			triangle->indexes[j] = GetShort(stream);
 			if(triangle->indexes[j] < 0 || triangle->indexes[j] >= numVertexes)
@@ -2672,16 +2689,30 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	}
 	//ri.Printf(PRINT_ALL, "R_LoadPSK: '%s' has %i bones\n", modName, md5->numBones);
 
-	// parse all the bones
+	// copy all reference bones
 	md5->bones = ri.Hunk_Alloc(sizeof(*md5Bone) * md5->numBones, h_low);
-
 	for(i = 0, md5Bone = md5->bones, refBone = refBones; i < md5->numBones; i++, md5Bone++, refBone++)
 	{
 		Q_strncpyz(md5Bone->name, refBone->name, sizeof(md5Bone->name));
 
-		ri.Printf(PRINT_ALL, "R_LoadPSK: '%s' has bone '%s'\n", modName, md5Bone->name);
-
+		//
+#if 1
+		if(i == 0)
+		{
+			md5Bone->parentIndex = refBone->parentIndex -1;
+		}
+		else
+		{
+			md5Bone->parentIndex = refBone->parentIndex;
+		}
+#elif 1
 		md5Bone->parentIndex = refBone->parentIndex;
+#else
+		md5Bone->parentIndex = refBone->parentIndex -1;
+#endif
+
+		ri.Printf(PRINT_ALL, "R_LoadPSK: '%s' has bone '%s' with parent index %i\n", modName, md5Bone->name, md5Bone->parentIndex);
+
 		if(md5Bone->parentIndex >= md5->numBones)
 		{
 			ri.Error(ERR_DROP, "R_LoadPSK: '%s' has bone '%s' with bad parent index %i while numBones is %i\n", modName,
@@ -2694,20 +2725,70 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		}
 
 		// FIXME ?
+
 		for(j = 0; j < 3; j++)
 		{
 			boneQuat[j] = refBone->bone.quat[j];
 		}
 		QuatCalcW(boneQuat);
+
+
+
+#if 0
+		if(i != 0)
+		{
+			boneQuat[0] = -refBone->bone.quat[0];
+			boneQuat[1] = refBone->bone.quat[1];
+			boneQuat[2] = -refBone->bone.quat[2];
+			boneQuat[3] = refBone->bone.quat[3];
+		}
+		else
+#endif
+		{
+			boneQuat[0] = -refBone->bone.quat[0];
+			boneQuat[1] = -refBone->bone.quat[1];
+			boneQuat[2] = -refBone->bone.quat[2];
+			boneQuat[3] = refBone->bone.quat[3];
+		}
+
 		MatrixFromQuat(boneMat, boneQuat);
+		//MatrixMultiply2(boneMat, unrealToQuake);
 
 		VectorCopy(boneOrigin, md5Bone->origin);
+		//MatrixTransformPoint(unrealToQuake, boneOrigin, md5Bone->origin);
+
 		QuatCopy(boneQuat, md5Bone->rotation);
+
+		QuatFromMatrix(md5Bone->rotation, unrealToQuake);
+		QuatMultiply0(md5Bone->rotation, boneQuat);
+
+		//QuatFromMatrix(md5Bone->rotation, boneMat);
 
 		MatrixSetupTransformFromQuat(md5Bone->inverseTransform, boneQuat, boneOrigin);
 		MatrixInverse(md5Bone->inverseTransform);
 	}
 
+	/*
+	for(i = 0, bone = &skeleton.bones[0]; i < skeleton.numBones; i++, bone++)
+	{
+		if(bone->parentIndex >= 0)
+		{
+			vec3_t          rotated;
+			quat_t          quat;
+
+			refBone_t      *parent;
+
+			parent = &skeleton.bones[bone->parentIndex];
+
+			QuatTransformVector(parent->rotation, bone->origin, rotated);
+
+			VectorAdd(parent->origin, rotated, bone->origin);
+
+			QuatMultiply1(parent->rotation, bone->rotation, quat);
+			QuatCopy(quat, bone->rotation);
+		}
+	}
+	*/
 
 
 	Com_InitGrowList(&vboVertexes, 10000);
@@ -2936,7 +3017,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 				}
 
 				// FIXME skinIndex
-				AddSurfaceToVBOSurfacesList2(&vboSurfaces, &vboTriangles, &vboVertexes, md5, vboSurfaces.currentElements, materials[materialIndex].name, numBoneReferences, boneReferences);
+				AddSurfaceToVBOSurfacesList2(&vboSurfaces, &vboTriangles, &vboVertexes, md5, vboSurfaces.currentElements, materials[oldMaterialIndex].name, numBoneReferences, boneReferences);
 				numRemaining -= vboTriangles.currentElements;
 
 				Com_DestroyGrowList(&vboTriangles);
