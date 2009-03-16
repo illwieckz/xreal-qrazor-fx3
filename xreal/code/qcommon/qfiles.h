@@ -229,7 +229,7 @@ typedef struct
 /*
 ========================================================================
 
-.PSK / .PSA skeletal triangle model file format
+Actor X - .PSK / .PSA skeletal triangle model file format
 
 ========================================================================
 */
@@ -246,12 +246,12 @@ typedef struct
 
 	int				dataSize;	// sizeof(struct)
 	int				numData;	// number of structs put into this data chunk
-} pskChunkHeader_t;
+} axChunkHeader_t;
 
 typedef struct
 {
 	float			point[3];
-} pskPoint_t;
+} axPoint_t;
 
 typedef struct
 {
@@ -261,7 +261,7 @@ typedef struct
 	byte			materialIndex;
 	byte			reserved;		// we don't care about this one
 	unsigned short	unknownB;
-} pskVertex_t;
+} axVertex_t;
 
 typedef struct
 {
@@ -269,7 +269,7 @@ typedef struct
 	byte			materialIndex;
 	byte			materialIndex2;
 	unsigned int	smoothingGroups;
-} pskTriangle_t;
+} axTriangle_t;
 
 typedef struct
 {
@@ -280,7 +280,34 @@ typedef struct
 	unsigned int	auxFlags;
 	int				lodBias;
 	int				lodStyle;
-} pskMaterial_t;
+} axMaterial_t;
+
+typedef struct
+{
+	float			quat[4];		// x y z w
+	float			position[3];	// x y z
+
+	float			length;
+	float			xSize;
+	float			ySize;
+	float			zSize;
+} axBone_t;
+
+typedef struct
+{
+	char			name[64];
+	unsigned int	flags;
+	int				numChildren;
+	int				parentIndex;
+	axBone_t		bone;
+} axReferenceBone_t;
+
+typedef struct
+{
+	float			weight;
+	unsigned int	pointIndex;
+	unsigned int	boneIndex;
+} axBoneWeight_t;
 
 
 /*
