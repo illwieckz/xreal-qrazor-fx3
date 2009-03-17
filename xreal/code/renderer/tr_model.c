@@ -2985,13 +2985,15 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 
 				for(j = i; j < sortedTriangles.currentElements; j++)
 				{
+					skelTriangle_t *sortTri;
+
 					triangle = &triangles[j];
 					materialIndex = triangle->materialIndex;
 
 					if(materialIndex != oldMaterialIndex)
 						continue;
 
-					skelTriangle_t *sortTri = Com_GrowListElement(&sortedTriangles, j);
+					sortTri = Com_GrowListElement(&sortedTriangles, j);
 
 					if(sortTri->referenced)
 						continue;
