@@ -961,6 +961,8 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 			}
 
 			QuatCopy(lerpedQuat, skel->bones[i].rotation);
+
+			Q_strncpyz(skel->bones[i].name, channel->name, sizeof(skel->bones[i].name));
 		}
 
 		skel->numBones = anim->numChannels;

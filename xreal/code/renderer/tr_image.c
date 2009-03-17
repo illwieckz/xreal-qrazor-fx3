@@ -3194,6 +3194,8 @@ R_InitImages
 */
 void R_InitImages(void)
 {
+	const char *charsetImage = "gfx/2d/charset-bezerk-plain-rc2.png";
+
 	Com_Memset(hashTable, 0, sizeof(hashTable));
 	Com_InitGrowList(&tr.images, 4096);
 
@@ -3202,6 +3204,12 @@ void R_InitImages(void)
 
 	// create default texture and white texture
 	R_CreateBuiltinImages();
+
+	tr.charsetImage = R_FindImageFile(charsetImage, IF_NOCOMPRESSION | IF_NOPICMIP, FT_DEFAULT, WT_CLAMP);
+	if(!tr.charsetImage)
+	{
+		ri.Error(ERR_FATAL, "R_InitImages: could not load '%s'", charsetImage);
+	}
 }
 
 

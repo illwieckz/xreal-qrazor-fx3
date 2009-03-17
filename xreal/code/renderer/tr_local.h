@@ -1938,6 +1938,9 @@ typedef struct
 	image_t        *shadowMapFBOImage[5];
 	image_t        *shadowCubeFBOImage[5];
 
+	// external images
+	image_t        *charsetImage;
+
 	// framebuffer objects
 	FBO_t          *geometricRenderFBO;		// is the G-Buffer for deferred shading
 	FBO_t          *deferredRenderFBO;		// is used by HDR rendering and deferred shading

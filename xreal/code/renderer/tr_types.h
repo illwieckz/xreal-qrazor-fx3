@@ -83,6 +83,7 @@ typedef enum
 
 typedef struct
 {
+	char			name[64];
 	int             parentIndex;	// parent index (-1 if root)
 	vec3_t          origin;
 	quat_t          rotation;

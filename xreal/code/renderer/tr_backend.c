@@ -6395,7 +6395,6 @@ static void RB_RenderDebugUtils()
 
 
 		GL_BindProgram(&tr.genericSingleShader);
-		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
 		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
 		GL_Cull(CT_TWO_SIDED);
 
@@ -6409,7 +6408,7 @@ static void RB_RenderDebugUtils()
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
-		GL_Bind(tr.whiteImage);
+		GL_Bind(tr.charsetImage);
 		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ColorTextureMatrix, 1, GL_FALSE, matrixIdentity);
 
 		ent = backEnd.refdef.entities;
@@ -6446,10 +6445,12 @@ static void RB_RenderDebugUtils()
 					{
 						case MOD_MD5:
 						{
-							// copy relative bones
+							// copy absolute bones
 							skeleton.numBones = model->md5->numBones;
 							for(j = 0, bone = &skeleton.bones[0]; j < skeleton.numBones; j++, bone++)
 							{
+								Q_strncpyz(bone->name, model->md5->bones[j].name, sizeof(bone->name));
+
 								bone->parentIndex = model->md5->bones[j].parentIndex;
 								VectorCopy(model->md5->bones[j].origin, bone->origin);
 								VectorCopy(model->md5->bones[j].rotation, bone->rotation);
@@ -6490,6 +6491,10 @@ static void RB_RenderDebugUtils()
 
 			if(skel)
 			{
+				static vec3_t	worldOrigins[MAX_BONES];
+
+				GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
+
 				for(j = 0; j < skel->numBones; j++)
 				{
 					parentIndex = skel->bones[j].parentIndex;
@@ -6530,12 +6535,99 @@ static void RB_RenderDebugUtils()
 						tetraVerts[3][3] = 1;
 						Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
 					}
+
+					MatrixTransformPoint(backEnd.or.transformMatrix, skel->bones[j].origin, worldOrigins[j]);
+				}
+
+				Tess_UpdateVBOs();
+
+				Tess_DrawElements();
+
+				tess.numVertexes = 0;
+				tess.numIndexes = 0;
+
+				//if(r_showSkeleton->integer == 2)
+				{
+					GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+
+					// go back to the world modelview matrix
+					backEnd.or = backEnd.viewParms.world;
+					GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+					qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+													   glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+					// draw names
+					for(j = 0; j < skel->numBones; j++)
+					{
+						vec3_t          left, up;
+						float           radius;
+						vec3_t			origin;
+
+						// calculate the xyz locations for the four corners
+						radius = 0.4;
+						if(ent->e.rotation == 0)
+						{
+							VectorScale(backEnd.viewParms.or.axis[1], radius, left);
+							VectorScale(backEnd.viewParms.or.axis[2], radius, up);
+						}
+						else
+						{
+							float           s, c;
+							float           ang;
+
+							ang = M_PI * ent->e.rotation / 180;
+							s = sin(ang);
+							c = cos(ang);
+
+							VectorScale(backEnd.viewParms.or.axis[1], c * radius, left);
+							VectorMA(left, -s * radius, backEnd.viewParms.or.axis[2], left);
+
+							VectorScale(backEnd.viewParms.or.axis[2], c * radius, up);
+							VectorMA(up, s * radius, backEnd.viewParms.or.axis[1], up);
+						}
+
+						if(backEnd.viewParms.isMirror)
+						{
+							VectorSubtract(vec3_origin, left, left);
+						}
+
+						//Tess_Begin(Tess_StageIteratorGeneric, tr.charsetShader, NULL, qtrue, qfalse, -1);
+						for(k = 0; k < strlen(skel->bones[j].name); k++)
+						{
+							int				ch;
+							int             row, col;
+							float           frow, fcol;
+							float           size;
+
+							ch = skel->bones[j].name[k];
+							ch &= 255;
+
+							if(ch == ' ')
+							{
+								break;
+							}
+
+							row = ch >> 4;
+							col = ch & 15;
+
+							frow = row * 0.0625;
+							fcol = col * 0.0625;
+							size = 0.0625;
+
+
+							VectorMA(worldOrigins[j], -(k + 1.5), left, origin);
+							Tess_AddQuadStampExt(origin, left, up, colorWhite, fcol, frow, fcol + size, frow + size);
+						}
+
+						Tess_UpdateVBOs();
+
+						Tess_DrawElements();
+
+						tess.numVertexes = 0;
+						tess.numIndexes = 0;
+					}
 				}
 			}
-
-			Tess_UpdateVBOs();
-
-			Tess_DrawElements();
 
 			tess.numVertexes = 0;
 			tess.numIndexes = 0;
