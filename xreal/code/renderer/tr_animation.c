@@ -473,6 +473,19 @@ static qboolean R_LoadPSA(skelAnimation_t * skelAnim, void *buffer, int bufferSi
 	PrintChunkHeader(&chunkHeader);
 
 	numReferenceBones = chunkHeader.numData;
+	if(numReferenceBones < 1)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSA: '%s' has no bones\n", name);
+		FreeMemStream(stream);
+		return qfalse;
+	}
+	if(numReferenceBones > MAX_BONES)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSA: '%s' has more than %i bones (%i)\n", name, MAX_BONES, numReferenceBones);
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
 	refBones = ri.Hunk_Alloc(numReferenceBones * sizeof(axReferenceBone_t), h_low);
 	for(i = 0, refBone = refBones; i < numReferenceBones; i++, refBone++)
 	{
@@ -1339,11 +1352,14 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 		axReferenceBone_t *refBone;
 		vec3_t          newOrigin, oldOrigin, lerpedOrigin;
 		quat_t          newQuat, oldQuat, lerpedQuat;
+		refSkeleton_t   skeleton;
 
 		anim = skelAnim->psa;
 
 		Q_clamp(startFrame, 0, anim->info.numRawFrames - 1);
 		Q_clamp(endFrame, 0, anim->info.numRawFrames - 1);
+
+		ClearBounds(skel->bounds[0], skel->bounds[1]);
 
 		skel->numBones = anim->info.numBones;
 		for(i = 0, refBone = anim->bones; i < anim->info.numBones; i++, refBone++)
@@ -1366,7 +1382,6 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 			VectorLerp(oldOrigin, newOrigin, frac, lerpedOrigin);
 			QuatSlerp(oldQuat, newQuat, frac, lerpedQuat);
 
-#if 1
 			// copy lerped information to the bone + extra data
 			skel->bones[i].parentIndex = refBone->parentIndex;
 
@@ -1387,7 +1402,30 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 			QuatCopy(lerpedQuat, skel->bones[i].rotation);
 
 			Q_strncpyz(skel->bones[i].name, refBone->name, sizeof(skel->bones[i].name));
-#endif
+
+			// calculate absolute values for the bounding box approximation
+			VectorCopy(skel->bones[i].origin, skeleton.bones[i].origin);
+			QuatCopy(skel->bones[i].rotation, skeleton.bones[i].rotation);
+
+			if(refBone->parentIndex >= 0)
+			{
+				vec3_t          rotated;
+				quat_t          quat;
+				refBone_t      *parent;
+				refBone_t      *bone;
+
+				bone = &skeleton.bones[i];
+				parent = &skeleton.bones[refBone->parentIndex];
+
+				QuatTransformVector(parent->rotation, bone->origin, rotated);
+
+				VectorAdd(parent->origin, rotated, bone->origin);
+
+				QuatMultiply1(parent->rotation, bone->rotation, quat);
+				QuatCopy(quat, bone->rotation);
+
+				AddPointToBounds(bone->origin, skel->bounds[0], skel->bounds[1]);
+			}
 		}
 
 		skel->numBones = anim->info.numBones;
