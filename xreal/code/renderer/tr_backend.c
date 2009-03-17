@@ -6456,29 +6456,6 @@ static void RB_RenderDebugUtils()
 								VectorCopy(model->md5->bones[j].rotation, bone->rotation);
 							}
 
-							// calculate absolute transforms
-#if 0
-							for(i = 0, bone = &skeleton.bones[0]; i < skeleton.numBones; i++, bone++)
-							{
-								if(bone->parentIndex >= 0)
-								{
-									vec3_t          rotated;
-									quat_t          quat;
-
-									refBone_t      *parent;
-
-									parent = &skeleton.bones[bone->parentIndex];
-
-									QuatTransformVector(parent->rotation, bone->origin, rotated);
-
-									VectorAdd(parent->origin, rotated, bone->origin);
-
-									QuatMultiply1(parent->rotation, bone->rotation, quat);
-									QuatCopy(quat, bone->rotation);
-								}
-							}
-#endif
-
 							skel = &skeleton;
 							break;
 						}

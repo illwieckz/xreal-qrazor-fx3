@@ -2716,8 +2716,6 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	{
 		Q_strncpyz(md5Bone->name, refBone->name, sizeof(md5Bone->name));
 
-#if 1
-		//
 		if(i == 0)
 		{
 			md5Bone->parentIndex = refBone->parentIndex -1;
@@ -2726,11 +2724,6 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		{
 			md5Bone->parentIndex = refBone->parentIndex;
 		}
-#elif 1
-		md5Bone->parentIndex = refBone->parentIndex;
-#else
-		md5Bone->parentIndex = refBone->parentIndex -1;
-#endif
 
 		//ri.Printf(PRINT_ALL, "R_LoadPSK: '%s' has bone '%s' with parent index %i\n", modName, md5Bone->name, md5Bone->parentIndex);
 
@@ -2745,16 +2738,8 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 			boneOrigin[j] = refBone->bone.position[j];
 		}
 
-		// FIXME ?
-		for(j = 0; j < 3; j++)
-		{
-			boneQuat[j] = refBone->bone.quat[j];
-		}
-		QuatCalcW(boneQuat);
-
-
 #if 1
-#if 0
+#if 1
 		if(i == 0)
 		{
 			boneQuat[0] = refBone->bone.quat[0];
@@ -2765,50 +2750,35 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		else
 #endif
 		{
-			boneQuat[0] = refBone->bone.quat[0];
-			boneQuat[1] = refBone->bone.quat[1];
-			boneQuat[2] = refBone->bone.quat[2];
+			boneQuat[0] = -refBone->bone.quat[0];
+			boneQuat[1] = -refBone->bone.quat[1];
+			boneQuat[2] = -refBone->bone.quat[2];
 			boneQuat[3] = refBone->bone.quat[3];
 		}
 #endif
-
-#if 0
-		MatrixFromQuat(boneMat, boneQuat);
-		//MatrixMultiply2(boneMat, unrealToQuake);
 
 		VectorCopy(boneOrigin, md5Bone->origin);
 		//MatrixTransformPoint(unrealToQuake, boneOrigin, md5Bone->origin);
 
 		QuatCopy(boneQuat, md5Bone->rotation);
 
-		//QuatFromMatrix(md5Bone->rotation, unrealToQuake);
-		//QuatMultiply0(md5Bone->rotation, boneQuat);
+		//QuatClear(md5Bone->rotation);
 
-		//QuatFromMatrix(md5Bone->rotation, boneMat);
-
-		MatrixSetupTransformFromQuat(md5Bone->inverseTransform, boneQuat, boneOrigin);
-		MatrixInverse(md5Bone->inverseTransform);
-#else
-
-		VectorCopy(boneOrigin, md5Bone->origin);
-		MatrixTransformPoint(unrealToQuake, boneOrigin, md5Bone->origin);
-
-		QuatCopy(boneQuat, md5Bone->rotation);
-		if(i == 0)
-		{
-			//QuatFromMatrix(md5Bone->rotation, unrealToQuake);
-			//QuatMultiply0(md5Bone->rotation, boneQuat);
-		}
 
 #if 0
-		// HACK
-		if(!Q_stricmp(md5Bone->name, "b_Hips"))
-		{
-			QuatClear(md5Bone->rotation);
-		}
+		ri.Printf(PRINT_ALL, "R_LoadPSK: md5Bone_t(%i):\n"
+						"md5Bone_t::name: '%s'\n"
+						"md5Bone_t::parentIndex: %i\n"
+						"md5Bone_t::quat: %f %f %f %f\n"
+						"md5bone_t::position: %f %f %f\n",
+						i,
+						md5Bone->name,
+						md5Bone->parentIndex,
+						md5Bone->rotation[0], md5Bone->rotation[1], md5Bone->rotation[2], md5Bone->rotation[3],
+						md5Bone->origin[0], md5Bone->origin[1], md5Bone->origin[2]);
 #endif
 
-		if(refBone->parentIndex >= 0)
+		if(md5Bone->parentIndex >= 0)
 		{
 			vec3_t          rotated;
 			quat_t          quat;
@@ -2825,16 +2795,23 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 			QuatMultiply1(parent->rotation, md5Bone->rotation, quat);
 			QuatCopy(quat, md5Bone->rotation);
 		}
+
+		MatrixSetupTransformFromQuat(md5Bone->inverseTransform, md5Bone->rotation, md5Bone->origin);
+		MatrixInverse(md5Bone->inverseTransform);
+
+#if 0
+		ri.Printf(PRINT_ALL, "R_LoadPSK: md5Bone_t(%i):\n"
+						"md5Bone_t::name: '%s'\n"
+						"md5Bone_t::parentIndex: %i\n"
+						"md5Bone_t::quat: %f %f %f %f\n"
+						"md5bone_t::position: %f %f %f\n",
+						i,
+						md5Bone->name,
+						md5Bone->parentIndex,
+						md5Bone->rotation[0], md5Bone->rotation[1], md5Bone->rotation[2], md5Bone->rotation[3],
+						md5Bone->origin[0], md5Bone->origin[1], md5Bone->origin[2]);
 #endif
 	}
-
-	/*
-	for(i = 0, bone = &skeleton.bones[0]; i < skeleton.numBones; i++, bone++)
-	{
-
-	}
-	*/
-
 
 	Com_InitGrowList(&vboVertexes, 10000);
 	for(i = 0, vertex = vertexes; i < numVertexes; i++, vertex++)
