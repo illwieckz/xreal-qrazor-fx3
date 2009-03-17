@@ -2153,127 +2153,6 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const cha
 
 
 
-enum
-{
-	MEMSTREAM_SEEK_SET,
-	MEMSTREAM_SEEK_CUR,
-	MEMSTREAM_SEEK_END
-};
-
-enum
-{
-	MEMSTREAM_FLAGS_EOF = BIT(0),
-	MEMSTREAM_FLAGS_ERR = BIT(1),
-};
-
-// helper struct for binary reads
-typedef struct memStream_s
-{
-	byte           *buffer;
-	int				bufSize;
-	byte           *curPos;
-	int             flags;
-}
-memStream_t;
-
-memStream_t *AllocMemStream(byte *buffer, int bufSize)
-{
-	memStream_t		*s;
-
-	if(buffer == NULL || bufSize <= 0)
-		return NULL;
-
-	s = Com_Allocate(sizeof(memStream_t));
-	if(s == NULL)
-		return NULL;
-
-	Com_Memset(s, 0, sizeof(memStream_t));
-
-	s->buffer 	= buffer;
-	s->curPos 	= buffer;
-	s->bufSize	= bufSize;
-	s->flags	= 0;
-
-	return s;
-}
-
-void FreeMemStream(memStream_t * s)
-{
-	Com_Dealloc(s);
-}
-
-int MemStreamRead(memStream_t *s, void *buffer, int len)
-{
-	int				ret = 1;
-
-	if(s == NULL || buffer == NULL)
-		return 0;
-
-	if(s->curPos + len > s->buffer + s->bufSize)
-	{
-		s->flags |= MEMSTREAM_FLAGS_EOF;
-		len = s->buffer + s->bufSize - s->curPos;
-		ret = 0;
-	}
-
-	Com_Memcpy(buffer, s->curPos, len);
-	s->curPos += len;
-
-	return ret;
-}
-
-int MemStreamGetC(memStream_t *s)
-{
-	int				c = 0;
-
-	if(s == NULL)
-		return -1;
-
-	if(MemStreamRead(s, &c, 1) == 0)
-		return -1;
-
-	return c;
-}
-
-static int GetLong(memStream_t * s)
-{
-	int				c = 0;
-
-	if(s == NULL)
-		return -1;
-
-	if(MemStreamRead(s, &c, 4) == 0)
-		return -1;
-
-	return LittleLong(c);
-}
-
-static int GetShort(memStream_t * s)
-{
-	int				c = 0;
-
-	if(s == NULL)
-		return -1;
-
-	if(MemStreamRead(s, &c, 2) == 0)
-		return -1;
-
-	return LittleShort(c);
-}
-
-static float GetFloat(memStream_t * s)
-{
-	floatint_t		c;
-
-	if(s == NULL)
-		return -1;
-
-	if(MemStreamRead(s, &c.i, 4) == 0)
-		return -1;
-
-	return LittleFloat(c.f);
-}
-
 static void GetChunkHeader(memStream_t *s, axChunkHeader_t * chunkHeader)
 {
 	int             i;
@@ -2283,9 +2162,9 @@ static void GetChunkHeader(memStream_t *s, axChunkHeader_t * chunkHeader)
 		chunkHeader->ident[i] = MemStreamGetC(s);
 	}
 
-	chunkHeader->flags = GetLong(s);
-	chunkHeader->dataSize = GetLong(s);
-	chunkHeader->numData = GetLong(s);
+	chunkHeader->flags = MemStreamGetLong(s);
+	chunkHeader->dataSize = MemStreamGetLong(s);
+	chunkHeader->numData = MemStreamGetLong(s);
 }
 
 static void PrintChunkHeader(axChunkHeader_t * chunkHeader)
@@ -2305,19 +2184,19 @@ static void GetBone(memStream_t *s, axBone_t * bone)
 
 	for(i = 0; i < 4; i++)
 	{
-		bone->quat[i] = GetFloat(s);
+		bone->quat[i] = MemStreamGetFloat(s);
 	}
 
 	for(i = 0; i < 3; i++)
 	{
-		bone->position[i] = GetFloat(s);
+		bone->position[i] = MemStreamGetFloat(s);
 	}
 
-	bone->length = GetFloat(s);
+	bone->length = MemStreamGetFloat(s);
 
-	bone->xSize = GetFloat(s);
-	bone->ySize = GetFloat(s);
-	bone->zSize = GetFloat(s);
+	bone->xSize = MemStreamGetFloat(s);
+	bone->ySize = MemStreamGetFloat(s);
+	bone->zSize = MemStreamGetFloat(s);
 }
 
 static int CompareTrianglesByMaterialIndex(const void *a, const void *b)
@@ -2437,9 +2316,9 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	points = Com_Allocate(numPoints * sizeof(axPoint_t));
 	for(i = 0, point = points; i < numPoints; i++, point++)
 	{
-		point->point[0] = GetFloat(stream);
-		point->point[1] = GetFloat(stream);
-		point->point[2] = GetFloat(stream);
+		point->point[0] = MemStreamGetFloat(stream);
+		point->point[1] = MemStreamGetFloat(stream);
+		point->point[2] = MemStreamGetFloat(stream);
 
 #if 0
 		// Tr3B: HACK convert from Unreal coordinate system to the Quake one
@@ -2469,7 +2348,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	vertexes = Com_Allocate(numVertexes * sizeof(axVertex_t));
 	for(i = 0, vertex = vertexes; i < numVertexes; i++, vertex++)
 	{
-		vertex->pointIndex = GetShort(stream);
+		vertex->pointIndex = MemStreamGetShort(stream);
 		if(vertex->pointIndex < 0 || vertex->pointIndex >= numPoints)
 		{
 			ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has vertex with point index out of range (%i while max %i)\n", modName, vertex->pointIndex, numPoints);
@@ -2477,12 +2356,12 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 			return qfalse;
 		}
 
-		vertex->unknownA = GetShort(stream);
-		vertex->st[0] = GetFloat(stream);
-		vertex->st[1] = GetFloat(stream);
+		vertex->unknownA = MemStreamGetShort(stream);
+		vertex->st[0] = MemStreamGetFloat(stream);
+		vertex->st[1] = MemStreamGetFloat(stream);
 		vertex->materialIndex = MemStreamGetC(stream);
 		vertex->reserved = MemStreamGetC(stream);
-		vertex->unknownB = GetShort(stream);
+		vertex->unknownB = MemStreamGetShort(stream);
 
 #if 0
 		ri.Printf(PRINT_ALL, "R_LoadPSK: axVertex_t(%i):\n"
@@ -2527,7 +2406,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		for(j = 0; j < 3; j++)
 		//for(j = 2; j >= 0; j--)
 		{
-			triangle->indexes[j] = GetShort(stream);
+			triangle->indexes[j] = MemStreamGetShort(stream);
 			if(triangle->indexes[j] < 0 || triangle->indexes[j] >= numVertexes)
 			{
 				ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has triangle with vertex index out of range (%i while max %i)\n", modName, triangle->indexes[j], numVertexes);
@@ -2538,7 +2417,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 
 		triangle->materialIndex = MemStreamGetC(stream);
 		triangle->materialIndex2 = MemStreamGetC(stream);
-		triangle->smoothingGroups = GetLong(stream);
+		triangle->smoothingGroups = MemStreamGetLong(stream);
 	}
 
 	// read materials
@@ -2567,12 +2446,12 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 
 		ri.Printf(PRINT_ALL, "R_LoadPSK: material name: '%s'\n", material->name);
 
-		material->shaderIndex = GetLong(stream);
-		material->polyFlags = GetLong(stream);
-		material->auxMaterial = GetLong(stream);
-		material->auxFlags = GetLong(stream);
-		material->lodBias = GetLong(stream);
-		material->lodStyle = GetLong(stream);
+		material->shaderIndex = MemStreamGetLong(stream);
+		material->polyFlags = MemStreamGetLong(stream);
+		material->auxMaterial = MemStreamGetLong(stream);
+		material->auxFlags = MemStreamGetLong(stream);
+		material->lodBias = MemStreamGetLong(stream);
+		material->lodStyle = MemStreamGetLong(stream);
 	}
 
 	for(i = 0, vertex = vertexes; i < numVertexes; i++, vertex++)
@@ -2621,13 +2500,13 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 
 		//ri.Printf(PRINT_ALL, "R_LoadPSK: reference bone name: '%s'\n", refBone->name);
 
-		refBone->flags = GetLong(stream);
-		refBone->numChildren = GetLong(stream);
-		refBone->parentIndex = GetLong(stream);
+		refBone->flags = MemStreamGetLong(stream);
+		refBone->numChildren = MemStreamGetLong(stream);
+		refBone->parentIndex = MemStreamGetLong(stream);
 
 		GetBone(stream, &refBone->bone);
 
-#if 1
+#if 0
 		ri.Printf(PRINT_ALL, "R_LoadPSK: axReferenceBone_t(%i):\n"
 				"axReferenceBone_t::name: '%s'\n"
 				"axReferenceBone_t::flags: %i\n"
@@ -2675,9 +2554,9 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	axWeights = Com_Allocate(numWeights * sizeof(axBoneWeight_t));
 	for(i = 0, axWeight = axWeights; i < numWeights; i++, axWeight++)
 	{
-		axWeight->weight = GetFloat(stream);
-		axWeight->pointIndex = GetLong(stream);
-		axWeight->boneIndex = GetLong(stream);
+		axWeight->weight = MemStreamGetFloat(stream);
+		axWeight->pointIndex = MemStreamGetLong(stream);
+		axWeight->boneIndex = MemStreamGetLong(stream);
 	}
 
 
@@ -2738,8 +2617,8 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 			boneOrigin[j] = refBone->bone.position[j];
 		}
 
-#if 1
-#if 1
+		// Tr3B: I have really no idea why the .psk format stores the first quaternion with inverted quats.
+		// Furthermore only the X and Z components of the first quat are inverted ?!?!
 		if(i == 0)
 		{
 			boneQuat[0] = refBone->bone.quat[0];
@@ -2748,14 +2627,12 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 			boneQuat[3] = refBone->bone.quat[3];
 		}
 		else
-#endif
 		{
 			boneQuat[0] = -refBone->bone.quat[0];
 			boneQuat[1] = -refBone->bone.quat[1];
 			boneQuat[2] = -refBone->bone.quat[2];
 			boneQuat[3] = refBone->bone.quat[3];
 		}
-#endif
 
 		VectorCopy(boneOrigin, md5Bone->origin);
 		//MatrixTransformPoint(unrealToQuake, boneOrigin, md5Bone->origin);

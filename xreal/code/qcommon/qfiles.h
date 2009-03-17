@@ -309,6 +309,35 @@ typedef struct
 	unsigned int	boneIndex;
 } axBoneWeight_t;
 
+typedef struct
+{
+	char			name[64];
+	char			group[64];
+
+	int				numBones;		// same as numChannels
+	int				rootInclude;
+
+	int				keyCompressionStyle;
+	int				keyQuotum;
+	float			keyReduction;
+
+	float			trackTime;
+
+	float			frameRate;
+
+	int				startBoneIndex;
+
+	int				firstRawFrame;
+	int				numRawFrames;
+} axAnimationInfo_t;
+
+typedef struct
+{
+	float			position[3];
+	float			quat[4];
+	float			time;
+} axAnimationKey_t;
+
 
 /*
 ==============================================================================

@@ -1265,6 +1265,40 @@ int             Com_AddToGrowList(growList_t * list, void *data);
 void           *Com_GrowListElement(const growList_t * list, int index);
 int             Com_IndexForGrowListElement(const growList_t * list, const void *element);
 
+
+//=============================================================================
+
+enum
+{
+	MEMSTREAM_SEEK_SET,
+	MEMSTREAM_SEEK_CUR,
+	MEMSTREAM_SEEK_END
+};
+
+enum
+{
+	MEMSTREAM_FLAGS_EOF = BIT(0),
+	MEMSTREAM_FLAGS_ERR = BIT(1),
+};
+
+// helper struct for reading binary file formats
+typedef struct memStream_s
+{
+	byte           *buffer;
+	int				bufSize;
+	byte           *curPos;
+	int             flags;
+}
+memStream_t;
+
+memStream_t    *AllocMemStream(byte *buffer, int bufSize);
+void			FreeMemStream(memStream_t * s);
+int				MemStreamRead(memStream_t *s, void *buffer, int len);
+int				MemStreamGetC(memStream_t *s);
+int				MemStreamGetLong(memStream_t * s);
+int				MemStreamGetShort(memStream_t * s);
+float			MemStreamGetFloat(memStream_t * s);
+
 //=============================================
 
 float           Com_Clamp(float min, float max, float value);

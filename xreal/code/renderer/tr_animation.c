@@ -34,9 +34,9 @@ frame.
 ===========================================================================
 */
 
-static md5Animation_t *R_AllocAnimation(void)
+static skelAnimation_t *R_AllocAnimation(void)
 {
-	md5Animation_t *anim;
+	skelAnimation_t *anim;
 
 	if(tr.numAnimations == MAX_ANIMATIONFILES)
 	{
@@ -58,7 +58,7 @@ R_InitAnimations
 */
 void R_InitAnimations(void)
 {
-	md5Animation_t *anim;
+	skelAnimation_t *anim;
 
 	// leave a space for NULL animation
 	tr.numAnimations = 0;
@@ -68,69 +68,20 @@ void R_InitAnimations(void)
 	strcpy(anim->name, "<default animation>");
 }
 
-/*
-===============
-RE_RegisterAnimation
-===============
-*/
-qhandle_t RE_RegisterAnimation(const char *name)
+static qboolean R_LoadMD5Anim(skelAnimation_t * skelAnim, void *buffer, int bufferSize, const char *name)
 {
 	int             i, j;
-	qhandle_t       hAnim;
 	md5Animation_t *anim;
-	md5Channel_t   *channel;
 	md5Frame_t     *frame;
-	char           *buffer, *buf_p;
+	md5Channel_t   *channel;
 	char           *token;
 	int             version;
-
-	if(!name || !name[0])
-	{
-		Com_Printf("Empty name passed to RE_RegisterAnimation\n");
-		return 0;
-	}
-
-	if(strlen(name) >= MAX_QPATH)
-	{
-		Com_Printf("Animation name exceeds MAX_QPATH\n");
-		return 0;
-	}
-
-	// search the currently loaded animations
-	for(hAnim = 1; hAnim < tr.numAnimations; hAnim++)
-	{
-		anim = tr.animations[hAnim];
-		if(!Q_stricmp(anim->name, name))
-		{
-			if(anim->type == AT_BAD)
-			{
-				return 0;
-			}
-			return hAnim;
-		}
-	}
-
-	// allocate a new model_t
-	if((anim = R_AllocAnimation()) == NULL)
-	{
-		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: R_AllocAnimation() failed for '%s'\n", name);
-		return 0;
-	}
-
-	// only set the name after the animation has been successfully allocated
-	Q_strncpyz(anim->name, name, sizeof(anim->name));
-
-	// make sure the render thread is stopped
-	R_SyncRenderThread();
-
-	// load and parse the .md5anim file
-	ri.FS_ReadFile(name, (void **)&buffer);
-	if(!buffer)
-	{
-		return 0;
-	}
+	char           *buf_p;
 
 	buf_p = buffer;
+
+	skelAnim->type = AT_MD5;
+	skelAnim->md5 = anim = ri.Hunk_Alloc(sizeof(*anim), h_low);
 
 	// skip MD5Version indent string
 	Com_ParseExt(&buf_p, qfalse);
@@ -380,7 +331,6 @@ qhandle_t RE_RegisterAnimation(const char *name)
 		return qfalse;
 	}
 
-
 	for(i = 0, frame = anim->frames; i < anim->numFrames; i++, frame++)
 	{
 		// parse frame <number> {
@@ -422,9 +372,410 @@ qhandle_t RE_RegisterAnimation(const char *name)
 	}
 
 	// everything went ok
-	anim->type = AT_MD5;
+	return qtrue;
+}
+
+
+
+static void GetChunkHeader(memStream_t *s, axChunkHeader_t * chunkHeader)
+{
+	int             i;
+
+	for(i = 0; i < 20; i++)
+	{
+		chunkHeader->ident[i] = MemStreamGetC(s);
+	}
+
+	chunkHeader->flags = MemStreamGetLong(s);
+	chunkHeader->dataSize = MemStreamGetLong(s);
+	chunkHeader->numData = MemStreamGetLong(s);
+}
+
+static void PrintChunkHeader(axChunkHeader_t * chunkHeader)
+{
+#if 0
+	ri.Printf(PRINT_ALL, "----------------------\n");
+	ri.Printf(PRINT_ALL, "R_LoadPSA: chunk header ident: '%s'\n", chunkHeader->ident);
+	ri.Printf(PRINT_ALL, "R_LoadPSA: chunk header flags: %i\n", chunkHeader->flags);
+	ri.Printf(PRINT_ALL, "R_LoadPSA: chunk header data size: %i\n", chunkHeader->dataSize);
+	ri.Printf(PRINT_ALL, "R_LoadPSA: chunk header num items: %i\n", chunkHeader->numData);
+#endif
+}
+
+static void GetBone(memStream_t *s, axBone_t * bone)
+{
+	int             i;
+
+	for(i = 0; i < 4; i++)
+	{
+		bone->quat[i] = MemStreamGetFloat(s);
+	}
+
+	for(i = 0; i < 3; i++)
+	{
+		bone->position[i] = MemStreamGetFloat(s);
+	}
+
+	bone->length = MemStreamGetFloat(s);
+
+	bone->xSize = MemStreamGetFloat(s);
+	bone->ySize = MemStreamGetFloat(s);
+	bone->zSize = MemStreamGetFloat(s);
+}
+
+static qboolean R_LoadPSA(skelAnimation_t * skelAnim, void *buffer, int bufferSize, const char *name)
+{
+	int             i, j, k;
+	memStream_t    *stream;
+	axChunkHeader_t	chunkHeader;
+	int				numReferenceBones;
+	axReferenceBone_t *refBone;
+	axReferenceBone_t *refBones;
+
+	int				numSequences;
+	axAnimationInfo_t *animInfo;
+
+	axAnimationKey_t *key;
+
+	psaAnimation_t *psa;
+	skelAnimation_t *extraAnim;
+	growList_t      extraAnims;
+
+	stream = AllocMemStream(buffer, bufferSize);
+	GetChunkHeader(stream, &chunkHeader);
+
+	// check indent again
+	if(Q_stricmpn(chunkHeader.ident, "ANIMHEAD", 8))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSA: '%s' has wrong chunk indent ('%s' should be '%s')\n", name, chunkHeader.ident, "ANIMHEAD");
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	PrintChunkHeader(&chunkHeader);
+
+	// read reference bones
+	GetChunkHeader(stream, &chunkHeader);
+	if(Q_stricmpn(chunkHeader.ident, "BONENAMES", 9))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSA: '%s' has wrong chunk indent ('%s' should be '%s')\n", name, chunkHeader.ident, "BONENAMES");
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	if(chunkHeader.dataSize != sizeof(axReferenceBone_t))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSA: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", name, chunkHeader.dataSize, sizeof(axReferenceBone_t));
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	PrintChunkHeader(&chunkHeader);
+
+	numReferenceBones = chunkHeader.numData;
+	refBones = ri.Hunk_Alloc(numReferenceBones * sizeof(axReferenceBone_t), h_low);
+	for(i = 0, refBone = refBones; i < numReferenceBones; i++, refBone++)
+	{
+		MemStreamRead(stream, refBone->name, sizeof(refBone->name));
+
+		refBone->flags = MemStreamGetLong(stream);
+		refBone->numChildren = MemStreamGetLong(stream);
+		refBone->parentIndex = MemStreamGetLong(stream);
+
+		if(i == 0)
+		{
+			refBone->parentIndex = -1;
+		}
+
+		GetBone(stream, &refBone->bone);
+
+#if 0
+		ri.Printf(PRINT_ALL, "R_LoadPSA: axReferenceBone_t(%i):\n"
+				"axReferenceBone_t::name: '%s'\n"
+				"axReferenceBone_t::flags: %i\n"
+				"axReferenceBone_t::numChildren %i\n"
+				"axReferenceBone_t::parentIndex: %i\n"
+				"axReferenceBone_t::quat: %f %f %f %f\n"
+				"axReferenceBone_t::position: %f %f %f\n"
+				"axReferenceBone_t::length: %f\n"
+				"axReferenceBone_t::xSize: %f\n"
+				"axReferenceBone_t::ySize: %f\n"
+				"axReferenceBone_t::zSize: %f\n",
+				i,
+				refBone->name,
+				refBone->flags,
+				refBone->numChildren,
+				refBone->parentIndex,
+				refBone->bone.quat[0], refBone->bone.quat[1], refBone->bone.quat[2], refBone->bone.quat[3],
+				refBone->bone.position[0], refBone->bone.position[1], refBone->bone.position[2],
+				refBone->bone.length,
+				refBone->bone.xSize,
+				refBone->bone.ySize,
+				refBone->bone.zSize);
+#endif
+	}
+
+	// load animation info
+	GetChunkHeader(stream, &chunkHeader);
+	if(Q_stricmpn(chunkHeader.ident, "ANIMINFO", 8))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSA: '%s' has wrong chunk indent ('%s' should be '%s')\n", name, chunkHeader.ident, "ANIMINFO");
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	if(chunkHeader.dataSize != sizeof(axAnimationInfo_t))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSA: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", name, chunkHeader.dataSize, sizeof(axAnimationInfo_t));
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	PrintChunkHeader(&chunkHeader);
+
+	numSequences = chunkHeader.numData;
+	Com_InitGrowList(&extraAnims, numSequences -1);
+	for(i = 0; i < numSequences; i++)
+	{
+		if(i == 0)
+		{
+			Q_strncpyz(skelAnim->name, name, sizeof(skelAnim->name));
+			skelAnim->type = AT_PSA;
+			skelAnim->psa = psa = ri.Hunk_Alloc(sizeof(*psa), h_low);
+		}
+		else
+		{
+			// allocate a new model_t
+			if((extraAnim = R_AllocAnimation()) == NULL)
+			{
+				ri.Printf(PRINT_WARNING, "R_LoadPSA: R_AllocAnimation() failed for '%s'\n", name);
+				return qfalse;
+			}
+
+			Q_strncpyz(extraAnim->name, name, sizeof(extraAnim->name));
+			extraAnim->type = AT_PSA;
+			extraAnim->psa = psa = ri.Hunk_Alloc(sizeof(*psa), h_low);
+
+			Com_AddToGrowList(&extraAnims, extraAnim);
+		}
+
+		psa->numBones = numReferenceBones;
+		psa->bones = refBones;
+
+		animInfo = &psa->info;
+
+		MemStreamRead(stream, animInfo->name, sizeof(animInfo->name));
+		MemStreamRead(stream, animInfo->group, sizeof(animInfo->group));
+
+		animInfo->numBones = MemStreamGetLong(stream);
+
+		if(animInfo->numBones != numReferenceBones)
+		{
+			ri.Error(ERR_DROP, "R_LoadPSA: axAnimationInfo_t contains different number than reference bones exist: %i != %i for anim '%s'", animInfo->numBones, numReferenceBones, name);
+		}
+
+		animInfo->rootInclude = MemStreamGetLong(stream);
+
+		animInfo->keyCompressionStyle = MemStreamGetLong(stream);
+		animInfo->keyQuotum = MemStreamGetLong(stream);
+		animInfo->keyReduction = MemStreamGetFloat(stream);
+
+		animInfo->trackTime = MemStreamGetFloat(stream);
+
+		animInfo->frameRate = MemStreamGetFloat(stream);
+
+		animInfo->startBoneIndex = MemStreamGetLong(stream);
+
+		animInfo->firstRawFrame = MemStreamGetLong(stream);
+		animInfo->numRawFrames = MemStreamGetLong(stream);
+
+#if 0
+		ri.Printf(PRINT_ALL, "R_LoadPSA: axAnimationInfo_t(%i):\n"
+				"axAnimationInfo_t::name: '%s'\n"
+				"axAnimationInfo_t::group: '%s'\n"
+				"axAnimationInfo_t::numBones: %i\n"
+				"axAnimationInfo_t::rootInclude: %i\n"
+				"axAnimationInfo_t::keyCompressionStyle: %i\n"
+				"axAnimationInfo_t::keyQuotum: %i\n"
+				"axAnimationInfo_t::keyReduction: %f\n"
+				"axAnimationInfo_t::trackTime: %f\n"
+				"axAnimationInfo_t::frameRate: %f\n"
+				"axAnimationInfo_t::startBoneIndex: %i\n"
+				"axAnimationInfo_t::firstRawFrame: %i\n"
+				"axAnimationInfo_t::numRawFrames: %i\n",
+				i,
+				animInfo->name,
+				animInfo->group,
+				animInfo->numBones,
+				animInfo->rootInclude,
+				animInfo->keyCompressionStyle,
+				animInfo->keyQuotum,
+				animInfo->keyReduction,
+				animInfo->trackTime,
+				animInfo->frameRate,
+				animInfo->startBoneIndex,
+				animInfo->firstRawFrame,
+				animInfo->numRawFrames);
+#endif
+	}
+
+	// load the animation frame keys
+	GetChunkHeader(stream, &chunkHeader);
+	if(Q_stricmpn(chunkHeader.ident, "ANIMKEYS", 8))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSA: '%s' has wrong chunk indent ('%s' should be '%s')\n", name, chunkHeader.ident, "ANIMKEYS");
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	if(chunkHeader.dataSize != sizeof(axAnimationKey_t))
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadPSA: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", name, chunkHeader.dataSize, sizeof(axAnimationKey_t));
+		FreeMemStream(stream);
+		return qfalse;
+	}
+
+	PrintChunkHeader(&chunkHeader);
+
+	for(i = 0; i < numSequences; i++)
+	{
+		if(i == 0)
+		{
+			psa = skelAnim->psa;
+		}
+		else
+		{
+			extraAnim = Com_GrowListElement(&extraAnims, i - 1);
+			psa = extraAnim->psa;
+		}
+
+		psa->numKeys = psa->info.numBones * psa->info.numRawFrames;
+		psa->keys = ri.Hunk_Alloc(psa->numKeys * sizeof(axAnimationKey_t), h_low);
+
+		for(j = 0, key = &psa->keys[0]; j < psa->numKeys; j++, key++)
+		{
+			for(k = 0; k < 3; k++)
+			{
+				key->position[k] = MemStreamGetFloat(stream);
+			}
+
+			// Tr3B: see R_LoadPSK ...
+			if((j % psa->info.numBones) == 0)
+			{
+				key->quat[0] = MemStreamGetFloat(stream);
+				key->quat[1] = -MemStreamGetFloat(stream);
+				key->quat[2] = MemStreamGetFloat(stream);
+				key->quat[3] = MemStreamGetFloat(stream);
+			}
+			else
+			{
+				key->quat[0] = -MemStreamGetFloat(stream);
+				key->quat[1] = -MemStreamGetFloat(stream);
+				key->quat[2] = -MemStreamGetFloat(stream);
+				key->quat[3] = MemStreamGetFloat(stream);
+			}
+
+			key->time = MemStreamGetFloat(stream);
+		}
+	}
+
+	Com_DestroyGrowList(&extraAnims);
+	FreeMemStream(stream);
+
+	return qtrue;
+}
+
+/*
+===============
+RE_RegisterAnimation
+===============
+*/
+qhandle_t RE_RegisterAnimation(const char *name)
+{
+	int             i, j;
+	qhandle_t       hAnim;
+	skelAnimation_t *anim;
+	char           *buffer;
+	int             bufferLen;
+	qboolean		loaded = qfalse;
+
+	if(!name || !name[0])
+	{
+		Com_Printf("Empty name passed to RE_RegisterAnimation\n");
+		return 0;
+	}
+
+	if(strlen(name) >= MAX_QPATH)
+	{
+		Com_Printf("Animation name exceeds MAX_QPATH\n");
+		return 0;
+	}
+
+	// search the currently loaded animations
+	for(hAnim = 1; hAnim < tr.numAnimations; hAnim++)
+	{
+		anim = tr.animations[hAnim];
+		if(!Q_stricmp(anim->name, name))
+		{
+			if(anim->type == AT_BAD)
+			{
+				return 0;
+			}
+			return hAnim;
+		}
+
+		if(anim->type == AT_PSA && anim->psa)
+		{
+			if(!Q_stricmp(anim->psa->info.name, name))
+			{
+				return hAnim;
+			}
+		}
+	}
+
+	// allocate a new model_t
+	if((anim = R_AllocAnimation()) == NULL)
+	{
+		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: R_AllocAnimation() failed for '%s'\n", name);
+		return 0;
+	}
+
+	// only set the name after the animation has been successfully allocated
+	Q_strncpyz(anim->name, name, sizeof(anim->name));
+
+	// make sure the render thread is stopped
+	R_SyncRenderThread();
+
+	// load and parse the .md5anim file
+	bufferLen = ri.FS_ReadFile(name, (void **)&buffer);
+	if(!buffer)
+	{
+		return 0;
+	}
+
+	if(!Q_stricmpn((const char *)buffer, "MD5Version", 10))
+	{
+		loaded = R_LoadMD5Anim(anim, buffer, bufferLen, name);
+	}
+	else if(!Q_stricmpn((const char *)buffer, "ANIMHEAD", 8))
+	{
+		loaded = R_LoadPSA(anim, buffer, bufferLen, name);
+	}
+	else
+	{
+		ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: unknown fileid for '%s'\n", name);
+	}
 
 	ri.FS_FreeFile(buffer);
+
+	if(!loaded)
+	{
+		ri.Printf(PRINT_WARNING, "couldn't load '%s'\n", name);
+
+		// we still keep the model_t around, so if the model name is asked for
+		// again, we won't bother scanning the filesystem
+		anim->type = AT_BAD;
+	}
 
 	return anim->index;
 }
@@ -435,9 +786,9 @@ qhandle_t RE_RegisterAnimation(const char *name)
 R_GetAnimationByHandle
 ================
 */
-md5Animation_t *R_GetAnimationByHandle(qhandle_t index)
+skelAnimation_t *R_GetAnimationByHandle(qhandle_t index)
 {
-	md5Animation_t *anim;
+	skelAnimation_t *anim;
 
 	// out of range gets the default animation
 	if(index < 1 || index >= tr.numAnimations)
@@ -458,13 +809,20 @@ R_AnimationList_f
 void R_AnimationList_f(void)
 {
 	int             i;
-	md5Animation_t *anim;
+	skelAnimation_t *anim;
 
 	for(i = 0; i < tr.numAnimations; i++)
 	{
 		anim = tr.animations[i];
 
-		ri.Printf(PRINT_ALL, "%s\n", anim->name);
+		if(anim->type == AT_PSA && anim->psa)
+		{
+			ri.Printf(PRINT_ALL, "'%s' : '%s'\n", anim->name, anim->psa->info.name);
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "'%s'\n", anim->name);
+		}
 	}
 	ri.Printf(PRINT_ALL, "%8i : Total animations\n", tr.numAnimations);
 }
@@ -834,18 +1192,22 @@ RE_BuildSkeleton
 */
 int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int endFrame, float frac, qboolean clearOrigin)
 {
-	int             i;
-	md5Animation_t *anim;
-	md5Channel_t   *channel;
-	md5Frame_t     *newFrame, *oldFrame;
-	vec3_t          newOrigin, oldOrigin, lerpedOrigin;
-	quat_t          newQuat, oldQuat, lerpedQuat;
-	int             componentsApplied;
+	skelAnimation_t *skelAnim;
 
-	anim = R_GetAnimationByHandle(hAnim);
+	skelAnim = R_GetAnimationByHandle(hAnim);
 
-	if(anim->type == AT_MD5)
+	if(skelAnim->type == AT_MD5 && skelAnim->md5)
 	{
+		int             i;
+		md5Animation_t *anim;
+		md5Channel_t   *channel;
+		md5Frame_t     *newFrame, *oldFrame;
+		vec3_t          newOrigin, oldOrigin, lerpedOrigin;
+		quat_t          newQuat, oldQuat, lerpedQuat;
+		int             componentsApplied;
+
+		anim = skelAnim->md5;
+
 		// Validate the frames so there is no chance of a crash.
 		// This will write directly into the entity structure, so
 		// when the surfaces are rendered, they don't need to be
@@ -969,6 +1331,69 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 		skel->type = SK_RELATIVE;
 		return qtrue;
 	}
+	else if(skelAnim->type == AT_PSA && skelAnim->psa)
+	{
+		int             i;
+		psaAnimation_t *anim;
+		axAnimationKey_t *newKey, *oldKey;
+		axReferenceBone_t *refBone;
+		vec3_t          newOrigin, oldOrigin, lerpedOrigin;
+		quat_t          newQuat, oldQuat, lerpedQuat;
+
+		anim = skelAnim->psa;
+
+		Q_clamp(startFrame, 0, anim->info.numRawFrames - 1);
+		Q_clamp(endFrame, 0, anim->info.numRawFrames - 1);
+
+		skel->numBones = anim->info.numBones;
+		for(i = 0, refBone = anim->bones; i < anim->info.numBones; i++, refBone++)
+		{
+			oldKey = &anim->keys[startFrame * anim->info.numBones + i];
+			newKey = &anim->keys[endFrame * anim->info.numBones + i];
+
+			VectorCopy(newKey->position, newOrigin);
+			VectorCopy(oldKey->position, oldOrigin);
+
+			QuatCopy(newKey->quat, newQuat);
+			QuatCopy(oldKey->quat, oldQuat);
+
+			//QuatCalcW(oldQuat);
+			//QuatNormalize(oldQuat);
+
+			//QuatCalcW(newQuat);
+			//QuatNormalize(newQuat);
+
+			VectorLerp(oldOrigin, newOrigin, frac, lerpedOrigin);
+			QuatSlerp(oldQuat, newQuat, frac, lerpedQuat);
+
+#if 1
+			// copy lerped information to the bone + extra data
+			skel->bones[i].parentIndex = refBone->parentIndex;
+
+			if(refBone->parentIndex < 0 && clearOrigin)
+			{
+				VectorClear(skel->bones[i].origin);
+				QuatClear(skel->bones[i].rotation);
+
+				// move bounding box back
+				VectorSubtract(skel->bounds[0], lerpedOrigin, skel->bounds[0]);
+				VectorSubtract(skel->bounds[1], lerpedOrigin, skel->bounds[1]);
+			}
+			else
+			{
+				VectorCopy(lerpedOrigin, skel->bones[i].origin);
+			}
+
+			QuatCopy(lerpedQuat, skel->bones[i].rotation);
+
+			Q_strncpyz(skel->bones[i].name, refBone->name, sizeof(skel->bones[i].name));
+#endif
+		}
+
+		skel->numBones = anim->info.numBones;
+		skel->type = SK_RELATIVE;
+		return qtrue;
+	}
 
 	//ri.Printf(PRINT_WARNING, "RE_BuildSkeleton: bad animation '%s' with handle %i\n", anim->name, hAnim);
 
@@ -1025,13 +1450,18 @@ RE_AnimNumFrames
 */
 int RE_AnimNumFrames(qhandle_t hAnim)
 {
-	md5Animation_t *anim;
+	skelAnimation_t *anim;
 
 	anim = R_GetAnimationByHandle(hAnim);
 
-	if(anim->type == AT_MD5)
+	if(anim->type == AT_MD5 && anim->md5)
 	{
-		return anim->numFrames;
+		return anim->md5->numFrames;
+	}
+
+	if(anim->type == AT_PSA && anim->psa)
+	{
+		return anim->psa->info.numRawFrames;
 	}
 
 	return 0;
@@ -1045,13 +1475,18 @@ RE_AnimFrameRate
 */
 int RE_AnimFrameRate(qhandle_t hAnim)
 {
-	md5Animation_t *anim;
+	skelAnimation_t *anim;
 
 	anim = R_GetAnimationByHandle(hAnim);
 
-	if(anim->type == AT_MD5)
+	if(anim->type == AT_MD5 && anim->md5)
 	{
-		return anim->frameRate;
+		return anim->md5->frameRate;
+	}
+
+	if(anim->type == AT_PSA && anim->psa)
+	{
+		return anim->psa->info.frameRate;
 	}
 
 	return 0;

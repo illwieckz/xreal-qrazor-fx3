@@ -115,6 +115,108 @@ int Com_IndexForGrowListElement(const growList_t * list, const void *element)
 	return -1;
 }
 
+//=============================================================================
+
+memStream_t *AllocMemStream(byte *buffer, int bufSize)
+{
+	memStream_t		*s;
+
+	if(buffer == NULL || bufSize <= 0)
+		return NULL;
+
+	s = Com_Allocate(sizeof(memStream_t));
+	if(s == NULL)
+		return NULL;
+
+	Com_Memset(s, 0, sizeof(memStream_t));
+
+	s->buffer 	= buffer;
+	s->curPos 	= buffer;
+	s->bufSize	= bufSize;
+	s->flags	= 0;
+
+	return s;
+}
+
+void FreeMemStream(memStream_t * s)
+{
+	Com_Dealloc(s);
+}
+
+int MemStreamRead(memStream_t *s, void *buffer, int len)
+{
+	int				ret = 1;
+
+	if(s == NULL || buffer == NULL)
+		return 0;
+
+	if(s->curPos + len > s->buffer + s->bufSize)
+	{
+		s->flags |= MEMSTREAM_FLAGS_EOF;
+		len = s->buffer + s->bufSize - s->curPos;
+		ret = 0;
+
+		Com_Error(ERR_FATAL, "MemStreamRead: EOF reached");
+	}
+
+	Com_Memcpy(buffer, s->curPos, len);
+	s->curPos += len;
+
+	return ret;
+}
+
+int MemStreamGetC(memStream_t *s)
+{
+	int				c = 0;
+
+	if(s == NULL)
+		return -1;
+
+	if(MemStreamRead(s, &c, 1) == 0)
+		return -1;
+
+	return c;
+}
+
+int MemStreamGetLong(memStream_t * s)
+{
+	int				c = 0;
+
+	if(s == NULL)
+		return -1;
+
+	if(MemStreamRead(s, &c, 4) == 0)
+		return -1;
+
+	return LittleLong(c);
+}
+
+int MemStreamGetShort(memStream_t * s)
+{
+	int				c = 0;
+
+	if(s == NULL)
+		return -1;
+
+	if(MemStreamRead(s, &c, 2) == 0)
+		return -1;
+
+	return LittleShort(c);
+}
+
+float MemStreamGetFloat(memStream_t * s)
+{
+	floatint_t		c;
+
+	if(s == NULL)
+		return -1;
+
+	if(MemStreamRead(s, &c.i, 4) == 0)
+		return -1;
+
+	return LittleFloat(c.f);
+}
+
 //============================================================================
 
 float Com_Clamp(float min, float max, float value)
@@ -883,7 +985,7 @@ void Com_Parse3DMatrix(char **buf_p, int z, int y, int x, float *m)
 /*
 =============
 ColorIndex
- 
+
 Returns the index in g_color_table[] corresponding to the colour code.
 =============
 */
@@ -1014,7 +1116,7 @@ qboolean Q_isintegral(float f)
 /*
 =============
 Q_strncpyz
- 
+
 Safe strncpy that ensures a trailing zero
 =============
 */
@@ -1154,7 +1256,7 @@ void Q_strcat(char *dest, int destsize, const char *src)
 /*
 =============
 Q_stristr
- 
+
 Find the first occurrence of find in s.
 =============
 */
@@ -1194,7 +1296,7 @@ char           *Q_stristr(const char *s, const char *find)
 /*
 =============
 Q_strreplace
- 
+
 replaces content of find by replace in dest
 =============
 */

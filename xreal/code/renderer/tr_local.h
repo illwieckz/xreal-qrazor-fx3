@@ -1640,7 +1640,8 @@ typedef struct md5Model_s
 typedef enum
 {
 	AT_BAD,
-	AT_MD5
+	AT_MD5,
+	AT_PSA
 } animType_t;
 
 enum
@@ -1673,10 +1674,6 @@ typedef struct
 
 typedef struct md5Animation_s
 {
-	char            name[MAX_QPATH];	// game path, including extension
-	animType_t      type;
-	int             index;		// anim = tr.animations[anim->index]
-
 	int             numFrames;
 	md5Frame_t     *frames;
 
@@ -1686,9 +1683,30 @@ typedef struct md5Animation_s
 	int             frameRate;
 
 	int             numAnimatedComponents;
-
-//  struct md5Animation_s *next;
 } md5Animation_t;
+
+
+typedef struct
+{
+	axAnimationInfo_t info;
+
+	int				  numBones;
+	axReferenceBone_t *bones;
+
+	int				  numKeys;
+	axAnimationKey_t *keys;
+} psaAnimation_t;
+
+typedef struct
+{
+	char            name[MAX_QPATH];	// game path, including extension
+	animType_t      type;
+	int             index;		// anim = tr.animations[anim->index]
+
+	md5Animation_t *md5;
+	psaAnimation_t *psa;
+
+} skelAnimation_t;
 
 
 //======================================================================
@@ -2081,7 +2099,7 @@ typedef struct
 	int             numModels;
 
 	int             numAnimations;
-	md5Animation_t *animations[MAX_ANIMATIONFILES];
+	skelAnimation_t *animations[MAX_ANIMATIONFILES];
 
 	growList_t      images;
 
@@ -2926,7 +2944,7 @@ ANIMATED MODELS
 
 void            R_InitAnimations(void);
 qhandle_t       RE_RegisterAnimation(const char *name);
-md5Animation_t *R_GetAnimationByHandle(qhandle_t hAnim);
+skelAnimation_t *R_GetAnimationByHandle(qhandle_t hAnim);
 void            R_AnimationList_f(void);
 
 void            R_AddMDSSurfaces(trRefEntity_t * ent);
