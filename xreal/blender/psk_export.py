@@ -1,9 +1,9 @@
 #!BPY
 """ 
-Name: 'Unreal Skeletal Mesh/Animation (.psk and .psa) Mod' 
+Name: 'Unreal Skeletal Mesh/Animation (.psk and .psa)' 
 Blender: 245
 Group: 'Export' 
-Tooltip: 'Unreal Skeletal Mesh and Animation Export (*.psk, *.psa) Mod13' 
+Tooltip: 'Unreal Skeletal Mesh and Animation Export (*.psk, *.psa)' 
 """ 
 __author__ = "Darknet/Optimus_P-Fat/Active_Trash" 
 __version__ = "0.0.13" 
