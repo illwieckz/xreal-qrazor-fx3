@@ -92,7 +92,7 @@ Modifies the entities position and axis by the given
 tag location
 ======================
 */
-void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName)
+qboolean CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName)
 {
 	int             i;
 	int             boneIndex;
@@ -102,7 +102,7 @@ void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * pa
 	// lerp the tag
 	boneIndex = trap_R_BoneIndex(parentModel, tagName);
 	if(boneIndex == -1)
-		return;
+		return qfalse;
 
 	VectorCopy(parent->skeleton.bones[boneIndex].origin, lerped.origin);
 	QuatToAxis(parent->skeleton.bones[boneIndex].rotation, lerped.axis);

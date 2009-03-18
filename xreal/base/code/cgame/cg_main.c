@@ -1082,6 +1082,7 @@ static void CG_RegisterGraphics(void)
 	{
 		cgs.media.flagModel = trap_R_RegisterModel("models/flags/flag.md5mesh", qfalse);
 		CG_RegisterAnimation(&cgs.media.flagAnimations[FLAG_IDLE], "models/flags/flag_idle.md5anim", qtrue, qfalse, qtrue);
+		CG_RegisterAnimation(&cgs.media.flagAnimations[FLAG_RUN], "models/flags/flag_run.md5anim", qtrue, qfalse, qtrue);
 
 		cgs.media.redFlagSkin = trap_R_RegisterSkin("models/flags/flag_red.skin");
 		cgs.media.blueFlagSkin = trap_R_RegisterSkin("models/flags/flag_blue.skin");

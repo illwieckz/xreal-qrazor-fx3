@@ -584,9 +584,6 @@ typedef enum
 
 	LEGS_BACKCR,
 	LEGS_BACKWALK,
-	FLAG_RUN,
-	FLAG_STAND,
-	FLAG_STAND2RUN,
 
 	MAX_PLAYER_ANIMATIONS
 } playerAnimNumber_t;
@@ -594,7 +591,7 @@ typedef enum
 typedef enum
 {
 	FLAG_IDLE,
-	FLAG_RUNNING,
+	FLAG_RUN,
 
 	MAX_FLAG_ANIMATIONS
 } flagAnimNumber_t;

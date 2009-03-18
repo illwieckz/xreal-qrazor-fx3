@@ -1349,31 +1349,26 @@ void CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int ne
 CG_PlayerFlag
 ===============
 */
-static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso)
+static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * body)
 {
-	clientInfo_t   *ci;
 	refEntity_t     flag;
 	vec3_t          angles, dir;
 	int             legsAnim, flagAnim, updateangles;
 	float           angle, d;
 	vec3_t          axis[3];
-
-	VectorCopy(cent->lerpAngles, angles);
-	angles[PITCH] = 0;
-	angles[ROLL] = 0;
-	AnglesToAxis(angles, axis);
+	matrix_t		matrix;
+	int				boneIndex;
 
 	// show the flag model
 	memset(&flag, 0, sizeof(flag));
 	flag.hModel = cgs.media.flagModel;
 	flag.customSkin = hSkin;
-	VectorCopy(torso->lightingOrigin, flag.lightingOrigin);
-	flag.shadowPlane = torso->shadowPlane;
-	flag.renderfx = torso->renderfx;
+	VectorCopy(body->lightingOrigin, flag.lightingOrigin);
+	flag.shadowPlane = body->shadowPlane;
+	flag.renderfx = body->renderfx;
 
-	VectorMA(cent->lerpOrigin, -16, axis[0], flag.origin);
-	flag.origin[2] += 16;
-	angles[YAW] += 90;
+
+	VectorCopy(cent->lerpAngles, angles);
 	AnglesToAxis(angles, flag.axis);
 
 	VectorClear(angles);
@@ -1381,49 +1376,19 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso
 	updateangles = qfalse;
 	legsAnim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
 
-#if 0
-	if(legsAnim == LEGS_IDLE || legsAnim == LEGS_IDLECR)
-	{
-		flagAnim = FLAG_IDLE;
-	}
-	else if(legsAnim == LEGS_WALK || legsAnim == LEGS_WALKCR)
-	{
-		flagAnim = FLAG_STAND;
-		updateangles = qtrue;
-	}
-	else
+	if(legsAnim == LEGS_RUN)
 	{
 		flagAnim = FLAG_RUN;
 		updateangles = qtrue;
 	}
-#else
-	flagAnim = FLAG_IDLE;
-#endif
-
-	/*
-	if(cgs.media.flagAnimation.handle)
+	else
 	{
-		// HACK: just lerp
-		static int frame;
-
-		if(!trap_R_BuildSkeleton(&flag.skeleton, cgs.media.flagIdleAnimation.handle,
-										 cg.testModelEntity.oldframe,
-										 cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
-		{
-			CG_Printf("CG_PlayerFlag: can't build idle animation\n");
-		}
+		flagAnim = FLAG_IDLE;
 	}
-	*/
 
-	CG_RunLerpFrame(&cent->pe.flag, cgs.media.flagAnimations, MAX_FLAG_ANIMATIONS, flagAnim, 1);
-
-	memcpy(&flag.skeleton, &cent->pe.flag.skeleton, sizeof(refSkeleton_t));
-
-	// transform relative bones to absolute ones required for vertex skinning
-	CG_TransformSkeleton(&flag.skeleton, NULL);
-
-#if 0
-	if(updateangles)
+#if 1
+	boneIndex = trap_R_BoneIndex(body->hModel, "tag_flag");
+	if(updateangles && boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
 		VectorCopy(cent->currentState.pos.trDelta, dir);
 
@@ -1432,7 +1397,7 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso
 		VectorNormalize(dir);
 		d = DotProduct(flag.axis[2], dir);
 
-		// if there is anough movement orthogonal to the flag pole
+		// if there is enough movement orthogonal to the flag pole
 		if(fabs(d) < 0.9)
 		{
 			//
@@ -1489,18 +1454,61 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso
 
 	// set the yaw angle
 	angles[YAW] = cent->pe.flag.yawAngle;
+#endif
 
 	// lerp the flag animation frames
-	ci = &cgs.clientinfo[cent->currentState.clientNum];
-	CG_RunLerpFrame(ci, &cent->pe.flag, flagAnim, 1);
+	CG_RunLerpFrame(&cent->pe.flag, cgs.media.flagAnimations, MAX_FLAG_ANIMATIONS, flagAnim, 1.0f);
 
-	flag.oldframe = cent->pe.flag.oldFrame;
-	flag.frame = cent->pe.flag.frame;
-	flag.backlerp = cent->pe.flag.backlerp;
+	memcpy(&flag.skeleton, &cent->pe.flag.skeleton, sizeof(refSkeleton_t));
+
+	// transform relative bones to absolute ones required for vertex skinning
+	CG_TransformSkeleton(&flag.skeleton, NULL);
+
+#if 1
+	// FIXME: the flag is rotated because of the old CG_TrailItem code
+	angles[YAW] += 90;
+#endif
 
 	AnglesToAxis(angles, flag.axis);
-//	CG_PositionRotatedEntityOnTag(&flag, &pole, pole.hModel, "tag_flag");
-#endif
+
+	if(!CG_PositionRotatedEntityOnBone(&flag, body, body->hModel, "tag_flag"))
+	{
+		// HACK: support the shina model as it misses a tag_flag bone
+		boneIndex = trap_R_BoneIndex(body->hModel, "upper_torso");
+		if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
+		{
+			matrix_t	bodyToBone, inverse;
+
+			MatrixSetupTransformFromQuat(bodyToBone, body->skeleton.bones[boneIndex].rotation, body->skeleton.bones[boneIndex].origin);
+			MatrixAffineInverse(bodyToBone, inverse);
+
+			MatrixMultiplyRotation(inverse, angles[PITCH], angles[YAW], angles[ROLL]);
+			MatrixToVectorsFLU(inverse, flag.axis[0], flag.axis[1], flag.axis[2]);
+
+			angles[ROLL] += 90;
+			angles[YAW] += 90;
+			AnglesToAxis(angles, flag.axis);
+
+			CG_PositionRotatedEntityOnBone(&flag, body, body->hModel, "upper_torso");
+
+			// move flag behind shina
+			VectorCopy(cent->lerpAngles, angles);
+			AnglesToAxis(angles, axis);
+			VectorMA(flag.origin, -8, axis[0], flag.origin);
+		}
+		else
+		{
+			VectorCopy(cent->lerpAngles, angles);
+			//angles[PITCH] = 0;
+			//angles[ROLL] = 0;
+			AnglesToAxis(angles, axis);
+
+			VectorMA(cent->lerpOrigin, -8, axis[0], flag.origin);
+			flag.origin[2] += 16;
+			angles[YAW] += 90;
+			AnglesToAxis(angles, flag.axis);
+		}
+	}
 
 	trap_R_AddRefEntityToScene(&flag);
 }
