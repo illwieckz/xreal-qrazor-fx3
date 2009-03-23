@@ -6542,33 +6542,14 @@ static void RB_RenderDebugUtils()
 
 						// calculate the xyz locations for the four corners
 						radius = 0.4;
-						if(ent->e.rotation == 0)
-						{
-							VectorScale(backEnd.viewParms.or.axis[1], radius, left);
-							VectorScale(backEnd.viewParms.or.axis[2], radius, up);
-						}
-						else
-						{
-							float           s, c;
-							float           ang;
-
-							ang = M_PI * ent->e.rotation / 180;
-							s = sin(ang);
-							c = cos(ang);
-
-							VectorScale(backEnd.viewParms.or.axis[1], c * radius, left);
-							VectorMA(left, -s * radius, backEnd.viewParms.or.axis[2], left);
-
-							VectorScale(backEnd.viewParms.or.axis[2], c * radius, up);
-							VectorMA(up, s * radius, backEnd.viewParms.or.axis[1], up);
-						}
+						VectorScale(backEnd.viewParms.or.axis[1], radius, left);
+						VectorScale(backEnd.viewParms.or.axis[2], radius, up);
 
 						if(backEnd.viewParms.isMirror)
 						{
 							VectorSubtract(vec3_origin, left, left);
 						}
 
-						//Tess_Begin(Tess_StageIteratorGeneric, tr.charsetShader, NULL, qtrue, qfalse, -1);
 						for(k = 0; k < strlen(skel->bones[j].name); k++)
 						{
 							int				ch;
@@ -6591,8 +6572,7 @@ static void RB_RenderDebugUtils()
 							fcol = col * 0.0625;
 							size = 0.0625;
 
-
-							VectorMA(worldOrigins[j], -(k + 1.5), left, origin);
+							VectorMA(worldOrigins[j], -(k + 2.0f), left, origin);
 							Tess_AddQuadStampExt(origin, left, up, colorWhite, fcol, frow, fcol + size, frow + size);
 						}
 
@@ -6991,8 +6971,8 @@ static void RB_RenderView(void)
 		GL_CheckErrors();
 
 		// draw everything that is opaque
-		//R_BindFBO(tr.deferredRenderFBO);
-		//RB_RenderDrawSurfaces(qtrue, qtrue);
+		R_BindFBO(tr.deferredRenderFBO);
+		RB_RenderDrawSurfaces(qtrue, qfalse);
 
 		RB_RenderDrawSurfacesIntoGeometricBuffer();
 

@@ -4378,8 +4378,10 @@ void Tess_StageIteratorGBuffer()
 		{
 			case ST_COLORMAP:
 			{
+#if 0
 				R_BindFBO(tr.deferredRenderFBO);
 				Render_genericSingle(stage);
+#endif
 
 #if 1
 				if(tess.surfaceShader->sort <= SS_OPAQUE && !(pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)))
@@ -4395,7 +4397,7 @@ void Tess_StageIteratorGBuffer()
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:
 			{
-#if 1
+#if 0
 				R_BindFBO(tr.deferredRenderFBO);
 				if(r_precomputedLighting->integer || r_vertexLighting->integer)
 				{
@@ -4430,6 +4432,7 @@ void Tess_StageIteratorGBuffer()
 				break;
 			}
 
+#if 0
 			case ST_COLLAPSE_reflection_CB:
 			{
 				R_BindFBO(tr.deferredRenderFBO);
@@ -4492,6 +4495,7 @@ void Tess_StageIteratorGBuffer()
 				Render_liquid(stage);
 				break;
 			}
+#endif
 
 			default:
 				break;
