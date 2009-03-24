@@ -1126,7 +1126,7 @@ void FireWeapon2(gentity_t * ent)
 			break;
 
 		case WP_ROCKET_LAUNCHER:
-			Weapon_RocketLauncher_FireHomingMissile(ent);
+			//Weapon_RocketLauncher_FireHomingMissile(ent);
 			break;
 
 		case WP_RAILGUN:

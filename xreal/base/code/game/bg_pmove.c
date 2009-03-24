@@ -2593,7 +2593,7 @@ static void PM_Weapon(void)
 		{
 			//case WP_GAUNTLET:
 			case WP_FLAK_CANNON:
-			case WP_ROCKET_LAUNCHER:
+			//case WP_ROCKET_LAUNCHER:
 			case WP_RAILGUN:
 				break;
 
