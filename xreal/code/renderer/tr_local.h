@@ -886,10 +886,16 @@ typedef struct shaderProgram_s
 	GLint           u_ShadowMap;
 
 	GLint           u_ColorTextureMatrix;
+	matrix_t		t_ColorTextureMatrix;
+
 	GLint           u_DiffuseTextureMatrix;
+	matrix_t		t_DiffuseTextureMatrix;
+
 	GLint           u_NormalTextureMatrix;
+	matrix_t		t_NormalTextureMatrix;
+
 	GLint           u_SpecularTextureMatrix;
-	GLint           u_LightTextureMatrix;
+	matrix_t		t_SpecularTextureMatrix;
 
 	GLint           u_AlphaTest;
 
@@ -946,7 +952,9 @@ typedef struct shaderProgram_s
 	GLint           u_ModelViewMatrixTranspose;
 	GLint           u_ProjectionMatrix;
 	GLint           u_ProjectionMatrixTranspose;
+
 	GLint           u_ModelViewProjectionMatrix;
+	matrix_t		t_ModelViewProjectionMatrix;
 
 	GLint           u_UnprojectMatrix;
 	GLint           u_ProjectMatrix;
@@ -954,6 +962,59 @@ typedef struct shaderProgram_s
 	GLint           u_VertexSkinning;
 	GLint           u_BoneMatrix;
 } shaderProgram_t;
+
+//
+// Tr3B: these are firewall functions to avoid expensive redundant glUniform* calls
+static ID_INLINE void GLSL_SetUniform_ModelProjectionMatrix(shaderProgram_t * program, const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(program->t_ModelViewProjectionMatrix, m))
+		return;
+#endif
+
+	qglUniformMatrix4fvARB(program->u_ModelViewProjectionMatrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_ColorTextureMatrix(shaderProgram_t * program, const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(program->t_ColorTextureMatrix, m))
+		return;
+#endif
+
+	qglUniformMatrix4fvARB(program->u_ColorTextureMatrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_DiffuseTextureMatrix(shaderProgram_t * program, const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(program->t_DiffuseTextureMatrix, m))
+		return;
+#endif
+
+	qglUniformMatrix4fvARB(program->u_DiffuseTextureMatrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_NormalTextureMatrix(shaderProgram_t * program, const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(program->t_NormalTextureMatrix, m))
+		return;
+#endif
+
+	qglUniformMatrix4fvARB(program->u_NormalTextureMatrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_SpecularTextureMatrix(shaderProgram_t * program, const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(program->t_SpecularTextureMatrix, m))
+		return;
+#endif
+
+	qglUniformMatrix4fvARB(program->u_SpecularTextureMatrix, 1, GL_FALSE, m);
+}
+
 
 
 // trRefdef_t holds everything that comes in refdef_t,
