@@ -898,8 +898,10 @@ typedef struct shaderProgram_s
 	matrix_t		t_SpecularTextureMatrix;
 
 	GLint           u_AlphaTest;
+	float			t_AlphaTest;
 
 	GLint           u_ViewOrigin;
+	vec3_t			t_ViewOrigin;
 
 	GLint           u_Color;
 	GLint           u_InverseVertexColor;
@@ -1014,6 +1016,24 @@ static ID_INLINE void GLSL_SetUniform_SpecularTextureMatrix(shaderProgram_t * pr
 
 	qglUniformMatrix4fvARB(program->u_SpecularTextureMatrix, 1, GL_FALSE, m);
 }
+
+
+static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, float value)
+{
+	if(program->t_AlphaTest == value)
+		return;
+
+	qglUniform1fARB(program->u_AlphaTest, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_ViewOrigin(shaderProgram_t * program, const vec3_t viewOrigin)
+{
+	if(VectorCompare(program->t_ViewOrigin, viewOrigin))
+		return;
+
+	qglUniform3fARB(program->u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+}
+
 
 
 

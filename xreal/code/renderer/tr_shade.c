@@ -117,7 +117,6 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 	{
 		static char     bufferExtra[32000];
-		static char     line[MAX_STRING_CHARS];
 		int             sizeExtra;
 
 		char           *bufferFinal = NULL;
@@ -497,7 +496,8 @@ static void GLSL_ValidateProgram(GLhandleARB program)
 
 static void GLSL_ShowProgramUniforms(GLhandleARB program)
 {
-	int             i, count, size, type;
+	int             i, count, size;
+	GLenum			type;
 	char            uniformName[1000];
 
 	// install the executables in the program object as part of current state.
@@ -2064,7 +2064,7 @@ static void DrawTris()
 		if(tess.vboVertexSkinning)
 			qglUniformMatrix4fvARB(tr.genericSingleShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
-	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -2197,7 +2197,7 @@ static void Render_genericSingle(int stage)
 	{
 		alphaTest = -1.0;
 	}
-	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, alphaTest);
 
 	qglUniform1iARB(tr.genericSingleShader.u_PortalClipping, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
@@ -2248,7 +2248,8 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	VectorCopy(backEnd.currentEntity->lightDir, lightDir);
 
 	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_AmbientColor, ambientColor[0], ambientColor[1], ambientColor[2]);
-	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+
+	GLSL_SetUniform_ViewOrigin(&tr.vertexLightingShader_DBS_entity, viewOrigin);
 	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
 	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
@@ -2271,7 +2272,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	{
 		alphaTest = -1.0;
 	}
-	qglUniform1fARB(tr.vertexLightingShader_DBS_entity.u_AlphaTest, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.vertexLightingShader_DBS_entity, alphaTest);
 
 	if(r_parallaxMapping->integer)
 	{
@@ -2363,7 +2364,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
 
 //	qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_InverseVertexColor, pStage->inverseVertexColor);
-	qglUniform3fARB(tr.vertexLightingShader_DBS_world.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	GLSL_SetUniform_ViewOrigin(&tr.vertexLightingShader_DBS_world, viewOrigin);
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_world.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
@@ -2375,7 +2376,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 	{
 		alphaTest = -1.0;
 	}
-	qglUniform1fARB(tr.vertexLightingShader_DBS_world.u_AlphaTest, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.vertexLightingShader_DBS_world, alphaTest);
 
 	if(r_parallaxMapping->integer)
 	{
@@ -2464,7 +2465,7 @@ static void Render_lightMapping(int stage)
 	{
 		alphaTest = -1.0;
 	}
-	qglUniform1fARB(tr.lightMappingShader.u_AlphaTest, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.lightMappingShader, alphaTest);
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -2499,7 +2500,7 @@ static void Render_deluxeMapping(int stage)
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 
-	qglUniform3fARB(tr.deluxeMappingShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	GLSL_SetUniform_ViewOrigin(&tr.deluxeMappingShader, viewOrigin);
 	qglUniformMatrix4fvARB(tr.deluxeMappingShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.deluxeMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -2512,7 +2513,7 @@ static void Render_deluxeMapping(int stage)
 	{
 		alphaTest = -1.0;
 	}
-	qglUniform1fARB(tr.deluxeMappingShader.u_AlphaTest, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.deluxeMappingShader, alphaTest);
 
 	if(r_parallaxMapping->integer)
 	{
@@ -2630,8 +2631,8 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 		VectorClear(ambientColor);
 	}
 
-	qglUniform1fARB(tr.geometricFillShader_DBS.u_AlphaTest, alphaTest);
-	qglUniform3fARB(tr.geometricFillShader_DBS.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	GLSL_SetUniform_AlphaTest(&tr.geometricFillShader_DBS, alphaTest);
+	GLSL_SetUniform_ViewOrigin(&tr.geometricFillShader_DBS, viewOrigin);
 	qglUniform3fARB(tr.geometricFillShader_DBS.u_AmbientColor, ambientColor[0], ambientColor[1], ambientColor[2]);
 	qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_ModelViewMatrix, 1, GL_FALSE,
@@ -2753,7 +2754,7 @@ static void Render_depthFill(int stage)
 	{
 		alphaTest = -1.0;
 	}
-	qglUniform1fARB(tr.depthFillShader.u_AlphaTest, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.depthFillShader, alphaTest);
 
 	if(r_precomputedLighting->integer)
 	{
@@ -2826,9 +2827,10 @@ static void Render_shadowFill(int stage)
 	{
 		alphaTest = -1.0;
 	}
+	GLSL_SetUniform_AlphaTest(&tr.shadowFillShader, alphaTest);
+
 	VectorCopy(backEnd.currentLight->origin, lightOrigin);	// in world space
 
-	qglUniform1fARB(tr.shadowFillShader.u_AlphaTest, alphaTest);
 	qglUniform1fARB(tr.shadowFillShader.u_LightRadius, backEnd.currentLight->sphereRadius);
 	qglUniform3fARB(tr.shadowFillShader.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniformMatrix4fvARB(tr.shadowFillShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
@@ -2897,7 +2899,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	else
 		shadowTexelSize = 1.0f;
 
-	qglUniform3fARB(tr.forwardLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	GLSL_SetUniform_ViewOrigin(&tr.forwardLightingShader_DBS_omni, viewOrigin);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_InverseVertexColor, diffuseStage->inverseVertexColor);
 	qglUniform3fARB(tr.forwardLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.forwardLightingShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
@@ -3028,7 +3030,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	else
 		shadowTexelSize = 1.0f;
 
-	qglUniform3fARB(tr.forwardLightingShader_DBS_proj.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	GLSL_SetUniform_ViewOrigin(&tr.forwardLightingShader_DBS_proj, viewOrigin);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_InverseVertexColor, diffuseStage->inverseVertexColor);
 	qglUniform3fARB(tr.forwardLightingShader_DBS_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.forwardLightingShader_DBS_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
@@ -3138,7 +3140,7 @@ static void Render_reflection_C(int stage)
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
-	qglUniform3fARB(tr.reflectionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	GLSL_SetUniform_ViewOrigin(&tr.reflectionShader_C, viewOrigin);
 	qglUniformMatrix4fvARB(tr.reflectionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.reflectionShader_C.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -3174,7 +3176,7 @@ static void Render_reflection_CB(int stage)
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
-	qglUniform3fARB(tr.reflectionShader_CB.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	GLSL_SetUniform_ViewOrigin(&tr.reflectionShader_CB, viewOrigin);
 	qglUniformMatrix4fvARB(tr.reflectionShader_CB.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.reflectionShader_CB.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -3226,7 +3228,7 @@ static void Render_refraction_C(int stage)
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
-	qglUniform3fARB(tr.refractionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	GLSL_SetUniform_ViewOrigin(&tr.refractionShader_C, viewOrigin);
 	qglUniform1fARB(tr.refractionShader_C.u_RefractionIndex, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
@@ -3271,7 +3273,7 @@ static void Render_dispersion_C(int stage)
 	eta = RB_EvalExpression(&pStage->etaExp, (float)1.1);
 	etaDelta = RB_EvalExpression(&pStage->etaDeltaExp, (float)-0.02);
 
-	qglUniform3fARB(tr.dispersionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	GLSL_SetUniform_ViewOrigin(&tr.dispersionShader_C, viewOrigin);
 	qglUniform3fARB(tr.dispersionShader_C.u_EtaRatio, eta, eta + etaDelta, eta + (etaDelta * 2));
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0f));
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0f));
@@ -3311,7 +3313,8 @@ static void Render_skybox(int stage)
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
-	qglUniform3fARB(tr.skyBoxShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+
+	GLSL_SetUniform_ViewOrigin(&tr.skyBoxShader, viewOrigin);
 	qglUniformMatrix4fvARB(tr.skyBoxShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.skyBoxShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -3506,10 +3509,10 @@ static void Render_heatHaze(int stage)
 	{
 		alphaTest = -1.0;
 	}
+	GLSL_SetUniform_AlphaTest(&tr.heatHazeShader, alphaTest);
 
 	deformMagnitude = RB_EvalExpression(&pStage->deformMagnitudeExp, 1.0);
 
-	qglUniform1fARB(tr.heatHazeShader.u_AlphaTest, alphaTest);
 	qglUniform1fARB(tr.heatHazeShader.u_DeformMagnitude, deformMagnitude);
 
 	qglUniformMatrix4fvARB(tr.heatHazeShader.u_ModelViewMatrixTranspose, 1, GL_TRUE, glState.modelViewMatrix[glState.stackIndex]);
@@ -3583,7 +3586,7 @@ static void Render_liquid(int stage)
 	fogDensity = RB_EvalExpression(&pStage->fogDensityExp, 0.001);
 	VectorCopy(tess.svars.color, fogColor);
 
-	qglUniform3fARB(tr.liquidShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	GLSL_SetUniform_ViewOrigin(&tr.liquidShader, viewOrigin);
 	qglUniform1fARB(tr.liquidShader.u_RefractionIndex, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
 	qglUniform1fARB(tr.liquidShader.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
 	qglUniform1fARB(tr.liquidShader.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 1.0));
@@ -3756,7 +3759,7 @@ static void Render_volumetricFog()
 		qglUniformMatrix4fvARB(tr.volumetricFogShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 									   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-		qglUniform3fARB(tr.volumetricFogShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+		GLSL_SetUniform_ViewOrigin(&tr.volumetricFogShader, viewOrigin);
 		qglUniform1fARB(tr.volumetricFogShader.u_FogDensity, fogDensity);
 		qglUniform3fARB(tr.volumetricFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
 		qglUniformMatrix4fvARB(tr.volumetricFogShader.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);

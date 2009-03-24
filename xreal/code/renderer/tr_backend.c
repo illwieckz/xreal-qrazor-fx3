@@ -949,7 +949,7 @@ static void Render_lightVolume(trRefLight_t * light)
 			VectorCopy(light->origin, lightOrigin);
 			VectorCopy(tess.svars.color, lightColor);
 
-			qglUniform3fARB(tr.lightVolumeShader_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+			GLSL_SetUniform_ViewOrigin(&tr.lightVolumeShader, viewOrigin);
 			qglUniform3fARB(tr.lightVolumeShader_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 			qglUniform3fARB(tr.lightVolumeShader_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 			qglUniform1fARB(tr.lightVolumeShader_omni.u_LightRadius, light->sphereRadius);
@@ -2744,8 +2744,7 @@ void RB_RenderInteractionsDeferred()
 						VectorCopy(tess.svars.color, lightColor);
 
 
-						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1],
-										viewOrigin[2]);
+						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_omni, viewOrigin);
 						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1],
 										lightOrigin[2]);
 						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1],
@@ -2823,8 +2822,7 @@ void RB_RenderInteractionsDeferred()
 						VectorCopy(light->origin, lightOrigin);
 						VectorCopy(tess.svars.color, lightColor);
 
-						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_ViewOrigin, viewOrigin[0], viewOrigin[1],
-										viewOrigin[2]);
+						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_proj, viewOrigin);
 						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1],
 										lightOrigin[2]);
 						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightColor, lightColor[0], lightColor[1],
@@ -3345,8 +3343,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						VectorCopy(tess.svars.color, lightColor);
 						shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
 
-						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1],
-										viewOrigin[2]);
+						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_omni, viewOrigin);
 						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1],
 										lightOrigin[2]);
 						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1],
@@ -3507,8 +3504,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							VectorCopy(tess.svars.color, lightColor);
 							shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
 
-							qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_ViewOrigin, viewOrigin[0], viewOrigin[1],
-											viewOrigin[2]);
+							GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_proj, viewOrigin);
 							qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1],
 											lightOrigin[2]);
 							qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightColor, lightColor[0], lightColor[1],
@@ -4914,7 +4910,7 @@ void RB_RenderUniformFog()
 		VectorCopy(tr.fogColor, fogColor);
 	}
 
-	qglUniform3fARB(tr.uniformFogShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	GLSL_SetUniform_ViewOrigin(&tr.uniformFogShader, viewOrigin);
 	qglUniform1fARB(tr.uniformFogShader.u_FogDensity, fogDensity);
 	qglUniform3fARB(tr.uniformFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
 	qglUniformMatrix4fvARB(tr.uniformFogShader.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
@@ -5506,7 +5502,7 @@ void RB_RenderLightOcclusionQueries()
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 		}
-		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -5917,7 +5913,7 @@ static void RB_RenderDebugUtils()
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 		}
-		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -6300,7 +6296,7 @@ static void RB_RenderDebugUtils()
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 		}
-		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -6404,7 +6400,7 @@ static void RB_RenderDebugUtils()
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 		}
-		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -6610,7 +6606,7 @@ static void RB_RenderDebugUtils()
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 		}
-		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -6724,7 +6720,7 @@ static void RB_RenderDebugUtils()
 
 		// set uniforms
 		VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
-		qglUniform3fARB(tr.reflectionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+		GLSL_SetUniform_ViewOrigin(&tr.reflectionShader_C, viewOrigin);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			qglUniform1iARB(tr.reflectionShader_C.u_VertexSkinning, tess.vboVertexSkinning);
@@ -7443,7 +7439,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	{
 		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 	}
-	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
@@ -7817,7 +7813,7 @@ void RB_ShowImages(void)
 	{
 		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 	}
-	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 	GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
 
 	GL_SelectTexture(0);
