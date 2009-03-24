@@ -319,16 +319,8 @@ void           *Hunk_AllocDebug(int size, ha_pref preference, char *label, char 
 void           *Hunk_Alloc(int size, ha_pref preference);
 #endif
 
-#if defined(__GNUC__)
-// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=371
-// custom Snd_Memset implementation for glibc memset bug workaround
-void            Snd_Memset(void *dest, const int val, const size_t count);
-#else
-#define Snd_Memset Com_Memset
-#endif
-
-#define Com_Memset memset
-#define Com_Memcpy memcpy
+void			Com_Memcpy(void *dest, const void *src, const size_t count);
+void			Com_Memset(void *dest, const int val, const size_t count);
 
 #define Com_Allocate malloc
 #define Com_Dealloc free
