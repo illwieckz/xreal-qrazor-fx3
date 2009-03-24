@@ -1567,8 +1567,7 @@ static void RB_RenderInteractionsStencilShadowed()
 			if(drawShadows && !light->l.noShadows)
 			{
 				// set uniform parameter u_LightOrigin for GLSL shader
-				qglUniform3fARB(tr.shadowExtrudeShader.u_LightOrigin, light->transformed[0], light->transformed[1],
-								light->transformed[2]);
+				GLSL_SetUniform_LightOrigin(&tr.shadowExtrudeShader, light->transformed);
 			}
 
 			// build the attenuation matrix using the entity transform
@@ -2745,21 +2744,18 @@ void RB_RenderInteractionsDeferred()
 
 
 						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_omni, viewOrigin);
-						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1],
-										lightOrigin[2]);
-						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1],
-										lightColor[2]);
-						qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightRadius, light->sphereRadius);
-						qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
-											   light->attenuationMatrix2);
+						GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_omni, lightOrigin);
+						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_omni, lightColor);
+						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_omni, light->sphereRadius);
+						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_omni, r_lightScale->value);
+						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_omni, light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 											   glState.modelViewProjectionMatrix[glState.stackIndex]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
-						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_PortalClipping, backEnd.viewParms.isPortal);
+						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.isPortal);
 						if(backEnd.viewParms.isPortal)
 						{
 							float           plane[4];
@@ -2770,7 +2766,7 @@ void RB_RenderInteractionsDeferred()
 							plane[2] = backEnd.viewParms.portalPlane.normal[2];
 							plane[3] = backEnd.viewParms.portalPlane.dist;
 
-							qglUniform4fARB(tr.deferredLightingShader_DBS_omni.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_omni, plane);
 						}
 
 						// bind u_DiffuseMap
@@ -2823,21 +2819,18 @@ void RB_RenderInteractionsDeferred()
 						VectorCopy(tess.svars.color, lightColor);
 
 						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_proj, viewOrigin);
-						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1],
-										lightOrigin[2]);
-						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightColor, lightColor[0], lightColor[1],
-										lightColor[2]);
-						qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightRadius, light->sphereRadius);
-						qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightScale, r_lightScale->value);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
-											   light->attenuationMatrix2);
+						GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_proj, lightOrigin);
+						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_proj, lightColor);
+						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_proj, light->sphereRadius);
+						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_proj, r_lightScale->value);
+						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 											   glState.modelViewProjectionMatrix[glState.stackIndex]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
-						qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_PortalClipping, backEnd.viewParms.isPortal);
+						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.isPortal);
 						if(backEnd.viewParms.isPortal)
 						{
 							float           plane[4];
@@ -2848,7 +2841,7 @@ void RB_RenderInteractionsDeferred()
 							plane[2] = backEnd.viewParms.portalPlane.normal[2];
 							plane[3] = backEnd.viewParms.portalPlane.dist;
 
-							qglUniform4fARB(tr.deferredLightingShader_DBS_proj.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_proj, plane);
 						}
 
 						// bind u_DiffuseMap
@@ -3344,22 +3337,19 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
 
 						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_omni, viewOrigin);
-						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1],
-										lightOrigin[2]);
-						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1],
-										lightColor[2]);
-						qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightRadius, light->sphereRadius);
-						qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
-											   light->attenuationMatrix2);
+						GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_omni, lightOrigin);
+						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_omni, lightColor);
+						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_omni, light->sphereRadius);
+						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_omni, r_lightScale->value);
+						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_omni, light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
-						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowCompare, shadowCompare);
+						GLSL_SetUniform_ShadowCompare(&tr.deferredLightingShader_DBS_omni, shadowCompare);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 											   glState.modelViewProjectionMatrix[glState.stackIndex]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
-						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_PortalClipping, backEnd.viewParms.isPortal);
+						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.isPortal);
 						if(backEnd.viewParms.isPortal)
 						{
 							float           plane[4];
@@ -3370,7 +3360,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							plane[2] = backEnd.viewParms.portalPlane.normal[2];
 							plane[3] = backEnd.viewParms.portalPlane.dist;
 
-							qglUniform4fARB(tr.deferredLightingShader_DBS_omni.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_omni, plane);
 						}
 
 						// bind u_DiffuseMap
@@ -3432,23 +3422,19 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							VectorCopy(tess.svars.color, lightColor);
 							shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
 
-							qglUniform3fARB(tr.deferredShadowingShader_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1],
-											lightOrigin[2]);
-							qglUniform3fARB(tr.deferredShadowingShader_proj.u_LightColor, lightColor[0], lightColor[1],
-											lightColor[2]);
-							qglUniform1fARB(tr.deferredShadowingShader_proj.u_LightRadius, light->sphereRadius);
-							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
-												   light->attenuationMatrix2);
+							GLSL_SetUniform_LightOrigin(&tr.deferredShadowingShader_proj, lightOrigin);
+							GLSL_SetUniform_LightColor(&tr.deferredShadowingShader_proj, lightColor);
+							GLSL_SetUniform_LightRadius(&tr.deferredShadowingShader_proj, light->sphereRadius);
+							GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix2);
 							qglUniform4fvARB(tr.deferredShadowingShader_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ShadowMatrix, 1, GL_FALSE,
-												   light->attenuationMatrix);
-							qglUniform1iARB(tr.deferredShadowingShader_proj.u_ShadowCompare, shadowCompare);
+							GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix);
+							GLSL_SetUniform_ShadowCompare(&tr.deferredShadowingShader_proj, shadowCompare);
 							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 												   glState.modelViewProjectionMatrix[glState.stackIndex]);
 							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_UnprojectMatrix, 1, GL_FALSE,
 												   backEnd.viewParms.unprojectionMatrix);
 
-							qglUniform1iARB(tr.deferredShadowingShader_proj.u_PortalClipping, backEnd.viewParms.isPortal);
+							GLSL_SetUniform_PortalClipping(&tr.deferredShadowingShader_proj, backEnd.viewParms.isPortal);
 							if(backEnd.viewParms.isPortal)
 							{
 								float           plane[4];
@@ -3459,7 +3445,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 								plane[2] = backEnd.viewParms.portalPlane.normal[2];
 								plane[3] = backEnd.viewParms.portalPlane.dist;
 
-								qglUniform4fARB(tr.deferredShadowingShader_proj.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+								GLSL_SetUniform_PortalPlane(&tr.deferredShadowingShader_proj, plane);
 							}
 
 							// bind u_DepthMap
@@ -3505,24 +3491,20 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
 
 							GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_proj, viewOrigin);
-							qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1],
-											lightOrigin[2]);
-							qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightColor, lightColor[0], lightColor[1],
-											lightColor[2]);
-							qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightRadius, light->sphereRadius);
-							qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightScale, r_lightScale->value);
-							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
-												   light->attenuationMatrix2);
+							GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_proj, lightOrigin);
+							GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_proj, lightColor);
+							GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_proj, light->sphereRadius);
+							GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_proj, r_lightScale->value);
+							GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix2);
 							qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ShadowMatrix, 1, GL_FALSE,
-												   light->attenuationMatrix);
-							qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
+							GLSL_SetUniform_ShadowMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix);
+							GLSL_SetUniform_ShadowCompare(&tr.deferredLightingShader_DBS_proj, shadowCompare);
 							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 												   glState.modelViewProjectionMatrix[glState.stackIndex]);
 							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
 												   backEnd.viewParms.unprojectionMatrix);
 
-							qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_PortalClipping, backEnd.viewParms.isPortal);
+							GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.isPortal);
 							if(backEnd.viewParms.isPortal)
 							{
 								float           plane[4];
@@ -3533,7 +3515,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 								plane[2] = backEnd.viewParms.portalPlane.normal[2];
 								plane[3] = backEnd.viewParms.portalPlane.dist;
 
-								qglUniform4fARB(tr.deferredLightingShader_DBS_proj.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+								GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_proj, plane);
 							}
 
 							// bind u_DiffuseMap
@@ -4326,23 +4308,19 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 						VectorCopy(tess.svars.color, lightColor);
 						shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
 
-						qglUniform3fARB(tr.deferredShadowingShader_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1],
-										lightOrigin[2]);
-						qglUniform3fARB(tr.deferredShadowingShader_proj.u_LightColor, lightColor[0], lightColor[1],
-										lightColor[2]);
-						qglUniform1fARB(tr.deferredShadowingShader_proj.u_LightRadius, light->sphereRadius);
-						qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
-											   light->attenuationMatrix2);
+						GLSL_SetUniform_LightOrigin(&tr.deferredShadowingShader_proj, lightOrigin);
+						GLSL_SetUniform_LightColor(&tr.deferredShadowingShader_proj, lightColor);
+						GLSL_SetUniform_LightRadius(&tr.deferredShadowingShader_proj, light->sphereRadius);
+						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredShadowingShader_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-						qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ShadowMatrix, 1, GL_FALSE,
-											   light->attenuationMatrix);
-						qglUniform1iARB(tr.deferredShadowingShader_proj.u_ShadowCompare, shadowCompare);
+						GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix);
+						GLSL_SetUniform_ShadowCompare(&tr.deferredShadowingShader_proj, shadowCompare);
 						qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 											   glState.modelViewProjectionMatrix[glState.stackIndex]);
 						qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
-						qglUniform1iARB(tr.deferredShadowingShader_proj.u_PortalClipping, backEnd.viewParms.isPortal);
+						GLSL_SetUniform_PortalClipping(&tr.deferredShadowingShader_proj, backEnd.viewParms.isPortal);
 						if(backEnd.viewParms.isPortal)
 						{
 							float           plane[4];
@@ -4353,7 +4331,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 							plane[2] = backEnd.viewParms.portalPlane.normal[2];
 							plane[3] = backEnd.viewParms.portalPlane.dist;
 
-							qglUniform4fARB(tr.deferredShadowingShader_proj.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+							GLSL_SetUniform_PortalPlane(&tr.deferredShadowingShader_proj, plane);
 						}
 
 						// bind u_DepthMap
@@ -5497,7 +5475,7 @@ void RB_RenderLightOcclusionQueries()
 		GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 
 		// set uniforms
-		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
@@ -5908,7 +5886,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
@@ -6291,7 +6269,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
@@ -6395,7 +6373,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
@@ -6601,7 +6579,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
@@ -7434,7 +7412,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD);	// | GLCS_COLOR);
 
 	// set uniforms
-	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
@@ -7808,7 +7786,7 @@ void RB_ShowImages(void)
 	GL_Cull(CT_TWO_SIDED);
 
 	// set uniforms
-	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);

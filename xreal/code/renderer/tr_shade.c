@@ -2054,7 +2054,7 @@ static void DrawTris()
 	GL_ClientState(GLCS_VERTEX);
 
 	// set uniforms
-	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 	if(glConfig.vboVertexSkinningAvailable)
@@ -2172,7 +2172,8 @@ static void Render_genericSingle(int stage)
 	}
 
 	// set uniforms
-	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, pStage->inverseVertexColor);
+	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, pStage->inverseVertexColor);
+
 	//qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewMatrix, 1, GL_FALSE, glState.modelViewMatrix[glState.stackIndex]);
 	//qglUniformMatrix4fvARB(tr.genericSingleShader.u_ProjectionMatrix, 1, GL_FALSE, glState.projectionMatrix[glState.stackIndex]);
 
@@ -2199,7 +2200,7 @@ static void Render_genericSingle(int stage)
 	}
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, alphaTest);
 
-	qglUniform1iARB(tr.genericSingleShader.u_PortalClipping, backEnd.viewParms.isPortal);
+	GLSL_SetUniform_PortalClipping(&tr.genericSingleShader, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
 	{
 		float           plane[4];
@@ -2210,7 +2211,7 @@ static void Render_genericSingle(int stage)
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-		qglUniform4fARB(tr.genericSingleShader.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+		GLSL_SetUniform_PortalPlane(&tr.genericSingleShader, plane);
 	}
 
 	// bind u_ColorMap
@@ -2228,7 +2229,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	vec3_t          viewOrigin;
 	vec3_t          ambientColor;
 	vec3_t          lightDir;
-	vec4_t          directedLight;
+	vec4_t          lightColor;
 	float           alphaTest;
 
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
@@ -2243,15 +2244,14 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
 	//ClampColor(ambientColor);
-	VectorCopy(backEnd.currentEntity->directedLight, directedLight);
+	VectorCopy(backEnd.currentEntity->directedLight, lightColor);
 	//ClampColor(directedLight);
 	VectorCopy(backEnd.currentEntity->lightDir, lightDir);
 
-	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_AmbientColor, ambientColor[0], ambientColor[1], ambientColor[2]);
-
+	GLSL_SetUniform_AmbientColor(&tr.vertexLightingShader_DBS_entity, ambientColor);
 	GLSL_SetUniform_ViewOrigin(&tr.vertexLightingShader_DBS_entity, viewOrigin);
-	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
-	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
+	GLSL_SetUniform_LightDir(&tr.vertexLightingShader_DBS_entity, lightDir);
+	GLSL_SetUniform_LightColor(&tr.vertexLightingShader_DBS_entity, lightColor);
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -2278,13 +2278,13 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	{
 		float           depthScale;
 
-		qglUniform1iARB(tr.vertexLightingShader_DBS_entity.u_ParallaxMapping, tess.surfaceShader->parallax);
+		GLSL_SetUniform_ParallaxMapping(&tr.vertexLightingShader_DBS_entity, tess.surfaceShader->parallax);
 
 		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
-		qglUniform1fARB(tr.vertexLightingShader_DBS_entity.u_DepthScale, depthScale);
+		GLSL_SetUniform_DepthScale(&tr.vertexLightingShader_DBS_entity, depthScale);
 	}
 
-	qglUniform1iARB(tr.vertexLightingShader_DBS_entity.u_PortalClipping, backEnd.viewParms.isPortal);
+	GLSL_SetUniform_PortalClipping(&tr.vertexLightingShader_DBS_entity, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
 	{
 		float           plane[4];
@@ -2295,7 +2295,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-		qglUniform4fARB(tr.vertexLightingShader_DBS_entity.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+		GLSL_SetUniform_PortalPlane(&tr.vertexLightingShader_DBS_entity, plane);
 	}
 
 	// bind u_DiffuseMap
@@ -2382,13 +2382,13 @@ static void Render_vertexLighting_DBS_world(int stage)
 	{
 		float           depthScale;
 
-		qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_ParallaxMapping, tess.surfaceShader->parallax);
+		GLSL_SetUniform_ParallaxMapping(&tr.vertexLightingShader_DBS_world, tess.surfaceShader->parallax);
 
 		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
-		qglUniform1fARB(tr.vertexLightingShader_DBS_world.u_DepthScale, depthScale);
+		GLSL_SetUniform_DepthScale(&tr.vertexLightingShader_DBS_world, depthScale);
 	}
 
-	qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_PortalClipping, backEnd.viewParms.isPortal);
+	GLSL_SetUniform_PortalClipping(&tr.vertexLightingShader_DBS_world, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
 	{
 		float           plane[4];
@@ -2399,7 +2399,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-		qglUniform4fARB(tr.vertexLightingShader_DBS_world.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+		GLSL_SetUniform_PortalPlane(&tr.vertexLightingShader_DBS_world, plane);
 	}
 
 	// bind u_DiffuseMap
@@ -2519,13 +2519,13 @@ static void Render_deluxeMapping(int stage)
 	{
 		float           depthScale;
 
-		qglUniform1iARB(tr.deluxeMappingShader.u_ParallaxMapping, tess.surfaceShader->parallax);
+		GLSL_SetUniform_ParallaxMapping(&tr.deluxeMappingShader, tess.surfaceShader->parallax);
 
 		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
-		qglUniform1fARB(tr.deluxeMappingShader.u_DepthScale, depthScale);
+		GLSL_SetUniform_DepthScale(&tr.deluxeMappingShader, depthScale);
 	}
 
-	qglUniform1iARB(tr.deluxeMappingShader.u_PortalClipping, backEnd.viewParms.isPortal);
+	GLSL_SetUniform_PortalClipping(&tr.deluxeMappingShader, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
 	{
 		float           plane[4];
@@ -2536,7 +2536,7 @@ static void Render_deluxeMapping(int stage)
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-		qglUniform4fARB(tr.deluxeMappingShader.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+		GLSL_SetUniform_PortalPlane(&tr.deluxeMappingShader, plane);
 	}
 
 	// bind u_DiffuseMap
@@ -2633,7 +2633,8 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 
 	GLSL_SetUniform_AlphaTest(&tr.geometricFillShader_DBS, alphaTest);
 	GLSL_SetUniform_ViewOrigin(&tr.geometricFillShader_DBS, viewOrigin);
-	qglUniform3fARB(tr.geometricFillShader_DBS.u_AmbientColor, ambientColor[0], ambientColor[1], ambientColor[2]);
+	GLSL_SetUniform_AmbientColor(&tr.geometricFillShader_DBS, ambientColor);
+
 	qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_ModelViewMatrix, 1, GL_FALSE,
 						   glState.modelViewMatrix[glState.stackIndex]);
@@ -2651,10 +2652,10 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	{
 		float           depthScale;
 
-		qglUniform1iARB(tr.geometricFillShader_DBS.u_ParallaxMapping, tess.surfaceShader->parallax);
+		GLSL_SetUniform_ParallaxMapping(&tr.geometricFillShader_DBS, tess.surfaceShader->parallax);
 
 		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
-		qglUniform1fARB(tr.geometricFillShader_DBS.u_DepthScale, depthScale);
+		GLSL_SetUniform_DepthScale(&tr.geometricFillShader_DBS, depthScale);
 	}
 
 	// bind u_DiffuseMap
@@ -2756,6 +2757,7 @@ static void Render_depthFill(int stage)
 	}
 	GLSL_SetUniform_AlphaTest(&tr.depthFillShader, alphaTest);
 
+
 	if(r_precomputedLighting->integer)
 	{
 		VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
@@ -2771,8 +2773,7 @@ static void Render_depthFill(int stage)
 	{
 		VectorClear(ambientColor);
 	}
-
-	qglUniform3fARB(tr.depthFillShader.u_AmbientColor, ambientColor[0], ambientColor[1], ambientColor[2]);
+	GLSL_SetUniform_AmbientColor(&tr.depthFillShader, ambientColor);
 
 	qglUniformMatrix4fvARB(tr.depthFillShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -2831,8 +2832,8 @@ static void Render_shadowFill(int stage)
 
 	VectorCopy(backEnd.currentLight->origin, lightOrigin);	// in world space
 
-	qglUniform1fARB(tr.shadowFillShader.u_LightRadius, backEnd.currentLight->sphereRadius);
-	qglUniform3fARB(tr.shadowFillShader.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
+	GLSL_SetUniform_LightRadius(&tr.shadowFillShader, backEnd.currentLight->sphereRadius);
+	GLSL_SetUniform_LightOrigin(&tr.shadowFillShader, lightOrigin);
 	qglUniformMatrix4fvARB(tr.shadowFillShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.shadowFillShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -2900,17 +2901,18 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 		shadowTexelSize = 1.0f;
 
 	GLSL_SetUniform_ViewOrigin(&tr.forwardLightingShader_DBS_omni, viewOrigin);
-	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_InverseVertexColor, diffuseStage->inverseVertexColor);
-	qglUniform3fARB(tr.forwardLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
-	qglUniform3fARB(tr.forwardLightingShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
-	qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_LightRadius, light->sphereRadius);
-	qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
-	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE, light->attenuationMatrix2);
-	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_ShadowCompare, shadowCompare);
+	GLSL_SetUniform_InverseVertexColor(&tr.forwardLightingShader_DBS_omni, diffuseStage->inverseVertexColor);
+	GLSL_SetUniform_LightOrigin(&tr.forwardLightingShader_DBS_omni, lightOrigin);
+	GLSL_SetUniform_LightColor(&tr.forwardLightingShader_DBS_omni, lightColor);
+	GLSL_SetUniform_LightRadius(&tr.forwardLightingShader_DBS_omni, light->sphereRadius);
+	GLSL_SetUniform_LightScale(&tr.forwardLightingShader_DBS_omni, r_lightScale->value);
+	GLSL_SetUniform_LightAttenuationMatrix(&tr.forwardLightingShader_DBS_omni, light->attenuationMatrix2);
+
+	GLSL_SetUniform_ShadowCompare(&tr.forwardLightingShader_DBS_omni, shadowCompare);
 	if(shadowCompare)
 	{
-		qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_ShadowTexelSize, shadowTexelSize);
-		qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_ShadowBlur, r_shadowBlur->value);
+		GLSL_SetUniform_ShadowTexelSize(&tr.forwardLightingShader_DBS_omni, shadowTexelSize);
+		GLSL_SetUniform_ShadowBlur(&tr.forwardLightingShader_DBS_omni, r_shadowBlur->value);
 	}
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE,
@@ -2923,7 +2925,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 			qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
 
-	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_PortalClipping, backEnd.viewParms.isPortal);
+	GLSL_SetUniform_PortalClipping(&tr.forwardLightingShader_DBS_omni, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
 	{
 		float           plane[4];
@@ -2934,7 +2936,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-		qglUniform4fARB(tr.forwardLightingShader_DBS_omni.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+		GLSL_SetUniform_PortalPlane(&tr.forwardLightingShader_DBS_omni, plane);
 	}
 
 	// bind u_DiffuseMap
@@ -3031,19 +3033,21 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 		shadowTexelSize = 1.0f;
 
 	GLSL_SetUniform_ViewOrigin(&tr.forwardLightingShader_DBS_proj, viewOrigin);
-	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_InverseVertexColor, diffuseStage->inverseVertexColor);
-	qglUniform3fARB(tr.forwardLightingShader_DBS_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
-	qglUniform3fARB(tr.forwardLightingShader_DBS_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
-	qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_LightRadius, light->sphereRadius);
-	qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_LightScale, r_lightScale->value);
-	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE, light->attenuationMatrix2);
-	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
+	GLSL_SetUniform_InverseVertexColor(&tr.forwardLightingShader_DBS_proj, diffuseStage->inverseVertexColor);
+	GLSL_SetUniform_LightOrigin(&tr.forwardLightingShader_DBS_proj, lightOrigin);
+	GLSL_SetUniform_LightColor(&tr.forwardLightingShader_DBS_proj, lightColor);
+	GLSL_SetUniform_LightRadius(&tr.forwardLightingShader_DBS_proj, light->sphereRadius);
+	GLSL_SetUniform_LightScale(&tr.forwardLightingShader_DBS_proj, r_lightScale->value);
+	GLSL_SetUniform_LightAttenuationMatrix(&tr.forwardLightingShader_DBS_proj, light->attenuationMatrix2);
+
+	GLSL_SetUniform_ShadowCompare(&tr.forwardLightingShader_DBS_proj, shadowCompare);
 	if(shadowCompare)
 	{
-		qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_ShadowMatrix, 1, GL_FALSE, light->attenuationMatrix);
-		qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_ShadowTexelSize, shadowTexelSize);
-		qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_ShadowBlur, r_shadowBlur->value);
+		GLSL_SetUniform_ShadowMatrix(&tr.forwardLightingShader_DBS_proj, light->attenuationMatrix);
+		GLSL_SetUniform_ShadowTexelSize(&tr.forwardLightingShader_DBS_proj, shadowTexelSize);
+		GLSL_SetUniform_ShadowBlur(&tr.forwardLightingShader_DBS_proj, r_shadowBlur->value);
 	}
+
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -3055,7 +3059,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 			qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
 
-	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_PortalClipping, backEnd.viewParms.isPortal);
+	GLSL_SetUniform_PortalClipping(&tr.forwardLightingShader_DBS_proj, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
 	{
 		float           plane[4];
@@ -3066,7 +3070,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-		qglUniform4fARB(tr.forwardLightingShader_DBS_proj.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+		GLSL_SetUniform_PortalPlane(&tr.forwardLightingShader_DBS_proj, plane);
 	}
 
 	// bind u_DiffuseMap
@@ -3229,7 +3233,7 @@ static void Render_refraction_C(int stage)
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	GLSL_SetUniform_ViewOrigin(&tr.refractionShader_C, viewOrigin);
-	qglUniform1fARB(tr.refractionShader_C.u_RefractionIndex, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
+	GLSL_SetUniform_RefractionIndex(&tr.refractionShader_C, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
@@ -3587,7 +3591,7 @@ static void Render_liquid(int stage)
 	VectorCopy(tess.svars.color, fogColor);
 
 	GLSL_SetUniform_ViewOrigin(&tr.liquidShader, viewOrigin);
-	qglUniform1fARB(tr.liquidShader.u_RefractionIndex, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
+	GLSL_SetUniform_RefractionIndex(&tr.liquidShader, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
 	qglUniform1fARB(tr.liquidShader.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
 	qglUniform1fARB(tr.liquidShader.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 1.0));
 	qglUniform1fARB(tr.liquidShader.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 0.05));

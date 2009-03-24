@@ -733,7 +733,7 @@ void RB_DrawSun(void)
 	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-	qglUniform1iARB(tr.genericSingleShader.u_PortalClipping, backEnd.viewParms.isPortal);
+	GLSL_SetUniform_PortalClipping(&tr.genericSingleShader, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
 	{
 		float           plane[4];
@@ -744,7 +744,7 @@ void RB_DrawSun(void)
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-		qglUniform4fARB(tr.genericSingleShader.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+		GLSL_SetUniform_PortalPlane(&tr.genericSingleShader, plane);
 	}
 
 
