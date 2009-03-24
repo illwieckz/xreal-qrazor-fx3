@@ -787,7 +787,7 @@ static void GLimp_InitExtensions(void)
 
 		reservedComponents = 16 * 10; // approximation how many uniforms we have besides the bone matrices
 		glConfig.maxVertexSkinningBones = (int) Q_bound(0.0, (Q_max(glConfig.maxVertexUniforms - reservedComponents, 0) / 16), MAX_BONES);
-		glConfig.vboVertexSkinningAvailable = glConfig.maxVertexSkinningBones >= 12 ? qtrue : qfalse;
+		glConfig.vboVertexSkinningAvailable = (glConfig.maxVertexSkinningBones >= 12 && glConfig.driverType != GLDRV_MESA) ? qtrue : qfalse;
 
 		qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) SDL_GL_GetProcAddress("glBindAttribLocationARB");
 		qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) SDL_GL_GetProcAddress("glGetActiveAttribARB");

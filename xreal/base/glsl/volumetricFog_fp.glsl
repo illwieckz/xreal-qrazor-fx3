@@ -54,14 +54,14 @@ void	main()
 	
 	float depthSolid = texture2D(u_DepthMap, st).r;
 	
-#if 0 //defined(GLHW_ATI_DX10) || defined(GLHW_NV_DX10)
-
-	float depthBack = texture2D(u_DepthMapBack, st).a;
-	float depthFront = texture2D(u_DepthMapFront, st).a;
-#else
+//#if 0 //defined(GLHW_ATI_DX10) || defined(GLHW_NV_DX10)
+//
+//	float depthBack = texture2D(u_DepthMapBack, st).a;
+//	float depthFront = texture2D(u_DepthMapFront, st).a;
+//#else
 	float depthBack = DecodeDepth(texture2D(u_DepthMapBack, st));
 	float depthFront = DecodeDepth(texture2D(u_DepthMapFront, st));
-#endif
+//#endif
 
 	if(depthSolid < depthFront)
 	{
@@ -76,7 +76,7 @@ void	main()
 	
 	fogDepth = depthSolid;
 	
-#if 1
+//#if 1
 	// reconstruct vertex position in world space
 	vec4 posBack = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depthBack, 1.0);
 	posBack.xyz /= posBack.w;
@@ -95,6 +95,7 @@ void	main()
 	float fogDistance = distance(posBack, posFront);
 	//float fogDistance = abs(depthBack - depthFront);
 	
+/*
 #elif 0
 	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depthBack - depthFront, 1.0);
 	P.xyz /= P.w;
@@ -104,8 +105,8 @@ void	main()
 	
 #else
 	float fogDistance = depthBack - depthFront;
-
 #endif
+*/
 	
 	// calculate fog exponent
 	float fogExponent = fogDistance * u_FogDensity;

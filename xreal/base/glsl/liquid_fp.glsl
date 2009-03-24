@@ -111,7 +111,7 @@ void	main()
 		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 	
 	mat3 worldToTangentMatrix;
-#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10)
+#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10) || defined(MESA)
 	worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
 								tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
 								tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
@@ -123,6 +123,7 @@ void	main()
 	vec2 texScreen = gl_FragCoord.st * r_FBufScale * r_NPOTScale;
 	vec2 texNormal = var_TexNormal.st;
 
+/*
 #if 0 //defined(r_ParallaxMapping)
 	//if(bool(u_ParallaxMapping))
 	{
@@ -145,6 +146,7 @@ void	main()
 		texNormal.st += texOffset;
 	}
 #endif
+*/
 	
 	// compute normals
 	vec3 N = normalize(var_Normal);
@@ -176,7 +178,8 @@ void	main()
 	//color.r = dot(I, N);
 	//color.g = dot(I, N);
 	//color.b = dot(I, N);
-	
+
+/*
 #if 0
 	if(u_FogDensity > 0.0)
 	{
@@ -197,6 +200,7 @@ void	main()
 		color.rgb = mix(u_FogColor, color.rgb, fogFactor);
 	}
 #endif
+*/
 	
 	vec3 L = normalize(var_LightDirection);
 	
