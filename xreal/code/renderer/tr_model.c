@@ -615,7 +615,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 							{
 								index = vertexesNum + tri->indexes[j];
 
-								memcpy(indexes + indexesOfs, &index, sizeof(int));
+								Com_Memcpy(indexes + indexesOfs, &index, sizeof(int));
 								indexesOfs += sizeof(int);
 							}
 
@@ -653,7 +653,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 								tmp[j] = surface->verts[i].xyz[j] * MD3_XYZ_SCALE;
 							}
 							tmp[3] = 1;
-							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+							Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 							dataOfs += sizeof(vec4_t);
 						}
 					}
@@ -679,7 +679,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 							}
 							tmp[2] = 0;
 							tmp[3] = 1;
-							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+							Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 							dataOfs += sizeof(vec4_t);
 
 						}
@@ -788,7 +788,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 						tmp[j] = tangents[i][j];
 					}
 					tmp[3] = 1;
-					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 					dataOfs += sizeof(vec4_t);
 				}
 
@@ -801,7 +801,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 						tmp[j] = binormals[i][j];
 					}
 					tmp[3] = 1;
-					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 					dataOfs += sizeof(vec4_t);
 				}
 
@@ -814,7 +814,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 						tmp[j] = normals[i][j];
 					}
 					tmp[3] = 1;
-					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 					dataOfs += sizeof(vec4_t);
 				}
 
@@ -822,7 +822,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 				ofsColors = dataOfs;
 				for(i = 0; i < vertexesNum; i++)
 				{
-					memcpy(data + dataOfs, tmpColor, sizeof(vec4_t));
+					Com_Memcpy(data + dataOfs, tmpColor, sizeof(vec4_t));
 					dataOfs += sizeof(vec4_t);
 				}
 
@@ -1143,7 +1143,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 		{
 			index = tri->indexes[k];
 
-			memcpy(indexes + indexesOfs, &index, sizeof(int));
+			Com_Memcpy(indexes + indexesOfs, &index, sizeof(int));
 			indexesOfs += sizeof(int);
 		}
 	}
@@ -1156,7 +1156,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 			tmp[k] = surf->verts[j].position[k];
 		}
 		tmp[3] = 1;
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1170,7 +1170,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 		}
 		tmp[2] = 0;
 		tmp[3] = 1;
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1183,7 +1183,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 			tmp[k] = surf->verts[j].tangent[k];
 		}
 		tmp[3] = 1;
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1196,7 +1196,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 			tmp[k] = surf->verts[j].binormal[k];
 		}
 		tmp[3] = 1;
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1209,7 +1209,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 			tmp[k] = surf->verts[j].normal[k];
 		}
 		tmp[3] = 1;
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1217,7 +1217,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 	ofsColors = dataOfs;
 	for(j = 0; j < vertexesNum; j++)
 	{
-		memcpy(data + dataOfs, tmpColor, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, tmpColor, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1232,7 +1232,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 			else
 				index = 0;
 
-			memcpy(data + dataOfs, &index, sizeof(int));
+			Com_Memcpy(data + dataOfs, &index, sizeof(int));
 			dataOfs += sizeof(int);
 		}
 	}
@@ -1248,7 +1248,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 			else
 				tmp[k] = 0;
 		}
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1378,7 +1378,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 		{
 			index = tri->indexes[k];
 
-			memcpy(indexes + indexesOfs, &index, sizeof(int));
+			Com_Memcpy(indexes + indexesOfs, &index, sizeof(int));
 			indexesOfs += sizeof(int);
 		}
 	}
@@ -1393,7 +1393,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 			tmp[k] = v->position[k];
 		}
 		tmp[3] = 1;
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1409,7 +1409,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 		}
 		tmp[2] = 0;
 		tmp[3] = 1;
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1424,7 +1424,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 			tmp[k] = v->tangent[k];
 		}
 		tmp[3] = 1;
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1439,7 +1439,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 			tmp[k] = v->binormal[k];
 		}
 		tmp[3] = 1;
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1454,7 +1454,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 			tmp[k] = v->normal[k];
 		}
 		tmp[3] = 1;
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1462,7 +1462,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 	ofsColors = dataOfs;
 	for(j = 0; j < vertexesNum; j++)
 	{
-		memcpy(data + dataOfs, tmpColor, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, tmpColor, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -1479,7 +1479,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 			else
 				index = 0;
 
-			memcpy(data + dataOfs, &index, sizeof(int));
+			Com_Memcpy(data + dataOfs, &index, sizeof(int));
 			dataOfs += sizeof(int);
 		}
 	}
@@ -1497,7 +1497,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 			else
 				tmp[k] = 0;
 		}
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 		dataOfs += sizeof(vec4_t);
 	}
 
@@ -2557,6 +2557,17 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		axWeight->weight = MemStreamGetFloat(stream);
 		axWeight->pointIndex = MemStreamGetLong(stream);
 		axWeight->boneIndex = MemStreamGetLong(stream);
+
+#if 0
+		ri.Printf(PRINT_ALL, "R_LoadPSK: axBoneWeight_t(%i):\n"
+				"axBoneWeight_t::weight: %f\n"
+				"axBoneWeight_t::pointIndex %i\n"
+				"axBoneWeight_t::boneIndex: %i\n",
+				i,
+				axWeight->weight,
+				axWeight->pointIndex,
+				axWeight->boneIndex);
+#endif
 	}
 
 
@@ -2707,7 +2718,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 		vboVert->numWeights = 0;
 		for(j = 0, axWeight = axWeights; j < numWeights; j++, axWeight++)
 		{
-			if(axWeight->pointIndex == vertex->pointIndex)
+			if(axWeight->pointIndex == vertex->pointIndex && axWeight->weight > 0.0f)
 			{
 				vboVert->numWeights++;
 			}
@@ -2715,13 +2726,14 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 
 		if(vboVert->numWeights > MAX_WEIGHTS)
 		{
-			ri.Error(ERR_DROP, "R_LoadPSK: vertex %i requires more than %i weights in model '%s'", i, MAX_WEIGHTS, modName);
+			ri.Error(ERR_DROP, "R_LoadPSK: vertex %i requires more weights %i than the maximum of %i in model '%s'", i, vboVert->numWeights, MAX_WEIGHTS, modName);
+			//ri.Printf(PRINT_WARNING, "R_LoadPSK: vertex %i requires more weights %i than the maximum of %i in model '%s'\n", i, vboVert->numWeights, MAX_WEIGHTS, modName);
 		}
 
 		vboVert->weights = ri.Hunk_Alloc(sizeof(*vboVert->weights) * vboVert->numWeights, h_low);
 		for(j = 0, axWeight = axWeights, k = 0; j < numWeights; j++, axWeight++)
 		{
-			if(axWeight->pointIndex == vertex->pointIndex)
+			if(axWeight->pointIndex == vertex->pointIndex && axWeight->weight > 0.0f)
 			{
 				weight = ri.Hunk_Alloc(sizeof(*weight), h_low);
 

@@ -1931,23 +1931,18 @@ void Tess_DrawElements()
 		//qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(glState.currentIBO->ofsIndexes));
 		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(0));
 
-		// update performance counters
-		backEnd.pc.c_drawElements++;
-		backEnd.pc.c_indexes += tess.numIndexes;
-		backEnd.pc.c_vertexes += tess.numVertexes;
-
 		backEnd.pc.c_vboVertexes += tess.numVertexes;
 		backEnd.pc.c_vboIndexes += tess.numIndexes;
 	}
 	else
 	{
 		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, tess.indexes);
-
-		// update performance counters
-		backEnd.pc.c_drawElements++;
-		backEnd.pc.c_indexes += tess.numIndexes;
-		backEnd.pc.c_vertexes += tess.numVertexes;
 	}
+
+	// update performance counters
+	backEnd.pc.c_drawElements++;
+	backEnd.pc.c_indexes += tess.numIndexes;
+	backEnd.pc.c_vertexes += tess.numVertexes;
 }
 
 
@@ -2035,10 +2030,12 @@ static void DrawTris()
 	{
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[backEnd.pc.c_batches % 8]);
 	}
+#if !defined(ALLOW_VERTEX_ARRAYS)
 	else if(glState.currentVBO == tess.vbo)
 	{
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1, 0, 0, 1);
 	}
+#endif
 	else if(glState.currentVBO)
 	{
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 0, 0, 1, 1);
@@ -5155,10 +5152,12 @@ void Tess_End()
 
 	GL_CheckErrors();
 
+#if !defined(ALLOW_VERTEX_ARRAYS)
 	if(!glState.currentVBO || !glState.currentIBO || glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
 	{
 		Tess_UpdateVBOs();
 	}
+#endif
 
 	// call off to shader specific tess end function
 	tess.stageIteratorFunc();

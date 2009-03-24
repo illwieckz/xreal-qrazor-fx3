@@ -57,6 +57,16 @@ Tess_CheckOverflow
 */
 void Tess_CheckOverflow(int verts, int indexes)
 {
+#if defined(ALLOW_VERTEX_ARRAYS)
+	if(glState.currentVBO || glState.currentIBO)
+	{
+		Tess_EndBegin();
+
+		R_BindNullVBO();
+		R_BindNullIBO();
+		return;
+	}
+#else
 	if((glState.currentVBO != NULL && glState.currentVBO != tess.vbo) ||
 	   (glState.currentIBO != NULL && glState.currentIBO != tess.ibo))
 	{
@@ -66,6 +76,7 @@ void Tess_CheckOverflow(int verts, int indexes)
 		R_BindIBO(tess.ibo);
 		return;
 	}
+#endif
 
 	if(tess.numVertexes + verts < SHADER_MAX_VERTEXES && tess.numIndexes + indexes < SHADER_MAX_INDEXES)
 	{
@@ -331,6 +342,7 @@ void Tess_UpdateVBOs()
 {
 	GLimp_LogComment("--- Tess_UpdateVBOs ---\n");
 
+#if !defined(ALLOW_VERTEX_ARRAYS)
 	// bind default VBO to replace the client side vertex array
 
 	GL_CheckErrors();
@@ -414,6 +426,7 @@ void Tess_UpdateVBOs()
 	}
 
 	GL_CheckErrors();
+#endif
 }
 
 
@@ -2420,6 +2433,15 @@ static void Tess_SurfaceEntity(surfaceType_t * surfType)
 		return;
 	}
 
+#if defined(ALLOW_VERTEX_ARRAYS)
+	if(glState.currentVBO || glState.currentIBO)
+	{
+		Tess_EndBegin();
+
+		R_BindNullVBO();
+		R_BindNullIBO();
+	}
+#else
 	if(glState.currentVBO != tess.vbo || glState.currentIBO != tess.ibo)
 	{
 		Tess_EndBegin();
@@ -2427,6 +2449,7 @@ static void Tess_SurfaceEntity(surfaceType_t * surfType)
 		R_BindVBO(tess.vbo);
 		R_BindIBO(tess.ibo);
 	}
+#endif
 
 	switch (backEnd.currentEntity->e.reType)
 	{
@@ -2472,6 +2495,15 @@ static void Tess_SurfaceFlare(srfFlare_t * surf)
 		return;
 	}
 
+#if defined(ALLOW_VERTEX_ARRAYS)
+	if(glState.currentVBO || glState.currentIBO)
+	{
+		Tess_EndBegin();
+
+		R_BindNullVBO();
+		R_BindNullIBO();
+	}
+#else
 	if(glState.currentVBO != tess.vbo || glState.currentIBO != tess.ibo)
 	{
 		Tess_EndBegin();
@@ -2479,6 +2511,7 @@ static void Tess_SurfaceFlare(srfFlare_t * surf)
 		R_BindVBO(tess.vbo);
 		R_BindIBO(tess.ibo);
 	}
+#endif
 
 	VectorMA(surf->origin, 2.0, surf->normal, origin);
 	VectorSubtract(origin, backEnd.viewParms.or.origin, dir);

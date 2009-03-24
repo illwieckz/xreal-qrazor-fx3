@@ -68,6 +68,8 @@ typedef unsigned short glIndex_t;
 
 #define REF_CUBEMAP_SIZE		64
 
+#define ALLOW_VERTEX_ARRAYS		1
+
 typedef enum
 {
 	CULL_IN,					// completely unclipped
@@ -2676,8 +2678,10 @@ typedef struct shaderCommands_s
 
 	glIndex_t       indexes[SHADER_MAX_INDEXES];
 
+#if !defined(ALLOW_VERTEX_ARRAYS)
 	VBO_t          *vbo;
 	IBO_t          *ibo;
+#endif
 
 	stageVars_t     svars;
 
