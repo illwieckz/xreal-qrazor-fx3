@@ -1529,8 +1529,7 @@ static void RB_RenderInteractionsStencilShadowed()
 
 			if(drawShadows && !light->l.noShadows)
 			{
-				qglUniformMatrix4fvARB(tr.shadowExtrudeShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-									   glState.modelViewProjectionMatrix[glState.stackIndex]);
+				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.shadowExtrudeShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 			}
 
 			// change depthrange if needed
@@ -2750,10 +2749,9 @@ void RB_RenderInteractionsDeferred()
 						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_omni, r_lightScale->value);
 						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_omni, light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-											   glState.modelViewProjectionMatrix[glState.stackIndex]);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
-											   backEnd.viewParms.unprojectionMatrix);
+
+						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_omni, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.unprojectionMatrix);
 
 						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.isPortal);
 						if(backEnd.viewParms.isPortal)
@@ -2825,10 +2823,9 @@ void RB_RenderInteractionsDeferred()
 						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_proj, r_lightScale->value);
 						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-											   glState.modelViewProjectionMatrix[glState.stackIndex]);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
-											   backEnd.viewParms.unprojectionMatrix);
+
+						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.unprojectionMatrix);
 
 						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.isPortal);
 						if(backEnd.viewParms.isPortal)
@@ -3344,10 +3341,9 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_omni, light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 						GLSL_SetUniform_ShadowCompare(&tr.deferredLightingShader_DBS_omni, shadowCompare);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-											   glState.modelViewProjectionMatrix[glState.stackIndex]);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
-											   backEnd.viewParms.unprojectionMatrix);
+
+						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_omni, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.unprojectionMatrix);
 
 						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.isPortal);
 						if(backEnd.viewParms.isPortal)
@@ -3427,12 +3423,12 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							GLSL_SetUniform_LightRadius(&tr.deferredShadowingShader_proj, light->sphereRadius);
 							GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix2);
 							qglUniform4fvARB(tr.deferredShadowingShader_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
+
 							GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix);
 							GLSL_SetUniform_ShadowCompare(&tr.deferredShadowingShader_proj, shadowCompare);
-							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-												   glState.modelViewProjectionMatrix[glState.stackIndex]);
-							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_UnprojectMatrix, 1, GL_FALSE,
-												   backEnd.viewParms.unprojectionMatrix);
+
+							GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredShadowingShader_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
+							GLSL_SetUniform_UnprojectMatrix(&tr.deferredShadowingShader_proj, backEnd.viewParms.unprojectionMatrix);
 
 							GLSL_SetUniform_PortalClipping(&tr.deferredShadowingShader_proj, backEnd.viewParms.isPortal);
 							if(backEnd.viewParms.isPortal)
@@ -3497,12 +3493,12 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_proj, r_lightScale->value);
 							GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix2);
 							qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
+
 							GLSL_SetUniform_ShadowMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix);
 							GLSL_SetUniform_ShadowCompare(&tr.deferredLightingShader_DBS_proj, shadowCompare);
-							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-												   glState.modelViewProjectionMatrix[glState.stackIndex]);
-							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
-												   backEnd.viewParms.unprojectionMatrix);
+
+							GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
+							GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.unprojectionMatrix);
 
 							GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.isPortal);
 							if(backEnd.viewParms.isPortal)
@@ -4313,12 +4309,12 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 						GLSL_SetUniform_LightRadius(&tr.deferredShadowingShader_proj, light->sphereRadius);
 						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredShadowingShader_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
+
 						GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix);
 						GLSL_SetUniform_ShadowCompare(&tr.deferredShadowingShader_proj, shadowCompare);
-						qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-											   glState.modelViewProjectionMatrix[glState.stackIndex]);
-						qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_UnprojectMatrix, 1, GL_FALSE,
-											   backEnd.viewParms.unprojectionMatrix);
+
+						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredShadowingShader_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						GLSL_SetUniform_UnprojectMatrix(&tr.deferredShadowingShader_proj, backEnd.viewParms.unprojectionMatrix);
 
 						GLSL_SetUniform_PortalClipping(&tr.deferredShadowingShader_proj, backEnd.viewParms.isPortal);
 						if(backEnd.viewParms.isPortal)
@@ -4753,8 +4749,7 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenSpaceAmbientOcclusionShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// draw viewport
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -4832,8 +4827,7 @@ void RB_RenderDepthOfField()
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	qglUniformMatrix4fvARB(tr.depthOfFieldShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.depthOfFieldShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// draw viewport
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -4891,7 +4885,7 @@ void RB_RenderUniformFog()
 	GLSL_SetUniform_ViewOrigin(&tr.uniformFogShader, viewOrigin);
 	qglUniform1fARB(tr.uniformFogShader.u_FogDensity, fogDensity);
 	qglUniform3fARB(tr.uniformFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
-	qglUniformMatrix4fvARB(tr.uniformFogShader.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
+	GLSL_SetUniform_UnprojectMatrix(&tr.uniformFogShader, backEnd.viewParms.unprojectionMatrix);
 
 	// bind u_DepthMap
 	GL_SelectTexture(0);
@@ -4920,8 +4914,7 @@ void RB_RenderUniformFog()
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	qglUniformMatrix4fvARB(tr.uniformFogShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.uniformFogShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// draw viewport
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -4970,8 +4963,7 @@ void RB_RenderBloom()
 		MatrixSetupOrthogonalProjection(ortho, 0, tr.contrastRenderFBO->width, 0, tr.contrastRenderFBO->height, -99999, 99999);
 		GL_LoadProjectionMatrix(ortho);
 #endif
-		qglUniformMatrix4fvARB(tr.contrastShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-											   glState.modelViewProjectionMatrix[glState.stackIndex]);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.contrastShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 		GL_PopMatrix();
 
 		if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
@@ -5042,8 +5034,7 @@ void RB_RenderBloom()
 		GL_BindProgram(&tr.bloomShader);
 		GL_ClientState(tr.bloomShader.attribs);
 
-		qglUniformMatrix4fvARB(tr.bloomShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-									   glState.modelViewProjectionMatrix[glState.stackIndex]);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.bloomShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
 #endif
 		for(i = 0; i < 2; i++)
@@ -5075,8 +5066,7 @@ void RB_RenderBloom()
 					GL_ClientState(tr.blurXShader.attribs);
 
 					qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
-					qglUniformMatrix4fvARB(tr.blurXShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-											glState.modelViewProjectionMatrix[glState.stackIndex]);
+					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.blurXShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 				}
 				else
 				{
@@ -5084,8 +5074,7 @@ void RB_RenderBloom()
 					GL_ClientState(tr.blurYShader.attribs);
 
 					qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
-					qglUniformMatrix4fvARB(tr.blurYShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-										   glState.modelViewProjectionMatrix[glState.stackIndex]);
+					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.blurYShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 				}
 
 				GL_PopMatrix();
@@ -5104,8 +5093,7 @@ void RB_RenderBloom()
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
-				qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-																		   glState.modelViewProjectionMatrix[glState.stackIndex]);
+				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
@@ -5119,8 +5107,7 @@ void RB_RenderBloom()
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
-				qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-																		   glState.modelViewProjectionMatrix[glState.stackIndex]);
+				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
@@ -5135,8 +5122,7 @@ void RB_RenderBloom()
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
-				qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-																		   glState.modelViewProjectionMatrix[glState.stackIndex]);
+				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
@@ -5178,8 +5164,7 @@ void RB_RenderRotoscope(void)
 	GL_BindProgram(&tr.rotoscopeShader);
 	GL_ClientState(tr.rotoscopeShader.attribs);
 
-	qglUniformMatrix4fvARB(tr.rotoscopeShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.rotoscopeShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, r_bloomBlur->value);
 
 	GL_SelectTexture(0);
@@ -5364,13 +5349,11 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 		qglUniform1fARB(tr.toneMappingShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
 		qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
 
-		qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.toneMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
 	else
 	{
-		qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-								   glState.modelViewProjectionMatrix[glState.stackIndex]);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 
@@ -5415,8 +5398,7 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
-		qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-										   glState.modelViewProjectionMatrix[glState.stackIndex]);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
 	else
 	{
@@ -5438,8 +5420,7 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 		qglUniform1fARB(tr.toneMappingShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
 		qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
 
-		qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-								   glState.modelViewProjectionMatrix[glState.stackIndex]);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.toneMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
 
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -5478,7 +5459,7 @@ void RB_RenderLightOcclusionQueries()
 		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
-			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
@@ -5515,8 +5496,7 @@ void RB_RenderLightOcclusionQueries()
 
 					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 					GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
-					qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-										   glState.modelViewProjectionMatrix[glState.stackIndex]);
+					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 					// begin the occlusion query
 					qglBeginQueryARB(GL_SAMPLES_PASSED, tr.occlusionQueryObjects[ocCount]);
@@ -5889,7 +5869,7 @@ static void RB_RenderDebugUtils()
 		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
-			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
@@ -5943,8 +5923,7 @@ static void RB_RenderDebugUtils()
 				// set up the transformation matrix
 				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 				GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
-				qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-												   glState.modelViewProjectionMatrix[glState.stackIndex]);
+				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
 				VectorMA(vec3_origin, 16, forward, forward);
@@ -6272,7 +6251,7 @@ static void RB_RenderDebugUtils()
 		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
-			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
@@ -6290,8 +6269,7 @@ static void RB_RenderDebugUtils()
 			// set up the transformation matrix
 			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
 			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
-			qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-								   glState.modelViewProjectionMatrix[glState.stackIndex]);
+			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 			R_DebugAxis(vec3_origin, matrixIdentity);
 			//R_DebugBoundingBox(vec3_origin, ent->localBounds[0], ent->localBounds[1], colorMagenta);
@@ -6376,7 +6354,7 @@ static void RB_RenderDebugUtils()
 		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
-			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
@@ -6394,8 +6372,7 @@ static void RB_RenderDebugUtils()
 			// set up the transformation matrix
 			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
 			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
-			qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-								   glState.modelViewProjectionMatrix[glState.stackIndex]);
+			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 
 			tess.numVertexes = 0;
@@ -6504,8 +6481,7 @@ static void RB_RenderDebugUtils()
 					// go back to the world modelview matrix
 					backEnd.or = backEnd.viewParms.world;
 					GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
-					qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-													   glState.modelViewProjectionMatrix[glState.stackIndex]);
+					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 					// draw names
 					for(j = 0; j < skel->numBones; j++)
@@ -6582,7 +6558,7 @@ static void RB_RenderDebugUtils()
 		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
-			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
@@ -6600,8 +6576,7 @@ static void RB_RenderDebugUtils()
 		GL_LoadProjectionMatrix(ortho);
 		GL_LoadModelViewMatrix(matrixIdentity);
 
-		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-							   glState.modelViewProjectionMatrix[glState.stackIndex]);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
@@ -6701,10 +6676,7 @@ static void RB_RenderDebugUtils()
 		GLSL_SetUniform_ViewOrigin(&tr.reflectionShader_C, viewOrigin);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
-			qglUniform1iARB(tr.reflectionShader_C.u_VertexSkinning, tess.vboVertexSkinning);
-
-			if(tess.vboVertexSkinning)
-				qglUniformMatrix4fvARB(tr.reflectionShader_C.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
 
 		for(j = 0; j < tr.cubeProbes.currentElements; j++)
@@ -6720,9 +6692,8 @@ static void RB_RenderDebugUtils()
 			MatrixMultiply(backEnd.viewParms.world.viewMatrix, backEnd.or.transformMatrix, backEnd.or.modelViewMatrix);
 
 			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
-			qglUniformMatrix4fvARB(tr.reflectionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
-			qglUniformMatrix4fvARB(tr.reflectionShader_C.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-								   glState.modelViewProjectionMatrix[glState.stackIndex]);
+			GLSL_SetUniform_ModelMatrix(&tr.reflectionShader_C, backEnd.or.transformMatrix);
+			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.reflectionShader_C, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 			tess.numIndexes = 0;
 			tess.numVertexes = 0;
@@ -7415,11 +7386,10 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 	if(glConfig.vboVertexSkinningAvailable)
 	{
-		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	}
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
-	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -7789,7 +7759,7 @@ void RB_ShowImages(void)
 	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 	if(glConfig.vboVertexSkinningAvailable)
 	{
-		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	}
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 	GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);

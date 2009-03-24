@@ -984,20 +984,34 @@ typedef struct shaderProgram_s
 	GLint           u_DeformMagnitude;
 	GLint           u_BlurMagnitude;
 
-	GLint           u_ModelMatrix;
-	GLint           u_ViewMatrix;
-	GLint           u_ModelViewMatrix;
+
+	GLint           u_ModelMatrix;	// model -> world
+	matrix_t		t_ModelMatrix;
+
+//	GLint           u_ViewMatrix;	// world -> camera
+//	matrix_t		t_ViewMatrix;
+
+	GLint           u_ModelViewMatrix;	// model -> camera
+	matrix_t		t_ModelViewMatrix;
+
 	GLint           u_ModelViewMatrixTranspose;
+	matrix_t		t_ModelViewMatrixTranspose;
+
 	GLint           u_ProjectionMatrix;
+	matrix_t		t_ProjectionMatrix;
+
 	GLint           u_ProjectionMatrixTranspose;
+	matrix_t		t_ProjectionMatrixTranspose;
 
 	GLint           u_ModelViewProjectionMatrix;
 	matrix_t		t_ModelViewProjectionMatrix;
 
 	GLint           u_UnprojectMatrix;
-	GLint           u_ProjectMatrix;
+	matrix_t		t_UnprojectMatrix;
 
 	GLint           u_VertexSkinning;
+	qboolean		t_VertexSkinning;
+
 	GLint           u_BoneMatrix;
 } shaderProgram_t;
 
@@ -1271,7 +1285,67 @@ static ID_INLINE void GLSL_SetUniform_PortalRange(shaderProgram_t * program, flo
 	qglUniform1fARB(program->u_PortalRange, value);
 }
 
-static ID_INLINE void GLSL_SetUniform_ModelProjectionMatrix(shaderProgram_t * program, const matrix_t m)
+static ID_INLINE void GLSL_SetUniform_ModelMatrix(shaderProgram_t * program, const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(program->t_ModelMatrix, m))
+		return;
+#endif
+
+	MatrixCopy(m, program->t_ModelMatrix);
+
+	qglUniformMatrix4fvARB(program->u_ModelMatrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_ModelViewMatrix(shaderProgram_t * program, const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(program->t_ModelViewMatrix, m))
+		return;
+#endif
+
+	MatrixCopy(m, program->t_ModelViewMatrix);
+
+	qglUniformMatrix4fvARB(program->u_ModelViewMatrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_ModelViewMatrixTranspose(shaderProgram_t * program, const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(program->t_ModelViewMatrixTranspose, m))
+		return;
+#endif
+
+	MatrixCopy(m, program->t_ModelViewMatrixTranspose);
+
+	qglUniformMatrix4fvARB(program->u_ModelViewMatrixTranspose, 1, GL_TRUE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_ProjectionMatrix(shaderProgram_t * program, const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(program->t_ProjectionMatrix, m))
+		return;
+#endif
+
+	MatrixCopy(m, program->t_ProjectionMatrix);
+
+	qglUniformMatrix4fvARB(program->u_ProjectionMatrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_ProjectionMatrixTranspose(shaderProgram_t * program, const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(program->t_ProjectionMatrixTranspose, m))
+		return;
+#endif
+
+	MatrixCopy(m, program->t_ProjectionMatrixTranspose);
+
+	qglUniformMatrix4fvARB(program->u_ProjectionMatrixTranspose, 1, GL_TRUE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_ModelViewProjectionMatrix(shaderProgram_t * program, const matrix_t m)
 {
 #if 1
 	if(MatrixCompare(program->t_ModelViewProjectionMatrix, m))
@@ -1282,6 +1356,37 @@ static ID_INLINE void GLSL_SetUniform_ModelProjectionMatrix(shaderProgram_t * pr
 
 	qglUniformMatrix4fvARB(program->u_ModelViewProjectionMatrix, 1, GL_FALSE, m);
 }
+
+static ID_INLINE void GLSL_SetUniform_UnprojectMatrix(shaderProgram_t * program, const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(program->t_UnprojectMatrix, m))
+		return;
+#endif
+
+	MatrixCopy(m, program->t_UnprojectMatrix);
+
+	qglUniformMatrix4fvARB(program->u_UnprojectMatrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_VertexSkinning(shaderProgram_t * program, qboolean value)
+{
+	if(program->t_VertexSkinning == value)
+		return;
+
+	program->t_VertexSkinning = value;
+
+	qglUniform1iARB(program->u_VertexSkinning, value);
+}
+
+
+
+
+
+
+
+
+
 
 
 // trRefdef_t holds everything that comes in refdef_t,

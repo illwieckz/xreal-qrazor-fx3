@@ -718,7 +718,7 @@ void RB_DrawSun(void)
 	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
 	if(glConfig.vboVertexSkinningAvailable)
 	{
-		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	}
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
@@ -729,9 +729,8 @@ void RB_DrawSun(void)
 	GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 	GL_LoadModelViewMatrix(modelViewMatrix);
 
-	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
-	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+	GLSL_SetUniform_ModelMatrix(&tr.genericSingleShader, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	GLSL_SetUniform_PortalClipping(&tr.genericSingleShader, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
@@ -908,7 +907,7 @@ void Tess_StageIteratorSky(void)
 	   qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
 	   if(glConfig.vboVertexSkinningAvailable)
 	   {
-	   qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+	   GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	   }
 	   GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
@@ -918,7 +917,7 @@ void Tess_StageIteratorSky(void)
 	   GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 	   GL_LoadModelViewMatrix(modelViewMatrix);
 
-	   qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	  GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	   DrawSkyBox(tess.surfaceShader);
 
