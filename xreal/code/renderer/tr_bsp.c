@@ -8045,5 +8045,8 @@ void RE_LoadWorldMap(const char *name)
 
 	//R_BuildCubeMaps();
 
+	R_BindNullVBO();
+	R_BindNullIBO();
+
 	ri.FS_FreeFile(buffer);
 }

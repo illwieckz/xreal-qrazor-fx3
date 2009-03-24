@@ -418,13 +418,18 @@ static int GLimp_SetMode(int mode, qboolean fullscreen)
 	qwglCreateContextAttribsARB = SDL_GL_GetProcAddress("wglCreateContextAttribsARB");
 	if(qwglCreateContextAttribsARB)
 	{
-		int             attribs[3];
+		int             attribs[] = 
+		{
+			WGL_CONTEXT_MAJOR_VERSION_ARB,
+			3,
+			WGL_CONTEXT_MINOR_VERSION_ARB,
+			0,
+			WGL_CONTEXT_FLAGS_ARB,
+			0,//WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+			0
+		};
 
 		ri.Printf(PRINT_ALL, "Initializing OpenGL 3.0 context...");
-
-		attribs[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
-		attribs[1] = 3;
-		attribs[2] = 0;			//terminate first pair
 
 		opengl_context->hGLRC = qwglCreateContextAttribsARB(opengl_context->hDC, opengl_context->hGLRC, attribs);
 		if(wglMakeCurrent(opengl_context->hDC, opengl_context->hGLRC))
