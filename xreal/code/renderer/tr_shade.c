@@ -5090,8 +5090,16 @@ void Tess_End()
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 
-	R_BindNullVBO();
-	R_BindNullIBO();
+#if !defined(ALLOW_VERTEX_ARRAYS)
+	//if(glState.currentVBO || glState.currentIBO)
+	{
+		//R_BindVBO(tess.vbo);
+		//R_BindIBO(tess.ibo);
+
+		R_BindNullVBO();
+		R_BindNullIBO();
+	}
+#endif
 
 	GLimp_LogComment("--- Tess_End ---\n");
 

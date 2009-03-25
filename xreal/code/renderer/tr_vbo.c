@@ -395,7 +395,8 @@ void R_BindVBO(VBO_t * vbo)
 {
 	if(!vbo)
 	{
-		R_BindNullVBO();
+		//R_BindNullVBO();
+		ri.Error(ERR_DROP, "R_CreateFBO: NULL vbo");
 		return;
 	}
 
@@ -411,17 +412,20 @@ void R_BindVBO(VBO_t * vbo)
 
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
 
-		qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsXYZ));
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsTexCoords));
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsLightCoords));
-		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsTangents));
-		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsBinormals));
-		qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsNormals));
-		qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsColors));
-		qglVertexAttribPointerARB(ATTR_INDEX_LIGHTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsLightColors));
-		qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsLightDirections));
-		qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, BUFFER_OFFSET(vbo->ofsBoneIndexes));
-		qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsBoneWeights));
+		if(glState.currentVBO != tess.vbo)
+		{
+			qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsXYZ));
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsTexCoords));
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsLightCoords));
+			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsTangents));
+			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsBinormals));
+			qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsNormals));
+			qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsColors));
+			qglVertexAttribPointerARB(ATTR_INDEX_LIGHTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsLightColors));
+			qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsLightDirections));
+			qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, BUFFER_OFFSET(vbo->ofsBoneIndexes));
+			qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsBoneWeights));
+		}
 
 		backEnd.pc.c_vboVertexBuffers++;
 	}
@@ -467,7 +471,8 @@ void R_BindIBO(IBO_t * ibo)
 {
 	if(!ibo)
 	{
-		R_BindNullIBO();
+		//R_BindNullIBO();
+		ri.Error(ERR_DROP, "R_CreateFBO: NULL ibo");
 		return;
 	}
 

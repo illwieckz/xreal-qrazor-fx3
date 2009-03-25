@@ -711,6 +711,11 @@ static void RB_SetGL2D(void)
 		R_BindNullFBO();
 	}
 
+#if 0 //!defined(ALLOW_VERTEX_ARRAYS)
+	R_BindVBO(tess.vbo);
+	R_BindIBO(tess.ibo);
+#endif
+
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
