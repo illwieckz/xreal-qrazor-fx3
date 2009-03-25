@@ -1200,6 +1200,11 @@ void GfxInfo_f(void)
 	ri.Printf(PRINT_ALL, "texturemode: %s\n", r_textureMode->string);
 	ri.Printf(PRINT_ALL, "picmip: %d\n", r_picmip->integer);
 
+	if(glConfig.driverType == GLDRV_OPENGL3)
+	{
+		ri.Printf(PRINT_ALL, "Using OpenGL 3.1 context\n");
+	}
+
 	if(glConfig.hardwareType == GLHW_ATI)
 	{
 		ri.Printf(PRINT_ALL, "HACK: ATI approximations\n");

@@ -690,7 +690,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen)
 	}
 
 	// try to initialize an OpenGL 3.0 context
-#if 0 //defined(WIN32)
+#if 0//defined(WIN32)
 	qwglCreateContextAttribsARB = SDL_GL_GetProcAddress("wglCreateContextAttribsARB");
 	if(qwglCreateContextAttribsARB)
 	{
@@ -699,16 +699,16 @@ static int GLimp_SetMode(int mode, qboolean fullscreen)
 			WGL_CONTEXT_MAJOR_VERSION_ARB,
 			3,
 			WGL_CONTEXT_MINOR_VERSION_ARB,
-			0,
+			1,
 			WGL_CONTEXT_FLAGS_ARB,
 			0,//WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
 			0
 		};
 
-		ri.Printf(PRINT_ALL, "Initializing OpenGL 3.0 context...");
+		ri.Printf(PRINT_ALL, "Initializing OpenGL 3.1 context...");
 
-		opengl_context->hGLRC = qwglCreateContextAttribsARB(opengl_context->hDC, opengl_context->hGLRC, attribs);
-		if(wglMakeCurrent(opengl_context->hDC, opengl_context->hGLRC))
+		opengl_context.hGLRC = qwglCreateContextAttribsARB(opengl_context.hDC, opengl_context.hGLRC, attribs);
+		if(wglMakeCurrent(opengl_context.hDC, opengl_context.hGLRC))
 		{
 			ri.Printf(PRINT_ALL, " done\n");
 			glConfig.driverType = GLDRV_OPENGL3;
