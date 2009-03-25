@@ -264,7 +264,7 @@ if env['llvm'] == 1:
 
 if env['arch'] == 'linux-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
-	xreal_env.Append(LIBS=['dl', 'm'])
+	xreal_env.Append(LIBS=['dl', 'm', 'GL'])
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 	xreal_env.ParseConfig('freetype-config --cflags --libs')
 	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
@@ -279,7 +279,7 @@ if env['arch'] == 'linux-i386':
 elif env['arch'] == 'linux-x86_64':
 	xreal_env.Append(CCFLAGS='-DC_ONLY')
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
-	xreal_env.Append(LIBS=['dl', 'm'])
+	xreal_env.Append(LIBS=['dl', 'm', 'GL'])
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 	xreal_env.ParseConfig('freetype-config --cflags --libs')
 	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
@@ -293,7 +293,7 @@ elif env['arch'] == 'linux-x86_64':
 
 elif env['arch'] == 'freebsd-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
-	xreal_env.Append(LIBS=['m'])
+	xreal_env.Append(LIBS=['m', 'GL'])
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 	xreal_env.ParseConfig('freetype-config --cflags --libs')
 	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
