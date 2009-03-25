@@ -3196,6 +3196,8 @@ void R_InitImages(void)
 {
 	const char *charsetImage = "gfx/2d/charset-bezerk-plain-rc2.png";
 
+	ri.Printf(PRINT_ALL, "------- R_InitImages -------\n");
+
 	Com_Memset(hashTable, 0, sizeof(hashTable));
 	Com_InitGrowList(&tr.images, 4096);
 
@@ -3222,6 +3224,8 @@ void R_ShutdownImages(void)
 {
 	int             i;
 	image_t			*image;
+
+	ri.Printf(PRINT_ALL, "------- R_ShutdownImages -------\n");
 
 	for(i = 0; i < tr.images.currentElements; i++)
 	{

@@ -567,6 +567,8 @@ void R_ShutdownVBOs(void)
 	VBO_t          *vbo;
 	IBO_t          *ibo;
 
+	ri.Printf(PRINT_ALL, "------- R_ShutdownVBOs -------\n");
+
 	R_BindNullVBO();
 	R_BindNullIBO();
 

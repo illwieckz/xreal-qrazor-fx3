@@ -458,11 +458,45 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 	if(!r_ignoreGLErrors->integer)
 	{
 		int             err;
+		char            s[128];
 
 		R_SyncRenderThread();
+
 		if((err = qglGetError()) != GL_NO_ERROR)
 		{
-			ri.Error(ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!\n", err);
+			switch (err)
+			{
+				case GL_INVALID_ENUM:
+					strcpy(s, "GL_INVALID_ENUM");
+					break;
+				case GL_INVALID_VALUE:
+					strcpy(s, "GL_INVALID_VALUE");
+					break;
+				case GL_INVALID_OPERATION:
+					strcpy(s, "GL_INVALID_OPERATION");
+					break;
+				case GL_STACK_OVERFLOW:
+					strcpy(s, "GL_STACK_OVERFLOW");
+					break;
+				case GL_STACK_UNDERFLOW:
+					strcpy(s, "GL_STACK_UNDERFLOW");
+					break;
+				case GL_OUT_OF_MEMORY:
+					strcpy(s, "GL_OUT_OF_MEMORY");
+					break;
+				case GL_TABLE_TOO_LARGE:
+					strcpy(s, "GL_TABLE_TOO_LARGE");
+					break;
+				case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
+					strcpy(s, "GL_INVALID_FRAMEBUFFER_OPERATION_EXT");
+					break;
+				default:
+					Com_sprintf(s, sizeof(s), "0x%X", err);
+					break;
+			}
+
+			//ri.Error(ERR_FATAL, "caught OpenGL error: %s in file %s line %i", s, filename, line);
+			ri.Error(ERR_FATAL, "RE_BeginFrame() - glGetError() failed (%s)!\n", s);
 		}
 	}
 

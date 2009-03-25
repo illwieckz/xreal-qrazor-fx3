@@ -3050,11 +3050,11 @@ static qboolean R_LoadDAE(model_t * mod, void *buffer, int bufferLen, const char
 */
 void RE_BeginRegistration(glConfig_t * glconfigOut)
 {
+	R_SyncRenderThread();
+
 	R_Init();
 
 	*glconfigOut = glConfig;
-
-	R_SyncRenderThread();
 
 	tr.visIndex = 0;
 	memset(tr.visClusters, -2, sizeof(tr.visClusters));	// force markleafs to regenerate

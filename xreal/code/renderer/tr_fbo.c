@@ -85,7 +85,8 @@ qboolean R_CheckFBO(const FBO_t * fbo)
 			break;
 
 		default:
-			ri.Error(ERR_FATAL, "R_CheckFBO: (%s) unknown error 0x%X", fbo->name, code);
+			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) unknown error 0x%X\n", fbo->name, code);
+			//ri.Error(ERR_FATAL, "R_CheckFBO: (%s) unknown error 0x%X", fbo->name, code);
 			//assert(0);
 			break;
 	}
@@ -431,6 +432,8 @@ void R_InitFBOs(void)
 		return;
 
 	tr.numFBOs = 0;
+
+	GL_CheckErrors();
 
 	// make sure the render thread is stopped
 	R_SyncRenderThread();
@@ -848,6 +851,8 @@ void R_ShutdownFBOs(void)
 {
 	int             i, j;
 	FBO_t          *fbo;
+
+	ri.Printf(PRINT_ALL, "------- R_ShutdownFBOs -------\n");
 
 	if(!glConfig.framebufferObjectAvailable)
 		return;

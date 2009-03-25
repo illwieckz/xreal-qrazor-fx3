@@ -1615,7 +1615,10 @@ void R_Init(void)
 
 	err = qglGetError();
 	if(err != GL_NO_ERROR)
-		ri.Printf(PRINT_ALL, "glGetError() = 0x%x\n", err);
+	{
+		ri.Error(ERR_FATAL, "R_Init() - glGetError() failed = 0x%x\n", err);
+		//ri.Printf(PRINT_ALL, "glGetError() = 0x%x\n", err);
+	}
 
 	ri.Printf(PRINT_ALL, "----- finished R_Init -----\n");
 }
@@ -1667,7 +1670,9 @@ void RE_Shutdown(qboolean destroyWindow)
 	// shut down platform specific OpenGL stuff
 
 	// Tr3B: this should be always executed if we want to avoid some GLSL problems with SMP
-	if(destroyWindow || glConfig.smpActive)
+#if !defined(SMP)
+	if(destroyWindow)// || glConfig.smpActive)
+#endif
 	{
 		GLimp_Shutdown();
 	}
