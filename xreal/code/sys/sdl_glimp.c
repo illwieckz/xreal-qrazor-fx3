@@ -426,6 +426,7 @@ void GLimp_Shutdown(void)
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	screen = NULL;
 
+#if defined(SMP)
 	if(renderThread != NULL)
 	{
 		Com_Printf("Destroying renderer thread...\n");
@@ -433,6 +434,7 @@ void GLimp_Shutdown(void)
 		renderThread = NULL;
 		GLimp_ShutdownRenderThread();
 	}
+#endif
 
 	Com_Memset(&glConfig, 0, sizeof(glConfig));
 	Com_Memset(&glState, 0, sizeof(glState));
