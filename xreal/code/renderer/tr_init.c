@@ -1668,6 +1668,8 @@ void RE_Shutdown(qboolean destroyWindow)
 		}
 
 		GLSL_ShutdownGPUShaders();
+
+//		GLimp_ShutdownRenderThread();
 	}
 
 	R_DoneFreeType();

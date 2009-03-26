@@ -182,8 +182,14 @@ static SDL_Thread *renderThread = NULL;
 GLimp_ShutdownRenderThread
 ===============
 */
-static void GLimp_ShutdownRenderThread(void)
+void GLimp_ShutdownRenderThread(void)
 {
+	if(renderThread != NULL)
+	{
+		SDL_WaitThread(renderThread, NULL);
+		renderThread = NULL;
+	}
+
 	if(smpMutex != NULL)
 	{
 		SDL_DestroyMutex(smpMutex);
@@ -246,8 +252,6 @@ qboolean GLimp_SpawnRenderThread(void (*function) (void))
 	if(renderThread != NULL)	/* hopefully just a zombie at this point... */
 	{
 		Com_Printf("Already a render thread? Trying to clean it up...\n");
-		SDL_WaitThread(renderThread, NULL);
-		renderThread = NULL;
 		GLimp_ShutdownRenderThread();
 	}
 
@@ -382,6 +386,10 @@ qboolean GLimp_SpawnRenderThread(void (*function) (void))
 	return qfalse;
 }
 
+void GLimp_ShutdownRenderThread(void)
+{
+}
+
 void           *GLimp_RendererSleep(void)
 {
 	return NULL;
@@ -430,8 +438,6 @@ void GLimp_Shutdown(void)
 	if(renderThread != NULL)
 	{
 		Com_Printf("Destroying renderer thread...\n");
-		SDL_WaitThread(renderThread, NULL);
-		renderThread = NULL;
 		GLimp_ShutdownRenderThread();
 	}
 #endif
