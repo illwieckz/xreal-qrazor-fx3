@@ -102,4 +102,10 @@ elif env['arch'] == 'win32-mingw':
 	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src, lua_src], LIBS=['m'])
 	cgame_env.InstallAs('#base/cgamex86.dll', 'cgame.dll')
 
+elif env['arch'] == 'darwin-ppc':
+	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src, lua_src], LIBS=['m'])
+	cgame_env.InstallAs('#base/cgameppc.dylib', 'libcgame.so')
 
+elif env['arch'] == 'darwin-i386':
+	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src, lua_src], LIBS=['m'])
+	cgame_env.InstallAs('#base/cgamei386.dylib', 'libcgame.so')

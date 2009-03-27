@@ -255,7 +255,8 @@ elif env['curl'] == 'dlopen':
 
 #if env['openal'] == 1:
 xreal_env.Append(CCFLAGS='-DUSE_OPENAL')
-xreal_env.Append(LIBS=['openal'])
+if env['arch'] != 'darwin-ppc' and env['arch'] != 'darwin-i386':
+        xreal_env.Append(LIBS=['openal'])
 
 if env['llvm'] == 1:
 	xreal_env.Append(CCFLAGS='-DUSE_LLVM')
@@ -315,3 +316,26 @@ elif env['arch'] == 'win32-mingw':
 	xreal_env.Program('xreal', [xreal_src, win_src])
 	xreal_env.Install('#', 'xreal.exe')
 
+elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
+	xreal_env.ParseConfig('sdl-config --cflags --libs')
+	xreal_env.Append(LIBS=['m'])
+	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE -DMACOS_X')
+	
+	# HACK: for now disable altivec because there are some compiling issues
+	if env['arch'] == 'darwin-ppc':
+		xreal_env.Append(CCFLAGS='-Didppc_altivec=0')
+
+	xreal_env.ParseConfig('freetype-config --cflags --libs')
+	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	xreal_env.Append(LINKFLAGS= ['-framework', 'IOKit', '-framework', 'OpenAL', '-framework', 'OpenGL'])
+
+	if env['smp'] == 1:
+		xreal_env.Append(CCFLAGS='-DSMP')
+		xreal_env.Append(LIBS=['pthread'])
+	
+	xreal_env.Program('xreal', [xreal_src, unix_src])
+	if env['arch'] == 'darwin-ppc':
+		xreal_env.InstallAs('#xreal.ppc', 'xreal')
+	elif env['arch'] == 'darwin-i386':
+		xreal_env.InstallAs('#xreal.x86', 'xreal')
+		

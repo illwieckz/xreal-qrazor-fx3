@@ -80,3 +80,10 @@ elif env['arch'] == 'win32-mingw':
 	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
 	ui_env.InstallAs('#base/uix86.dll', 'ui.dll')
 
+elif env['arch'] == 'darwin-ppc':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#base/uiippc.dylib', 'libui.so')
+
+elif env['arch'] == 'darwin-i386':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#base/uii386.dylib', 'libui.so')
