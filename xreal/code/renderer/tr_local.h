@@ -2278,6 +2278,20 @@ typedef struct
 // the renderer front end should never modify glstate_t
 typedef struct
 {
+	int				blendSrc, blendDst;
+	float			clearColorRed, clearColorGreen, clearColorBlue, clearColorAlpha;
+	double			clearDepth;
+	int				clearStencil;
+	int				colorMaskRed, colorMaskGreen, colorMaskBlue, colorMaskAlpha;
+	int				cullFace;
+	int				depthFunc;
+	int				depthMask;
+	int				drawBuffer;
+	int				frontFace;
+	int				polygonFace, polygonMode;
+	int             scissorX, scissorY, scissorWidth, scissorHeight;
+	int             viewportX, viewportY, viewportWidth, viewportHeight;
+
 	int             currenttextures[32];
 	int             currenttmu;
 //  matrix_t        textureMatrix[32];
@@ -2290,7 +2304,7 @@ typedef struct
 	matrix_t        modelViewProjectionMatrix[MAX_GLSTACK];
 
 	qboolean        finishCalled;
-	int             faceCulling;
+	int             faceCulling;	// FIXME redundant cullFace
 	unsigned long   glStateBits;
 	unsigned long   glClientStateBits;
 	shaderProgram_t *currentProgram;
@@ -2919,10 +2933,23 @@ void            GL_BindNullProgram(void);
 void            GL_SetDefaultState(void);
 void            GL_SelectTexture(int unit);
 void            GL_TextureMode(const char *string);
+
+
+void			GL_BlendFunc(GLenum sfactor, GLenum dfactor);
+void			GL_ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+void			GL_ClearDepth(GLclampd depth);
+void			GL_ClearStencil(GLint s);
+void			GL_ColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+void			GL_CullFace(GLenum mode);
+void			GL_DepthFunc(GLenum func);
+void			GL_DepthMask(GLboolean flag);
+void			GL_DrawBuffer(GLenum mode);
+void			GL_FrontFace(GLenum mode);
 void            GL_LoadModelViewMatrix(const matrix_t m);
 void            GL_LoadProjectionMatrix(const matrix_t m);
 void            GL_PushMatrix();
 void            GL_PopMatrix();
+void			GL_PolygonMode(GLenum face, GLenum mode);
 
 void            GL_CheckErrors_(const char *filename, int line);
 

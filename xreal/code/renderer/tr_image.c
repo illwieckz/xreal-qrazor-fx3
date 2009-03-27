@@ -1304,7 +1304,7 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		if(image->filterType == FT_DEFAULT && glConfig.generateMipmapAvailable)
 		{
 			// raynorpat: if hardware mipmap generation is available, use it
-			qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);	// make sure its nice
+			//qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);	// make sure its nice
 			qglTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 			qglTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilinear
 		}

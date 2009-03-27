@@ -3717,7 +3717,7 @@ static void Render_volumetricFog()
 		R_BindFBO(tr.occlusionRenderFBO);
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.depthToColorBackFacesFBOImage->texnum, 0);
 
-		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		qglClear(GL_COLOR_BUFFER_BIT);
 		GL_Cull(CT_BACK_SIDED);
 		Tess_DrawElements();
@@ -4607,7 +4607,7 @@ void Tess_StageIteratorStencilShadowVolume()
 		{
 			// mirrors have the culling order reversed
 			//if(backEnd.viewParms.isMirror)
-			//  qglFrontFace(GL_CW);
+			//  GL_FrontFace(GL_CW);
 
 			if(qglStencilFuncSeparateATI && qglStencilOpSeparateATI && glConfig.stencilWrapAvailable)
 			{
@@ -4685,7 +4685,7 @@ void Tess_StageIteratorStencilShadowVolume()
 			}
 
 			//if(backEnd.viewParms.isMirror)
-			//  qglFrontFace(GL_CCW);
+			//  GL_FrontFace(GL_CCW);
 		}
 		else
 		{
@@ -4694,7 +4694,7 @@ void Tess_StageIteratorStencilShadowVolume()
 
 			// mirrors have the culling order reversed
 			//if(backEnd.viewParms.isMirror)
-			//  qglFrontFace(GL_CW);
+			//  GL_FrontFace(GL_CW);
 
 			if(qglStencilFuncSeparateATI && qglStencilOpSeparateATI && glConfig.stencilWrapAvailable)
 			{
@@ -4772,7 +4772,7 @@ void Tess_StageIteratorStencilShadowVolume()
 			}
 
 			//if(backEnd.viewParms.isMirror)
-			//  qglFrontFace(GL_CCW);
+			//  GL_FrontFace(GL_CCW);
 		}
 	}
 }

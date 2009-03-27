@@ -1010,15 +1010,15 @@ void GL_SetDefaultState(void)
 
 	GLimp_LogComment("--- GL_SetDefaultState ---\n");
 
-	qglClearDepth(1.0f);
+	GL_ClearDepth(1.0f);
 
 	if(glConfig.stencilBits >= 4)
 	{
-		qglClearStencil(128);
+		GL_ClearStencil(128);
 	}
 
-	qglFrontFace(GL_CCW);
-	qglCullFace(GL_FRONT);
+	GL_FrontFace(GL_CCW);
+	GL_CullFace(GL_FRONT);
 
 	qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1, 1, 1, 1);
 
@@ -1038,7 +1038,7 @@ void GL_SetDefaultState(void)
 		}
 	}
 
-	qglDepthFunc(GL_LEQUAL);
+	GL_DepthFunc(GL_LEQUAL);
 
 	// make sure our GL state vector is set correctly
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
@@ -1099,7 +1099,7 @@ void GL_SetDefaultState(void)
 	   }
 	 */
 
-	qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	GL_PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	qglDepthMask(GL_TRUE);
 	qglDisable(GL_DEPTH_TEST);
 	qglEnable(GL_SCISSOR_TEST);

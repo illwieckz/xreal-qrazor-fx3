@@ -185,6 +185,113 @@ void GL_SelectTexture(int unit)
 	glState.currenttmu = unit;
 }
 
+void GL_BlendFunc(GLenum sfactor, GLenum dfactor)
+{
+	if(glState.blendSrc != sfactor || glState.blendDst != dfactor)
+	{
+		glState.blendSrc = sfactor;
+		glState.blendDst = dfactor;
+
+		qglBlendFunc(sfactor, dfactor);
+	}
+}
+
+void GL_ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
+{
+	if(glState.clearColorRed != red || glState.clearColorGreen != green || glState.clearColorBlue != blue || glState.clearColorAlpha != alpha)
+	{
+		glState.clearColorRed = red;
+		glState.clearColorGreen = green;
+		glState.clearColorBlue = blue;
+		glState.clearColorAlpha = alpha;
+
+		qglClearColor(red, green, blue, alpha);
+	}
+}
+
+void GL_ClearDepth(GLclampd depth)
+{
+	if(glState.clearDepth != depth)
+	{
+		glState.clearDepth = depth;
+
+		qglClearDepth(depth);
+	}
+}
+
+void GL_ClearStencil(GLint s)
+{
+	if(glState.clearStencil != s)
+	{
+		glState.clearStencil = s;
+
+		qglClearStencil(s);
+	}
+}
+
+void GL_ColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+{
+	if(glState.colorMaskRed != red || glState.colorMaskGreen != green || glState.colorMaskBlue != blue || glState.colorMaskAlpha != alpha)
+	{
+		glState.colorMaskRed = red;
+		glState.colorMaskGreen = green;
+		glState.colorMaskBlue = blue;
+		glState.colorMaskAlpha = alpha;
+
+		qglColorMask(red, green, blue, alpha);
+	}
+}
+
+void GL_CullFace(GLenum mode)
+{
+	if(glState.cullFace != mode)
+	{
+		glState.cullFace = mode;
+
+		qglCullFace(mode);
+	}
+}
+
+void GL_DepthFunc(GLenum func)
+{
+	if(glState.depthFunc != func)
+	{
+		glState.depthFunc = func;
+
+		qglDepthFunc(func);
+	}
+}
+
+void GL_DepthMask(GLboolean flag)
+{
+	if(glState.depthMask != flag)
+	{
+		glState.depthMask = flag;
+
+		qglDepthMask(flag);
+	}
+}
+
+void GL_DrawBuffer(GLenum mode)
+{
+	if(glState.drawBuffer != mode)
+	{
+		glState.drawBuffer = mode;
+
+		qglDrawBuffer(mode);
+	}
+}
+
+void GL_FrontFace(GLenum mode)
+{
+	if(glState.frontFace != mode)
+	{
+		glState.frontFace = mode;
+
+		qglFrontFace(mode);
+	}
+}
+
 void GL_LoadModelViewMatrix(const matrix_t m)
 {
 #if 1
@@ -236,6 +343,43 @@ void GL_PopMatrix()
 	}
 }
 
+void GL_PolygonMode(GLenum face, GLenum mode)
+{
+	if(glState.polygonFace != face || glState.polygonMode != mode)
+	{
+		glState.polygonFace = face;
+		glState.polygonMode = mode;
+
+		qglPolygonMode(face, mode);
+	}
+}
+
+static void GL_Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
+{
+	if(glState.scissorX != x || glState.scissorY != y || glState.scissorWidth != width || glState.scissorHeight != height)
+	{
+		glState.scissorX = x;
+		glState.scissorY = y;
+		glState.scissorWidth = width;
+		glState.scissorHeight = height;
+
+		GL_Scissor(x, y, width, height);
+	}
+}
+
+static void GL_Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
+{
+	if(glState.viewportX != x || glState.viewportY != y || glState.viewportWidth != width || glState.viewportHeight != height)
+	{
+		glState.viewportX = x;
+		glState.viewportY = y;
+		glState.viewportWidth = width;
+		glState.viewportHeight = height;
+
+		qglViewport(x, y, width, height);
+	}
+}
+
 void GL_Cull(int cullType)
 {
 	if(glState.faceCulling == cullType)
@@ -255,28 +399,28 @@ void GL_Cull(int cullType)
 
 		if(cullType == CT_BACK_SIDED)
 		{
-			qglCullFace(GL_BACK);
+			GL_CullFace(GL_BACK);
 
 			if(backEnd.viewParms.isMirror)
 			{
-				qglFrontFace(GL_CW);
+				GL_FrontFace(GL_CW);
 			}
 			else
 			{
-				qglFrontFace(GL_CCW);
+				GL_FrontFace(GL_CCW);
 			}
 		}
 		else
 		{
-			qglCullFace(GL_FRONT);
+			GL_CullFace(GL_FRONT);
 
 			if(backEnd.viewParms.isMirror)
 			{
-				qglFrontFace(GL_CW);
+				GL_FrontFace(GL_CW);
 			}
 			else
 			{
-				qglFrontFace(GL_CCW);
+				GL_FrontFace(GL_CCW);
 			}
 		}
 	}
@@ -303,17 +447,14 @@ void GL_State(unsigned long stateBits)
 	{
 		switch (stateBits & GLS_DEPTHFUNC_BITS)
 		{
-			case 0:
-				qglDepthFunc(GL_LEQUAL);
+			default:
+				GL_DepthFunc(GL_LEQUAL);
 				break;
 			case GLS_DEPTHFUNC_LESS:
-				qglDepthFunc(GL_LESS);
+				GL_DepthFunc(GL_LESS);
 				break;
 			case GLS_DEPTHFUNC_EQUAL:
-				qglDepthFunc(GL_EQUAL);
-				break;
-			default:
-				assert(0);
+				GL_DepthFunc(GL_EQUAL);
 				break;
 		}
 	}
@@ -393,7 +534,7 @@ void GL_State(unsigned long stateBits)
 			}
 
 			qglEnable(GL_BLEND);
-			qglBlendFunc(srcFactor, dstFactor);
+			GL_BlendFunc(srcFactor, dstFactor);
 		}
 		else
 		{
@@ -406,14 +547,14 @@ void GL_State(unsigned long stateBits)
 	{
 		if(stateBits & GLS_COLORMASK_BITS)
 		{
-			qglColorMask((stateBits & GLS_REDMASK_FALSE) ? GL_FALSE : GL_TRUE,
+			GL_ColorMask((stateBits & GLS_REDMASK_FALSE) ? GL_FALSE : GL_TRUE,
 						 (stateBits & GLS_GREENMASK_FALSE) ? GL_FALSE : GL_TRUE,
 						 (stateBits & GLS_BLUEMASK_FALSE) ? GL_FALSE : GL_TRUE,
 						 (stateBits & GLS_ALPHAMASK_FALSE) ? GL_FALSE : GL_TRUE);
 		}
 		else
 		{
-			qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			GL_ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		}
 	}
 
@@ -435,11 +576,11 @@ void GL_State(unsigned long stateBits)
 	{
 		if(stateBits & GLS_POLYMODE_LINE)
 		{
-			qglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			GL_PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 		else
 		{
-			qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			GL_PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 	}
 
@@ -657,6 +798,8 @@ void GL_ClientState(unsigned long stateBits)
 }
 
 
+
+
 /*
 ================
 RB_Hyperspace
@@ -674,7 +817,7 @@ static void RB_Hyperspace(void)
 	}
 
 	c = (backEnd.refdef.time & 255) / 255.0f;
-	qglClearColor(c, c, c, 1);
+	GL_ClearColor(c, c, c, 1);
 	qglClear(GL_COLOR_BUFFER_BIT);
 
 	backEnd.isHyperspace = qtrue;
@@ -686,12 +829,14 @@ static void SetViewportAndScissor(void)
 	GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 
 	// set the window clipping
-	qglViewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+	GL_Viewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 				backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
-	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 }
+
+
 
 
 /*
@@ -719,8 +864,8 @@ static void RB_SetGL2D(void)
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
-	qglViewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
-	qglScissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+	GL_Viewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
+	GL_Scissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
 
 	MatrixSetupOrthogonalProjection(proj, 0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1);
 	GL_LoadProjectionMatrix(proj);
@@ -1091,7 +1236,7 @@ static void RB_RenderInteractions()
 			GLimp_LogComment("----- Rendering new light -----\n");
 
 			// set light scissor to reduce fillrate
-			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+			GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 		}
 
 		// Tr3B: this should never happen in the first iteration
@@ -1243,7 +1388,7 @@ static void RB_RenderInteractions()
 	}
 
 	// reset scissor
-	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 	GL_CheckErrors();
@@ -1332,7 +1477,7 @@ static void RB_RenderInteractionsStencilShadowed()
 			if(drawShadows)
 			{
 				// set light scissor to reduce fillrate
-				qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+				GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
 				// set depth test to reduce fillrate
 				if(qglDepthBoundsEXT)
@@ -1353,7 +1498,7 @@ static void RB_RenderInteractionsStencilShadowed()
 					GLimp_LogComment("--- Rendering shadow volumes ---\n");
 
 					// set the reference stencil value
-					qglClearStencil(128);
+					GL_ClearStencil(128);
 
 					// reset stencil buffer
 					qglClear(GL_STENCIL_BUFFER_BIT);
@@ -1677,7 +1822,7 @@ static void RB_RenderInteractionsStencilShadowed()
 	}
 
 	// reset scissor clamping
-	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 	// reset depth clamping
@@ -1748,7 +1893,7 @@ static void RB_RenderInteractionsShadowMapped()
 	cubeSide = 0;
 
 	// if we need to clear the FBO color buffers then it should be white
-	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	GL_ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
@@ -1836,8 +1981,8 @@ static void RB_RenderInteractionsShadowMapped()
 							}
 
 							// set the window clipping
-							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							qglScissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -2028,8 +2173,8 @@ static void RB_RenderInteractionsShadowMapped()
 							}
 
 							// set the window clipping
-							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							qglScissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -2066,10 +2211,10 @@ static void RB_RenderInteractionsShadowMapped()
 					R_BindNullFBO();
 
 				// set the window clipping
-				qglViewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+				GL_Viewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 							backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
-				qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+				GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 						   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 				// restore camera matrices
@@ -2452,11 +2597,11 @@ static void RB_RenderInteractionsShadowMapped()
 	}
 
 	// reset scissor clamping
-	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 	// reset clear color
-	qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	GL_CheckErrors();
 
@@ -2661,7 +2806,7 @@ void RB_RenderInteractionsDeferred()
 		if(light != oldLight)
 		{
 			// set light scissor to reduce fillrate
-			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+			GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
 			// build world to light space matrix
 			switch (light->l.rlType)
@@ -2916,7 +3061,7 @@ void RB_RenderInteractionsDeferred()
 	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 	// reset scissor
-	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 	GL_CheckErrors();
@@ -2973,7 +3118,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	cubeSide = 0;
 
 	// if we need to clear the FBO color buffers then it should be white
-	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	GL_ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// update depth render image
 	R_BindFBO(tr.deferredRenderFBO);
@@ -3052,8 +3197,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							}
 
 							// set the window clipping
-							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							qglScissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -3195,8 +3340,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							}
 
 							// set the window clipping
-							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							qglScissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -3231,14 +3376,14 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				R_BindFBO(tr.deferredRenderFBO);
 
 				// set the window clipping
-				qglViewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+				GL_Viewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 							backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
-				//qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+				//GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 				//        backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 				// set light scissor to reduce fillrate
-				qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+				GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
 				// restore camera matrices
 				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
@@ -3853,11 +3998,11 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	}
 
 	// reset scissor clamping
-	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 	// reset clear color
-	qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	GL_CheckErrors();
 
@@ -3919,7 +4064,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 	cubeSide = 0;
 
 	// if we need to clear the FBO color buffers then it should be white
-	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	GL_ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// update depth render image
 	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
@@ -4019,8 +4164,8 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 							}
 
 							// set the window clipping
-							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							qglScissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -4162,8 +4307,8 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 							}
 
 							// set the window clipping
-							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							qglScissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -4198,14 +4343,14 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 				R_BindFBO(tr.deferredRenderFBO);
 
 				// set the window clipping
-				qglViewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+				GL_Viewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 							backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
-				//qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+				//GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 				//        backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 				// set light scissor to reduce fillrate
-				qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+				GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
 				// restore camera matrices
 				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
@@ -4652,11 +4797,11 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 	}
 
 	// reset scissor clamping
-	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 	// reset clear color
-	qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	GL_CheckErrors();
 
@@ -5027,7 +5172,7 @@ void RB_RenderBloom()
 		}
 
 		R_BindFBO(tr.contrastRenderFBO);
-		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		qglClear(GL_COLOR_BUFFER_BIT);
 
 		// draw viewport
@@ -5048,7 +5193,7 @@ void RB_RenderBloom()
 			{
 				R_BindFBO(tr.bloomRenderFBO[(j + 1) % 2]);
 
-				qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+				GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 				qglClear(GL_COLOR_BUFFER_BIT);
 
 				GL_State(GLS_DEPTHTEST_DISABLE);
@@ -5690,6 +5835,12 @@ void RB_RenderLightOcclusionQueries()
 		if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
 		{
 			// FIXME it ain't work in subviews
+			return;
+		}
+
+		if(ocCount == -1)
+		{
+			// Tr3B: avoid the following qglFinish if there are no lights
 			return;
 		}
 
@@ -6815,7 +6966,7 @@ static void RB_RenderView(void)
 		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 		{
 			clearBits |= GL_COLOR_BUFFER_BIT;
-			qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
+			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
 		}
 		qglClear(clearBits);
 
@@ -6823,7 +6974,7 @@ static void RB_RenderView(void)
 		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 		{
 			clearBits = GL_COLOR_BUFFER_BIT;
-			qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
+			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
 		}
 		else
 		{
@@ -7076,7 +7227,7 @@ static void RB_RenderView(void)
 		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 		{
 			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
-			qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
+			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
 		}
 		else
 		{
@@ -7714,13 +7865,13 @@ const void     *RB_DrawBuffer(const void *data)
 
 	cmd = (const drawBufferCommand_t *)data;
 
-	qglDrawBuffer(cmd->buffer);
+	GL_DrawBuffer(cmd->buffer);
 
 	// clear screen for debugging
 	if(r_clear->integer)
 	{
-//      qglClearColor(1, 0, 0.5, 1);
-		qglClearColor(0, 0, 0, 1);
+//      GL_ClearColor(1, 0, 0.5, 1);
+		GL_ClearColor(0, 0, 0, 1);
 		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
