@@ -179,53 +179,19 @@ static SDL_Thread *renderThread = NULL;
 
 /*
 ===============
-GLimp_ShutdownRenderThread
-===============
-*/
-void GLimp_ShutdownRenderThread(void)
-{
-	if(renderThread != NULL)
-	{
-		SDL_WaitThread(renderThread, NULL);
-		renderThread = NULL;
-	}
-
-	if(smpMutex != NULL)
-	{
-		SDL_DestroyMutex(smpMutex);
-		smpMutex = NULL;
-	}
-
-	if(renderCommandsEvent != NULL)
-	{
-		SDL_DestroyCond(renderCommandsEvent);
-		renderCommandsEvent = NULL;
-	}
-
-	if(renderCompletedEvent != NULL)
-	{
-		SDL_DestroyCond(renderCompletedEvent);
-		renderCompletedEvent = NULL;
-	}
-
-	renderThreadFunction = NULL;
-}
-
-/*
-===============
 GLimp_RenderThreadWrapper
 ===============
 */
 static int GLimp_RenderThreadWrapper(void *arg)
 {
 	// These printfs cause race conditions which mess up the console output
-	Com_Printf( "Render thread starting\n" );
+	Com_Printf("Render thread starting\n");
 
 	renderThreadFunction();
 
 	GLimp_SetCurrentContext(qfalse);
 
-	Com_Printf( "Render thread terminating\n" );
+	Com_Printf("Render thread terminating\n");
 
 	return 0;
 }
@@ -299,6 +265,40 @@ qboolean GLimp_SpawnRenderThread(void (*function) (void))
 	}
 
 	return qtrue;
+}
+
+/*
+===============
+GLimp_ShutdownRenderThread
+===============
+*/
+void GLimp_ShutdownRenderThread(void)
+{
+	if(renderThread != NULL)
+	{
+		SDL_WaitThread(renderThread, NULL);
+		renderThread = NULL;
+	}
+
+	if(smpMutex != NULL)
+	{
+		SDL_DestroyMutex(smpMutex);
+		smpMutex = NULL;
+	}
+
+	if(renderCommandsEvent != NULL)
+	{
+		SDL_DestroyCond(renderCommandsEvent);
+		renderCommandsEvent = NULL;
+	}
+
+	if(renderCompletedEvent != NULL)
+	{
+		SDL_DestroyCond(renderCompletedEvent);
+		renderCompletedEvent = NULL;
+	}
+
+	renderThreadFunction = NULL;
 }
 
 static volatile void *smpData = NULL;
