@@ -43,12 +43,12 @@ GAME OPTIONS MENU
 #define ID_HIGHQUALITYSKY		129
 #define ID_EJECTINGBRASS		130
 #define ID_WALLMARKS			131
-#define ID_SYNCEVERYFRAME		133
-#define ID_FORCEMODEL			134
-#define ID_FORCEBRIGHTSKINS		135
-#define ID_DRAWTEAMOVERLAY		136
-#define ID_ALLOWDOWNLOAD		137
-#define ID_BACK					138
+//#define ID_SYNCEVERYFRAME		133
+#define ID_FORCEMODEL			133
+#define ID_FORCEBRIGHTSKINS		134
+#define ID_DRAWTEAMOVERLAY		135
+#define ID_ALLOWDOWNLOAD		136
+#define ID_BACK					137
 
 
 typedef struct
@@ -64,7 +64,7 @@ typedef struct
 	menuradiobutton_s brass;
 	menuradiobutton_s wallmarks;
 	menuradiobutton_s highqualitysky;
-	menuradiobutton_s synceveryframe;
+//	menuradiobutton_s synceveryframe;
 	menuradiobutton_s forceModel;
 	menuradiobutton_s forceBrightSkins;
 	menulist_s      drawteamoverlay;
@@ -89,7 +89,7 @@ static void Preferences_SetMenuItems(void)
 	s_preferences.wallmarks.curvalue = trap_Cvar_VariableValue("cg_marks") != 0;
 
 	s_preferences.highqualitysky.curvalue = trap_Cvar_VariableValue("r_fastsky") == 0;
-	s_preferences.synceveryframe.curvalue = trap_Cvar_VariableValue("r_finish") != 0;
+//	s_preferences.synceveryframe.curvalue = trap_Cvar_VariableValue("r_finish") != 0;
 	s_preferences.forceModel.curvalue = trap_Cvar_VariableValue("cg_forceModel") != 0;
 	s_preferences.forceBrightSkins.curvalue = trap_Cvar_VariableValue("cg_forceBrightSkins") != 0;
 	s_preferences.drawteamoverlay.curvalue = Com_Clamp(0, 3, trap_Cvar_VariableValue("cg_drawTeamOverlay"));
@@ -124,10 +124,11 @@ static void Preferences_Event(void *ptr, int notification)
 		case ID_WALLMARKS:
 			trap_Cvar_SetValue("cg_marks", s_preferences.wallmarks.curvalue);
 			break;
-
+/*
 		case ID_SYNCEVERYFRAME:
 			trap_Cvar_SetValue("r_finish", s_preferences.synceveryframe.curvalue);
 			break;
+			*/
 
 		case ID_FORCEMODEL:
 			trap_Cvar_SetValue("cg_forceModel", s_preferences.forceModel.curvalue);
@@ -320,6 +321,7 @@ static void Preferences_MenuInit(void)
 	s_preferences.highqualitysky.generic.x = PREFERENCES_X_POS;
 	s_preferences.highqualitysky.generic.y = y;
 
+#if 0
 	y += BIGCHAR_HEIGHT + 2;
 	s_preferences.synceveryframe.generic.type = MTYPE_RADIOBUTTON;
 	s_preferences.synceveryframe.generic.name = "Sync Every Frame:";
@@ -328,6 +330,7 @@ static void Preferences_MenuInit(void)
 	s_preferences.synceveryframe.generic.id = ID_SYNCEVERYFRAME;
 	s_preferences.synceveryframe.generic.x = PREFERENCES_X_POS;
 	s_preferences.synceveryframe.generic.y = y;
+#endif
 
 	y += BIGCHAR_HEIGHT + 2;
 	s_preferences.drawteamoverlay.generic.type = MTYPE_SPINCONTROL;
@@ -369,7 +372,7 @@ static void Preferences_MenuInit(void)
 	Menu_AddItem(&s_preferences.menu, &s_preferences.brass);
 //  Menu_AddItem(&s_preferences.menu, &s_preferences.identifytarget);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.highqualitysky);
-	Menu_AddItem(&s_preferences.menu, &s_preferences.synceveryframe);
+//	Menu_AddItem(&s_preferences.menu, &s_preferences.synceveryframe);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.drawteamoverlay);
 
 	Menu_AddItem(&s_preferences.menu, &s_preferences.back);
