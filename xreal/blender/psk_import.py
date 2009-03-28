@@ -430,6 +430,7 @@ def ImportPSK(infile):
         if i == 0:
             axReferenceBones[i].parentIndex = -1
             quat.y = -quat.y
+            #quat.inverse()
         else:
             quat.inverse()
         
@@ -456,7 +457,7 @@ def ImportPSK(infile):
         print("processing bone ", refBone.name)
         
         #if refBone.position.length == 0:
-        refBone.Dump()
+        #refBone.Dump()
         
         editBone = Armature.Editbone()
         editBone.name = refBone.name
@@ -472,14 +473,16 @@ def ImportPSK(infile):
             #parent = armData.bones[editBones[refBone.parentIndex].name]
             
             editParent = editBones[refBone.parentIndex]
-            editBone.parent = editParent
+            #editBone.parent = editParent
             
             editBone.head = refParent.position.copy()
             #editBone.tail = refBone.position
-            editBone.matrix = refBone.quat.toMatrix()
-            rotatedPos = refParent.quat.toMatrix() * refBone.position.copy()
+            #editBone.matrix = refBone.quat.toMatrix()
+            #m = Matrix(QuatToMatrix(refParent.quat))
+            #rotatedPos = m * refBone.position.copy()
+            rotatedPos = refParent.quat * refBone.position.copy()
             editBone.tail = refParent.position + rotatedPos
-            #refBone.position = refParent.position + rotatedPos
+            refBone.position = refParent.position + rotatedPos
             #editBone.tail = refBone.position = refParent.position + refBone.position
             
             q1 = refParent.quat.copy()
@@ -501,10 +504,11 @@ def ImportPSK(infile):
             
         else:
             editBone.head = Vector(0, 0, 0)
-            editBone.tail = refBone.quat.toMatrix() * refBone.position
+            editBone.tail = refBone.position.copy()
+            #editBone.tail = refBone.quat.toMatrix() * refBone.position
             #editBone.options = [Armature.HINGE]
             
-            editBone.matrix = refBone.quat.toMatrix()
+            #editBone.matrix = refBone.quat.toMatrix()
         
         editBones.append(editBone)
         
