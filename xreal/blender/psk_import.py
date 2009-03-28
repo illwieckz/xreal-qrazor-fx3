@@ -470,12 +470,15 @@ def ImportPSK(infile):
             print("looking for parent bone", parentName)
             #parent = armData.bones[parentName]
             #parent.
-            #parent = armData.bones[editBones[refBone.parentIndex].name]
-            
-            editParent = editBones[refBone.parentIndex]
-            #editBone.parent = editParent
+            #
             
             editBone.head = refParent.position.copy()
+            
+            editParent = editBones[refBone.parentIndex]
+            #editParent = armData.bones[editBones[refBone.parentIndex].name]
+            #editParent = armData.bones[parentName]
+            editBone.parent = editParent
+            
             #editBone.tail = refBone.position
             #editBone.matrix = refBone.quat.toMatrix()
             #m = Matrix(QuatToMatrix(refParent.quat))
@@ -495,10 +498,10 @@ def ImportPSK(infile):
             #m2 = refBone.quat.toMatrix()
             
             
-            #refBone.quat = matrix.toQuat()  
+            #refBone.quat = matrix.toQuat()
             
-            
-            #editBone.options = [Armature.HINGE, Armature.CONNECTED]
+            #editBone.options = [Armature.HINGE]
+            editBone.options = [Armature.HINGE, Armature.CONNECTED]
             
            
             
@@ -506,17 +509,23 @@ def ImportPSK(infile):
             editBone.head = Vector(0, 0, 0)
             editBone.tail = refBone.position.copy()
             #editBone.tail = refBone.quat.toMatrix() * refBone.position
-            #editBone.options = [Armature.HINGE]
+            editBone.options = [Armature.HINGE]
             
             #editBone.matrix = refBone.quat.toMatrix()
         
         editBones.append(editBone)
-        
-        armData.makeEditable()
         armData.bones[editBone.name] = editBone
-        armData.update()
+    
+    # only update after adding all edit bones or it will crash Blender !!!
+    armData.update()
         
     print("done processing reference bones")
+    
+    #for editBone in editBones:
+        #armData.makeEditable()
+        #armData.bones[editBone.name] = editBone
+    
+    #armData.update()
     
     
     
