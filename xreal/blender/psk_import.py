@@ -272,11 +272,9 @@ class axReferenceBone:
 def ImportPSK(infile):
     print "Importing file: ", infile
     pskfile = file(infile,'rb')
-    logf = file('C:\\psk2blendermesh.log','w')
+    
     #
-    Tmsh = NMesh.GetRaw()
-    objName = infile.split('\\')[-1].split('.')[0]
-    Tmsh.name = objName
+    mesh = Mesh.New('mesh01')
     
     # read general header
     header = axChunkHeader()
@@ -294,17 +292,15 @@ def ImportPSK(infile):
         
         axPoints.append(point)
             
-        Tmsh.verts.append(NMesh.Vert(point.x, point.y, point.z))
+        #mesh.verts.extend([[point.x, point.y, point.z]])
     
     
     # read the VTXW0000 header
     header.Load(pskfile)
     header.Dump()
     
-    # UVCoords record format = [index to PNTS, U coord, v coord]
-    # We need to temporarily store this info to combine it with face data
-    # from the next section of the psk file.
-    UVCoords = []
+    xyzList = []
+    uvList = []
     axVerts = []
     for i in range(0, header.dataCount):
         vert = axVertex()
@@ -313,7 +309,10 @@ def ImportPSK(infile):
         
         axVerts.append(vert)
         
-        UVCoords.append([vert.pointIndex, vert.u, vert.v])
+        xyzList.append(Vector([axPoints[vert.pointIndex].x, axPoints[vert.pointIndex].y, axPoints[vert.pointIndex].z]))
+        uvList.append(Vector([vert.u, vert.v]))
+        
+    mesh.verts.extend(xyzList)
     
     # read the FACE0000 header
     header.Load(pskfile)
@@ -327,39 +326,31 @@ def ImportPSK(infile):
         
         axTriangles.append(tri)
     
+    SGlist = []
+    for i in range(0, header.dataCount):
+        tri = axTriangles[i]
+        
+        mesh.faces.extend(tri.indexes)
+        
+        uvData = []
+        uvData.append(uvList[tri.indexes[0]])
+        uvData.append(uvList[tri.indexes[1]])
+        uvData.append(uvList[tri.indexes[2]])
+        mesh.faces[i].uv = uvData
+        
+        # collect a list of the smoothing groups
+        if SGlist.count(tri.smoothingGroups) == 0:
+            SGlist.append(tri.smoothingGroups)
+        
+        # assign a material index to the face
+        #mesh.faces[-1].materialIndex = SGlist.index(indata[5])
+        mesh.faces[i].mat = tri.materialIndex
+        
+        
+        
+    #print >> logf, "Using Materials to represent PSK Smoothing Groups..."
     
-
-#    SGlist = []
-#    counter = 0
-#    while counter < recCount:
-#        counter = counter + 1
-#        indata = unpack('hhhbbi',pskfile.read(12))
-#        #the psk values are: nWdgIdx1|WdgIdx2|WdgIdx3|MatIdx|AuxMatIdx|SmthGrp
-#        #indata[0] = index of UVCoords
-#        #UVCoords[indata[0]]=[index to PNTS, U coord, v coord]
-#        #UVCoords[indata[0]][0] = index to PNTS
-#        PNTSA = UVCoords[indata[0]][0]
-#        PNTSB = UVCoords[indata[1]][0]
-#        PNTSC = UVCoords[indata[2]][0]
-#        Tmsh.faces.append(NMesh.Face([Tmsh.verts[PNTSA],Tmsh.verts[PNTSB],Tmsh.verts[PNTSC]]))
-#        #get the uv coords - UVCoords[indata[0]][1] = u0, UVCoords[indata[0]][2] = v0, UVCoords[indata[1]][1] = v1, etc
-#        u0 = UVCoords[indata[0]][1]
-#        v0 = UVCoords[indata[0]][2]
-#        u1 = UVCoords[indata[1]][1]
-#        v1 = UVCoords[indata[1]][2]
-#        u2 = UVCoords[indata[2]][1]
-#        v2 = UVCoords[indata[2]][2]
-#        #update the uv var of the last item in the Tmsh.faces list
-#        # which is the face just added above
-#        Tmsh.faces[-1].uv = [(u0,v0),(u1,v1),(u2,v2)]
-#        #collect a list of the smoothing groups
-#        if SGlist.count(indata[5]) == 0:
-#            SGlist.append(indata[5])
-#        #assign a material index to the face
-#        Tmsh.faces[-1].materialIndex = SGlist.index(indata[5])
-#        
-#    print >> logf, "Using Materials to represent PSK Smoothing Groups..."
-#    #create a material for each SmthGrp
+#    # create a material for each SmthGrp
 #    for x in range(len(SGlist)):
 #        MatName = "SmthGrp"+str(SGlist[x])
 #        if SGlist[x] == 0:
@@ -385,8 +376,8 @@ def ImportPSK(infile):
 #                if newMat.B < 0.5: newMat.B += 0.25
 #                else: newMat.B -= 0.25
 #        #Add the material to the mesh
-#        Tmsh.materials.append(newMat)
-#    
+#        mesh.materials.append(newMat)
+    
 
     
     # read the MATT0000 header
@@ -501,7 +492,8 @@ def ImportPSK(infile):
             #refBone.quat = matrix.toQuat()
             
             #editBone.options = [Armature.HINGE]
-            editBone.options = [Armature.HINGE, Armature.CONNECTED]
+            #editBone.options = [Armature.HINGE, Armature.CONNECTED]
+            editBone.options = [Armature.CONNECTED]
             
            
             
@@ -509,7 +501,7 @@ def ImportPSK(infile):
             editBone.head = Vector(0, 0, 0)
             editBone.tail = refBone.position.copy()
             #editBone.tail = refBone.quat.toMatrix() * refBone.position
-            editBone.options = [Armature.HINGE]
+            #editBone.options = [Armature.HINGE]
             
             #editBone.matrix = refBone.quat.toMatrix()
         
@@ -557,49 +549,56 @@ def ImportPSK(infile):
 #        #Add the material to the mesh
 #        VtxCol.append(tmpCol)
     
-    #read the RAWW0000 header
-    indata = unpack('20s3i',pskfile.read(32))
-    recCount = indata[3]
-    print >> logf, "Nbr of RAWW0000 records: ", recCount
-    #RAWW0000 fields: Weight|PntIdx|BoneIdx
-    RWghts = []
-    counter = 0
-    while counter < recCount:
-        counter = counter + 1
-        indata = unpack('fii',pskfile.read(12))
-        RWghts.append([indata[1],indata[2],indata[0]])
-    #RWghts fields = PntIdx|BoneIdx|Weight
-    RWghts.sort()
-    print >> logf, "len(RWghts)=",len(RWghts)
-    
-    Tmsh.update()
-    
-    ##set the Vertex Colors of the faces
-    ##face.v[n] = RWghts[0]
-    ##RWghts[1] = index of VtxCol
-    for x in range(len(Tmsh.faces)):
-        for y in range(len(Tmsh.faces[x].v)):
-            #find v in RWghts[n][0]
-            findVal = Tmsh.faces[x].v[y].index
-            n = 0
-            while findVal != RWghts[n][0]:
-                n = n + 1
-            TmpCol = VtxCol[RWghts[n][1]]
-            #check if a vertex has more than one influence
-            if n != len(RWghts)-1:
-                if RWghts[n][0] == RWghts[n+1][0]:
-                    #if there is more than one influence, use the one with the greater influence
-                    #for simplicity only 2 influences are checked, 2nd and 3rd influences are usually very small
-                    if RWghts[n][2] < RWghts[n+1][2]:
-                        TmpCol = VtxCol[RWghts[n+1][1]]
-            Tmsh.faces[x].col.append(NMesh.Col(TmpCol[0],TmpCol[1],TmpCol[2],0))
-    ##
+#    #read the RAWW0000 header
+#    indata = unpack('20s3i',pskfile.read(32))
+#    recCount = indata[3]
+#    print >> logf, "Nbr of RAWW0000 records: ", recCount
+#    #RAWW0000 fields: Weight|PntIdx|BoneIdx
+#    RWghts = []
+#    counter = 0
+#    while counter < recCount:
+#        counter = counter + 1
+#        indata = unpack('fii',pskfile.read(12))
+#        RWghts.append([indata[1],indata[2],indata[0]])
+#    #RWghts fields = PntIdx|BoneIdx|Weight
+#    RWghts.sort()
+#    print >> logf, "len(RWghts)=",len(RWghts)
+#    
+#    mesh.update()
+#    
+#    ##set the Vertex Colors of the faces
+#    ##face.v[n] = RWghts[0]
+#    ##RWghts[1] = index of VtxCol
+#    for x in range(len(mesh.faces)):
+#        for y in range(len(mesh.faces[x].v)):
+#            #find v in RWghts[n][0]
+#            findVal = mesh.faces[x].v[y].index
+#            n = 0
+#            while findVal != RWghts[n][0]:
+#                n = n + 1
+#            TmpCol = VtxCol[RWghts[n][1]]
+#            #check if a vertex has more than one influence
+#            if n != len(RWghts)-1:
+#                if RWghts[n][0] == RWghts[n+1][0]:
+#                    #if there is more than one influence, use the one with the greater influence
+#                    #for simplicity only 2 influences are checked, 2nd and 3rd influences are usually very small
+#                    if RWghts[n][2] < RWghts[n+1][2]:
+#                        TmpCol = VtxCol[RWghts[n+1][1]]
+#            mesh.faces[x].col.append(NMesh.Col(TmpCol[0],TmpCol[1],TmpCol[2],0))
+#    ##
     
     pskfile.close()
-    logf.close()
     
-    Tmsh.update()
-    NMesh.PutRaw(Tmsh,objName)
+    mesh.update()
+    meshObject = Object.New('Mesh', 'PSKMesh')
+    meshObject.link(mesh)
+    scene.link(meshObject)
+
+    
+    #meshObj = Object.New(mesh, "Mesh")
+    #scene = Scene.GetCurrent() 
+    #scene.objects.link(meshObj)
+    
     Blender.Window.RedrawAll()
     
     print "PSK2Blender completed"
