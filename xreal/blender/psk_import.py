@@ -7,9 +7,9 @@ Group: 'Import'
 Tooltip: 'Unreal Skeletal Mesh Import (*.psk)' 
 """
 
-__author__ = "D.M. Sturgeon (camg188 at the elYsium forum), Robert (Tr3B) Beckebans"
+__author__ = "Robert (Tr3B) Beckebans"
 __url__ = ("http://xreal.sourceforge.net")
-__version__ = "0.2 2009-03-18"
+__version__ = "0.9 2009-03-18"
 __bpydoc__ = """\ 
 
 -- Unreal Skeletal Mesh (.psk) import script --<br>
@@ -17,11 +17,8 @@ __bpydoc__ = """\
 - NOTES:
 - This script imports from Unreal's PSK file format for Skeletal Meshes. <br>
 
-- v0.1
+- v0.9
 - Initial version
-
-- v0.2
-- completely rewritten in an object oriented fashion
 
 
 - LICENSE:
@@ -268,6 +265,36 @@ class axReferenceBone:
 
 
 
+class axBoneWeight:
+    binaryFormat = "fii"
+
+    def __init__(self):
+        self.weight = 0.0
+        self.pointIndex = 0
+        self.boneIndex = 0
+        
+
+    def Load(self, file):
+        try:
+            tmpData = file.read(struct.calcsize(self.binaryFormat))
+            data = struct.unpack(self.binaryFormat, tmpData)
+        except:
+            print("Exception while reading axBoneWeight")
+            raise
+        
+        self.weight = data[0]
+        self.pointIndex = data[1]
+        self.boneIndex = data[2]
+
+    def Dump(self):
+        print("axBoneWeight:")
+        print("weight:", self.weight)
+        print("pointIndex:", self.pointIndex)
+        print("boneIndex:", self.boneIndex)
+
+
+
+
 
 def ImportPSK(infile):
     print "Importing file: ", infile
@@ -346,39 +373,12 @@ def ImportPSK(infile):
         #mesh.faces[-1].materialIndex = SGlist.index(indata[5])
         mesh.faces[i].mat = tri.materialIndex
         
-        
-        
-    #print >> logf, "Using Materials to represent PSK Smoothing Groups..."
+    mesh.update()
+    meshObject = Object.New('Mesh', 'PSKMesh')
+    meshObject.link(mesh)
     
-#    # create a material for each SmthGrp
-#    for x in range(len(SGlist)):
-#        MatName = "SmthGrp"+str(SGlist[x])
-#        if SGlist[x] == 0:
-#            MatName = 'SmthGrpNone'
-#        newMat = Material.New(MatName)
-#        newMat.mode |= Material.Modes.SHADELESS
-#        #change the overall darkness of each material in a range between 0.1 and 0.9
-#        tmpVal = ((float(x)+1.0)/(len(SGlist))*0.7)+0.1
-#        #set no smthgrp to light gray
-#        if SGlist[x] == 0:    tmpVal = 0.9
-#        newMat.R = tmpVal
-#        newMat.G = tmpVal
-#        newMat.B = tmpVal
-#        #Change the color of each material slightly
-#        if SGlist[x] != 0:
-#            if x % 3 == 0:
-#                if newMat.R < 0.5: newMat.R += 0.25
-#                else: newMat.R -= 0.25
-#            if x % 3 == 1:
-#                if newMat.G < 0.5: newMat.G += 0.25
-#                else: newMat.G -= 0.25
-#            if x % 3 == 2:
-#                if newMat.B < 0.5: newMat.B += 0.25
-#                else: newMat.B -= 0.25
-#        #Add the material to the mesh
-#        mesh.materials.append(newMat)
-    
-
+    scene = Scene.GetCurrent() 
+    scene.link(meshObject)
     
     # read the MATT0000 header
     header.Load(pskfile)
@@ -425,17 +425,16 @@ def ImportPSK(infile):
         else:
             quat.inverse()
         
-        
-        
-    #
+    
+    # create an armature skeleton
     armData = Armature.Armature("PSK") 
     armData.drawAxes = True 
     
-    armObj = Object.New('Armature', "ReferenceBones")
-    armObj.link(armData)
+    armObject = Object.New('Armature', "ReferenceBones")
+    armObject.link(armData)
     
     scene = Scene.GetCurrent() 
-    scene.objects.link(armObj)
+    scene.objects.link(armObject)
     
     armData.makeEditable()
     
@@ -519,87 +518,57 @@ def ImportPSK(infile):
     
     #armData.update()
     
-    
-    
-    armObj.makeDisplayList()
+    armObject.makeDisplayList()
     scene.update();
-    Blender.Window.RedrawAll()
+    Window.RedrawAll()
     
-    # TODO - Add import of Armature
     
-    ##
-    #print "Using VertexColors to represent PSK Vertex Influences..."
-    #create a color for each bone
-#    VtxCol = []
-#    for x in range(len(Bns)):
-#        #change the overall darkness of each material in a range between 0.1 and 0.9
-#        tmpVal = ((float(x)+1.0)/(len(Bns))*0.7)+0.1
-#        tmpVal = int(tmpVal * 256)
-#        tmpCol = [tmpVal,tmpVal,tmpVal,0]
-#        #Change the color of each material slightly
-#        if x % 3 == 0:
-#            if tmpCol[0] < 128: tmpCol[0] += 60
-#            else: tmpCol[0] -= 60
-#        if x % 3 == 1:
-#            if tmpCol[1] < 128: tmpCol[1] += 60
-#            else: tmpCol[1] -= 60
-#        if x % 3 == 2:
-#            if tmpCol[2] < 128: tmpCol[2] += 60
-#            else: tmpCol[2] -= 60
-#        #Add the material to the mesh
-#        VtxCol.append(tmpCol)
+    # read the RAWWEIGHTS header
+    header.Load(pskfile)
+    header.Dump()
     
-#    #read the RAWW0000 header
-#    indata = unpack('20s3i',pskfile.read(32))
-#    recCount = indata[3]
-#    print >> logf, "Nbr of RAWW0000 records: ", recCount
-#    #RAWW0000 fields: Weight|PntIdx|BoneIdx
-#    RWghts = []
-#    counter = 0
-#    while counter < recCount:
-#        counter = counter + 1
-#        indata = unpack('fii',pskfile.read(12))
-#        RWghts.append([indata[1],indata[2],indata[0]])
-#    #RWghts fields = PntIdx|BoneIdx|Weight
-#    RWghts.sort()
-#    print >> logf, "len(RWghts)=",len(RWghts)
-#    
-#    mesh.update()
-#    
-#    ##set the Vertex Colors of the faces
-#    ##face.v[n] = RWghts[0]
-#    ##RWghts[1] = index of VtxCol
-#    for x in range(len(mesh.faces)):
-#        for y in range(len(mesh.faces[x].v)):
-#            #find v in RWghts[n][0]
-#            findVal = mesh.faces[x].v[y].index
-#            n = 0
-#            while findVal != RWghts[n][0]:
-#                n = n + 1
-#            TmpCol = VtxCol[RWghts[n][1]]
-#            #check if a vertex has more than one influence
-#            if n != len(RWghts)-1:
-#                if RWghts[n][0] == RWghts[n+1][0]:
-#                    #if there is more than one influence, use the one with the greater influence
-#                    #for simplicity only 2 influences are checked, 2nd and 3rd influences are usually very small
-#                    if RWghts[n][2] < RWghts[n+1][2]:
-#                        TmpCol = VtxCol[RWghts[n+1][1]]
-#            mesh.faces[x].col.append(NMesh.Col(TmpCol[0],TmpCol[1],TmpCol[2],0))
-#    ##
+    axBoneWeights = []
+    for i in range(0, header.dataCount):
+        axBoneWeights.append(axBoneWeight())
+        axBoneWeights[i].Load(pskfile)
+        
+        if i < 10:
+            axBoneWeights[i].Dump()
+    
+    
+    # calculate the vertex groups
+    vertGroupCreated = []
+    for i in range(0, len(axReferenceBones)):
+        vertGroupCreated.append(0)
+    
+    
+    for i in range(0, len(axReferenceBones)):
+        refBone = axReferenceBones[i]
+        
+        for j in range(0, len(axVerts)):
+            axVert = axVerts[j]
+            
+            for boneWeight in axBoneWeights:
+                
+                if boneWeight.boneIndex == i:
+                    
+                    # create a vertex group for this bone if not done yet
+                    if vertGroupCreated[i] == 0:
+                        print('creating vertex group:', refBone.name)
+                        mesh.addVertGroup(refBone.name)
+                        vertGroupCreated[i] = 1
+                        
+                    #vertList.append(boneWeight.pointIndex)
+                    if boneWeight.pointIndex == axVert.pointIndex:
+                        mesh.assignVertsToGroup(refBone.name, [j], boneWeight.weight, Mesh.AssignModes.ADD)
+                
+        #mesh.assignVertsToGroup(refBone.name, vertList, )
+                
+    armObject.makeParentDeform([meshObject], 0, 0)
     
     pskfile.close()
     
-    mesh.update()
-    meshObject = Object.New('Mesh', 'PSKMesh')
-    meshObject.link(mesh)
-    scene.link(meshObject)
-
-    
-    #meshObj = Object.New(mesh, "Mesh")
-    #scene = Scene.GetCurrent() 
-    #scene.objects.link(meshObj)
-    
-    Blender.Window.RedrawAll()
+    Window.RedrawAll()
     
     print "PSK2Blender completed"
 
