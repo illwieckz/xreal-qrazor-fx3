@@ -532,8 +532,8 @@ def ImportPSK(infile):
         axBoneWeights.append(axBoneWeight())
         axBoneWeights[i].Load(pskfile)
         
-        if i < 10:
-            axBoneWeights[i].Dump()
+        #if i < 10:
+        #   axBoneWeights[i].Dump()
     
     
     # calculate the vertex groups
@@ -544,20 +544,20 @@ def ImportPSK(infile):
     
     for i in range(0, len(axReferenceBones)):
         refBone = axReferenceBones[i]
-        
-        for j in range(0, len(axVerts)):
-            axVert = axVerts[j]
             
-            for boneWeight in axBoneWeights:
-                
-                if boneWeight.boneIndex == i:
+        for boneWeight in axBoneWeights:
+            
+            if boneWeight.boneIndex == i:
                     
-                    # create a vertex group for this bone if not done yet
-                    if vertGroupCreated[i] == 0:
-                        print('creating vertex group:', refBone.name)
-                        mesh.addVertGroup(refBone.name)
-                        vertGroupCreated[i] = 1
-                        
+                # create a vertex group for this bone if not done yet
+                if vertGroupCreated[i] == 0:
+                    print('creating vertex group:', refBone.name)
+                    mesh.addVertGroup(refBone.name)
+                    vertGroupCreated[i] = 1
+            
+                for j in range(0, len(axVerts)):
+                    axVert = axVerts[j]
+                    
                     #vertList.append(boneWeight.pointIndex)
                     if boneWeight.pointIndex == axVert.pointIndex:
                         mesh.assignVertsToGroup(refBone.name, [j], boneWeight.weight, Mesh.AssignModes.ADD)
