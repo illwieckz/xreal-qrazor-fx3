@@ -298,24 +298,24 @@ class axBoneWeight:
 
 def ImportPSK(infile):
     print "Importing file: ", infile
-    pskfile = file(infile,'rb')
+    pskFile = file(infile,'rb')
     
     #
     mesh = Mesh.New('mesh01')
     
     # read general header
     header = axChunkHeader()
-    header.Load(pskfile)
+    header.Load(pskFile)
     header.Dump()
     
     # read the PNTS0000 header
-    header.Load(pskfile)
+    header.Load(pskFile)
     header.Dump()
     
     axPoints = []
     for i in range(0, header.dataCount):
         point = axPoint()
-        point.Load(pskfile)
+        point.Load(pskFile)
         
         axPoints.append(point)
             
@@ -323,7 +323,7 @@ def ImportPSK(infile):
     
     
     # read the VTXW0000 header
-    header.Load(pskfile)
+    header.Load(pskFile)
     header.Dump()
     
     xyzList = []
@@ -331,7 +331,7 @@ def ImportPSK(infile):
     axVerts = []
     for i in range(0, header.dataCount):
         vert = axVertex()
-        vert.Load(pskfile)
+        vert.Load(pskFile)
         #vert.Dump()
         
         axVerts.append(vert)
@@ -342,13 +342,13 @@ def ImportPSK(infile):
     mesh.verts.extend(xyzList)
     
     # read the FACE0000 header
-    header.Load(pskfile)
+    header.Load(pskFile)
     header.Dump()
     
     axTriangles = []
     for i in range(0, header.dataCount):
         tri = axTriangle()
-        tri.Load(pskfile)
+        tri.Load(pskFile)
         #tri.Dump()
         
         axTriangles.append(tri)
@@ -381,11 +381,11 @@ def ImportPSK(infile):
     scene.link(meshObject)
     
     # read the MATT0000 header
-    header.Load(pskfile)
+    header.Load(pskFile)
     header.Dump()
     
     for i in range(0, header.dataCount):
-        data = unpack('64s6i', pskfile.read(88))
+        data = unpack('64s6i', pskFile.read(88))
         matName = asciiz(data[0])
         print("creating material", matName)
         
@@ -407,13 +407,13 @@ def ImportPSK(infile):
         
     
     # read the REFSKELT header
-    header.Load(pskfile)
+    header.Load(pskFile)
     header.Dump()
     
     axReferenceBones = []
     for i in range(0, header.dataCount):
         axReferenceBones.append(axReferenceBone())
-        axReferenceBones[i].Load(pskfile)
+        axReferenceBones[i].Load(pskFile)
         #axReferenceBones[i].Dump()
         
         quat = axReferenceBones[i].quat
@@ -524,13 +524,13 @@ def ImportPSK(infile):
     
     
     # read the RAWWEIGHTS header
-    header.Load(pskfile)
+    header.Load(pskFile)
     header.Dump()
     
     axBoneWeights = []
     for i in range(0, header.dataCount):
         axBoneWeights.append(axBoneWeight())
-        axBoneWeights[i].Load(pskfile)
+        axBoneWeights[i].Load(pskFile)
         
         #if i < 10:
         #   axBoneWeights[i].Dump()
@@ -566,7 +566,7 @@ def ImportPSK(infile):
                 
     armObject.makeParentDeform([meshObject], 0, 0)
     
-    pskfile.close()
+    pskFile.close()
     
     Window.RedrawAll()
     
