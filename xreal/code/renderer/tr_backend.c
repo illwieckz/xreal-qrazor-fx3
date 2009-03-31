@@ -6117,30 +6117,54 @@ static void RB_RenderDebugUtils()
 
 				switch (light->l.rlType)
 				{
-					/*
 					case RL_OMNI:
 					{
-						// draw corners
-						qglBegin(GL_LINES);
+						tess.numIndexes = 0;
+						tess.numVertexes = 0;
 
-						qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, lightColor);
-						for(j = 0; j < 8; j++)
-						{
-							qglVertex3fv(vec3_origin);
+						VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+						VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+						VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+						VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+						Tess_AddQuadStamp2(quadVerts, lightColor);
 
-							tmp[0] = light->localBounds[j & 1][0];
-							tmp[1] = light->localBounds[(j >> 1) & 1][1];
-							tmp[2] = light->localBounds[(j >> 2) & 1][2];
+						VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+						VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+						VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+						VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+						Tess_AddQuadStamp2(quadVerts, lightColor);
 
-							qglVertex3fv(tmp);
-						}
-						qglEnd();
+						VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+						VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+						VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+						VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+						Tess_AddQuadStamp2(quadVerts, lightColor);
 
-						// draw local bounding box
-						R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], lightColor);
+						VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+						VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+						VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+						VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+						Tess_AddQuadStamp2(quadVerts, lightColor);
+
+						VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+						VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+						VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+						VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+						Tess_AddQuadStamp2(quadVerts, lightColor);
+
+						VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+						VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+						VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+						VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+						Tess_AddQuadStamp2(quadVerts, lightColor);
+
+						Tess_UpdateVBOs();
+						Tess_DrawElements();
+
+						tess.numIndexes = 0;
+						tess.numVertexes = 0;
 						break;
 					}
-					*/
 
 					case RL_PROJ:
 					{
@@ -6193,11 +6217,29 @@ static void RB_RenderDebugUtils()
 						tess.numVertexes = 0;
 						tess.numIndexes = 0;
 
+						for(j = 0; j < 4; j++)
+						{
+							VectorCopy(corners[j], tess.xyz[tess.numVertexes]);
+							VectorCopy4(lightColor, tess.colors[tess.numVertexes]);
+							tess.indexes[tess.numIndexes++] = tess.numVertexes;
+							tess.numVertexes++;
+
+							VectorCopy(corners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
+							VectorCopy4(lightColor, tess.colors[tess.numVertexes]);
+							tess.indexes[tess.numIndexes++] = tess.numVertexes;
+							tess.numVertexes++;
+
+							VectorCopy(vec3_origin, tess.xyz[tess.numVertexes]);
+							VectorCopy4(lightColor, tess.colors[tess.numVertexes]);
+							tess.indexes[tess.numIndexes++] = tess.numVertexes;
+							tess.numVertexes++;
+						}
+
 						VectorSet4(quadVerts[0], corners[0][0], corners[0][1], corners[0][2], 1);
 						VectorSet4(quadVerts[1], corners[1][0], corners[1][1], corners[1][2], 1);
 						VectorSet4(quadVerts[2], corners[2][0], corners[2][1], corners[2][2], 1);
 						VectorSet4(quadVerts[3], corners[3][0], corners[3][1], corners[3][2], 1);
-						Tess_AddQuadStamp2(quadVerts, colorCyan);
+						Tess_AddQuadStamp2(quadVerts, lightColor);
 
 						Tess_UpdateVBOs();
 						Tess_DrawElements();
