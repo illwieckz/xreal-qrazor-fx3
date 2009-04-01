@@ -178,8 +178,8 @@ typedef struct
 	// projective light specific
 	float           fovX;
 	float           fovY;
-	float           near;
-	float           far;
+	float           distNear;
+	float           distFar;
 
 	qboolean        noShadows;
 	int             noShadowID;	// don't cast shadows of all entities with this id

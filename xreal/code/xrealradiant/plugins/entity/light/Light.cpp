@@ -507,10 +507,10 @@ const AABB& Light::aabb() const {
 		zNear = m_lightNear;
 		zFar = m_lightFar;
 
-		xMax = zNear * tan(m_lightFovX * M_PI / 360.0f);
+		xMax = zNear * tan(m_lightFovX * c_pi / 360.0f);
 		xMin = -xMax;
 
-		yMax = zNear * tan(m_lightFovY * M_PI / 360.0f);
+		yMax = zNear * tan(m_lightFovY * c_pi / 360.0f);
 		yMin = -yMax;
 
 		// start with an empty AABB and include all the projection vertices
@@ -624,13 +624,13 @@ const Matrix4& Light::projection() const {
     zNear = m_lightNear;
     zFar = m_lightFar;
 
-    xMax = zNear * tan(m_lightFovX * M_PI / 360.0f);
+    xMax = zNear * tan(m_lightFovX * c_pi / 360.0f);
     //xMax = zNear * tan(_lightRightTransformed.angle(_lightTargetTransformed));
     //xMax = zNear * tan(_lightTarget.angle(_lightRight));
     //xMax = zNear * tan(_lightRight.getLength() * M_PI / 360.0f);
     xMin = -xMax;
 
-    yMax = zNear * tan(m_lightFovY * M_PI / 360.0f);
+    yMax = zNear * tan(m_lightFovY * c_pi / 360.0f);
     //yMax = zNear * tan((_lightUpTransformed.getLength() * M_PI / 360.0f) * 0.25f);
     //yMax = zNear * tan(_lightTarget.angle(_lightUp));
     //xMax = zNear * tan(_lightUp.getLength() * M_PI / 360.0f);

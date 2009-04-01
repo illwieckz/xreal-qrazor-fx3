@@ -1998,8 +1998,8 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 
 		light.fovX = 35;
 		light.fovY = 35;
-		light.near = 1;
-		light.far = Distance(light.origin, trace.endpos) + SHADOW_DISTANCE;
+		light.distNear = 1;
+		light.distFar = Distance(light.origin, trace.endpos) + SHADOW_DISTANCE;
 
 		light.noShadowID = noShadowID;
 		light.inverseShadows = qtrue;

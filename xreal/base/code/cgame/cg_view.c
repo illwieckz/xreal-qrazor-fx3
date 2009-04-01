@@ -520,8 +520,8 @@ void CG_TestProjLight_f(void)
 
 	cg.testLight.fovX = 45;
 	cg.testLight.fovY = 45;
-	cg.testLight.near = 1;
-	cg.testLight.far = 800;
+	cg.testLight.distNear = 1;
+	cg.testLight.distFar = 800;
 
 	cg.testFlashLight = qfalse;
 }

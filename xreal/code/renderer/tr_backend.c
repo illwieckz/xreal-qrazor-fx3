@@ -1315,7 +1315,7 @@ static void RB_RenderInteractions()
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.far - light->l.near, 1.0));	// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
 					break;
 				}
 
@@ -1727,7 +1727,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.far - light->l.near, 1.0));	// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
 					break;
 				}
 
@@ -2122,8 +2122,8 @@ static void RB_RenderInteractionsShadowMapped()
 
 							// TODO LiSPSM
 
-							zNear = light->l.near;
-							zFar = light->l.far;
+							zNear = light->l.distNear;
+							zFar = light->l.distFar;
 
 							xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
 							xMin = -xMax;
@@ -2454,7 +2454,7 @@ static void RB_RenderInteractionsShadowMapped()
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.far - light->l.near, 1.0));	// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
 					break;
 				}
 
@@ -2825,7 +2825,7 @@ void RB_RenderInteractionsDeferred()
 				{
 					// build the attenuation matrix
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, Q_min(light->l.far - light->l.near, 1.0));	// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
 					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
 					MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
 					break;
@@ -3410,7 +3410,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					{
 						// build the attenuation matrix
 						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.far - light->l.near, 1.0));	// scale
+						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
 						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
 						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
 						break;
@@ -4377,7 +4377,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 					{
 						// build the attenuation matrix
 						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.far - light->l.near, 1.0));	// scale
+						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
 						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
 						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
 						break;
@@ -5732,8 +5732,8 @@ void RB_RenderLightOcclusionQueries()
 							float           zNear, zFar;
 							vec4_t          corners[4];
 
-							zNear = light->l.near;
-							zFar = light->l.far;
+							zNear = light->l.distNear;
+							zFar = light->l.distFar;
 
 							xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
 							xMin = -xMax;
@@ -6172,8 +6172,8 @@ static void RB_RenderDebugUtils()
 						float           zNear, zFar;
 						vec3_t          corners[4];
 
-						zNear = light->l.near;
-						zFar = light->l.far;
+						zNear = light->l.distNear;
+						zFar = light->l.distFar;
 
 						xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
 						xMin = -xMax;

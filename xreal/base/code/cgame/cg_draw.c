@@ -351,8 +351,8 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 
 	light.fovX = 90;
 	light.fovY = 90;
-	light.near = 1;
-	light.far = 500;
+	light.distNear = 1;
+	light.distFar = 500;
 
 	trap_R_AddRefLightToScene(&light);
 
@@ -440,8 +440,8 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 
 	light.fovX = 90;
 	light.fovY = 90;
-	light.near = 1;
-	light.far = 500;
+	light.distNear = 1;
+	light.distFar = 500;
 
 	trap_R_AddRefLightToScene(&light);
 
