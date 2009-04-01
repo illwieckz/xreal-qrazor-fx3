@@ -218,7 +218,7 @@ void RE_AddRefLightToScene(const refLight_t * l)
 		return;
 	}
 
-	if(l->radius[0] <= 0 && !VectorLength(l->radius) && l->distance <= 0)
+	if(l->radius[0] <= 0 && !VectorLength(l->radius) && l->far <= 0)
 	{
 		return;
 	}
@@ -229,7 +229,7 @@ void RE_AddRefLightToScene(const refLight_t * l)
 	}
 
 	light = &backEndData[tr.smpFrame]->lights[r_numLights++];
-	light->l = *l;
+	Com_Memcpy(&light->l, l, sizeof(light->l));
 
 	light->isStatic = qfalse;
 	light->additive = qtrue;

@@ -449,6 +449,63 @@ qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec
 	return qtrue;
 }
 
+
+qboolean PlanesGetIntersectionPoint(const vec4_t plane1, const vec4_t plane2, const vec4_t plane3, vec3_t out)
+{
+	vec3_t	n1, n2, n3;
+	vec3_t	n1n2, n2n3, n3n1;
+	vec_t	denom;
+
+	VectorNormalize2(plane1, n1);
+	VectorNormalize2(plane2, n2);
+	VectorNormalize2(plane3, n3);
+
+	CrossProduct(n1, n2, n1n2);
+	CrossProduct(n2, n3, n2n3);
+	CrossProduct(n3, n1, n3n1);
+
+	// check if the denominator is zero (which would mean that no intersection is to be found
+	if(denom == 0)
+	{
+		// no intersection could be found, return <0,0,0>
+		VectorClear(out);
+		return qfalse;
+	}
+
+	VectorClear(out);
+
+	VectorMA(out, plane1[3], n2n3, out);
+	VectorMA(out, plane2[3], n3n1, out);
+	VectorMA(out, plane3[3], n1n2, out);
+
+	VectorScale(out, 1.0f / denom, out);
+
+	//return (n2n3*plane1.dist() + n3n1*plane2.dist() + n1n2*plane3.dist()) / denom;
+	return qtrue;
+
+	/*
+	const Vector3& n1 = plane1.normal();
+	const Vector3& n2 = plane2.normal();
+	const Vector3& n3 = plane3.normal();
+
+		Vector3 n1n2 = n1.crossProduct(n2);
+		Vector3 n2n3 = n2.crossProduct(n3);
+		Vector3 n3n1 = n3.crossProduct(n1);
+
+		double denom = n1.dot(n2n3);
+
+		// Check if the denominator is zero (which would mean that no intersection is to be found
+		if (denom != 0) {
+			return (n2n3*plane1.dist() + n3n1*plane2.dist() + n1n2*plane3.dist()) / denom;
+		}
+		else {
+			// No intersection could be found, return <0,0,0>
+			return Vector3(0,0,0);
+		}
+	}
+	*/
+}
+
 /*
 ===============
 RotatePointAroundVector

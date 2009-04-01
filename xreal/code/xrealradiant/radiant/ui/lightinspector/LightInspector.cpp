@@ -233,15 +233,15 @@ GtkWidget* LightInspector::createProjectedPanel() {
 					 this);
 
 	// Start/end checkbox
-	_useStartEnd = gtk_check_button_new_with_label("Use start/end");
-	g_signal_connect(G_OBJECT(_useStartEnd), "toggled", G_CALLBACK(_onOptionsToggle), this);
+//	_useStartEnd = gtk_check_button_new_with_label("Use start/end");
+//	g_signal_connect(G_OBJECT(_useStartEnd), "toggled", G_CALLBACK(_onOptionsToggle), this);
 
 	// VBox for panel
 	GtkWidget* vbx = gtk_vbox_new(FALSE, 12);
 	gtk_box_pack_start(GTK_BOX(vbx),
 					   gtkutil::LeftAlignment(_projLightToggle),
 					   FALSE, FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(vbx), _useStartEnd, FALSE, FALSE, 0);
+//	gtk_box_pack_start(GTK_BOX(vbx), _useStartEnd, FALSE, FALSE, 0);
 	return vbx;
 }
 
@@ -398,12 +398,12 @@ void LightInspector::_onProjToggle(GtkWidget* b, LightInspector* self)
 	if (self->_isProjected) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(self->_pointLightToggle),
 									 FALSE);
-		gtk_widget_set_sensitive(self->_useStartEnd, TRUE);
+//		gtk_widget_set_sensitive(self->_useStartEnd, TRUE);
 	}
 	else {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(self->_pointLightToggle),
 									 TRUE);
-		gtk_widget_set_sensitive(self->_useStartEnd, FALSE);
+//		gtk_widget_set_sensitive(self->_useStartEnd, FALSE);
 	}
 	if (GlobalRegistry().get(RKEY_INSTANT_APPLY) == "1") {
 		self->writeToAllEntities();
@@ -420,12 +420,12 @@ void LightInspector::_onPointToggle(GtkWidget* b, LightInspector* self) {
 	if (self->_isProjected) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(self->_projLightToggle),
 									 TRUE);
-		gtk_widget_set_sensitive(self->_useStartEnd, TRUE);
+//		gtk_widget_set_sensitive(self->_useStartEnd, TRUE);
 	}
 	else {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(self->_projLightToggle),
 									 FALSE);
-		gtk_widget_set_sensitive(self->_useStartEnd, FALSE);
+//		gtk_widget_set_sensitive(self->_useStartEnd, FALSE);
 	}
 	if (GlobalRegistry().get(RKEY_INSTANT_APPLY) == "1") {
 		self->writeToAllEntities();
@@ -450,11 +450,10 @@ void LightInspector::getValuesFromEntity()
 	// Populate the value map with defaults
 	_valueMap["light_radius"] = "320 320 320";
 	_valueMap["light_center"] = "0 0 0";
-	_valueMap["light_target"] = "0 0 -256";
-	_valueMap["light_right"] = "128 0 0";
-	_valueMap["light_up"] = "0 128 0";
-	_valueMap["light_start"] = "0 0 -64";
-	_valueMap["light_end"] = "0 0 -256";
+	_valueMap["light_fovX"] = "45";
+	_valueMap["light_fovY"] = "45";
+	_valueMap["light_near"] = "1";
+	_valueMap["light_far"] = "300";
 
 	// Now load values from entity, overwriting the defaults if the value is
 	// set
@@ -487,13 +486,15 @@ void LightInspector::getValuesFromEntity()
 
 	// Determine whether this is a projected light, and set the toggles
 	// appropriately
-	_isProjected = (!entity->getKeyValue("light_target").empty() &&
-					!entity->getKeyValue("light_right").empty() &&
-					!entity->getKeyValue("light_up").empty());
+	_isProjected = (!entity->getKeyValue("light_fovX").empty() &&
+					!entity->getKeyValue("light_fovY").empty() &&
+					!entity->getKeyValue("light_near").empty() &&
+					!entity->getKeyValue("light_far").empty());
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(_projLightToggle), _isProjected);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(_pointLightToggle), !_isProjected);
 
 	// If this entity has light_start and light_end keys, set the checkbox
+	/*
 	if (!entity->getKeyValue("light_start").empty()
 		&& !entity->getKeyValue("light_end").empty())
 	{
@@ -502,6 +503,7 @@ void LightInspector::getValuesFromEntity()
 	else {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(_useStartEnd), FALSE);
 	}
+	*/
 
 	// Set the options checkboxes
 	for (WidgetMap::iterator i = _options.begin(); i != _options.end(); ++i) {
@@ -563,10 +565,10 @@ void LightInspector::setValuesOnEntity(Entity* entity)
 	if (_isProjected) {
 
 		// Clear start/end vectors if checkbox is disabled
-		if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(_useStartEnd))) {
-			entity->setKeyValue("light_start", "");
-			entity->setKeyValue("light_end", "");
-		}
+//		if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(_useStartEnd))) {
+//			entity->setKeyValue("light_start", "");
+//			entity->setKeyValue("light_end", "");
+//		}
 
 		// Blank out pointlight values
 		entity->setKeyValue("light_radius", "");
@@ -575,11 +577,10 @@ void LightInspector::setValuesOnEntity(Entity* entity)
 	else {
 
 		// Blank out projected light values
-		entity->setKeyValue("light_target", "");
-		entity->setKeyValue("light_right", "");
-		entity->setKeyValue("light_up", "");
-		entity->setKeyValue("light_start", "");
-		entity->setKeyValue("light_end", "");
+		entity->setKeyValue("light_fovX", "");
+		entity->setKeyValue("light_fovY", "");
+		entity->setKeyValue("light_near", "");
+		entity->setKeyValue("light_far", "");
 	}
 
 	// Write the texture key

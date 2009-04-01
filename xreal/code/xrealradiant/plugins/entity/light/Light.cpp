@@ -2,6 +2,7 @@
 
 #include "iradiant.h"
 #include "igrid.h"
+#include "stringio.h"
 #include "Doom3LightRadius.h"
 #include "LightShader.h"
 #include "LightSettings.h"
@@ -15,7 +16,7 @@ std::string LightShader::m_defaultShader = "";
 
 // ------ Helper Functions ----------------------------------------------------------
 
-/* greebo: Calculates the eight vertices defining the light corners as defined by the passed AABB. 
+/* greebo: Calculates the eight vertices defining the light corners as defined by the passed AABB.
  */
 void light_vertices(const AABB& aabb_light, Vector3 points[6]) {
   Vector3 max(aabb_light.origin + aabb_light.extents);
@@ -32,16 +33,16 @@ void light_vertices(const AABB& aabb_light, Vector3 points[6]) {
 }
 
 /* greebo: light_draw() gets called by the render() function of the Light class.
- * It basically draws the small diamond representing the light origin 
+ * It basically draws the small diamond representing the light origin
  */
 void light_draw(const AABB& aabb_light, RenderStateFlags state) {
   Vector3 points[6];
-  
+
   // Revert the light "diamond" to default extents for drawing
   AABB tempAABB;
   tempAABB.origin = aabb_light.origin;
   tempAABB.extents = Vector3(8,8,8);
-   
+
    // Calculate the light vertices of this bounding box and store them into <points>
   light_vertices(tempAABB, points);
 
@@ -72,15 +73,10 @@ Light::Light(IEntityClassPtr eclass, LightNode& node, const Callback& transformC
 	m_named(m_entity),
 	m_radii_box(m_aabb_light.origin),
 	_rCentre(m_doom3Radius.m_centerTransformed, m_aabb_light.origin, m_doom3Radius._centerColour),
-	_rTarget(_lightTargetTransformed, m_aabb_light.origin, _colourLightTarget),
-	_rUp(_lightUpTransformed, _lightTargetTransformed, m_aabb_light.origin, _colourLightUp),
-	_rRight(_lightRightTransformed, _lightTargetTransformed, m_aabb_light.origin, _colourLightRight),
-	_rStart(_lightStartTransformed, m_aabb_light.origin, _colourLightStart),
-	_rEnd(_lightEndTransformed, m_aabb_light.origin, _colourLightEnd),
 	m_renderName(m_named, m_aabb_light.origin),
 	m_useLightOrigin(false),
 	m_useLightRotation(false),
-	m_renderProjection(m_aabb_light.origin, _lightStartTransformed, m_doom3Frustum),
+	m_renderProjection(m_aabb_light.origin, m_doom3Projection, m_doom3Frustum),
 	m_transformChanged(transformChanged),
 	m_boundsChanged(boundsChanged),
 	m_evaluateTransform(evaluateTransform)
@@ -97,15 +93,10 @@ Light::Light(const Light& other, LightNode& node, const Callback& transformChang
 	m_named(m_entity),
 	m_radii_box(m_aabb_light.origin),
 	_rCentre(m_doom3Radius.m_centerTransformed, m_aabb_light.origin, m_doom3Radius._centerColour),
-	_rTarget(_lightTargetTransformed, m_aabb_light.origin, _colourLightTarget),
-	_rUp(_lightUpTransformed, _lightTargetTransformed, m_aabb_light.origin, _colourLightUp),
-	_rRight(_lightRightTransformed, _lightTargetTransformed, m_aabb_light.origin, _colourLightRight),
-	_rStart(_lightStartTransformed, m_aabb_light.origin, _colourLightStart),
-	_rEnd(_lightEndTransformed, m_aabb_light.origin, _colourLightEnd),
 	m_renderName(m_named, m_aabb_light.origin),
 	m_useLightOrigin(false),
 	m_useLightRotation(false),
-	m_renderProjection(m_aabb_light.origin, _lightStartTransformed, m_doom3Frustum),
+	m_renderProjection(m_aabb_light.origin, m_doom3Projection, m_doom3Frustum),
 	m_transformChanged(transformChanged),
 	m_boundsChanged(boundsChanged),
 	m_evaluateTransform(evaluateTransform)
@@ -114,7 +105,7 @@ Light::Light(const Light& other, LightNode& node, const Callback& transformChang
 }
 
 /* greebo: This sets up the keyObservers so that the according classes get notified when any
- * of the key/values are changed. 
+ * of the key/values are changed.
  * Note, that the entity key/values are still empty at the point where this method is called.
  */
 void Light::construct() {
@@ -123,7 +114,7 @@ void Light::construct() {
 	_colourLightRight = Vector3(255,0,255);
 	_colourLightStart = Vector3(0,0,0);
 	_colourLightEnd = Vector3(0,0,0);
-	
+
 	default_rotation(m_rotation);
 	m_aabb_light.origin = Vector3(0, 0, 0);
 	default_extents(m_aabb_light.extents);
@@ -138,13 +129,12 @@ void Light::construct() {
 	m_keyObservers.insert("light_center", Doom3LightRadius::LightCenterChangedCaller(m_doom3Radius));
 	m_keyObservers.insert("light_origin", Light::LightOriginChangedCaller(*this));
 	m_keyObservers.insert("light_rotation", Light::LightRotationChangedCaller(*this));
-	m_keyObservers.insert("light_target", Light::LightTargetChangedCaller(*this));
-	m_keyObservers.insert("light_up", Light::LightUpChangedCaller(*this));
-	m_keyObservers.insert("light_right", Light::LightRightChangedCaller(*this));
-	m_keyObservers.insert("light_start", Light::LightStartChangedCaller(*this));
-	m_keyObservers.insert("light_end", Light::LightEndChangedCaller(*this));
+	m_keyObservers.insert("light_fovX", Light::LightFovXChangedCaller(*this));
+	m_keyObservers.insert("light_fovY", Light::LightFovYChangedCaller(*this));
+	m_keyObservers.insert("light_near", Light::LightNearChangedCaller(*this));
+	m_keyObservers.insert("light_far", Light::LightFarChangedCaller(*this));
 	m_keyObservers.insert("texture", LightShader::ValueChangedCaller(m_shader));
-	m_useLightTarget = m_useLightUp = m_useLightRight = m_useLightStart = m_useLightEnd = false;
+	m_useLightFovX = m_useLightFovY = m_useLightNear = m_useLightFar = false;
 	m_doom3ProjectionChanged = true;
 
 	// set the colours to their default values
@@ -178,88 +168,48 @@ void Light::lightOriginChanged(const std::string& value) {
 	originChanged();
 }
 
-void Light::lightTargetChanged(const std::string& value) {
-	m_useLightTarget = (!value.empty());
-	if (m_useLightTarget) {
-		read_origin(_lightTarget, value);
-	}
-	_lightTargetTransformed = _lightTarget;
-	projectionChanged();
-}
-
-void Light::lightUpChanged(const std::string& value) {
-	m_useLightUp = (!value.empty());
-	if (m_useLightUp) {
-		read_origin(_lightUp, value);
-	}
-	_lightUpTransformed = _lightUp;
-	projectionChanged();
-}
-
-void Light::lightRightChanged(const std::string& value) {
-	m_useLightRight = (!value.empty());
-	if (m_useLightRight) {
-		read_origin(_lightRight, value);
-	}
-	_lightRightTransformed = _lightRight;
-	projectionChanged();
-}
-
-void Light::lightStartChanged(const std::string& value) {
-	m_useLightStart = (!value.empty());
-	if (m_useLightStart) {
-		read_origin(_lightStart, value);
-	}
-	_lightStartTransformed = _lightStart;
-	
-	// If the light_end key is still unused, set it to a reasonable value
-	if (m_useLightEnd) {
-		checkStartEnd();
-	}
-	
-	projectionChanged();
-}
-
-void Light::lightEndChanged(const std::string& value) {
-	m_useLightEnd = (!value.empty());
-	if (m_useLightEnd) {
-		read_origin(_lightEnd, value);
-	}
-	
-	_lightEndTransformed = _lightEnd;
-	
-	// If the light_start key is still unused, set it to a reasonable value
-	if (m_useLightStart) {
-		checkStartEnd();
-	}
-	
-	projectionChanged();
-}
-
-/* greebo: Checks the light_start and light_end keyvals for meaningful values.
- *
- * If the light_end is "above" the light_start (i.e. nearer to the origin),
- * the two are swapped.
- * 
- * This also checks if the two vertices happen to be on the very same spot. 
- */
-void Light::checkStartEnd() {
-	if (m_useLightStart && m_useLightEnd) {
-		if (_lightEnd.getLengthSquared() < _lightStart.getLengthSquared()) {
-			// Swap the two vectors
-			Vector3 temp;
-			temp = _lightEnd;
-			_lightEndTransformed = _lightEnd = _lightStart;
-			_lightStartTransformed = _lightStart = temp;
-		}
-		
-		// The light_end on the same point as the light_start is an unlucky situation, revert it
-		// otherwise the vertices won't be separable again for the user 
-		if (_lightEnd == _lightStart) {
-			_lightEndTransformed = _lightEnd = _lightTarget;  
-			_lightStartTransformed = _lightStart = Vector3(0,0,0);
+void Light::lightFovXChanged(const std::string& value) {
+	m_useLightFovX = (!value.empty());
+	if (m_useLightFovX) {
+		if(!string_parse_float(value.c_str(), m_lightFovX) || m_lightFovX == 0)
+		{
+			m_lightFovX = 45;
 		}
 	}
+	projectionChanged();
+}
+
+void Light::lightFovYChanged(const std::string& value) {
+	m_useLightFovY = (!value.empty());
+	if (m_useLightFovY) {
+		if(!string_parse_float(value.c_str(), m_lightFovY) || m_lightFovY == 0)
+		{
+			m_lightFovY = 45;
+		}
+	}
+	projectionChanged();
+}
+
+void Light::lightNearChanged(const std::string& value) {
+	m_useLightNear = (!value.empty());
+	if (m_useLightNear) {
+		if(!string_parse_float(value.c_str(), m_lightNear) || m_lightNear == 0)
+		{
+			m_lightNear = 1;
+		}
+	}
+	projectionChanged();
+}
+
+void Light::lightFarChanged(const std::string& value) {
+	m_useLightFar = (!value.empty());
+	if (m_useLightFar) {
+		if(!string_parse_float(value.c_str(), m_lightFar) || m_lightFar == 0)
+		{
+			m_lightFar = 300;
+		}
+	}
+	projectionChanged();
 }
 
 void Light::writeLightOrigin() {
@@ -284,13 +234,13 @@ void Light::lightRotationChanged(const std::string& value) {
 void Light::updateLightRadiiBox() const {
 	// Get the rotation matrix
 	const Matrix4& rotation = rotation_toMatrix(m_rotation);
-	
+
 	// Calculate the corners of the light radius box and store them into <m_radii_box.m_points>
-	// For the first calculation an AABB with origin 0,0,0 is needed, the vectors get added 
+	// For the first calculation an AABB with origin 0,0,0 is needed, the vectors get added
 	// to the origin AFTER they are transformed by the rotation matrix
 	aabb_corners(AABB(Vector3(0, 0, 0), m_doom3Radius.m_radiusTransformed), m_radii_box.m_points);
-	
-	// Transform each point with the given rotation matrix and add the vectors to the light origin 
+
+	// Transform each point with the given rotation matrix and add the vectors to the light origin
 	matrix4_transform_point(rotation, m_radii_box.m_points[0]);
 	m_radii_box.m_points[0] += m_aabb_light.origin;
 	matrix4_transform_point(rotation, m_radii_box.m_points[1]);
@@ -323,8 +273,8 @@ void Light::instanceDetach(const scene::Path& path) {
 	}
 }
 
-/* greebo: Snaps the current light origin to the grid. 
- * 
+/* greebo: Snaps the current light origin to the grid.
+ *
  * Note: This gets called when the light as a whole is selected, NOT in vertex editing mode
  */
 void Light::snapto(float snap) {
@@ -352,13 +302,6 @@ void Light::revertTransform() {
 	rotation_assign(m_rotation, m_useLightRotation ? m_lightRotation : m_rotationKey.m_rotation);
 	m_doom3Radius.m_radiusTransformed = m_doom3Radius.m_radius;
 	m_doom3Radius.m_centerTransformed = m_doom3Radius.m_center;
-	
-	// revert all the projection changes to the saved values
-	_lightTargetTransformed = _lightTarget;
-	_lightRightTransformed = _lightRight;
-	_lightUpTransformed = _lightUp;
-	_lightStartTransformed = _lightStart;
-	_lightEndTransformed = _lightEnd;
 }
 
 void Light::freezeTransform() {
@@ -370,42 +313,46 @@ void Light::freezeTransform() {
 		m_originKey.m_origin = m_aabb_light.origin;
 		m_originKey.write(&m_entity);
 	}
-    
-    if (isProjected()) {
+
+    if (isProjected())
+    {
+#if 0
 	    if (m_useLightTarget) {
 			_lightTarget = _lightTargetTransformed;
 			m_entity.setKeyValue("light_target", _lightTarget);
 		}
-		
+
 		if (m_useLightUp) {
 			_lightUp = _lightUpTransformed;
 			m_entity.setKeyValue("light_up", _lightUp);
 		}
-		
+
 		if (m_useLightRight) {
 			_lightRight = _lightRightTransformed;
 			m_entity.setKeyValue("light_right", _lightRight);
 		}
-		
+
 		// Check the start and end (if the end is "above" the start, for example)
 		checkStartEnd();
-		
+
 		if (m_useLightStart) {
 			_lightStart = _lightStartTransformed;
 			m_entity.setKeyValue("light_start", _lightStart);
 		}
-		
+
 		if (m_useLightEnd) {
 			_lightEnd = _lightEndTransformed;
 			m_entity.setKeyValue("light_end", _lightEnd);
-		}		
+		}
+#endif
     }
-    else {
+    else
+    {
     	// Save the light center to the entity key/values
 		m_doom3Radius.m_center = m_doom3Radius.m_centerTransformed;
 		m_entity.setKeyValue("light_center", m_doom3Radius.m_center);
     }
-	
+
 	if(m_useLightRotation) {
 		rotation_assign(m_lightRotation, m_rotation);
 		write_rotation(m_lightRotation, &m_entity, "light_rotation");
@@ -456,50 +403,20 @@ Doom3LightRadius& Light::getDoom3Radius() {
 	return m_doom3Radius;
 }
 
-void Light::renderProjectionPoints(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const {
-	// Add the renderable light target
-	renderer.Highlight(Renderer::ePrimitive, false);
-	renderer.Highlight(Renderer::eFace, false);
-	
-	renderer.SetState(_rRight.getShader(), Renderer::eFullMaterials);
-	renderer.SetState(_rRight.getShader(), Renderer::eWireframeOnly);
-	renderer.addRenderable(_rRight, localToWorld);
-	
-	renderer.SetState(_rUp.getShader(), Renderer::eFullMaterials);
-	renderer.SetState(_rUp.getShader(), Renderer::eWireframeOnly);
-	renderer.addRenderable(_rUp, localToWorld);
-	
-	renderer.SetState(_rTarget.getShader(), Renderer::eFullMaterials);
-	renderer.SetState(_rTarget.getShader(), Renderer::eWireframeOnly);
-	renderer.addRenderable(_rTarget, localToWorld);
-	
-	if (m_useLightStart) {
-		renderer.SetState(_rStart.getShader(), Renderer::eFullMaterials);
-		renderer.SetState(_rStart.getShader(), Renderer::eWireframeOnly);
-		renderer.addRenderable(_rStart, localToWorld);
-	}
-	
-	if (m_useLightEnd) {
-		renderer.SetState(_rEnd.getShader(), Renderer::eFullMaterials);
-		renderer.SetState(_rEnd.getShader(), Renderer::eWireframeOnly);
-		renderer.addRenderable(_rEnd, localToWorld);
-	}
-}
-
 // Adds the light centre renderable to the given renderer
 void Light::renderLightCentre(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const {
 	renderer.Highlight(Renderer::ePrimitive, false);
 	renderer.Highlight(Renderer::eFace, false);
 	renderer.SetState(_rCentre.getShader(), Renderer::eFullMaterials);
 	renderer.SetState(_rCentre.getShader(), Renderer::eWireframeOnly);
-      
+
 	renderer.addRenderable(_rCentre, localToWorld);
 }
 
-void Light::renderWireframe(Renderer& renderer, 
-							const VolumeTest& volume, 
-							const Matrix4& localToWorld, 
-							bool selected) const 
+void Light::renderWireframe(Renderer& renderer,
+							const VolumeTest& volume,
+							const Matrix4& localToWorld,
+							bool selected) const
 {
 	// Main render, submit the diamond that represents the light entity
 	renderer.SetState(
@@ -516,7 +433,23 @@ void Light::renderWireframe(Renderer& renderer,
 		if (isProjected()) {
 			// greebo: This is not much of an performance impact as the projection gets only recalculated when it has actually changed.
 			projection();
+#if 1
+			// Tr3B:
+			m_projectionOrientation = rotation();
+
+			// HACK
+			Matrix4 radiant2opengl(
+			0,-1, 0, 0,
+			0, 0, 1, 0,
+			-1, 0, 0, 0,
+			0, 0, 0, 1);
+			matrix4_multiply_by_matrix4(m_projectionOrientation, radiant2opengl);
+
+			m_projectionOrientation.t().getVector3() = m_aabb_light.origin; //localAABB().origin;
+			renderer.addRenderable(m_renderProjection, m_projectionOrientation);
+#else
 			renderer.addRenderable(m_renderProjection, localToWorld);
+#endif
 		}
 		else {
 			updateLightRadiiBox();
@@ -544,87 +477,8 @@ void Light::translate(const Vector3& translation) {
 	m_aabb_light.origin = origin_translated(m_aabb_light.origin, translation);
 }
 
-/* greebo: This translates the light start with the given <translation>
- * Checks, if the light_start is positioned "above" the light origin and constrains
- * the movement accordingly to prevent the light volume to become an "hourglass".
- */
-void Light::translateLightStart(const Vector3& translation) {
-	Vector3 candidate = _lightStart + translation;
-	
-	Vector3 assumedEnd = (m_useLightEnd) ? _lightEndTransformed : _lightTargetTransformed;
-	
-	Vector3 normal = (candidate - assumedEnd).getNormalised();
-	
-	// Calculate the distance to the plane going through the origin, hence the minus sign
-	double dist = normal.dot(candidate);
-	
-	if (dist > 0) {
-		// Light_Start is too "high", project it back onto the origin plane 
-		_lightStartTransformed = candidate - normal*dist;
-		vector3_snap(_lightStartTransformed, GlobalGrid().getGridSize());
-	}
-	else {
-		// The candidate seems to be ok, apply it to the selection
-		_lightStartTransformed = candidate;
-	}
-}
-
-void Light::translateLightTarget(const Vector3& translation) {
-	Vector3 oldTarget = _lightTarget;
-	Vector3 newTarget = oldTarget + translation;
-	
-	double angle = oldTarget.angle(newTarget);
-	
-	// If we are at roughly 0 or 180 degrees, don't rotate anything, this is probably a pure translation
-	if (std::abs(angle) > 0.01 && std::abs(c_pi-angle) > 0.01) {
-		// Calculate the transformation matrix defined by the two vectors
-		Matrix4 rotationMatrix = Matrix4::getRotation(oldTarget, newTarget);
-		_lightRightTransformed = rotationMatrix.transform(_lightRight).getProjected();
-		_lightUpTransformed = rotationMatrix.transform(_lightUp).getProjected();
-		
-		if (m_useLightStart && m_useLightEnd) {
-			_lightStartTransformed = rotationMatrix.transform(_lightStart).getProjected();
-			_lightEndTransformed = rotationMatrix.transform(_lightEnd).getProjected();
-			
-			vector3_snap(_lightStartTransformed, GlobalGrid().getGridSize());
-			vector3_snap(_lightEndTransformed, GlobalGrid().getGridSize());
-		}
-		
-		// Snap the rotated vectors to the grid
-		vector3_snap(_lightRightTransformed, GlobalGrid().getGridSize());
-		vector3_snap(_lightUpTransformed, GlobalGrid().getGridSize());
-	}
-	
-	// if we are at 180 degrees, invert the light_start and light_end vectors
-	if (std::abs(c_pi-angle) < 0.01) {
-		if (m_useLightStart && m_useLightEnd) {
-			_lightStartTransformed = -_lightStart;
-			_lightEndTransformed = -_lightEnd;
-		}
-
-		_lightRightTransformed = -_lightRight;
-		_lightUpTransformed = -_lightUp;
-	}
-	
-	// Save the new target
-	_lightTargetTransformed = newTarget;
-}
-
 void Light::rotate(const Quaternion& rotation) {
-	if (isProjected()) {
-		// Retrieve the rotation matrix...
-		Matrix4 rotationMatrix = matrix4_rotation_for_quaternion(rotation);
-		
-		// ... and apply it to all the vertices defining the projection
-		_lightTargetTransformed = rotationMatrix.transform(_lightTarget).getProjected();
-		_lightRightTransformed = rotationMatrix.transform(_lightRight).getProjected();
-		_lightUpTransformed = rotationMatrix.transform(_lightUp).getProjected();
-		_lightStartTransformed = rotationMatrix.transform(_lightStart).getProjected();
-		_lightEndTransformed = rotationMatrix.transform(_lightEnd).getProjected();
-	}
-	else {
-		rotation_rotate(m_rotation, rotation);
-	}
+	rotation_rotate(m_rotation, rotation);
 }
 
 void Light::transformChanged() {
@@ -647,21 +501,26 @@ void Light::setLightChangedCallback(const Callback& callback) {
 // Used to test the light for selection on mouse click.
 const AABB& Light::aabb() const {
 	if (isProjected()) {
+		float           xMin, xMax, yMin, yMax;
+		float           zNear, zFar;
+
+		zNear = m_lightNear;
+		zFar = m_lightFar;
+
+		xMax = zNear * tan(m_lightFovX * M_PI / 360.0f);
+		xMin = -xMax;
+
+		yMax = zNear * tan(m_lightFovY * M_PI / 360.0f);
+		yMin = -yMax;
+
 		// start with an empty AABB and include all the projection vertices
-		m_doom3AABB = AABB();
-		m_doom3AABB.includePoint(m_aabb_light.origin);
-		m_doom3AABB.includePoint(m_aabb_light.origin + _lightTargetTransformed);
-		m_doom3AABB.includePoint(m_aabb_light.origin + _lightTargetTransformed + _lightRightTransformed);
-		m_doom3AABB.includePoint(m_aabb_light.origin + _lightTargetTransformed + _lightUpTransformed);
-		if (useStartEnd()) {
-			m_doom3AABB.includePoint(m_aabb_light.origin + _lightStartTransformed);
-			m_doom3AABB.includePoint(m_aabb_light.origin + _lightEndTransformed);
-		}
+		m_doom3AABB = AABB(Vector3(-zNear, xMin * zFar, yMin * zFar), Vector3(zFar, xMax * zFar, yMax * zFar));
 	}
 	else {
 		m_doom3AABB = AABB(m_aabb_light.origin, m_doom3Radius.m_radiusTransformed);
+
 		// greebo: Make sure the light center (that maybe outside of the light volume) is selectable
-		m_doom3AABB.includePoint(m_aabb_light.origin + m_doom3Radius.m_centerTransformed);		
+		m_doom3AABB.includePoint(m_aabb_light.origin + m_doom3Radius.m_centerTransformed);
 	}
 	return m_doom3AABB;
 }
@@ -676,7 +535,7 @@ const AABB& Light::lightAABB() const {
 	_lightAABB = AABB(m_aabb_light.origin, m_doom3Radius.m_radiusTransformed);
   	return _lightAABB;
 }
-  
+
 bool Light::testAABB(const AABB& other) const {
 	if (isProjected()) {
 		Matrix4 transform = rotation();
@@ -685,7 +544,7 @@ bool Light::testAABB(const AABB& other) const {
 		Frustum frustum(frustum_transformed(m_doom3Frustum, transform));
 		return frustum_test_aabb(frustum, other) != c_volumeOutside;
     }
-    
+
 	// test against an AABB which contains the rotated bounds of this light.
 	const AABB& bounds = aabb();
 	return aabb_intersects_aabb(other, AABB(
@@ -712,16 +571,16 @@ const Matrix4& Light::rotation() const {
 /* greebo: This is needed by the renderer to determine the center of the light. It returns
  * the centerTransformed variable as the lighting should be updated as soon as the light center
  * is dragged.
- * 
+ *
  * Note: In order to render projected lights correctly, I made the projection render code to use
  * this method to determine the center of projection, hence the if (isProjected()) clause
  */
 const Vector3& Light::offset() const {
-	if (isProjected()) 
+	if (isProjected())
     {
 		return _projectionCenter;
 	}
-	else 
+	else
     {
 		return m_doom3Radius.m_centerTransformed;
 	}
@@ -730,41 +589,19 @@ const Vector3& Light::colour() const {
 	return m_colour.m_colour;
 }
 
-Vector3& Light::target() 			{ return _lightTarget; }
-Vector3& Light::targetTransformed() { return _lightTargetTransformed; }
-Vector3& Light::up() 				{ return _lightUp; }
-Vector3& Light::upTransformed() 	{ return _lightUpTransformed; }
-Vector3& Light::right() 			{ return _lightRight; }
-Vector3& Light::rightTransformed() 	{ return _lightRightTransformed; }
-Vector3& Light::start() 			{ return _lightStart; }
-Vector3& Light::startTransformed() 	{ return _lightStartTransformed; }
-Vector3& Light::end() 				{ return _lightEnd; }
-Vector3& Light::endTransformed() 	{ return _lightEndTransformed; }
-
-Vector3& Light::colourLightTarget()	{ return _colourLightTarget; }
-Vector3& Light::colourLightRight() 	{ return _colourLightRight; }
-Vector3& Light::colourLightUp() 	{ return _colourLightUp; }
-Vector3& Light::colourLightStart()	{ return _colourLightStart; }
-Vector3& Light::colourLightEnd()	{ return _colourLightEnd; }
-
-/* greebo: A light is projected, if the entity keys light_target/light_up/light_right are not empty.
+/* greebo: A light is projected, if the entity keys light_fovX, light_fovY, light_near and light_far are not empty.
  */
 bool Light::isProjected() const {
-	return m_useLightTarget && m_useLightUp && m_useLightRight;
+	return m_useLightFovX && m_useLightFovY && m_useLightNear && m_useLightFar;
 }
 
-// greebo: Returns true if BOTH the light_start and light_end vectors are used
-bool Light::useStartEnd() const {
-	return m_useLightStart && m_useLightEnd;
-}
-
-void Light::projectionChanged() 
+void Light::projectionChanged()
 {
 	m_doom3ProjectionChanged = true;
 	m_doom3Radius.m_changed();
 
     // Calculate the projection centre
-	_projectionCenter = m_aabb_light.origin + _lightTargetTransformed;
+	_projectionCenter = m_aabb_light.origin;	// Tr3B: FIXME
 
 	SceneChangeNotify();
 }
@@ -773,20 +610,43 @@ const Matrix4& Light::projection() const {
 	if (!m_doom3ProjectionChanged) {
 		return m_doom3Projection;
 	}
-	
+
 	m_doom3ProjectionChanged = false;
 	m_doom3Projection = g_matrix4_identity;
 	matrix4_translate_by_vec3(m_doom3Projection, Vector3(0.5f, 0.5f, 0));
 	matrix4_scale_by_vec3(m_doom3Projection, Vector3(0.5f, 0.5f, 1));
 
+
+#if 1
+    float           xMin, xMax, yMin, yMax;
+    float           zNear, zFar;
+
+    zNear = m_lightNear;
+    zFar = m_lightFar;
+
+    xMax = zNear * tan(m_lightFovX * M_PI / 360.0f);
+    //xMax = zNear * tan(_lightRightTransformed.angle(_lightTargetTransformed));
+    //xMax = zNear * tan(_lightTarget.angle(_lightRight));
+    //xMax = zNear * tan(_lightRight.getLength() * M_PI / 360.0f);
+    xMin = -xMax;
+
+    yMax = zNear * tan(m_lightFovY * M_PI / 360.0f);
+    //yMax = zNear * tan((_lightUpTransformed.getLength() * M_PI / 360.0f) * 0.25f);
+    //yMax = zNear * tan(_lightTarget.angle(_lightUp));
+    //xMax = zNear * tan(_lightUp.getLength() * M_PI / 360.0f);
+    yMin = -yMax;
+
+    matrix4_multiply_by_matrix4(m_doom3Projection, matrix4_frustum(xMin, xMax, yMin, yMax, zNear, zFar));
+    m_doom3Frustum = frustum_from_viewproj(m_doom3Projection);
+#else
 	Plane3 lightProject[4];
 
-	// If there is a light_start key set, use this, otherwise use the unit vector of the target direction  
+	// If there is a light_start key set, use this, otherwise use the unit vector of the target direction
 	Vector3 start = m_useLightStart && m_useLightEnd ? _lightStartTransformed : _lightTargetTransformed.getNormalised();
 
 	// If there is no light_end, but a light_start, assume light_end = light_target
 	Vector3 stop = m_useLightStart && m_useLightEnd ? _lightEndTransformed : _lightTargetTransformed;
-	
+
 	double rLen = _lightRightTransformed.getLength();
 	Vector3 right = _lightRightTransformed / rLen;
 	double uLen = _lightUpTransformed.getLength();
@@ -853,8 +713,9 @@ const Matrix4& Light::projection() const {
 	m_doom3Frustum.top = m_doom3Frustum.top.getNormalised();
 	m_doom3Frustum.back = m_doom3Frustum.back.getNormalised();
 	m_doom3Frustum.front = m_doom3Frustum.front.getNormalised();
-	
+
 	//matrix4_scale_by_vec3(m_doom3Projection, Vector3(1.0 / 128, 1.0 / 128, 1.0 / 128));
+#endif
 	return m_doom3Projection;
 }
 
@@ -862,4 +723,4 @@ ShaderPtr Light::getShader() const {
 	return m_shader.get();
 }
 
-} // namespace entity 
+} // namespace entity

@@ -28,16 +28,16 @@ namespace entity {
 
 /* greebo: This is the actual light class. It contains the information about the geometry
  * of the light and the actual render functions.
- * 
+ *
  * This class owns all the keyObserver callbacks, that get invoked as soon as the entity key/values get
  * changed by the user.
- * 
+ *
  * The subclass Doom3LightRadius contains some variables like the light radius and light center coordinates,
  * and there are some "onChanged" callbacks for the light radius and light center.
- * 
+ *
  * Note: All the selection stuff is handled by the LightInstance class. This is just the bare bone light.
  */
- 
+
 void light_vertices(const AABB& aabb_light, Vector3 points[6]);
 void light_draw(const AABB& aabb_light, RenderStateFlags state);
 
@@ -103,47 +103,51 @@ class Light :
 	// Renderable components of this light
 	RenderLightRadiiBox m_radii_box;
 	RenderableLightTarget _rCentre;
-	RenderableLightTarget _rTarget;
-	
-	RenderableLightRelative _rUp;
-	RenderableLightRelative _rRight;
-	
-	RenderableLightTarget _rStart;
-	RenderableLightTarget _rEnd;
+//	RenderableLightTarget _rTarget;
+
+//	RenderableLightRelative _rUp;
+//	RenderableLightRelative _rRight;
+
+//	RenderableLightTarget _rStart;
+//	RenderableLightTarget _rEnd;
 	RenderableNamedEntity m_renderName;
 
-  Vector3 m_lightOrigin;
-  bool m_useLightOrigin;
-  Float9 m_lightRotation;
-  bool m_useLightRotation;
+	Vector3 m_lightOrigin;
+	bool m_useLightOrigin;
+	Float9 m_lightRotation;
+	bool m_useLightRotation;
+
+	float m_lightFovX;
+	bool m_useLightFovX;
+	float m_lightFovY;
+	bool m_useLightFovY;
+	float m_lightNear;
+	bool m_useLightNear;
+	float m_lightFar;
+	bool m_useLightFar;
+
 
 	// These are the vectors that define a projected light
-	Vector3 _lightTarget;
-	Vector3 _lightUp;
-	Vector3 _lightRight;
-	Vector3 _lightStart;
-	Vector3 _lightEnd;
-	
+//	Vector3 _lightTarget;
+//	Vector3 _lightUp;
+//	Vector3 _lightRight;
+//	Vector3 _lightStart;
+//	Vector3 _lightEnd;
+
 	// The "temporary" vectors, that get changed during a transform operation
-	Vector3 _lightTargetTransformed;
-	Vector3 _lightUpTransformed;
-	Vector3 _lightRightTransformed;
-	Vector3 _lightStartTransformed;
-	Vector3 _lightEndTransformed;
-	
+//	Vector3 _lightTargetTransformed;
+//	Vector3 _lightUpTransformed;
+//	Vector3 _lightRightTransformed;
+//	Vector3 _lightStartTransformed;
+//	Vector3 _lightEndTransformed;
+
 	Vector3 _projectionCenter;
-	
+
 	Vector3 _colourLightTarget;
 	Vector3 _colourLightUp;
 	Vector3 _colourLightRight;
 	Vector3 _colourLightStart;
 	Vector3 _colourLightEnd;
-	
-	bool m_useLightTarget;
-	bool m_useLightUp;
-	bool m_useLightRight;
-	bool m_useLightStart;
-	bool m_useLightEnd;
 
   mutable AABB m_doom3AABB;
   mutable AABB _lightAABB;
@@ -178,16 +182,14 @@ public:
 	void lightOriginChanged(const std::string& value);
 	typedef MemberCaller1<Light, const std::string&, &Light::lightOriginChanged> LightOriginChangedCaller;
 
-	void lightTargetChanged(const std::string& value);
-	typedef MemberCaller1<Light, const std::string&, &Light::lightTargetChanged> LightTargetChangedCaller;
-	void lightUpChanged(const std::string& value);
-	typedef MemberCaller1<Light, const std::string&, &Light::lightUpChanged> LightUpChangedCaller;
-	void lightRightChanged(const std::string& value);
-	typedef MemberCaller1<Light, const std::string&, &Light::lightRightChanged> LightRightChangedCaller;
-	void lightStartChanged(const std::string& value);
-	typedef MemberCaller1<Light, const std::string&, &Light::lightStartChanged> LightStartChangedCaller;
-	void lightEndChanged(const std::string& value);
-	typedef MemberCaller1<Light, const std::string&, &Light::lightEndChanged> LightEndChangedCaller;
+	void lightFovXChanged(const std::string& value);
+	typedef MemberCaller1<Light, const std::string&, &Light::lightFovXChanged> LightFovXChangedCaller;
+	void lightFovYChanged(const std::string& value);
+	typedef MemberCaller1<Light, const std::string&, &Light::lightFovYChanged> LightFovYChangedCaller;
+	void lightNearChanged(const std::string& value);
+	typedef MemberCaller1<Light, const std::string&, &Light::lightNearChanged> LightNearChangedCaller;
+	void lightFarChanged(const std::string& value);
+	typedef MemberCaller1<Light, const std::string&, &Light::lightFarChanged> LightFarChangedCaller;
 
 	void writeLightOrigin();
 
@@ -202,10 +204,10 @@ public:
 public:
 	// Constructor
 	Light(IEntityClassPtr eclass, LightNode& node, const Callback& transformChanged, const Callback& boundsChanged, const Callback& evaluateTransform);
-	
+
 	// Copy Constructor
 	Light(const Light& other, LightNode& node, const Callback& transformChanged, const Callback& boundsChanged, const Callback& evaluateTransform);
-	
+
 	InstanceCounter m_instanceCounter;
 	void instanceAttach(const scene::Path& path);
 	void instanceDetach(const scene::Path& path);
@@ -229,26 +231,22 @@ public:
 	mutable Matrix4 m_projectionOrientation;
 
 	// Renderable submission functions
-	void renderWireframe(Renderer& renderer, 
-						 const VolumeTest& volume, 
-						 const Matrix4& localToWorld, 
+	void renderWireframe(Renderer& renderer,
+						 const VolumeTest& volume,
+						 const Matrix4& localToWorld,
 						 bool selected) const;
 
 	// Adds the light centre renderable to the given renderer
 	void renderLightCentre(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
-	void renderProjectionPoints(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
 
 	// Returns a reference to the member class Doom3LightRadius (used to set colours)
 	Doom3LightRadius& getDoom3Radius();
 
 	void testSelect(Selector& selector, SelectionTest& test, const Matrix4& localToWorld);
-  
+
 	void translate(const Vector3& translation);
-	void translateLightTarget(const Vector3& translation);
-	void translateLightStart(const Vector3& translation);
-	
 	void rotate(const Quaternion& rotation);
-	
+
 	// This snaps the light as a whole to the grid (basically the light origin)
 	void snapto(float snap);
 	void setLightRadius(const AABB& aabb);
@@ -270,27 +268,7 @@ public:
 	const Matrix4& rotation() const;
 	const Vector3& offset() const;
 	const Vector3& colour() const;
-	
-	Vector3& target();
-	Vector3& targetTransformed();
-	Vector3& up();
-	Vector3& upTransformed();
-	Vector3& right();
-	Vector3& rightTransformed();
-	Vector3& start();
-	Vector3& startTransformed();
-	Vector3& end();
-	Vector3& endTransformed();
-	
-	Vector3& colourLightTarget();
-	Vector3& colourLightRight();
-	Vector3& colourLightUp();
-	Vector3& colourLightStart();
-	Vector3& colourLightEnd();
-	
-	void checkStartEnd();
-	bool useStartEnd() const;
-	
+
 	bool isProjected() const;
 	void projectionChanged();
 

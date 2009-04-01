@@ -484,8 +484,8 @@ void R_SetupLightLocalBounds(trRefLight_t * light)
 			float           xMin, xMax, yMin, yMax;
 			float           zNear, zFar;
 
-			zNear = 1.0;
-			zFar = light->l.distance;
+			zNear = light->l.near;
+			zFar = light->l.far;
 
 			xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
 			xMin = -xMax;
@@ -663,8 +663,8 @@ void R_SetupLightProjection(trRefLight_t * light)
 			float           zNear, zFar;
 			float          *proj = light->projectionMatrix;
 
-			zNear = 1;
-			zFar = light->l.distance;
+			zNear = light->l.near;
+			zFar = light->l.far;
 
 #if 1
 			xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
@@ -1079,8 +1079,8 @@ void R_SetupLightScissor(trRefLight_t * light)
 			float           zNear, zFar;
 			vec3_t          corners[4];
 
-			zNear = 1.0;
-			zFar = light->l.distance;
+			zNear = light->l.near;
+			zFar = light->l.far;
 
 			xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
 			xMin = -xMax;

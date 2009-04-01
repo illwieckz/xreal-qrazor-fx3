@@ -5144,7 +5144,8 @@ void R_LoadEntities(lump_t * l)
 
 		light->l.fovX = 90;
 		light->l.fovY = 90;
-		light->l.distance = 300;
+		light->l.near = 1;
+		light->l.far = 300;
 
 		light->l.inverseShadows = qfalse;
 
@@ -5247,10 +5248,16 @@ void R_LoadEntities(lump_t * l)
 				light->l.fovY = atof(value);
 				light->l.rlType = RL_PROJ;
 			}
-			// check for distance
-			else if(!Q_stricmp(keyname, "light_distance"))
+			// check for near
+			else if(!Q_stricmp(keyname, "light_near"))
 			{
-				light->l.distance = atof(value);
+				light->l.near = atof(value);
+				light->l.rlType = RL_PROJ;
+			}
+			// check for far
+			else if(!Q_stricmp(keyname, "light_far"))
+			{
+				light->l.far = atof(value);
 				light->l.rlType = RL_PROJ;
 			}
 			// check for radius

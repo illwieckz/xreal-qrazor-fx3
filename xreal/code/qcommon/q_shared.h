@@ -867,6 +867,18 @@ qboolean        BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3
 qboolean        BoundsIntersectSphere(const vec3_t mins, const vec3_t maxs, const vec3_t origin, vec_t radius);
 qboolean        BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t origin);
 
+static ID_INLINE void BoundsToCorners(const vec3_t mins, const vec3_t maxs, vec3_t corners[8])
+{
+	VectorSet(corners[0], mins[0], maxs[1], maxs[2]);
+	VectorSet(corners[1], maxs[0], maxs[1], maxs[2]);
+	VectorSet(corners[2], maxs[0], mins[1], maxs[2]);
+	VectorSet(corners[3], mins[0], mins[1], maxs[2]);
+	VectorSet(corners[4], mins[0], maxs[1], mins[2]);
+	VectorSet(corners[5], maxs[0], maxs[1], mins[2]);
+	VectorSet(corners[6], maxs[0], mins[1], mins[2]);
+	VectorSet(corners[7], mins[0], mins[1], mins[2]);
+}
+
 
 static ID_INLINE int VectorCompare(const vec3_t v1, const vec3_t v2)
 {
@@ -1076,6 +1088,11 @@ void            VectorToAngles(const vec3_t value1, vec3_t angles);
 
 vec_t           PlaneNormalize(vec4_t plane);	// returns normal length
 qboolean        PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, qboolean cw);
+/* greebo: This calculates the intersection point of three planes.
+ * Returns <0,0,0> if no intersection point could be found, otherwise returns the coordinates of the intersection point
+ * (this may also be 0,0,0) */
+qboolean		PlanesGetIntersectionPoint(const vec4_t plane1, const vec4_t plane2, const vec4_t plane3, vec3_t out);
+
 void            ProjectPointOnPlane(vec3_t dst, const vec3_t p, const vec3_t normal);
 void            RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, float degrees);
 void            RotateAroundDirection(vec3_t axis[3], float yaw);
