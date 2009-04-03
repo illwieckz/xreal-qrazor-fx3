@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 attribute vec4		attr_Position;
 attribute vec4		attr_TexCoord0;
+attribute vec3		attr_Normal;
 attribute vec4		attr_Color;
 #if defined(r_VertexSkinning)
 attribute vec4		attr_BoneIndexes;
@@ -31,6 +32,8 @@ uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
 #endif
 
 uniform mat4		u_ColorTextureMatrix;
+uniform vec3		u_ViewOrigin;
+uniform int			u_TCGen_Environment;
 uniform int			u_InverseVertexColor;
 uniform mat4		u_ModelMatrix;
 //uniform mat4		u_ProjectionMatrix;
@@ -42,6 +45,8 @@ varying vec4		var_Color;
 
 void	main()
 {
+	vec4 position = vec4(0.0);
+
 #if defined(r_VertexSkinning)
 	if(bool(u_VertexSkinning))
 	{
@@ -53,11 +58,11 @@ void	main()
 			float boneWeight = attr_BoneWeights[i];
 			mat4  boneMatrix = u_BoneMatrix[boneIndex];
 			
-			vertex += (boneMatrix * attr_Position) * boneWeight;
+			position += (boneMatrix * attr_Position) * boneWeight;
 		}
 
 		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * vertex;
+		gl_Position = u_ModelViewProjectionMatrix * position;
 		
 		// transform position into world space
 		var_Position = (u_ModelMatrix * vertex).xyz;
@@ -70,12 +75,28 @@ void	main()
 		//gl_Position = u_ProjectionMatrix * u_ModelViewMatrix * attr_Position;
 		//gl_Position = u_ProjectionMatrix * attr_Position;
 		
+		position = attr_Position;
+		
 		// transform position into world space
 		var_Position = (u_ModelMatrix * attr_Position).xyz;
 	}
 	
 	// transform texcoords
-	var_Tex = (u_ColorTextureMatrix * attr_TexCoord0).st;
+	if(bool(u_TCGen_Environment))
+	{
+		vec3 viewer = normalize(u_ViewOrigin - position.xyz);
+
+		float d = dot(attr_Normal, viewer);
+
+		vec3 reflected = attr_Normal * 2.0 * d - viewer;
+		
+		var_Tex.s = 0.5 + reflected.y * 0.5;
+		var_Tex.t = 0.5 - reflected.z * 0.5;
+	}
+	else
+	{
+		var_Tex = (u_ColorTextureMatrix * attr_TexCoord0).st;
+	}
 	
 	// assign color
 	if(bool(u_InverseVertexColor))
