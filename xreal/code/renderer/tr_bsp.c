@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2009 Peter McNeill <n27@bigpond.net.au>
 
 This file is part of XreaL source code.
 
@@ -130,6 +131,40 @@ static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
 	out[3] = in[3];
 }
 
+/*
+===============
+R_ColorShiftLightingFloats
+===============
+*/
+static void R_ColorShiftLightingFloats(float in[4], float out[4])
+{
+	int             shift, r, g, b;
+
+	// shift the color data based on overbright range
+	shift = r_mapOverBrightBits->integer - tr.overbrightBits;
+
+	// shift the data based on overbright range
+	r = ((byte)(in[0] * 255)) << shift;
+	g = ((byte)(in[1] * 255)) << shift;
+	b = ((byte)(in[2] * 255)) << shift;
+
+	// normalize by color instead of saturating to white
+	if((r | g | b) > 255)
+	{
+		int             max;
+
+		max = r > g ? r : g;
+		max = max > b ? max : b;
+		r = r * 255 / max;
+		g = g * 255 / max;
+		b = b * 255 / max;
+	}
+
+	out[0] = r * (1.0f / 255.0f);
+	out[1] = g * (1.0f / 255.0f);
+	out[2] = b * (1.0f / 255.0f);
+	out[3] = in[3];
+}
 
 /*
 ===============
@@ -647,6 +682,8 @@ static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int 
 	Com_Dealloc(hdrImage);
 }
 
+
+
 /*
 ===============
 R_LoadLightmaps
@@ -883,7 +920,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			}
 		}
 	}
-#if 0
+#if 0 //defined(COMPAT_Q3A)
 	else
 	{
 		buf = fileBase + l->fileofs;
@@ -911,14 +948,16 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 						data[j * 4 + 3] = 255;
 					}
 					tr.lightmaps[i] =
-						R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP, FT_DEFAULT,
+						R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT,
 									  WT_CLAMP);
 				}
 				else
 				{
 					for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
 					{
-						R_NormalizeLightingBytes(&buf_p[j * 3], &data[j * 4]);
+						data[j * 4 + 0] = buf_p[j * 3 + 0];
+						data[j * 4 + 1] = buf_p[j * 3 + 1];
+						data[j * 4 + 2] = buf_p[j * 3 + 2];
 						data[j * 4 + 3] = 255;
 					}
 					tr.lightmaps[i] =
@@ -934,9 +973,110 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					data[j * 4 + 3] = 255;
 				}
 				tr.lightmaps[i] =
-					R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
+					R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
 			}
 		}
+	}
+#else defined(COMPAT_Q3A)
+	else
+	{
+		int             i;
+		//int       BIGSIZE=2048;
+		//int       BIGNUM=16;
+
+		byte           *fatbuffer;
+		int             xoff, yoff, x, y;
+		float           scale = 0.9f;
+
+		tr.fatLightmapSize = 2048;
+		tr.fatLightmapStep = 16;
+
+		len = l->filelen;
+		if(!len)
+		{
+			return;
+		}
+		buf = fileBase + l->fileofs;
+
+		// we are about to upload textures
+		R_SyncRenderThread();
+
+		// create all the lightmaps
+		tr.numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
+		if(tr.numLightmaps == 1)
+		{
+			//FIXME: HACK: maps with only one lightmap turn up fullbright for some reason.
+			//this avoids this, but isn't the correct solution.
+			tr.numLightmaps++;
+		}
+		else if(tr.numLightmaps >= MAX_LIGHTMAPS)
+		{
+			// 20051020 misantropia
+			ri.Printf(PRINT_WARNING, "WARNING: number of lightmaps > MAX_LIGHTMAPS\n");
+			tr.numLightmaps = MAX_LIGHTMAPS;
+		}
+
+		if(tr.numLightmaps < 65)
+		{
+			// optimize: use a 1024 if we can get away with it
+			tr.fatLightmapSize = 1024;
+			tr.fatLightmapStep = 8;
+
+		}
+		fatbuffer = ri.Hunk_AllocateTempMemory(sizeof(byte) * tr.fatLightmapSize * tr.fatLightmapSize * 4);
+
+		Com_Memset(fatbuffer, 128, tr.fatLightmapSize * tr.fatLightmapSize * 4);
+		for(i = 0; i < tr.numLightmaps; i++)
+		{
+			// expand the 24 bit on-disk to 32 bit
+			buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
+
+			xoff = i % tr.fatLightmapStep;
+			yoff = i / tr.fatLightmapStep;
+
+			//if (tr.radbumping==qfalse)
+			if(1)
+			{
+				for(y = 0; y < LIGHTMAP_SIZE; y++)
+				{
+					for(x = 0; x < LIGHTMAP_SIZE; x++)
+					{
+						int             index =
+							(x + (y * tr.fatLightmapSize)) + ((xoff * LIGHTMAP_SIZE) + (yoff * tr.fatLightmapSize * LIGHTMAP_SIZE));
+						fatbuffer[(index * 4) + 0] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 0];
+						fatbuffer[(index * 4) + 1] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 1];
+						fatbuffer[(index * 4) + 2] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 2];
+						fatbuffer[(index * 4) + 3] = 255;
+
+						R_ColorShiftLightingBytes(&fatbuffer[(index * 4) + 0], &fatbuffer[(index * 4) + 0]);
+					}
+				}
+			}
+			/*else
+			   {
+			   //We need to darken the lightmaps a little bit when mixing radbump and fallback path rendering
+			   //because radbump will be darker due to the error introduced by using 3 basis vector probes for lighting instead of surf normal.
+			   for ( y = 0 ; y < LIGHTMAP_SIZE ; y++ )
+			   {
+			   for ( x = 0 ; x < LIGHTMAP_SIZE ; x++ )
+			   {
+			   int index = (x+(y*tr.fatLightmapSize))+((xoff*LIGHTMAP_SIZE)+(yoff*tr.fatLightmapSize*LIGHTMAP_SIZE));
+			   fatbuffer[(index*4)+0 ]=(byte)(((float)buf_p[((x+(y*LIGHTMAP_SIZE))*3)+0])*scale);
+			   fatbuffer[(index*4)+1 ]=(byte)(((float)buf_p[((x+(y*LIGHTMAP_SIZE))*3)+1])*scale);
+			   fatbuffer[(index*4)+2 ]=(byte)(((float)buf_p[((x+(y*LIGHTMAP_SIZE))*3)+2])*scale);
+			   fatbuffer[(index*4)+3 ]=255;
+			   }
+			   }
+
+			   } */
+
+
+		}
+		//memset(fatbuffer,128,tr.fatLightmapSize*tr.fatLightmapSize*4);
+
+		tr.fatLightmap = R_CreateImage(va("_fatlightmap%d", 0), fatbuffer, tr.fatLightmapSize, tr.fatLightmapSize, IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
+
+		ri.Hunk_FreeTempMemory(fatbuffer);
 	}
 #endif
 
@@ -944,6 +1084,21 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 	{
 		tr.numLightmaps /= 2;
 	}
+}
+
+static float FatPackU(float input, int lightmapnum)
+{
+	int             x = lightmapnum % tr.fatLightmapStep;
+
+	return (input / ((float)tr.fatLightmapStep)) + ((1.0 / ((float)tr.fatLightmapStep)) * (float)x);
+
+}
+
+static float FatPackV(float input, int lightmapnum)
+{
+	int             y = lightmapnum / ((float)tr.fatLightmapStep);
+
+	return (input / ((float)tr.fatLightmapStep)) + ((1.0 / ((float)tr.fatLightmapStep)) * (float)y);
 }
 
 /*
@@ -1047,12 +1202,22 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 	srfSurfaceFace_t *cv;
 	srfTriangle_t  *tri;
 	int             numVerts, numTriangles;
+	int             realLightmapNum;
 
 	// get lightmap
+	realLightmapNum = LittleLong(ds->lightmapNum);
 	if(r_vertexLighting->integer)
+	{
 		surf->lightmapNum = -1;
+	}
 	else
-		surf->lightmapNum = LittleLong(ds->lightmapNum);
+	{
+#if defined(COMPAT_Q3A)
+		surf->lightmapNum = 0;
+#else
+		surf->lightmapNum = realLightmapNum;
+#endif
+	}
 
 	// get shader value
 	surf->shader = ShaderForShaderNum(ds->shaderNum);
@@ -1100,6 +1265,16 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 			cv->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
 
+#if defined(COMPAT_Q3A)
+		cv->verts[i].lightmap[0] = FatPackU(LittleFloat(verts[i].lightmap[0]), realLightmapNum);
+		cv->verts[i].lightmap[1] = FatPackV(LittleFloat(verts[i].lightmap[1]), realLightmapNum);
+
+		for(j = 0; j < 4; j++)
+		{
+			cv->verts[i].lightColor[j] = verts[i].color[j] * (1.0f / 255.0f);
+		}
+		R_ColorShiftLightingFloats(cv->verts[i].lightColor, cv->verts[i].lightColor);
+#else
 		for(j = 0; j < 4; j++)
 		{
 			cv->verts[i].paintColor[j] = Q_clamp(LittleFloat(verts[i].paintColor[j]), 0.0f, 1.0f);
@@ -1113,6 +1288,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 		//VectorNormalize(cv->verts[i].lightDirection);
 
 		R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor, qtrue);
+#endif
 	}
 
 	// copy triangles
@@ -1221,13 +1397,22 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 	srfVert_t       points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
 	vec3_t          bounds[2];
 	vec3_t          tmpVec;
-	static surfaceType_t skipData = SF_SKIP;
+	static surfaceType_t skipData = SF_SKIP;int             realLightmapNum;
 
 	// get lightmap
+	realLightmapNum = LittleLong(ds->lightmapNum);
 	if(r_vertexLighting->integer)
+	{
 		surf->lightmapNum = -1;
+	}
 	else
-		surf->lightmapNum = LittleLong(ds->lightmapNum);
+	{
+#if defined(COMPAT_Q3A)
+		surf->lightmapNum = 0;
+#else
+		surf->lightmapNum = realLightmapNum;
+#endif
+	}
 
 	// get shader value
 	surf->shader = ShaderForShaderNum(ds->shaderNum);
@@ -1266,6 +1451,16 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 			points[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
 
+#if defined(COMPAT_Q3A)
+		points[i].lightmap[0] = FatPackU(LittleFloat(verts[i].lightmap[0]), realLightmapNum);
+		points[i].lightmap[1] = FatPackV(LittleFloat(verts[i].lightmap[1]), realLightmapNum);
+
+		for(j = 0; j < 4; j++)
+		{
+			points[i].lightColor[j] = verts[i].color[j] * (1.0f / 255.0f);
+		}
+		R_ColorShiftLightingFloats(points[i].lightColor, points[i].lightColor);
+#else
 		for(j = 0; j < 4; j++)
 		{
 			points[i].paintColor[j] = Q_clamp(LittleFloat(verts[i].paintColor[j]), 0.0f, 1.0f);
@@ -1279,6 +1474,7 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 		//VectorNormalize(points[i].lightDirection);
 
 		R_HDRTonemapLightingColors(points[i].lightColor, points[i].lightColor, qtrue);
+#endif
 	}
 
 	// pre-tesseleate
@@ -1362,6 +1558,13 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 			cv->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
 
+#if defined(COMPAT_Q3A)
+		for(j = 0; j < 4; j++)
+		{
+			cv->verts[i].lightColor[j] = verts[i].color[j] * (1.0f / 255.0f);
+		}
+		R_ColorShiftLightingFloats(cv->verts[i].lightColor, cv->verts[i].lightColor);
+#else
 		for(j = 0; j < 4; j++)
 		{
 			cv->verts[i].paintColor[j] = Q_clamp(LittleFloat(verts[i].paintColor[j]), 0.0f, 1.0f);
@@ -1375,6 +1578,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 		//VectorNormalize(cv->verts[i].lightDirection);
 
 		R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor, qtrue);
+#endif
 	}
 
 	// copy triangles
@@ -4863,11 +5067,37 @@ void R_LoadLightGrid(lump_t * l)
 
 	for(i = 0; i < numGridPoints; i++, in++, out++)
 	{
+#if defined(COMPAT_Q3A)
+		byte		tmpAmbient[4];
+		byte		tmpDirected[4];
+
+		tmpAmbient[0] = in->ambient[0];
+		tmpAmbient[1] = in->ambient[1];
+		tmpAmbient[2] = in->ambient[2];
+		tmpAmbient[3] = 255;
+
+		tmpDirected[0] = in->directed[0];
+		tmpDirected[1] = in->directed[1];
+		tmpDirected[2] = in->directed[2];
+		tmpDirected[3] = 255;
+
+		R_ColorShiftLightingBytes(tmpAmbient, tmpAmbient);
+		R_ColorShiftLightingBytes(tmpDirected, tmpDirected);
+
 		for(j = 0; j < 3; j++)
 		{
+			out->ambient[j] = tmpAmbient[j] * (1.0f / 255.0f);
+			out->directed[j] = tmpDirected[j] * (1.0f / 255.0f);
+		}
+#else
+		for(j = 0; j < 3; j++)
+		{
+
 			out->ambient[j] = LittleFloat(in->ambient[j]);
 			out->directed[j] = LittleFloat(in->directed[j]);
 		}
+#endif
+
 		out->ambient[3] = 1.0f;
 		out->directed[3] = 1.0f;
 
@@ -4879,11 +5109,14 @@ void R_LoadLightGrid(lump_t * l)
 #if 0
 		// debug print to see if the XBSP format is correct
 		ri.Printf(PRINT_ALL, "%9d Amb: (%03.1f %03.1f %03.1f) Dir: (%03.1f %03.1f %03.1f)\n",
-				  i, out->ambient[0], out->ambient[1], out->ambient[2], out->directed[0], out->directed[1], out->directed[2]);
+			  i, out->ambient[0], out->ambient[1], out->ambient[2], out->directed[0], out->directed[1], out->directed[2]);
 #endif
+
+#if !defined(COMPAT_Q3A)
 		// deal with overbright bits
 		R_HDRTonemapLightingColors(out->ambient, out->ambient, qtrue);
 		R_HDRTonemapLightingColors(out->directed, out->directed, qtrue);
+#endif
 	}
 
 	ri.Printf(PRINT_ALL, "%i light grid points created\n", numGridPoints);

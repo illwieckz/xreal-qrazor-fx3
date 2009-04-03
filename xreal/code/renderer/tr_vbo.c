@@ -412,7 +412,9 @@ void R_BindVBO(VBO_t * vbo)
 
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
 
+#if !defined(ALLOW_VERTEX_ARRAYS)
 		if(glState.currentVBO != tess.vbo)
+#endif
 		{
 			qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsXYZ));
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsTexCoords));

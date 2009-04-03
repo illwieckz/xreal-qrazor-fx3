@@ -68,7 +68,7 @@ typedef unsigned short glIndex_t;
 
 #define REF_CUBEMAP_SIZE		64
 
-//#define ALLOW_VERTEX_ARRAYS		1
+#define ALLOW_VERTEX_ARRAYS		1
 
 typedef enum
 {
@@ -591,7 +591,7 @@ typedef struct
 } texModInfo_t;
 
 
-#define	MAX_IMAGE_ANIMATIONS	8
+#define	MAX_IMAGE_ANIMATIONS	16
 
 enum
 {
@@ -604,6 +604,8 @@ enum
 
 typedef struct
 {
+	int				numImages;
+	float           imageAnimationSpeed;
 	image_t        *image[MAX_IMAGE_ANIMATIONS];
 
 	int             numTexMods;
@@ -628,6 +630,10 @@ typedef enum
 	ST_PORTALMAP,
 	ST_HEATHAZEMAP,				// heatHaze post process effect
 	ST_LIQUIDMAP,
+
+#if defined(COMPAT_Q3A)
+	ST_LIGHTMAP,
+#endif
 
 	ST_COLLAPSE_lighting_DB,	// diffusemap + bumpmap
 	ST_COLLAPSE_lighting_DBS,	// diffusemap + bumpmap + specularmap
@@ -669,6 +675,8 @@ typedef struct
 	expression_t    alphaExp;
 
 	expression_t    alphaTestExp;
+
+	qboolean		tcGen_Environment;
 
 	qboolean        vertexColor;
 	qboolean        inverseVertexColor;
@@ -903,6 +911,9 @@ typedef struct shaderProgram_s
 	GLint           u_ViewOrigin;
 	vec3_t			t_ViewOrigin;
 
+	GLint           u_TCGen_Environment;
+	qboolean		t_TCGen_Environment;
+
 	GLint           u_InverseVertexColor;
 	qboolean		t_InverseVertexColor;
 
@@ -1091,6 +1102,18 @@ static ID_INLINE void GLSL_SetUniform_ViewOrigin(shaderProgram_t * program, cons
 	qglUniform3fARB(program->u_ViewOrigin, v[0], v[1], v[2]);
 }
 
+static ID_INLINE void GLSL_SetUniform_TCGen_Environment(shaderProgram_t * program, qboolean value)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_TCGen_Environment == value)
+		return;
+
+	program->t_TCGen_Environment = value;
+#endif
+
+	qglUniform1iARB(program->u_TCGen_Environment, value);
+}
+
 static ID_INLINE void GLSL_SetUniform_InverseVertexColor(shaderProgram_t * program, qboolean value)
 {
 #if defined(USE_UNIFORM_FIREWALL)
@@ -1102,7 +1125,6 @@ static ID_INLINE void GLSL_SetUniform_InverseVertexColor(shaderProgram_t * progr
 
 	qglUniform1iARB(program->u_InverseVertexColor, value);
 }
-
 
 static ID_INLINE void GLSL_SetUniform_AmbientColor(shaderProgram_t * program, const vec3_t v)
 {
@@ -2474,6 +2496,10 @@ typedef struct
 
 	int             numLightmaps;
 	image_t        *lightmaps[MAX_LIGHTMAPS];
+
+	image_t        *fatLightmap;
+	int				fatLightmapSize;
+	int				fatLightmapStep;
 
 	// render entities
 	trRefEntity_t  *currentEntity;

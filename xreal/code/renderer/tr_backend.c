@@ -69,6 +69,8 @@ void GL_Unbind()
 
 void BindAnimatedImage(textureBundle_t * bundle)
 {
+	int             index;
+
 	if(bundle->isVideoMap)
 	{
 		ri.CIN_RunCinematic(bundle->videoMapHandle);
@@ -76,7 +78,24 @@ void BindAnimatedImage(textureBundle_t * bundle)
 		return;
 	}
 
-	GL_Bind(bundle->image[0]);
+	if(bundle->numImages <= 1)
+	{
+		GL_Bind(bundle->image[0]);
+		return;
+	}
+
+	// it is necessary to do this messy calc to make sure animations line up
+	// exactly with waveforms of the same frequency
+	index = Q_ftol(backEnd.refdef.floatTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE);
+	index >>= FUNCTABLE_SIZE2;
+
+	if(index < 0)
+	{
+		index = 0;				// may happen with shader time offsets
+	}
+	index %= bundle->numImages;
+
+	GL_Bind(bundle->image[index]);
 }
 
 void GL_TextureFilter(image_t * image, filterType_t filterType)
@@ -5606,6 +5625,7 @@ void RB_RenderLightOcclusionQueries()
 		GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 
 		// set uniforms
+		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
 		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
@@ -6022,6 +6042,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
+		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
 		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
@@ -6446,6 +6467,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
+		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
 		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
@@ -6549,6 +6571,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
+		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
 		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
@@ -6753,6 +6776,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
+		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
 		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
@@ -7581,6 +7605,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD);	// | GLCS_COLOR);
 
 	// set uniforms
+	GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
 	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 	if(glConfig.vboVertexSkinningAvailable)
 	{
@@ -7954,6 +7979,7 @@ void RB_ShowImages(void)
 	GL_Cull(CT_TWO_SIDED);
 
 	// set uniforms
+	GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
 	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 	if(glConfig.vboVertexSkinningAvailable)
 	{

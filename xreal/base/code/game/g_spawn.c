@@ -138,6 +138,7 @@ field_t         fields[] = {
 	{"target", FOFS(target), F_LSTRING},
 	{"target0", FOFS(target), F_LSTRING},
 	{"name", FOFS(name), F_LSTRING},
+	{"targetname", FOFS(name), F_LSTRING},
 	{"message", FOFS(message), F_LSTRING},
 	{"team", FOFS(team), F_LSTRING},
 	{"wait", FOFS(wait), F_FLOAT},

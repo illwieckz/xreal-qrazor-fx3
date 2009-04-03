@@ -593,12 +593,15 @@ void GLSL_InitGPUShaders(void)
 	startTime = ri.Milliseconds();
 
 	// single texture rendering
-	GLSL_InitGPUShader(&tr.genericSingleShader, "genericSingle", GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.genericSingleShader, "genericSingle", GLCS_VERTEX | GLCS_TEXCOORD | GLCS_NORMAL | GLCS_COLOR, qtrue);
 
 	tr.genericSingleShader.u_ColorMap = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ColorMap");
 	tr.genericSingleShader.u_ColorTextureMatrix =
 		qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ColorTextureMatrix");
 	tr.genericSingleShader.u_AlphaTest = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_AlphaTest");
+	tr.genericSingleShader.u_ViewOrigin = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ViewOrigin");
+	tr.genericSingleShader.u_TCGen_Environment =
+			qglGetUniformLocationARB(tr.genericSingleShader.program, "u_TCGen_Environment");
 	tr.genericSingleShader.u_InverseVertexColor =
 		qglGetUniformLocationARB(tr.genericSingleShader.program, "u_InverseVertexColor");
 	tr.genericSingleShader.u_PortalClipping = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_PortalClipping");
@@ -1973,6 +1976,9 @@ static void BindLightMap()
 {
 	image_t        *lightmap;
 
+#if defined(COMPAT_Q3A)
+	lightmap = tr.fatLightmap;
+#else
 	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
 	{
 		lightmap = tr.lightmaps[tess.lightmapNum];
@@ -1981,6 +1987,7 @@ static void BindLightMap()
 	{
 		lightmap = NULL;
 	}
+#endif
 
 	if(!tr.numLightmaps || !lightmap)
 	{
@@ -2054,6 +2061,7 @@ static void DrawTris()
 	GL_ClientState(GLCS_VERTEX);
 
 	// set uniforms
+	GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
 	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
 
 	GLSL_SetUniform_ModelMatrix(&tr.genericSingleShader, backEnd.or.transformMatrix);
@@ -2174,6 +2182,13 @@ static void Render_genericSingle(int stage)
 	}
 
 	// set uniforms
+	GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader, pStage->tcGen_Environment);
+	if(pStage->tcGen_Environment)
+	{
+		// calculate the environment texcoords in object space
+		GLSL_SetUniform_ViewOrigin(&tr.genericSingleShader, backEnd.or.viewOrigin);
+	}
+
 	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, pStage->inverseVertexColor);
 
 	GLSL_SetUniform_ModelMatrix(&tr.genericSingleShader, backEnd.or.transformMatrix);
@@ -2436,7 +2451,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 	GL_CheckErrors();
 }
 
-static void Render_lightMapping(int stage)
+static void Render_lightMapping(int stage, qboolean asColorMap)
 {
 	shaderStage_t  *pStage;
 	float           alphaTest;
@@ -2465,7 +2480,14 @@ static void Render_lightMapping(int stage)
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	if(asColorMap)
+	{
+		GL_Bind(tr.whiteImage);
+	}
+	else
+	{
+		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	}
 	GLSL_SetUniform_DiffuseTextureMatrix(&tr.lightMappingShader, tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
 	// bind u_LightMap
@@ -2702,7 +2724,7 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 }
 
 
-static void Render_depthFill(int stage)
+static void Render_depthFill(int stage, qboolean cmap2black)
 {
 	shaderStage_t  *pStage;
 	unsigned        stateBits;
@@ -2774,7 +2796,14 @@ static void Render_depthFill(int stage)
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	if(cmap2black)
+	{
+		GL_Bind(tr.blackImage);
+	}
+	else
+	{
+		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	}
 	GLSL_SetUniform_ColorTextureMatrix(&tr.depthFillShader, tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
 	Tess_DrawElements();
@@ -4128,6 +4157,14 @@ void Tess_StageIteratorGeneric()
 				break;
 			}
 
+#if defined(COMPAT_Q3A)
+			case ST_LIGHTMAP:
+			{
+				Render_lightMapping(stage, qtrue);
+				break;
+			}
+#endif
+
 			case ST_DIFFUSEMAP:
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:
@@ -4144,7 +4181,7 @@ void Tess_StageIteratorGeneric()
 							}
 							else
 							{
-								Render_lightMapping(stage);
+								Render_lightMapping(stage, qfalse);
 							}
 						}
 						else if(backEnd.currentEntity != &tr.worldEntity)
@@ -4158,7 +4195,7 @@ void Tess_StageIteratorGeneric()
 					}
 					else
 					{
-						Render_depthFill(stage);
+						Render_depthFill(stage, qfalse);
 					}
 				}
 				break;
@@ -4425,7 +4462,7 @@ void Tess_StageIteratorDepthFill()
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
 		GLimp_LogComment(va
-						 ("--- Tess_StageIteratorShadowFill( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name,
+						 ("--- Tess_StageIteratorDepthFill( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name,
 						  tess.numVertexes, tess.numIndexes / 3));
 	}
 
@@ -4466,16 +4503,23 @@ void Tess_StageIteratorDepthFill()
 			{
 				if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
-					Render_depthFill(stage);
+					Render_depthFill(stage, qfalse);
 				}
 				break;
 			}
 
+#if defined(COMPAT_Q3A)
+			case ST_LIGHTMAP:
+			{
+				Render_depthFill(stage, qtrue);
+				break;
+			}
+#endif
 			case ST_DIFFUSEMAP:
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:
 			{
-				Render_depthFill(stage);
+				Render_depthFill(stage, qfalse);
 				break;
 			}
 
@@ -4544,6 +4588,9 @@ void Tess_StageIteratorShadowFill()
 				break;
 			}
 
+#if defined(COMPAT_Q3A)
+			case ST_LIGHTMAP:
+#endif
 			case ST_DIFFUSEMAP:
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:

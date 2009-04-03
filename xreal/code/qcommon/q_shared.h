@@ -31,6 +31,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PRODUCT_NAME            "XreaL"
 #define PRODUCT_VERSION         "0.8.2"
 
+#if 0
+#if defined(COMPAT_Q3A)
+#define COMPAT_Q3A 1
+#endif
+#endif
+
 #ifdef SVN_VERSION
 # define Q3_VERSION PRODUCT_NAME " " SVN_VERSION
 #else

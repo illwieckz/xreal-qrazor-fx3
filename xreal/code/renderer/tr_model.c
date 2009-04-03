@@ -3070,6 +3070,7 @@ void RE_BeginRegistration(glConfig_t * glconfigOut)
 
 	// FIXME: world entity shadows always use zfail algorithm which is slower than zpass
 	tr.worldEntity.needZFail = qtrue;
+	tr.worldEntity.e.nonNormalizedAxes = qfalse;
 
 	tr.registered = qtrue;
 

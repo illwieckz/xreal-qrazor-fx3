@@ -1413,6 +1413,13 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 		stage->bundle[0].image[0] = tr.flatImage;
 		return qtrue;
 	}
+#if defined(COMPAT_Q3A)
+	else if(!Q_stricmp(token, "$lightmap"))
+	{
+		stage->type = ST_LIGHTMAP;
+		return qtrue;
+	}
+#endif
 
 	// determine image options
 	if(stage->overrideNoPicMip || shader.noPicMip || stage->highQuality || stage->forceHighQuality)
@@ -1565,8 +1572,37 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// animMap <frequency> <image1> .... <imageN>
 		else if(!Q_stricmp(token, "animMap"))
 		{
-			ri.Printf(PRINT_WARNING, "WARNING: animMap keyword not supported in shader '%s'\n", shader.name);
-			Com_SkipRestOfLine(text);
+			token = Com_ParseExt(text, qfalse);
+			if(!token[0])
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: missing parameter for 'animMmap' keyword in shader '%s'\n", shader.name);
+				return qfalse;
+			}
+			stage->bundle[0].imageAnimationSpeed = atof(token);
+
+			// parse up to MAX_IMAGE_ANIMATIONS animations
+			while(1)
+			{
+				int             num;
+
+				token = Com_ParseExt(text, qfalse);
+				if(!token[0])
+				{
+					break;
+				}
+				num = stage->bundle[0].numImages;
+				if(num < MAX_IMAGE_ANIMATIONS)
+				{
+					stage->bundle[0].image[num] = R_FindImageFile(token, IF_NONE, FT_DEFAULT, WT_REPEAT);
+					if(!stage->bundle[0].image[num])
+					{
+						ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
+								  shader.name);
+						return qfalse;
+					}
+					stage->bundle[0].numImages++;
+				}
+			}
 		}
 		else if(!Q_stricmp(token, "videoMap"))
 		{
@@ -1990,7 +2026,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			else if(!Q_stricmp(token, "lightingDiffuse"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: obsolete rgbGen lighting keyword not supported in shader '%s'\n", shader.name);
+				//ri.Printf(PRINT_WARNING, "WARNING: obsolete rgbGen lightingDiffuse keyword not supported in shader '%s'\n", shader.name);
 				stage->type = ST_DIFFUSEMAP;
 				stage->rgbGen = CGEN_IDENTITY_LIGHTING;
 			}
@@ -2094,6 +2130,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			else if(!Q_stricmp(token, "portal"))
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: alphaGen portal keyword not supported in shader '%s'\n", shader.name);
+				stage->type = ST_PORTALMAP;
 				Com_SkipRestOfLine(text);
 			}
 			else
@@ -2144,15 +2181,20 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 			if(!Q_stricmp(token, "environment"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: texGen environment keyword not supported in shader '%s'\n", shader.name);
+				//ri.Printf(PRINT_WARNING, "WARNING: texGen environment keyword not supported in shader '%s'\n", shader.name);
+				stage->tcGen_Environment = qtrue;
 			}
 			else if(!Q_stricmp(token, "lightmap"))
 			{
+#if !defined(COMPAT_Q3A)
 				ri.Printf(PRINT_WARNING, "WARNING: texGen lightmap keyword not supported in shader '%s'\n", shader.name);
+#endif
 			}
 			else if(!Q_stricmp(token, "texture") || !Q_stricmp(token, "base"))
 			{
+#if !defined(COMPAT_Q3A)
 				ri.Printf(PRINT_WARNING, "WARNING: texGen texture keyword not supported in shader '%s'\n", shader.name);
+#endif
 			}
 			else if(!Q_stricmp(token, "vector"))
 			{
@@ -2160,19 +2202,19 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			else if(!Q_stricmp(token, "reflect"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: use stage reflectionmap instead of texGen reflect keyword shader '%s'\n",
-						  shader.name);
+				//ri.Printf(PRINT_WARNING, "WARNING: use stage reflectionmap instead of texGen reflect keyword shader '%s'\n",
+				//		  shader.name);
 				stage->type = ST_REFLECTIONMAP;
 			}
 			else if(!Q_stricmp(token, "skybox"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: use stage skyboxmap instead of texGen skybox keyword shader '%s'\n",
-						  shader.name);
+				//ri.Printf(PRINT_WARNING, "WARNING: use stage skyboxmap instead of texGen skybox keyword shader '%s'\n",
+				//		  shader.name);
 				stage->type = ST_SKYBOXMAP;
 			}
 			else
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: tcGen keyword not supported in shader '%s'\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: unknown tcGen keyword '%s' not supported in shader '%s'\n", token, shader.name);
 				Com_SkipRestOfLine(text);
 			}
 		}
@@ -4378,6 +4420,9 @@ static shader_t *FinishShader(void)
 		switch (pStage->type)
 		{
 			case ST_LIQUIDMAP:
+#if defined(COMPAT_Q3A)
+			case ST_LIGHTMAP:
+#endif
 				// skip
 				break;
 
@@ -5493,7 +5538,11 @@ static void ScanAndLoadShaderFiles(void)
 	ri.Printf(PRINT_ALL, "----- ScanAndLoadShaderFiles -----\n");
 
 	// scan for shader files
+#if defined(COMPAT_Q3A)
+	shaderFiles = ri.FS_ListFiles("scripts", ".shader", &numShaders);
+#else
 	shaderFiles = ri.FS_ListFiles("materials", ".mtr", &numShaders);
+#endif
 
 	if(!shaderFiles || !numShaders)
 	{
@@ -5509,7 +5558,11 @@ static void ScanAndLoadShaderFiles(void)
 	// build single large buffer
 	for(i = 0; i < numShaders; i++)
 	{
+#if defined(COMPAT_Q3A)
+		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
+#else
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
+#endif
 
 		sum += ri.FS_ReadFile(filename, NULL);
 	}
@@ -5518,7 +5571,11 @@ static void ScanAndLoadShaderFiles(void)
 	// load in reverse order, so doubled shaders are overriden properly
 	for(i = numShaders - 1; i >= 0; i--)
 	{
+#if defined(COMPAT_Q3A)
+		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
+#else
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
+#endif
 
 		ri.Printf(PRINT_DEVELOPER, "...loading '%s'\n", filename);
 		sum += ri.FS_ReadFile(filename, (void **)&buffers[i]);
@@ -5539,8 +5596,11 @@ static void ScanAndLoadShaderFiles(void)
 	size = 0;
 	for(i = 0; i < numShaders; i++)
 	{
+#if defined(COMPAT_Q3A)
+		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
+#else
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
-
+#endif
 		Com_BeginParseSession(filename);
 
 		// pointer to the first shader file
@@ -5637,8 +5697,11 @@ static void ScanAndLoadShaderFiles(void)
 	//
 	for(i = 0; i < numShaders; i++)
 	{
+#if defined(COMPAT_Q3A)
+		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
+#else
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
-
+#endif
 		Com_BeginParseSession(filename);
 
 		// pointer to the first shader file

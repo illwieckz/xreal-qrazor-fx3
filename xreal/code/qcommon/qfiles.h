@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __QFILES_H__
 #define __QFILES_H__
 
+#include "q_shared.h"
+
 //
 // qfiles.h: quake file formats
 // This file must be identical in the quake and utils directories
@@ -347,11 +349,13 @@ typedef struct
 ==============================================================================
 */
 
-
-#define BSP_IDENT	(('P'<<24)+('S'<<16)+('B'<<8)+'X')
-		// little-endian "XBSP"
-
+#if defined(COMPAT_Q3A)
+#define BSP_IDENT	(('P'<<24)+('S'<<16)+('B'<<8)+'I') // little-endian "IBSP"
+#define BSP_VERSION			46
+#else
+#define BSP_IDENT	(('P'<<24)+('S'<<16)+('B'<<8)+'X')  // little-endian "XBSP"
 #define BSP_VERSION			48
+#endif
 
 
 // there shouldn't be any problem with increasing these values at the
@@ -495,13 +499,32 @@ typedef struct
 } dfog_t;
 
 // light grid
+#if defined(COMPAT_Q3A)
+typedef struct
+{
+	byte            ambient[3];
+	byte            directed[3];
+	byte            latLong[2];
+} dgridPoint_t;
+#else
 typedef struct
 {
 	float           ambient[3];
 	float           directed[3];
 	byte            latLong[2];
 } dgridPoint_t;
+#endif
 
+#if defined(COMPAT_Q3A)
+typedef struct
+{
+	vec3_t          xyz;
+	float           st[2];
+	float           lightmap[2];
+	vec3_t          normal;
+	byte            color[4];
+} drawVert_t;
+#else
 typedef struct
 {
 	float           xyz[3];
@@ -512,6 +535,7 @@ typedef struct
 	float           lightColor[4];
 	float			lightDirection[3];
 } drawVert_t;
+#endif
 
 typedef enum
 {

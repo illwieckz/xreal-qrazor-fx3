@@ -66,6 +66,8 @@ xrealded_env.Append(CCFLAGS='-DSTANDALONE')
 xrealded_env.Append(CCFLAGS='-DUSE_VOIP')
 xrealded_env.Append(CCFLAGS='-Icode/speex/include')
 
+if env['compatq3a'] == 1:
+	xreal_env.Append(CCFLAGS='-DCOMPAT_Q3A')
 
 if env['arch'] == 'linux-i386':
 	xrealded_env.Append(LIBS=['dl', 'm'])

@@ -715,7 +715,8 @@ void RB_DrawSun(void)
 	GL_BindProgram(&tr.genericSingleShader);
 
 	// set uniforms
-	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+	GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
+	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader,  qfalse);
 	if(glConfig.vboVertexSkinningAvailable)
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
@@ -904,6 +905,7 @@ void Tess_StageIteratorSky(void)
 	   GL_BindProgram(&tr.genericSingleShader);
 
 	   // set uniforms
+	   GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
 	   qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
 	   if(glConfig.vboVertexSkinningAvailable)
 	   {
