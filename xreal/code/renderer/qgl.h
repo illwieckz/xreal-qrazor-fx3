@@ -211,6 +211,19 @@ extern          GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programOb
 // GL_ARB_draw_buffers
 extern void     (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
 
+// GL_ARB_vertex_array_object
+#ifndef GL_ARB_vertex_array_object
+#define GL_VERTEX_ARRAY_BINDING           0x85B5
+#endif
+
+extern void		(APIENTRY * qglBindVertexArray) (GLuint array);
+extern void		(APIENTRY * qglDeleteVertexArrays) (GLsizei n, const GLuint *arrays);
+extern void		(APIENTRY * qglGenVertexArrays) (GLsizei n, GLuint *arrays);
+extern GLboolean (APIENTRY * qglIsVertexArray) (GLuint array);
+
+
+
+
 #if defined(WIN32)
 // WGL_ARB_create_context
 #ifndef WGL_ARB_create_context

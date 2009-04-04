@@ -439,6 +439,9 @@ void Tess_UpdateVBOs()
 	}
 
 	GL_CheckErrors();
+
+#else
+	R_BindNullVBO();
 #endif
 }
 

@@ -287,6 +287,8 @@ typedef struct
 	qboolean        textureFloatAvailable;
 	int             maxDrawBuffers;
 
+	qboolean        vertexArrayObjectAvailable;
+
 	qboolean        stencilWrapAvailable;
 
 	float           maxTextureAnisotropy;

@@ -85,6 +85,7 @@ cvar_t         *r_ext_texture_compression;
 cvar_t         *r_ext_occlusion_query;
 cvar_t         *r_ext_texture_non_power_of_two;
 cvar_t         *r_ext_draw_buffers;
+cvar_t         *r_ext_vertex_array_object;
 cvar_t         *r_ext_texture_float;
 cvar_t         *r_ext_stencil_wrap;
 cvar_t         *r_ext_texture_filter_anisotropic;
@@ -347,6 +348,12 @@ GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharA
 
 // GL_ARB_draw_buffers
 void            (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
+
+// GL_ARB_vertex_array_object
+void			(APIENTRY * qglBindVertexArray) (GLuint array);
+void			(APIENTRY * qglDeleteVertexArrays) (GLsizei n, const GLuint *arrays);
+void			(APIENTRY * qglGenVertexArrays) (GLsizei n, GLuint *arrays);
+GLboolean		(APIENTRY * qglIsVertexArray) (GLuint array);
 
 // GL_EXT_texture3D
 void			(APIENTRY * qglTexImage3DEXT) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
@@ -1072,7 +1079,7 @@ void GL_SetDefaultState(void)
 	qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
 	qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, tess.normals);
 	qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, tess.colors);
-	qglVertexAttribPointerARB(ATTR_INDEX_LIGHTCOLOR, 4, GL_FLOAT, 0, 0, tess.lightColors);
+	qglVertexAttribPointerARB(ATTR_INDEX_PAINTCOLOR, 4, GL_FLOAT, 0, 0, tess.paintColors);
 	qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, tess.lightDirections);
 	qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, tess.boneIndexes);
 	qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, tess.boneWeights);
@@ -1253,6 +1260,7 @@ void R_Register(void)
 	r_ext_occlusion_query = ri.Cvar_Get("r_ext_occlusion_query", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_draw_buffers = ri.Cvar_Get("r_ext_draw_buffers", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_vertex_array_object = ri.Cvar_Get("r_ext_vertex_array_object", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_texture_float = ri.Cvar_Get("r_ext_texture_float", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_stencil_wrap = ri.Cvar_Get("r_ext_stencil_wrap", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "4", CVAR_ARCHIVE | CVAR_LATCH);

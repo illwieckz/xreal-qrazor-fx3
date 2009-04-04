@@ -1201,6 +1201,33 @@ static void GLimp_InitExtensions(void)
 		ri.Printf(PRINT_ALL, "...GL_ARB_texture_compression not found\n");
 	}
 
+	// GL_ARB_vertex_array_object
+	qglBindVertexArray = NULL;
+	qglDeleteVertexArrays = NULL;
+	qglGenVertexArrays = NULL;
+	qglIsVertexArray = NULL;
+	glConfig.vertexArrayObjectAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_array_object"))
+	{
+		if(r_ext_vertex_array_object->integer)
+		{
+			qglBindVertexArray = SDL_GL_GetProcAddress("glBindVertexArrayARB");
+			qglDeleteVertexArrays = SDL_GL_GetProcAddress("glDeleteVertexArraysARB");
+			qglGenVertexArrays = SDL_GL_GetProcAddress("glGenVertexArraysARB");
+			qglIsVertexArray = SDL_GL_GetProcAddress("glIsVertexArrayARB");
+			glConfig.vertexArrayObjectAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_array_object\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_vertex_array_object\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_ARB_vertex_array_object not found\n");
+	}
+
 	// GL_EXT_texture_compression_s3tc
 	if(Q_stristr(glConfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
 	{
