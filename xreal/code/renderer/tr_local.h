@@ -68,7 +68,7 @@ typedef unsigned short glIndex_t;
 
 #define REF_CUBEMAP_SIZE		64
 
-#define ALLOW_VERTEX_ARRAYS		1
+//#define ALLOW_VERTEX_ARRAYS		1
 
 typedef enum
 {
