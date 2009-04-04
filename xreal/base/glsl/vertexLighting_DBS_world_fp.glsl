@@ -172,22 +172,21 @@ void	main()
 	}
 
 #if defined(r_NormalMapping)
-#if !defined(COMPAT_Q3A)
-	// compute light direction in tangent space
-	vec3 L = normalize(objectToTangentMatrix * var_LightDirection);
-#endif
-	
+
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5);
 	#if defined(r_NormalScale)
 	N.z *= r_NormalScale;
 	normalize(N);
 	#endif
-	
- #if defined(COMPAT_Q3A)
- 	// fake bump mapping
- 	vec3 L = vec3(N);
- #endif
+
+#if defined(COMPAT_Q3A)
+	// fake bump mapping
+ 	vec3 L = N;
+#else
+	// compute light direction in tangent space
+	vec3 L = normalize(objectToTangentMatrix * var_LightDirection);
+#endif
  
  	// compute half angle in tangent space
 	vec3 H = normalize(L + V);
@@ -207,8 +206,12 @@ void	main()
 	
 //	color.rgb = var_LightDirection.rgb;
 	gl_FragColor = color;
-#else
 
+#elif defined(COMPAT_Q3A)
+
+	gl_FragColor = vec4(diffuse.rgb * var_LightColor.rgb, diffuse.a);
+
+#else
 	vec3 N;
 	if(gl_FrontFacing)
 		N = -normalize(var_Normal);
