@@ -4276,7 +4276,7 @@ static void R_CreateWorldVBO()
 #else
 	s_worldData.vbo = R_CreateVBO2(va("staticBspModel0_VBO %i", 0), numVerts, verts,
 								   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
-								   GLCS_NORMAL | GLCS_COLOR | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
+								   GLCS_NORMAL | GLCS_COLOR | GLCS_PAINTCOLOR | GLCS_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
 #endif
 
 	endTime = ri.Milliseconds();
@@ -4639,7 +4639,7 @@ static void R_CreateSubModelVBOs()
 				vboSurf->vbo =
 					R_CreateVBO2(va("staticBspModel%i_VBO %i", m, vboSurfaces.currentElements), numVerts, verts,
 								 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL
-								 | GLCS_COLOR | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
+								 | GLCS_COLOR | GLCS_PAINTCOLOR | GLCS_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
 #endif
 
 				vboSurf->ibo =

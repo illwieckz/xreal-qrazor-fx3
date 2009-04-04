@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
-uniform float		u_AlphaTest;
+uniform int			u_AlphaTest;
 uniform vec3		u_ViewOrigin;
 uniform int			u_ParallaxMapping;
 uniform float		u_DepthScale;
@@ -33,9 +33,10 @@ uniform vec4		u_PortalPlane;
 varying vec3		var_Position;
 varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
-//varying vec4		var_Color;
 varying vec4		var_LightColor;
+#if !defined(COMPAT_Q3A)
 varying vec3		var_LightDirection;
+#endif
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
 varying vec3		var_Normal;
@@ -154,18 +155,27 @@ void	main()
 
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
-	if(diffuse.a <= u_AlphaTest)
+	if(u_AlphaTest == ATEST_GT_0 && diffuse.a <= 0.0)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_LT_128 && diffuse.a >= 0.5)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_GE_128 && diffuse.a < 0.5)
 	{
 		discard;
 		return;
 	}
 
 #if defined(r_NormalMapping)
+#if !defined(COMPAT_Q3A)
 	// compute light direction in tangent space
 	vec3 L = normalize(objectToTangentMatrix * var_LightDirection);
-	
-	// compute half angle in tangent space
-	vec3 H = normalize(L + V);
+#endif
 	
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5);
@@ -173,6 +183,14 @@ void	main()
 	N.z *= r_NormalScale;
 	normalize(N);
 	#endif
+	
+ #if defined(COMPAT_Q3A)
+ 	// fake bump mapping
+ 	vec3 L = vec3(N);
+ #endif
+ 
+ 	// compute half angle in tangent space
+	vec3 H = normalize(L + V);
 	
 	// compute the light term
 	vec3 light = var_LightColor.rgb * clamp(dot(N, L), 0.0, 1.0);

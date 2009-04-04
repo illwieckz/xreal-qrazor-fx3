@@ -913,11 +913,11 @@ static unsigned NameToAFunc(const char *funcname)
 	}
 	else if(!Q_stricmp(funcname, "LT128"))
 	{
-		return GLS_ATEST_LT_80;
+		return GLS_ATEST_LT_128;
 	}
 	else if(!Q_stricmp(funcname, "GE128"))
 	{
-		return GLS_ATEST_GE_80;
+		return GLS_ATEST_GE_128;
 	}
 
 	ri.Printf(PRINT_WARNING, "WARNING: invalid alphaFunc name '%s' in shader '%s'\n", funcname, shader.name);
@@ -1672,7 +1672,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// alphaTest <exp>
 		else if(!Q_stricmp(token, "alphaTest"))
 		{
-			atestBits = GLS_ATEST_GT_CUSTOM;
+			atestBits = GLS_ATEST_GE_128;
 			ParseExpression(text, &stage->alphaTestExp);
 		}
 		// depthFunc <func>

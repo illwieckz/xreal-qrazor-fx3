@@ -150,6 +150,10 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#version 120\n");
 		}
 
+#if defined(COMPAT_Q3A)
+		Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef COMPAT_Q3A\n#define COMPAT_Q3A 1\n#endif\n");
+#endif
+
 		// HACK: add some macros to avoid extra uniforms and save speed and code maintenance
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 				 va("#ifndef r_SpecularExponent\n#define r_SpecularExponent %f\n#endif\n", r_specularExponent->value));
@@ -175,6 +179,17 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 									"#endif\n",
 									AGEN_VERTEX,
 									AGEN_ONE_MINUS_VERTEX));
+
+		Q_strcat(bufferExtra, sizeof(bufferExtra),
+								 va("#ifndef alphaTest_t\n"
+									"#define alphaTest_t\n"
+									"#define ATEST_GT_0 %i\n"
+									"#define ATEST_LT_128 %i\n"
+									"#define ATEST_GE_128 %i\n"
+									"#endif\n",
+									ATEST_GT_0,
+									ATEST_LT_128,
+									ATEST_GE_128));
 
 		fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 		fbufHeightScale = Q_recip((float)glConfig.vidHeight);
@@ -583,8 +598,8 @@ static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int 
 	if(attribs & GLCS_COLOR)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_COLOR, "attr_Color");
 
-	if(attribs & GLCS_LIGHTCOLOR)
-		qglBindAttribLocationARB(program->program, ATTR_INDEX_LIGHTCOLOR, "attr_LightColor");
+	if(attribs & GLCS_PAINTCOLOR)
+		qglBindAttribLocationARB(program->program, ATTR_INDEX_PAINTCOLOR, "attr_PaintColor");
 
 	if(attribs & GLCS_LIGHTDIRECTION)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_LIGHTDIRECTION, "attr_LightDirection");
@@ -708,7 +723,7 @@ void GLSL_InitGPUShaders(void)
 	// simple vertex color shading for the world
 	GLSL_InitGPUShader(&tr.vertexLightingShader_DBS_world,
 					   "vertexLighting_DBS_world",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR | GLCS_LIGHTDIRECTION, qtrue);
 
 	tr.vertexLightingShader_DBS_world.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_DiffuseMap");
@@ -724,8 +739,12 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_SpecularTextureMatrix");
 	tr.vertexLightingShader_DBS_world.u_AlphaTest =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_AlphaTest");
-//	tr.vertexLightingShader_DBS_world.u_InverseVertexColor =
-//		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_InverseVertexColor");
+	tr.vertexLightingShader_DBS_world.u_ColorGen =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ColorGen");
+	tr.vertexLightingShader_DBS_world.u_AlphaGen =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_AlphaGen");
+	tr.vertexLightingShader_DBS_world.u_Color =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_Color");
 	tr.vertexLightingShader_DBS_world.u_ViewOrigin =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ViewOrigin");
 	tr.vertexLightingShader_DBS_world.u_ParallaxMapping =
@@ -1572,7 +1591,7 @@ void GLSL_InitGPUShaders(void)
 
 	// liquid post process effect
 	GLSL_InitGPUShader(&tr.liquidShader, "liquid",
-			GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION, qtrue);
+			GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR | GLCS_LIGHTDIRECTION, qtrue);
 
 	tr.liquidShader.u_CurrentMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_CurrentMap");
 	tr.liquidShader.u_PortalMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_PortalMap");
@@ -2093,7 +2112,7 @@ static void DrawTris()
 		if(tess.vboVertexSkinning)
 			qglUniformMatrix4fvARB(tr.genericSingleShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
-	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
+	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -2180,7 +2199,6 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 
 static void Render_genericSingle(int stage)
 {
-	float           alphaTest;
 	shaderStage_t  *pStage;
 
 	GLimp_LogComment("--- Render_genericSingle ---\n");
@@ -2239,15 +2257,7 @@ static void Render_genericSingle(int stage)
 			qglUniformMatrix4fvARB(tr.genericSingleShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
 
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
-	}
-	else
-	{
-		alphaTest = -1.0;
-	}
-	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, pStage->stateBits);
 
 	GLSL_SetUniform_PortalClipping(&tr.genericSingleShader, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
@@ -2279,7 +2289,6 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	vec3_t          ambientColor;
 	vec3_t          lightDir;
 	vec4_t          lightColor;
-	float           alphaTest;
 
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -2314,15 +2323,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 								   &tess.boneMatrices[0][0]);
 	}
 
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
-	}
-	else
-	{
-		alphaTest = -1.0;
-	}
-	GLSL_SetUniform_AlphaTest(&tr.vertexLightingShader_DBS_entity, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.vertexLightingShader_DBS_entity, pStage->stateBits);
 
 	if(r_parallaxMapping->integer)
 	{
@@ -2388,7 +2389,6 @@ static void Render_vertexLighting_DBS_entity(int stage)
 static void Render_vertexLighting_DBS_world(int stage)
 {
 	vec3_t          viewOrigin;
-	float           alphaTest;
 
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -2398,34 +2398,43 @@ static void Render_vertexLighting_DBS_world(int stage)
 	GL_BindProgram(&tr.vertexLightingShader_DBS_world);
 	GL_ClientState(tr.vertexLightingShader_DBS_world.attribs);
 
-/*
-	if(pStage->vertexColor || pStage->inverseVertexColor)
-	{
-		GL_ClientState(tr.vertexLightingShader_DBS_world.attribs);
-	}
-	else
-	{
-		GL_ClientState(tr.vertexLightingShader_DBS_world.attribs & ~(GLCS_COLOR));
-		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
-	}
-	*/
-
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+
+	// u_ColorGen
+	switch (pStage->rgbGen)
+	{
+		case CGEN_VERTEX:
+		case CGEN_ONE_MINUS_VERTEX:
+			GLSL_SetUniform_ColorGen(&tr.vertexLightingShader_DBS_world, pStage->rgbGen);
+			break;
+
+		default:
+			GLSL_SetUniform_ColorGen(&tr.vertexLightingShader_DBS_world, CGEN_CONST);
+			break;
+	}
+
+	// u_AlphaGen
+	switch (pStage->alphaGen)
+	{
+		case AGEN_VERTEX:
+		case AGEN_ONE_MINUS_VERTEX:
+			GLSL_SetUniform_AlphaGen(&tr.vertexLightingShader_DBS_world, pStage->alphaGen);
+			break;
+
+		default:
+			GLSL_SetUniform_AlphaGen(&tr.vertexLightingShader_DBS_world, AGEN_CONST);
+			break;
+	}
+
+	// u_Color
+	GLSL_SetUniform_Color(&tr.vertexLightingShader_DBS_world, tess.svars.color);
 
 //	qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_InverseVertexColor, pStage->inverseVertexColor);
 	GLSL_SetUniform_ViewOrigin(&tr.vertexLightingShader_DBS_world, viewOrigin);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.vertexLightingShader_DBS_world, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
-	}
-	else
-	{
-		alphaTest = -1.0;
-	}
-	GLSL_SetUniform_AlphaTest(&tr.vertexLightingShader_DBS_world, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.vertexLightingShader_DBS_world, pStage->stateBits);
 
 	if(r_parallaxMapping->integer)
 	{
@@ -2491,7 +2500,6 @@ static void Render_vertexLighting_DBS_world(int stage)
 static void Render_lightMapping(int stage, qboolean asColorMap)
 {
 	shaderStage_t  *pStage;
-	float           alphaTest;
 
 	GLimp_LogComment("--- Render_lightMapping ---\n");
 
@@ -2505,15 +2513,7 @@ static void Render_lightMapping(int stage, qboolean asColorMap)
 
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.lightMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
-	}
-	else
-	{
-		alphaTest = -1.0;
-	}
-	GLSL_SetUniform_AlphaTest(&tr.lightMappingShader, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.lightMappingShader, pStage->stateBits);
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -2539,7 +2539,6 @@ static void Render_lightMapping(int stage, qboolean asColorMap)
 static void Render_deluxeMapping(int stage)
 {
 	vec3_t          viewOrigin;
-	float           alphaTest;
 	shaderStage_t  *pStage;
 
 	GLimp_LogComment("--- Render_deluxeMapping ---\n");
@@ -2560,15 +2559,7 @@ static void Render_deluxeMapping(int stage)
 	GLSL_SetUniform_ModelMatrix(&tr.deluxeMappingShader, backEnd.or.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deluxeMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
-	}
-	else
-	{
-		alphaTest = -1.0;
-	}
-	GLSL_SetUniform_AlphaTest(&tr.deluxeMappingShader, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.deluxeMappingShader, pStage->stateBits);
 
 	if(r_parallaxMapping->integer)
 	{
@@ -2640,7 +2631,6 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 {
 	shaderStage_t  *pStage;
 	unsigned        stateBits;
-	float           alphaTest;
 	vec3_t          viewOrigin;
 	vec4_t          ambientColor;
 
@@ -2659,15 +2649,6 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	GL_ClientState(tr.geometricFillShader_DBS.attribs);
 
 	// set uniforms
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
-	}
-	else
-	{
-		alphaTest = -1.0;
-	}
-
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 
 	if(r_precomputedLighting->integer)
@@ -2686,7 +2667,7 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 		VectorClear(ambientColor);
 	}
 
-	GLSL_SetUniform_AlphaTest(&tr.geometricFillShader_DBS, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.geometricFillShader_DBS, pStage->stateBits);
 	GLSL_SetUniform_ViewOrigin(&tr.geometricFillShader_DBS, viewOrigin);
 	GLSL_SetUniform_AmbientColor(&tr.geometricFillShader_DBS, ambientColor);
 
@@ -2765,7 +2746,6 @@ static void Render_depthFill(int stage, qboolean cmap2black)
 {
 	shaderStage_t  *pStage;
 	unsigned        stateBits;
-	float           alphaTest;
 	vec4_t          ambientColor;
 
 	GLimp_LogComment("--- Render_depthFill ---\n");
@@ -2801,15 +2781,7 @@ static void Render_depthFill(int stage, qboolean cmap2black)
 			qglUniformMatrix4fvARB(tr.depthFillShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
 
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
-	}
-	else
-	{
-		alphaTest = -1.0;
-	}
-	GLSL_SetUniform_AlphaTest(&tr.depthFillShader, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.depthFillShader, pStage->stateBits);
 
 
 	if(r_precomputedLighting->integer)
@@ -2852,7 +2824,6 @@ static void Render_shadowFill(int stage)
 {
 	shaderStage_t  *pStage;
 	unsigned        stateBits;
-	float           alphaTest;
 	vec3_t          lightOrigin;
 
 
@@ -2880,15 +2851,7 @@ static void Render_shadowFill(int stage)
 	}
 
 	// set uniforms
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
-	}
-	else
-	{
-		alphaTest = -1.0;
-	}
-	GLSL_SetUniform_AlphaTest(&tr.shadowFillShader, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.shadowFillShader, pStage->stateBits);
 
 	VectorCopy(backEnd.currentLight->origin, lightOrigin);	// in world space
 
@@ -3476,7 +3439,6 @@ static void Render_portal(int stage)
 static void Render_heatHaze(int stage)
 {
 	unsigned        stateBits;
-	float           alphaTest;
 	float           deformMagnitude;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -3577,15 +3539,7 @@ static void Render_heatHaze(int stage)
 	GL_ClientState(tr.heatHazeShader.attribs);
 
 	// set uniforms
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
-	}
-	else
-	{
-		alphaTest = -1.0;
-	}
-	GLSL_SetUniform_AlphaTest(&tr.heatHazeShader, alphaTest);
+	GLSL_SetUniform_AlphaTest(&tr.heatHazeShader, pStage->stateBits);
 
 	deformMagnitude = RB_EvalExpression(&pStage->deformMagnitudeExp, 1.0);
 

@@ -25,22 +25,27 @@ attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 attribute vec3		attr_Normal;
-//attribute vec4		attr_Color;
-attribute vec4		attr_LightColor;
+attribute vec4		attr_Color;
+#if !defined(COMPAT_Q3A)
 attribute vec3		attr_LightDirection;
+#endif
 
 uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
 uniform int			u_InverseVertexColor;
 uniform mat4		u_ModelViewProjectionMatrix;
+uniform int			u_ColorGen;
+uniform int			u_AlphaGen;
+uniform vec4		u_Color;
 
 varying vec3		var_Position;
 varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
-//varying vec4		var_Color;
 varying vec4		var_LightColor;
+#if !defined(COMPAT_Q3A)
 varying vec3		var_LightDirection;
+#endif
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
 varying vec3		var_Normal;
@@ -64,26 +69,28 @@ void	main()
 	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
 #endif
 	
-	// assign light color
-	var_LightColor = attr_LightColor;
-	
+#if !defined(COMPAT_Q3A)
 	// assign vertex to light vector in object space
 	var_LightDirection = attr_LightDirection;
+#endif
 	
-	/*
 	// assign color
-	if(bool(u_InverseVertexColor))
+	if(u_ColorGen == CGEN_VERTEX)
 	{
-		var_Color.r = 1.0 - attr_Color.r;
-		var_Color.g = 1.0 - attr_Color.g;
-		var_Color.b = 1.0 - attr_Color.b;
-		var_Color.a = 1.0 - attr_Color.a;
+		var_LightColor.r = attr_Color.r;
+		var_LightColor.g = attr_Color.g;
+		var_LightColor.b = attr_Color.b;
+	}
+	else if(u_ColorGen == CGEN_ONE_MINUS_VERTEX)
+	{
+		var_LightColor.r = 1.0 - attr_Color.r;
+		var_LightColor.g = 1.0 - attr_Color.g;
+		var_LightColor.b = 1.0 - attr_Color.b;
 	}
 	else
 	{
-		var_Color = attr_Color;
+		var_LightColor.rgb = u_Color.rgb;
 	}
-	*/
 	
 #if defined(r_NormalMapping)
 	var_Tangent = attr_Tangent;

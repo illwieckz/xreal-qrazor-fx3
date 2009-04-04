@@ -765,15 +765,15 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
-	if(diff & GLCS_LIGHTCOLOR)
+	if(diff & GLCS_PAINTCOLOR)
 	{
-		if(stateBits & GLCS_LIGHTCOLOR)
+		if(stateBits & GLCS_PAINTCOLOR)
 		{
-			qglEnableVertexAttribArrayARB(ATTR_INDEX_LIGHTCOLOR);
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_PAINTCOLOR);
 		}
 		else
 		{
-			qglDisableVertexAttribArrayARB(ATTR_INDEX_LIGHTCOLOR);
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_PAINTCOLOR);
 		}
 	}
 
@@ -5630,7 +5630,7 @@ void RB_RenderLightOcclusionQueries()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
-		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -6048,7 +6048,7 @@ static void RB_RenderDebugUtils()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
-		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -6474,7 +6474,7 @@ static void RB_RenderDebugUtils()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
-		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -6579,7 +6579,7 @@ static void RB_RenderDebugUtils()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
-		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -6785,7 +6785,7 @@ static void RB_RenderDebugUtils()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
-		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -7618,7 +7618,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	}
-	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
+	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// bind u_ColorMap
@@ -7993,7 +7993,7 @@ void RB_ShowImages(void)
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	}
-	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
+	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 	GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
 
 	GL_SelectTexture(0);

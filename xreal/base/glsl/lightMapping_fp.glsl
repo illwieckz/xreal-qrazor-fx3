@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_LightMap;
-uniform float		u_AlphaTest;
+uniform int			u_AlphaTest;
 
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexLight;
@@ -32,7 +32,17 @@ void	main()
 {
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
-	if(diffuse.a <= u_AlphaTest)
+	if(u_AlphaTest == ATEST_GT_0 && diffuse.a <= 0.0)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_LT_128 && diffuse.a >= 0.5)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_GE_128 && diffuse.a < 0.5)
 	{
 		discard;
 		return;

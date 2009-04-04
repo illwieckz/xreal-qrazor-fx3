@@ -913,7 +913,7 @@ void Tess_StageIteratorSky(void)
 	   {
 	   GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	   }
-	   GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
+	   GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 	   MatrixSetupTranslation(transformMatrix, backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
 	   MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);

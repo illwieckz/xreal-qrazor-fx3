@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_ColorMap;
-uniform float		u_AlphaTest;
+uniform int			u_AlphaTest;
 uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
 
@@ -42,7 +42,17 @@ void	main()
 	}
 
 	vec4 color = texture2D(u_ColorMap, var_Tex);
-	if(color.a <= u_AlphaTest)
+	if(u_AlphaTest == ATEST_GT_0 && color.a <= 0.0)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_LT_128 && color.a >= 0.5)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_GE_128 && color.a < 0.5)
 	{
 		discard;
 		return;

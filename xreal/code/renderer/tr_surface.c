@@ -400,11 +400,11 @@ void Tess_UpdateVBOs()
 		if(backEnd.currentEntity == &tr.worldEntity)
 		{
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsLightCoords));
-			qglVertexAttribPointerARB(ATTR_INDEX_LIGHTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsLightColors));
+			qglVertexAttribPointerARB(ATTR_INDEX_PAINTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsPaintColors));
 			qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsLightDirections));
 
 			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightColors, tess.numVertexes * sizeof(vec4_t), tess.lightColors);
+			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsPaintColors, tess.numVertexes * sizeof(vec4_t), tess.paintColors);
 			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightDirections, tess.numVertexes * sizeof(vec4_t), tess.lightDirections);
 		}
 
@@ -740,7 +740,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 	int             i;
 	srfTriangle_t  *tri;
 	srfVert_t      *dv;
-	float          *xyz, *tangent, *binormal, *normal, *texCoords, *lightCoords, *color, *lightColor, *lightDirection;
+	float          *xyz, *tangent, *binormal, *normal, *texCoords, *lightCoords, *color, *paintColor, *lightDirection;
 	vec3_t          lightOrigin;
 	float           d;
 
@@ -895,11 +895,11 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 		texCoords = tess.texCoords[tess.numVertexes];
 		lightCoords = tess.lightCoords[tess.numVertexes];
 		color = tess.colors[tess.numVertexes];
-		lightColor = tess.lightColors[tess.numVertexes];
+		paintColor = tess.paintColors[tess.numVertexes];
 		lightDirection = tess.lightDirections[tess.numVertexes];
 
 		for(i = 0; i < srf->numVerts;
-			i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, lightCoords += 4, color += 4, lightColor += 4, lightDirection += 4)
+			i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, lightCoords += 4, color += 4, paintColor += 4, lightDirection += 4)
 		{
 			xyz[0] = dv->xyz[0];
 			xyz[1] = dv->xyz[1];
@@ -931,15 +931,15 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 			lightCoords[2] = 0;
 			lightCoords[3] = 1;
 
-			color[0] = dv->paintColor[0];
-			color[1] = dv->paintColor[1];
-			color[2] = dv->paintColor[2];
-			color[3] = dv->paintColor[3];
+			color[0] = dv->lightColor[0];
+			color[1] = dv->lightColor[1];
+			color[2] = dv->lightColor[2];
+			color[3] = dv->lightColor[3];
 
-			lightColor[0] = dv->lightColor[0];
-			lightColor[1] = dv->lightColor[1];
-			lightColor[2] = dv->lightColor[2];
-			lightColor[3] = dv->lightColor[3];
+			paintColor[0] = dv->paintColor[0];
+			paintColor[1] = dv->paintColor[1];
+			paintColor[2] = dv->paintColor[2];
+			paintColor[3] = dv->paintColor[3];
 
 			lightDirection[0] = dv->lightDirection[0];
 			lightDirection[1] = dv->lightDirection[1];

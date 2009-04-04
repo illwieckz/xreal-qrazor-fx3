@@ -310,7 +310,7 @@ typedef struct VBO_s
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
-	GLuint			ofsLightColors;
+	GLuint			ofsPaintColors;		// for advanced terrain blending
 	GLuint			ofsLightDirections;
 	GLuint          ofsBoneIndexes;
 	GLuint          ofsBoneWeights;
@@ -391,7 +391,6 @@ typedef enum
 	GF_NOISE
 } genFunc_t;
 
-
 typedef enum
 {
 	DEFORM_NONE,
@@ -440,6 +439,14 @@ typedef enum
 	CGEN_CUSTOM_RGB,			// like fixed color but generated dynamically, single arithmetic expression
 	CGEN_CUSTOM_RGBs,			// multiple expressions
 } colorGen_t;
+
+typedef enum
+{
+	ATEST_NONE,
+	ATEST_GT_0,
+	ATEST_LT_128,
+	ATEST_GE_128
+} alphaTest_t;
 
 typedef enum
 {
@@ -861,12 +868,108 @@ enum
 	ATTR_INDEX_BINORMAL = 4,
 	ATTR_INDEX_NORMAL = 5,
 	ATTR_INDEX_COLOR = 6,
-	ATTR_INDEX_LIGHTCOLOR = 7,
+	ATTR_INDEX_PAINTCOLOR = 7,
 	ATTR_INDEX_LIGHTDIRECTION = 8,
 	ATTR_INDEX_BONE_INDEXES = 9,
 	ATTR_INDEX_BONE_WEIGHTS = 10,
 };
 #endif
+
+// *INDENT-OFF*
+enum
+{
+	GLS_SRCBLEND_ZERO					= (1 << 0),
+	GLS_SRCBLEND_ONE					= (1 << 1),
+	GLS_SRCBLEND_DST_COLOR				= (1 << 2),
+	GLS_SRCBLEND_ONE_MINUS_DST_COLOR	= (1 << 3),
+	GLS_SRCBLEND_SRC_ALPHA				= (1 << 4),
+	GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA	= (1 << 5),
+	GLS_SRCBLEND_DST_ALPHA				= (1 << 6),
+	GLS_SRCBLEND_ONE_MINUS_DST_ALPHA	= (1 << 7),
+	GLS_SRCBLEND_ALPHA_SATURATE			= (1 << 8),
+
+	GLS_SRCBLEND_BITS					= GLS_SRCBLEND_ZERO
+											| GLS_SRCBLEND_ONE
+											| GLS_SRCBLEND_DST_COLOR
+											| GLS_SRCBLEND_ONE_MINUS_DST_COLOR
+											| GLS_SRCBLEND_SRC_ALPHA
+											| GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA
+											| GLS_SRCBLEND_DST_ALPHA
+											| GLS_SRCBLEND_ONE_MINUS_DST_ALPHA
+											| GLS_SRCBLEND_ALPHA_SATURATE,
+
+	GLS_DSTBLEND_ZERO					= (1 << 9),
+	GLS_DSTBLEND_ONE					= (1 << 10),
+	GLS_DSTBLEND_SRC_COLOR				= (1 << 11),
+	GLS_DSTBLEND_ONE_MINUS_SRC_COLOR	= (1 << 12),
+	GLS_DSTBLEND_SRC_ALPHA				= (1 << 13),
+	GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA	= (1 << 14),
+	GLS_DSTBLEND_DST_ALPHA				= (1 << 15),
+	GLS_DSTBLEND_ONE_MINUS_DST_ALPHA	= (1 << 16),
+
+	GLS_DSTBLEND_BITS					= GLS_DSTBLEND_ZERO
+											| GLS_DSTBLEND_ONE
+											| GLS_DSTBLEND_SRC_COLOR
+											| GLS_DSTBLEND_ONE_MINUS_SRC_COLOR
+											| GLS_DSTBLEND_SRC_ALPHA
+											| GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA
+											| GLS_DSTBLEND_DST_ALPHA
+											| GLS_DSTBLEND_ONE_MINUS_DST_ALPHA,
+
+	GLS_DEPTHMASK_TRUE					= (1 << 17),
+
+	GLS_POLYMODE_LINE					= (1 << 18),
+
+	GLS_DEPTHTEST_DISABLE				= (1 << 19),
+
+	GLS_DEPTHFUNC_LESS					= (1 << 20),
+	GLS_DEPTHFUNC_EQUAL					= (1 << 21),
+
+	GLS_DEPTHFUNC_BITS					= GLS_DEPTHFUNC_LESS
+											| GLS_DEPTHFUNC_EQUAL,
+
+	GLS_ATEST_GT_0						= (1 << 22),
+	GLS_ATEST_LT_128					= (1 << 23),
+	GLS_ATEST_GE_128					= (1 << 24),
+//	GLS_ATEST_GE_CUSTOM					= (1 << 25),
+
+	GLS_ATEST_BITS						= GLS_ATEST_GT_0
+											| GLS_ATEST_LT_128
+											| GLS_ATEST_GE_128,
+//											| GLS_ATEST_GT_CUSTOM,
+
+	GLS_REDMASK_FALSE					= (1 << 26),
+	GLS_GREENMASK_FALSE					= (1 << 27),
+	GLS_BLUEMASK_FALSE					= (1 << 28),
+	GLS_ALPHAMASK_FALSE					= (1 << 29),
+
+	GLS_COLORMASK_BITS					= GLS_REDMASK_FALSE
+											| GLS_GREENMASK_FALSE
+											| GLS_BLUEMASK_FALSE
+											| GLS_ALPHAMASK_FALSE,
+
+	GLS_STENCILTEST_ENABLE				= (1 << 30),
+
+	GLS_DEFAULT							= GLS_DEPTHMASK_TRUE
+};
+// *INDENT-ON*
+
+enum
+{
+	GLCS_VERTEX = BIT(0),
+	GLCS_TEXCOORD = BIT(1),
+	GLCS_LIGHTCOORD = BIT(2),
+	GLCS_TANGENT = BIT(3),
+	GLCS_BINORMAL = BIT(4),
+	GLCS_NORMAL = BIT(5),
+	GLCS_COLOR = BIT(6),
+	GLCS_PAINTCOLOR = BIT(7),
+	GLCS_LIGHTDIRECTION = BIT(8),
+	GLCS_BONE_INDEXES = BIT(9),
+	GLCS_BONE_WEIGHTS = BIT(10),
+
+	GLCS_DEFAULT = GLCS_VERTEX,
+};
 
 // Tr3B - shaderProgram_t represents a pair of one
 // GLSL vertex and one GLSL fragment shader
@@ -907,7 +1010,7 @@ typedef struct shaderProgram_s
 	matrix_t		t_SpecularTextureMatrix;
 
 	GLint           u_AlphaTest;
-	float			t_AlphaTest;
+	alphaTest_t		t_AlphaTest;
 
 	GLint           u_ViewOrigin;
 	vec3_t			t_ViewOrigin;
@@ -1085,8 +1188,28 @@ static ID_INLINE void GLSL_SetUniform_SpecularTextureMatrix(shaderProgram_t * pr
 }
 
 
-static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, float value)
+static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, unsigned long stateBits)
 {
+	alphaTest_t			value;
+
+	switch (stateBits & GLS_ATEST_BITS)
+	{
+		case GLS_ATEST_GT_0:
+			value = ATEST_GT_0;
+			break;
+
+		case GLS_ATEST_LT_128:
+			value = ATEST_LT_128;
+			break;
+
+		case GLS_ATEST_GE_128:
+			value = ATEST_GE_128;
+			break;
+
+		default:
+			value = ATEST_NONE;
+	}
+
 #if defined(USE_UNIFORM_FIREWALL)
 	if(program->t_AlphaTest == value)
 		return;
@@ -1094,7 +1217,7 @@ static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, float
 	program->t_AlphaTest = value;
 #endif
 
-	qglUniform1fARB(program->u_AlphaTest, value);
+	qglUniform1iARB(program->u_AlphaTest, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_ViewOrigin(shaderProgram_t * program, const vec3_t v)
@@ -3073,102 +3196,6 @@ void            GL_State(unsigned long stateVector);
 void            GL_ClientState(unsigned long stateBits);
 void            GL_Cull(int cullType);
 
-// *INDENT-OFF*
-enum
-{
-	GLS_SRCBLEND_ZERO					= (1 << 0),
-	GLS_SRCBLEND_ONE					= (1 << 1),
-	GLS_SRCBLEND_DST_COLOR				= (1 << 2),
-	GLS_SRCBLEND_ONE_MINUS_DST_COLOR	= (1 << 3),
-	GLS_SRCBLEND_SRC_ALPHA				= (1 << 4),
-	GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA	= (1 << 5),
-	GLS_SRCBLEND_DST_ALPHA				= (1 << 6),
-	GLS_SRCBLEND_ONE_MINUS_DST_ALPHA	= (1 << 7),
-	GLS_SRCBLEND_ALPHA_SATURATE			= (1 << 8),
-
-	GLS_SRCBLEND_BITS					= GLS_SRCBLEND_ZERO
-											| GLS_SRCBLEND_ONE
-											| GLS_SRCBLEND_DST_COLOR
-											| GLS_SRCBLEND_ONE_MINUS_DST_COLOR
-											| GLS_SRCBLEND_SRC_ALPHA
-											| GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA
-											| GLS_SRCBLEND_DST_ALPHA
-											| GLS_SRCBLEND_ONE_MINUS_DST_ALPHA
-											| GLS_SRCBLEND_ALPHA_SATURATE,
-
-	GLS_DSTBLEND_ZERO					= (1 << 9),
-	GLS_DSTBLEND_ONE					= (1 << 10),
-	GLS_DSTBLEND_SRC_COLOR				= (1 << 11),
-	GLS_DSTBLEND_ONE_MINUS_SRC_COLOR	= (1 << 12),
-	GLS_DSTBLEND_SRC_ALPHA				= (1 << 13),
-	GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA	= (1 << 14),
-	GLS_DSTBLEND_DST_ALPHA				= (1 << 15),
-	GLS_DSTBLEND_ONE_MINUS_DST_ALPHA	= (1 << 16),
-
-	GLS_DSTBLEND_BITS					= GLS_DSTBLEND_ZERO
-											| GLS_DSTBLEND_ONE
-											| GLS_DSTBLEND_SRC_COLOR
-											| GLS_DSTBLEND_ONE_MINUS_SRC_COLOR
-											| GLS_DSTBLEND_SRC_ALPHA
-											| GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA
-											| GLS_DSTBLEND_DST_ALPHA
-											| GLS_DSTBLEND_ONE_MINUS_DST_ALPHA,
-
-	GLS_DEPTHMASK_TRUE					= (1 << 17),
-
-	GLS_POLYMODE_LINE					= (1 << 18),
-
-	GLS_DEPTHTEST_DISABLE				= (1 << 19),
-
-	GLS_DEPTHFUNC_LESS					= (1 << 20),
-	GLS_DEPTHFUNC_EQUAL					= (1 << 21),
-
-	GLS_DEPTHFUNC_BITS					= GLS_DEPTHFUNC_LESS
-											| GLS_DEPTHFUNC_EQUAL,
-
-	GLS_ATEST_GT_0						= (1 << 22),
-	GLS_ATEST_LT_80						= (1 << 23),
-	GLS_ATEST_GE_80						= (1 << 24),
-	GLS_ATEST_GT_CUSTOM					= (1 << 25),
-
-	GLS_ATEST_BITS						= GLS_ATEST_GT_0
-											| GLS_ATEST_LT_80
-											| GLS_ATEST_GE_80
-											| GLS_ATEST_GT_CUSTOM,
-
-	GLS_REDMASK_FALSE					= (1 << 26),
-	GLS_GREENMASK_FALSE					= (1 << 27),
-	GLS_BLUEMASK_FALSE					= (1 << 28),
-	GLS_ALPHAMASK_FALSE					= (1 << 29),
-
-	GLS_COLORMASK_BITS					= GLS_REDMASK_FALSE
-											| GLS_GREENMASK_FALSE
-											| GLS_BLUEMASK_FALSE
-											| GLS_ALPHAMASK_FALSE,
-
-	GLS_STENCILTEST_ENABLE				= (1 << 30),
-
-	GLS_DEFAULT							= GLS_DEPTHMASK_TRUE
-};
-// *INDENT-ON*
-
-enum
-{
-	GLCS_VERTEX = BIT(0),
-	GLCS_TEXCOORD = BIT(1),
-	GLCS_LIGHTCOORD = BIT(2),
-	GLCS_TANGENT = BIT(3),
-	GLCS_BINORMAL = BIT(4),
-	GLCS_NORMAL = BIT(5),
-	GLCS_COLOR = BIT(6),
-	GLCS_LIGHTCOLOR = BIT(7),
-	GLCS_LIGHTDIRECTION = BIT(8),
-	GLCS_BONE_INDEXES = BIT(9),
-	GLCS_BONE_WEIGHTS = BIT(10),
-
-	GLCS_DEFAULT = GLCS_VERTEX,
-};
-
 
 void            RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty);
 void            RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty);
@@ -3285,7 +3312,7 @@ typedef struct shaderCommands_s
 	vec4_t          binormals[SHADER_MAX_VERTEXES];
 	vec4_t          normals[SHADER_MAX_VERTEXES];
 	vec4_t          colors[SHADER_MAX_VERTEXES];
-	vec4_t          lightColors[SHADER_MAX_VERTEXES];
+	vec4_t          paintColors[SHADER_MAX_VERTEXES];		// for advanced terrain blending
 	vec4_t          lightDirections[SHADER_MAX_VERTEXES];
 	vec4_t          boneIndexes[SHADER_MAX_VERTEXES];
 	vec4_t          boneWeights[SHADER_MAX_VERTEXES];

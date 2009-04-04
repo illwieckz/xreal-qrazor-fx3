@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 Copyright (C) 2006 defconx          <defcon-x@ns-co.net>
 
 This file is part of XreaL source code.
@@ -26,7 +26,7 @@ uniform sampler2D	u_CurrentMap;
 #if defined(r_heatHazeFix)
 uniform sampler2D	u_ContrastMap;
 #endif
-uniform float		u_AlphaTest;
+uniform int			u_AlphaTest;
 
 varying vec2		var_TexNormal;
 varying float		var_Deform;
@@ -42,7 +42,17 @@ void	main()
 	// calculate the screen texcoord in the 0.0 to 1.0 range
 	vec2 st = gl_FragCoord.st * r_FBufScale;
 
-	if(color0.a <= u_AlphaTest)
+	if(u_AlphaTest == ATEST_GT_0 && color0.a <= 0.0)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_LT_128 && color0.a >= 0.5)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_GE_128 && color0.a < 0.5)
 	{
 		discard;
 		return;
@@ -58,7 +68,7 @@ void	main()
 #if defined(r_heatHazeFix)
 	// check if the distortion got too far
 	float vis = texture2D(u_ContrastMap, st).r;
-	if(vis > 0.0 && color0.a > u_AlphaTest)
+	if(vis > 0.0)
 	{
 		color0 = texture2D(u_CurrentMap, st);
 		color1 = vec4(0.0, 1.0, 0.0, color0.a);

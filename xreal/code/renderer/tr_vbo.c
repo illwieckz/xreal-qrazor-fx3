@@ -51,7 +51,7 @@ VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize,
 	vbo->ofsTangents = 0;
 	vbo->ofsNormals = 0;
 	vbo->ofsColors = 0;
-	vbo->ofsLightColors = 0;
+	vbo->ofsPaintColors = 0;
 	vbo->ofsLightDirections = 0;
 	vbo->ofsBoneIndexes = 0;
 	vbo->ofsBoneWeights = 0;
@@ -110,7 +110,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	vbo->ofsTangents = 0;
 	vbo->ofsNormals = 0;
 	vbo->ofsColors = 0;
-	vbo->ofsLightColors = 0;
+	vbo->ofsPaintColors = 0;
 	vbo->ofsLightDirections = 0;
 	vbo->ofsBoneIndexes = 0;
 	vbo->ofsBoneWeights = 0;
@@ -228,7 +228,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 		{
 			for(j = 0; j < 4; j++)
 			{
-				tmp[j] = verts[i].paintColor[j];
+				tmp[j] = verts[i].lightColor[j];
 			}
 
 			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
@@ -236,15 +236,15 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 		}
 	}
 
-	// feed vertex light colors
-	if(stateBits & GLCS_LIGHTCOLOR)
+	// feed vertex paint colors
+	if(stateBits & GLCS_PAINTCOLOR)
 	{
-		vbo->ofsLightColors = dataOfs;
+		vbo->ofsPaintColors = dataOfs;
 		for(i = 0; i < numVertexes; i++)
 		{
 			for(j = 0; j < 4; j++)
 			{
-				tmp[j] = verts[i].lightColor[j];
+				tmp[j] = verts[i].paintColor[j];
 			}
 
 			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
@@ -423,7 +423,7 @@ void R_BindVBO(VBO_t * vbo)
 			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsBinormals));
 			qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsNormals));
 			qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsColors));
-			qglVertexAttribPointerARB(ATTR_INDEX_LIGHTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsLightColors));
+			qglVertexAttribPointerARB(ATTR_INDEX_PAINTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsPaintColors));
 			qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsLightDirections));
 			qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, BUFFER_OFFSET(vbo->ofsBoneIndexes));
 			qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsBoneWeights));
@@ -454,7 +454,7 @@ void R_BindNullVBO(void)
 		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
 		qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, tess.normals);
 		qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, tess.colors);
-		qglVertexAttribPointerARB(ATTR_INDEX_LIGHTCOLOR, 4, GL_FLOAT, 0, 0, tess.lightColors);
+		qglVertexAttribPointerARB(ATTR_INDEX_PAINTCOLOR, 4, GL_FLOAT, 0, 0, tess.paintColors);
 		qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, tess.lightDirections);
 		qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, tess.boneIndexes);
 		qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, tess.boneWeights);
@@ -536,8 +536,8 @@ void R_InitVBOs(void)
 	tess.vbo->ofsBinormals = tess.vbo->ofsTangents + sizeof(tess.tangents);
 	tess.vbo->ofsNormals = tess.vbo->ofsBinormals + sizeof(tess.binormals);
 	tess.vbo->ofsColors = tess.vbo->ofsNormals + sizeof(tess.normals);
-	tess.vbo->ofsLightColors = tess.vbo->ofsColors + sizeof(tess.colors);
-	tess.vbo->ofsLightDirections = tess.vbo->ofsLightColors + sizeof(tess.lightColors);
+	tess.vbo->ofsPaintColors = tess.vbo->ofsColors + sizeof(tess.colors);
+	tess.vbo->ofsLightDirections = tess.vbo->ofsPaintColors + sizeof(tess.paintColors);
 	tess.vbo->ofsBoneIndexes = tess.vbo->ofsLightDirections + sizeof(tess.lightDirections);
 	tess.vbo->ofsBoneWeights = tess.vbo->ofsBoneIndexes + sizeof(tess.boneIndexes);
 

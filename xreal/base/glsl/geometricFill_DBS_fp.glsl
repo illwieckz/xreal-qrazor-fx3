@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
-uniform float		u_AlphaTest;
+uniform int			u_AlphaTest;
 uniform vec3		u_ViewOrigin;
 uniform vec3        u_AmbientColor;
 uniform int			u_ParallaxMapping;
@@ -157,7 +157,17 @@ void	main()
 #endif
 		
 	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
-	if(diffuse.a <= u_AlphaTest)
+	if(u_AlphaTest == ATEST_GT_0 && diffuse.a <= 0.0)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_LT_128 && diffuse.a >= 0.5)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_GE_128 && diffuse.a < 0.5)
 	{
 		discard;
 		return;

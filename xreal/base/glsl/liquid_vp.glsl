@@ -25,7 +25,7 @@ attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 attribute vec3		attr_Normal;
-attribute vec4		attr_LightColor;
+attribute vec4		attr_Color;
 attribute vec3		attr_LightDirection;
 
 uniform mat4		u_NormalTextureMatrix;
@@ -57,7 +57,7 @@ void	main()
 	// transform normal into world space
 	var_Normal = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 	
-	var_LightColor = attr_LightColor;
+	var_LightColor = attr_Color;
 	var_LightDirection = attr_LightDirection;
 }
 
