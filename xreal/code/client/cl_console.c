@@ -31,6 +31,8 @@ int             g_console_field_width = 78;
 #define	NUM_CON_TIMES 5
 
 #define		CON_TEXTSIZE	32768
+#define		CON_LINESTEP  2
+
 typedef struct
 {
 	qboolean        initialized;
@@ -686,6 +688,7 @@ void Con_DrawSolidConsole(float frac)
 	float           alpha;
 	int             chr;
 	int             style;
+	int             rowOffset = 0;
 
 	lines = cls.glconfig.vidHeight * frac;
 	if(lines <= 0)
@@ -840,11 +843,13 @@ void Con_DrawSolidConsole(float frac)
 										 style, &cls.consoleBoldFont);
 
 			y -= SMALLCHAR_HEIGHT;
-			rows--;
+			rows -= CON_LINESTEP;
+			rowOffset = CON_LINESTEP;
 		}
 	}
 
 	row = con.display;
+	row -= rowOffset;
 
 	if(con.x == 0)
 	{
@@ -972,7 +977,7 @@ void Con_RunConsole(void)
 
 void Con_PageUp(void)
 {
-	con.display -= 2;
+	con.display -= CON_LINESTEP;
 	if(con.current - con.display >= con.totallines)
 	{
 		con.display = con.current - con.totallines + 1;
@@ -981,7 +986,7 @@ void Con_PageUp(void)
 
 void Con_PageDown(void)
 {
-	con.display += 2;
+	con.display += CON_LINESTEP;
 	if(con.display > con.current)
 	{
 		con.display = con.current;

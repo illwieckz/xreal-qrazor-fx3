@@ -382,7 +382,7 @@ static void GL_Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
 		glState.scissorWidth = width;
 		glState.scissorHeight = height;
 
-		GL_Scissor(x, y, width, height);
+		qglScissor(x, y, width, height);
 	}
 }
 
