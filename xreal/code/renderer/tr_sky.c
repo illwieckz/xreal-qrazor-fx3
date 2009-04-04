@@ -694,6 +694,7 @@ void R_InitSkyTexCoords(float heightCloud)
 */
 void RB_DrawSun(void)
 {
+#if 0
 	float           size;
 	float           dist;
 	vec3_t          origin, vec1, vec2;
@@ -832,6 +833,7 @@ void RB_DrawSun(void)
 	qglDepthRange(0.0, 1.0);
 
 	GL_PopMatrix();
+#endif
 }
 
 

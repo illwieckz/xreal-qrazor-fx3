@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -34,7 +34,9 @@ uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
 uniform mat4		u_ColorTextureMatrix;
 uniform vec3		u_ViewOrigin;
 uniform int			u_TCGen_Environment;
-uniform int			u_InverseVertexColor;
+uniform int			u_ColorGen;
+uniform int			u_AlphaGen;
+uniform vec4		u_Color;
 uniform mat4		u_ModelMatrix;
 //uniform mat4		u_ProjectionMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
@@ -99,15 +101,33 @@ void	main()
 	}
 	
 	// assign color
-	if(bool(u_InverseVertexColor))
+	if(u_ColorGen == CGEN_VERTEX)
+	{
+		var_Color.r = attr_Color.r;
+		var_Color.g = attr_Color.g;
+		var_Color.b = attr_Color.b;
+	}
+	else if(u_ColorGen == CGEN_ONE_MINUS_VERTEX)
 	{
 		var_Color.r = 1.0 - attr_Color.r;
 		var_Color.g = 1.0 - attr_Color.g;
 		var_Color.b = 1.0 - attr_Color.b;
+	}
+	else
+	{
+		var_Color.rgb = u_Color.rgb;
+	}
+	
+	if(u_AlphaGen == AGEN_VERTEX)
+	{
+		var_Color.a = attr_Color.a;
+	}
+	else if(u_AlphaGen == AGEN_ONE_MINUS_VERTEX)
+	{
 		var_Color.a = 1.0 - attr_Color.a;
 	}
 	else
 	{
-		var_Color = attr_Color;
+		var_Color.a = u_Color.a;
 	}
 }

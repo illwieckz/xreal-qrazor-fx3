@@ -2018,11 +2018,15 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			else if(!Q_stricmp(token, "vertex"))
 			{
-				stage->vertexColor = qtrue;
+				stage->rgbGen = CGEN_VERTEX;
+				if(stage->alphaGen == 0)
+				{
+					stage->alphaGen = AGEN_VERTEX;
+				}
 			}
 			else if(!Q_stricmp(token, "exactVertex"))
 			{
-				stage->vertexColor = qtrue;
+				stage->rgbGen = CGEN_VERTEX;
 			}
 			else if(!Q_stricmp(token, "lightingDiffuse"))
 			{
@@ -2032,7 +2036,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			else if(!Q_stricmp(token, "oneMinusVertex"))
 			{
-				stage->inverseVertexColor = qtrue;
+				stage->rgbGen = CGEN_ONE_MINUS_VERTEX;
 			}
 			else
 			{
@@ -2073,12 +2077,12 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// vertexColor
 		else if(!Q_stricmp(token, "vertexColor"))
 		{
-			stage->vertexColor = qtrue;
+			stage->rgbGen = CGEN_VERTEX;
 		}
 		// inverseVertexColor
 		else if(!Q_stricmp(token, "inverseVertexColor"))
 		{
-			stage->inverseVertexColor = qtrue;
+			stage->rgbGen = CGEN_ONE_MINUS_VERTEX;
 		}
 		// alphaGen
 		else if(!Q_stricmp(token, "alphaGen"))
@@ -2115,17 +2119,15 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			else if(!Q_stricmp(token, "vertex"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: obsolete alphaGen vertex keyword not supported in shader '%s'\n", shader.name);
+				stage->alphaGen = AGEN_VERTEX;
 			}
 			else if(!Q_stricmp(token, "lightingSpecular"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: obsolete alphaGen lightingSpecular keyword not supported in shader '%s'\n",
-						  shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: alphaGen lightingSpecular keyword not supported in shader '%s'\n", shader.name);
 			}
 			else if(!Q_stricmp(token, "oneMinusVertex"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: obsolete alphaGen oneMinusVertex keyword not supported in shader '%s'\n",
-						  shader.name);
+				stage->alphaGen = AGEN_ONE_MINUS_VERTEX;
 			}
 			else if(!Q_stricmp(token, "portal"))
 			{
@@ -4812,7 +4814,8 @@ shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRa
 			// GUI elements
 			stages[0].bundle[0].image[0] = image;
 			stages[0].active = qtrue;
-			stages[0].vertexColor = qtrue;
+			stages[0].rgbGen = CGEN_VERTEX;
+			stages[0].alphaGen = AGEN_VERTEX;
 			stages[0].stateBits = GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
 			break;
 		}
@@ -4834,7 +4837,7 @@ shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRa
 			stages[0].type = ST_DIFFUSEMAP;
 			stages[0].bundle[0].image[0] = image;
 			stages[0].active = qtrue;
-			stages[0].vertexColor = qtrue;
+			stages[0].rgbGen = CGEN_VERTEX;
 			stages[0].stateBits = GLS_DEFAULT;
 			break;
 		}
@@ -4907,7 +4910,8 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, image_t * image, qboolean
 	// GUI elements
 	stages[0].bundle[0].image[0] = image;
 	stages[0].active = qtrue;
-	stages[0].vertexColor = qtrue;
+	stages[0].rgbGen = CGEN_VERTEX;
+	stages[0].alphaGen = AGEN_VERTEX;
 	stages[0].stateBits = GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
 
 	sh = FinishShader();

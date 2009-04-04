@@ -419,6 +419,8 @@ typedef enum
 	AGEN_IDENTITY,
 	AGEN_ENTITY,
 	AGEN_ONE_MINUS_ENTITY,
+	AGEN_VERTEX,
+	AGEN_ONE_MINUS_VERTEX,
 	AGEN_WAVEFORM,
 	AGEN_CONST,
 	AGEN_CUSTOM
@@ -431,6 +433,8 @@ typedef enum
 	CGEN_IDENTITY,				// always (1,1,1,1)
 	CGEN_ENTITY,				// grabbed from entity's modulate field
 	CGEN_ONE_MINUS_ENTITY,		// grabbed from 1 - entity.modulate
+	CGEN_VERTEX,				// tess.colors
+	CGEN_ONE_MINUS_VERTEX,
 	CGEN_WAVEFORM,				// programmatically generated
 	CGEN_CONST,					// fixed color
 	CGEN_CUSTOM_RGB,			// like fixed color but generated dynamically, single arithmetic expression
@@ -678,9 +682,6 @@ typedef struct
 
 	qboolean		tcGen_Environment;
 
-	qboolean        vertexColor;
-	qboolean        inverseVertexColor;
-
 	byte            constantColor[4];	// for CGEN_CONST and AGEN_CONST
 
 	unsigned        stateBits;	// GLS_xxxx mask
@@ -914,8 +915,14 @@ typedef struct shaderProgram_s
 	GLint           u_TCGen_Environment;
 	qboolean		t_TCGen_Environment;
 
-	GLint           u_InverseVertexColor;
-	qboolean		t_InverseVertexColor;
+	GLint           u_ColorGen;
+	colorGen_t		t_ColorGen;
+
+	GLint           u_AlphaGen;
+	alphaGen_t		t_AlphaGen;
+
+	GLint           u_Color;
+	vec4_t			t_Color;
 
 	GLint           u_AmbientColor;
 	vec3_t			t_AmbientColor;
@@ -1114,16 +1121,97 @@ static ID_INLINE void GLSL_SetUniform_TCGen_Environment(shaderProgram_t * progra
 	qglUniform1iARB(program->u_TCGen_Environment, value);
 }
 
-static ID_INLINE void GLSL_SetUniform_InverseVertexColor(shaderProgram_t * program, qboolean value)
+static ID_INLINE void GLSL_SetUniform_ColorGen(shaderProgram_t * program, colorGen_t value)
 {
+#if 0
+	float			floatValue;
+
+	switch (value)
+	{
+		case CGEN_VERTEX:
+			floatValue = 1.0f;
+			break;
+
+		case CGEN_ONE_MINUS_VERTEX:
+			floatValue = -1.0f;
+			break;
+
+		default:
+			floatValue = 0.0f;
+			break;
+	}
+
 #if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_InverseVertexColor == value)
+	if(program->t_ColorGen == floatValue)
 		return;
 
-	program->t_InverseVertexColor = value;
+	program->t_ColorGen = floatValue;
 #endif
 
-	qglUniform1iARB(program->u_InverseVertexColor, value);
+	qglUniform1fARB(program->u_ColorGen, floatValue);
+#else
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_ColorGen == value)
+		return;
+
+	program->t_ColorGen = value;
+#endif
+
+	qglUniform1iARB(program->u_ColorGen, value);
+#endif
+}
+
+static ID_INLINE void GLSL_SetUniform_AlphaGen(shaderProgram_t * program, alphaGen_t value)
+{
+#if 0
+	float			floatValue;
+
+	switch (value)
+	{
+		case AGEN_VERTEX:
+			floatValue = 1.0f;
+			break;
+
+		case AGEN_ONE_MINUS_VERTEX:
+			floatValue = -1.0f;
+			break;
+
+		default:
+			floatValue = 0.0f;
+			break;
+	}
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_AlphaGen == floatValue)
+		return;
+
+	program->t_AlphaGen = floatValue;
+#endif
+
+	qglUniform1fARB(program->u_AlphaGen, floatValue);
+
+#else
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_AlphaGen == value)
+		return;
+
+	program->t_AlphaGen = value;
+#endif
+
+	qglUniform1iARB(program->u_AlphaGen, value);
+#endif
+}
+
+static ID_INLINE void GLSL_SetUniform_Color(shaderProgram_t * program, const vec4_t v)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare4(program->t_Color, v))
+		return;
+
+	VectorCopy4(v, program->t_Color);
+#endif
+
+	qglUniform4fARB(program->u_Color, v[0], v[1], v[2], v[3]);
 }
 
 static ID_INLINE void GLSL_SetUniform_AmbientColor(shaderProgram_t * program, const vec3_t v)

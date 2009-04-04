@@ -36,7 +36,7 @@ uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
 uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
-uniform int			u_InverseVertexColor;
+//uniform int			u_InverseVertexColor;
 uniform mat4		u_LightAttenuationMatrix;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
@@ -126,6 +126,7 @@ void	main()
 #endif
 	
 	// assign color
+	/*
 	if(bool(u_InverseVertexColor))
 	{
 		var_TexDiffuse.p = 1.0 - attr_Color.r;
@@ -133,6 +134,7 @@ void	main()
 		var_TexNormal.q = 1.0 - attr_Color.b;
 	}
 	else
+	*/
 	{
 		var_TexDiffuse.p = attr_Color.r;
 		var_TexNormal.pq = attr_Color.gb;

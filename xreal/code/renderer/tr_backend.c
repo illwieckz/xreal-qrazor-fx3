@@ -5626,7 +5626,8 @@ void RB_RenderLightOcclusionQueries()
 
 		// set uniforms
 		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
-		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
+		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
+		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
@@ -6043,7 +6044,8 @@ static void RB_RenderDebugUtils()
 
 		// set uniforms
 		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
-		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
+		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
+		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
@@ -6468,7 +6470,8 @@ static void RB_RenderDebugUtils()
 
 		// set uniforms
 		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
-		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
+		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
+		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
@@ -6572,7 +6575,8 @@ static void RB_RenderDebugUtils()
 
 		// set uniforms
 		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
-		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
+		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
+		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
@@ -6777,7 +6781,8 @@ static void RB_RenderDebugUtils()
 
 		// set uniforms
 		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
-		GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
+		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
+		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
@@ -7602,11 +7607,13 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	qglVertexAttrib4fARB(ATTR_INDEX_COLOR, tr.identityLight, tr.identityLight, tr.identityLight, 1);
 
 	GL_BindProgram(&tr.genericSingleShader);
-	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD);	// | GLCS_COLOR);
+	GL_ClientState(tr.genericSingleShader.attribs);
 
 	// set uniforms
 	GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
-	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
+	GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
+	GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
+	//GLSL_SetUniform_Color(&tr.genericSingleShader, colorWhite);
 	if(glConfig.vboVertexSkinningAvailable)
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
@@ -7975,12 +7982,13 @@ void RB_ShowImages(void)
 	qglFinish();
 
 	GL_BindProgram(&tr.genericSingleShader);
-	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+	GL_ClientState(tr.genericSingleShader.attribs);
 	GL_Cull(CT_TWO_SIDED);
 
 	// set uniforms
 	GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
-	GLSL_SetUniform_InverseVertexColor(&tr.genericSingleShader, qfalse);
+	GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
+	GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
 	if(glConfig.vboVertexSkinningAvailable)
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
