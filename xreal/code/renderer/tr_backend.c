@@ -5457,7 +5457,6 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 		else if(r_showDeferredNormal->integer)
 		{
 			GL_Bind(tr.deferredNormalFBOImage);
-			//GL_TextureFilter(tr.deferredNormalFBOImage, FT_NEAREST);
 		}
 		else if(r_showDeferredSpecular->integer)
 		{
@@ -5487,7 +5486,6 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	GL_Cull(CT_TWO_SIDED);
 
 	// set uniforms
-
 
 	// set 2D virtual screen size
 	GL_PushMatrix();
@@ -7142,9 +7140,11 @@ static void RB_RenderView(void)
 
 		GL_CheckErrors();
 
+#if 1
 		// draw everything that is opaque
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderDrawSurfaces(qtrue, qfalse);
+#endif
 
 		RB_RenderDrawSurfacesIntoGeometricBuffer();
 

@@ -1995,18 +1995,18 @@ static void BindLightMap()
 {
 	image_t        *lightmap;
 
-#if defined(COMPAT_Q3A)
-	lightmap = tr.fatLightmap;
-#else
 	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
 	{
+#if defined(COMPAT_Q3A)
+		lightmap = tr.fatLightmap;
+#else
 		lightmap = tr.lightmaps[tess.lightmapNum];
+#endif
 	}
 	else
 	{
 		lightmap = NULL;
 	}
-#endif
 
 	if(!tr.numLightmaps || !lightmap)
 	{
@@ -3726,6 +3726,7 @@ static void Render_liquid(int stage)
 // see Fog Polygon Volumes documentation by Nvidia for further information
 static void Render_volumetricFog()
 {
+#if 0
 	vec3_t          viewOrigin;
 	float           fogDensity;
 	vec3_t          fogColor;
@@ -3741,7 +3742,7 @@ static void Render_volumetricFog()
 		if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
 			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 		{
-			// copy deferredRenderFBO to portalRenderFBO
+			// copy deferredRenderFBO to occlusionRenderFBO
 			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
 			qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
@@ -3751,7 +3752,7 @@ static void Render_volumetricFog()
 		}
 		else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
 		{
-			// copy deferredRenderFBO to portalRenderFBO
+			// copy deferredRenderFBO to occlusionRenderFBO
 			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
 			qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
@@ -3761,7 +3762,7 @@ static void Render_volumetricFog()
 		}
 		else
 		{
-			// copy depth of the main context to deferredRenderFBO
+			// copy depth of the main context to occlusionRenderFBO
 			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
 			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
@@ -3866,6 +3867,7 @@ static void Render_volumetricFog()
 	}
 
 	GL_CheckErrors();
+#endif
 }
 
 /*
@@ -4163,7 +4165,7 @@ void Tess_StageIteratorGeneric()
 	if(tess.surfaceShader->fogVolume)
 	{
 		Render_volumetricFog();
-		//return;
+		return;
 	}
 
 	// set face culling appropriately
@@ -4330,12 +4332,14 @@ void Tess_StageIteratorGBuffer()
 
 	Tess_DeformGeometry();
 
+#if 0
 	if(tess.surfaceShader->fogVolume)
 	{
-		R_BindFBO(tr.deferredRenderFBO);
+		//R_BindFBO(tr.deferredRenderFBO);
 		Render_volumetricFog();
-		//return;
+		return;
 	}
+#endif
 
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
@@ -4400,7 +4404,7 @@ void Tess_StageIteratorGBuffer()
 						}
 						else
 						{
-							Render_lightMapping(stage);
+							Render_lightMapping(stage, qfalse);
 						}
 					}
 					else if(backEnd.currentEntity != &tr.worldEntity)
@@ -4414,7 +4418,7 @@ void Tess_StageIteratorGBuffer()
 				}
 				else
 				{
-					Render_depthFill(stage);
+					Render_depthFill(stage, qfalse);
 				}
 #endif
 

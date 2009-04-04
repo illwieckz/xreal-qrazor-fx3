@@ -893,7 +893,7 @@ void Tess_StageIteratorSky(void)
 		qglDepthRange(1.0, 1.0);
 	}
 
-	// draw the outer skybox
+	// Tr3B: FIXME draw the outer skybox
 	/*
 	   if(tess.surfaceShader->sky.outerbox[0] && tess.surfaceShader->sky.outerbox[0] != tr.defaultImage)
 	   {
