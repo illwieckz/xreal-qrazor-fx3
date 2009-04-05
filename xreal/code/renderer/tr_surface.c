@@ -57,15 +57,6 @@ Tess_CheckOverflow
 */
 void Tess_CheckOverflow(int verts, int indexes)
 {
-#if defined(ALLOW_VERTEX_ARRAYS)
-	if(glState.currentVBO || glState.currentIBO)
-	{
-		Tess_EndBegin();
-
-		R_BindNullVBO();
-		R_BindNullIBO();
-	}
-#else
 	if((glState.currentVBO != NULL && glState.currentVBO != tess.vbo) ||
 	   (glState.currentIBO != NULL && glState.currentIBO != tess.ibo))
 	{
@@ -74,7 +65,6 @@ void Tess_CheckOverflow(int verts, int indexes)
 		R_BindVBO(tess.vbo);
 		R_BindIBO(tess.ibo);
 	}
-#endif
 
 	if(tess.numVertexes + verts < SHADER_MAX_VERTEXES && tess.numIndexes + indexes < SHADER_MAX_INDEXES)
 	{
@@ -338,11 +328,9 @@ Tess_UpdateVBOs
 Tr3B: update the default VBO to replace the client side vertex arrays
 ==============
 */
-void Tess_UpdateVBOs()
+void Tess_UpdateVBOs(unsigned int attribBits)
 {
 	GLimp_LogComment("--- Tess_UpdateVBOs ---\n");
-
-#if !defined(ALLOW_VERTEX_ARRAYS)
 
 	GL_CheckErrors();
 
@@ -353,57 +341,109 @@ void Tess_UpdateVBOs()
 
 		GL_CheckErrors();
 
-#if 0
-		qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsXYZ));
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsTexCoords));
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsLightCoords));
-		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsTangents));
-		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsBinormals));
-		qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsNormals));
-		qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsColors));
-		qglVertexAttribPointerARB(ATTR_INDEX_LIGHTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsLightColors));
-		qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsLightDirections));
-		qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneIndexes));
-		qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneWeights));
+		if(attribBits & ATTR_BITS)
+		{
+			if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
+				attribBits |= (ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS);
+
+			GL_VertexAttribsState(attribBits);
+			//GL_VertexAttribPointers(attribBits);
+
+			if(attribBits & ATTR_POSITION)
+			{
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsXYZ, tess.numVertexes * sizeof(vec4_t), tess.xyz);
+			}
+
+			if(attribBits & ATTR_TEXCOORD)
+			{
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTexCoords, tess.numVertexes * sizeof(vec4_t), tess.texCoords);
+			}
+
+			if(attribBits & ATTR_LIGHTCOORD)
+			{
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
+			}
+
+			if(attribBits & ATTR_TANGENT)
+			{
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTangents, tess.numVertexes * sizeof(vec4_t), tess.tangents);
+			}
+
+			if(attribBits & ATTR_BINORMAL)
+			{
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBinormals, tess.numVertexes * sizeof(vec4_t), tess.binormals);
+			}
+
+			if(attribBits & ATTR_NORMAL)
+			{
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsNormals, tess.numVertexes * sizeof(vec4_t), tess.normals);
+			}
+
+			if(attribBits & ATTR_COLOR)
+			{
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsColors, tess.numVertexes * sizeof(vec4_t), tess.colors);
+			}
+
+#if !defined(COMPAT_Q3A)
+			if(attribBits & ATTR_PAINTCOLOR)
+			{
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsPaintColors, tess.numVertexes * sizeof(vec4_t), tess.paintColors);
+			}
+
+			if(attribBits & ATTR_LIGHTDIRECTION)
+			{
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightDirections, tess.numVertexes * sizeof(vec4_t), tess.lightDirections);
+			}
 #endif
+			if(attribBits & ATTR_BONE_INDEXES)
+			{
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneIndexes, tess.numVertexes * sizeof(vec4_t), tess.boneIndexes);
+			}
 
-		//qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsXYZ));
-		//qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsTexCoords));
-		//qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsNormals));
-		//qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsColors));
-
-		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsXYZ, tess.numVertexes * sizeof(vec4_t), tess.xyz);
-		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTexCoords, tess.numVertexes * sizeof(vec4_t), tess.texCoords);
-		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsNormals, tess.numVertexes * sizeof(vec4_t), tess.normals);
-		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsColors, tess.numVertexes * sizeof(vec4_t), tess.colors);
-
-		if(backEnd.currentEntity != &backEnd.entity2D)
-		{
-			//qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsTangents));
-			//qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsBinormals));
-
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTangents, tess.numVertexes * sizeof(vec4_t), tess.tangents);
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBinormals, tess.numVertexes * sizeof(vec4_t), tess.binormals);
+			if(attribBits & ATTR_BONE_WEIGHTS)
+			{
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneWeights, tess.numVertexes * sizeof(vec4_t), tess.boneWeights);
+			}
 		}
-
-		if(backEnd.currentEntity == &tr.worldEntity)
+		else
 		{
-			//qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsLightCoords));
-			//qglVertexAttribPointerARB(ATTR_INDEX_PAINTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsPaintColors));
-			//qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsLightDirections));
+			GL_VertexAttribPointers(ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL | ATTR_COLOR);
 
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsPaintColors, tess.numVertexes * sizeof(vec4_t), tess.paintColors);
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightDirections, tess.numVertexes * sizeof(vec4_t), tess.lightDirections);
-		}
+			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsXYZ, tess.numVertexes * sizeof(vec4_t), tess.xyz);
+			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTexCoords, tess.numVertexes * sizeof(vec4_t), tess.texCoords);
+			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsNormals, tess.numVertexes * sizeof(vec4_t), tess.normals);
+			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsColors, tess.numVertexes * sizeof(vec4_t), tess.colors);
 
-		if((backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE) && !tess.vboVertexSkinning)
-		{
-			//qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneIndexes));
-			//qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneWeights));
+			if(backEnd.currentEntity != &backEnd.entity2D)
+			{
+				GL_VertexAttribPointers(ATTR_TANGENT | ATTR_BINORMAL);
 
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneIndexes, tess.numVertexes * sizeof(vec4_t), tess.boneIndexes);
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneWeights, tess.numVertexes * sizeof(vec4_t), tess.boneWeights);
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTangents, tess.numVertexes * sizeof(vec4_t), tess.tangents);
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBinormals, tess.numVertexes * sizeof(vec4_t), tess.binormals);
+			}
+
+			if(backEnd.currentEntity == &tr.worldEntity)
+			{
+	#if defined(COMPAT_Q3A)
+				GL_VertexAttribPointers(ATTR_LIGHTCOORD);
+
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
+	#else
+				GL_VertexAttribPointers(ATTR_LIGHTCOORD | ATTR_PAINTCOLOR | ATTR_LIGHTDIRECTION);
+
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsPaintColors, tess.numVertexes * sizeof(vec4_t), tess.paintColors);
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightDirections, tess.numVertexes * sizeof(vec4_t), tess.lightDirections);
+	#endif
+			}
+
+			if((backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE) && !tess.vboVertexSkinning)
+			{
+				GL_VertexAttribPointers(ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS);
+
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneIndexes, tess.numVertexes * sizeof(vec4_t), tess.boneIndexes);
+				qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneWeights, tess.numVertexes * sizeof(vec4_t), tess.boneWeights);
+			}
 		}
 	}
 
@@ -418,7 +458,6 @@ void Tess_UpdateVBOs()
 	}
 
 	GL_CheckErrors();
-#endif
 }
 
 
@@ -485,7 +524,7 @@ void Tess_InstantQuad(vec4_t quadVerts[4])
 	tess.indexes[tess.numIndexes++] = 2;
 	tess.indexes[tess.numIndexes++] = 3;
 
-	Tess_UpdateVBOs();
+	Tess_UpdateVBOs(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
 
 	Tess_DrawElements();
 
@@ -2425,15 +2464,6 @@ static void Tess_SurfaceEntity(surfaceType_t * surfType)
 		return;
 	}
 
-#if defined(ALLOW_VERTEX_ARRAYS)
-	if(glState.currentVBO || glState.currentIBO)
-	{
-		Tess_EndBegin();
-
-		R_BindNullVBO();
-		R_BindNullIBO();
-	}
-#else
 	if(glState.currentVBO != tess.vbo || glState.currentIBO != tess.ibo)
 	{
 		Tess_EndBegin();
@@ -2441,7 +2471,6 @@ static void Tess_SurfaceEntity(surfaceType_t * surfType)
 		R_BindVBO(tess.vbo);
 		R_BindIBO(tess.ibo);
 	}
-#endif
 
 	switch (backEnd.currentEntity->e.reType)
 	{
@@ -2487,15 +2516,6 @@ static void Tess_SurfaceFlare(srfFlare_t * surf)
 		return;
 	}
 
-#if defined(ALLOW_VERTEX_ARRAYS)
-	if(glState.currentVBO || glState.currentIBO)
-	{
-		Tess_EndBegin();
-
-		R_BindNullVBO();
-		R_BindNullIBO();
-	}
-#else
 	if(glState.currentVBO != tess.vbo || glState.currentIBO != tess.ibo)
 	{
 		Tess_EndBegin();
@@ -2503,7 +2523,6 @@ static void Tess_SurfaceFlare(srfFlare_t * surf)
 		R_BindVBO(tess.vbo);
 		R_BindIBO(tess.ibo);
 	}
-#endif
 
 	VectorMA(surf->origin, 2.0, surf->normal, origin);
 	VectorSubtract(origin, backEnd.viewParms.or.origin, dir);

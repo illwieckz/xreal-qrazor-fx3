@@ -665,42 +665,58 @@ void GL_State(unsigned long stateBits)
 	glState.glStateBits = stateBits;
 }
 
-void GL_VertexAttribsState(unsigned long stateBits)
+
+void GL_VertexAttribsState(unsigned int stateBits)
 {
-	unsigned long   diff;
+	unsigned int		diff;
 
 	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
 		stateBits |= (ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS);
 
-	diff = stateBits ^ glState.glClientStateBits;
+	GL_VertexAttribPointers(stateBits);
 
+	diff = stateBits ^ glState.vertexAttribsState;
 	if(!diff)
 	{
 		return;
 	}
 
-	/*
-	   if(diff & ATTR_POSITION)
-	   {
-	   if(stateBits & ATTR_POSITION)
-	   {
-	   qglEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
-	   }
-	   else
-	   {
-	   qglDisableVertexAttribArrayARB(ATTR_INDEX_POSITION);
-	   }
-	   }
-	 */
+	if(diff & ATTR_POSITION)
+	{
+		if(stateBits & ATTR_POSITION)
+		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_POSITION )\n");
+			}
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
+		}
+		else
+		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_POSITION )\n");
+			}
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_POSITION);
+		}
+	}
 
 	if(diff & ATTR_TEXCOORD)
 	{
 		if(stateBits & ATTR_TEXCOORD)
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_TEXCOORD )\n");
+			}
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
 		}
 		else
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_TEXCOORD )\n");
+			}
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
 		}
 	}
@@ -709,10 +725,18 @@ void GL_VertexAttribsState(unsigned long stateBits)
 	{
 		if(stateBits & ATTR_LIGHTCOORD)
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_LIGHTCOORD )\n");
+			}
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
 		}
 		else
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_LIGHTCOORD )\n");
+			}
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
 		}
 	}
@@ -721,10 +745,18 @@ void GL_VertexAttribsState(unsigned long stateBits)
 	{
 		if(stateBits & ATTR_TANGENT)
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_TANGENT )\n");
+			}
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
 		}
 		else
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_TANGENT )\n");
+			}
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
 		}
 	}
@@ -733,10 +765,18 @@ void GL_VertexAttribsState(unsigned long stateBits)
 	{
 		if(stateBits & ATTR_BINORMAL)
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_BINORMAL )\n");
+			}
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
 		}
 		else
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_BINORMAL )\n");
+			}
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
 		}
 	}
@@ -745,10 +785,18 @@ void GL_VertexAttribsState(unsigned long stateBits)
 	{
 		if(stateBits & ATTR_NORMAL)
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_NORMAL )\n");
+			}
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_NORMAL);
 		}
 		else
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_NORMAL )\n");
+			}
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_NORMAL);
 		}
 	}
@@ -757,10 +805,18 @@ void GL_VertexAttribsState(unsigned long stateBits)
 	{
 		if(stateBits & ATTR_COLOR)
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_COLOR )\n");
+			}
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_COLOR);
 		}
 		else
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_COLOR )\n");
+			}
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_COLOR);
 		}
 	}
@@ -769,10 +825,18 @@ void GL_VertexAttribsState(unsigned long stateBits)
 	{
 		if(stateBits & ATTR_PAINTCOLOR)
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_PAINTCOLOR )\n");
+			}
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_PAINTCOLOR);
 		}
 		else
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_PAINTCOLOR )\n");
+			}
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_PAINTCOLOR);
 		}
 	}
@@ -781,10 +845,18 @@ void GL_VertexAttribsState(unsigned long stateBits)
 	{
 		if(stateBits & ATTR_LIGHTDIRECTION)
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_LIGHTDIRECTION )\n");
+			}
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_LIGHTDIRECTION);
 		}
 		else
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_LIGHTDIRECTION )\n");
+			}
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_LIGHTDIRECTION);
 		}
 	}
@@ -793,10 +865,18 @@ void GL_VertexAttribsState(unsigned long stateBits)
 	{
 		if(stateBits & ATTR_BONE_INDEXES)
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_BONE_INDEXES )\n");
+			}
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_BONE_INDEXES);
 		}
 		else
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_BONE_INDEXES )\n");
+			}
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_BONE_INDEXES);
 		}
 	}
@@ -805,15 +885,162 @@ void GL_VertexAttribsState(unsigned long stateBits)
 	{
 		if(stateBits & ATTR_BONE_WEIGHTS)
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_BONE_WEIGHTS )\n");
+			}
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_BONE_WEIGHTS);
 		}
 		else
 		{
+			if(r_logFile->integer)
+			{
+				GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_BONE_WEIGHTS )\n");
+			}
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_BONE_WEIGHTS);
 		}
 	}
 
-	glState.glClientStateBits = stateBits;
+	glState.vertexAttribsState = stateBits;
+}
+
+void GL_VertexAttribPointers(unsigned int attribBits)
+{
+	if(!glState.currentVBO)
+	{
+		ri.Error(ERR_FATAL, "GL_VertexAttribPointers: no VBO bound");
+		return;
+	}
+
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get a call to va() every frame!
+		GLimp_LogComment(va("--- GL_VertexAttribPointers( %s ) ---\n", glState.currentVBO->name));
+	}
+
+	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
+		attribBits |= (ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS);
+
+	if((attribBits & ATTR_POSITION) && !(glState.vertexAttribPointersSet & ATTR_POSITION))
+	{
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_POSITION )\n");
+		}
+
+		qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
+		glState.vertexAttribPointersSet |= ATTR_POSITION;
+	}
+
+	if((attribBits & ATTR_TEXCOORD) && !(glState.vertexAttribPointersSet & ATTR_TEXCOORD))
+	{
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_TEXCOORD )\n");
+		}
+
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsTexCoords));
+		glState.vertexAttribPointersSet |= ATTR_TEXCOORD;
+	}
+
+	if((attribBits & ATTR_LIGHTCOORD) && !(glState.vertexAttribPointersSet & ATTR_LIGHTCOORD))
+	{
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_LIGHTCOORD )\n");
+		}
+
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsLightCoords));
+		glState.vertexAttribPointersSet |= ATTR_LIGHTCOORD;
+	}
+
+	if((attribBits & ATTR_TANGENT) && !(glState.vertexAttribPointersSet & ATTR_TANGENT))
+	{
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_TANGENT )\n");
+		}
+
+		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(glState.currentVBO->ofsTangents));
+		glState.vertexAttribPointersSet |= ATTR_TANGENT;
+	}
+
+	if((attribBits & ATTR_BINORMAL) && !(glState.vertexAttribPointersSet & ATTR_BINORMAL))
+	{
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_BINORMAL )\n");
+		}
+
+		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(glState.currentVBO->ofsBinormals));
+		glState.vertexAttribPointersSet |= ATTR_BINORMAL;
+	}
+
+	if((attribBits & ATTR_NORMAL) && !(glState.vertexAttribPointersSet & ATTR_NORMAL))
+	{
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_NORMAL )\n");
+		}
+
+		qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(glState.currentVBO->ofsNormals));
+		glState.vertexAttribPointersSet |= ATTR_NORMAL;
+	}
+
+	if((attribBits & ATTR_COLOR) && !(glState.vertexAttribPointersSet & ATTR_COLOR))
+	{
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_COLOR )\n");
+		}
+
+		qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsColors));
+		glState.vertexAttribPointersSet |= ATTR_COLOR;
+	}
+
+	if((attribBits & ATTR_PAINTCOLOR) && !(glState.vertexAttribPointersSet & ATTR_PAINTCOLOR))
+	{
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_PAINTCOLOR )\n");
+		}
+
+		qglVertexAttribPointerARB(ATTR_INDEX_PAINTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsPaintColors));
+		glState.vertexAttribPointersSet |= ATTR_PAINTCOLOR;
+	}
+
+	if((attribBits & ATTR_LIGHTDIRECTION) && !(glState.vertexAttribPointersSet & ATTR_LIGHTDIRECTION))
+	{
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_LIGHTDIRECTION )\n");
+		}
+
+		qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(glState.currentVBO->ofsLightDirections));
+		glState.vertexAttribPointersSet |= ATTR_LIGHTDIRECTION;
+	}
+
+	if((attribBits & ATTR_BONE_INDEXES) && !(glState.vertexAttribPointersSet & ATTR_BONE_INDEXES))
+	{
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_BONE_INDEXES )\n");
+		}
+
+		qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsBoneIndexes));
+		glState.vertexAttribPointersSet |= ATTR_BONE_INDEXES;
+	}
+
+	if((attribBits & ATTR_BONE_WEIGHTS) && !(glState.vertexAttribPointersSet & ATTR_BONE_WEIGHTS))
+	{
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_BONE_WEIGHTS )\n");
+		}
+
+		qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsBoneWeights));
+		glState.vertexAttribPointersSet |= ATTR_BONE_WEIGHTS;
+	}
 }
 
 
@@ -874,11 +1101,6 @@ static void RB_SetGL2D(void)
 	{
 		R_BindNullFBO();
 	}
-
-#if 0 //!defined(ALLOW_VERTEX_ARRAYS)
-	R_BindVBO(tess.vbo);
-	R_BindIBO(tess.ibo);
-#endif
 
 	backEnd.projection2D = qtrue;
 
@@ -1535,7 +1757,6 @@ static void RB_RenderInteractionsStencilShadowed()
 
 					// enable shadow volume extrusion shader
 					GL_BindProgram(&tr.shadowExtrudeShader);
-					GL_VertexAttribsState(tr.shadowExtrudeShader.attribs);
 				}
 			}
 			else
@@ -1943,7 +2164,7 @@ static void RB_RenderInteractionsShadowMapped()
 				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
 				GL_BindProgram(NULL);
 				GL_State(GLS_DEFAULT);
-				GL_VertexAttribsState(ATTR_POSITION);
+				//GL_VertexAttribsState(ATTR_POSITION);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
@@ -2902,7 +3123,6 @@ void RB_RenderInteractionsDeferred()
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-						GL_VertexAttribsState(tr.deferredLightingShader_DBS_omni.attribs);
 
 						GL_Cull(CT_TWO_SIDED);
 
@@ -2977,7 +3197,6 @@ void RB_RenderInteractionsDeferred()
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-						GL_VertexAttribsState(tr.deferredLightingShader_DBS_proj.attribs);
 
 						GL_Cull(CT_TWO_SIDED);
 
@@ -3168,7 +3387,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
 				GL_BindProgram(NULL);
 				GL_State(GLS_DEFAULT);
-				GL_VertexAttribsState(ATTR_POSITION);
+				//GL_VertexAttribsState(ATTR_POSITION);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
@@ -3493,7 +3712,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-						GL_VertexAttribsState(tr.deferredLightingShader_DBS_omni.attribs);
 
 						GL_Cull(CT_TWO_SIDED);
 
@@ -3577,9 +3795,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
 							//GL_State(GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
-
-							GL_VertexAttribsState(tr.deferredShadowingShader_proj.attribs);
-
 							GL_Cull(CT_TWO_SIDED);
 
 							// set uniforms
@@ -3646,8 +3861,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							// set OpenGL state for additive lighting
 							GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-							GL_VertexAttribsState(tr.deferredLightingShader_DBS_proj.attribs);
-
 							GL_Cull(CT_TWO_SIDED);
 
 							// set uniforms
@@ -4135,7 +4348,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
 				GL_BindProgram(NULL);
 				GL_State(GLS_DEFAULT);
-				GL_VertexAttribsState(ATTR_POSITION);
+				//GL_VertexAttribsState(ATTR_POSITION);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
@@ -4463,9 +4676,6 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 						GL_BindProgram(&tr.deferredShadowingShader_proj);
 
 						GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
-
-						GL_VertexAttribsState(tr.deferredShadowingShader_proj.attribs);
-
 						GL_Cull(CT_TWO_SIDED);
 
 						// set uniforms
@@ -5030,7 +5240,6 @@ void RB_RenderUniformFog()
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.uniformFogShader);
-	GL_VertexAttribsState(tr.uniformFogShader.attribs);
 
 	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
 	GL_Cull(CT_TWO_SIDED);
@@ -5123,7 +5332,6 @@ void RB_RenderBloom()
 
 		// render contrast downscaled to 1/4th of the screen
 		GL_BindProgram(&tr.contrastShader);
-		GL_VertexAttribsState(tr.contrastShader.attribs);
 
 		GL_PushMatrix();
 		GL_LoadModelViewMatrix(modelView);
@@ -5201,7 +5409,6 @@ void RB_RenderBloom()
 		// render bloom in multiple passes
 #if 0
 		GL_BindProgram(&tr.bloomShader);
-		GL_VertexAttribsState(tr.bloomShader.attribs);
 
 		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.bloomShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
@@ -5232,7 +5439,6 @@ void RB_RenderBloom()
 				if(i == 0)
 				{
 					GL_BindProgram(&tr.blurXShader);
-					GL_VertexAttribsState(tr.blurXShader.attribs);
 
 					qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
 					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.blurXShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -5240,7 +5446,6 @@ void RB_RenderBloom()
 				else
 				{
 					GL_BindProgram(&tr.blurYShader);
-					GL_VertexAttribsState(tr.blurYShader.attribs);
 
 					qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
 					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.blurYShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -5258,7 +5463,6 @@ void RB_RenderBloom()
 				R_BindFBO(tr.deferredRenderFBO);
 
 				GL_BindProgram(&tr.screenShader);
-				GL_VertexAttribsState(ATTR_POSITION);
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
@@ -5272,7 +5476,6 @@ void RB_RenderBloom()
 				R_BindFBO(tr.deferredRenderFBO);
 
 				GL_BindProgram(&tr.screenShader);
-				GL_VertexAttribsState(ATTR_POSITION);
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
@@ -5287,7 +5490,6 @@ void RB_RenderBloom()
 				R_BindNullFBO();
 
 				GL_BindProgram(&tr.screenShader);
-				GL_VertexAttribsState(ATTR_POSITION);
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
@@ -5331,7 +5533,6 @@ void RB_RenderRotoscope(void)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.rotoscopeShader);
-	GL_VertexAttribsState(tr.rotoscopeShader.attribs);
 
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.rotoscopeShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, r_bloomBlur->value);
@@ -5435,7 +5636,6 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_hdrRendering->integer)
 	{
 		GL_BindProgram(&tr.toneMappingShader);
-		GL_VertexAttribsState(ATTR_POSITION);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -5444,7 +5644,6 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	else
 	{
 		GL_BindProgram(&tr.screenShader);
-		GL_VertexAttribsState(ATTR_POSITION);
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
 		// bind u_ColorMap
@@ -5522,6 +5721,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	{
 		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
+
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 
 	GL_PopMatrix();
@@ -5537,8 +5737,6 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 		return;
 
 	R_BindNullFBO();
-
-	GL_VertexAttribsState(ATTR_POSITION);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -5616,9 +5814,6 @@ void RB_RenderLightOcclusionQueries()
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_Cull(CT_TWO_SIDED);
-		GL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
-		//GL_SelectTexture(0);
-		//qglDisable(GL_TEXTURE_2D);
 
 		GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 
@@ -5737,7 +5932,7 @@ void RB_RenderLightOcclusionQueries()
 									   1);
 							Tess_AddQuadStamp2(quadVerts, colorCyan);
 
-							Tess_UpdateVBOs();
+							Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 							Tess_DrawElements();
 
 							tess.numIndexes = 0;
@@ -5807,7 +6002,7 @@ void RB_RenderLightOcclusionQueries()
 							// draw far plane
 							Tess_AddQuadStamp2(corners, g_color_table[j + 1]);
 
-							Tess_UpdateVBOs();
+							Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 							Tess_DrawElements();
 
 							tess.numIndexes = 0;
@@ -6037,7 +6232,6 @@ static void RB_RenderDebugUtils()
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
-		GL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
@@ -6179,7 +6373,7 @@ static void RB_RenderDebugUtils()
 						VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
 						Tess_AddQuadStamp2(quadVerts, lightColor);
 
-						Tess_UpdateVBOs();
+						Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 						Tess_DrawElements();
 
 						tess.numIndexes = 0;
@@ -6262,7 +6456,7 @@ static void RB_RenderDebugUtils()
 						VectorSet4(quadVerts[3], corners[3][0], corners[3][1], corners[3][2], 1);
 						Tess_AddQuadStamp2(quadVerts, lightColor);
 
-						Tess_UpdateVBOs();
+						Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 						Tess_DrawElements();
 
 						tess.numIndexes = 0;
@@ -6463,7 +6657,6 @@ static void RB_RenderDebugUtils()
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
-		GL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
@@ -6533,7 +6726,7 @@ static void RB_RenderDebugUtils()
 			VectorSet4(quadVerts[3], ent->localBounds[0][0], ent->localBounds[1][1], ent->localBounds[0][2], 1);
 			Tess_AddQuadStamp2(quadVerts, colorCyan);
 
-			Tess_UpdateVBOs();
+			Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 			Tess_DrawElements();
 
 			tess.numIndexes = 0;
@@ -6566,9 +6759,7 @@ static void RB_RenderDebugUtils()
 		static refSkeleton_t skeleton;
 		refSkeleton_t  *skel;
 
-
 		GL_BindProgram(&tr.genericSingleShader);
-		GL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
@@ -6690,7 +6881,7 @@ static void RB_RenderDebugUtils()
 					MatrixTransformPoint(backEnd.or.transformMatrix, skel->bones[j].origin, worldOrigins[j]);
 				}
 
-				Tess_UpdateVBOs();
+				Tess_UpdateVBOs(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
 
 				Tess_DrawElements();
 
@@ -6749,7 +6940,7 @@ static void RB_RenderDebugUtils()
 							Tess_AddQuadStampExt(origin, left, up, colorWhite, fcol, frow, fcol + size, frow + size);
 						}
 
-						Tess_UpdateVBOs();
+						Tess_UpdateVBOs(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
 
 						Tess_DrawElements();
 
@@ -6774,7 +6965,6 @@ static void RB_RenderDebugUtils()
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
-		GL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
@@ -6893,7 +7083,6 @@ static void RB_RenderDebugUtils()
 
 		// enable shader, set arrays
 		GL_BindProgram(&tr.reflectionShader_C);
-		GL_VertexAttribsState(tr.reflectionShader_C.attribs);
 		GL_Cull(CT_FRONT_SIDED);
 
 		// set uniforms
@@ -6959,7 +7148,7 @@ static void RB_RenderDebugUtils()
 			VectorSet4(quadVerts[3], mins[0], maxs[1], mins[2], 1);
 			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
 
-			Tess_UpdateVBOs();
+			Tess_UpdateVBOs(ATTR_POSITION | ATTR_NORMAL);
 			Tess_DrawElements();
 
 			tess.numIndexes = 0;
@@ -7604,10 +7793,10 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 
 	RB_SetGL2D();
 
+	qglVertexAttrib4fARB(ATTR_INDEX_NORMAL, 0, 0, 1, 1);
 	qglVertexAttrib4fARB(ATTR_INDEX_COLOR, tr.identityLight, tr.identityLight, tr.identityLight, 1);
 
 	GL_BindProgram(&tr.genericSingleShader);
-	GL_VertexAttribsState(tr.genericSingleShader.attribs);
 
 	// set uniforms
 	GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
@@ -7680,10 +7869,6 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	tess.texCoords[tess.numVertexes][1] = 0.5f / rows;
 	tess.texCoords[tess.numVertexes][2] = 0;
 	tess.texCoords[tess.numVertexes][3] = 1;
-	tess.colors[tess.numVertexes][0] = 1;
-	tess.colors[tess.numVertexes][1] = 1;
-	tess.colors[tess.numVertexes][2] = 1;
-	tess.colors[tess.numVertexes][3] = 1;
 	tess.numVertexes++;
 
 	tess.xyz[tess.numVertexes][0] = x + w;
@@ -7694,10 +7879,6 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	tess.texCoords[tess.numVertexes][1] = 0.5f / rows;
 	tess.texCoords[tess.numVertexes][2] = 0;
 	tess.texCoords[tess.numVertexes][3] = 1;
-	tess.colors[tess.numVertexes][0] = 1;
-	tess.colors[tess.numVertexes][1] = 1;
-	tess.colors[tess.numVertexes][2] = 1;
-	tess.colors[tess.numVertexes][3] = 1;
 	tess.numVertexes++;
 
 	tess.xyz[tess.numVertexes][0] = x + w;
@@ -7708,10 +7889,6 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	tess.texCoords[tess.numVertexes][1] = (rows - 0.5f) / rows;
 	tess.texCoords[tess.numVertexes][2] = 0;
 	tess.texCoords[tess.numVertexes][3] = 1;
-	tess.colors[tess.numVertexes][0] = 1;
-	tess.colors[tess.numVertexes][1] = 1;
-	tess.colors[tess.numVertexes][2] = 1;
-	tess.colors[tess.numVertexes][3] = 1;
 	tess.numVertexes++;
 
 	tess.xyz[tess.numVertexes][0] = x;
@@ -7722,10 +7899,6 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	tess.texCoords[tess.numVertexes][1] = (rows - 0.5f) / rows;
 	tess.texCoords[tess.numVertexes][2] = 0;
 	tess.texCoords[tess.numVertexes][3] = 1;
-	tess.colors[tess.numVertexes][0] = 1;
-	tess.colors[tess.numVertexes][1] = 1;
-	tess.colors[tess.numVertexes][2] = 1;
-	tess.colors[tess.numVertexes][3] = 1;
 	tess.numVertexes++;
 
 	tess.indexes[tess.numIndexes++] = 0;
@@ -7735,7 +7908,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	tess.indexes[tess.numIndexes++] = 2;
 	tess.indexes[tess.numIndexes++] = 3;
 
-	Tess_UpdateVBOs();
+	Tess_UpdateVBOs(ATTR_POSITION | ATTR_TEXCOORD);
 
 	Tess_DrawElements();
 
@@ -7982,7 +8155,6 @@ void RB_ShowImages(void)
 	qglFinish();
 
 	GL_BindProgram(&tr.genericSingleShader);
-	GL_VertexAttribsState(tr.genericSingleShader.attribs);
 	GL_Cull(CT_TWO_SIDED);
 
 	// set uniforms
@@ -8031,6 +8203,7 @@ void RB_ShowImages(void)
 		VectorSet4(quadVerts[1], x + w, y, 0, 1);
 		VectorSet4(quadVerts[2], x + w, y + h, 0, 1);
 		VectorSet4(quadVerts[3], x, y + h, 0, 1);
+
 		Tess_InstantQuad(quadVerts);
 
 		/*

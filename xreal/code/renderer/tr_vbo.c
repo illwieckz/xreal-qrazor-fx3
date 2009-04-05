@@ -409,25 +409,9 @@ void R_BindVBO(VBO_t * vbo)
 	if(glState.currentVBO != vbo)
 	{
 		glState.currentVBO = vbo;
+		glState.vertexAttribPointersSet = 0;
 
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
-
-#if 0//!defined(ALLOW_VERTEX_ARRAYS)
-		if(glState.currentVBO != tess.vbo)
-#endif
-		{
-			qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsXYZ));
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsTexCoords));
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsLightCoords));
-			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsTangents));
-			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsBinormals));
-			qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsNormals));
-			qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsColors));
-			qglVertexAttribPointerARB(ATTR_INDEX_PAINTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsPaintColors));
-			qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsLightDirections));
-			qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, BUFFER_OFFSET(vbo->ofsBoneIndexes));
-			qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsBoneWeights));
-		}
 
 		backEnd.pc.c_vboVertexBuffers++;
 	}
@@ -445,21 +429,6 @@ void R_BindNullVBO(void)
 	if(glState.currentVBO)
 	{
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-
-#if defined(ALLOW_VERTEX_ARRAYS)
-		qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, tess.xyz);
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, tess.texCoords);
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, tess.lightCoords);
-		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
-		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
-		qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, tess.normals);
-		qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, tess.colors);
-		qglVertexAttribPointerARB(ATTR_INDEX_PAINTCOLOR, 4, GL_FLOAT, 0, 0, tess.paintColors);
-		qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, tess.lightDirections);
-		qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, tess.boneIndexes);
-		qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, tess.boneWeights);
-#endif
-
 		glState.currentVBO = NULL;
 	}
 
@@ -509,6 +478,7 @@ void R_BindNullIBO(void)
 	{
 		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 		glState.currentIBO = NULL;
+		glState.vertexAttribPointersSet = 0;
 	}
 }
 
@@ -519,11 +489,10 @@ R_InitVBOs
 */
 void R_InitVBOs(void)
 {
-	ri.Printf(PRINT_ALL, "------- R_InitVBOs -------\n");
-
-#if !defined(ALLOW_VERTEX_ARRAYS)
 	int             dataSize;
 	byte           *data;
+
+	ri.Printf(PRINT_ALL, "------- R_InitVBOs -------\n");
 
 	Com_InitGrowList(&tr.vbos, 100);
 	Com_InitGrowList(&tr.ibos, 100);
@@ -559,7 +528,6 @@ void R_InitVBOs(void)
 	R_BindNullIBO();
 
 	GL_CheckErrors();
-#endif
 }
 
 /*
@@ -620,10 +588,8 @@ void R_ShutdownVBOs(void)
 		}
 	}
 
-#if !defined(ALLOW_VERTEX_ARRAYS)
 	Com_DestroyGrowList(&tr.vbos);
 	Com_DestroyGrowList(&tr.ibos);
-#endif
 }
 
 /*

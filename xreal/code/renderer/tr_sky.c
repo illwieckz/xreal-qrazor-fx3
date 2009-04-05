@@ -627,7 +627,8 @@ static void BuildCloudData()
 		}
 	}
 
-	Tess_UpdateVBOs();
+	// Tr3B: FIXME analyze required vertex attribs by the current material
+	Tess_UpdateVBOs(0);
 }
 
 /*

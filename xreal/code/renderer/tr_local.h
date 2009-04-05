@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -67,8 +67,6 @@ typedef unsigned short glIndex_t;
 #define CALC_REDUNDANT_SHADOWVERTS 0
 
 #define REF_CUBEMAP_SIZE		64
-
-//#define ALLOW_VERTEX_ARRAYS		1
 
 typedef enum
 {
@@ -969,6 +967,17 @@ enum
 	ATTR_BONE_WEIGHTS = BIT(10),
 
 	ATTR_DEFAULT = ATTR_POSITION,
+	ATTR_BITS =	ATTR_POSITION |
+				ATTR_TEXCOORD |
+				ATTR_LIGHTCOORD |
+				ATTR_TANGENT |
+				ATTR_BINORMAL |
+				ATTR_NORMAL |
+				ATTR_COLOR |
+				ATTR_PAINTCOLOR |
+				ATTR_LIGHTDIRECTION |
+				ATTR_BONE_INDEXES |
+				ATTR_BONE_WEIGHTS
 };
 
 // Tr3B - shaderProgram_t represents a pair of one
@@ -978,7 +987,7 @@ typedef struct shaderProgram_s
 	char            name[MAX_QPATH];
 
 	GLhandleARB     program;
-	int             attribs;	// vertex array attributes
+	unsigned int    attribs;	// vertex array attributes
 
 	// uniform parameters
 	GLint           u_ColorMap;
@@ -2539,7 +2548,8 @@ typedef struct
 	qboolean        finishCalled;
 	int             faceCulling;	// FIXME redundant cullFace
 	unsigned long   glStateBits;
-	unsigned long   glClientStateBits;
+	unsigned int	vertexAttribsState;
+	unsigned int	vertexAttribPointersSet;
 	shaderProgram_t *currentProgram;
 	FBO_t          *currentFBO;
 	VBO_t          *currentVBO;
@@ -3194,7 +3204,8 @@ void            GL_CheckErrors_(const char *filename, int line);
 #define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)
 
 void            GL_State(unsigned long stateVector);
-void            GL_VertexAttribsState(unsigned long stateBits);
+void            GL_VertexAttribsState(unsigned int stateBits);
+void			GL_VertexAttribPointers(unsigned int attribBits);
 void            GL_Cull(int cullType);
 
 
@@ -3320,10 +3331,8 @@ typedef struct shaderCommands_s
 
 	glIndex_t       indexes[SHADER_MAX_INDEXES];
 
-#if !defined(ALLOW_VERTEX_ARRAYS)
 	VBO_t          *vbo;
 	IBO_t          *ibo;
-#endif
 
 	stageVars_t     svars;
 
@@ -3389,7 +3398,7 @@ Add a polyhedron that is composed of four triangular faces
 void            Tess_AddTetrahedron(vec4_t tetraVerts[4], vec4_t const color);
 
 void            Tess_InstantQuad(vec4_t quadVerts[4]);
-void            Tess_UpdateVBOs();
+void            Tess_UpdateVBOs(unsigned int attribBits);
 
 void            RB_ShowImages(void);
 

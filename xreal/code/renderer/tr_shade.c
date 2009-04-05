@@ -2083,12 +2083,10 @@ static void DrawTris()
 	{
 		GLSL_SetUniform_Color(&tr.genericSingleShader, g_color_table[backEnd.pc.c_batches % 8]);
 	}
-#if !defined(ALLOW_VERTEX_ARRAYS)
 	else if(glState.currentVBO == tess.vbo)
 	{
 		GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
 	}
-#endif
 	else if(glState.currentVBO)
 	{
 		GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
@@ -2200,6 +2198,7 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 static void Render_genericSingle(int stage)
 {
 	shaderStage_t  *pStage;
+	unsigned int 	attribBits = ATTR_POSITION | ATTR_TEXCOORD;
 
 	GLimp_LogComment("--- Render_genericSingle ---\n");
 
@@ -2207,7 +2206,6 @@ static void Render_genericSingle(int stage)
 
 	GL_State(pStage->stateBits);
 	GL_BindProgram(&tr.genericSingleShader);
-	GL_VertexAttribsState(tr.genericSingleShader.attribs);
 
 	// set uniforms
 	GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader, pStage->tcGen_Environment);
@@ -2215,6 +2213,8 @@ static void Render_genericSingle(int stage)
 	{
 		// calculate the environment texcoords in object space
 		GLSL_SetUniform_ViewOrigin(&tr.genericSingleShader, backEnd.or.viewOrigin);
+
+		attribBits |= ATTR_NORMAL;
 	}
 
 	// u_ColorGen
@@ -2223,6 +2223,7 @@ static void Render_genericSingle(int stage)
 		case CGEN_VERTEX:
 		case CGEN_ONE_MINUS_VERTEX:
 			GLSL_SetUniform_ColorGen(&tr.genericSingleShader, pStage->rgbGen);
+			attribBits |= ATTR_COLOR;
 			break;
 
 		default:
@@ -2236,6 +2237,7 @@ static void Render_genericSingle(int stage)
 		case AGEN_VERTEX:
 		case AGEN_ONE_MINUS_VERTEX:
 			GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, pStage->alphaGen);
+			attribBits |= ATTR_COLOR;
 			break;
 
 		default:
@@ -2278,6 +2280,8 @@ static void Render_genericSingle(int stage)
 	BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
 	GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, tess.svars.texMatrices[TB_COLORMAP]);
 
+	GL_VertexAttribsState(attribBits);
+
 	Tess_DrawElements();
 
 	GL_CheckErrors();
@@ -2289,6 +2293,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	vec3_t          ambientColor;
 	vec3_t          lightDir;
 	vec4_t          lightColor;
+	unsigned int 	attribBits = ATTR_POSITION | ATTR_TEXCOORD;
 
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -2296,7 +2301,6 @@ static void Render_vertexLighting_DBS_entity(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.vertexLightingShader_DBS_entity);
-	GL_VertexAttribsState(tr.vertexLightingShader_DBS_entity.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -2319,8 +2323,12 @@ static void Render_vertexLighting_DBS_entity(int stage)
 		GLSL_SetUniform_VertexSkinning(&tr.vertexLightingShader_DBS_entity, tess.vboVertexSkinning);
 
 		if(tess.vboVertexSkinning)
+		{
 			qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_BoneMatrix, MAX_BONES, GL_FALSE,
 								   &tess.boneMatrices[0][0]);
+
+			attribBits |= (ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS);
+		}
 	}
 
 	GLSL_SetUniform_AlphaTest(&tr.vertexLightingShader_DBS_entity, pStage->stateBits);
@@ -2356,6 +2364,8 @@ static void Render_vertexLighting_DBS_entity(int stage)
 
 	if(r_normalMapping->integer)
 	{
+		attribBits |= ATTR_TANGENT | ATTR_BINORMAL;
+
 		// bind u_NormalMap
 		GL_SelectTexture(1);
 		if(pStage->bundle[TB_NORMALMAP].image[0])
@@ -2380,6 +2390,8 @@ static void Render_vertexLighting_DBS_entity(int stage)
 		}
 		GLSL_SetUniform_SpecularTextureMatrix(&tr.vertexLightingShader_DBS_entity, tess.svars.texMatrices[TB_SPECULARMAP]);
 	}
+
+	GL_VertexAttribsState(attribBits);
 
 	Tess_DrawElements();
 
@@ -4116,6 +4128,12 @@ void Tess_StageIteratorGeneric()
 
 	Tess_DeformGeometry();
 
+	if(!glState.currentVBO || !glState.currentIBO || glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
+	{
+		// Tr3B: FIXME analyze required vertex attribs by the current material
+		Tess_UpdateVBOs(0);
+	}
+
 	if(tess.surfaceShader->fogVolume)
 	{
 		Render_volumetricFog();
@@ -4285,6 +4303,12 @@ void Tess_StageIteratorGBuffer()
 	GL_CheckErrors();
 
 	Tess_DeformGeometry();
+
+	if(!glState.currentVBO || !glState.currentIBO || glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
+	{
+		// Tr3B: FIXME analyze required vertex attribs by the current material
+		Tess_UpdateVBOs(0);
+	}
 
 #if 0
 	if(tess.surfaceShader->fogVolume)
@@ -4473,6 +4497,11 @@ void Tess_StageIteratorDepthFill()
 
 	Tess_DeformGeometry();
 
+	if(!glState.currentVBO || !glState.currentIBO || glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
+	{
+		Tess_UpdateVBOs(ATTR_POSITION | ATTR_TEXCOORD);
+	}
+
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
 
@@ -4553,6 +4582,11 @@ void Tess_StageIteratorShadowFill()
 
 	Tess_DeformGeometry();
 
+	if(!glState.currentVBO || !glState.currentIBO || glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
+	{
+		Tess_UpdateVBOs(ATTR_POSITION | ATTR_TEXCOORD);
+	}
+
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
 
@@ -4624,6 +4658,11 @@ void Tess_StageIteratorStencilShadowVolume()
 	}
 
 	GL_CheckErrors();
+
+	if(!glState.currentVBO || !glState.currentIBO || glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
+	{
+		Tess_UpdateVBOs(ATTR_POSITION);
+	}
 
 	if(r_showShadowVolumes->integer)
 	{
@@ -4850,6 +4889,12 @@ void Tess_StageIteratorStencilLighting()
 
 	Tess_DeformGeometry();
 
+	if(!glState.currentVBO || !glState.currentIBO || glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
+	{
+		// Tr3B: FIXME analyze required vertex attribs by the current material
+		Tess_UpdateVBOs(0);
+	}
+
 	// set OpenGL state for lighting
 #if 0
 	if(!light->additive)
@@ -4974,6 +5019,12 @@ void Tess_StageIteratorLighting()
 	light = backEnd.currentLight;
 
 	Tess_DeformGeometry();
+
+	if(!glState.currentVBO || !glState.currentIBO || glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
+	{
+		// Tr3B: FIXME analyze required vertex attribs by the current material
+		Tess_UpdateVBOs(0);
+	}
 
 	// set OpenGL state for lighting
 	if(light->l.inverseShadows)
@@ -5114,13 +5165,6 @@ void Tess_End()
 
 	GL_CheckErrors();
 
-#if !defined(ALLOW_VERTEX_ARRAYS)
-	if(!glState.currentVBO || !glState.currentIBO || glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
-	{
-		Tess_UpdateVBOs();
-	}
-#endif
-
 	// call off to shader specific tess end function
 	tess.stageIteratorFunc();
 
@@ -5139,11 +5183,6 @@ void Tess_End()
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
-
-#if 0 //!defined(ALLOW_VERTEX_ARRAYS)
-	R_BindNullVBO();
-	R_BindNullIBO();
-#endif
 
 	GLimp_LogComment("--- Tess_End ---\n");
 
