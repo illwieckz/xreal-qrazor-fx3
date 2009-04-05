@@ -396,7 +396,7 @@ void R_BindVBO(VBO_t * vbo)
 	if(!vbo)
 	{
 		//R_BindNullVBO();
-		ri.Error(ERR_DROP, "R_CreateFBO: NULL vbo");
+		ri.Error(ERR_DROP, "R_BindNullVBO: NULL vbo");
 		return;
 	}
 
@@ -412,7 +412,7 @@ void R_BindVBO(VBO_t * vbo)
 
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
 
-#if !defined(ALLOW_VERTEX_ARRAYS)
+#if 0//!defined(ALLOW_VERTEX_ARRAYS)
 		if(glState.currentVBO != tess.vbo)
 #endif
 		{
@@ -462,6 +462,8 @@ void R_BindNullVBO(void)
 
 		glState.currentVBO = NULL;
 	}
+
+	GL_CheckErrors();
 }
 
 /*
@@ -474,7 +476,7 @@ void R_BindIBO(IBO_t * ibo)
 	if(!ibo)
 	{
 		//R_BindNullIBO();
-		ri.Error(ERR_DROP, "R_CreateFBO: NULL ibo");
+		ri.Error(ERR_DROP, "R_BindIBO: NULL ibo");
 		return;
 	}
 
@@ -517,6 +519,8 @@ R_InitVBOs
 */
 void R_InitVBOs(void)
 {
+	ri.Printf(PRINT_ALL, "------- R_InitVBOs -------\n");
+
 #if !defined(ALLOW_VERTEX_ARRAYS)
 	int             dataSize;
 	byte           *data;

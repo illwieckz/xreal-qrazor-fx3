@@ -204,6 +204,10 @@ qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
 		}
 		else
 		{
+			// make sure the VBO glState entries are save
+			R_BindNullVBO();
+			R_BindNullIBO();
+
 			mod->numLods++;
 			numLoaded++;
 			// if we have a valid model and are biased

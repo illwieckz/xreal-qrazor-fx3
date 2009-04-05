@@ -1211,10 +1211,10 @@ static void GLimp_InitExtensions(void)
 	{
 		if(r_ext_vertex_array_object->integer)
 		{
-			qglBindVertexArray = SDL_GL_GetProcAddress("glBindVertexArrayARB");
-			qglDeleteVertexArrays = SDL_GL_GetProcAddress("glDeleteVertexArraysARB");
-			qglGenVertexArrays = SDL_GL_GetProcAddress("glGenVertexArraysARB");
-			qglIsVertexArray = SDL_GL_GetProcAddress("glIsVertexArrayARB");
+			qglBindVertexArray = SDL_GL_GetProcAddress("glBindVertexArray");
+			qglDeleteVertexArrays = SDL_GL_GetProcAddress("glDeleteVertexArrays");
+			qglGenVertexArrays = SDL_GL_GetProcAddress("glGenVertexArrays");
+			qglIsVertexArray = SDL_GL_GetProcAddress("glIsVertexArray");
 			glConfig.vertexArrayObjectAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_array_object\n");
 		}

@@ -334,6 +334,8 @@ void Tess_AddTetrahedron(vec4_t tetraVerts[4], const vec4_t color)
 /*
 ==============
 Tess_UpdateVBOs
+
+Tr3B: update the default VBO to replace the client side vertex arrays
 ==============
 */
 void Tess_UpdateVBOs()
@@ -341,7 +343,6 @@ void Tess_UpdateVBOs()
 	GLimp_LogComment("--- Tess_UpdateVBOs ---\n");
 
 #if !defined(ALLOW_VERTEX_ARRAYS)
-	// bind default VBO to replace the client side vertex array
 
 	GL_CheckErrors();
 
@@ -351,18 +352,6 @@ void Tess_UpdateVBOs()
 		R_BindVBO(tess.vbo);
 
 		GL_CheckErrors();
-
-#if 0
-		//if(glState.currentVBO != tess.vbo)
-		{
-			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vbo->vertexesVBO);
-
-			glState.currentVBO = tess.vbo;
-			backEnd.pc.c_vboVertexBuffers++;
-		}
-
-		//R_BindVBO(tess.vbo);
-#endif
 
 #if 0
 		qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsXYZ));
@@ -378,10 +367,10 @@ void Tess_UpdateVBOs()
 		qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneWeights));
 #endif
 
-		qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsXYZ));
-		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsTexCoords));
-		qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsNormals));
-		qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsColors));
+		//qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsXYZ));
+		//qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsTexCoords));
+		//qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsNormals));
+		//qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsColors));
 
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsXYZ, tess.numVertexes * sizeof(vec4_t), tess.xyz);
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTexCoords, tess.numVertexes * sizeof(vec4_t), tess.texCoords);
@@ -390,8 +379,8 @@ void Tess_UpdateVBOs()
 
 		if(backEnd.currentEntity != &backEnd.entity2D)
 		{
-			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsTangents));
-			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsBinormals));
+			//qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsTangents));
+			//qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsBinormals));
 
 			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTangents, tess.numVertexes * sizeof(vec4_t), tess.tangents);
 			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBinormals, tess.numVertexes * sizeof(vec4_t), tess.binormals);
@@ -399,9 +388,9 @@ void Tess_UpdateVBOs()
 
 		if(backEnd.currentEntity == &tr.worldEntity)
 		{
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsLightCoords));
-			qglVertexAttribPointerARB(ATTR_INDEX_PAINTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsPaintColors));
-			qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsLightDirections));
+			//qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsLightCoords));
+			//qglVertexAttribPointerARB(ATTR_INDEX_PAINTCOLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsPaintColors));
+			//qglVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsLightDirections));
 
 			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
 			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsPaintColors, tess.numVertexes * sizeof(vec4_t), tess.paintColors);
@@ -410,8 +399,8 @@ void Tess_UpdateVBOs()
 
 		if((backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE) && !tess.vboVertexSkinning)
 		{
-			qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneIndexes));
-			qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneWeights));
+			//qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneIndexes));
+			//qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneWeights));
 
 			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneIndexes, tess.numVertexes * sizeof(vec4_t), tess.boneIndexes);
 			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneWeights, tess.numVertexes * sizeof(vec4_t), tess.boneWeights);
@@ -425,23 +414,10 @@ void Tess_UpdateVBOs()
 	{
 		R_BindIBO(tess.ibo);
 
-#if 0
-		//if(glState.currentIBO != tess.ibo)
-		{
-			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.ibo->indexesVBO);
-
-			glState.currentIBO = tess.ibo;
-			backEnd.pc.c_vboIndexBuffers++;
-		}
-#endif
-
 		qglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, tess.numIndexes * sizeof(glIndex_t), tess.indexes);
 	}
 
 	GL_CheckErrors();
-
-#else
-	R_BindNullVBO();
 #endif
 }
 

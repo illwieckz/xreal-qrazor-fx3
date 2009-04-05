@@ -428,6 +428,8 @@ void R_InitFBOs(void)
 	int             i;
 	int             width, height;
 
+	ri.Printf(PRINT_ALL, "------- R_InitFBOs -------\n");
+
 	if(!glConfig.framebufferObjectAvailable)
 		return;
 

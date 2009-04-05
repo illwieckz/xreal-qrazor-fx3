@@ -8285,10 +8285,9 @@ void RE_LoadWorldMap(const char *name)
 
 	//R_BuildCubeMaps();
 
-#if 1 //defined(ALLOW_VERTEX_ARRAYS)
+	// make sure the VBO glState entries are save
 	R_BindNullVBO();
 	R_BindNullIBO();
-#endif
 
 	ri.FS_FreeFile(buffer);
 }
