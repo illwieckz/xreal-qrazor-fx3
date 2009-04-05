@@ -134,7 +134,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	}
 
 	// feed vertex texcoords
-	if(stateBits & GLCS_TEXCOORD)
+	if(stateBits & ATTR_TEXCOORD)
 	{
 		vbo->ofsTexCoords = dataOfs;
 		for(i = 0; i < numVertexes; i++)
@@ -152,7 +152,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	}
 
 	// feed vertex lightmap texcoords
-	if(stateBits & GLCS_LIGHTCOORD)
+	if(stateBits & ATTR_LIGHTCOORD)
 	{
 		vbo->ofsLightCoords = dataOfs;
 		for(i = 0; i < numVertexes; i++)
@@ -170,7 +170,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	}
 
 	// feed vertex tangents
-	if(stateBits & GLCS_TANGENT)
+	if(stateBits & ATTR_TANGENT)
 	{
 		vbo->ofsTangents = dataOfs;
 		for(i = 0; i < numVertexes; i++)
@@ -187,7 +187,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	}
 
 	// feed vertex binormals
-	if(stateBits & GLCS_BINORMAL)
+	if(stateBits & ATTR_BINORMAL)
 	{
 		vbo->ofsBinormals = dataOfs;
 		for(i = 0; i < numVertexes; i++)
@@ -204,7 +204,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	}
 
 	// feed vertex normals
-	if(stateBits & GLCS_NORMAL)
+	if(stateBits & ATTR_NORMAL)
 	{
 		vbo->ofsNormals = dataOfs;
 		for(i = 0; i < numVertexes; i++)
@@ -221,7 +221,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	}
 
 	// feed vertex colors
-	if(stateBits & GLCS_COLOR)
+	if(stateBits & ATTR_COLOR)
 	{
 		vbo->ofsColors = dataOfs;
 		for(i = 0; i < numVertexes; i++)
@@ -237,7 +237,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	}
 
 	// feed vertex paint colors
-	if(stateBits & GLCS_PAINTCOLOR)
+	if(stateBits & ATTR_PAINTCOLOR)
 	{
 		vbo->ofsPaintColors = dataOfs;
 		for(i = 0; i < numVertexes; i++)
@@ -253,7 +253,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	}
 
 	// feed vertex light directions
-	if(stateBits & GLCS_LIGHTDIRECTION)
+	if(stateBits & ATTR_LIGHTDIRECTION)
 	{
 		vbo->ofsLightDirections = dataOfs;
 		for(i = 0; i < numVertexes; i++)

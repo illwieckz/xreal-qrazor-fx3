@@ -1049,7 +1049,7 @@ void GL_SetDefaultState(void)
 
 	// make sure our GL state vector is set correctly
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
-	glState.glClientStateBits = GLCS_DEFAULT;
+	glState.glClientStateBits = ATTR_DEFAULT;
 
 	glState.currentProgram = 0;
 	qglUseProgramObjectARB(0);

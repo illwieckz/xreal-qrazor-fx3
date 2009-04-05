@@ -3659,8 +3659,8 @@ static void R_CreateVBOWorldSurfaces()
 				}
 
 				vboSurf->vbo = R_CreateVBO2(va("staticWorldMesh_vertices %i", vboSurfaces.currentElements), numVerts, optimizedVerts,
-									   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL
-									   | GLCS_COLOR);
+									   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL
+									   | ATTR_COLOR);
 
 				vboSurf->ibo = R_CreateIBO2(va("staticWorldMesh_indices %i", vboSurfaces.currentElements), numTriangles, triangles);
 
@@ -4271,12 +4271,12 @@ static void R_CreateWorldVBO()
 	}
 
 	s_worldData.vbo = R_CreateVBO2(va("bspModelMesh_vertices %i", 0), numVerts, optimizedVerts,
-								   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
-								   GLCS_NORMAL | GLCS_COLOR | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION);
+								   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL |
+								   ATTR_NORMAL | ATTR_COLOR | GLCS_LIGHTCOLOR | ATTR_LIGHTDIRECTION);
 #else
 	s_worldData.vbo = R_CreateVBO2(va("staticBspModel0_VBO %i", 0), numVerts, verts,
-								   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
-								   GLCS_NORMAL | GLCS_COLOR | GLCS_PAINTCOLOR | GLCS_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
+								   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL |
+								   ATTR_NORMAL | ATTR_COLOR | ATTR_PAINTCOLOR | ATTR_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
 #endif
 
 	endTime = ri.Milliseconds();
@@ -4633,13 +4633,13 @@ static void R_CreateSubModelVBOs()
 
 				vboSurf->vbo =
 					R_CreateVBO2(va("staticBspModel%i_VBO %i", m, vboSurfaces.currentElements), numVerts, optimizedVerts,
-								 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL
-								 | GLCS_COLOR | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
+								 ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL
+								 | ATTR_COLOR | GLCS_LIGHTCOLOR | ATTR_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
 #else
 				vboSurf->vbo =
 					R_CreateVBO2(va("staticBspModel%i_VBO %i", m, vboSurfaces.currentElements), numVerts, verts,
-								 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL
-								 | GLCS_COLOR | GLCS_PAINTCOLOR | GLCS_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
+								 ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL
+								 | ATTR_COLOR | ATTR_PAINTCOLOR | ATTR_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
 #endif
 
 				vboSurf->ibo =
@@ -6565,8 +6565,8 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			   }
 
 			   vboSurf->vbo = R_CreateVBO2(va("staticLightMesh_vertices %i", c_vboLightSurfaces), numVerts, optimizedVerts,
-			   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL |
-			   GLCS_COLOR, GL_STATIC_DRAW_ARB);
+			   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL |
+			   ATTR_COLOR, GL_STATIC_DRAW_ARB);
 			 */
 
 #if CALC_REDUNDANT_SHADOWVERTS

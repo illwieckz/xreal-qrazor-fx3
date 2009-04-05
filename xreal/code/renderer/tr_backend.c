@@ -665,12 +665,12 @@ void GL_State(unsigned long stateBits)
 	glState.glStateBits = stateBits;
 }
 
-void GL_ClientState(unsigned long stateBits)
+void GL_VertexAttribsState(unsigned long stateBits)
 {
 	unsigned long   diff;
 
 	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
-		stateBits |= (GLCS_BONE_INDEXES | GLCS_BONE_WEIGHTS);
+		stateBits |= (ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS);
 
 	diff = stateBits ^ glState.glClientStateBits;
 
@@ -680,9 +680,9 @@ void GL_ClientState(unsigned long stateBits)
 	}
 
 	/*
-	   if(diff & GLCS_VERTEX)
+	   if(diff & ATTR_POSITION)
 	   {
-	   if(stateBits & GLCS_VERTEX)
+	   if(stateBits & ATTR_POSITION)
 	   {
 	   qglEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
 	   }
@@ -693,9 +693,9 @@ void GL_ClientState(unsigned long stateBits)
 	   }
 	 */
 
-	if(diff & GLCS_TEXCOORD)
+	if(diff & ATTR_TEXCOORD)
 	{
-		if(stateBits & GLCS_TEXCOORD)
+		if(stateBits & ATTR_TEXCOORD)
 		{
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
 		}
@@ -705,9 +705,9 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
-	if(diff & GLCS_LIGHTCOORD)
+	if(diff & ATTR_LIGHTCOORD)
 	{
-		if(stateBits & GLCS_LIGHTCOORD)
+		if(stateBits & ATTR_LIGHTCOORD)
 		{
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
 		}
@@ -717,9 +717,9 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
-	if(diff & GLCS_TANGENT)
+	if(diff & ATTR_TANGENT)
 	{
-		if(stateBits & GLCS_TANGENT)
+		if(stateBits & ATTR_TANGENT)
 		{
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
 		}
@@ -729,9 +729,9 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
-	if(diff & GLCS_BINORMAL)
+	if(diff & ATTR_BINORMAL)
 	{
-		if(stateBits & GLCS_BINORMAL)
+		if(stateBits & ATTR_BINORMAL)
 		{
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_BINORMAL);
 		}
@@ -741,9 +741,9 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
-	if(diff & GLCS_NORMAL)
+	if(diff & ATTR_NORMAL)
 	{
-		if(stateBits & GLCS_NORMAL)
+		if(stateBits & ATTR_NORMAL)
 		{
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_NORMAL);
 		}
@@ -753,9 +753,9 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
-	if(diff & GLCS_COLOR)
+	if(diff & ATTR_COLOR)
 	{
-		if(stateBits & GLCS_COLOR)
+		if(stateBits & ATTR_COLOR)
 		{
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_COLOR);
 		}
@@ -765,9 +765,9 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
-	if(diff & GLCS_PAINTCOLOR)
+	if(diff & ATTR_PAINTCOLOR)
 	{
-		if(stateBits & GLCS_PAINTCOLOR)
+		if(stateBits & ATTR_PAINTCOLOR)
 		{
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_PAINTCOLOR);
 		}
@@ -777,9 +777,9 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
-	if(diff & GLCS_LIGHTDIRECTION)
+	if(diff & ATTR_LIGHTDIRECTION)
 	{
-		if(stateBits & GLCS_LIGHTDIRECTION)
+		if(stateBits & ATTR_LIGHTDIRECTION)
 		{
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_LIGHTDIRECTION);
 		}
@@ -789,9 +789,9 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
-	if(diff & GLCS_BONE_INDEXES)
+	if(diff & ATTR_BONE_INDEXES)
 	{
-		if(stateBits & GLCS_BONE_INDEXES)
+		if(stateBits & ATTR_BONE_INDEXES)
 		{
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_BONE_INDEXES);
 		}
@@ -801,9 +801,9 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
-	if(diff & GLCS_BONE_WEIGHTS)
+	if(diff & ATTR_BONE_WEIGHTS)
 	{
-		if(stateBits & GLCS_BONE_WEIGHTS)
+		if(stateBits & ATTR_BONE_WEIGHTS)
 		{
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_BONE_WEIGHTS);
 		}
@@ -1102,7 +1102,7 @@ static void Render_lightVolume(trRefLight_t * light)
 
 			// enable shader, set arrays
 			GL_BindProgram(tr.lightVolumeShader_omni.program);
-			//GL_ClientState(tr.lightVolumeShader_omni.attribs);
+			//GL_VertexAttribsState(tr.lightVolumeShader_omni.attribs);
 			GL_Cull(CT_BACK_SIDED);
 			GL_SelectTexture(0);
 			GL_Bind(tr.whiteImage);
@@ -1535,7 +1535,7 @@ static void RB_RenderInteractionsStencilShadowed()
 
 					// enable shadow volume extrusion shader
 					GL_BindProgram(&tr.shadowExtrudeShader);
-					GL_ClientState(tr.shadowExtrudeShader.attribs);
+					GL_VertexAttribsState(tr.shadowExtrudeShader.attribs);
 				}
 			}
 			else
@@ -1943,7 +1943,7 @@ static void RB_RenderInteractionsShadowMapped()
 				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
 				GL_BindProgram(NULL);
 				GL_State(GLS_DEFAULT);
-				GL_ClientState(GLCS_VERTEX);
+				GL_VertexAttribsState(ATTR_POSITION);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
@@ -2902,7 +2902,7 @@ void RB_RenderInteractionsDeferred()
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-						GL_ClientState(tr.deferredLightingShader_DBS_omni.attribs);
+						GL_VertexAttribsState(tr.deferredLightingShader_DBS_omni.attribs);
 
 						GL_Cull(CT_TWO_SIDED);
 
@@ -2977,7 +2977,7 @@ void RB_RenderInteractionsDeferred()
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-						GL_ClientState(tr.deferredLightingShader_DBS_proj.attribs);
+						GL_VertexAttribsState(tr.deferredLightingShader_DBS_proj.attribs);
 
 						GL_Cull(CT_TWO_SIDED);
 
@@ -3168,7 +3168,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
 				GL_BindProgram(NULL);
 				GL_State(GLS_DEFAULT);
-				GL_ClientState(GLCS_VERTEX);
+				GL_VertexAttribsState(ATTR_POSITION);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
@@ -3493,7 +3493,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-						GL_ClientState(tr.deferredLightingShader_DBS_omni.attribs);
+						GL_VertexAttribsState(tr.deferredLightingShader_DBS_omni.attribs);
 
 						GL_Cull(CT_TWO_SIDED);
 
@@ -3578,7 +3578,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
 							//GL_State(GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
 
-							GL_ClientState(tr.deferredShadowingShader_proj.attribs);
+							GL_VertexAttribsState(tr.deferredShadowingShader_proj.attribs);
 
 							GL_Cull(CT_TWO_SIDED);
 
@@ -3646,7 +3646,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							// set OpenGL state for additive lighting
 							GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-							GL_ClientState(tr.deferredLightingShader_DBS_proj.attribs);
+							GL_VertexAttribsState(tr.deferredLightingShader_DBS_proj.attribs);
 
 							GL_Cull(CT_TWO_SIDED);
 
@@ -4135,7 +4135,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
 				GL_BindProgram(NULL);
 				GL_State(GLS_DEFAULT);
-				GL_ClientState(GLCS_VERTEX);
+				GL_VertexAttribsState(ATTR_POSITION);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
@@ -4464,7 +4464,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 
 						GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
 
-						GL_ClientState(tr.deferredShadowingShader_proj.attribs);
+						GL_VertexAttribsState(tr.deferredShadowingShader_proj.attribs);
 
 						GL_Cull(CT_TWO_SIDED);
 
@@ -5030,7 +5030,7 @@ void RB_RenderUniformFog()
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.uniformFogShader);
-	GL_ClientState(tr.uniformFogShader.attribs);
+	GL_VertexAttribsState(tr.uniformFogShader.attribs);
 
 	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
 	GL_Cull(CT_TWO_SIDED);
@@ -5123,7 +5123,7 @@ void RB_RenderBloom()
 
 		// render contrast downscaled to 1/4th of the screen
 		GL_BindProgram(&tr.contrastShader);
-		GL_ClientState(tr.contrastShader.attribs);
+		GL_VertexAttribsState(tr.contrastShader.attribs);
 
 		GL_PushMatrix();
 		GL_LoadModelViewMatrix(modelView);
@@ -5201,7 +5201,7 @@ void RB_RenderBloom()
 		// render bloom in multiple passes
 #if 0
 		GL_BindProgram(&tr.bloomShader);
-		GL_ClientState(tr.bloomShader.attribs);
+		GL_VertexAttribsState(tr.bloomShader.attribs);
 
 		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.bloomShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
@@ -5232,7 +5232,7 @@ void RB_RenderBloom()
 				if(i == 0)
 				{
 					GL_BindProgram(&tr.blurXShader);
-					GL_ClientState(tr.blurXShader.attribs);
+					GL_VertexAttribsState(tr.blurXShader.attribs);
 
 					qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
 					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.blurXShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -5240,7 +5240,7 @@ void RB_RenderBloom()
 				else
 				{
 					GL_BindProgram(&tr.blurYShader);
-					GL_ClientState(tr.blurYShader.attribs);
+					GL_VertexAttribsState(tr.blurYShader.attribs);
 
 					qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
 					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.blurYShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -5258,7 +5258,7 @@ void RB_RenderBloom()
 				R_BindFBO(tr.deferredRenderFBO);
 
 				GL_BindProgram(&tr.screenShader);
-				GL_ClientState(GLCS_VERTEX);
+				GL_VertexAttribsState(ATTR_POSITION);
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
@@ -5272,7 +5272,7 @@ void RB_RenderBloom()
 				R_BindFBO(tr.deferredRenderFBO);
 
 				GL_BindProgram(&tr.screenShader);
-				GL_ClientState(GLCS_VERTEX);
+				GL_VertexAttribsState(ATTR_POSITION);
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
@@ -5287,7 +5287,7 @@ void RB_RenderBloom()
 				R_BindNullFBO();
 
 				GL_BindProgram(&tr.screenShader);
-				GL_ClientState(GLCS_VERTEX);
+				GL_VertexAttribsState(ATTR_POSITION);
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
@@ -5331,7 +5331,7 @@ void RB_RenderRotoscope(void)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.rotoscopeShader);
-	GL_ClientState(tr.rotoscopeShader.attribs);
+	GL_VertexAttribsState(tr.rotoscopeShader.attribs);
 
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.rotoscopeShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, r_bloomBlur->value);
@@ -5435,7 +5435,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_hdrRendering->integer)
 	{
 		GL_BindProgram(&tr.toneMappingShader);
-		GL_ClientState(GLCS_VERTEX);
+		GL_VertexAttribsState(ATTR_POSITION);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -5444,7 +5444,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	else
 	{
 		GL_BindProgram(&tr.screenShader);
-		GL_ClientState(GLCS_VERTEX);
+		GL_VertexAttribsState(ATTR_POSITION);
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
 		// bind u_ColorMap
@@ -5538,7 +5538,7 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 
 	R_BindNullFBO();
 
-	GL_ClientState(GLCS_VERTEX);
+	GL_VertexAttribsState(ATTR_POSITION);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -5616,7 +5616,7 @@ void RB_RenderLightOcclusionQueries()
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_Cull(CT_TWO_SIDED);
-		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+		GL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
 		//GL_SelectTexture(0);
 		//qglDisable(GL_TEXTURE_2D);
 
@@ -6037,7 +6037,7 @@ static void RB_RenderDebugUtils()
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
-		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+		GL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
@@ -6463,7 +6463,7 @@ static void RB_RenderDebugUtils()
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
-		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+		GL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
@@ -6568,7 +6568,7 @@ static void RB_RenderDebugUtils()
 
 
 		GL_BindProgram(&tr.genericSingleShader);
-		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+		GL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
@@ -6774,7 +6774,7 @@ static void RB_RenderDebugUtils()
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
-		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD);
+		GL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
@@ -6893,7 +6893,7 @@ static void RB_RenderDebugUtils()
 
 		// enable shader, set arrays
 		GL_BindProgram(&tr.reflectionShader_C);
-		GL_ClientState(tr.reflectionShader_C.attribs);
+		GL_VertexAttribsState(tr.reflectionShader_C.attribs);
 		GL_Cull(CT_FRONT_SIDED);
 
 		// set uniforms
@@ -7607,7 +7607,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	qglVertexAttrib4fARB(ATTR_INDEX_COLOR, tr.identityLight, tr.identityLight, tr.identityLight, 1);
 
 	GL_BindProgram(&tr.genericSingleShader);
-	GL_ClientState(tr.genericSingleShader.attribs);
+	GL_VertexAttribsState(tr.genericSingleShader.attribs);
 
 	// set uniforms
 	GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
@@ -7982,7 +7982,7 @@ void RB_ShowImages(void)
 	qglFinish();
 
 	GL_BindProgram(&tr.genericSingleShader);
-	GL_ClientState(tr.genericSingleShader.attribs);
+	GL_VertexAttribsState(tr.genericSingleShader.attribs);
 	GL_Cull(CT_TWO_SIDED);
 
 	// set uniforms

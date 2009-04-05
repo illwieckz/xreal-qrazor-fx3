@@ -2252,7 +2252,7 @@ void R_DebugPolygon(int color, int numPoints, float *points)
 	int             i;
 
 	GL_BindProgram(0);
-	GL_ClientState(GLCS_DEFAULT);
+	GL_VertexAttribsState(ATTR_DEFAULT);
 	GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 
 	// draw solid shade

@@ -956,19 +956,19 @@ enum
 
 enum
 {
-	GLCS_VERTEX = BIT(0),
-	GLCS_TEXCOORD = BIT(1),
-	GLCS_LIGHTCOORD = BIT(2),
-	GLCS_TANGENT = BIT(3),
-	GLCS_BINORMAL = BIT(4),
-	GLCS_NORMAL = BIT(5),
-	GLCS_COLOR = BIT(6),
-	GLCS_PAINTCOLOR = BIT(7),
-	GLCS_LIGHTDIRECTION = BIT(8),
-	GLCS_BONE_INDEXES = BIT(9),
-	GLCS_BONE_WEIGHTS = BIT(10),
+	ATTR_POSITION = BIT(0),
+	ATTR_TEXCOORD = BIT(1),
+	ATTR_LIGHTCOORD = BIT(2),
+	ATTR_TANGENT = BIT(3),
+	ATTR_BINORMAL = BIT(4),
+	ATTR_NORMAL = BIT(5),
+	ATTR_COLOR = BIT(6),
+	ATTR_PAINTCOLOR = BIT(7),
+	ATTR_LIGHTDIRECTION = BIT(8),
+	ATTR_BONE_INDEXES = BIT(9),
+	ATTR_BONE_WEIGHTS = BIT(10),
 
-	GLCS_DEFAULT = GLCS_VERTEX,
+	ATTR_DEFAULT = ATTR_POSITION,
 };
 
 // Tr3B - shaderProgram_t represents a pair of one
@@ -3194,7 +3194,7 @@ void            GL_CheckErrors_(const char *filename, int line);
 #define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)
 
 void            GL_State(unsigned long stateVector);
-void            GL_ClientState(unsigned long stateBits);
+void            GL_VertexAttribsState(unsigned long stateBits);
 void            GL_Cull(int cullType);
 
 

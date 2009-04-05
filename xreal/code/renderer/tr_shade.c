@@ -571,37 +571,37 @@ static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int 
 	if(fragmentShader)
 		GLSL_LoadGPUShader(program->program, name, GL_FRAGMENT_SHADER_ARB);
 
-	if(attribs & GLCS_VERTEX)
+	if(attribs & ATTR_POSITION)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_POSITION, "attr_Position");
 
-	if(attribs & GLCS_TEXCOORD)
+	if(attribs & ATTR_TEXCOORD)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD0, "attr_TexCoord0");
 
-	if(attribs & GLCS_LIGHTCOORD)
+	if(attribs & ATTR_LIGHTCOORD)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD1, "attr_TexCoord1");
 
-//  if(attribs & GLCS_TEXCOORD2)
+//  if(attribs & ATTR_TEXCOORD2)
 //      qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
 
-//  if(attribs & GLCS_TEXCOORD3)
+//  if(attribs & ATTR_TEXCOORD3)
 //      qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
 
-	if(attribs & GLCS_TANGENT)
+	if(attribs & ATTR_TANGENT)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TANGENT, "attr_Tangent");
 
-	if(attribs & GLCS_BINORMAL)
+	if(attribs & ATTR_BINORMAL)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_BINORMAL, "attr_Binormal");
 
-	if(attribs & GLCS_NORMAL)
+	if(attribs & ATTR_NORMAL)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_NORMAL, "attr_Normal");
 
-	if(attribs & GLCS_COLOR)
+	if(attribs & ATTR_COLOR)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_COLOR, "attr_Color");
 
-	if(attribs & GLCS_PAINTCOLOR)
+	if(attribs & ATTR_PAINTCOLOR)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_PAINTCOLOR, "attr_PaintColor");
 
-	if(attribs & GLCS_LIGHTDIRECTION)
+	if(attribs & ATTR_LIGHTDIRECTION)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_LIGHTDIRECTION, "attr_LightDirection");
 
 	if(glConfig.vboVertexSkinningAvailable)
@@ -626,7 +626,7 @@ void GLSL_InitGPUShaders(void)
 	startTime = ri.Milliseconds();
 
 	// single texture rendering
-	GLSL_InitGPUShader(&tr.genericSingleShader, "genericSingle", GLCS_VERTEX | GLCS_TEXCOORD | GLCS_NORMAL | GLCS_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.genericSingleShader, "genericSingle", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL | ATTR_COLOR, qtrue);
 
 	tr.genericSingleShader.u_ColorMap = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ColorMap");
 	tr.genericSingleShader.u_ColorTextureMatrix =
@@ -666,7 +666,7 @@ void GLSL_InitGPUShaders(void)
 	// simple vertex color shading for entities
 	GLSL_InitGPUShader(&tr.vertexLightingShader_DBS_entity,
 					   "vertexLighting_DBS_entity",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL, qtrue);
 
 	tr.vertexLightingShader_DBS_entity.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_DiffuseMap");
@@ -723,7 +723,7 @@ void GLSL_InitGPUShaders(void)
 	// simple vertex color shading for the world
 	GLSL_InitGPUShader(&tr.vertexLightingShader_DBS_world,
 					   "vertexLighting_DBS_world",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR | GLCS_LIGHTDIRECTION, qtrue);
+					   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR | ATTR_LIGHTDIRECTION, qtrue);
 
 	tr.vertexLightingShader_DBS_world.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_DiffuseMap");
@@ -770,7 +770,7 @@ void GLSL_InitGPUShaders(void)
 
 	// standard light mapping
 	GLSL_InitGPUShader(&tr.lightMappingShader,
-					   "lightMapping", GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_NORMAL, qtrue);
+					   "lightMapping", ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_NORMAL, qtrue);
 
 	tr.lightMappingShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.lightMappingShader.program, "u_ModelViewProjectionMatrix");
@@ -793,7 +793,7 @@ void GLSL_InitGPUShaders(void)
 	// directional light mapping aka deluxe mapping
 	GLSL_InitGPUShader(&tr.deluxeMappingShader,
 					   "deluxeMapping",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL, qtrue);
 
 	tr.deluxeMappingShader.u_DiffuseMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DiffuseMap");
 	tr.deluxeMappingShader.u_NormalMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_NormalMap");
@@ -833,7 +833,7 @@ void GLSL_InitGPUShaders(void)
 	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
 		GLSL_InitGPUShader(&tr.geometricFillShader_DBS, "geometricFill_DBS",
-						   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+						   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL, qtrue);
 
 		tr.geometricFillShader_DBS.u_DiffuseMap = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_DiffuseMap");
 		tr.geometricFillShader_DBS.u_NormalMap = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_NormalMap");
@@ -874,7 +874,7 @@ void GLSL_InitGPUShaders(void)
 		GL_CheckErrors();
 
 		// deferred omni-directional lighting post process effect
-		GLSL_InitGPUShader(&tr.deferredLightingShader_DBS_omni, "deferredLighting_DBS_omni", GLCS_VERTEX, qtrue);
+		GLSL_InitGPUShader(&tr.deferredLightingShader_DBS_omni, "deferredLighting_DBS_omni", ATTR_POSITION, qtrue);
 
 		tr.deferredLightingShader_DBS_omni.u_DiffuseMap =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_DiffuseMap");
@@ -930,7 +930,7 @@ void GLSL_InitGPUShaders(void)
 		GL_CheckErrors();
 
 		// deferred projective lighting post process effect
-		GLSL_InitGPUShader(&tr.deferredLightingShader_DBS_proj, "deferredLighting_DBS_proj", GLCS_VERTEX, qtrue);
+		GLSL_InitGPUShader(&tr.deferredLightingShader_DBS_proj, "deferredLighting_DBS_proj", ATTR_POSITION, qtrue);
 
 		tr.deferredLightingShader_DBS_proj.u_DiffuseMap =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_DiffuseMap");
@@ -989,7 +989,7 @@ void GLSL_InitGPUShaders(void)
 	}
 
 	// black depth fill rendering with textures
-	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR, qtrue);
 
 	tr.depthFillShader.u_ColorMap = qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorMap");
 	tr.depthFillShader.u_ColorTextureMatrix = qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorTextureMatrix");
@@ -1012,7 +1012,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// colored depth test rendering for occlusion testing
-	GLSL_InitGPUShader(&tr.depthTestShader, "depthTest", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
+	GLSL_InitGPUShader(&tr.depthTestShader, "depthTest", ATTR_POSITION | ATTR_TEXCOORD, qtrue);
 
 	tr.depthTestShader.u_ColorMap = qglGetUniformLocationARB(tr.depthTestShader.program, "u_ColorMap");
 	tr.depthTestShader.u_CurrentMap = qglGetUniformLocationARB(tr.depthTestShader.program, "u_CurrentMap");
@@ -1030,7 +1030,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// depth to color encoding
-	GLSL_InitGPUShader(&tr.depthToColorShader, "depthToColor", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.depthToColorShader, "depthToColor", ATTR_POSITION, qtrue);
 
 	tr.depthToColorShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.depthToColorShader.program, "u_ModelViewProjectionMatrix");
@@ -1049,7 +1049,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// shadow volume extrusion
-	GLSL_InitGPUShader(&tr.shadowExtrudeShader, "shadowExtrude", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.shadowExtrudeShader, "shadowExtrude", ATTR_POSITION, qtrue);
 
 	tr.shadowExtrudeShader.u_LightOrigin = qglGetUniformLocationARB(tr.shadowExtrudeShader.program, "u_LightOrigin");
 	tr.shadowExtrudeShader.u_ModelViewProjectionMatrix =
@@ -1060,7 +1060,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// shadowmap distance compression
-	GLSL_InitGPUShader(&tr.shadowFillShader, "shadowFill", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
+	GLSL_InitGPUShader(&tr.shadowFillShader, "shadowFill", ATTR_POSITION | ATTR_TEXCOORD, qtrue);
 
 	tr.shadowFillShader.u_ColorMap = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ColorMap");
 	tr.shadowFillShader.u_ColorTextureMatrix = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ColorTextureMatrix");
@@ -1087,7 +1087,7 @@ void GLSL_InitGPUShaders(void)
 	// omni-directional specular bump mapping ( Doom3 style )
 	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_omni,
 					   "forwardLighting_DBS_omni",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
+					   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR, qtrue);
 
 	tr.forwardLightingShader_DBS_omni.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DiffuseMap");
@@ -1164,7 +1164,7 @@ void GLSL_InitGPUShaders(void)
 
 	// projective lighting ( Doom3 style )
 	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_proj, "forwardLighting_DBS_proj",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
+					   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR, qtrue);
 
 	tr.forwardLightingShader_DBS_proj.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_DiffuseMap");
@@ -1243,7 +1243,7 @@ void GLSL_InitGPUShaders(void)
 
 #ifdef VOLUMETRIC_LIGHTING
 	// volumetric lighting
-	GLSL_InitGPUShader(&tr.lightVolumeShader_omni, "lightVolume_omni", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.lightVolumeShader_omni, "lightVolume_omni", ATTR_POSITION, qtrue);
 
 	tr.lightVolumeShader_omni.u_AttenuationMapXY =
 		qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_AttenuationMapXY");
@@ -1274,7 +1274,7 @@ void GLSL_InitGPUShaders(void)
 #endif
 
 	// UT3 style player shadowing
-	GLSL_InitGPUShader(&tr.deferredShadowingShader_proj, "deferredShadowing_proj", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.deferredShadowingShader_proj, "deferredShadowing_proj", ATTR_POSITION, qtrue);
 
 	tr.deferredShadowingShader_proj.u_DepthMap =
 		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_DepthMap");
@@ -1319,7 +1319,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// cubemap reflection for abitrary polygons
-	GLSL_InitGPUShader(&tr.reflectionShader_C, "reflection_C", GLCS_VERTEX | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.reflectionShader_C, "reflection_C", ATTR_POSITION | ATTR_NORMAL, qtrue);
 
 	tr.reflectionShader_C.u_ColorMap = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ColorMap");
 	tr.reflectionShader_C.u_ViewOrigin = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ViewOrigin");
@@ -1342,7 +1342,7 @@ void GLSL_InitGPUShaders(void)
 
 	// bumped cubemap reflection for abitrary polygons ( EMBM )
 	GLSL_InitGPUShader(&tr.reflectionShader_CB,
-					   "reflection_CB", GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					   "reflection_CB", ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL, qtrue);
 
 	tr.reflectionShader_CB.u_ColorMap = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ColorMap");
 	tr.reflectionShader_CB.u_NormalMap = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_NormalMap");
@@ -1368,7 +1368,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// cubemap refraction for abitrary polygons
-	GLSL_InitGPUShader(&tr.refractionShader_C, "refraction_C", GLCS_VERTEX | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.refractionShader_C, "refraction_C", ATTR_POSITION | ATTR_NORMAL, qtrue);
 
 	tr.refractionShader_C.u_ColorMap = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ColorMap");
 	tr.refractionShader_C.u_ViewOrigin = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ViewOrigin");
@@ -1394,7 +1394,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// cubemap dispersion for abitrary polygons
-	GLSL_InitGPUShader(&tr.dispersionShader_C, "dispersion_C", GLCS_VERTEX | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.dispersionShader_C, "dispersion_C", ATTR_POSITION | ATTR_NORMAL, qtrue);
 
 	tr.dispersionShader_C.u_ColorMap = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ColorMap");
 	tr.dispersionShader_C.u_ViewOrigin = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ViewOrigin");
@@ -1420,7 +1420,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// skybox drawing for abitrary polygons
-	GLSL_InitGPUShader(&tr.skyBoxShader, "skybox", GLCS_VERTEX | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.skyBoxShader, "skybox", ATTR_POSITION | ATTR_NORMAL, qtrue);
 
 	tr.skyBoxShader.u_ColorMap = qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ColorMap");
 	tr.skyBoxShader.u_ViewOrigin = qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ViewOrigin");
@@ -1437,7 +1437,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// heatHaze post process effect
-	GLSL_InitGPUShader(&tr.heatHazeShader, "heatHaze", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
+	GLSL_InitGPUShader(&tr.heatHazeShader, "heatHaze", ATTR_POSITION | ATTR_TEXCOORD, qtrue);
 
 	tr.heatHazeShader.u_DeformMagnitude = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_DeformMagnitude");
 	tr.heatHazeShader.u_NormalMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalMap");
@@ -1476,7 +1476,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// bloom post process effect
-	GLSL_InitGPUShader(&tr.bloomShader, "bloom", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.bloomShader, "bloom", ATTR_POSITION, qtrue);
 
 	tr.bloomShader.u_ColorMap = qglGetUniformLocationARB(tr.bloomShader.program, "u_ColorMap");
 	tr.bloomShader.u_ContrastMap = qglGetUniformLocationARB(tr.bloomShader.program, "u_ContrastMap");
@@ -1493,7 +1493,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// contrast post process effect
-	GLSL_InitGPUShader(&tr.contrastShader, "contrast", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.contrastShader, "contrast", ATTR_POSITION, qtrue);
 
 	tr.contrastShader.u_ColorMap = qglGetUniformLocationARB(tr.contrastShader.program, "u_ColorMap");
 	if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
@@ -1514,7 +1514,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// blurX post process effect
-	GLSL_InitGPUShader(&tr.blurXShader, "blurX", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.blurXShader, "blurX", ATTR_POSITION, qtrue);
 
 	tr.blurXShader.u_ColorMap = qglGetUniformLocationARB(tr.blurXShader.program, "u_ColorMap");
 	tr.blurXShader.u_ModelViewProjectionMatrix = qglGetUniformLocationARB(tr.blurXShader.program, "u_ModelViewProjectionMatrix");
@@ -1528,7 +1528,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// blurY post process effect
-	GLSL_InitGPUShader(&tr.blurYShader, "blurY", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.blurYShader, "blurY", ATTR_POSITION, qtrue);
 
 	tr.blurYShader.u_ColorMap = qglGetUniformLocationARB(tr.blurYShader.program, "u_ColorMap");
 	tr.blurYShader.u_ModelViewProjectionMatrix = qglGetUniformLocationARB(tr.blurYShader.program, "u_ModelViewProjectionMatrix");
@@ -1542,7 +1542,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// rotoscope post process effect
-	GLSL_InitGPUShader(&tr.rotoscopeShader, "rotoscope", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
+	GLSL_InitGPUShader(&tr.rotoscopeShader, "rotoscope", ATTR_POSITION | ATTR_TEXCOORD, qtrue);
 
 	tr.rotoscopeShader.u_ColorMap = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_ColorMap");
 	tr.rotoscopeShader.u_BlurMagnitude = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_BlurMagnitude");
@@ -1558,7 +1558,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// screen post process effect
-	GLSL_InitGPUShader(&tr.screenShader, "screen", GLCS_VERTEX | GLCS_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.screenShader, "screen", ATTR_POSITION | ATTR_COLOR, qtrue);
 
 	tr.screenShader.u_CurrentMap = qglGetUniformLocationARB(tr.screenShader.program, "u_CurrentMap");
 	tr.screenShader.u_ModelViewProjectionMatrix =
@@ -1573,7 +1573,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// portal process effect
-	GLSL_InitGPUShader(&tr.portalShader, "portal", GLCS_VERTEX | GLCS_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.portalShader, "portal", ATTR_POSITION | ATTR_COLOR, qtrue);
 
 	tr.portalShader.u_CurrentMap = qglGetUniformLocationARB(tr.portalShader.program, "u_CurrentMap");
 	tr.portalShader.u_PortalRange = qglGetUniformLocationARB(tr.portalShader.program, "u_PortalRange");
@@ -1591,7 +1591,7 @@ void GLSL_InitGPUShaders(void)
 
 	// liquid post process effect
 	GLSL_InitGPUShader(&tr.liquidShader, "liquid",
-			GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR | GLCS_LIGHTDIRECTION, qtrue);
+			ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR | ATTR_LIGHTDIRECTION, qtrue);
 
 	tr.liquidShader.u_CurrentMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_CurrentMap");
 	tr.liquidShader.u_PortalMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_PortalMap");
@@ -1622,7 +1622,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// uniform fog post process effect
-	GLSL_InitGPUShader(&tr.uniformFogShader, "uniformFog", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.uniformFogShader, "uniformFog", ATTR_POSITION, qtrue);
 
 	tr.uniformFogShader.u_DepthMap = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_DepthMap");
 	tr.uniformFogShader.u_ViewOrigin = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_ViewOrigin");
@@ -1641,7 +1641,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// volumetric fog post process effect
-	GLSL_InitGPUShader(&tr.volumetricFogShader, "volumetricFog", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.volumetricFogShader, "volumetricFog", ATTR_POSITION, qtrue);
 
 	tr.volumetricFogShader.u_DepthMap = qglGetUniformLocationARB(tr.volumetricFogShader.program, "u_DepthMap");
 	tr.volumetricFogShader.u_DepthMapBack = qglGetUniformLocationARB(tr.volumetricFogShader.program, "u_DepthMapBack");
@@ -1664,7 +1664,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// screen space ambien occlusion post process effect
-	GLSL_InitGPUShader(&tr.screenSpaceAmbientOcclusionShader, "screenSpaceAmbientOcclusion", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.screenSpaceAmbientOcclusionShader, "screenSpaceAmbientOcclusion", ATTR_POSITION, qtrue);
 
 	tr.screenSpaceAmbientOcclusionShader.u_CurrentMap =
 		qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_CurrentMap");
@@ -1688,7 +1688,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// depth of field post process effect
-	GLSL_InitGPUShader(&tr.depthOfFieldShader, "depthOfField", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.depthOfFieldShader, "depthOfField", ATTR_POSITION, qtrue);
 
 	tr.depthOfFieldShader.u_CurrentMap = qglGetUniformLocationARB(tr.depthOfFieldShader.program, "u_CurrentMap");
 	tr.depthOfFieldShader.u_DepthMap = qglGetUniformLocationARB(tr.depthOfFieldShader.program, "u_DepthMap");
@@ -1705,7 +1705,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// HDR tone mapping post process effect
-	GLSL_InitGPUShader(&tr.toneMappingShader, "toneMapping", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.toneMappingShader, "toneMapping", ATTR_POSITION, qtrue);
 
 	tr.toneMappingShader.u_CurrentMap = qglGetUniformLocationARB(tr.toneMappingShader.program, "u_CurrentMap");
 	tr.toneMappingShader.u_HDRKey = qglGetUniformLocationARB(tr.toneMappingShader.program, "u_HDRKey");
@@ -2077,7 +2077,7 @@ static void DrawTris()
 
 	GL_BindProgram(&tr.genericSingleShader);
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
-	GL_ClientState(tr.genericSingleShader.attribs);
+	GL_VertexAttribsState(tr.genericSingleShader.attribs);
 
 	if(r_showBatches->integer || r_showLightBatches->integer)
 	{
@@ -2207,7 +2207,7 @@ static void Render_genericSingle(int stage)
 
 	GL_State(pStage->stateBits);
 	GL_BindProgram(&tr.genericSingleShader);
-	GL_ClientState(tr.genericSingleShader.attribs);
+	GL_VertexAttribsState(tr.genericSingleShader.attribs);
 
 	// set uniforms
 	GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader, pStage->tcGen_Environment);
@@ -2296,7 +2296,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.vertexLightingShader_DBS_entity);
-	GL_ClientState(tr.vertexLightingShader_DBS_entity.attribs);
+	GL_VertexAttribsState(tr.vertexLightingShader_DBS_entity.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -2396,7 +2396,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.vertexLightingShader_DBS_world);
-	GL_ClientState(tr.vertexLightingShader_DBS_world.attribs);
+	GL_VertexAttribsState(tr.vertexLightingShader_DBS_world.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
@@ -2509,7 +2509,7 @@ static void Render_lightMapping(int stage, qboolean asColorMap)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.lightMappingShader);
-	GL_ClientState(tr.lightMappingShader.attribs);
+	GL_VertexAttribsState(tr.lightMappingShader.attribs);
 
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.lightMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
@@ -2549,7 +2549,7 @@ static void Render_deluxeMapping(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.deluxeMappingShader);
-	GL_ClientState(tr.deluxeMappingShader.attribs);
+	GL_VertexAttribsState(tr.deluxeMappingShader.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -2646,7 +2646,7 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.geometricFillShader_DBS);
-	GL_ClientState(tr.geometricFillShader_DBS.attribs);
+	GL_VertexAttribsState(tr.geometricFillShader_DBS.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -2760,15 +2760,15 @@ static void Render_depthFill(int stage, qboolean cmap2black)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.depthFillShader);
-	GL_ClientState(tr.depthFillShader.attribs);
+	GL_VertexAttribsState(tr.depthFillShader.attribs);
 
 	if(r_precomputedLighting->integer)
 	{
-		GL_ClientState(tr.depthFillShader.attribs);
+		GL_VertexAttribsState(tr.depthFillShader.attribs);
 	}
 	else
 	{
-		GL_ClientState(tr.depthFillShader.attribs & ~(GLCS_COLOR));
+		GL_VertexAttribsState(tr.depthFillShader.attribs & ~(ATTR_COLOR));
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
 	}
 
@@ -2839,7 +2839,7 @@ static void Render_shadowFill(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.shadowFillShader);
-	GL_ClientState(tr.shadowFillShader.attribs & ~(GLCS_COLOR));
+	GL_VertexAttribsState(tr.shadowFillShader.attribs & ~(ATTR_COLOR));
 
 	if(r_debugShadowMaps->integer)
 	{
@@ -2905,12 +2905,12 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	/*
 	if(diffuseStage->vertexColor || diffuseStage->inverseVertexColor)
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs);
+		GL_VertexAttribsState(tr.forwardLightingShader_DBS_omni.attribs);
 	}
 	else
 	*/
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs & ~(GLCS_COLOR));
+		GL_VertexAttribsState(tr.forwardLightingShader_DBS_omni.attribs & ~(ATTR_COLOR));
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 	}
 
@@ -3040,12 +3040,12 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	/*
 	if(diffuseStage->vertexColor || diffuseStage->inverseVertexColor)
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_proj.attribs);
+		GL_VertexAttribsState(tr.forwardLightingShader_DBS_proj.attribs);
 	}
 	else
 	*/
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_proj.attribs & ~(GLCS_COLOR));
+		GL_VertexAttribsState(tr.forwardLightingShader_DBS_proj.attribs & ~(ATTR_COLOR));
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 	}
 
@@ -3169,7 +3169,7 @@ static void Render_reflection_C(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.reflectionShader_C);
-	GL_ClientState(tr.reflectionShader_C.attribs);
+	GL_VertexAttribsState(tr.reflectionShader_C.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -3206,7 +3206,7 @@ static void Render_reflection_CB(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.reflectionShader_CB);
-	GL_ClientState(tr.reflectionShader_CB.attribs);
+	GL_VertexAttribsState(tr.reflectionShader_CB.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -3259,7 +3259,7 @@ static void Render_refraction_C(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.refractionShader_C);
-	GL_ClientState(tr.refractionShader_C.attribs);
+	GL_VertexAttribsState(tr.refractionShader_C.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -3302,7 +3302,7 @@ static void Render_dispersion_C(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.dispersionShader_C);
-	GL_ClientState(tr.dispersionShader_C.attribs);
+	GL_VertexAttribsState(tr.dispersionShader_C.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -3346,7 +3346,7 @@ static void Render_skybox(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.skyBoxShader);
-	GL_ClientState(tr.skyBoxShader.attribs);
+	GL_VertexAttribsState(tr.skyBoxShader.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -3379,12 +3379,12 @@ static void Render_screen(int stage)
 	/*
 	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
-		GL_ClientState(tr.screenShader.attribs);
+		GL_VertexAttribsState(tr.screenShader.attribs);
 	}
 	else
 	*/
 	{
-		GL_ClientState(tr.screenShader.attribs & ~(GLCS_COLOR));
+		GL_VertexAttribsState(tr.screenShader.attribs & ~(ATTR_COLOR));
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
 	}
 
@@ -3413,12 +3413,12 @@ static void Render_portal(int stage)
 	/*
 	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
-		GL_ClientState(tr.portalShader.attribs);
+		GL_VertexAttribsState(tr.portalShader.attribs);
 	}
 	else
 	*/
 	{
-		GL_ClientState(tr.portalShader.attribs & ~(GLCS_COLOR));
+		GL_VertexAttribsState(tr.portalShader.attribs & ~(ATTR_COLOR));
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
 	}
 
@@ -3506,7 +3506,7 @@ static void Render_heatHaze(int stage)
 
 		// enable shader, set arrays
 		GL_BindProgram(&tr.depthTestShader);
-		GL_ClientState(tr.depthTestShader.attribs);
+		GL_VertexAttribsState(tr.depthTestShader.attribs);
 
 		// set uniforms
 		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.depthTestShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -3536,7 +3536,7 @@ static void Render_heatHaze(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.heatHazeShader);
-	GL_ClientState(tr.heatHazeShader.attribs);
+	GL_VertexAttribsState(tr.heatHazeShader.attribs);
 
 	// set uniforms
 	GLSL_SetUniform_AlphaTest(&tr.heatHazeShader, pStage->stateBits);
@@ -3606,7 +3606,7 @@ static void Render_liquid(int stage)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.liquidShader);
-	GL_ClientState(tr.liquidShader.attribs);
+	GL_VertexAttribsState(tr.liquidShader.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -3727,7 +3727,7 @@ static void Render_volumetricFog()
 
 		// setup shader with uniforms
 		GL_BindProgram(&tr.depthToColorShader);
-		GL_ClientState(tr.depthToColorShader.attribs);
+		GL_VertexAttribsState(tr.depthToColorShader.attribs);
 		GL_State(0);//GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 
 		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.depthToColorShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -3767,7 +3767,7 @@ static void Render_volumetricFog()
 
 		// enable shader, set arrays
 		GL_BindProgram(&tr.volumetricFogShader);
-		GL_ClientState(tr.volumetricFogShader.attribs);
+		GL_VertexAttribsState(tr.volumetricFogShader.attribs);
 
 		//GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 		//GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
