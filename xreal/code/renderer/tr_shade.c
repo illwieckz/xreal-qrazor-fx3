@@ -2293,7 +2293,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	vec3_t          ambientColor;
 	vec3_t          lightDir;
 	vec4_t          lightColor;
-	unsigned int 	attribBits = ATTR_POSITION | ATTR_TEXCOORD;
+	unsigned int 	attribBits = ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL;
 
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
