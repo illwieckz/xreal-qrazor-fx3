@@ -93,7 +93,8 @@ extern "C"
 }
 #endif
 
-#include <OpenEXR/half.h>
+//#include <OpenEXR/half.h>
+#include "../openexr/half.h"
 
 
 #ifdef __cplusplus
