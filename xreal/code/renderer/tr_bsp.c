@@ -774,7 +774,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					image->uploadWidth = width;
 					image->uploadHeight = height;
 
-					qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F_ARB, width, height, 0, GL_RGB, GL_HALF_FLOAT_NV, hdrImage);
+					qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F_ARB, width, height, 0, GL_RGB, GL_HALF_FLOAT_ARB, hdrImage);
 
 					if(glConfig.generateMipmapAvailable)
 					{
