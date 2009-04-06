@@ -1149,6 +1149,25 @@ static void GLimp_InitExtensions(void)
 		ri.Printf(PRINT_ALL, "...GL_ARB_draw_buffers not found\n");
 	}
 
+	// GL_ARB_half_float_pixel
+	glConfig.textureHalfFloatAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "GL_ARB_half_float_pixel"))
+	{
+		if(r_ext_half_float_pixel->integer)
+		{
+			glConfig.textureHalfFloatAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_ARB_half_float_pixel\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_half_float_pixel\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_ARB_half_float_pixel not found\n");
+	}
+
 	// GL_ARB_texture_float
 	glConfig.textureFloatAvailable = qfalse;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_float"))

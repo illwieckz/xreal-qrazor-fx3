@@ -2954,6 +2954,7 @@ extern cvar_t  *r_ext_occlusion_query;
 extern cvar_t  *r_ext_texture_non_power_of_two;
 extern cvar_t  *r_ext_draw_buffers;
 extern cvar_t  *r_ext_vertex_array_object;
+extern cvar_t  *r_ext_half_float_pixel;
 extern cvar_t  *r_ext_texture_float;
 extern cvar_t  *r_ext_stencil_wrap;
 extern cvar_t  *r_ext_texture_filter_anisotropic;

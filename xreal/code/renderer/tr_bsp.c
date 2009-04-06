@@ -734,16 +734,15 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			ri.Printf(PRINT_ALL, "...loading %i HDR lightmaps\n", numLightmaps);
 
 			if(r_hdrRendering->integer && r_hdrLightmap->integer && glConfig.framebufferObjectAvailable &&
-			   glConfig.framebufferBlitAvailable && glConfig.textureFloatAvailable)
+			   glConfig.framebufferBlitAvailable && glConfig.textureFloatAvailable && glConfig.textureHalfFloatAvailable)
 			{
 				int             width, height;
 				unsigned short *hdrImage;
 
 				for(i = 0; i < numLightmaps; i++)
 				{
-					ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
+					ri.Printf(PRINT_ALL, "...loading external lightmap as RGB 16 bit half HDR '%s/%s'\n", mapName, lightmapFiles[i]);
 
-#if 1
 					width = height = 0;
 					//LoadRGBEToFloats(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height, qtrue, qfalse, qtrue);
 					LoadRGBEToHalfs(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height);
@@ -803,10 +802,6 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					GL_CheckErrors();
 
 					Com_Dealloc(hdrImage);
-#else
-					tr.lightmaps[i * 2] =
-						R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_RGBE, FT_NEAREST, WT_CLAMP);
-#endif
 				}
 			}
 			else
@@ -816,7 +811,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 				for(i = 0; i < numLightmaps; i++)
 				{
-					ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
+					ri.Printf(PRINT_ALL, "...loading external lightmap as RGB8 LDR '%s/%s'\n", mapName, lightmapFiles[i]);
 
 					width = height = 0;
 					LoadRGBEToBytes(va("%s/%s", mapName, lightmapFiles[i]), &ldrImage, &width, &height);

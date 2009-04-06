@@ -284,6 +284,7 @@ typedef struct
 	qboolean        textureNPOTAvailable;
 
 	qboolean        drawBuffersAvailable;
+	qboolean		textureHalfFloatAvailable;
 	qboolean        textureFloatAvailable;
 	int             maxDrawBuffers;
 
