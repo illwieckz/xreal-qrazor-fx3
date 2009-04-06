@@ -69,7 +69,7 @@
 			<contextMenuMouseEpsilon value="5" />
 			<maxShadernameLength value="16" />
 		</browser>
-		<defaultTextureScale value="0.5" />
+		<defaultTextureScale value="0.25" />
 		<quality value="3" />
 		<mode value="5" />
 		<gamma value="1.0" />
