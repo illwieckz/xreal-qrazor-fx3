@@ -2078,11 +2078,19 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		else if(!Q_stricmp(token, "vertexColor"))
 		{
 			stage->rgbGen = CGEN_VERTEX;
+			if(stage->alphaGen == 0)
+			{
+				stage->alphaGen = AGEN_VERTEX;
+			}
 		}
 		// inverseVertexColor
 		else if(!Q_stricmp(token, "inverseVertexColor"))
 		{
 			stage->rgbGen = CGEN_ONE_MINUS_VERTEX;
+			if(stage->alphaGen == 0)
+			{
+				stage->alphaGen = AGEN_ONE_MINUS_VERTEX;
+			}
 		}
 		// alphaGen
 		else if(!Q_stricmp(token, "alphaGen"))
