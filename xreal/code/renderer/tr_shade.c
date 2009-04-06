@@ -2413,6 +2413,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
 
+#if defined(COMPAT_Q3A)
 	// u_ColorGen
 	switch (pStage->rgbGen)
 	{
@@ -2438,6 +2439,51 @@ static void Render_vertexLighting_DBS_world(int stage)
 			GLSL_SetUniform_AlphaGen(&tr.vertexLightingShader_DBS_world, AGEN_CONST);
 			break;
 	}
+
+#else
+	// u_ColorGen
+	switch (pStage->rgbGen)
+	{
+		//case CGEN_IDENTITY_LIGHTING:
+		//case CGEN_IDENTITY:
+		//case CGEN_ENTITY:
+		case CGEN_WAVEFORM:
+		case CGEN_CONST:
+		case CGEN_CUSTOM_RGB:
+		case CGEN_CUSTOM_RGBs:
+			GLSL_SetUniform_ColorGen(&tr.vertexLightingShader_DBS_world, CGEN_CONST);
+			break;
+		
+		case CGEN_ONE_MINUS_VERTEX:
+			GLSL_SetUniform_ColorGen(&tr.vertexLightingShader_DBS_world, CGEN_ONE_MINUS_VERTEX);
+			break;
+
+		default:
+			GLSL_SetUniform_ColorGen(&tr.vertexLightingShader_DBS_world, CGEN_VERTEX);
+			break;
+	}
+
+	// u_AlphaGen
+	switch (pStage->alphaGen)
+	{
+		//case AGEN_IDENTITY:
+		//case AGEN_ENTITY:
+		//case AGEN_ONE_MINUS_ENTITY:
+		case AGEN_WAVEFORM:
+		case AGEN_CONST:
+		case AGEN_CUSTOM:
+			GLSL_SetUniform_AlphaGen(&tr.vertexLightingShader_DBS_world, AGEN_CONST);
+			break;
+
+		case AGEN_ONE_MINUS_VERTEX:
+			GLSL_SetUniform_AlphaGen(&tr.vertexLightingShader_DBS_world, AGEN_ONE_MINUS_VERTEX);
+			break;
+
+		default:
+			GLSL_SetUniform_AlphaGen(&tr.vertexLightingShader_DBS_world, AGEN_VERTEX);
+			break;
+	}
+#endif
 
 	// u_Color
 	GLSL_SetUniform_Color(&tr.vertexLightingShader_DBS_world, tess.svars.color);
