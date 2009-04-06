@@ -1203,7 +1203,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque, qboolean depthFill)
 				backEnd.currentEntity = entity;
 
 				// set up the transformation matrix
-				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.orientation);
 
 				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
 				{
@@ -1214,10 +1214,10 @@ static void RB_RenderDrawSurfaces(qboolean opaque, qboolean depthFill)
 			else
 			{
 				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.or = backEnd.viewParms.world;
+				backEnd.orientation = backEnd.viewParms.world;
 			}
 
-			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -1266,8 +1266,8 @@ static void Render_lightVolume(trRefLight_t * light)
 	shaderStage_t  *attenuationZStage;
 
 	// rotate into light space
-	R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
-	GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+	R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+	GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 	switch (light->l.rlType)
 	{
@@ -1336,7 +1336,7 @@ static void Render_lightVolume(trRefLight_t * light)
 			//GL_State(attenuationXYStage->stateBits & ~(GLS_DEPTHMASK_TRUE | GLS_DEPTHTEST_DISABLE));
 
 			// set uniforms
-			VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+			VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 			VectorCopy(light->origin, lightOrigin);
 			VectorCopy(tess.svars.color, lightColor);
 
@@ -1347,7 +1347,7 @@ static void Render_lightVolume(trRefLight_t * light)
 			qglUniform1fARB(tr.lightVolumeShader_omni.u_LightScale, r_lightScale->value);
 			qglUniformMatrix4fvARB(tr.lightVolumeShader_omni.u_LightAttenuationMatrix, 1, GL_FALSE, light->attenuationMatrix2);
 			qglUniform1iARB(tr.lightVolumeShader_omni.u_ShadowCompare, !light->l.noShadows);
-			qglUniformMatrix4fvARB(tr.lightVolumeShader_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+			qglUniformMatrix4fvARB(tr.lightVolumeShader_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.orientation.transformMatrix);
 			qglUniformMatrix4fvARB(tr.lightVolumeShader_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 			// bind u_AttenuationMapXY
@@ -1502,7 +1502,7 @@ static void RB_RenderInteractions()
 			if(entity != &tr.worldEntity)
 			{
 				// set up the transformation matrix
-				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.orientation);
 
 				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
 				{
@@ -1512,10 +1512,10 @@ static void RB_RenderInteractions()
 			}
 			else
 			{
-				backEnd.or = backEnd.viewParms.world;
+				backEnd.orientation = backEnd.viewParms.world;
 			}
 
-			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -1538,10 +1538,10 @@ static void RB_RenderInteractions()
 			// transform light origin into model space for u_LightOrigin parameter
 			if(entity != &tr.worldEntity)
 			{
-				VectorSubtract(light->origin, backEnd.or.origin, tmp);
-				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+				VectorSubtract(light->origin, backEnd.orientation.origin, tmp);
+				light->transformed[0] = DotProduct(tmp, backEnd.orientation.axis[0]);
+				light->transformed[1] = DotProduct(tmp, backEnd.orientation.axis[1]);
+				light->transformed[2] = DotProduct(tmp, backEnd.orientation.axis[2]);
 			}
 			else
 			{
@@ -1549,7 +1549,7 @@ static void RB_RenderInteractions()
 			}
 
 			// build the attenuation matrix using the entity transform
-			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
+			MatrixMultiply(light->viewMatrix, backEnd.orientation.transformMatrix, modelToLight);
 
 			switch (light->l.rlType)
 			{
@@ -1902,7 +1902,7 @@ static void RB_RenderInteractionsStencilShadowed()
 			if(entity != &tr.worldEntity)
 			{
 				// set up the transformation matrix
-				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.orientation);
 
 				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
 				{
@@ -1912,10 +1912,10 @@ static void RB_RenderInteractionsStencilShadowed()
 			}
 			else
 			{
-				backEnd.or = backEnd.viewParms.world;
+				backEnd.orientation = backEnd.viewParms.world;
 			}
 
-			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 			if(drawShadows && !light->l.noShadows)
 			{
@@ -1943,10 +1943,10 @@ static void RB_RenderInteractionsStencilShadowed()
 			// transform light origin into model space for u_LightOrigin parameter
 			if(entity != &tr.worldEntity)
 			{
-				VectorSubtract(light->origin, backEnd.or.origin, tmp);
-				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+				VectorSubtract(light->origin, backEnd.orientation.origin, tmp);
+				light->transformed[0] = DotProduct(tmp, backEnd.orientation.axis[0]);
+				light->transformed[1] = DotProduct(tmp, backEnd.orientation.axis[1]);
+				light->transformed[2] = DotProduct(tmp, backEnd.orientation.axis[2]);
 			}
 			else
 			{
@@ -1960,7 +1960,7 @@ static void RB_RenderInteractionsStencilShadowed()
 			}
 
 			// build the attenuation matrix using the entity transform
-			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
+			MatrixMultiply(light->viewMatrix, backEnd.orientation.transformMatrix, modelToLight);
 
 			switch (light->l.rlType)
 			{
@@ -2459,7 +2459,7 @@ static void RB_RenderInteractionsShadowMapped()
 
 				// restore camera matrices
 				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
-				GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+				GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 				// reset light view and projection matrices
 				switch (light->l.rlType)
@@ -2616,11 +2616,11 @@ static void RB_RenderInteractionsShadowMapped()
 				// set up the transformation matrix
 				if(drawShadows)
 				{
-					R_RotateEntityForLight(entity, light, &backEnd.or);
+					R_RotateEntityForLight(entity, light, &backEnd.orientation);
 				}
 				else
 				{
-					R_RotateEntityForViewParms(entity, &backEnd.viewParms, &backEnd.or);
+					R_RotateEntityForViewParms(entity, &backEnd.viewParms, &backEnd.orientation);
 				}
 
 				if(entity->e.renderfx & RF_DEPTHHACK)
@@ -2634,26 +2634,26 @@ static void RB_RenderInteractionsShadowMapped()
 				// set up the transformation matrix
 				if(drawShadows)
 				{
-					Com_Memset(&backEnd.or, 0, sizeof(backEnd.or));
+					Com_Memset(&backEnd.orientation, 0, sizeof(backEnd.orientation));
 
-					backEnd.or.axis[0][0] = 1;
-					backEnd.or.axis[1][1] = 1;
-					backEnd.or.axis[2][2] = 1;
-					VectorCopy(light->l.origin, backEnd.or.viewOrigin);
+					backEnd.orientation.axis[0][0] = 1;
+					backEnd.orientation.axis[1][1] = 1;
+					backEnd.orientation.axis[2][2] = 1;
+					VectorCopy(light->l.origin, backEnd.orientation.viewOrigin);
 
-					MatrixIdentity(backEnd.or.transformMatrix);
-					//MatrixAffineInverse(backEnd.or.transformMatrix, backEnd.or.viewMatrix);
-					MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, backEnd.or.viewMatrix);
-					MatrixCopy(backEnd.or.viewMatrix, backEnd.or.modelViewMatrix);
+					MatrixIdentity(backEnd.orientation.transformMatrix);
+					//MatrixAffineInverse(backEnd.orientation.transformMatrix, backEnd.orientation.viewMatrix);
+					MatrixMultiply(light->viewMatrix, backEnd.orientation.transformMatrix, backEnd.orientation.viewMatrix);
+					MatrixCopy(backEnd.orientation.viewMatrix, backEnd.orientation.modelViewMatrix);
 				}
 				else
 				{
 					// transform by the camera placement
-					backEnd.or = backEnd.viewParms.world;
+					backEnd.orientation = backEnd.viewParms.world;
 				}
 			}
 
-			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -2676,17 +2676,17 @@ static void RB_RenderInteractionsShadowMapped()
 			// transform light origin into model space for u_LightOrigin parameter
 			if(entity != &tr.worldEntity)
 			{
-				VectorSubtract(light->origin, backEnd.or.origin, tmp);
-				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+				VectorSubtract(light->origin, backEnd.orientation.origin, tmp);
+				light->transformed[0] = DotProduct(tmp, backEnd.orientation.axis[0]);
+				light->transformed[1] = DotProduct(tmp, backEnd.orientation.axis[1]);
+				light->transformed[2] = DotProduct(tmp, backEnd.orientation.axis[2]);
 			}
 			else
 			{
 				VectorCopy(light->origin, light->transformed);
 			}
 
-			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
+			MatrixMultiply(light->viewMatrix, backEnd.orientation.transformMatrix, modelToLight);
 
 			// build the attenuation matrix using the entity transform
 			switch (light->l.rlType)
@@ -2925,7 +2925,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 				backEnd.currentEntity = entity;
 
 				// set up the transformation matrix
-				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.orientation);
 
 				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
 				{
@@ -2936,10 +2936,10 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 			else
 			{
 				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.or = backEnd.viewParms.world;
+				backEnd.orientation = backEnd.viewParms.world;
 			}
 
-			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -3016,7 +3016,7 @@ void RB_RenderInteractionsDeferred()
 	R_BindFBO(tr.deferredRenderFBO);
 
 	// update uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
 
 	// set 2D virtual screen size
 	GL_PushMatrix();
@@ -3295,7 +3295,7 @@ void RB_RenderInteractionsDeferred()
 	GL_PopMatrix();
 
 	// go back to the world modelview matrix
-	backEnd.or = backEnd.viewParms.world;
+	backEnd.orientation = backEnd.viewParms.world;
 	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 	// reset scissor
@@ -3625,7 +3625,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 				// restore camera matrices
 				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
-				GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+				GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 				switch (light->l.rlType)
 				{
@@ -3659,7 +3659,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				}
 
 				// update uniforms
-				VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
+				VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
 
 				// copy frustum planes for pixel shader
 				for(i = 0; i < 6; i++)
@@ -4049,11 +4049,11 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				// set up the transformation matrix
 				if(drawShadows)
 				{
-					R_RotateEntityForLight(entity, light, &backEnd.or);
+					R_RotateEntityForLight(entity, light, &backEnd.orientation);
 				}
 				else
 				{
-					R_RotateEntityForViewParms(entity, &backEnd.viewParms, &backEnd.or);
+					R_RotateEntityForViewParms(entity, &backEnd.viewParms, &backEnd.orientation);
 				}
 
 				if(entity->e.renderfx & RF_DEPTHHACK)
@@ -4067,26 +4067,26 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				// set up the transformation matrix
 				if(drawShadows)
 				{
-					Com_Memset(&backEnd.or, 0, sizeof(backEnd.or));
+					Com_Memset(&backEnd.orientation, 0, sizeof(backEnd.orientation));
 
-					backEnd.or.axis[0][0] = 1;
-					backEnd.or.axis[1][1] = 1;
-					backEnd.or.axis[2][2] = 1;
-					VectorCopy(light->l.origin, backEnd.or.viewOrigin);
+					backEnd.orientation.axis[0][0] = 1;
+					backEnd.orientation.axis[1][1] = 1;
+					backEnd.orientation.axis[2][2] = 1;
+					VectorCopy(light->l.origin, backEnd.orientation.viewOrigin);
 
-					MatrixIdentity(backEnd.or.transformMatrix);
-					//MatrixAffineInverse(backEnd.or.transformMatrix, backEnd.or.viewMatrix);
-					MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, backEnd.or.viewMatrix);
-					MatrixCopy(backEnd.or.viewMatrix, backEnd.or.modelViewMatrix);
+					MatrixIdentity(backEnd.orientation.transformMatrix);
+					//MatrixAffineInverse(backEnd.orientation.transformMatrix, backEnd.orientation.viewMatrix);
+					MatrixMultiply(light->viewMatrix, backEnd.orientation.transformMatrix, backEnd.orientation.viewMatrix);
+					MatrixCopy(backEnd.orientation.viewMatrix, backEnd.orientation.modelViewMatrix);
 				}
 				else
 				{
 					// transform by the camera placement
-					backEnd.or = backEnd.viewParms.world;
+					backEnd.orientation = backEnd.viewParms.world;
 				}
 			}
 
-			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -4586,7 +4586,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 
 				// restore camera matrices
 				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
-				GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+				GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 				switch (light->l.rlType)
 				{
@@ -4620,7 +4620,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 				}
 
 				// update uniforms
-				VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
+				VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
 
 				// copy frustum planes for pixel shader
 				for(i = 0; i < 6; i++)
@@ -4845,11 +4845,11 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 				// set up the transformation matrix
 				if(drawShadows)
 				{
-					R_RotateEntityForLight(entity, light, &backEnd.or);
+					R_RotateEntityForLight(entity, light, &backEnd.orientation);
 				}
 				else
 				{
-					R_RotateEntityForViewParms(entity, &backEnd.viewParms, &backEnd.or);
+					R_RotateEntityForViewParms(entity, &backEnd.viewParms, &backEnd.orientation);
 				}
 
 				if(entity->e.renderfx & RF_DEPTHHACK)
@@ -4863,26 +4863,26 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 				// set up the transformation matrix
 				if(drawShadows)
 				{
-					Com_Memset(&backEnd.or, 0, sizeof(backEnd.or));
+					Com_Memset(&backEnd.orientation, 0, sizeof(backEnd.orientation));
 
-					backEnd.or.axis[0][0] = 1;
-					backEnd.or.axis[1][1] = 1;
-					backEnd.or.axis[2][2] = 1;
-					VectorCopy(light->l.origin, backEnd.or.viewOrigin);
+					backEnd.orientation.axis[0][0] = 1;
+					backEnd.orientation.axis[1][1] = 1;
+					backEnd.orientation.axis[2][2] = 1;
+					VectorCopy(light->l.origin, backEnd.orientation.viewOrigin);
 
-					MatrixIdentity(backEnd.or.transformMatrix);
-					//MatrixAffineInverse(backEnd.or.transformMatrix, backEnd.or.viewMatrix);
-					MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, backEnd.or.viewMatrix);
-					MatrixCopy(backEnd.or.viewMatrix, backEnd.or.modelViewMatrix);
+					MatrixIdentity(backEnd.orientation.transformMatrix);
+					//MatrixAffineInverse(backEnd.orientation.transformMatrix, backEnd.orientation.viewMatrix);
+					MatrixMultiply(light->viewMatrix, backEnd.orientation.transformMatrix, backEnd.orientation.viewMatrix);
+					MatrixCopy(backEnd.orientation.viewMatrix, backEnd.orientation.modelViewMatrix);
 				}
 				else
 				{
 					// transform by the camera placement
-					backEnd.or = backEnd.viewParms.world;
+					backEnd.orientation = backEnd.viewParms.world;
 				}
 			}
 
-			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -5070,7 +5070,7 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 
 	// set uniforms
 	/*
-	   VectorCopy(backEnd.viewParms.or.origin, viewOrigin); // in world space
+	   VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin); // in world space
 
 	   if(!jitterInit)
 	   {
@@ -5247,7 +5247,7 @@ void RB_RenderUniformFog()
 	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 
 	if(r_forceFog->value)
 	{
@@ -5854,12 +5854,12 @@ void RB_RenderLightOcclusionQueries()
 				// last interaction of current light
 				if(!ia->noOcclusionQueries &&
 				   ocCount <
-				   (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT */ )
+				   (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.orientation.origin) == CULL_OUT */ )
 				{
 					ocCount++;
 
-					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
-					GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+					GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 					// begin the occlusion query
@@ -6043,7 +6043,7 @@ void RB_RenderLightOcclusionQueries()
 		}
 
 		// go back to the world modelview matrix
-		backEnd.or = backEnd.viewParms.world;
+		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 		if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
@@ -6148,7 +6148,7 @@ void RB_RenderLightOcclusionQueries()
 				{
 					if(!ia->noOcclusionQueries &&
 					   ocCount <
-					   (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT */ )
+					   (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.orientation.origin) == CULL_OUT */ )
 					{
 						ocCount++;
 
@@ -6292,8 +6292,8 @@ static void RB_RenderDebugUtils()
 				}
 
 				// set up the transformation matrix
-				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
-				GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+				GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
@@ -6321,10 +6321,10 @@ static void RB_RenderDebugUtils()
 				// draw special vectors
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorYellow);
 				qglVertex3fv(vec3_origin);
-				VectorSubtract(light->origin, backEnd.or.origin, tmp);
-				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
+				VectorSubtract(light->origin, backEnd.orientation.origin, tmp);
+				light->transformed[0] = DotProduct(tmp, backEnd.orientation.axis[0]);
+				light->transformed[1] = DotProduct(tmp, backEnd.orientation.axis[1]);
+				light->transformed[2] = DotProduct(tmp, backEnd.orientation.axis[2]);
 				qglVertex3fv(light->transformed);
 
 				qglEnd();
@@ -6491,7 +6491,7 @@ static void RB_RenderDebugUtils()
 		}
 
 		// go back to the world modelview matrix
-		backEnd.or = backEnd.viewParms.world;
+		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
 #endif
@@ -6522,14 +6522,14 @@ static void RB_RenderDebugUtils()
 			if(entity != &tr.worldEntity)
 			{
 				// set up the transformation matrix
-				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.orientation);
 			}
 			else
 			{
-				backEnd.or = backEnd.viewParms.world;
+				backEnd.orientation = backEnd.viewParms.world;
 			}
 
-			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 
 			if(r_shadows->integer >= 4 && light->l.rlType == RL_OMNI)
 			{
@@ -6643,7 +6643,7 @@ static void RB_RenderDebugUtils()
 		}
 
 		// go back to the world modelview matrix
-		backEnd.or = backEnd.viewParms.world;
+		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
 #endif
@@ -6681,8 +6681,8 @@ static void RB_RenderDebugUtils()
 				continue;
 
 			// set up the transformation matrix
-			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
-			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.orientation);
+			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 			R_DebugAxis(vec3_origin, matrixIdentity);
@@ -6734,14 +6734,14 @@ static void RB_RenderDebugUtils()
 
 
 			// go back to the world modelview matrix
-			//backEnd.or = backEnd.viewParms.world;
+			//backEnd.orientation = backEnd.viewParms.world;
 			//GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 			//R_DebugBoundingBox(vec3_origin, ent->worldBounds[0], ent->worldBounds[1], colorCyan);
 		}
 
 		// go back to the world modelview matrix
-		backEnd.or = backEnd.viewParms.world;
+		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
 #endif
@@ -6784,8 +6784,8 @@ static void RB_RenderDebugUtils()
 				continue;
 
 			// set up the transformation matrix
-			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
-			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.orientation);
+			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 
@@ -6878,7 +6878,7 @@ static void RB_RenderDebugUtils()
 						Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
 					}
 
-					MatrixTransformPoint(backEnd.or.transformMatrix, skel->bones[j].origin, worldOrigins[j]);
+					MatrixTransformPoint(backEnd.orientation.transformMatrix, skel->bones[j].origin, worldOrigins[j]);
 				}
 
 				Tess_UpdateVBOs(ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR);
@@ -6893,7 +6893,7 @@ static void RB_RenderDebugUtils()
 					GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 
 					// go back to the world modelview matrix
-					backEnd.or = backEnd.viewParms.world;
+					backEnd.orientation = backEnd.viewParms.world;
 					GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
@@ -6906,8 +6906,8 @@ static void RB_RenderDebugUtils()
 
 						// calculate the xyz locations for the four corners
 						radius = 0.4;
-						VectorScale(backEnd.viewParms.or.axis[1], radius, left);
-						VectorScale(backEnd.viewParms.or.axis[2], radius, up);
+						VectorScale(backEnd.viewParms.orientation.axis[1], radius, left);
+						VectorScale(backEnd.viewParms.orientation.axis[2], radius, up);
 
 						if(backEnd.viewParms.isMirror)
 						{
@@ -7086,7 +7086,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_FRONT_SIDED);
 
 		// set uniforms
-		VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+		VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 		GLSL_SetUniform_ViewOrigin(&tr.reflectionShader_C, viewOrigin);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
@@ -7102,11 +7102,11 @@ static void RB_RenderDebugUtils()
 			GL_Bind(cubeProbe->cubemap);
 
 			// set up the transformation matrix
-			MatrixSetupTranslation(backEnd.or.transformMatrix, cubeProbe->origin[0], cubeProbe->origin[1], cubeProbe->origin[2]);
-			MatrixMultiply(backEnd.viewParms.world.viewMatrix, backEnd.or.transformMatrix, backEnd.or.modelViewMatrix);
+			MatrixSetupTranslation(backEnd.orientation.transformMatrix, cubeProbe->origin[0], cubeProbe->origin[1], cubeProbe->origin[2]);
+			MatrixMultiply(backEnd.viewParms.world.viewMatrix, backEnd.orientation.transformMatrix, backEnd.orientation.modelViewMatrix);
 
-			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
-			GLSL_SetUniform_ModelMatrix(&tr.reflectionShader_C, backEnd.or.transformMatrix);
+			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+			GLSL_SetUniform_ModelMatrix(&tr.reflectionShader_C, backEnd.orientation.transformMatrix);
 			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.reflectionShader_C, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 			tess.numIndexes = 0;
@@ -7156,7 +7156,7 @@ static void RB_RenderDebugUtils()
 		}
 
 		// go back to the world modelview matrix
-		backEnd.or = backEnd.viewParms.world;
+		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
 #endif
@@ -7280,10 +7280,10 @@ static void RB_RenderView(void)
 			plane[3] = backEnd.viewParms.portalPlane.dist;
 
 			// rotate clipping plane into camera space
-			plane2[0] = DotProduct(backEnd.viewParms.or.axis[0], plane);
-			plane2[1] = DotProduct(backEnd.viewParms.or.axis[1], plane);
-			plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
-			plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
+			plane2[0] = DotProduct(backEnd.viewParms.orientation.axis[0], plane);
+			plane2[1] = DotProduct(backEnd.viewParms.orientation.axis[1], plane);
+			plane2[2] = DotProduct(backEnd.viewParms.orientation.axis[2], plane);
+			plane2[3] = DotProduct(plane, backEnd.viewParms.orientation.origin) - plane[3];
 
 			//GL_LoadModelViewMatrix(quakeToOpenGLMatrix);
 			qglClipPlane(GL_CLIP_PLANE0, plane2);
@@ -7532,10 +7532,10 @@ static void RB_RenderView(void)
 			plane[3] = backEnd.viewParms.portalPlane.dist;
 
 			// rotate clipping plane into camera space
-			plane2[0] = DotProduct(backEnd.viewParms.or.axis[0], plane);
-			plane2[1] = DotProduct(backEnd.viewParms.or.axis[1], plane);
-			plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
-			plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
+			plane2[0] = DotProduct(backEnd.viewParms.orientation.axis[0], plane);
+			plane2[1] = DotProduct(backEnd.viewParms.orientation.axis[1], plane);
+			plane2[2] = DotProduct(backEnd.viewParms.orientation.axis[2], plane);
+			plane2[3] = DotProduct(plane, backEnd.viewParms.orientation.origin) - plane[3];
 
 			GL_LoadModelViewMatrix(quakeToOpenGLMatrix);
 			//GL_LoadModelViewMatrix(matrixIdentity);

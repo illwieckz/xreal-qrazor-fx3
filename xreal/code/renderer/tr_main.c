@@ -622,7 +622,7 @@ R_LocalNormalToWorld
 */
 void R_LocalNormalToWorld(const vec3_t local, vec3_t world)
 {
-	MatrixTransformNormal(tr.or.transformMatrix, local, world);
+	MatrixTransformNormal(tr.orientation.transformMatrix, local, world);
 }
 
 /*
@@ -632,7 +632,7 @@ R_LocalPointToWorld
 */
 void R_LocalPointToWorld(const vec3_t local, vec3_t world)
 {
-	MatrixTransformPoint(tr.or.transformMatrix, local, world);
+	MatrixTransformPoint(tr.orientation.transformMatrix, local, world);
 }
 
 
@@ -701,8 +701,8 @@ float R_ProjectRadius(float r, vec3_t location)
 	vec3_t          p;
 	float           projected[4];
 
-	c = DotProduct(tr.viewParms.or.axis[0], tr.viewParms.or.origin);
-	dist = DotProduct(tr.viewParms.or.axis[0], location) - c;
+	c = DotProduct(tr.viewParms.orientation.axis[0], tr.viewParms.orientation.origin);
+	dist = DotProduct(tr.viewParms.orientation.axis[0], location) - c;
 
 	if(dist <= 0)
 		return 0;
@@ -791,7 +791,7 @@ void R_RotateEntityForViewParms(const trRefEntity_t * ent, const viewParms_t * v
 
 	// calculate the viewer origin in the model's space
 	// needed for fog, specular, and environment mapping
-	VectorSubtract(viewParms->or.origin, or->origin, delta);
+	VectorSubtract(viewParms->orientation.origin, or->origin, delta);
 
 	// compensate for scale in the axes if necessary
 	if(ent->e.nonNormalizedAxes)
@@ -905,7 +905,7 @@ void R_RotateLightForViewParms(const trRefLight_t * light, const viewParms_t * v
 
 	// calculate the viewer origin in the light's space
 	// needed for fog, specular, and environment mapping
-	VectorSubtract(viewParms->or.origin, or->origin, delta);
+	VectorSubtract(viewParms->orientation.origin, or->origin, delta);
 
 	or->viewOrigin[0] = DotProduct(delta, or->axis[0]);
 	or->viewOrigin[1] = DotProduct(delta, or->axis[1]);
@@ -926,26 +926,26 @@ void R_RotateForViewer(void)
 
 //  matrix_t        viewMatrix;
 
-	Com_Memset(&tr.or, 0, sizeof(tr.or));
-	tr.or.axis[0][0] = 1;
-	tr.or.axis[1][1] = 1;
-	tr.or.axis[2][2] = 1;
-	VectorCopy(tr.viewParms.or.origin, tr.or.viewOrigin);
+	Com_Memset(&tr.orientation, 0, sizeof(tr.orientation));
+	tr.orientation.axis[0][0] = 1;
+	tr.orientation.axis[1][1] = 1;
+	tr.orientation.axis[2][2] = 1;
+	VectorCopy(tr.viewParms.orientation.origin, tr.orientation.viewOrigin);
 
 	// transform by the camera placement
 	MatrixSetupTransform(transformMatrix,
-						 tr.viewParms.or.axis[0], tr.viewParms.or.axis[1], tr.viewParms.or.axis[2], tr.viewParms.or.origin);
+						 tr.viewParms.orientation.axis[0], tr.viewParms.orientation.axis[1], tr.viewParms.orientation.axis[2], tr.viewParms.orientation.origin);
 
-	MatrixAffineInverse(transformMatrix, tr.or.viewMatrix2);
-//  MatrixAffineInverse(transformMatrix, tr.or.viewMatrix);
+	MatrixAffineInverse(transformMatrix, tr.orientation.viewMatrix2);
+//  MatrixAffineInverse(transformMatrix, tr.orientation.viewMatrix);
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
-	MatrixIdentity(tr.or.transformMatrix);
-	MatrixMultiply(quakeToOpenGLMatrix, tr.or.viewMatrix2, tr.or.viewMatrix);
-	MatrixCopy(tr.or.viewMatrix, tr.or.modelViewMatrix);
+	MatrixIdentity(tr.orientation.transformMatrix);
+	MatrixMultiply(quakeToOpenGLMatrix, tr.orientation.viewMatrix2, tr.orientation.viewMatrix);
+	MatrixCopy(tr.orientation.viewMatrix, tr.orientation.modelViewMatrix);
 
-	tr.viewParms.world = tr.or;
+	tr.viewParms.world = tr.orientation;
 }
 
 /*
@@ -1209,15 +1209,15 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 		tr.currentEntity = drawSurf->entity;
 
 		// get the orientation of the entity
-		R_RotateEntityForViewParms(tr.currentEntity, &tr.viewParms, &tr.or);
+		R_RotateEntityForViewParms(tr.currentEntity, &tr.viewParms, &tr.orientation);
 
 		// rotate the plane, but keep the non-rotated version for matching
 		// against the portalSurface entities
 		R_LocalNormalToWorld(originalPlane.normal, plane.normal);
-		plane.dist = originalPlane.dist + DotProduct(plane.normal, tr.or.origin);
+		plane.dist = originalPlane.dist + DotProduct(plane.normal, tr.orientation.origin);
 
 		// translate the original plane
-		originalPlane.dist = originalPlane.dist + DotProduct(originalPlane.normal, tr.or.origin);
+		originalPlane.dist = originalPlane.dist + DotProduct(originalPlane.normal, tr.orientation.origin);
 	}
 	else
 	{
@@ -1353,15 +1353,15 @@ static qboolean IsMirror(const drawSurf_t * drawSurf)
 	if(tr.currentEntity != &tr.worldEntity)
 	{
 		// get the orientation of the entity
-		R_RotateEntityForViewParms(tr.currentEntity, &tr.viewParms, &tr.or);
+		R_RotateEntityForViewParms(tr.currentEntity, &tr.viewParms, &tr.orientation);
 
 		// rotate the plane, but keep the non-rotated version for matching
 		// against the portalSurface entities
 		R_LocalNormalToWorld(originalPlane.normal, plane.normal);
-		plane.dist = originalPlane.dist + DotProduct(plane.normal, tr.or.origin);
+		plane.dist = originalPlane.dist + DotProduct(plane.normal, tr.orientation.origin);
 
 		// translate the original plane
-		originalPlane.dist = originalPlane.dist + DotProduct(originalPlane.normal, tr.or.origin);
+		originalPlane.dist = originalPlane.dist + DotProduct(originalPlane.normal, tr.orientation.origin);
 	}
 	else
 	{
@@ -1424,11 +1424,11 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	if(tr.currentEntity != &tr.worldEntity)
 	{
 		//ri.Printf(PRINT_ALL, "entity Portal surface\n");
-		R_RotateEntityForViewParms(tr.currentEntity, &tr.viewParms, &tr.or);
+		R_RotateEntityForViewParms(tr.currentEntity, &tr.viewParms, &tr.orientation);
 	}
 	else
 	{
-		tr.or = tr.viewParms.world;
+		tr.orientation = tr.viewParms.world;
 	}
 
 	Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse, -1);
@@ -1445,7 +1445,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 		int             j;
 		unsigned int    pointFlags = 0;
 
-		R_TransformModelToClip(tess.xyz[i], tr.or.modelViewMatrix, tr.viewParms.projectionMatrix, eye, clip);
+		R_TransformModelToClip(tess.xyz[i], tr.orientation.modelViewMatrix, tr.viewParms.projectionMatrix, eye, clip);
 
 		for(j = 0; j < 3; j++)
 		{
@@ -1481,7 +1481,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 		float           dot;
 		float           len;
 
-		VectorSubtract(tess.xyz[tess.indexes[i]], tr.or.viewOrigin, normal);
+		VectorSubtract(tess.xyz[tess.indexes[i]], tr.orientation.viewOrigin, normal);
 
 		len = VectorLengthSquared(normal);	// lose the sqrt
 		if(len < shortest)
@@ -1558,14 +1558,14 @@ static qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf)
 		return qfalse;			// bad portal, no portalentity
 	}
 
-	R_MirrorPoint(oldParms.or.origin, &surface, &camera, newParms.or.origin);
+	R_MirrorPoint(oldParms.orientation.origin, &surface, &camera, newParms.orientation.origin);
 
 	VectorSubtract(vec3_origin, camera.axis[0], newParms.portalPlane.normal);
 	newParms.portalPlane.dist = DotProduct(camera.origin, newParms.portalPlane.normal);
 
-	R_MirrorVector(oldParms.or.axis[0], &surface, &camera, newParms.or.axis[0]);
-	R_MirrorVector(oldParms.or.axis[1], &surface, &camera, newParms.or.axis[1]);
-	R_MirrorVector(oldParms.or.axis[2], &surface, &camera, newParms.or.axis[2]);
+	R_MirrorVector(oldParms.orientation.axis[0], &surface, &camera, newParms.orientation.axis[0]);
+	R_MirrorVector(oldParms.orientation.axis[1], &surface, &camera, newParms.orientation.axis[1]);
+	R_MirrorVector(oldParms.orientation.axis[2], &surface, &camera, newParms.orientation.axis[2]);
 
 	// OPTIMIZE: restrict the viewport on the mirrored view
 
@@ -1805,7 +1805,7 @@ void R_AddEntitySurfaces(void)
 
 			case RT_MODEL:
 				// we must set up parts of tr.or for model culling
-				R_RotateEntityForViewParms(ent, &tr.viewParms, &tr.or);
+				R_RotateEntityForViewParms(ent, &tr.viewParms, &tr.orientation);
 
 				tr.currentModel = R_GetModelByHandle(ent->e.hModel);
 				if(!tr.currentModel)
@@ -2009,7 +2009,7 @@ void R_AddLightInteractions()
 		}
 
 		// we must set up parts of tr.or for light culling
-		R_RotateLightForViewParms(light, &tr.viewParms, &tr.or);
+		R_RotateLightForViewParms(light, &tr.viewParms, &tr.orientation);
 
 		// calc local bounds for culling
 		if(light->isStatic)
@@ -2343,7 +2343,7 @@ void R_RenderView(viewParms_t * parms)
 	R_SetupUnprojection();
 
 	// set camera frustum planes in world space
-	R_SetupFrustum(tr.viewParms.frustum, tr.or.modelViewMatrix, tr.viewParms.projectionMatrix);
+	R_SetupFrustum(tr.viewParms.frustum, tr.orientation.modelViewMatrix, tr.viewParms.projectionMatrix);
 
 	R_AddWorldSurfaces();
 

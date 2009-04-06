@@ -328,7 +328,7 @@ static ID_INLINE void rgbe2float(float *red, float *green, float *blue, unsigned
 		*red = *green = *blue = 0.0;
 }
 
-static void LoadRGBEToFloats(const char *name, float **pic, int *width, int *height, qboolean doGamma, qboolean toneMap,
+void LoadRGBEToFloats(const char *name, float **pic, int *width, int *height, qboolean doGamma, qboolean toneMap,
 							 qboolean compensate)
 {
 	int             i, j;
@@ -682,7 +682,7 @@ static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int 
 	Com_Dealloc(hdrImage);
 }
 
-
+void LoadRGBEToHalfs(const char *name, unsigned short ** halfImage, int *width, int *height);
 
 /*
 ===============
@@ -737,7 +737,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			   glConfig.framebufferBlitAvailable && glConfig.textureFloatAvailable)
 			{
 				int             width, height;
-				float          *hdrImage;
+				unsigned short *hdrImage;
 
 				for(i = 0; i < numLightmaps; i++)
 				{
@@ -745,7 +745,10 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 #if 1
 					width = height = 0;
-					LoadRGBEToFloats(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height, qtrue, qfalse, qtrue);
+					//LoadRGBEToFloats(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height, qtrue, qfalse, qtrue);
+					LoadRGBEToHalfs(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height);
+
+					//ri.Printf(PRINT_ALL, "...converted '%s/%s' to HALF format\n", mapName, lightmapFiles[i]);
 
 					// create dummy image
 					//tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
@@ -771,26 +774,26 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					image->uploadWidth = width;
 					image->uploadHeight = height;
 
-					qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F_ARB, width, height, 0, GL_RGB, GL_FLOAT, hdrImage);
+					qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F_ARB, width, height, 0, GL_RGB, GL_HALF_FLOAT_NV, hdrImage);
 
-					/*
-					   if(glConfig.generateMipmapAvailable)
-					   {
-					   qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);    // make sure its nice
-					   qglTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-					   qglTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);   // default to trilineara
-					   }
-					 */
+					if(glConfig.generateMipmapAvailable)
+					{
+						//qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);    // make sure its nice
+						qglTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+						qglTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);   // default to trilinear
+					}
 
+#if 0
 					if(glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10)
 					{
 						qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 						qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 					}
 					else
+#endif
 					{
-						qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-						qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+						qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+						qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 					}
 					qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP);
 					qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP);

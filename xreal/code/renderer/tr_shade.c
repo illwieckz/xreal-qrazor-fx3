@@ -2100,7 +2100,7 @@ static void DrawTris()
 	GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_CONST);
 	GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_CONST);
 
-	GLSL_SetUniform_ModelMatrix(&tr.genericSingleShader, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.genericSingleShader, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	if(glConfig.vboVertexSkinningAvailable)
@@ -2212,7 +2212,7 @@ static void Render_genericSingle(int stage)
 	if(pStage->tcGen_Environment)
 	{
 		// calculate the environment texcoords in object space
-		GLSL_SetUniform_ViewOrigin(&tr.genericSingleShader, backEnd.or.viewOrigin);
+		GLSL_SetUniform_ViewOrigin(&tr.genericSingleShader, backEnd.orientation.viewOrigin);
 
 		attribBits |= ATTR_NORMAL;
 	}
@@ -2248,7 +2248,7 @@ static void Render_genericSingle(int stage)
 	// u_Color
 	GLSL_SetUniform_Color(&tr.genericSingleShader, tess.svars.color);
 
-	GLSL_SetUniform_ModelMatrix(&tr.genericSingleShader, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.genericSingleShader, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	if(glConfig.vboVertexSkinningAvailable)
@@ -2303,7 +2303,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	GL_BindProgram(&tr.vertexLightingShader_DBS_entity);
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 	VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
 	//ClampColor(ambientColor);
 	VectorCopy(backEnd.currentEntity->directedLight, lightColor);
@@ -2315,7 +2315,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	GLSL_SetUniform_LightDir(&tr.vertexLightingShader_DBS_entity, lightDir);
 	GLSL_SetUniform_LightColor(&tr.vertexLightingShader_DBS_entity, lightColor);
 
-	GLSL_SetUniform_ModelMatrix(&tr.vertexLightingShader_DBS_entity, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.vertexLightingShader_DBS_entity, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.vertexLightingShader_DBS_entity, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	if(glConfig.vboVertexSkinningAvailable)
@@ -2411,7 +2411,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 	GL_VertexAttribsState(tr.vertexLightingShader_DBS_world.attribs);
 
 	// set uniforms
-	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	VectorCopy(backEnd.orientation.viewOrigin, viewOrigin);
 
 #if defined(COMPAT_Q3A)
 	// u_ColorGen
@@ -2610,11 +2610,11 @@ static void Render_deluxeMapping(int stage)
 	GL_VertexAttribsState(tr.deluxeMappingShader.attribs);
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 
 	GLSL_SetUniform_ViewOrigin(&tr.deluxeMappingShader, viewOrigin);
 
-	GLSL_SetUniform_ModelMatrix(&tr.deluxeMappingShader, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.deluxeMappingShader, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deluxeMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	GLSL_SetUniform_AlphaTest(&tr.deluxeMappingShader, pStage->stateBits);
@@ -2707,7 +2707,7 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	GL_VertexAttribsState(tr.geometricFillShader_DBS.attribs);
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 
 	if(r_precomputedLighting->integer)
 	{
@@ -2729,7 +2729,7 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	GLSL_SetUniform_ViewOrigin(&tr.geometricFillShader_DBS, viewOrigin);
 	GLSL_SetUniform_AmbientColor(&tr.geometricFillShader_DBS, ambientColor);
 
-	GLSL_SetUniform_ModelMatrix(&tr.geometricFillShader_DBS, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.geometricFillShader_DBS, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewMatrix(&tr.geometricFillShader_DBS, glState.modelViewMatrix[glState.stackIndex]);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.geometricFillShader_DBS, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
@@ -2916,7 +2916,7 @@ static void Render_shadowFill(int stage)
 	GLSL_SetUniform_LightRadius(&tr.shadowFillShader, backEnd.currentLight->sphereRadius);
 	GLSL_SetUniform_LightOrigin(&tr.shadowFillShader, lightOrigin);
 
-	GLSL_SetUniform_ModelMatrix(&tr.shadowFillShader, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.shadowFillShader, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.shadowFillShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	if(glConfig.vboVertexSkinningAvailable)
@@ -2973,7 +2973,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	}
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
 	VectorCopy(light->origin, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 
@@ -2999,7 +2999,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 		GLSL_SetUniform_ShadowBlur(&tr.forwardLightingShader_DBS_omni, r_shadowBlur->value);
 	}
 
-	GLSL_SetUniform_ModelMatrix(&tr.forwardLightingShader_DBS_omni, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.forwardLightingShader_DBS_omni, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.forwardLightingShader_DBS_omni, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	if(glConfig.vboVertexSkinningAvailable)
@@ -3108,7 +3108,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	}
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
 	VectorCopy(light->origin, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
 
@@ -3135,7 +3135,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 		GLSL_SetUniform_ShadowBlur(&tr.forwardLightingShader_DBS_proj, r_shadowBlur->value);
 	}
 
-	GLSL_SetUniform_ModelMatrix(&tr.forwardLightingShader_DBS_proj, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.forwardLightingShader_DBS_proj, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.forwardLightingShader_DBS_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	if(glConfig.vboVertexSkinningAvailable)
@@ -3230,10 +3230,10 @@ static void Render_reflection_C(int stage)
 	GL_VertexAttribsState(tr.reflectionShader_C.attribs);
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 	GLSL_SetUniform_ViewOrigin(&tr.reflectionShader_C, viewOrigin);
 
-	GLSL_SetUniform_ModelMatrix(&tr.reflectionShader_C, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.reflectionShader_C, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.reflectionShader_C, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	if(glConfig.vboVertexSkinningAvailable)
@@ -3267,10 +3267,10 @@ static void Render_reflection_CB(int stage)
 	GL_VertexAttribsState(tr.reflectionShader_CB.attribs);
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 	GLSL_SetUniform_ViewOrigin(&tr.reflectionShader_CB, viewOrigin);
 
-	GLSL_SetUniform_ModelMatrix(&tr.reflectionShader_CB, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.reflectionShader_CB, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.reflectionShader_CB, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	if(glConfig.vboVertexSkinningAvailable)
@@ -3320,14 +3320,14 @@ static void Render_refraction_C(int stage)
 	GL_VertexAttribsState(tr.refractionShader_C.attribs);
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 	GLSL_SetUniform_ViewOrigin(&tr.refractionShader_C, viewOrigin);
 	GLSL_SetUniform_RefractionIndex(&tr.refractionShader_C, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
 
-	GLSL_SetUniform_ModelMatrix(&tr.refractionShader_C, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.refractionShader_C, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.refractionShader_C, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	if(glConfig.vboVertexSkinningAvailable)
@@ -3363,7 +3363,7 @@ static void Render_dispersion_C(int stage)
 	GL_VertexAttribsState(tr.dispersionShader_C.attribs);
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 	eta = RB_EvalExpression(&pStage->etaExp, (float)1.1);
 	etaDelta = RB_EvalExpression(&pStage->etaDeltaExp, (float)-0.02);
 
@@ -3373,7 +3373,7 @@ static void Render_dispersion_C(int stage)
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0f));
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0f));
 
-	GLSL_SetUniform_ModelMatrix(&tr.dispersionShader_C, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.dispersionShader_C, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.dispersionShader_C, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	if(glConfig.vboVertexSkinningAvailable)
@@ -3407,11 +3407,11 @@ static void Render_skybox(int stage)
 	GL_VertexAttribsState(tr.skyBoxShader.attribs);
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 
 	GLSL_SetUniform_ViewOrigin(&tr.skyBoxShader, viewOrigin);
 
-	GLSL_SetUniform_ModelMatrix(&tr.skyBoxShader, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.skyBoxShader, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.skyBoxShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// bind u_ColorMap
@@ -3667,7 +3667,7 @@ static void Render_liquid(int stage)
 	GL_VertexAttribsState(tr.liquidShader.attribs);
 
 	// set uniforms
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 
 	fogDensity = RB_EvalExpression(&pStage->fogDensityExp, 0.001);
 	VectorCopy(tess.svars.color, fogColor);
@@ -3681,7 +3681,7 @@ static void Render_liquid(int stage)
 	qglUniform3fARB(tr.liquidShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
 
 	GLSL_SetUniform_UnprojectMatrix(&tr.liquidShader, backEnd.viewParms.unprojectionMatrix);
-	GLSL_SetUniform_ModelMatrix(&tr.liquidShader, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.liquidShader, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.liquidShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// capture current color buffer for u_CurrentMap
@@ -3835,7 +3835,7 @@ static void Render_volumetricFog()
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
 		// set uniforms
-		VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+		VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 
 		{
 			fogDensity = tess.surfaceShader->fogParms.density;

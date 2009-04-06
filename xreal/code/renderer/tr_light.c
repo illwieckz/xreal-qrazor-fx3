@@ -999,7 +999,7 @@ void R_SetupLightScissor(trRefLight_t * light)
 		light->noOcclusionQueries = qfalse;
 	}
 
-	if(r_noLightScissors->integer || R_CullLightPoint(light, tr.viewParms.or.origin) == CULL_IN)
+	if(r_noLightScissors->integer || R_CullLightPoint(light, tr.viewParms.orientation.origin) == CULL_IN)
 	{
 		if(glConfig.occlusionQueryAvailable)
 		{

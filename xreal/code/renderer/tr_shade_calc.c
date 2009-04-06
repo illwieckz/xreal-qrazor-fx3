@@ -691,9 +691,9 @@ GlobalVectorToLocal
 */
 static void GlobalVectorToLocal(const vec3_t in, vec3_t out)
 {
-	out[0] = DotProduct(in, backEnd.or.axis[0]);
-	out[1] = DotProduct(in, backEnd.or.axis[1]);
-	out[2] = DotProduct(in, backEnd.or.axis[2]);
+	out[0] = DotProduct(in, backEnd.orientation.axis[0]);
+	out[1] = DotProduct(in, backEnd.orientation.axis[1]);
+	out[2] = DotProduct(in, backEnd.orientation.axis[2]);
 }
 
 /*
@@ -729,13 +729,13 @@ static void AutospriteDeform(void)
 
 	if(backEnd.currentEntity != &tr.worldEntity)
 	{
-		GlobalVectorToLocal(backEnd.viewParms.or.axis[1], leftDir);
-		GlobalVectorToLocal(backEnd.viewParms.or.axis[2], upDir);
+		GlobalVectorToLocal(backEnd.viewParms.orientation.axis[1], leftDir);
+		GlobalVectorToLocal(backEnd.viewParms.orientation.axis[2], upDir);
 	}
 	else
 	{
-		VectorCopy(backEnd.viewParms.or.axis[1], leftDir);
-		VectorCopy(backEnd.viewParms.or.axis[2], upDir);
+		VectorCopy(backEnd.viewParms.orientation.axis[1], leftDir);
+		VectorCopy(backEnd.viewParms.orientation.axis[2], upDir);
 	}
 
 	for(i = 0; i < oldVerts; i += 4)
@@ -815,11 +815,11 @@ static void Autosprite2Deform(void)
 
 	if(backEnd.currentEntity != &tr.worldEntity)
 	{
-		GlobalVectorToLocal(backEnd.viewParms.or.axis[0], forward);
+		GlobalVectorToLocal(backEnd.viewParms.orientation.axis[0], forward);
 	}
 	else
 	{
-		VectorCopy(backEnd.viewParms.or.axis[0], forward);
+		VectorCopy(backEnd.viewParms.orientation.axis[0], forward);
 	}
 
 	// this is a lot of work for two triangles...

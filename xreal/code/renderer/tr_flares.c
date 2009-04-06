@@ -122,7 +122,7 @@ void RB_AddFlare(void *surface, vec3_t point, vec3_t color, vec3_t normal)
 
 	// if the point is off the screen, don't bother adding it
 	// calculate screen coordinates and depth
-	R_TransformModelToClip(point, backEnd.or.modelViewMatrix, backEnd.viewParms.projectionMatrix, eye, clip);
+	R_TransformModelToClip(point, backEnd.orientation.modelViewMatrix, backEnd.viewParms.projectionMatrix, eye, clip);
 
 	// check to see if the point is completely off screen
 	for(i = 0; i < 3; i++)
@@ -197,7 +197,7 @@ void RB_AddFlare(void *surface, vec3_t point, vec3_t color, vec3_t normal)
 	// light surface turns away from the viewer
 	if(normal)
 	{
-		VectorSubtract(backEnd.viewParms.or.origin, point, local);
+		VectorSubtract(backEnd.viewParms.orientation.origin, point, local);
 		VectorNormalize(local);
 		d1 = DotProduct(local, normal);
 		d1 *= (1.0 - distLerp);
@@ -461,7 +461,7 @@ void RB_RenderFlares(void)
 	// reset currentEntity to world so that any previously referenced entities don't have influence
 	// on the rendering of these flares (i.e. RF_ renderer flags).
 	backEnd.currentEntity = &tr.worldEntity;
-	backEnd.or = backEnd.viewParms.world;
+	backEnd.orientation = backEnd.viewParms.world;
 	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 	if(tr.world != NULL)		// thx Thilo

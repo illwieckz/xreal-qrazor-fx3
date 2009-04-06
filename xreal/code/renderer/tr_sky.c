@@ -270,7 +270,7 @@ void Tess_ClipSkyPolygons()
 	{
 		for(j = 0; j < 3; j++)
 		{
-			VectorSubtract(tess.xyz[tess.indexes[i + j]], backEnd.viewParms.or.origin, p[j]);
+			VectorSubtract(tess.xyz[tess.indexes[i + j]], backEnd.viewParms.orientation.origin, p[j]);
 		}
 
 		ClipSkyPolygon(3, p[0], 0);
@@ -467,7 +467,7 @@ static void FillCloudySkySide(const int mins[2], const int maxs[2], qboolean add
 	{
 		for(s = mins[0] + HALF_SKY_SUBDIVISIONS; s <= maxs[0] + HALF_SKY_SUBDIVISIONS; s++)
 		{
-			VectorAdd(s_skyPoints[t][s], backEnd.viewParms.or.origin, tess.xyz[tess.numVertexes]);
+			VectorAdd(s_skyPoints[t][s], backEnd.viewParms.orientation.origin, tess.xyz[tess.numVertexes]);
 			tess.xyz[tess.numVertexes][3] = 1;
 
 			tess.texCoords[tess.numVertexes][0] = s_skyTexCoords[t][s][0];
@@ -725,14 +725,14 @@ void RB_DrawSun(void)
 	}
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
-	MatrixSetupTranslation(transformMatrix, backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1],
-						   backEnd.viewParms.or.origin[2]);
+	MatrixSetupTranslation(transformMatrix, backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1],
+						   backEnd.viewParms.orientation.origin[2]);
 	MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);
 
 	GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 	GL_LoadModelViewMatrix(modelViewMatrix);
 
-	GLSL_SetUniform_ModelMatrix(&tr.genericSingleShader, backEnd.or.transformMatrix);
+	GLSL_SetUniform_ModelMatrix(&tr.genericSingleShader, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	GLSL_SetUniform_PortalClipping(&tr.genericSingleShader, backEnd.viewParms.isPortal);
@@ -916,7 +916,7 @@ void Tess_StageIteratorSky(void)
 	   }
 	   GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
-	   MatrixSetupTranslation(transformMatrix, backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
+	   MatrixSetupTranslation(transformMatrix, backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2]);
 	   MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);
 
 	   GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);

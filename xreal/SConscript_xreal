@@ -115,6 +115,7 @@ xreal_src = [
 'code/renderer/tr_flares.c',
 'code/renderer/tr_font.c',
 'code/renderer/tr_image.c',
+'code/renderer/tr_image_exr.cpp',
 'code/renderer/tr_image_dds.c',
 'code/renderer/tr_image_jpg.c',
 'code/renderer/tr_image_png.c',
@@ -272,6 +273,7 @@ if env['arch'] == 'linux-i386':
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 	xreal_env.ParseConfig('freetype-config --cflags --libs')
 	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	xreal_env.ParseConfig('pkg-config OpenEXR --cflags --libs')
 
 	if env['smp'] == 1:
 		xreal_env.Append(CCFLAGS='-DSMP')
@@ -287,6 +289,7 @@ elif env['arch'] == 'linux-x86_64':
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 	xreal_env.ParseConfig('freetype-config --cflags --libs')
 	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	xreal_env.ParseConfig('pkg-config OpenEXR --cflags --libs')
 	
 	if env['smp'] == 1:
 		xreal_env.Append(CCFLAGS='-DSMP')
@@ -301,6 +304,7 @@ elif env['arch'] == 'freebsd-i386':
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 	xreal_env.ParseConfig('freetype-config --cflags --libs')
 	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	xreal_env.ParseConfig('pkg-config OpenEXR --cflags --libs')
 
 	if env['smp'] == 1:
 		xreal_env.Append(CCFLAGS='-DSMP')
@@ -314,6 +318,7 @@ elif env['arch'] == 'win32-mingw':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
 	xreal_env.ParseConfig('pkg-config freetype2 --cflags --libs')
 	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	xreal_env.ParseConfig('pkg-config OpenEXR --cflags --libs')
 
 	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm'])
 	xreal_env.Program('xreal', [xreal_src, win_src])
@@ -323,6 +328,7 @@ elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
 	xreal_env.Append(LIBS=['m'])
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE -DMACOS_X')
+	xreal_env.ParseConfig('pkg-config OpenEXR --cflags --libs')
 	
 	# HACK: for now disable altivec because there are some compiling issues
 	if env['arch'] == 'darwin-ppc':

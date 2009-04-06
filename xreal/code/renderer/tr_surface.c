@@ -144,7 +144,7 @@ void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, const vec4_t co
 
 
 	// constant normal all the way around
-	VectorSubtract(vec3_origin, backEnd.viewParms.or.axis[0], normal);
+	VectorSubtract(vec3_origin, backEnd.viewParms.orientation.axis[0], normal);
 
 	tess.normals[ndx][0] = tess.normals[ndx + 1][0] = tess.normals[ndx + 2][0] = tess.normals[ndx + 3][0] = normal[0];
 	tess.normals[ndx][1] = tess.normals[ndx + 1][1] = tess.normals[ndx + 2][1] = tess.normals[ndx + 3][1] = normal[1];
@@ -231,7 +231,7 @@ void Tess_AddQuadStampExt2(vec4_t quadVerts[4], const vec4_t color, float s1, fl
 	}
 	else
 	{
-		VectorNegate(backEnd.viewParms.or.axis[0], plane);
+		VectorNegate(backEnd.viewParms.orientation.axis[0], plane);
 	}
 
 	tess.normals[ndx][0] = tess.normals[ndx + 1][0] = tess.normals[ndx + 2][0] = tess.normals[ndx + 3][0] = plane[0];
@@ -553,8 +553,8 @@ static void Tess_SurfaceSprite(void)
 	radius = backEnd.currentEntity->e.radius;
 	if(backEnd.currentEntity->e.rotation == 0)
 	{
-		VectorScale(backEnd.viewParms.or.axis[1], radius, left);
-		VectorScale(backEnd.viewParms.or.axis[2], radius, up);
+		VectorScale(backEnd.viewParms.orientation.axis[1], radius, left);
+		VectorScale(backEnd.viewParms.orientation.axis[2], radius, up);
 	}
 	else
 	{
@@ -565,11 +565,11 @@ static void Tess_SurfaceSprite(void)
 		s = sin(ang);
 		c = cos(ang);
 
-		VectorScale(backEnd.viewParms.or.axis[1], c * radius, left);
-		VectorMA(left, -s * radius, backEnd.viewParms.or.axis[2], left);
+		VectorScale(backEnd.viewParms.orientation.axis[1], c * radius, left);
+		VectorMA(left, -s * radius, backEnd.viewParms.orientation.axis[2], left);
 
-		VectorScale(backEnd.viewParms.or.axis[2], c * radius, up);
-		VectorMA(up, s * radius, backEnd.viewParms.or.axis[1], up);
+		VectorScale(backEnd.viewParms.orientation.axis[2], c * radius, up);
+		VectorMA(up, s * radius, backEnd.viewParms.orientation.axis[1], up);
 	}
 	if(backEnd.viewParms.isMirror)
 	{
@@ -1648,9 +1648,9 @@ static void Tess_SurfaceRailCore(void)
 	len = VectorNormalize(vec);
 
 	// compute side vector
-	VectorSubtract(start, backEnd.viewParms.or.origin, v1);
+	VectorSubtract(start, backEnd.viewParms.orientation.origin, v1);
 	VectorNormalize(v1);
-	VectorSubtract(end, backEnd.viewParms.or.origin, v2);
+	VectorSubtract(end, backEnd.viewParms.orientation.origin, v2);
 	VectorNormalize(v2);
 	CrossProduct(v1, v2, right);
 	VectorNormalize(right);
@@ -1685,9 +1685,9 @@ static void Tess_SurfaceLightningBolt(void)
 	len = VectorNormalize(vec);
 
 	// compute side vector
-	VectorSubtract(start, backEnd.viewParms.or.origin, v1);
+	VectorSubtract(start, backEnd.viewParms.orientation.origin, v1);
 	VectorNormalize(v1);
-	VectorSubtract(end, backEnd.viewParms.or.origin, v2);
+	VectorSubtract(end, backEnd.viewParms.orientation.origin, v2);
 	VectorNormalize(v2);
 	CrossProduct(v1, v2, right);
 	VectorNormalize(right);
@@ -2387,7 +2387,7 @@ static void Tess_SurfaceAxis(void)
 #if 0
 	Tess_CheckOverflow(9, 9);
 
-	MatrixToVectorsFRU(backEnd.or.transformMatrix, forward, right, up);
+	MatrixToVectorsFRU(backEnd.orientation.transformMatrix, forward, right, up);
 
 	VectorClear(verts[0]);
 	VectorScale(forward, 1, verts[1]);
@@ -2525,7 +2525,7 @@ static void Tess_SurfaceFlare(srfFlare_t * surf)
 	}
 
 	VectorMA(surf->origin, 2.0, surf->normal, origin);
-	VectorSubtract(origin, backEnd.viewParms.or.origin, dir);
+	VectorSubtract(origin, backEnd.viewParms.orientation.origin, dir);
 	VectorNormalize(dir);
 	d = -DotProduct(dir, surf->normal);
 	VectorMA(origin, r_ignore->value, dir, origin);

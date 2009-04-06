@@ -166,7 +166,7 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 	}
 
 
-	d = DotProduct(tr.or.viewOrigin, sface->plane.normal);
+	d = DotProduct(tr.orientation.viewOrigin, sface->plane.normal);
 
 	// don't cull exactly on the plane, because there are levels of rounding
 	// through the BSP, ICD, and hardware that may cause pixel gaps if an
@@ -1225,7 +1225,7 @@ static void R_SetFarClip(void)
 			v[2] = tr.viewParms.visBounds[1][2];
 		}
 
-		VectorSubtract(v, tr.viewParms.or.origin, vecTo);
+		VectorSubtract(v, tr.viewParms.orientation.origin, vecTo);
 
 		distance = vecTo[0] * vecTo[0] + vecTo[1] * vecTo[1] + vecTo[2] * vecTo[2];
 

@@ -1730,7 +1730,7 @@ typedef struct skin_s
 
 typedef struct
 {
-	orientationr_t  or;
+	orientationr_t  orientation;
 	orientationr_t  world;
 
 	vec3_t          pvsOrigin;	// may be different than or.origin for portals
@@ -2598,7 +2598,7 @@ typedef struct
 	int             smpFrame;
 	trRefdef_t      refdef;
 	viewParms_t     viewParms;
-	orientationr_t  or;
+	orientationr_t  orientation;
 	backEndCounters_t pc;
 	qboolean        isHyperspace;
 	trRefEntity_t  *currentEntity;
@@ -2813,7 +2813,7 @@ typedef struct
 	float           identityLight;	// 1.0 / ( 1 << overbrightBits )
 	int             overbrightBits;	// r_overbrightBits->integer, but set to 0 if no hw gamma
 
-	orientationr_t  or;			// for current entity
+	orientationr_t  orientation;			// for current entity
 
 	trRefdef_t      refdef;
 
@@ -3140,9 +3140,9 @@ int             R_CullPointAndRadius(vec3_t origin, float radius);
 
 void            R_SetupEntityWorldBounds(trRefEntity_t * ent);
 
-void            R_RotateEntityForViewParms(const trRefEntity_t * ent, const viewParms_t * viewParms, orientationr_t * or);
-void            R_RotateEntityForLight(const trRefEntity_t * ent, const trRefLight_t * light, orientationr_t * or);
-void            R_RotateLightForViewParms(const trRefLight_t * ent, const viewParms_t * viewParms, orientationr_t * or);
+void            R_RotateEntityForViewParms(const trRefEntity_t * ent, const viewParms_t * viewParms, orientationr_t * orien);
+void            R_RotateEntityForLight(const trRefEntity_t * ent, const trRefLight_t * light, orientationr_t * orien);
+void            R_RotateLightForViewParms(const trRefLight_t * ent, const viewParms_t * viewParms, orientationr_t * orien);
 
 void            R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float *projectionMatrix);
 
