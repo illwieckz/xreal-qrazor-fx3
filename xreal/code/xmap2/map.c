@@ -1258,7 +1258,7 @@ void AdjustBrushesForOrigin(entity_t * ent, vec3_t origin)
 AdjustPatchesForOrigin()
 */
 
-void AdjustPatchesForOrigin(entity_t * ent)
+void AdjustPatchesForOrigin(entity_t * ent, vec3_t origin)
 {
 	int             i;
 	parseMesh_t    *p;
@@ -1267,7 +1267,7 @@ void AdjustPatchesForOrigin(entity_t * ent)
 	for(p = ent->patches; p != NULL; p = p->next)
 	{
 		for(i = 0; i < (p->mesh.width * p->mesh.height); i++)
-			VectorSubtract(p->mesh.verts[i].xyz, ent->origin, p->mesh.verts[i].xyz);
+			VectorSubtract(p->mesh.verts[i].xyz, origin, p->mesh.verts[i].xyz);
 	}
 }
 
@@ -1851,12 +1851,12 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 		if((name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model)))
 		{
 			AdjustBrushesForOrigin(mapEnt, vec3_origin);
-			AdjustPatchesForOrigin(mapEnt);
+			AdjustPatchesForOrigin(mapEnt, mapEnt->origin);
 		}
 		else
 		{
 			AdjustBrushesForOrigin(mapEnt, mapEnt->origin);
-			AdjustPatchesForOrigin(mapEnt);
+			AdjustPatchesForOrigin(mapEnt, mapEnt->origin);
 		}
 	}
 
@@ -1881,6 +1881,7 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 		// HACK: this is needed for Quake4 maps
 		VectorNegate(mapEnt->origin, originNeg);
 		AdjustBrushesForOrigin(mapEnt, originNeg);
+		AdjustPatchesForOrigin(mapEnt, originNeg);
 
 		MoveBrushesToWorld(mapEnt);
 		MovePatchesToWorld(mapEnt);
