@@ -384,6 +384,11 @@ int trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int en
 	return syscall(CG_R_LERPTAG, tag, mod, startFrame, endFrame, PASSFLOAT(frac), tagName);
 }
 
+int trap_R_CheckSkeleton(refSkeleton_t * skel, qhandle_t hModel, qhandle_t hAnim)
+{
+	return syscall(CG_R_CHECKSKELETON, skel, hModel, hAnim);
+}
+
 int trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean clearOrigin)
 {
 	return syscall(CG_R_BUILDSKELETON, skel, anim, startFrame, endFrame, PASSFLOAT(frac), clearOrigin);

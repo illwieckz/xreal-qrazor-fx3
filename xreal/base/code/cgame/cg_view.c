@@ -134,10 +134,18 @@ void CG_TestAnimation_f(void)
 
 	Q_strncpyz(cg.testAnimationName, CG_Argv(1), MAX_QPATH);
 	cg.testAnimation = trap_R_RegisterAnimation(cg.testAnimationName);
+	//CG_RegisterAnimation
 
 	if(!cg.testAnimation)
 	{
 		CG_Printf("Can't register animation\n");
+		return;
+	}
+
+	// check the bones if they match
+	if(!trap_R_CheckSkeleton(&cg.testModelEntity.skeleton, cg.testModelEntity.hModel, cg.testAnimation))
+	{
+		CG_Printf("Can't verify animation\n");
 		return;
 	}
 

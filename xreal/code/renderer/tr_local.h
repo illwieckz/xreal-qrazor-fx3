@@ -3608,6 +3608,7 @@ void            R_AddMDSSurfaces(trRefEntity_t * ent);
 void            R_AddMD5Surfaces(trRefEntity_t * ent);
 void            R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light);
 
+int				RE_CheckSkeleton(refSkeleton_t * skel, qhandle_t hModel, qhandle_t hAnim);
 int             RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
 								 qboolean clearOrigin);
 int             RE_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac);

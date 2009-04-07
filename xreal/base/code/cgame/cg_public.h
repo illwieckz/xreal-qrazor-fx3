@@ -72,7 +72,7 @@ functions imported from the main executable
 ==================================================================
 */
 
-#define	CGAME_IMPORT_API_VERSION	9
+#define	CGAME_IMPORT_API_VERSION	10
 
 typedef enum
 {
@@ -171,7 +171,7 @@ typedef enum
 	CG_R_REGISTERANIMATION,
 	CG_R_REGISTERSHADERLIGHTATTENUATION,
 	CG_R_ADDREFLIGHTSTOSCENE,
-	CG_R_RESETSKELETON,
+	CG_R_CHECKSKELETON,
 	CG_R_BUILDSKELETON,
 	CG_R_BLENDSKELETON,
 	CG_R_BONEINDEX,

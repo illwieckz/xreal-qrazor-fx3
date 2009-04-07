@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -558,7 +558,7 @@ static qboolean R_LoadPSA(skelAnimation_t * skelAnim, void *buffer, int bufferSi
 		}
 		else
 		{
-			// allocate a new model_t
+			// allocate a new skelAnimation_t
 			if((extraAnim = R_AllocAnimation()) == NULL)
 			{
 				ri.Printf(PRINT_WARNING, "R_LoadPSA: R_AllocAnimation() failed for '%s'\n", name);
@@ -739,7 +739,10 @@ qhandle_t RE_RegisterAnimation(const char *name)
 
 		if(anim->type == AT_PSA && anim->psa)
 		{
-			if(!Q_stricmp(anim->psa->info.name, name))
+			const char *animName;
+
+			animName = strstr(name, "::");
+			if(animName && *(animName + 2) && !Q_stricmp(anim->psa->info.name, animName))
 			{
 				return hAnim;
 			}
@@ -1196,6 +1199,99 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 			}
 		}
 	}
+}
+
+
+/*
+==============
+RE_CheckSkeleton
+
+Tr3B: check if the skeleton bones are the same in the model and animation
+and copy the parentIndex entries into the refSkeleton_t
+==============
+*/
+int RE_CheckSkeleton(refSkeleton_t * skel, qhandle_t hModel, qhandle_t hAnim)
+{
+	int             i;
+	model_t         *model;
+	md5Model_t      *md5Model;
+	skelAnimation_t *skelAnim;
+
+	model = R_GetModelByHandle(hModel);
+	skelAnim = R_GetAnimationByHandle(hAnim);
+
+	if(model->type != MOD_MD5 || !model->md5)
+	{
+		ri.Printf(PRINT_WARNING, "RE_CheckSkeleton: '%s' is not a skeletal model\n", model->name);
+		return qfalse;
+	}
+
+	md5Model = model->md5;
+	if(md5Model->numBones < 1)
+	{
+		ri.Printf(PRINT_WARNING, "RE_CheckSkeleton: '%s' has no bones\n", model->name);
+		return qfalse;
+	}
+	if(md5Model->numBones > MAX_BONES)
+	{
+		ri.Printf(PRINT_WARNING, "RE_CheckSkeleton: '%s' has more than %i bones (%i)\n", model->name, MAX_BONES, md5Model->numBones);
+		return qfalse;
+	}
+
+	if(skelAnim->type == AT_MD5 && skelAnim->md5)
+	{
+		md5Animation_t	*md5Animation;
+		md5Bone_t		*md5Bone;
+		md5Channel_t    *md5Channel;
+
+		md5Animation = skelAnim->md5;
+
+		if(md5Model->numBones != md5Animation->numChannels)
+		{
+			ri.Printf(PRINT_WARNING, "RE_CheckSkeleton: model '%s' has different number of bones than animation '%s': %d != %d\n", model->name, skelAnim->name, md5Model->numBones, md5Animation->numChannels);
+			return qfalse;
+		}
+
+		// check bone names
+		for(i = 0, md5Bone = md5Model->bones, md5Channel = md5Animation->channels; i < md5Model->numBones; i++, md5Bone++, md5Channel++)
+		{
+			if(Q_stricmp(md5Bone->name, md5Channel->name))
+				return qfalse;
+
+			skel->bones[i].parentIndex = md5Bone->parentIndex;
+		}
+
+		return qtrue;
+	}
+	else if(skelAnim->type == AT_PSA && skelAnim->psa)
+	{
+		psaAnimation_t *psaAnimation;
+		axReferenceBone_t *refBone;
+		md5Bone_t		*md5Bone;
+
+		psaAnimation = skelAnim->psa;
+
+		if(md5Model->numBones != psaAnimation->info.numBones)
+		{
+			ri.Printf(PRINT_WARNING, "RE_CheckSkeleton: model '%s' has different number of bones than animation '%s': %d != %d\n", model->name, skelAnim->name, md5Model->numBones, psaAnimation->info.numBones);
+			return qfalse;
+		}
+
+		// check bone names
+		for(i = 0, md5Bone = md5Model->bones, refBone = psaAnimation->bones; i < md5Model->numBones; i++, md5Bone++, refBone++)
+		{
+			if(Q_stricmp(md5Bone->name, refBone->name))
+				return qfalse;
+
+			skel->bones[i].parentIndex = md5Bone->parentIndex;
+		}
+
+		return qtrue;
+	}
+
+	ri.Printf(PRINT_WARNING, "RE_BuildSkeleton: bad animation '%s' with handle %i\n", skelAnim->name, hAnim);
+
+	return qfalse;
 }
 
 /*

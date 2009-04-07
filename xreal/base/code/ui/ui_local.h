@@ -695,6 +695,7 @@ qhandle_t       trap_R_RegisterModel(const char *name, qboolean forceStatic);
 qhandle_t       trap_R_RegisterAnimation(const char *name);
 int             trap_R_AnimNumFrames(qhandle_t hAnim);
 int             trap_R_AnimFrameRate(qhandle_t hAnim);
+int				trap_R_CheckSkeleton(refSkeleton_t * skel, qhandle_t hModel, qhandle_t hAnim);
 int             trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
 									 qboolean clearOrigin);
 qhandle_t       trap_R_RegisterSkin(const char *name);

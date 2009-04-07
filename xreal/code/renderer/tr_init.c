@@ -1748,6 +1748,8 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 
 	re.MarkFragments = R_MarkFragments;
 	re.LerpTag = RE_LerpTag;
+
+	re.CheckSkeleton = RE_CheckSkeleton;
 	re.BuildSkeleton = RE_BuildSkeleton;
 	re.BlendSkeleton = RE_BlendSkeleton;
 	re.BoneIndex = RE_BoneIndex;

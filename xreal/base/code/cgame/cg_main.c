@@ -606,7 +606,7 @@ static void CG_RegisterItemSounds(int itemNum)
 }
 
 
-static qboolean CG_RegisterAnimation(animation_t * anim, const char *filename,
+qboolean CG_RegisterAnimation(animation_t * anim, const char *filename,
 										   qboolean loop, qboolean reversed, qboolean clearOrigin)
 {
 	int             frameRate;

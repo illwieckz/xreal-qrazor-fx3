@@ -1582,6 +1582,13 @@ void            CG_BuildSpectatorString();
 
 
 //
+// cg_animation.c
+//
+qboolean		CG_RegisterAnimation(animation_t * anim, const char *filename,
+										   qboolean loop, qboolean reversed, qboolean clearOrigin);
+
+
+//
 // cg_view.c
 //
 void            CG_TestModel_f(void);
@@ -2117,6 +2124,7 @@ void            trap_R_DrawStretchPic(float x, float y, float w, float h,
 void            trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs);
 int             trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame,
 							   float frac, const char *tagName);
+int				trap_R_CheckSkeleton(refSkeleton_t * skel, qhandle_t hModel, qhandle_t hAnim);
 int             trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
 									 qboolean clearOrigin);
 int             trap_R_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
