@@ -172,6 +172,8 @@ typedef struct
 	vec3_t          center;
 	vec3_t          color;		// range from 0.0 to 1.0, should be color normalized
 
+	float			scale;		// r_lightScale if not set
+
 	// omni-directional light specific
 	vec3_t          radius;
 

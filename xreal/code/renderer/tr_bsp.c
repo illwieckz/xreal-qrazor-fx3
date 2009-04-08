@@ -136,7 +136,7 @@ static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
 R_ColorShiftLightingFloats
 ===============
 */
-static void R_ColorShiftLightingFloats(float in[4], float out[4])
+static void R_ColorShiftLightingFloats(const vec4_t in, vec4_t out)
 {
 	int             shift, r, g, b;
 
@@ -173,6 +173,9 @@ R_HDRTonemapLightingColors
 */
 static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean applyGamma)
 {
+#if 0 //!defined(USE_HDR_LIGHTMAPS)
+	R_ColorShiftLightingFloats(in, out);
+#else
 	int             i;
 	float           scaledLuminance;
 	float           finalLuminance;
@@ -256,6 +259,7 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 
 		out[3] = Q_min(1.0f, sample[3]);
 	}
+#endif
 #endif
 }
 
@@ -708,6 +712,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 		Q_strncpyz(mapName, bspName, sizeof(mapName));
 		Com_StripExtension(mapName, mapName, sizeof(mapName));
 
+#if 1
 		if(tr.worldHDR_RGBE)
 		{
 			// we are about to upload textures
@@ -862,6 +867,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			}
 		}
 		else
+#endif
 		{
 			lightmapFiles = ri.FS_ListFiles(mapName, ".png", &numLightmaps);
 
@@ -5369,6 +5375,8 @@ void R_LoadEntities(lump_t * l)
 		light->l.color[1] = 1;
 		light->l.color[2] = 1;
 
+		light->l.scale = r_lightScale->value;
+
 		light->l.radius[0] = 300;
 		light->l.radius[1] = 300;
 		light->l.radius[2] = 300;
@@ -5500,6 +5508,19 @@ void R_LoadEntities(lump_t * l)
 				light->l.radius[0] = value2;
 				light->l.radius[1] = value2;
 				light->l.radius[2] = value2;
+			}
+			// check for scale
+			else if(!Q_stricmp(keyname, "light_scale"))
+			{
+				light->l.scale = atof(value);
+
+				if(!r_hdrRendering->integer || !glConfig.textureFloatAvailable || !glConfig.framebufferObjectAvailable || !glConfig.framebufferBlitAvailable)
+				{
+					if(light->l.scale >= r_lightScale->value)
+					{
+						light->l.scale = r_lightScale->value;
+					}
+				}
 			}
 			// check for light shader
 			else if(!Q_stricmp(keyname, "texture"))

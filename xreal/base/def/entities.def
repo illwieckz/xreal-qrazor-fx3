@@ -81,9 +81,11 @@ entityDef light
 	"editor_var shaderParm6"		"shaderParm 6"
 	"editor_var shaderParm7"		"shaderParm 7"
 	"editor_var light_radius"		"Boxed Light Radius: overrides the default 300 300 300 box radius."
-	"editor_float light_distance"	"Spotlight Radius: overrides the default 300 unit radius of a spotlight."
+	"editor_float light_near"		"Spotlight Near Cip Plane: overrides the default of 1."
+	"editor_float light_far"		"Spotlight Radius: overrides the default 300 unit radius of a spotlight."
 	"editor_float light_fovX"		"Spotlight FOV width angle: overrides the default 90 degrees."
 	"editor_float light_fovY"		"Spotlight FOV height angle: overrides the default 90 degrees."
+	"editor_float light_scale"		"Intensity Multiplier, overrides r_lightScale which has the default 3."
 	"editor_bool noshadows"			"No Shadows, Set this key to 1 to disable shadow casting."
 	"editor_bool noradiosity"		"No Radiosity, Set this key to 1 to disable XMap2 radiosity creation."
 
@@ -2657,6 +2659,21 @@ entityDef target_fx
 }
 
 
+
+entityDef target_level_end {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"When triggered, displays end level gui and transfers the player to the next map.  Orient the entity to specify the view during the stats display."
+	"editor_var message"	"the map name to transfer to (for example: johnc/test_box, etc)."
+
+	"spawnclass"			"idTarget_EndLevel"
+	"message"				"0"
+}
+
+
+
 /*
 ============================================================================================================
 
@@ -2768,6 +2785,8 @@ entityDef trigger_teleport
     "notteam" 					"0"
     "notsingle"					"0"
 }
+
+
 
 /*
 ____________________________________________________________________________________________________________

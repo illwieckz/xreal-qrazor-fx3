@@ -335,7 +335,7 @@ void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform,
 				if(strstr(shaderName, "base/"))
 				{
 					si = ShaderInfoForShader(strstr(shaderName, "base/") + strlen("base/"));
-					Sys_FPrintf(SYS_WRN, "WARNING: Applied .ASE material loader HACK to '%s' : '%s'\n", picoShaderName, si->shader);
+					Sys_FPrintf(SYS_WRN, "WARNING: Applied .ASE material loader HACK to '%s' -> '%s'\n", picoShaderName, si->shader);
 				}
 
 			}

@@ -2453,7 +2453,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 		case CGEN_CUSTOM_RGBs:
 			GLSL_SetUniform_ColorGen(&tr.vertexLightingShader_DBS_world, CGEN_CONST);
 			break;
-		
+
 		case CGEN_ONE_MINUS_VERTEX:
 			GLSL_SetUniform_ColorGen(&tr.vertexLightingShader_DBS_world, CGEN_ONE_MINUS_VERTEX);
 			break;
@@ -2989,7 +2989,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	GLSL_SetUniform_LightOrigin(&tr.forwardLightingShader_DBS_omni, lightOrigin);
 	GLSL_SetUniform_LightColor(&tr.forwardLightingShader_DBS_omni, lightColor);
 	GLSL_SetUniform_LightRadius(&tr.forwardLightingShader_DBS_omni, light->sphereRadius);
-	GLSL_SetUniform_LightScale(&tr.forwardLightingShader_DBS_omni, r_lightScale->value);
+	GLSL_SetUniform_LightScale(&tr.forwardLightingShader_DBS_omni, light->l.scale);
 	GLSL_SetUniform_LightAttenuationMatrix(&tr.forwardLightingShader_DBS_omni, light->attenuationMatrix2);
 
 	GLSL_SetUniform_ShadowCompare(&tr.forwardLightingShader_DBS_omni, shadowCompare);
@@ -3124,7 +3124,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	GLSL_SetUniform_LightOrigin(&tr.forwardLightingShader_DBS_proj, lightOrigin);
 	GLSL_SetUniform_LightColor(&tr.forwardLightingShader_DBS_proj, lightColor);
 	GLSL_SetUniform_LightRadius(&tr.forwardLightingShader_DBS_proj, light->sphereRadius);
-	GLSL_SetUniform_LightScale(&tr.forwardLightingShader_DBS_proj, r_lightScale->value);
+	GLSL_SetUniform_LightScale(&tr.forwardLightingShader_DBS_proj, light->l.scale);
 	GLSL_SetUniform_LightAttenuationMatrix(&tr.forwardLightingShader_DBS_proj, light->attenuationMatrix2);
 
 	GLSL_SetUniform_ShadowCompare(&tr.forwardLightingShader_DBS_proj, shadowCompare);

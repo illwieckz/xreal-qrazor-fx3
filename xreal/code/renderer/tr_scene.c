@@ -234,6 +234,19 @@ void RE_AddRefLightToScene(const refLight_t * l)
 	light->isStatic = qfalse;
 	light->additive = qtrue;
 
+	if(light->l.scale <= 0)
+	{
+		light->l.scale = r_lightScale->value;
+	}
+
+	if(!r_hdrRendering->integer || !glConfig.textureFloatAvailable || !glConfig.framebufferObjectAvailable || !glConfig.framebufferBlitAvailable)
+	{
+		if(light->l.scale >= r_lightScale->value)
+		{
+			light->l.scale = r_lightScale->value;
+		}
+	}
+
 	if(!r_dynamicLightsCastShadows->integer && !light->l.inverseShadows)
 	{
 		light->l.noShadows = qtrue;
