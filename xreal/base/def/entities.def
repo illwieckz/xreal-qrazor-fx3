@@ -93,8 +93,11 @@ entityDef light
 	
 	"light_radius"					"300 300 300"
 	"light_distance"				"300"
+	"light_near"					"1"
+	"light_far"						"300"
 	"light_fovX"					"90"
 	"light_fovY"					"90"
+	"light_scale"					"3"
 	"noshadows"						"0"
 	"noradiosity"					"0"
 }
