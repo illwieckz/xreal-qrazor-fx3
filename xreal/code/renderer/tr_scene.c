@@ -349,6 +349,11 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 
 	light->isStatic = qfalse;
 	light->additive = additive;
+
+	if(light->l.scale <= 0)
+	{
+		light->l.scale = r_lightScale->value;
+	}
 }
 
 /*
