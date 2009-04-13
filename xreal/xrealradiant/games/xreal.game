@@ -42,6 +42,12 @@
 				match="worldspawn" 
 				action="hide" />
 		</filter>
+		<filter name="Models">
+			<filterCriterion 
+				type="entityclass" 
+				match="func_static" 
+				action="hide" />
+		</filter>
 		<filter name="Caulk">
 			<filterCriterion 
 				type="texture" 
@@ -66,9 +72,11 @@
 			<filterCriterion type="entityclass" match=".*" action="hide" />
 			<filterCriterion type="entityclass" match="worldspawn" action="show" />
 		</filter>
-		<filter name="Visportals">
+		<filter name="Areaportals (Q3A style)">
+			<filterCriterion type="texture" match="textures/common/areaportal" action="hide" />
+		</filter>
+		<filter name="Visportals (Doom 3 style)">
 			<filterCriterion type="texture" match="textures/editor/visportal" action="hide" />
-			<filterCriterion type="texture" match="textures/common/nodraw" action="hide" />
 		</filter>
 		<filter name="Decals">
 			<filterCriterion type="texture" match="textures(.*)decals(.*)" action="hide" />
