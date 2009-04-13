@@ -505,6 +505,7 @@ void Light::setLightChangedCallback(const Callback& callback) {
 // Used to test the light for selection on mouse click.
 const AABB& Light::aabb() const {
 	if (isProjected()) {
+#if 0
 		float           xMin, xMax, yMin, yMax;
 		float           zNear, zFar;
 
@@ -520,6 +521,27 @@ const AABB& Light::aabb() const {
 		// start with an empty AABB and include all the projection vertices
 		Vector3 extends = Vector3(-zNear, xMin * zFar, yMin * zFar) - Vector3(zFar, xMax * zFar, yMax * zFar);
 		m_doom3AABB = AABB(m_aabb_light.origin, extends);
+#else
+		const Matrix4& proj = projection();
+
+		Matrix4 unproject(matrix4_full_inverse(proj));
+		Vector3 points[8];
+		aabb_corners(AABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(0.5f, 0.5f, 0.5f)), points);
+		points[0] = matrix4_transformed_vector4(unproject, Vector4(points[0], 1)).getProjected();
+		points[1] = matrix4_transformed_vector4(unproject, Vector4(points[1], 1)).getProjected();
+		points[2] = matrix4_transformed_vector4(unproject, Vector4(points[2], 1)).getProjected();
+		points[3] = matrix4_transformed_vector4(unproject, Vector4(points[3], 1)).getProjected();
+		points[4] = matrix4_transformed_vector4(unproject, Vector4(points[4], 1)).getProjected();
+		points[5] = matrix4_transformed_vector4(unproject, Vector4(points[5], 1)).getProjected();
+		points[6] = matrix4_transformed_vector4(unproject, Vector4(points[6], 1)).getProjected();
+		points[7] = matrix4_transformed_vector4(unproject, Vector4(points[7], 1)).getProjected();
+
+		m_doom3AABB = AABB(m_aabb_light.origin, Vector3());
+		for(int i = 0; i < 8; i++) {
+			points[i] += m_aabb_light.origin;
+			m_doom3AABB.includePoint(points[i]);
+		}
+#endif
 	}
 	else {
 		m_doom3AABB = AABB(m_aabb_light.origin, m_doom3Radius.m_radiusTransformed);
