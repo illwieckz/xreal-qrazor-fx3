@@ -248,6 +248,9 @@ xreal_env.Append(CCFLAGS='-DFLOATING_POINT')
 xreal_env.Append(CCFLAGS='-DUSE_ALLOCA')
 xreal_env.Append(CCFLAGS='-Icode/speex/include')
 
+if env['optimize'] != '0':
+	env.Append(CCFLAGS = '-fno-strict-aliasing -funroll-loops')
+
 if env['compatq3a'] == 1:
 	xreal_env.Append(CCFLAGS='-DCOMPAT_Q3A')
 

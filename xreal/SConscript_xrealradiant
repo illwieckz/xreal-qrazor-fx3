@@ -25,21 +25,31 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/brush/FacePlane.cpp',
 'code/xrealradiant/radiant/brush/BrushTokenImporter.cpp',
 'code/xrealradiant/radiant/camera/Camera.cpp',
+'code/xrealradiant/radiant/camera/FloatingCamWnd.cpp',
 'code/xrealradiant/radiant/camera/GlobalCamera.cpp',
 'code/xrealradiant/radiant/camera/CameraSettings.cpp',
 'code/xrealradiant/radiant/camera/CamWnd.cpp',
 'code/xrealradiant/radiant/namespace/Namespace.cpp',
 'code/xrealradiant/radiant/namespace/NamespaceFactory.cpp',
-'code/xrealradiant/radiant/render/backend/OpenGLStateMap.cpp',
+'code/xrealradiant/radiant/render/backend/glprogram/ARBBumpProgram.cpp',
 'code/xrealradiant/radiant/render/backend/OpenGLShader.cpp',
 'code/xrealradiant/radiant/render/backend/GLProgramFactory.cpp',
 'code/xrealradiant/radiant/render/backend/OpenGLShaderPass.cpp',
+'code/xrealradiant/radiant/render/OpenGLRenderSystem.cpp',
 'code/xrealradiant/radiant/render/OpenGLModule.cpp',
-'code/xrealradiant/radiant/render/OpenGLShaderCache.cpp',
 'code/xrealradiant/radiant/ui/entitychooser/EntityClassChooser.cpp',
 'code/xrealradiant/radiant/ui/entitychooser/EntityClassTreePopulator.cpp',
+'code/xrealradiant/radiant/ui/filterdialog/FilterDialog.cpp',
+'code/xrealradiant/radiant/ui/filterdialog/FilterEditor.cpp',
 'code/xrealradiant/radiant/ui/texturebrowser/TextureBrowser.cpp',
 'code/xrealradiant/radiant/ui/findshader/FindShader.cpp',
+'code/xrealradiant/radiant/ui/mainframe/EmbeddedLayout.cpp',
+'code/xrealradiant/radiant/ui/mainframe/FloatingLayout.cpp',
+'code/xrealradiant/radiant/ui/mainframe/MainFrame.cpp',
+'code/xrealradiant/radiant/ui/mainframe/MainFrameLayoutManager.cpp',
+'code/xrealradiant/radiant/ui/mainframe/RegularLayout.cpp',
+'code/xrealradiant/radiant/ui/mainframe/ScreenUpdateBlocker.cpp',
+'code/xrealradiant/radiant/ui/mainframe/SplitPaneLayout.cpp',
 'code/xrealradiant/radiant/ui/mapinfo/MapInfoDialog.cpp',
 'code/xrealradiant/radiant/ui/mapinfo/EntityInfoTab.cpp',
 'code/xrealradiant/radiant/ui/mapinfo/ShaderInfoTab.cpp',
@@ -74,6 +84,8 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/ui/einspector/ClassnamePropertyEditor.cpp',
 'code/xrealradiant/radiant/ui/einspector/ModelPropertyEditor.cpp',
 'code/xrealradiant/radiant/ui/einspector/SoundChooser.cpp',
+'code/xrealradiant/radiant/ui/common/CommandEntry.cpp',
+'code/xrealradiant/radiant/ui/common/MapPreview.cpp',
 'code/xrealradiant/radiant/ui/common/ModelPreview.cpp',
 'code/xrealradiant/radiant/ui/common/TexturePreviewCombo.cpp',
 'code/xrealradiant/radiant/ui/common/ShaderSelector.cpp',
@@ -114,7 +126,6 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/modulesystem/ModuleRegistry.cpp',
 'code/xrealradiant/radiant/brushexport/BrushExportOBJ.cpp',
 'code/xrealradiant/radiant/gtkdlgs.cpp',
-'code/xrealradiant/radiant/map.cpp',
 'code/xrealradiant/radiant/select.cpp',
 'code/xrealradiant/radiant/selection/SelectedNodeList.cpp',
 'code/xrealradiant/radiant/selection/shaderclipboard/ShaderClipboard.cpp',
@@ -160,11 +171,13 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/map/Map.cpp',
 'code/xrealradiant/radiant/map/AutoSaver.cpp',
 'code/xrealradiant/radiant/map/MapResourceManager.cpp',
+'code/xrealradiant/radiant/map/MapFileChooserPreview.cpp',
+'code/xrealradiant/radiant/map/StartupMapLoader.cpp',
 'code/xrealradiant/radiant/entity.cpp',
 'code/xrealradiant/radiant/clipper/ClipPoint.cpp',
 'code/xrealradiant/radiant/clipper/Clipper.cpp',
 'code/xrealradiant/radiant/timer.cpp',
-'code/xrealradiant/radiant/mainframe.cpp',
+'code/xrealradiant/radiant/mainframe_old.cpp',
 'code/xrealradiant/radiant/log/Console.cpp',
 'code/xrealradiant/radiant/log/LogStream.cpp',
 'code/xrealradiant/radiant/log/LogWriter.cpp',
@@ -209,7 +222,8 @@ gtkutil_src = [
 'code/xrealradiant/libs/gtkutil/window.cpp',
 'code/xrealradiant/libs/gtkutil/clipboard.cpp',
 'code/xrealradiant/libs/gtkutil/filechooser.cpp',
-'code/xrealradiant/libs/gtkutil/pointer.cpp'
+'code/xrealradiant/libs/gtkutil/pointer.cpp',
+'code/xrealradiant/libs/gtkutil/SerialisableWidgets.cpp'
 ]
 
 math_src = [
@@ -233,6 +247,10 @@ archivezip_src = [
 'code/xrealradiant/plugins/archivezip/zlibstream.cpp'
 ]
 
+commandsystem_src = [
+'code/xrealradiant/plugins/commandsystem/CommandSystem.cpp'
+]
+
 eclassmgr_src = [
 'code/xrealradiant/plugins/eclassmgr/Doom3EntityClass.cpp',
 'code/xrealradiant/plugins/eclassmgr/EClassManager.cpp',
@@ -251,16 +269,15 @@ entity_src = [
 'code/xrealradiant/plugins/entity/ModelKey.cpp',
 'code/xrealradiant/plugins/entity/rotation.cpp',
 'code/xrealradiant/plugins/entity/light/Light.cpp',
-'code/xrealradiant/plugins/entity/light/LightSettings.cpp',
 'code/xrealradiant/plugins/entity/light/Renderables.cpp',
 'code/xrealradiant/plugins/entity/light/LightNode.cpp',
 'code/xrealradiant/plugins/entity/eclassmodel/EclassModel.cpp',
 'code/xrealradiant/plugins/entity/eclassmodel/EclassModelNode.cpp',
 'code/xrealradiant/plugins/entity/EntityCreator.cpp',
+'code/xrealradiant/plugins/entity/EntitySettings.cpp',
 'code/xrealradiant/plugins/entity/namedentity.cpp',
 'code/xrealradiant/plugins/entity/speaker/Speaker.cpp',
 'code/xrealradiant/plugins/entity/speaker/SpeakerRenderables.cpp',
-'code/xrealradiant/plugins/entity/speaker/SpeakerSettings.cpp',
 'code/xrealradiant/plugins/entity/speaker/SpeakerNode.cpp',
 'code/xrealradiant/plugins/entity/Doom3Entity.cpp',
 'code/xrealradiant/plugins/entity/EntityNode.cpp',
@@ -389,18 +406,19 @@ particles_src = [
 ]
 
 shaders_src = [
-'code/xrealradiant/plugins/shaders/ShaderTemplate.cpp',
-'code/xrealradiant/plugins/shaders/CShader.cpp',
-'code/xrealradiant/plugins/shaders/ShaderLibrary.cpp',
-'code/xrealradiant/plugins/shaders/MapExpression.cpp',
-'code/xrealradiant/plugins/shaders/ShaderFileLoader.cpp',
-'code/xrealradiant/plugins/shaders/plugin.cpp',
 'code/xrealradiant/plugins/shaders/textures/TextureManipulator.cpp',
-'code/xrealradiant/plugins/shaders/textures/FileLoader.cpp',
-'code/xrealradiant/plugins/shaders/textures/DefaultConstructor.cpp',
+'code/xrealradiant/plugins/shaders/textures/ImageFileLoader.cpp',
 'code/xrealradiant/plugins/shaders/textures/ImageLoaderManager.cpp',
 'code/xrealradiant/plugins/shaders/textures/GLTextureManager.cpp',
-'code/xrealradiant/plugins/shaders/Doom3ShaderSystem.cpp'
+'code/xrealradiant/plugins/shaders/CameraCubeMapDecl.cpp',
+'code/xrealradiant/plugins/shaders/CShader.cpp',
+'code/xrealradiant/plugins/shaders/Doom3ShaderLayer.cpp',
+'code/xrealradiant/plugins/shaders/Doom3ShaderSystem.cpp',
+'code/xrealradiant/plugins/shaders/MapExpression.cpp',
+'code/xrealradiant/plugins/shaders/ShaderFileLoader.cpp',
+'code/xrealradiant/plugins/shaders/ShaderLibrary.cpp',
+'code/xrealradiant/plugins/shaders/ShaderTemplate.cpp',
+'code/xrealradiant/plugins/shaders/plugin.cpp'
 ]
 
 skins_src = [
@@ -420,6 +438,7 @@ uimanager_src = [
 'code/xrealradiant/plugins/uimanager/colourscheme/ColourScheme.cpp',
 'code/xrealradiant/plugins/uimanager/colourscheme/ColourSchemeEditor.cpp',
 'code/xrealradiant/plugins/uimanager/colourscheme/ColourSchemeManager.cpp',
+'code/xrealradiant/plugins/uimanager/StatusBarManager.cpp',
 'code/xrealradiant/plugins/uimanager/ToolbarManager.cpp',
 'code/xrealradiant/plugins/uimanager/UIManager.cpp',
 'code/xrealradiant/plugins/uimanager/MenuManager.cpp'
@@ -445,7 +464,7 @@ xmlregistry_src = [
 
 
 xrealradiant_env = env.Clone()
-xrealradiant_env.Append(CCFLAGS='-W -Wall -Wcast-align -Wcast-qual -Wno-unused-parameter -Wno-non-virtual-dtor -Wreorder')
+#xrealradiant_env.Append(CCFLAGS='-W -Wall -Wcast-align -Wcast-qual -Wno-unused-parameter -Wno-non-virtual-dtor -Wreorder')
 xrealradiant_env.Append(CCFLAGS='-Icode/xrealradiant/radiant')
 xrealradiant_env.Append(CCFLAGS='-Icode/xrealradiant/include')
 xrealradiant_env.Append(CCFLAGS='-Icode/xrealradiant/libs')
@@ -502,6 +521,11 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] =
 	archivezip_env = module_env.Clone()
 	archivezip_env.SharedLibrary('archivezip', archivezip_src, LIBS=['z'])
 	archivezip_env.InstallAs('#xrealradiant/modules/archivezip.so', 'libarchivezip.so')
+	
+	commandsystem_env = module_env.Clone()
+	commandsystem_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
+	commandsystem_env.SharedLibrary('commandsystem', commandsystem_src)
+	commandsystem_env.InstallAs('#xrealradiant/plugins/commandsystem.so', 'libcommandsystem.so')
 	
 	eclassmgr_env = module_env.Clone()
 	eclassmgr_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
