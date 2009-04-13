@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <user>
-	<version value="0.9.3" />
+	<version value="0.9.11" />
 	<showBuildTime value="1" />
 	<!-- Load the debug.xml for debugging purposes -->
 	<debug value="0" />
@@ -88,6 +88,9 @@
 	<grid>
 		<defaultGridPower value="3" />
 	</grid>
+	<mediaBrowser>
+		<preLoadMediaTree value="1" />
+	</mediaBrowser>
 	<mainFrame>
 		<windowLayout value="1" />
 		<window xPosition="0" yPosition="0" width="800" height="580" state="4" />
@@ -242,7 +245,7 @@
 		<separator/>
 		<toolbutton name="mergeitems" action="TexToolMergeItems" tooltip="Merge Selection" icon="textool_merge.png"/>
 		<toolbutton name="texflips" action="TexToolFlipS" tooltip="Flip Selection Horiz (S-Axis)" icon="tex_flips.png"/>
-		<toolbutton name="mergeitems" action="TexToolFlipT" tooltip="Flip Selection Vertical (T-Axis)" icon="tex_flipt.png"/>
+		<toolbutton name="texflipt" action="TexToolFlipT" tooltip="Flip Selection Vertical (T-Axis)" icon="tex_flipt.png"/>
 		<toolbutton name="selectrelated" action="TexToolSelectRelated" tooltip="Select Related Items" icon="textool_select_related.png"/>
     </toolbar>
  </ui>
