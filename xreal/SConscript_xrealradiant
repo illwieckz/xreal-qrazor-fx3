@@ -525,7 +525,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] =
 	commandsystem_env = module_env.Clone()
 	commandsystem_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	commandsystem_env.SharedLibrary('commandsystem', commandsystem_src)
-	commandsystem_env.InstallAs('#xrealradiant/plugins/commandsystem.so', 'libcommandsystem.so')
+	commandsystem_env.InstallAs('#xrealradiant/modules/commandsystem.so', 'libcommandsystem.so')
 	
 	eclassmgr_env = module_env.Clone()
 	eclassmgr_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
