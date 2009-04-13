@@ -35,7 +35,7 @@ class GenericEntityNode :
 	GenericEntity m_contained;
 
 public:
-	GenericEntityNode(IEntityClassPtr eclass);
+	GenericEntityNode(const IEntityClassConstPtr& eclass);
 	GenericEntityNode(const GenericEntityNode& other);
 
 	virtual ~GenericEntityNode();
@@ -76,8 +76,8 @@ public:
 	virtual void detach(const NameCallback& callback);
 
 	// Renderable implementation
-	void renderSolid(Renderer& renderer, const VolumeTest& volume) const;
-	void renderWireframe(Renderer& renderer, const VolumeTest& volume) const;
+	void renderSolid(RenderableCollector& collector, const VolumeTest& volume) const;
+	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const;
 
 	void evaluateTransform();
 	typedef MemberCaller<GenericEntityNode, &GenericEntityNode::evaluateTransform> EvaluateTransformCaller;

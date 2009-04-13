@@ -2,6 +2,7 @@
 #define PATCHINSPECTOR_H_
 
 #include <map>
+#include "icommandsystem.h"
 #include "iselection.h"
 #include "iradiant.h"
 #include "gtkutil/WindowPosition.h"
@@ -73,7 +74,7 @@ class PatchInspector
 	std::size_t _patchRows;
 	std::size_t _patchCols;
 	
-	// The pointer to the active patch
+	// The pointer to the active patch (only non-NULL if there is a single patch selected)
 	Patch* _patch;
 	
 	// If this is set to TRUE, the GTK callbacks will be disabled
@@ -146,7 +147,7 @@ public:
 	static PatchInspector& Instance();
 
 	// The command target
-	static void toggle();
+	static void toggle(const cmd::ArgumentList& args);
 
 	/** greebo: SelectionSystem::Observer implementation. Gets called by
 	 * the SelectionSystem upon selection change to allow updating of the

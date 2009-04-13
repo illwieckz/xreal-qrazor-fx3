@@ -1,12 +1,13 @@
 #include "imodule.h"
 
+#include "itextstream.h"
 #include "iregistry.h"
 #include "ieventmanager.h"
 #include "iuimanager.h"
 #include "iradiant.h"
+#include "icommandsystem.h"
 #include "ieclass.h"
 
-#include "stream/textstream.h"
 #include "generic/callback.h"
 
 #include "EClassTree.h"
@@ -36,13 +37,11 @@ public:
 	}
 	
 	virtual void initialiseModule(const ApplicationContext& ctx) {
-		globalOutputStream() << getName().c_str() << "::initialiseModule called.\n";
+		globalOutputStream() << getName() << "::initialiseModule called.\n";
 		
 		// Add the callback event
-		GlobalEventManager().addCommand(
-			"EntityClassTree", 
-			FreeCaller<ui::EClassTree::showWindow>()
-		);
+		GlobalCommandSystem().addCommand("EntityClassTree", ui::EClassTree::showWindow);
+		GlobalEventManager().addCommand("EntityClassTree", "EntityClassTree");
 	
 		// Add the menu item
 		IMenuManager& mm = GlobalUIManager().getMenuManager();

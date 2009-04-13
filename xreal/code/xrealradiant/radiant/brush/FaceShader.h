@@ -36,29 +36,47 @@ public:
 
 typedef ReferencePair<FaceShaderObserver> FaceShaderObserverPair;
 
-class FaceShader : public ModuleObserver {
+/**
+ * \brief
+ * Material and shader information for a brush face.
+ */
+class FaceShader 
+: public ModuleObserver 
+{
+    // In-use flag
+    bool _inUse;
+
+private:
+
+    // Shader capture and release
+	void captureShader();
+	void releaseShader();
+
 public:
 	class SavedState {
 		public:
-		std::string m_shader;
+		std::string _materialName;
 		ContentsFlagsValue m_flags;
 	
 		SavedState(const FaceShader& faceShader) {
-			m_shader = faceShader.getShader();
+			_materialName = faceShader.getMaterialName();
 			m_flags = faceShader.m_flags;
 		}
 	
 		void exportState(FaceShader& faceShader) const {
-			faceShader.setShader(m_shader.c_str());
+			faceShader.setMaterialName(_materialName);
 			faceShader.setFlags(m_flags);
 		}
 	};
 
-	std::string m_shader;
-	ShaderPtr m_state;
+    // The text name of the material
+	std::string _materialName;
+
+    // The Shader used by the renderer
+	ShaderPtr _glShader;
+
 	ContentsFlagsValue m_flags;
 	FaceShaderObserverPair m_observers;
-	bool m_instanced;
 	bool m_realised;
 
 	// Constructor
@@ -70,24 +88,37 @@ public:
 	// copy-construction not supported
 	FaceShader(const FaceShader& other);
 
-	void instanceAttach();
-	void instanceDetach();
+    /**
+     * \brief
+     * Set whether this FaceShader is in use by a Face or not.
+     */
+	void setInUse(bool isUsed);
 
 	// Shader methods
-	void captureShader();
-	void releaseShader();
 	void realise();
 	void unrealise();
 
 	void attach(FaceShaderObserver& observer);
 	void detach(FaceShaderObserver& observer);
 
-	const std::string& getShader() const;
-	void setShader(const std::string& name);
+    /**
+     * \brief
+     * Get the material name.
+     */
+	const std::string& getMaterialName() const;
+
+    /**
+     * \brief
+     * Set the material name.
+     */
+	void setMaterialName(const std::string& name);
 	
-	ShaderPtr state() const;
-	unsigned int shaderFlags() const;
-	
+    /**
+     * \brief
+     * Return the Shader for rendering.
+     */
+	ShaderPtr getGLShader() const;
+
 	ContentsFlagsValue getFlags() const;
 	void setFlags(const ContentsFlagsValue& flags);
 

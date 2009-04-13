@@ -7,10 +7,14 @@
 
 namespace shaders {
 
-class CShader : 
-	public IShader 
+/**
+ * \brief
+ * Implementation class for Material.
+ */
+class CShader 
+: public Material 
 {
-	const ShaderTemplate& _template;
+	ShaderTemplatePtr _template;
 	
 	// The shader file name (i.e. the file where this one is defined)
 	std::string _fileName;
@@ -18,18 +22,17 @@ class CShader :
 	// Name of shader
 	std::string _name;
 
-	// Textures for this shader
+	// The 2D editor texture
 	TexturePtr _editorTexture;
-	TexturePtr _diffuse;
-	TexturePtr _bump;
-	TexturePtr _specular;
-	TexturePtr _texLightFalloff;
 
-	BlendFunc m_blendFunc;
+	TexturePtr _texLightFalloff;
 
 	bool m_bInUse;
 
 	bool _visible;
+
+    // Vector of shader layers
+	ShaderLayerVector _layers;
 
 public:
 	static bool m_lightingEnabled;
@@ -41,18 +44,8 @@ public:
 
 	virtual ~CShader();
 
-	// get/set the TexturePtr Radiant uses to represent this shader object
-	TexturePtr getTexture();
+	TexturePtr getEditorImage();
 	
-	// getDiffuse() retrieves the TexturePtr and realises the shader if necessary
-	TexturePtr getDiffuse();
-	
-	// Return bumpmap if it exists, otherwise _flat
-	TexturePtr getBump();
-	
-	// Return specular map or a black texture
-	TexturePtr getSpecular();
-
 	// Return the light falloff texture (Z dimension).
 	TexturePtr lightFalloffImage();
 
@@ -66,7 +59,7 @@ public:
 	/*
 	 * Return name of shader.
 	 */
-	const char* getName() const;
+	std::string getName() const;
 
 	bool IsInUse() const;
 	
@@ -83,8 +76,6 @@ public:
 	
 	// get the alphaFunc
 	void getAlphaFunc(EAlphaFunc *func, float *ref);
-	
-	BlendFunc getBlendFunc() const;
 	
 	// get the cull type
 	ECull getCull();
@@ -109,49 +100,13 @@ public:
 	 */
 	void setName(const std::string& name);
 
-	class MapLayer : public ShaderLayer {
-		TexturePtr m_texture;
-		BlendFunc m_blendFunc;
-		bool m_clampToBorder;
-		float m_alphaTest;
-	
-	public:
-		MapLayer(TexturePtr texture, BlendFunc blendFunc, bool clampToBorder, float alphaTest) :
-				m_texture(texture),
-				m_blendFunc(blendFunc),
-				m_clampToBorder(false),
-				m_alphaTest(alphaTest) 
-		{}
-		
-		TexturePtr texture() const {
-			return m_texture;
-		}
-		
-		BlendFunc blendFunc() const {
-			return m_blendFunc;
-		}
-		
-		bool clampToBorder() const {
-			return m_clampToBorder;
-		}
-		
-		float alphaTest() const {
-			return m_alphaTest;
-		}
-	};
-
-	static MapLayer evaluateLayer(const LayerTemplate& layerTemplate);
-
-	typedef std::vector<MapLayer> MapLayers;
-	MapLayers m_layers;
-
 	const ShaderLayer* firstLayer() const;
-	
-	void forEachLayer(const ShaderLayerCallback& callback) const;
 
-	/* Required IShader light type predicates */
+    /* Material implementation */
+
+    const ShaderLayerVector& getAllLayers() const;
+
 	bool isAmbientLight() const;
-
 	bool isBlendLight() const;
 	bool isFogLight() const;
 
@@ -160,7 +115,7 @@ public:
 
 }; // class CShader
 
-typedef boost::shared_ptr<CShader> ShaderPtr;
+typedef boost::shared_ptr<CShader> CShaderPtr;
 
 } // namespace shaders
 

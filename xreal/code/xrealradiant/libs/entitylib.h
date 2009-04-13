@@ -297,7 +297,7 @@ inline void aabb_draw_textured(const AABB& aabb)
 
 inline void aabb_draw_solid(const AABB& aabb, RenderStateFlags state)
 {
-  if(state & RENDER_TEXTURE)
+  if(state & RENDER_TEXTURE_2D)
   {
     aabb_draw_textured(aabb);
   }
@@ -326,9 +326,9 @@ public:
   RenderableSolidAABB(const AABB& aabb) : m_aabb(aabb)
   {
   }
-  void render(RenderStateFlags state) const
+  void render(const RenderInfo& info) const
   {
-    aabb_draw_solid(m_aabb, state);
+    aabb_draw_solid(m_aabb, info.getFlags());
   }
 };
 
@@ -339,7 +339,7 @@ public:
   RenderableWireframeAABB(const AABB& aabb) : m_aabb(aabb)
   {
   }
-  void render(RenderStateFlags state) const
+  void render(const RenderInfo& info) const
   {
     aabb_draw_wire(m_aabb);
   }
@@ -356,40 +356,53 @@ inline std::ostream& operator<< (std::ostream& os, const Entity& entity) {
 	return os;	
 }
 
-/** Walker to locate an Entity in the scenegraph with a specific classname.
- */
-class EntityFindByClassnameWalker : 
-	public scene::Graph::Walker
+class EntityNodeFindByClassnameWalker : 
+	public scene::NodeVisitor
 {
+protected:
 	// Name to search for
 	std::string _name;
 	
-	// Reference to a pointer to modify with the result 
-	mutable Entity* _entity;
+	// The search result
+	scene::INodePtr _entityNode;
 	
 public:
 	// Constructor
-	EntityFindByClassnameWalker(const std::string& name) : 
-		_name(name),
-		_entity(NULL)
+	EntityNodeFindByClassnameWalker(const std::string& name) : 
+		_name(name)
 	{}
 	
+	scene::INodePtr getEntityNode() {
+		return _entityNode;
+	}
+
 	Entity* getEntity() {
-		return _entity;
+		return _entityNode != NULL ? Node_getEntity(_entityNode) : NULL;
 	}
 	
 	// Pre-descent callback
-	bool pre(const scene::Path& path, const scene::INodePtr& node) const {
-		if (_entity == NULL) {
+	bool pre(const scene::INodePtr& node) {
+		if (_entityNode == NULL) {
 			// Entity not found yet
+			Entity* entity = Node_getEntity(node);
 			
-			Entity* entity = Node_getEntity(path.top());
-			
-			if(entity != NULL  && _name == entity->getKeyValue("classname")) {
-				_entity = entity;
+			if (entity != NULL) {
+				// Got an entity, let's see if the name matches
+				if (entity->getKeyValue("classname") == _name) {
+					_entityNode = node;
+				}
+
+				return false; // don't traverse entities
+			}
+			else {
+				// Not an entity, traverse
+				return true;
 			}
 		}
-		return true;
+		else {
+			// Entity already found, don't traverse any further
+			return false;
+		}
 	}
 };
 
@@ -397,10 +410,10 @@ public:
  */
 inline Entity* Scene_FindEntityByClass(const std::string& className) {
 	// Instantiate a walker to find the entity
-	EntityFindByClassnameWalker walker(className);
+	EntityNodeFindByClassnameWalker walker(className);
 	
 	// Walk the scenegraph
-	GlobalSceneGraph().traverse(walker);
+	Node_traverseSubgraph(GlobalSceneGraph().root(), walker);
 	
 	return walker.getEntity();
 }

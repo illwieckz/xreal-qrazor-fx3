@@ -2,6 +2,7 @@
 #define ECLASSTREE_H_
 
 #include "iradiant.h"
+#include "icommandsystem.h"
 #include "gtkutil/window/BlockingTransientWindow.h"
 #include <boost/shared_ptr.hpp>
 
@@ -10,6 +11,8 @@ typedef struct _GtkTreeView GtkTreeView;
 typedef struct _GtkWidget GtkWidget;
 typedef struct _GtkTreeStore GtkTreeStore;
 typedef struct _GtkTreeSelection GtkTreeSelection;
+typedef struct _GtkTreeModel GtkTreeModel;
+typedef struct _GtkTreeIter GtkTreeIter;
 
 namespace ui {
 
@@ -46,7 +49,7 @@ class EClassTree :
 
 public:
 	// Shows the singleton class (static command target)
-	static void showWindow();
+	static void showWindow(const cmd::ArgumentList& args);
 	
 private:
 	virtual void _preShow();
@@ -64,6 +67,13 @@ private:
 	// Static GTK callbacks
 	static void onClose(GtkWidget* button, EClassTree* self);
 	static void onSelectionChanged(GtkWidget* widget, EClassTree* self);
+
+	// The comparison function for eclasstree's type-in search
+	static gboolean eClassnameEqualFunc(GtkTreeModel* model, 
+										 gint column,
+										 const gchar* key,
+										 GtkTreeIter* iter,
+										 gpointer search_data);
 };
 
 } // namespace ui

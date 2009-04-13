@@ -3,6 +3,7 @@
 
 #include <list>
 #include <string>
+#include "icommandsystem.h"
 #include "iscenegraph.h"
 #include "ientity.h"
 #include "math/Vector3.h"
@@ -14,17 +15,17 @@ namespace selection {
 	typedef std::list<std::string> ClassnameList; 
 
 	/**
-	 * greebo: This selects each entity in the scene whose classname matches
+	 * greebo: This selects each visible entity in the subgraph whose classname matches
 	 *         the given list.
 	 */
 	class EntitySelectByClassnameWalker : 
-		public scene::Graph::Walker
+		public scene::NodeVisitor
 	{
 		const ClassnameList& _classnames;
 	public:
 		EntitySelectByClassnameWalker(const ClassnameList& classnames);
 
-		bool pre(const scene::Path& path, const scene::INodePtr& node) const;
+		bool pre(const scene::INodePtr& node);
 
 	private:
 		bool entityMatches(Entity* entity) const;
@@ -42,27 +43,27 @@ namespace selection {
 	 * For faces: all faces carrying the current shader (as selected in the texture
 	 *            browser) are selected.
 	 */
-	void selectAllOfType();
+	void selectAllOfType(const cmd::ArgumentList& args);
 
 	/**
 	 * greebo: Hides all selected nodes in the scene.
 	 */
-	void hideSelected();
+	void hideSelected(const cmd::ArgumentList& args);
 
 	/**
 	 * greebo: Hides everything that is not selected.
 	 */
-	void hideDeselected();
+	void hideDeselected(const cmd::ArgumentList& args);
 
 	/**
 	 * greebo: Clears the hidden flag of all nodes in the scene.
 	 */
-	void showAllHidden();
+	void showAllHidden(const cmd::ArgumentList& args);
 
 	/**
 	 * greebo: Each selected item will be deselected and vice versa.
 	 */
-	void invertSelection();
+	void invertSelection(const cmd::ArgumentList& args);
 
 	/**
 	 * greebo: Removes all selected nodes. If entities end up with
@@ -72,7 +73,7 @@ namespace selection {
 	 *       Use deleteSelection() to just remove the selection without
 	 *       disrupting the undo stack.
 	 */
-	void deleteSelectionCmd();
+	void deleteSelectionCmd(const cmd::ArgumentList& args);
 
 	/**
 	 * greebo: Deletes all selected nodes including empty entities. 
@@ -85,9 +86,9 @@ namespace selection {
 	/**
 	 * greebo: As the name says, these are the various selection routines.
 	 */
-	void selectInside();
-	void selectTouching();
-	void selectCompleteTall();
+	void selectInside(const cmd::ArgumentList& args);
+	void selectTouching(const cmd::ArgumentList& args);
+	void selectCompleteTall(const cmd::ArgumentList& args);
 
 	// Returns the center point of the current selection (or <0,0,0> if nothing selected).
 	Vector3 getCurrentSelectionCenter();

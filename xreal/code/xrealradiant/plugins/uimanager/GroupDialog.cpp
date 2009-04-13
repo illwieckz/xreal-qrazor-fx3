@@ -31,12 +31,8 @@ GroupDialog::GroupDialog() :
 	GlobalEventManager().connectDialogWindow(GTK_WINDOW(getWindow()));
 	
 	// Connect the window position tracker
-	xml::NodeList windowStateList = GlobalRegistry().findXPath(RKEY_WINDOW_STATE);
-	
-	if (windowStateList.size() > 0) {
-		_windowPosition.loadFromNode(windowStateList[0]);
-	}
-	
+	_windowPosition.loadFromPath(RKEY_WINDOW_STATE);
+		
 	_windowPosition.connect(GTK_WINDOW(getWindow()));
 	_windowPosition.applyPosition();
 }
@@ -49,6 +45,22 @@ GtkWidget* GroupDialog::getDialogWindow() {
 void GroupDialog::construct() {
 	InstancePtr() = GroupDialogPtr(new GroupDialog);
 	GlobalRadiant().addEventListener(InstancePtr());
+}
+
+void GroupDialog::reparentNotebook(GtkWidget* newParent) {
+	// greebo: Use the reparent method, the commented code below
+	// triggers an unrealise signal.
+	gtk_widget_reparent(_notebook, newParent);
+	return;
+
+	/*// Find the current parent
+	GtkWidget* oldParent = gtk_widget_get_parent(_notebook);
+
+	// Add a reference to the notebook
+	gtk_widget_ref(_notebook);
+	gtk_container_remove(GTK_CONTAINER(oldParent), _notebook);
+	gtk_container_add(GTK_CONTAINER(newParent), _notebook);
+	gtk_widget_unref(_notebook);*/
 }
 
 void GroupDialog::populateWindow() {
@@ -96,8 +108,10 @@ void GroupDialog::setPage(const std::string& name) {
 				setPage(_pages[i].page);
 			}
 
-			// Show the window
-			show();
+			// Show the window if the notebook is hosted here
+			if (gtk_widget_get_parent(_notebook) == getWindow()) {
+				show();
+			}
 			
 			// Don't continue the loop, we've found the page
 			break;
@@ -111,6 +125,7 @@ void GroupDialog::setPage(GtkWidget* page) {
 }
 
 void GroupDialog::togglePage(const std::string& name) {
+	// We still own the notebook in this dialog
 	if (getPageName() != name || !GTK_WIDGET_VISIBLE(getWindow())) {
 		// page not yet visible, show it
 		setPage(name);
@@ -152,8 +167,13 @@ void GroupDialog::toggle() {
 
 // Pre-hide callback from TransientWindow
 void GroupDialog::_preHide() {
-	// Save the window position, to make sure
-	_windowPosition.readPosition();
+	if (isVisible()) {
+		// Save the window position, to make sure
+		_windowPosition.readPosition();
+	}
+	
+	// Tell the position tracker to save the information
+	_windowPosition.saveToPath(RKEY_WINDOW_STATE);
 }
 
 // Pre-show callback from TransientWindow
@@ -170,14 +190,7 @@ void GroupDialog::_postShow() {
 }
 
 void GroupDialog::onRadiantShutdown() {
-	// Delete all the current window states from the registry  
-	GlobalRegistry().deleteXPath(RKEY_WINDOW_STATE);
-	
-	// Create a new node
-	xml::Node node(GlobalRegistry().createKey(RKEY_WINDOW_STATE));
-	
-	// Tell the position tracker to save the information
-	_windowPosition.saveToNode(node);
+	hide();
 	
 	GlobalEventManager().disconnectDialogWindow(GTK_WINDOW(getWindow()));
 
@@ -221,6 +234,24 @@ GtkWidget* GroupDialog::addPage(const std::string& name,
 	_pages.push_back(newPage);
 
 	return notebookPage;
+}
+
+void GroupDialog::removePage(const std::string& name) {
+	// Find the page with that name
+	for (Pages::iterator i = _pages.begin(); i != _pages.end(); ++i) {
+		// Skip the wrong ones
+		if (i->name != name) continue;
+
+		// Remove the page from the notebook
+		gtk_notebook_remove_page(
+			GTK_NOTEBOOK(_notebook), 
+			gtk_notebook_page_num(GTK_NOTEBOOK(_notebook), i->page)
+		);
+
+		// Remove the page and break the loop, iterators are invalid
+		_pages.erase(i);
+		break;
+	}
 }
 
 void GroupDialog::updatePageTitle(unsigned int pageNumber) {

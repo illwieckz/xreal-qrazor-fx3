@@ -3,10 +3,12 @@
 #include "iregistry.h"
 #include "ifiletypes.h"
 #include "modulesystem/ApplicationContextImpl.h"
-#include "mainframe.h"
+#include "iradiant.h"
 #include "gtkutil/filechooser.h"
 #include "gtkutil/IConv.h"
 #include "os/path.h"
+#include "MapFileChooserPreview.h"
+#include <gtk/gtkwidget.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/erase.hpp>
@@ -44,14 +46,22 @@ std::string MapFileManager::selectFile(bool open,
 	boost::algorithm::erase_all(defaultExt, "*");
 	
 	// Display a file chooser dialog to get a new path
-	std::string filePath = 
-		file_dialog(GTK_WIDGET(MainFrame_getWindow()), 
-				     open, 
-					 title, 
-					 _lastDirs[type], 
-					 type,
-					 defaultExt,
-                     defaultFile);
+	gtkutil::FileChooser fileChooser(GTK_WIDGET(GlobalRadiant().getMainWindow()),
+		title, open, type, defaultExt);
+
+	fileChooser.setCurrentFile(defaultFile);
+	fileChooser.setCurrentPath(_lastDirs[type]);
+
+	// For prefabs, add a preview widget
+	if (open && type == "prefab") {
+		// Instantiate a new preview object
+		MapFileChooserPreviewPtr preview(new MapFileChooserPreview());
+
+		// attach the preview object
+		fileChooser.attachPreview(preview);
+	}
+
+	std::string filePath = fileChooser.display();
 
 	// If a filename was chosen, update the last path
 	if (!filePath.empty()) {

@@ -5,7 +5,10 @@
 #include <stdexcept>
 #include <vector>
 #include "iscenegraph.h"
+#include "icommandsystem.h"
 #include "itraversable.h"
+#include "iselection.h"
+#include "math/Vector2.h"
 #include "math/Vector3.h"
 
 class Face;
@@ -49,6 +52,25 @@ namespace selection {
 	};
 	
 	namespace algorithm {
+
+	class PatchTesselationUpdater :
+		public SelectionSystem::Visitor
+	{
+		bool _fixed;
+		BasicVector2<unsigned int> _tess;
+
+	public:
+		/**
+		 * @fixed: whether the visited patches should be set to fixed tesselation.
+		 * @tess: the fixed X,Y tesselation in case @fixed is set to true.
+		 */
+		PatchTesselationUpdater(bool fixed, const BasicVector2<unsigned int>& tess) :
+			_fixed(fixed),
+			_tess(tess)
+		{}
+
+		void visit(const scene::INodePtr& node) const;
+	};
 
 	/**
 	 * greebo: Traverse the selection and invoke the given visitor
@@ -102,7 +124,7 @@ namespace selection {
 	 * 			selection. The basic check for a single selected 
 	 * 			func_clipmodel is done here and the CM object is created.
 	 */
-	void createCMFromSelection();
+	void createCMFromSelection(const cmd::ArgumentList& args);
 	
 	/** Count the number of selected primitives in the current map.
 	 * 
@@ -120,35 +142,14 @@ namespace selection {
 	 
 	int countSelectedBrushes();
 	
-	/** greebo: Class used to add the origin to the selected brushes
-	 */
-	class OriginAdder :
-		public scene::Graph::Walker,
-		public scene::NodeVisitor
-	{
-	public:
-		// Graph::Walker implementation
-		bool pre(const scene::Path& path, const scene::INodePtr& node) const;
-	
-		// NodeVisitor implementation
-		virtual bool pre(const scene::INodePtr& node);
-	};
-	
-	/** greebo: This adds/removes the origin from all the child primitivies
-	 * 			of container entities like func_static. This has to be called
-	 * 			right after/before a map save and load process.
-	 */
-	void removeOriginFromChildPrimitives();
-	void addOriginToChildPrimitives();
-	
 	/** greebo: Creates a coplanar patch for each selected face instance.
 	 */
-	void createDecalsForSelectedFaces();
+	void createDecalsForSelectedFaces(const cmd::ArgumentList& args);
 
 	/** 
 	 * greebo: Applies the visportal/nodraw texture combo to the selected brushes.
 	 */
-	void makeVisportal();
+	void makeVisportal(const cmd::ArgumentList& args);
 
 	} // namespace algorithm
 } // namespace selection

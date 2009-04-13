@@ -1,12 +1,16 @@
 #include "FindShader.h"
 
 #include "ieventmanager.h"
-#include "mainframe.h"
+#include "iradiant.h"
+
 #include "gtkutil/LeftAlignedLabel.h"
 #include "gtkutil/LeftAlignment.h"
 #include "gtkutil/IconTextButton.h"
+#include "string/string.h"
+
 #include "ui/common/ShaderChooser.h"
 #include "selection/algorithm/Shader.h"
+
 #include <gtk/gtk.h>
 
 namespace ui {
@@ -164,7 +168,7 @@ void FindAndReplaceShader::onReplaceChanged(GtkEditable* editable, FindAndReplac
 	gtk_label_set_markup(GTK_LABEL(self->_counterLabel), "");
 }
 
-void FindAndReplaceShader::showDialog() {
+void FindAndReplaceShader::showDialog(const cmd::ArgumentList& args) {
 	// Just instantiate a new dialog, this enters a main loop
 	FindAndReplaceShader dialog; 
 }

@@ -20,7 +20,6 @@
 #include "gtkutil/messagebox.h"
 #include "gtkutil/IConv.h"
 
-#include "mainframe.h"
 #include "referencecache.h"
 #include "brush/BrushModule.h"
 #include "xyview/GlobalXYWnd.h"
@@ -36,6 +35,7 @@
 #include "map/algorithm/Merge.h"
 #include "map/algorithm/Traverse.h"
 #include "ui/mru/MRU.h"
+#include "ui/mainframe/ScreenUpdateBlocker.h"
 #include "ui/layers/LayerControlDialog.h"
 #include "selection/algorithm/Primitives.h"
 #include "selection/shaderclipboard/ShaderClipboard.h"
@@ -140,33 +140,34 @@ void Map::realiseResource() {
 
 void Map::unrealiseResource() {
 	if (m_resource != NULL) {
-		m_resource->flush();
 		m_resource->unrealise();
 	}
 }
 
 void Map::onResourceRealise() {
-    if(m_resource != 0)
-    {
-      if (isUnnamed()) {
-        m_resource->setNode(NewMapRoot(""));
-        MapFilePtr map = Node_getMapFile(m_resource->getNode());
-        if(map != NULL) {
-          map->save();
-        }
-      }
-      else
-      {
-        m_resource->load();
-      }
+	if (m_resource == NULL) {
+		return;
+	}
 
-	  // Take the new node and insert it as map root
-      GlobalSceneGraph().insert_root(m_resource->getNode());
+	if (isUnnamed() || !m_resource->load()) {
+		// Map is unnamed or load failed, reset map resource node to empty
+		m_resource->setNode(NewMapRoot(""));
+		MapFilePtr map = Node_getMapFile(m_resource->getNode());
+		
+		if (map != NULL) {
+			map->save();
+		}
 
-      map::AutoSaver().clearChanges();
+		// Rename the map to "unnamed" in any case to avoid overwriting the failed map
+		setMapName(MAP_UNNAMED_STRING);
+	}
 
-      setValid(true);
-    }
+	// Take the new node and insert it as map root
+	GlobalSceneGraph().insert_root(m_resource->getNode());
+
+	AutoSaver().clearChanges();
+
+	setValid(true);
 }
 
 void Map::onResourceUnrealise() {
@@ -322,10 +323,11 @@ void Map::saveCameraPosition() {
 		Entity* worldspawn = Node_getEntity(m_world_node);
 		assert(worldspawn != NULL);	// This must succeed
 		
-		CamWnd& camwnd = *g_pParentWnd->GetCamWnd();
-		
-		worldspawn->setKeyValue(keyLastCamPos, camwnd.getCameraOrigin());
-		worldspawn->setKeyValue(keyLastCamAngle, camwnd.getCameraAngles());
+		CamWndPtr camWnd = GlobalCamera().getActiveCamWnd();
+		if (camWnd == NULL) return;
+				
+		worldspawn->setKeyValue(keyLastCamPos, camWnd->getCameraOrigin());
+		worldspawn->setKeyValue(keyLastCamAngle, camWnd->getCameraAngles());
 	}
 }
 
@@ -436,9 +438,6 @@ void Map::load(const std::string& filename) {
 	globalOutputStream() << GlobalRadiant().getCounter(counterPatches).get() << " patches\n";
 	globalOutputStream() << GlobalRadiant().getCounter(counterEntities).get() << " entities\n";
 
-	// Add the origin to all the children of func_static, etc.
-	selection::algorithm::addOriginToChildPrimitives();
-
 	// Move the view to a start position
 	gotoStartPosition();
 
@@ -468,7 +467,8 @@ bool Map::save() {
 	
 	_saveInProgress = true;
 	
-	ScopeDisableScreenUpdates disableScreenUpdates("Processing...", "Saving Map");
+	// Disable screen updates for the scope of this function
+	ui::ScreenUpdateBlocker blocker("Processing...", "Saving Map");
 	
 	// Store the camview position into worldspawn
 	saveCameraPosition();
@@ -480,15 +480,9 @@ bool Map::save() {
 
 	ScopeTimer timer("map save");
 	
-	// Substract the origin from child primitives (of entities like func_static)
-	selection::algorithm::removeOriginFromChildPrimitives();
-	
 	// Save the actual map resource
 	bool success = m_resource->save();
 		
-	// Re-add the origins to the child primitives (of entities like func_static)
-	selection::algorithm::addOriginToChildPrimitives();
-  
 	// Remove the saved camera position
 	removeCameraPosition();
 	
@@ -524,9 +518,6 @@ bool Map::import(const std::string& filename) {
 	{
 		IMapResourcePtr resource = GlobalMapResourceManager().capture(filename);
 		
-		// avoid loading old version if map has changed on disk since last import
-		resource->refresh(); 
-		
 		if (resource->load()) {
 			// load() returned TRUE, this means that the resource node 
 			// is not the NULL node
@@ -535,17 +526,8 @@ bool Map::import(const std::string& filename) {
 			scene::INodePtr cloneRoot(new BasicContainer);
 
 			{
-				bool textureLockStatus = GlobalBrush()->textureLockEnabled();
-				GlobalBrush()->setTextureLock(false);
-				
-				// Add the origin to all the child brushes
-				selection::algorithm::OriginAdder adder;
-				resource->getNode()->traverse(adder);
-        
 				CloneAll cloner(cloneRoot);
 				resource->getNode()->traverse(cloner);
-				
-				GlobalBrush()->setTextureLock(textureLockStatus);
 			}
 
 			// Adjust all new names to fit into the existing map namespace, 
@@ -572,13 +554,11 @@ bool Map::import(const std::string& filename) {
 bool Map::saveDirect(const std::string& filename) {
 	if (_saveInProgress) return false; // safeguard
 
-	ScopeDisableScreenUpdates disableScreenUpdates(path_get_filename_start(filename.c_str()));
+	// Disable screen updates for the scope of this function
+	ui::ScreenUpdateBlocker blocker("Processing...", path_get_filename_start(filename.c_str()));
 	
 	_saveInProgress = true;
 
-	// Substract the origin from child primitives (of entities like func_static)
-	selection::algorithm::removeOriginFromChildPrimitives();
-	
 	bool result = MapResource_saveFile(
 		getFormatForFile(filename), 
 		GlobalSceneGraph().root(), 
@@ -586,9 +566,6 @@ bool Map::saveDirect(const std::string& filename) {
 		filename.c_str()
 	);
 	
-	// Re-add the origins to the child primitives (of entities like func_static)
-	selection::algorithm::addOriginToChildPrimitives();
-
 	_saveInProgress = false;
 
 	return result;
@@ -597,20 +574,15 @@ bool Map::saveDirect(const std::string& filename) {
 bool Map::saveSelected(const std::string& filename) {
 	if (_saveInProgress) return false; // safeguard
 
-	ScopeDisableScreenUpdates disableScreenUpdates(path_get_filename_start(filename.c_str()));
+	// Disable screen updates for the scope of this function
+	ui::ScreenUpdateBlocker blocker("Processing...", path_get_filename_start(filename.c_str()));
 	
 	_saveInProgress = true;
 
-	// Substract the origin from child primitives (of entities like func_static)
-	selection::algorithm::removeOriginFromChildPrimitives();
-	
 	bool success = MapResource_saveFile(Map::getFormatForFile(filename), 
   							  GlobalSceneGraph().root(), 
   							  map::traverseSelected, // TraversalFunc
   							  filename.c_str());
-
-	// Add the origin to all the children of func_static, etc.
-	selection::algorithm::addOriginToChildPrimitives();
 
 	_saveInProgress = false;
 
@@ -721,24 +693,34 @@ void Map::loadPrefabAt(const Vector3& targetCoords) {
 	}
 }
 
-void Map::saveMapCopyAs() {
+void Map::saveMapCopyAs(const cmd::ArgumentList& args) {
 	GlobalMap().saveCopyAs();
 }
 
 void Map::registerCommands() {
-	GlobalEventManager().addCommand("NewMap", FreeCaller<Map::newMap>());
-	GlobalEventManager().addCommand("OpenMap", FreeCaller<Map::openMap>());
-	GlobalEventManager().addCommand("ImportMap", FreeCaller<Map::importMap>());
-	GlobalEventManager().addCommand("LoadPrefab", FreeCaller<Map::loadPrefab>());
-	GlobalEventManager().addCommand("SaveSelectedAsPrefab", FreeCaller<Map::saveSelectedAsPrefab>());
-	GlobalEventManager().addCommand("SaveMap", FreeCaller<Map::saveMap>());
-	GlobalEventManager().addCommand("SaveMapAs", FreeCaller<Map::saveMapAs>());
-	GlobalEventManager().addCommand("SaveMapCopyAs", FreeCaller<Map::saveMapCopyAs>());
-	GlobalEventManager().addCommand("SaveSelected", FreeCaller<Map::exportMap>());
+	GlobalCommandSystem().addCommand("NewMap", Map::newMap);
+	GlobalCommandSystem().addCommand("OpenMap", Map::openMap);
+	GlobalCommandSystem().addCommand("ImportMap", Map::importMap);
+	GlobalCommandSystem().addCommand("LoadPrefab", Map::loadPrefab);
+	GlobalCommandSystem().addCommand("SaveSelectedAsPrefab", Map::saveSelectedAsPrefab);
+	GlobalCommandSystem().addCommand("SaveMap", Map::saveMap);
+	GlobalCommandSystem().addCommand("SaveMapAs", Map::saveMapAs);
+	GlobalCommandSystem().addCommand("SaveMapCopyAs", Map::saveMapCopyAs);
+	GlobalCommandSystem().addCommand("SaveSelected", Map::exportMap);
+
+	GlobalEventManager().addCommand("NewMap", "NewMap");
+	GlobalEventManager().addCommand("OpenMap", "OpenMap");
+	GlobalEventManager().addCommand("ImportMap", "ImportMap");
+	GlobalEventManager().addCommand("LoadPrefab", "LoadPrefab");
+	GlobalEventManager().addCommand("SaveSelectedAsPrefab", "SaveSelectedAsPrefab");
+	GlobalEventManager().addCommand("SaveMap", "SaveMap");
+	GlobalEventManager().addCommand("SaveMapAs", "SaveMapAs");
+	GlobalEventManager().addCommand("SaveMapCopyAs", "SaveMapCopyAs");
+	GlobalEventManager().addCommand("SaveSelected", "SaveSelected");
 }
 
 // Static command targets
-void Map::newMap() {
+void Map::newMap(const cmd::ArgumentList& args) {
 	if (GlobalMap().askForSave("New Map")) {
 		// Turn regioning off when starting a new map
 		GlobalRegion().disable();
@@ -748,7 +730,7 @@ void Map::newMap() {
 	}
 }
 
-void Map::openMap() {
+void Map::openMap(const cmd::ArgumentList& args) {
 	if (!GlobalMap().askForSave("Open Map"))
 		return;
 
@@ -764,7 +746,7 @@ void Map::openMap() {
 	}
 }
 
-void Map::importMap() {
+void Map::importMap(const cmd::ArgumentList& args) {
 	std::string filename = map::MapFileManager::getMapFilename(true,
 															   "Import map");
 
@@ -774,11 +756,11 @@ void Map::importMap() {
 	}
 }
 
-void Map::saveMapAs() {
+void Map::saveMapAs(const cmd::ArgumentList& args) {
 	GlobalMap().saveAs();
 }
 
-void Map::saveMap() {
+void Map::saveMap(const cmd::ArgumentList& args) {
 	if (GlobalMap().isUnnamed()) {
 		GlobalMap().saveAs();
 	}
@@ -788,7 +770,7 @@ void Map::saveMap() {
 	}
 }
 
-void Map::exportMap() {
+void Map::exportMap(const cmd::ArgumentList& args) {
 	std::string filename = map::MapFileManager::getMapFilename(
 								false, "Export selection");
 
@@ -797,11 +779,11 @@ void Map::exportMap() {
   	}
 }
 
-void Map::loadPrefab() {
+void Map::loadPrefab(const cmd::ArgumentList& args) {
 	GlobalMap().loadPrefabAt(Vector3(0,0,0));
 }
 
-void Map::saveSelectedAsPrefab() {
+void Map::saveSelectedAsPrefab(const cmd::ArgumentList& args) {
 	std::string filename = 
 		map::MapFileManager::getMapFilename(false, "Save selected as Prefab", "prefab");
 	
@@ -865,12 +847,30 @@ const std::string& Map::getName() const {
 }
 
 const StringSet& Map::getDependencies() const {
-	static StringSet _dependencies; // no dependencies
+	static StringSet _dependencies; 
+
+	if (_dependencies.empty()) {
+		_dependencies.insert(MODULE_RADIANT);
+	}
+
 	return _dependencies;
 }
 
 void Map::initialiseModule(const ApplicationContext& ctx) {
 	globalOutputStream() << getName() << "::initialiseModule called.\n";
+
+	// Register for the startup event
+	_startupMapLoader = StartupMapLoaderPtr(new StartupMapLoader);
+	GlobalRadiant().addEventListener(_startupMapLoader);
+
+	// Add the Map-related commands to the EventManager
+	registerCommands();
+	
+	// Add the region-related commands to the EventManager
+	RegionManager::initialiseCommands();
+
+	// Add the map position commands to the EventManager
+	GlobalMapPosition().initialise();
 }
 
 // Creates the static module instance

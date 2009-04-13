@@ -8,7 +8,6 @@
 #include "iundo.h"
 
 #include "scenelib.h"
-#include "mainframe.h"
 #include "gtkutil/IconTextButton.h"
 #include "gtkutil/LeftAlignedLabel.h"
 #include "gtkutil/RightAlignment.h"
@@ -61,8 +60,8 @@ namespace {
 }
 
 // Private constructor creates GTK widgets
-LightInspector::LightInspector()
-: gtkutil::PersistentTransientWindow(LIGHTINSPECTOR_TITLE, MainFrame_getWindow(), true),
+LightInspector::LightInspector() 
+: gtkutil::PersistentTransientWindow(LIGHTINSPECTOR_TITLE, GlobalRadiant().getMainWindow(), true),
   _isProjected(false),
   _texSelector(this, getPrefixList(), true),
   _updateActive(false)
@@ -135,12 +134,8 @@ LightInspector::LightInspector()
 	GlobalEventManager().connectDialogWindow(GTK_WINDOW(getWindow()));
 
 	// Connect the window position tracker
-	xml::NodeList windowStateList = GlobalRegistry().findXPath(RKEY_WINDOW_STATE);
-
-	if (windowStateList.size() > 0) {
-		_windowPosition.loadFromNode(windowStateList[0]);
-	}
-
+	_windowPosition.loadFromPath(RKEY_WINDOW_STATE);
+	
 	_windowPosition.connect(GTK_WINDOW(getWindow()));
 	_windowPosition.applyPosition();
 }
@@ -159,20 +154,14 @@ LightInspectorPtr& LightInspector::InstancePtr() {
 	return _instancePtr;
 }
 
-void LightInspector::onRadiantShutdown() {
-
-	// Delete all the current window states from the registry
-	GlobalRegistry().deleteXPath(RKEY_WINDOW_STATE);
-
-	// Create a new node
-	xml::Node node(GlobalRegistry().createKey(RKEY_WINDOW_STATE));
-
+void LightInspector::onRadiantShutdown()
+{
 	// Tell the position tracker to save the information
-	_windowPosition.saveToNode(node);
-
+	_windowPosition.saveToPath(RKEY_WINDOW_STATE);
+	
 	GlobalSelectionSystem().removeObserver(this);
 	GlobalEventManager().disconnectDialogWindow(GTK_WINDOW(getWindow()));
-
+	
 	// Destroy the window
 	destroy();
 }
@@ -182,7 +171,7 @@ void LightInspector::shaderSelectionChanged(
 	GtkListStore* listStore)
 {
 	// Get the shader, and its image map if possible
-	IShaderPtr ishader = _texSelector.getSelectedShader();
+	MaterialPtr ishader = _texSelector.getSelectedShader();
 	// Pass the call to the static member of ShaderSelector
 	ShaderSelector::displayLightShaderInfo(ishader, listStore);
 
@@ -376,7 +365,7 @@ void LightInspector::selectionChanged(const scene::INodePtr& node, bool isCompon
 }
 
 // Static method to toggle the dialog
-void LightInspector::toggleInspector() {
+void LightInspector::toggleInspector(const cmd::ArgumentList& args) {
 	// Toggle the instance
 	Instance().toggle();
 }

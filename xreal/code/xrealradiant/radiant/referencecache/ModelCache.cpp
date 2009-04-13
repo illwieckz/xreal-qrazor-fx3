@@ -8,22 +8,22 @@
 #include <iostream>
 #include "os/path.h"
 #include "os/file.h"
-#include "stream/textstream.h"
-#include "mainframe.h"
 
 #include "modulesystem/StaticModule.h"
 #include "ui/modelselector/ModelSelector.h"
+#include "ui/mainframe/ScreenUpdateBlocker.h"
 #include "NullModelLoader.h"
+#include <boost/bind.hpp>
 
 namespace model {
 
 namespace {
 
 	class ModelRefreshWalker :
-		public scene::Graph::Walker
+		public scene::NodeVisitor
 	{
 	public:
-		virtual bool pre(const scene::Path& path, const scene::INodePtr& node) const {
+		bool pre(const scene::INodePtr& node) {
 			IEntityNodePtr entity = boost::dynamic_pointer_cast<IEntityNode>(node);
 
 			if (entity != NULL) {
@@ -142,14 +142,16 @@ void ModelCache::clear() {
 	_enabled = true;
 }
 
-void ModelCache::refreshModels() {
-	ScopeDisableScreenUpdates disableScreenUpdates("Refreshing models");
+void ModelCache::refreshModels(const cmd::ArgumentList& args) {
+	// Disable screen updates for the scope of this function
+	ui::ScreenUpdateBlocker blocker("Processing...", "Reloading Models");
 	
 	// Clear the model cache
 	clear();
 
 	// Update all model nodes
-	GlobalSceneGraph().traverse(ModelRefreshWalker());
+	ModelRefreshWalker walker;
+	Node_traverseSubgraph(GlobalSceneGraph().root(), walker);
 		
 	// greebo: Reload the modelselector too
 	ui::ModelSelector::refresh();
@@ -168,6 +170,7 @@ const StringSet& ModelCache::getDependencies() const {
 		_dependencies.insert(MODULE_MODELLOADER + "ASE");
 		_dependencies.insert(MODULE_MODELLOADER + "LWO");
 		_dependencies.insert(MODULE_MODELLOADER + "MD5MESH");
+		_dependencies.insert(MODULE_COMMANDSYSTEM);
 	}
 
 	return _dependencies;
@@ -176,10 +179,11 @@ const StringSet& ModelCache::getDependencies() const {
 void ModelCache::initialiseModule(const ApplicationContext& ctx) {
 	globalOutputStream() << "ModelCache::initialiseModule called.\n";
 
-	GlobalEventManager().addCommand(
+	GlobalCommandSystem().addCommand(
 		"RefreshModels", 
-		MemberCaller<ModelCache, &ModelCache::refreshModels>(*this)
+		boost::bind(&ModelCache::refreshModels, this, _1)
 	);
+	GlobalEventManager().addCommand("RefreshModels", "RefreshModels");
 }
 
 void ModelCache::shutdownModule() {

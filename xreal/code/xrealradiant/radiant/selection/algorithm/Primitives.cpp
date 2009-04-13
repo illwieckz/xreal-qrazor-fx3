@@ -13,7 +13,6 @@
 #include "string/string.h"
 #include "brush/export/CollisionModel.h"
 #include "gtkutil/dialog.h"
-#include "mainframe.h"
 #include "map/Map.h"
 #include "ui/modelselector/ModelSelector.h"
 #include "settings/GameManager.h" 
@@ -134,6 +133,15 @@ void forEachSelectedPrimitive(PrimitiveVisitor& visitor) {
 	g_SelectedFaceInstances.foreach(walker);
 }
 
+// PatchTesselationUpdater implementation
+void PatchTesselationUpdater::visit(const scene::INodePtr& node) const {
+	Patch* patch = Node_getPatch(node);
+
+	if (patch != NULL) {
+		patch->setFixedSubdivisions(_fixed, _tess);
+	}
+}
+
 int selectedFaceCount() {
 	return static_cast<int>(g_SelectedFaceInstances.size());
 }
@@ -243,13 +251,14 @@ FacePtrVector getSelectedFaces() {
 	FacePtrVector vector;
 	
 	// Cycle through all selected faces and fill the vector 
-	g_SelectedFaceInstances.foreach(FaceVectorPopulator(vector));
+	FaceVectorPopulator populator(vector);
+	g_SelectedFaceInstances.foreach(populator);
 	
 	return vector;
 }
 
 // Try to create a CM from the selected entity
-void createCMFromSelection() {
+void createCMFromSelection(const cmd::ArgumentList& args) {
 	// Check the current selection state
 	const SelectionInfo& info = GlobalSelectionSystem().getSelectionInfo();
 	
@@ -281,7 +290,7 @@ void createCMFromSelection() {
 				cm->addBrush(brushes[i]->getBrush());
 			}
 			
-			ui::ModelSelectorResult modelAndSkin = ui::ModelSelector::chooseModel();
+			ui::ModelSelectorResult modelAndSkin = ui::ModelSelector::chooseModel("", false, false);
 			std::string basePath = GlobalGameManager().getModPath();
 			
 			std::string modelPath = basePath + modelAndSkin.model;
@@ -307,11 +316,11 @@ void createCMFromSelection() {
 					// Close the file
 					outfile.close();
 					
-					globalOutputStream() << "CollisionModel saved to " << cmPath.string().c_str() << "\n";
+					globalOutputStream() << "CollisionModel saved to " << cmPath.string() << "\n";
 				}
 				else {
 					gtkutil::errorDialog("Couldn't save to file: " + cmPath.string(),
-						 MainFrame_getWindow());
+						 GlobalRadiant().getMainWindow());
 				}
 			}
 			catch (boost::filesystem::filesystem_error f) {
@@ -329,7 +338,7 @@ void createCMFromSelection() {
 		}
 	}
 	else {
-		gtkutil::errorDialog(ERRSTR_WRONG_SELECTION, MainFrame_getWindow());
+		gtkutil::errorDialog(ERRSTR_WRONG_SELECTION, GlobalRadiant().getMainWindow());
 	}
 }
 
@@ -419,103 +428,27 @@ int countSelectedBrushes() {
 	return count;
 }
 
-class OriginRemover :
-	public scene::Graph::Walker 
+/**
+ * greebo: Functor class which creates a decal patch for each visited face instance.
+ */
+class DecalPatchCreator
 {
+	int _unsuitableWindings;
+
+	typedef std::list<FaceInstance*> FaceInstanceList;
+	FaceInstanceList _faceInstances;
+
 public:
-	bool pre(const scene::Path& path, const scene::INodePtr& node) const {
-		Entity* entity = Node_getEntity(path.top());
-		
-		// Check for an entity
-		if (entity != NULL) {
-			// greebo: Check for a Doom3Group
-			scene::GroupNodePtr groupNode = Node_getGroupNode(path.top());
-			
-			// Don't handle the worldspawn children, they're safe&sound
-			if (groupNode != NULL && entity->getKeyValue("classname") != "worldspawn") {
-				groupNode->removeOriginFromChildren();
-				// Don't traverse the children
-				return false;
-			}
-		}
-		
-		return true;
-	}
-};
+	DecalPatchCreator() :
+		_unsuitableWindings(0)
+	{}
 
-// Graph::Walker implementation
-bool OriginAdder::pre(const scene::Path& path, const scene::INodePtr& node) const {
-	Entity* entity = Node_getEntity(path.top());
-	
-	// Check for an entity
-	if (entity != NULL) {
-		// greebo: Check for a Doom3Group
-		scene::GroupNodePtr groupNode = Node_getGroupNode(path.top());
-		
-		// Don't handle the worldspawn children, they're safe&sound
-		if (groupNode != NULL && entity->getKeyValue("classname") != "worldspawn") {
-			groupNode->addOriginToChildren();
-			// Don't traverse the children
-			return false;
-		}
-	}
-	
-	return true;
-}
-	
-// NodeVisitor implementation
-bool OriginAdder::pre(const scene::INodePtr& node) {
-	Entity* entity = Node_getEntity(node);
-	
-	// Check for an entity
-	if (entity != NULL) {
-		// greebo: Check for a Doom3Group
-		scene::GroupNodePtr groupNode = Node_getGroupNode(node);
-		
-		// Don't handle the worldspawn children, they're safe&sound
-		if (groupNode != NULL && entity->getKeyValue("classname") != "worldspawn") {
-			groupNode->addOriginToChildren();
-			// Don't traverse the children
-			return false;
-		}
-	}
-	return true;
-}
+	void createDecals() {
+		for (FaceInstanceList::iterator i = _faceInstances.begin(); i != _faceInstances.end(); ++i) {
+			// Get the winding
+			const Winding& winding = (*i)->getFace().getWinding();
 
-
-void removeOriginFromChildPrimitives() {
-	bool textureLockStatus = GlobalBrush()->textureLockEnabled();
-	GlobalBrush()->setTextureLock(false);
-	GlobalSceneGraph().traverse(OriginRemover());
-	GlobalBrush()->setTextureLock(textureLockStatus);
-}
-
-void addOriginToChildPrimitives() {
-	bool textureLockStatus = GlobalBrush()->textureLockEnabled();
-	GlobalBrush()->setTextureLock(false);
-	GlobalSceneGraph().traverse(OriginAdder());
-	GlobalBrush()->setTextureLock(textureLockStatus);
-}
-
-void createDecalsForSelectedFaces() {
-	FacePtrVector faces = getSelectedFaces();
-	
-	if (faces.size() <= 0) {
-		gtkutil::errorDialog("No faces selected.", GlobalRadiant().getMainWindow());
-		return;
-	}
-	
-	// Create a scoped undocmd object
-	UndoableCommand cmd("createDecalsForSelectedFaces");
-	
-	int unsuitableWindings(0);
-	
-	// greebo: For each face, create a patch with fixed tesselation
-	for (std::size_t i = 0; i < faces.size(); i++) {
-		const Winding& winding = faces[i]->getWinding();
-		
-		// For now, only windings with four edges are supported
-		if (winding.numpoints == 4) {
+			// Create a new decal patch
 			scene::INodePtr patchNode = GlobalPatchCreator(DEF3).createPatch();
 			
 			if (patchNode == NULL) {
@@ -552,12 +485,56 @@ void createDecalsForSelectedFaces() {
 			assert(worldSpawnNode != NULL); // This must be non-NULL, otherwise we won't have faces
 			
 			worldSpawnNode->addChildNode(patchNode);
+
+			// Deselect the face instance
+			(*i)->setSelected(SelectionSystem::eFace, false);
+
+			// Select the patch
+			Node_setSelected(patchNode, true);
 		}
 	}
+
+	void operator() (FaceInstance& faceInstance) {
+		// Get the winding
+		const Winding& winding = faceInstance.getFace().getWinding();
+
+		// For now, only windings with four edges are supported
+		if (winding.numpoints == 4) {
+			_faceInstances.push_back(&faceInstance);
+		}
+		else {
+			_unsuitableWindings++;
+		}
+	}
+
+	int getNumUnsuitableWindings() const {
+		return _unsuitableWindings;
+	}
+};
+
+void createDecalsForSelectedFaces(const cmd::ArgumentList& args) {
+	// Sanity check	
+	if (g_SelectedFaceInstances.empty()) {
+		gtkutil::errorDialog("No faces selected.", GlobalRadiant().getMainWindow());
+		return;
+	}
 	
+	// Create a scoped undocmd object
+	UndoableCommand cmd("createDecalsForSelectedFaces");
+	
+	// greebo: For each face, create a patch with fixed tesselation
+	DecalPatchCreator creator;
+	g_SelectedFaceInstances.foreach(creator);
+
+	// Issue the command
+	creator.createDecals();
+	
+	// Check how many faces were not suitable
+	int unsuitableWindings = creator.getNumUnsuitableWindings();
+
 	if (unsuitableWindings > 0) {
 		gtkutil::errorDialog(
-			intToStr(unsuitableWindings) + " faces were not suitable (had more than 4 edges).", 
+			intToStr(unsuitableWindings) + " faces were not suitable (had more than 4 vertices).", 
 			GlobalRadiant().getMainWindow()
 		);
 	}
@@ -601,7 +578,7 @@ public:
 	}
 };
 
-void makeVisportal() {
+void makeVisportal(const cmd::ArgumentList& args) {
 	BrushPtrVector brushes = getSelectedBrushes();
 
 	if (brushes.size() <= 0) {

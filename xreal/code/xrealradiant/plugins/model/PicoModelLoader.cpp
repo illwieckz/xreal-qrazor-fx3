@@ -7,7 +7,6 @@
 
 #include "picomodel.h"
 
-#include "stream/textstream.h"
 #include "os/path.h"
 
 #include "PicoModelNode.h"
@@ -42,7 +41,7 @@ scene::INodePtr PicoModelLoader::loadModel(const std::string& modelName) {
 	std::string path = rootPath(modelName);
 	std::string name = os::getRelativePath(modelName, path);
 
-	/* greebo: Path is empty for models in PK3 files, don't give up on this
+	/* greebo: Path is empty for models in PK4 files, don't give up on this
 
 	if (path.empty()) {
 		// Empty path => empty model
@@ -125,7 +124,7 @@ const StringSet& PicoModelLoader::getDependencies() const {
 
 	if (_dependencies.empty()) {
 		_dependencies.insert(MODULE_VIRTUALFILESYSTEM);
-		_dependencies.insert(MODULE_SHADERCACHE);
+		_dependencies.insert(MODULE_RENDERSYSTEM);
 		_dependencies.insert(MODULE_FILETYPES);
 	}
 

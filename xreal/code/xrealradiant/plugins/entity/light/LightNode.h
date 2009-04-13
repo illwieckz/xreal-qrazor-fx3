@@ -44,7 +44,7 @@ class LightNode :
 	mutable AABB m_aabb_component;
 
 public:
-	LightNode(IEntityClassPtr eclass);
+	LightNode(const IEntityClassConstPtr& eclass);
 	LightNode(const LightNode& other);
 
 	virtual ~LightNode();
@@ -124,10 +124,10 @@ public:
 	virtual void detach(const NameCallback& callback);
 
 	// Renderable implementation
-	void renderSolid(Renderer& renderer, const VolumeTest& volume) const;
-	void renderWireframe(Renderer& renderer, const VolumeTest& volume) const;
-  	// Renders the components of this light instance
-	void renderComponents(Renderer& renderer, const VolumeTest& volume) const;
+	void renderSolid(RenderableCollector& collector, const VolumeTest& volume) const;  
+	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const;
+  	// Renders the components of this light instance 
+	void renderComponents(RenderableCollector& collector, const VolumeTest& volume) const;
 
 	void evaluateTransform();
 	typedef MemberCaller<LightNode, &LightNode::evaluateTransform> EvaluateTransformCaller;
@@ -148,7 +148,7 @@ public:
 	const Matrix4& projection() const;
 
 private:
-	void renderInactiveComponents(Renderer& renderer, const VolumeTest& volume, const bool selected) const;
+	void renderInactiveComponents(RenderableCollector& collector, const VolumeTest& volume, const bool selected) const;	
 
 }; // class LightNode
 

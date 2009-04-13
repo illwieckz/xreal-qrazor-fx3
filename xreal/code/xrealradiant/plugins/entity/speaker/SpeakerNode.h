@@ -35,7 +35,7 @@ class SpeakerNode :
 	Speaker m_contained;
 
 public:
-	SpeakerNode(IEntityClassPtr eclass);
+	SpeakerNode(const IEntityClassConstPtr& eclass);
 	SpeakerNode(const SpeakerNode& other);
 
 	virtual ~SpeakerNode();
@@ -76,8 +76,8 @@ public:
 	virtual void detach(const NameCallback& callback);
 
 	// Renderable implementation
-	void renderSolid(Renderer& renderer, const VolumeTest& volume) const;
-	void renderWireframe(Renderer& renderer, const VolumeTest& volume) const;
+	void renderSolid(RenderableCollector& collector, const VolumeTest& volume) const;
+	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const;
 
 	void evaluateTransform();
 	typedef MemberCaller<SpeakerNode, &SpeakerNode::evaluateTransform> EvaluateTransformCaller;

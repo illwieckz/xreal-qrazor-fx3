@@ -1,7 +1,7 @@
 #include "SoundChooser.h"
 
+#include "iradiant.h"
 #include "isound.h"
-#include "mainframe.h"
 #include "gtkutil/TextColumn.h"
 #include "gtkutil/ScrolledFrame.h"
 #include "gtkutil/RightAlignment.h"
@@ -34,7 +34,7 @@ SoundChooser::SoundChooser()
 : _widget(gtk_window_new(GTK_WINDOW_TOPLEVEL))
 {
 	// Set up the window
-	gtk_window_set_transient_for(GTK_WINDOW(_widget), MainFrame_getWindow());
+	gtk_window_set_transient_for(GTK_WINDOW(_widget), GlobalRadiant().getMainWindow());
 	gtk_window_set_modal(GTK_WINDOW(_widget), TRUE);
 	gtk_window_set_title(GTK_WINDOW(_widget), "Choose sound");
     gtk_window_set_position(GTK_WINDOW(_widget), GTK_WIN_POS_CENTER_ON_PARENT);

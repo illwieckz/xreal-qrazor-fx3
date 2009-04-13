@@ -13,13 +13,13 @@
 
 Face::Face(FaceObserver* observer) :
 	m_refcount(0),
-	m_shader(texdef_name_default()),
-	m_texdef(m_shader, TextureProjection(), false),
+	_faceShader(texdef_name_default()),
+	m_texdef(_faceShader, TextureProjection(), false),
 	m_observer(observer),
 	m_undoable_observer(0),
 	m_map(0)
 {
-	m_shader.attach(*this);
+	_faceShader.attach(*this);
 	m_plane.copy(Vector3(0, 0, 0), Vector3(64, 0, 0), Vector3(0, 64, 0));
 	m_texdef.setBasis(m_plane.plane3().normal());
 	planeChanged();
@@ -34,13 +34,13 @@ Face::Face(
 	FaceObserver* observer
 ) :
 	m_refcount(0),
-	m_shader(shader),
-	m_texdef(m_shader, projection),
+	_faceShader(shader),
+	m_texdef(_faceShader, projection),
 	m_observer(observer),
 	m_undoable_observer(0),
 	m_map(0)
 {
-	m_shader.attach(*this);
+	_faceShader.attach(*this);
 	m_plane.copy(p0, p1, p2);
 	m_texdef.setBasis(m_plane.plane3().normal());
 	planeChanged();
@@ -48,13 +48,13 @@ Face::Face(
 
 Face::Face(const Face& other, FaceObserver* observer) :
 	m_refcount(0),
-	m_shader(other.m_shader.getShader(), other.m_shader.m_flags),
-	m_texdef(m_shader, other.getTexdef().normalised()),
+	_faceShader(other._faceShader.getMaterialName(), other._faceShader.m_flags),
+	m_texdef(_faceShader, other.getTexdef().normalised()),
 	m_observer(observer),
 	m_undoable_observer(0),
 	m_map(0)
 {
-	m_shader.attach(*this);
+	_faceShader.attach(*this);
 	m_plane.copy(other.m_plane);
 	planepts_assign(m_move_planepts, other.m_move_planepts);
 	m_texdef.setBasis(m_plane.plane3().normal());
@@ -62,7 +62,7 @@ Face::Face(const Face& other, FaceObserver* observer) :
 }
 
 Face::~Face() {
-	m_shader.detach(*this);
+	_faceShader.detach(*this);
 }
 
 void Face::planeChanged() {
@@ -78,7 +78,7 @@ void Face::unrealiseShader() {
 }
 
 void Face::instanceAttach(MapFile* map) {
-	m_shader.instanceAttach();
+	_faceShader.setInUse(true);
 	m_map = map;
 	m_undoable_observer = GlobalUndoSystem().observer(this);
 }
@@ -87,11 +87,13 @@ void Face::instanceDetach(MapFile* map) {
 	m_undoable_observer = 0;
 	GlobalUndoSystem().release(this);
 	m_map = 0;
-	m_shader.instanceDetach();
+	_faceShader.setInUse(false);
 }
 
-void Face::render(RenderStateFlags state) const {
-	m_winding.draw(state);
+// Back-end render function
+void Face::render(const RenderInfo& info) const 
+{
+	m_winding.render(info);
 }
 
 void Face::undoSave() {
@@ -129,17 +131,28 @@ bool Face::intersectVolume(const VolumeTest& volume, const Matrix4& localToWorld
 	return volume.TestPlane(Plane3(plane3().normal(), -plane3().dist()), localToWorld);
 }
 
-void Face::render(Renderer& renderer, const Matrix4& localToWorld) const {
-	// Submit this face to the Renderer only if its shader is not filtered
-	if (m_shader.state()->getIShader()->isVisible()) {
-		renderer.SetState(m_shader.state(), Renderer::eFullMaterials);
-		renderer.addRenderable(*this, localToWorld);
+void Face::submitRenderables(RenderableCollector& collector,
+                             const Matrix4& localToWorld) const 
+{
+    // Get the shader for rendering
+    ShaderPtr glShader = _faceShader.getGLShader();
+    assert(glShader);
+
+    // Submit this face to the RenderableCollector only if its shader is not
+    // filtered
+    assert(glShader->getMaterial());
+    if (glShader->getMaterial()->isVisible()) 
+    {
+        collector.SetState(
+            glShader, RenderableCollector::eFullMaterials
+        );
+		collector.addRenderable(*this, localToWorld);
 	}
 }
 
 void Face::transform(const Matrix4& matrix, bool mirror) {
 	if (GlobalBrush()->textureLockEnabled()) {
-		m_texdefTransformed.transformLocked(m_shader.width(), m_shader.height(), m_plane.plane3(), matrix);
+		m_texdefTransformed.transformLocked(_faceShader.width(), _faceShader.height(), m_plane.plane3(), matrix);
 	}
 
 	// Transform the FacePlane using the given matrix
@@ -221,11 +234,11 @@ void Face::shaderChanged() {
 }
 
 const std::string& Face::GetShader() const {
-	return m_shader.getShader();
+	return _faceShader.getMaterialName();
 }
 void Face::SetShader(const std::string& name) {
 	undoSave();
-	m_shader.setShader(name);
+	_faceShader.setMaterialName(name);
 	shaderChanged();
 }
 
@@ -250,13 +263,52 @@ void Face::SetTexdef(const TextureProjection& projection) {
 	texdefChanged();
 }
 
+void Face::applyShaderFromFace(const Face& other) {
+	// Retrieve the textureprojection from the source face
+	TextureProjection projection;
+	other.GetTexdef(projection);	
+	
+	SetShader(other.GetShader());
+	SetTexdef(projection);
+	SetFlags(other.getShader().m_flags);
+
+	// The list of shared vertices
+	std::vector<Winding::const_iterator> thisVerts, otherVerts;
+
+	// Let's see whether this face is sharing any 3D coordinates with the other one
+	for (Winding::const_iterator i = other.m_winding.begin(); i != other.m_winding.end(); ++i) {
+		for (Winding::const_iterator j = m_winding.begin(); j != m_winding.end(); ++j) {
+			// Check if the vertices are matching
+			if (vector3_equal_epsilon(j->vertex, i->vertex, 0.001)) {
+				// Match found, add to list
+				thisVerts.push_back(j);
+				otherVerts.push_back(i);
+			}
+		}
+	}
+
+	if (thisVerts.empty() || thisVerts.size() != otherVerts.size()) {
+		return; // nothing to do
+	}
+
+	// Calculate the distance in texture space of the first shared vertices
+	Vector2 dist = thisVerts[0]->texcoord - otherVerts[0]->texcoord;
+
+	// Scale the translation (ShiftTexDef() is scaling this down again, yes this is weird).
+	dist[0] *= getShader().width();
+	dist[1] *= getShader().height();
+
+	// Shift the texture to match
+	ShiftTexdef(dist.x(), dist.y());
+}
+
 void Face::GetFlags(ContentsFlagsValue& flags) const {
-	flags = m_shader.getFlags();
+	flags = _faceShader.getFlags();
 }
 
 void Face::SetFlags(const ContentsFlagsValue& flags) {
 	undoSave();
-	m_shader.setFlags(flags);
+	_faceShader.setFlags(flags);
 	m_observer->shaderChanged();
 }
 
@@ -291,7 +343,6 @@ void Face::flipTexture(unsigned int flipAxis) {
 }
 
 void Face::EmitTextureCoordinates() {
-	//m_texdefTransformed.emitTextureCoordinates(m_shader.width(), m_shader.height(), m_winding, plane3().normal(), g_matrix4_identity);
 	m_texdefTransformed.emitTextureCoordinates(m_winding, plane3().normal(), Matrix4::getIdentity());
 }
 
@@ -330,10 +381,10 @@ const FaceTexdef& Face::getTexdef() const {
 	return m_texdef;
 }
 FaceShader& Face::getShader() {
-	return m_shader;
+	return _faceShader;
 }
 const FaceShader& Face::getShader() const {
-	return m_shader;
+	return _faceShader;
 }
 
 bool Face::contributes() const {

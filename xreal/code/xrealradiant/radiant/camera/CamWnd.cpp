@@ -3,17 +3,18 @@
 #include "iclipper.h"
 #include "iuimanager.h"
 #include "ieventmanager.h"
+#include "imainframe.h"
 
 #include "gdk/gdkkeysyms.h"
 
 #include "gtkutil/widget.h"
 #include "gtkutil/GLWidgetSentry.h"
 #include <time.h>
+#include <boost/format.hpp>
 
 #include "selectable.h"
 #include "selectionlib.h"
 #include "windowobservers.h"
-#include "mainframe.h"
 #include "map/Map.h"
 #include "CamRenderer.h"
 #include "CameraSettings.h"
@@ -21,13 +22,13 @@
 #include "render/RenderStatistics.h"
 
 class ObjectFinder :
-	public scene::Graph::Walker
+	public scene::NodeVisitor
 {
-	mutable scene::INodePtr _node;
+	scene::INodePtr _node;
 	SelectionTest& _selectionTest;
 	
 	// To store the best intersection candidate
-	mutable SelectionIntersection _bestIntersection;
+	SelectionIntersection _bestIntersection;
 public:
 	// Constructor
 	ObjectFinder(SelectionTest& test) :
@@ -40,7 +41,7 @@ public:
 	}
 	
 	// The visitor function
-	bool pre(const scene::Path& path, const scene::INodePtr& node) const {
+	bool pre(const scene::INodePtr& node) {
 		// Check if the node is filtered
 		if (node->visible()) {
 			SelectionTestablePtr selectionTestable = Node_getSelectionTestable(node);
@@ -55,6 +56,9 @@ public:
 				}
 			}
 		}
+		else {
+			return false; // don't traverse filtered nodes
+		}
 			
 		return true;
 	}
@@ -64,34 +68,42 @@ inline WindowVector windowvector_for_widget_centre(GtkWidget* widget) {
 	return WindowVector(static_cast<float>(widget->allocation.width / 2), static_cast<float>(widget->allocation.height / 2));
 }
 
-class FloorHeightWalker : public scene::Graph::Walker
+class FloorHeightWalker : 
+	public scene::NodeVisitor
 {
-	float m_current;
-	float& m_bestUp;
-	float& m_bestDown;
+	float _current;
+	float& _bestUp;
+	float& _bestDown;
 
 public:
 	FloorHeightWalker(float current, float& bestUp, float& bestDown) :
-			m_current(current), m_bestUp(bestUp), m_bestDown(bestDown) {
-		bestUp = GlobalRegistry().getFloat("game/defaults/maxWorldCoord");
-		bestDown = -GlobalRegistry().getFloat("game/defaults/maxWorldCoord");
+		_current(current), 
+		_bestUp(bestUp), 
+		_bestDown(bestDown)
+	{
+		_bestUp = GlobalRegistry().getFloat("game/defaults/maxWorldCoord");
+		_bestDown = -GlobalRegistry().getFloat("game/defaults/maxWorldCoord");
 	}
 
-	bool pre(const scene::Path& path, const scene::INodePtr& node) const {
+	bool pre(const scene::INodePtr& node) {
+
+		if (!node->visible()) return false; // don't traverse hidden nodes
 		
-		if (node->visible() && Node_isBrush(node)) // this node is a floor
+		if (Node_isBrush(node)) // this node is a floor
 		{
 			const AABB& aabb = node->worldAABB();
 
 			float floorHeight = aabb.origin.z() + aabb.extents.z();
 
-			if (floorHeight > m_current && floorHeight < m_bestUp) {
-				m_bestUp = floorHeight;
+			if (floorHeight > _current && floorHeight < _bestUp) {
+				_bestUp = floorHeight;
 			}
 
-			if (floorHeight < m_current && floorHeight > m_bestDown) {
-				m_bestDown = floorHeight;
+			if (floorHeight < _current && floorHeight > _bestDown) {
+				_bestDown = floorHeight;
 			}
+
+			return false;
 		}
 
 		return true;
@@ -156,7 +168,9 @@ gboolean selection_motion_freemove(GtkWidget *widget, GdkEventMotion *event, Win
 
 // greebo: The GTK Callback during freemove mode for scroll events.
 gboolean wheelmove_scroll(GtkWidget* widget, GdkEventScroll* event, CamWnd* camwnd) {
-	
+	// Set the GTK focus to this widget
+	gtk_widget_grab_focus(widget);
+
 	// Determine the direction we are moving.
 	if (event->direction == GDK_SCROLL_UP) {
 		camwnd->getCamera().freemoveUpdateAxes();
@@ -174,6 +188,9 @@ gboolean wheelmove_scroll(GtkWidget* widget, GdkEventScroll* event, CamWnd* camw
  * to the according window observer. */
 gboolean selection_button_press(GtkWidget* widget, GdkEventButton* event, WindowObserver* observer) {
 	
+	// Set the GTK focus to this widget
+	gtk_widget_grab_focus(widget);
+
 	// Check for the correct event type
 	if (event->type == GDK_BUTTON_PRESS) {
 		observer->onMouseDown(WindowVector(event->x, event->y), event);
@@ -224,6 +241,7 @@ gboolean disable_freelook_button_release(GtkWidget* widget, GdkEventButton* even
 // ---------- CamWnd Implementation --------------------------------------------------
 
 CamWnd::CamWnd() :
+	_id(++_maxId),
 	m_view(true),
 	m_Camera(&m_view, CamWndQueueDraw(*this)),
 	m_cameraview(m_Camera, &m_view, CamWndUpdate(*this)),
@@ -248,16 +266,16 @@ CamWnd::CamWnd() :
 	m_window_observer->setRectangleDrawCallback(updateXORRectangleCallback(*this));
 	m_window_observer->setView(m_view);
 
-	gtk_widget_ref(glWidget);
-
 	gtk_widget_set_events(glWidget, GDK_DESTROY | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK);
 	GTK_WIDGET_SET_FLAGS (glWidget, GTK_CAN_FOCUS);
 	gtk_widget_set_size_request(glWidget, CAMWND_MINSIZE_X, CAMWND_MINSIZE_Y);
 
+	g_object_set(m_gl_widget, "can-focus", TRUE, NULL);
+
 	m_sizeHandler = g_signal_connect(G_OBJECT(glWidget), "size_allocate", G_CALLBACK(camera_size_allocate), this);
 	m_exposeHandler = g_signal_connect(G_OBJECT(glWidget), "expose_event", G_CALLBACK(camera_expose), this);
 
-	GlobalMap().addValidCallback(DeferredDrawOnMapValidChangedCaller(m_deferredDraw));
+	_mapValidHandle = GlobalMap().addValidCallback(DeferredDrawOnMapValidChangedCaller(m_deferredDraw));
 
 	// Deactivate all commands, just to make sure
 	disableDiscreteMoveEvents();
@@ -274,10 +292,44 @@ CamWnd::CamWnd() :
 	GlobalEventManager().connect(GTK_OBJECT(glWidget));
 }
 
+CamWnd::~CamWnd() {
+	// Unsubscribe from the global scene graph update 
+	GlobalSceneGraph().removeSceneObserver(this);
+	
+	GtkWidget* glWidget = m_gl_widget; // cast
+	
+	// Disconnect self from EventManager
+	GlobalEventManager().disconnect(GTK_OBJECT(glWidget));
+	if (_parentWidget != NULL) {
+		GlobalEventManager().disconnect(GTK_OBJECT(_parentWidget));
+	}
+
+	GlobalMap().removeValidCallback(_mapValidHandle);
+	
+	if (m_bFreeMove) {
+		disableFreeMove();
+	}
+
+	removeHandlersMove();
+
+	g_signal_handler_disconnect(G_OBJECT(glWidget), m_sizeHandler);
+	g_signal_handler_disconnect(G_OBJECT(glWidget), m_exposeHandler);
+
+	GlobalWindowObservers_remove(m_window_observer);
+	m_window_observer->release();
+
+	// Notify the camera manager about our destruction
+	GlobalCamera().removeCamWnd(_id);
+}
+
+int CamWnd::getId() {
+	return _id;
+}
+
 void CamWnd::jumpToObject(SelectionTest& selectionTest) {
 	// Find a suitable target node
 	ObjectFinder finder(selectionTest);
-	GlobalSceneGraph().traverse(finder);
+	Node_traverseSubgraph(GlobalSceneGraph().root(), finder);
 
 	if (finder.getNode() != NULL) {
 		// A node has been found, get the bounding box
@@ -298,7 +350,8 @@ void CamWnd::changeFloor(const bool up) {
 	float current = m_Camera.origin[2] - 48;
 	float bestUp;
 	float bestDown;
-	GlobalSceneGraph().traverse(FloorHeightWalker(current, bestUp, bestDown));
+	FloorHeightWalker walker(current, bestUp, bestDown);
+	Node_traverseSubgraph(GlobalSceneGraph().root(), walker);
 
 	if (up && bestUp != GlobalRegistry().getFloat("game/defaults/maxWorldCoord")) {
 		current = bestUp;
@@ -447,15 +500,27 @@ void CamWnd::Cam_Draw() {
 	}
 
 
-	unsigned int globalstate = RENDER_DEPTHTEST|RENDER_COLOURWRITE|RENDER_DEPTHWRITE|RENDER_ALPHATEST|RENDER_BLEND|RENDER_CULLFACE|RENDER_COLOURARRAY|RENDER_OFFSETLINE|RENDER_POLYGONSMOOTH|RENDER_LINESMOOTH|RENDER_FOG|RENDER_COLOURCHANGE;
+    // Set the allowed render flags for this view
+	unsigned int allowedRenderFlags = RENDER_DEPTHTEST
+                                     | RENDER_COLOURWRITE
+                                     | RENDER_DEPTHWRITE
+                                     | RENDER_ALPHATEST
+                                     | RENDER_BLEND
+                                     | RENDER_CULLFACE
+                                     | RENDER_COLOURARRAY
+                                     | RENDER_OFFSETLINE
+                                     | RENDER_POLYGONSMOOTH
+                                     | RENDER_LINESMOOTH
+                                     | RENDER_COLOURCHANGE;
 
-	switch (getCameraSettings()->getMode()) {
-
+    // Add mode-specific render flags
+	switch (getCameraSettings()->getMode()) 
+    {
 		case drawWire:
 			break;
 
 		case drawSolid:
-			globalstate |= RENDER_FILL
+			allowedRenderFlags |= RENDER_FILL
 			               | RENDER_LIGHTING
 			               | RENDER_SMOOTH
 			               | RENDER_SCALED;
@@ -463,38 +528,41 @@ void CamWnd::Cam_Draw() {
 			break;
 
 		case drawTexture:
-			globalstate |= RENDER_FILL
+			allowedRenderFlags |= RENDER_FILL
 			               | RENDER_LIGHTING
-			               | RENDER_TEXTURE
+			               | RENDER_TEXTURE_2D
 			               | RENDER_SMOOTH
 			               | RENDER_SCALED;
 
 			break;
 
 		case drawLighting:
-			globalstate |= RENDER_FILL
+			allowedRenderFlags |= RENDER_FILL
 			               | RENDER_LIGHTING
-			               | RENDER_TEXTURE
+			               | RENDER_TEXTURE_2D
+                           | RENDER_TEXTURE_CUBEMAP
 			               | RENDER_SMOOTH
 			               | RENDER_SCALED
 			               | RENDER_BUMP
 			               | RENDER_PROGRAM
+                           | RENDER_MATERIAL_VCOL
+                           | RENDER_VCOL_INVERT
 			               | RENDER_SCREEN;
 
 			break;
 
 		default:
-			globalstate = 0;
+			allowedRenderFlags = 0;
 
 			break;
 	}
 
 	if (!getCameraSettings()->solidSelectionBoxes()) {
-		globalstate |= RENDER_LINESTIPPLE|RENDER_POLYGONSTIPPLE;
+		allowedRenderFlags |= RENDER_LINESTIPPLE|RENDER_POLYGONSTIPPLE;
 	}
 
 	{
-		CamRenderer renderer(globalstate, m_state_select2, m_state_select1, m_view.getViewer());
+		CamRenderer renderer(allowedRenderFlags, m_state_select2, m_state_select1, m_view.getViewer());
 
 		Scene_Render(renderer, m_view);
 
@@ -587,7 +655,7 @@ void CamWnd::draw() {
 	// Scoped object handling the GL context switching
 	gtkutil::GLWidgetSentry sentry(m_gl_widget);
 
-	if (GlobalMap().isValid() && ScreenUpdates_Enabled()) {
+	if (GlobalMap().isValid() && GlobalMainFrame().screenUpdatesEnabled()) {
 		GlobalOpenGL_debugAssertNoErrors();
 		Cam_Draw();
 		GlobalOpenGL_debugAssertNoErrors();
@@ -599,7 +667,7 @@ void CamWnd::draw() {
 }
 
 void CamWnd::benchmark() {
-	double dStart = clock()/ 1000.0;
+	double dStart = clock() / 1000.0;
 
 	for (int i=0 ; i < 100 ; i++) {
 		Vector3 angles;
@@ -609,40 +677,14 @@ void CamWnd::benchmark() {
 		setCameraAngles(angles);
 	}
 
-	double dEnd = clock()/ 1000.0;
+	double dEnd = clock() / 1000.0;
 
-	globalOutputStream() << FloatFormat(dEnd - dStart, 5, 2) << " seconds\n";
+	globalOutputStream() << (boost::format("%5.2lf") % (dEnd - dStart)) << " seconds\n";
 }
 
 void CamWnd::onSceneGraphChange() {
 	// Just pass the call to the update method
 	update();
-}
-
-CamWnd::~CamWnd() {
-	// Subscribe to the global scene graph update 
-	GlobalSceneGraph().removeSceneObserver(this);
-	
-	GtkWidget* glWidget = m_gl_widget; // cast
-	
-	// Disconnect self from EventManager
-	GlobalEventManager().disconnect(GTK_OBJECT(glWidget));
-	if (_parentWidget != NULL) {
-		GlobalEventManager().disconnect(GTK_OBJECT(_parentWidget));
-	}
-	
-	if (m_bFreeMove) {
-		disableFreeMove();
-	}
-
-	removeHandlersMove();
-
-	g_signal_handler_disconnect(G_OBJECT(glWidget), m_sizeHandler);
-	g_signal_handler_disconnect(G_OBJECT(glWidget), m_exposeHandler);
-
-	gtk_widget_unref(glWidget);
-
-	m_window_observer->release();
 }
 
 // ----------------------------------------------------------
@@ -734,8 +776,8 @@ Camera& CamWnd::getCamera() {
 }
 
 void CamWnd::captureStates() {
-	m_state_select1 = GlobalShaderCache().capture("$CAM_HIGHLIGHT");
-	m_state_select2 = GlobalShaderCache().capture("$CAM_OVERLAY");
+	m_state_select1 = GlobalRenderSystem().capture("$CAM_HIGHLIGHT");
+	m_state_select2 = GlobalRenderSystem().capture("$CAM_OVERLAY");
 }
 
 void CamWnd::releaseStates() {
@@ -764,8 +806,20 @@ GtkWindow* CamWnd::getParent() const {
 }
 
 void CamWnd::setContainer(GtkWindow* newParent) {
-	_parentWidget = newParent;
-	GlobalEventManager().connect(GTK_OBJECT(_parentWidget));
+	if (newParent == _parentWidget) {
+		// Do nothing if no change required
+		return;
+	}
+
+	if (_parentWidget != NULL) {
+		GlobalEventManager().disconnect(GTK_OBJECT(_parentWidget));
+		_parentWidget = NULL;
+	}
+
+	if (newParent != NULL) {
+		_parentWidget = newParent;
+		GlobalEventManager().connect(GTK_OBJECT(_parentWidget));
+	}
 }
 
 Vector3 CamWnd::getCameraOrigin() const {
@@ -789,7 +843,6 @@ void CamWnd::cubicScaleOut() {
 
 	m_Camera.updateProjection();
 	update();
-	g_pParentWnd->SetGridStatus();
 }
 
 void CamWnd::cubicScaleIn() {
@@ -797,11 +850,10 @@ void CamWnd::cubicScaleIn() {
 
 	m_Camera.updateProjection();
 	update();
-	
-	g_pParentWnd->SetGridStatus();
 }
 
 // -------------------------------------------------------------------------------
 
 ShaderPtr CamWnd::m_state_select1;
 ShaderPtr CamWnd::m_state_select2;
+int CamWnd::_maxId = 0;

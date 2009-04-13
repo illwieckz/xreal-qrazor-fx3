@@ -4,11 +4,12 @@
 #include "ishaders.h"
 #include <map>
 #include "../MapExpression.h"
+#include "texturelib.h"
 
-namespace shaders {
+namespace shaders 
+{
 
-class GLTextureManager :
-	public IGLTextureManager
+class GLTextureManager 
 {
 	// The mapping between texturekeys and Texture instances
 	typedef std::map<std::string, TexturePtr> TextureMap;
@@ -19,26 +20,16 @@ class GLTextureManager :
 
 private:
 
-	/* greebo: Binds the specified texture to openGL and populates the texture object 
-	 */
-	void load(TexturePtr texture, ImagePtr image);
-	
 	// Constructs the fallback textures like "Shader Image Missing"
 	TexturePtr loadStandardTexture(const std::string& filename);
 
-	// Construct and return the "shader not found" texture
-	TexturePtr getShaderNotFound();
-
 public:
 
-	/* greebo: Use this method to request a Texture to be realised
-	 * (i.e. loaded into graphics memory and assigned a texture_number).
-	 * 
-	 * This will return the realised texture or a "fallback" texture
-	 * according to the given <textureType> (flat image for normalmaps,
-	 * black for specular), if the texture is empty or can't be loaded.  
-	 */
-	TexturePtr getBinding(MapExpressionPtr mapExp);
+    /**
+     * \brief
+     * Construct a bound texture from a generic named bindable.
+     */
+	TexturePtr getBinding(NamedBindablePtr bindable);
 	
 	/** greebo: This loads a texture directly from the disk using the
 	 * 			specified <fullPath>.
@@ -49,6 +40,12 @@ public:
 	 */
 	TexturePtr getBinding(const std::string& fullPath,
 				 		const std::string& moduleNames = "bmp");
+
+	/**
+     * \brief
+     * Get the "shader not found" texture.
+     */
+	TexturePtr getShaderNotFound();
 
 	/* greebo: This is some sort of "cleanup" call, which causes
 	 * the TextureManager to go through the list of textures and 

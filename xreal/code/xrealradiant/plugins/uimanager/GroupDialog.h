@@ -81,6 +81,9 @@ public:
 	GtkWidget* addPage(const std::string& name, 
 					   const std::string& tabLabel, const std::string& tabIcon, 
 					   GtkWidget* page, const std::string& windowLabel);
+
+	// Removes a given page
+	void removePage(const std::string& name);
 	
 	/** greebo: Sets the active tab to the given widget.
 	 * 
@@ -110,6 +113,9 @@ public:
 	GtkWidget* getDialogWindow();
 	void showDialogWindow();
 	void hideDialogWindow();
+
+	// Detaches the notebook and relocates it to another parent container
+	void reparentNotebook(GtkWidget* newParent);
 	
 	/** greebo: Safely disconnects this window from
 	 * 			the eventmanager and saves the window position.

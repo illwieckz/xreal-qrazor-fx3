@@ -17,7 +17,6 @@
 #include "../namedentity.h"
 #include "../entity.h"
 #include "../Doom3Entity.h"
-#include "../OptionalRenderedName.h"
 
 #include "Renderables.h"
 #include "LightShader.h"
@@ -28,16 +27,16 @@ namespace entity {
 
 /* greebo: This is the actual light class. It contains the information about the geometry
  * of the light and the actual render functions.
- *
+ * 
  * This class owns all the keyObserver callbacks, that get invoked as soon as the entity key/values get
  * changed by the user.
- *
+ * 
  * The subclass Doom3LightRadius contains some variables like the light radius and light center coordinates,
  * and there are some "onChanged" callbacks for the light radius and light center.
- *
+ * 
  * Note: All the selection stuff is handled by the LightInstance class. This is just the bare bone light.
  */
-
+ 
 void light_vertices(const AABB& aabb_light, Vector3 points[6]);
 void light_draw(const AABB& aabb_light, RenderStateFlags state);
 
@@ -84,8 +83,7 @@ class Light :
 	public Cullable,
 	public Bounded,
 	public Editable,
-	public Snappable,
-    public OptionalRenderedName
+	public Snappable
 {
 	Doom3Entity& m_entity;
   KeyObserverMap m_keyObservers;
@@ -203,8 +201,8 @@ public:
 
 public:
 	// Constructor
-	Light(IEntityClassPtr eclass, LightNode& node, const Callback& transformChanged, const Callback& boundsChanged, const Callback& evaluateTransform);
-
+	Light(LightNode& node, const Callback& transformChanged, const Callback& boundsChanged, const Callback& evaluateTransform);
+	
 	// Copy Constructor
 	Light(const Light& other, LightNode& node, const Callback& transformChanged, const Callback& boundsChanged, const Callback& evaluateTransform);
 
@@ -221,7 +219,7 @@ public:
 	TransformNode& getTransformNode();
 	const TransformNode& getTransformNode() const;
 
-	void render(RenderStateFlags state) const;
+	void render(const RenderInfo& info) const;
 
 	VolumeIntersectionValue intersectVolume(const VolumeTest& volume, const Matrix4& localToWorld) const;
 	const AABB& localAABB() const;
@@ -231,13 +229,13 @@ public:
 	mutable Matrix4 m_projectionOrientation;
 
 	// Renderable submission functions
-	void renderWireframe(Renderer& renderer,
-						 const VolumeTest& volume,
-						 const Matrix4& localToWorld,
+	void renderWireframe(RenderableCollector& collector, 
+						 const VolumeTest& volume, 
+						 const Matrix4& localToWorld, 
 						 bool selected) const;
 
-	// Adds the light centre renderable to the given renderer
-	void renderLightCentre(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
+	// Adds the light centre renderable to the given collector
+	void renderLightCentre(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
 
 	// Returns a reference to the member class Doom3LightRadius (used to set colours)
 	Doom3LightRadius& getDoom3Radius();

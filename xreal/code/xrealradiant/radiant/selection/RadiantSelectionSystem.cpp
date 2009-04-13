@@ -103,8 +103,11 @@ void RadiantSelectionSystem::Scene_TestSelect(SelectablesList& targetList, Selec
 	SelectionPool selector;
 	SelectionPool sel2;
 	switch(mode) {
-		case eEntity: {
-			Scene_forEachVisible(GlobalSceneGraph(), view, testselect_entity_visible(selector, test));
+		case eEntity:
+		{
+			testselect_entity_visible entityTest(selector, test);
+
+			Scene_forEachVisible(GlobalSceneGraph(), view, entityTest);
 			for (SelectionPool::iterator i = selector.begin(); i != selector.end(); ++i) {
 				targetList.push_back(i->second);
 			}
@@ -114,12 +117,16 @@ void RadiantSelectionSystem::Scene_TestSelect(SelectablesList& targetList, Selec
 			// Do we have a camera view (filled rendering?)
 			if (view.fill() || !GlobalXYWnd().higherEntitySelectionPriority()) {
 				// Test for any visible elements (primitives, entities), but don't select child primitives
-				Scene_forEachVisible(GlobalSceneGraph(), view, testselect_any_visible(selector, test, false)); 
+				testselect_any_visible anyVisible(selector, test, false);
+
+				Scene_forEachVisible(GlobalSceneGraph(), view, anyVisible); 
 			}
 			else {
 				// We have an orthoview, here, select entities first
 				// First, obtain all the selectable entities
-				Scene_forEachVisible(GlobalSceneGraph(), view, testselect_entity_visible(selector, test));
+				testselect_entity_visible entityTest(selector, test);
+
+				Scene_forEachVisible(GlobalSceneGraph(), view, entityTest);
 				// Now, retrieve all the selectable primitives (and don't select child primitives (false)) 
 				Scene_TestSelect_Primitive(sel2, test, view, false);
 			}
@@ -314,8 +321,11 @@ void RadiantSelectionSystem::setSelectedAllComponents(bool selected) {
 
 // Traverse the current selection and visit them with the given visitor class
 void RadiantSelectionSystem::foreachSelected(const Visitor& visitor) const {
-	for (SelectionListType::const_iterator i = _selection.begin(); i != _selection.end(); ++i) {
-		visitor.visit(i->first);
+	for (SelectionListType::const_iterator i = _selection.begin(); 
+		 i != _selection.end(); 
+		 /* in-loop increment */)
+	{
+		visitor.visit((i++)->first);
 	}
 }
 
@@ -323,9 +333,9 @@ void RadiantSelectionSystem::foreachSelected(const Visitor& visitor) const {
 void RadiantSelectionSystem::foreachSelectedComponent(const Visitor& visitor) const {
 	for (SelectionListType::const_iterator i = _componentSelection.begin(); 
 		 i != _componentSelection.end(); 
-		 ++i)
+		 /* in-loop increment */)
 	{
-		visitor.visit(i->first);
+		visitor.visit((i++)->first);
 	}
 }
 
@@ -560,7 +570,7 @@ void RadiantSelectionSystem::translate(const Vector3& translation) {
 
 		// Get the current pivot matrix and multiply it by the translation matrix defined by <translation>.
 		_pivot2world = _pivot2worldStart;
-		matrix4_translate_by_vec3(_pivot2world, translation);
+		_pivot2world.translateBy(translation);
 		
 		// Call the according scene graph traversors and pass the translation vector
 		if (Mode() == eComponent) {
@@ -706,8 +716,8 @@ void RadiantSelectionSystem::NudgeManipulator(const Vector3& nudge, const Vector
 }
 
 // greebo: This just passes the call on to renderSolid, the manipulators are wireframes anyway 
-void RadiantSelectionSystem::renderWireframe(Renderer& renderer, const VolumeTest& volume) const {
-	renderSolid(renderer, volume);
+void RadiantSelectionSystem::renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const {
+	renderSolid(collector, volume);
 }
 
 // Lets the ConstructPivot() method do the work and returns the result that is stored in the member variable 
@@ -717,13 +727,13 @@ const Matrix4& RadiantSelectionSystem::GetPivot2World() const {
 }
 
 void RadiantSelectionSystem::constructStatic() {
-	_state = GlobalShaderCache().capture("$POINT");
+	_state = GlobalRenderSystem().capture("$POINT");
 #if defined(DEBUG_SELECTION)
-	g_state_clipped = GlobalShaderCache().capture("$DEBUG_CLIPPED");
+	g_state_clipped = GlobalRenderSystem().capture("$DEBUG_CLIPPED");
 #endif
-	TranslateManipulator::_stateWire = GlobalShaderCache().capture("$WIRE_OVERLAY");
-	TranslateManipulator::_stateFill = GlobalShaderCache().capture("$FLATSHADE_OVERLAY");
-	RotateManipulator::_stateOuter = GlobalShaderCache().capture("$WIRE_OVERLAY");
+	TranslateManipulator::_stateWire = GlobalRenderSystem().capture("$WIRE_OVERLAY");
+	TranslateManipulator::_stateFill = GlobalRenderSystem().capture("$FLATSHADE_OVERLAY");
+	RotateManipulator::_stateOuter = GlobalRenderSystem().capture("$WIRE_OVERLAY");
 }
 
 void RadiantSelectionSystem::destroyStatic() {
@@ -902,21 +912,21 @@ void RadiantSelectionSystem::ConstructPivot() const {
 /* greebo: Renders the currently active manipulator by setting the render state and 
  * calling the manipulator's render method
  */
-void RadiantSelectionSystem::renderSolid(Renderer& renderer, const VolumeTest& volume) const {
+void RadiantSelectionSystem::renderSolid(RenderableCollector& collector, const VolumeTest& volume) const {
 	if (!nothingSelected()) {
-		renderer.Highlight(Renderer::ePrimitive, false);
-		renderer.Highlight(Renderer::eFace, false);
+		collector.Highlight(RenderableCollector::ePrimitive, false);
+		collector.Highlight(RenderableCollector::eFace, false);
 
-		renderer.SetState(_state, Renderer::eWireframeOnly);
-		renderer.SetState(_state, Renderer::eFullMaterials);
+		collector.SetState(_state, RenderableCollector::eWireframeOnly);
+		collector.SetState(_state, RenderableCollector::eFullMaterials);
 
-		_manipulator->render(renderer, volume, GetPivot2World());
+		_manipulator->render(collector, volume, GetPivot2World());
 	}
 
 #if defined(DEBUG_SELECTION)
-	renderer.SetState(g_state_clipped, Renderer::eWireframeOnly);
-	renderer.SetState(g_state_clipped, Renderer::eFullMaterials);
-	renderer.addRenderable(g_render_clipped, g_render_clipped.m_world);
+	collector.SetState(g_state_clipped, RenderableCollector::eWireframeOnly);
+	collector.SetState(g_state_clipped, RenderableCollector::eFullMaterials);
+	collector.addRenderable(g_render_clipped, g_render_clipped.m_world);
 #endif
 }
 
@@ -930,7 +940,7 @@ const StringSet& RadiantSelectionSystem::getDependencies() const {
 	static StringSet _dependencies;
 	
 	if (_dependencies.empty()) {
-		_dependencies.insert(MODULE_SHADERCACHE);
+		_dependencies.insert(MODULE_RENDERSYSTEM);
 		_dependencies.insert(MODULE_EVENTMANAGER);
 		_dependencies.insert(MODULE_XMLREGISTRY);
 		_dependencies.insert(MODULE_GRID);
@@ -959,7 +969,7 @@ void RadiantSelectionSystem::initialiseModule(const ApplicationContext& ctx) {
 		PivotChangedCaller(*this)
 	);
 
-	GlobalShaderCache().attachRenderable(*this);
+	GlobalRenderSystem().attachRenderable(*this);
 }
 
 void RadiantSelectionSystem::shutdownModule() {
@@ -968,7 +978,7 @@ void RadiantSelectionSystem::shutdownModule() {
 	setSelectedAll(false);
 	setSelectedAllComponents(false);
 
-	GlobalShaderCache().detachRenderable(*this);
+	GlobalRenderSystem().detachRenderable(*this);
 	GlobalSceneGraph().removeBoundsChangedCallback(_boundsChangedHandler);
 	
 	destroyStatic();

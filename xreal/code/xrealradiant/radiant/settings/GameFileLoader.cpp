@@ -11,7 +11,8 @@ GameFileLoader::GameFileLoader(Manager::GameMap& games, const std::string& path)
 {}
 
 // Main functor () function, gets called with the file (without path)
-void GameFileLoader::operator() (const std::string& name) {
+void GameFileLoader::operator() (const std::string& name) 
+{
 	if (!boost::algorithm::ends_with(name, GAME_FILE_EXT)) {
 		// Don't process files not ending with .game
 		return;
@@ -19,11 +20,11 @@ void GameFileLoader::operator() (const std::string& name) {
 	
 	// Create a new Game object
 	GamePtr newGame(new Game(_path, name));
-	std::string gameType = newGame->getType();
+	std::string gameName = newGame->getName();
 	
-	if (!gameType.empty()) {
+	if (!gameName.empty()) {
 		// Store the game into the map
-		_games[gameType] = newGame;
+		_games[gameName] = newGame;
 	}
 }
 

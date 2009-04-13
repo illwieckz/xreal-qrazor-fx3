@@ -3,8 +3,10 @@
 
 #include "gtkutil/VFSTreePopulator.h"
 #include "gtkutil/ModalProgressDialog.h"
-#include "mainframe.h"
+#include "iradiant.h"
+#include "EventRateLimiter.h"
 
+#include "string/string.h"
 #include <boost/algorithm/string/predicate.hpp>
 
 namespace ui
@@ -22,26 +24,30 @@ namespace {
  * Functor object to visit the global VFS and add model paths to a VFS tree
  * populator object.
  */
-class ModelFileFunctor
+class ModelFileFunctor 
 {
-	// VFSTreePopulator to populate
+	// VFSTreePopulators to populate
 	gtkutil::VFSTreePopulator& _populator;
+	gtkutil::VFSTreePopulator& _populator2;
 
 	// Progress dialog and model count
 	gtkutil::ModalProgressDialog _progress;
 	int _count;
-	int _guiUpdateInterleave;
 
+    // Event rate limiter for progress dialog
+    EventRateLimiter _evLimiter;
+	
 public:
-
+	
 	typedef const std::string& first_argument_type;
 
 	// Constructor sets the populator
-	ModelFileFunctor(gtkutil::VFSTreePopulator& pop)
-	: _populator(pop),
-	  _progress(MainFrame_getWindow(), "Loading models"),
-	  _count(0),
-	  _guiUpdateInterleave(50)
+	ModelFileFunctor(gtkutil::VFSTreePopulator& pop, gtkutil::VFSTreePopulator& pop2) : 
+		_populator(pop),
+		_populator2(pop2),
+		_progress(GlobalRadiant().getMainWindow(), "Loading models"),
+		_count(0),
+		_evLimiter(50)
 	{
 		_progress.setText("Searching");
 	}
@@ -57,9 +63,12 @@ public:
 			boost::algorithm::iends_with(file, MD3_EXTENSION))
 		{
 			_count++;
-			_populator.addPath(file);
 
-			if (_count % _guiUpdateInterleave == 0) {
+			_populator.addPath(file);
+			_populator2.addPath(file);
+			
+			if (_evLimiter.readyForEvent()) 
+            {
 				_progress.setText(boost::lexical_cast<std::string>(_count)
 								  + " models loaded");
 			}

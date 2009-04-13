@@ -10,7 +10,7 @@ NullModel::NullModel() :
 	_aabbSolid(_aabbLocal), 
 	_aabbWire(_aabbLocal)
 {
-	_state = GlobalShaderCache().capture("");
+	_state = GlobalRenderSystem().capture("");
 }
 
 NullModel::~NullModel() {
@@ -27,18 +27,18 @@ const AABB& NullModel::localAABB() const {
 	return _aabbLocal;
 }
 
-void NullModel::renderSolid(Renderer& renderer, 
+void NullModel::renderSolid(RenderableCollector& collector, 
 	const VolumeTest& volume, const Matrix4& localToWorld) const
 {
-	renderer.SetState(_state, Renderer::eFullMaterials);
-	renderer.addRenderable(_aabbSolid, localToWorld);
+	collector.SetState(_state, RenderableCollector::eFullMaterials);
+	collector.addRenderable(_aabbSolid, localToWorld);
 }
 
-void NullModel::renderWireframe(Renderer& renderer, 
+void NullModel::renderWireframe(RenderableCollector& collector, 
 	const VolumeTest& volume, const Matrix4& localToWorld) const
 {
-	renderer.SetState(_state, Renderer::eWireframeOnly);
-	renderer.addRenderable(_aabbWire, localToWorld);
+	collector.SetState(_state, RenderableCollector::eWireframeOnly);
+	collector.addRenderable(_aabbWire, localToWorld);
 }
 
 void NullModel::testSelect(Selector& selector, SelectionTest& test, const Matrix4& localToWorld) {
@@ -89,11 +89,13 @@ const std::vector<std::string>& NullModel::getActiveMaterials() const {
 	return _dummyMaterials;
 }
 
-void NullModel::render(RenderStateFlags state) const {
-	if (state & RENDER_TEXTURE) {
-		aabb_draw_solid(_aabbLocal, state);
+void NullModel::render(const RenderInfo& info) const {
+	if (info.checkFlag(RENDER_TEXTURE_2D)) 
+    {
+		aabb_draw_solid(_aabbLocal, info.getFlags());
 	}
-	else {
+	else 
+    {
 		aabb_draw_wire(_aabbLocal);
 	}
 }

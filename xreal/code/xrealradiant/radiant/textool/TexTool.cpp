@@ -15,7 +15,6 @@
 #include "gtkutil/window/PersistentTransientWindow.h"
 #include "gtkutil/FramedWidget.h"
 #include "gtkutil/GLWidgetSentry.h"
-#include "mainframe.h"
 #include "brush/Face.h"
 #include "brush/BrushNode.h"
 #include "brush/Winding.h"
@@ -49,7 +48,7 @@ namespace ui {
 	}
 
 TexTool::TexTool() 
-: gtkutil::PersistentTransientWindow(WINDOW_TITLE, MainFrame_getWindow(), true),
+: gtkutil::PersistentTransientWindow(WINDOW_TITLE, GlobalRadiant().getMainWindow(), true),
   _glWidget(true),
   _selectionInfo(GlobalSelectionSystem().getSelectionInfo()),
   _zoomFactor(DEFAULT_ZOOM_FACTOR),
@@ -70,11 +69,7 @@ TexTool::TexTool()
 	populateWindow();
 	
 	// Connect the window position tracker
-	xml::NodeList windowStateList = GlobalRegistry().findXPath(RKEY_WINDOW_STATE);
-	
-	if (windowStateList.size() > 0) {
-		_windowPosition.loadFromNode(windowStateList[0]);
-	}
+	_windowPosition.loadFromPath(RKEY_WINDOW_STATE);
 	
 	_windowPosition.connect(GTK_WINDOW(getWindow()));
 	_windowPosition.applyPosition();
@@ -178,19 +173,13 @@ void TexTool::gridDown() {
 
 void TexTool::onRadiantShutdown() {
 	// Release the shader
-	_shader = IShaderPtr();
+	_shader = MaterialPtr();
 
 	// De-register this as selectionsystem observer
 	GlobalSelectionSystem().removeObserver(this);
 	
-	// Delete all the current window states from the registry  
-	GlobalRegistry().deleteXPath(RKEY_WINDOW_STATE);
-	
-	// Create a new node
-	xml::Node node(GlobalRegistry().createKey(RKEY_WINDOW_STATE));
-	
 	// Tell the position tracker to save the information
-	_windowPosition.saveToNode(node);
+	_windowPosition.saveToPath(RKEY_WINDOW_STATE);
 	
 	GlobalEventManager().disconnect(GTK_OBJECT(static_cast<GtkWidget*>(_glWidget)));
 	GlobalEventManager().disconnect(GTK_OBJECT(getWindow()));
@@ -205,7 +194,7 @@ TexTool& TexTool::Instance() {
 
 void TexTool::update() {
 	std::string selectedShader = selection::algorithm::getShaderFromSelection();
-	_shader = GlobalShaderSystem().getShaderForName(selectedShader);
+	_shader = GlobalMaterialManager().getMaterialForName(selectedShader);
 }
 
 void TexTool::rescanSelection() {
@@ -749,8 +738,8 @@ gboolean TexTool::onExpose(GtkWidget* widget, GdkEventExpose* event, TexTool* se
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
 	// Acquire the texture number of the active texture
-	TexturePtr tex = self->_shader->getTexture();
-	glBindTexture(GL_TEXTURE_2D, tex->texture_number);
+	TexturePtr tex = self->_shader->getEditorImage();
+	glBindTexture(GL_TEXTURE_2D, tex->getGLTexNum());
 	
 	// Draw the background texture
 	glEnable(GL_TEXTURE_2D);
@@ -914,48 +903,57 @@ gboolean TexTool::onMouseScroll(GtkWidget* widget, GdkEventScroll* event, TexToo
 }
 
 // Static command targets
-void TexTool::toggle() {
+void TexTool::toggle(const cmd::ArgumentList& args) {
 	// Call the toggle() method of the static instance
 	Instance().toggleWindow();
 }
 
-void TexTool::texToolGridUp() {
+void TexTool::texToolGridUp(const cmd::ArgumentList& args) {
 	Instance().gridUp();
 }
 
-void TexTool::texToolGridDown() {
+void TexTool::texToolGridDown(const cmd::ArgumentList& args) {
 	Instance().gridDown();
 }
 
-void TexTool::texToolSnapToGrid() {
+void TexTool::texToolSnapToGrid(const cmd::ArgumentList& args) {
 	Instance().snapToGrid();
 }
 
-void TexTool::texToolMergeItems() {
+void TexTool::texToolMergeItems(const cmd::ArgumentList& args) {
 	Instance().mergeSelectedItems();
 }
 
-void TexTool::texToolFlipS() {
+void TexTool::texToolFlipS(const cmd::ArgumentList& args) {
 	Instance().flipSelected(0);
 }
 
-void TexTool::texToolFlipT() {
+void TexTool::texToolFlipT(const cmd::ArgumentList& args) {
 	Instance().flipSelected(1);
 }
 
-void TexTool::selectRelated() {
+void TexTool::selectRelated(const cmd::ArgumentList& args) {
 	Instance().selectRelatedItems();
 }
 
 void TexTool::registerCommands() {
-	GlobalEventManager().addCommand("TextureTool", FreeCaller<TexTool::toggle>());
-	GlobalEventManager().addCommand("TexToolGridUp", FreeCaller<TexTool::texToolGridUp>());
-	GlobalEventManager().addCommand("TexToolGridDown", FreeCaller<TexTool::texToolGridDown>());
-	GlobalEventManager().addCommand("TexToolSnapToGrid", FreeCaller<TexTool::texToolSnapToGrid>());
-	GlobalEventManager().addCommand("TexToolMergeItems", FreeCaller<TexTool::texToolMergeItems>());
-	GlobalEventManager().addCommand("TexToolFlipS", FreeCaller<TexTool::texToolFlipS>());
-	GlobalEventManager().addCommand("TexToolFlipT", FreeCaller<TexTool::texToolFlipT>());
-	GlobalEventManager().addCommand("TexToolSelectRelated", FreeCaller<TexTool::selectRelated>());
+	GlobalCommandSystem().addCommand("TextureTool", TexTool::toggle);
+	GlobalCommandSystem().addCommand("TexToolGridUp", TexTool::texToolGridUp);
+	GlobalCommandSystem().addCommand("TexToolGridDown", TexTool::texToolGridDown);
+	GlobalCommandSystem().addCommand("TexToolSnapToGrid", TexTool::texToolSnapToGrid);
+	GlobalCommandSystem().addCommand("TexToolMergeItems", TexTool::texToolMergeItems);
+	GlobalCommandSystem().addCommand("TexToolFlipS", TexTool::texToolFlipS);
+	GlobalCommandSystem().addCommand("TexToolFlipT", TexTool::texToolFlipT);
+	GlobalCommandSystem().addCommand("TexToolSelectRelated", TexTool::selectRelated);
+
+	GlobalEventManager().addCommand("TextureTool", "TextureTool");
+	GlobalEventManager().addCommand("TexToolGridUp", "TexToolGridUp");
+	GlobalEventManager().addCommand("TexToolGridDown", "TexToolGridDown");
+	GlobalEventManager().addCommand("TexToolSnapToGrid", "TexToolSnapToGrid");
+	GlobalEventManager().addCommand("TexToolMergeItems", "TexToolMergeItems");
+	GlobalEventManager().addCommand("TexToolFlipS", "TexToolFlipS");
+	GlobalEventManager().addCommand("TexToolFlipT", "TexToolFlipT");
+	GlobalEventManager().addCommand("TexToolSelectRelated", "TexToolSelectRelated");
 	GlobalEventManager().addRegistryToggle("TexToolToggleGrid", RKEY_GRID_STATE);
 }
 

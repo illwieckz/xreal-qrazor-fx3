@@ -12,7 +12,7 @@ class BrushClipPlane : public OpenGLRenderable {
 	static ShaderPtr m_state;
 public:
 	static void constructStatic() {
-		m_state = GlobalShaderCache().capture("$CLIPPER_OVERLAY");
+		m_state = GlobalRenderSystem().capture("$CLIPPER_OVERLAY");
 	}
 	static void destroyStatic() {
 		m_state = ShaderPtr();
@@ -29,19 +29,19 @@ public:
 		m_winding.updateNormals(m_plane.normal());
 	}
 
-	void render(RenderStateFlags state) const {
-		if ((state & RENDER_FILL) != 0) {
-			m_winding.draw(state);
+	void render(const RenderInfo& info) const {
+		if (info.checkFlag(RENDER_FILL)) {
+			m_winding.render(info);
 		}
 		else {
 			m_winding.drawWireframe();
 		}
 	}
 
-	void render(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const {
-		renderer.SetState(m_state, Renderer::eWireframeOnly);
-		renderer.SetState(m_state, Renderer::eFullMaterials);
-		renderer.addRenderable(*this, localToWorld);
+	void render(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const {
+		collector.SetState(m_state, RenderableCollector::eWireframeOnly);
+		collector.SetState(m_state, RenderableCollector::eFullMaterials);
+		collector.addRenderable(*this, localToWorld);
 	}
 }; // class BrushClipPlane
 

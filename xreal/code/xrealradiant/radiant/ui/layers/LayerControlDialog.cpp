@@ -2,10 +2,10 @@
 
 #include <gtk/gtk.h>
 
+#include "itextstream.h"
 #include "ieventmanager.h"
 #include "ilayer.h"
 #include "iregistry.h"
-#include "stream/textstream.h"
 
 #include "gtkutil/dialog.h"
 #include "gtkutil/EntryAbortedException.h"
@@ -38,11 +38,7 @@ LayerControlDialog::LayerControlDialog() :
 	populateWindow();
 
 	// Connect the window position tracker
-	xml::NodeList windowStateList = GlobalRegistry().findXPath(RKEY_WINDOW_STATE);
-	
-	if (windowStateList.size() > 0) {
-		_windowPosition.loadFromNode(windowStateList[0]);
-	}
+	_windowPosition.loadFromPath(RKEY_WINDOW_STATE);
 	
 	_windowPosition.connect(GTK_WINDOW(getWindow()));
 	_windowPosition.applyPosition();
@@ -98,7 +94,7 @@ void LayerControlDialog::toggleDialog() {
 void LayerControlDialog::refresh() {
 	// Remove the widgets from the vbox first
 	for (LayerControls::iterator i = _layerControls.begin(); 
-		 i != _layerControls.end(); i++)
+		 i != _layerControls.end(); ++i)
 	{
 		gtk_container_remove(GTK_CONTAINER(_controlContainer), (*i)->getToggle());
 		gtk_container_remove(GTK_CONTAINER(_controlContainer), (*i)->getLabelButton());
@@ -109,32 +105,44 @@ void LayerControlDialog::refresh() {
 	_layerControls.clear();
 	
 	// Local helper class for populating the window
-	class LayerControlPopulator :
+	class LayerControlAccumulator :
 		public scene::LayerSystem::Visitor
 	{
-		LayerControls& _layerControls;
+		typedef std::map<std::string, LayerControlPtr> LayerControlMap;
+		LayerControlMap _sortedLayerControls;
 	public:
-		LayerControlPopulator(LayerControls& layerControls) :
-			_layerControls(layerControls)
-		{}
-
 		void visit(int layerID, std::string layerName) {
 			// Create a new layercontrol for each visited layer
-			LayerControlPtr control(new LayerControl(layerID));
-
-			// Store the object locally
-			_layerControls.push_back(control);
+			// Store the object in a sorted container
+			_sortedLayerControls[layerName] = LayerControlPtr(new LayerControl(layerID));
 		}
-	} populator(_layerControls);
+
+		// Returns the sorted vector
+		LayerControls getVector() {
+			LayerControls returnValue;
+
+			// Copy the objects over to a linear vector
+			for (LayerControlMap::const_iterator i = _sortedLayerControls.begin(); 
+				 i != _sortedLayerControls.end(); ++i)
+			{
+				returnValue.push_back(i->second);
+			}
+			
+			return returnValue;
+		}
+	} populator;
 
 	// Traverse the layers
 	scene::getLayerSystem().foreachLayer(populator);
+
+	// Get the sorted vector
+	_layerControls = populator.getVector();
 
 	gtk_table_resize(GTK_TABLE(_controlContainer), static_cast<guint>(_layerControls.size()), 3);
 
 	int c = 0;
 	for (LayerControls::iterator i = _layerControls.begin(); 
-		 i != _layerControls.end(); i++, c++)
+		 i != _layerControls.end(); ++i, ++c)
 	{
 		gtk_table_attach(GTK_TABLE(_controlContainer), (*i)->getToggle(), 
 			0, 1, c, c+1, (GtkAttachOptions)0, (GtkAttachOptions)0, 0, 0);
@@ -154,7 +162,7 @@ void LayerControlDialog::refresh() {
 void LayerControlDialog::update() {
 	// Broadcast the update() call
 	for (LayerControls::iterator i = _layerControls.begin();
-		 i != _layerControls.end(); i++)
+		 i != _layerControls.end(); ++i)
 	{
 		(*i)->update();
 	}
@@ -190,41 +198,87 @@ void LayerControlDialog::update() {
 	gtk_widget_set_sensitive(_hideAllLayers, visitor.numVisible > 0);
 }
 
-void LayerControlDialog::toggle() {
+void LayerControlDialog::toggle(const cmd::ArgumentList& args) {
 	Instance().toggleDialog();
+}
+
+void LayerControlDialog::createLayer(const cmd::ArgumentList& args) {
+
+	std::string initialName = !args.empty() ? args[0].getString() : "";
+
+	while (true) {
+		// Query the name of the new layer from the user
+		std::string layerName;
+
+		if (!initialName.empty()) {
+			// If we got a layer name passed through the arguments,
+			// we use this one, but only the first time
+			layerName = initialName;
+			initialName.clear();
+		}
+
+		if (layerName.empty()) {
+			try {
+				layerName = gtkutil::textEntryDialog(
+					"Enter Name", 
+					"Enter Layer Name", 
+					"",
+					GlobalRadiant().getMainWindow()
+				);
+			}
+			catch (gtkutil::EntryAbortedException e) {
+				break;
+			}
+		}
+
+		if (layerName.empty()) {
+			// Wrong name, let the user try again
+			gtkutil::errorDialog("Cannot create layer with empty name.", GlobalRadiant().getMainWindow());
+			continue;
+		}
+
+		// Attempt to create the layer, this will return -1 if the operation fails
+		int layerID = scene::getLayerSystem().createLayer(layerName);
+
+		if (layerID != -1) {
+			// Success, break the loop
+			Instance().refresh();
+			break;
+		}
+		else {
+			// Wrong name, let the user try again
+			gtkutil::errorDialog("This name already exists.", GlobalRadiant().getMainWindow());
+			continue; 
+		}
+	}
+}
+
+void LayerControlDialog::registerCommands() {
+	// Register the "create layer" command
+	GlobalCommandSystem().addCommand("CreateNewLayer", createLayer, cmd::ARGTYPE_STRING|cmd::ARGTYPE_OPTIONAL);
+	GlobalEventManager().addCommand("CreateNewLayer", "CreateNewLayer");
 }
 
 void LayerControlDialog::init() {
 	// Lookup the stored window information in the registry
-	xml::NodeList list = GlobalRegistry().findXPath(RKEY_WINDOW_STATE);
-
-	if (!list.empty()) {
-		xml::Node& node = list[0];
-
-		if (node.getAttributeValue("visible") == "1") {
-			// Show dialog
-			Instance().show();
-		}
+	if (GlobalRegistry().getAttribute(RKEY_WINDOW_STATE, "visible") == "1")
+	{
+		// Show dialog
+		Instance().show();
 	}
 }
 
 void LayerControlDialog::onRadiantShutdown() {
 	globalOutputStream() << "LayerControlDialog shutting down.\n";
 
-	// Delete all the current window states from the registry  
-	GlobalRegistry().deleteXPath(RKEY_WINDOW_STATE);
-	
-	// Create a new node
-	xml::Node node(GlobalRegistry().createKey(RKEY_WINDOW_STATE));
-	
 	// Tell the position tracker to save the information
-	_windowPosition.saveToNode(node);
+	_windowPosition.saveToPath(RKEY_WINDOW_STATE);
 
 	GlobalEventManager().disconnectDialogWindow(GTK_WINDOW(getWindow()));
 
 	// Write the visibility status to the registry
 	if (isVisible()) {
-		node.setAttributeValue("visible", "1");
+		GlobalRegistry().setAttribute(RKEY_WINDOW_STATE, "visible", "1");
 	}
 
 	// Destroy the window (after it has been disconnected from the Eventmanager)
@@ -264,35 +318,8 @@ void LayerControlDialog::_preHide() {
 
 // Static GTK callbacks
 void LayerControlDialog::onCreateLayer(GtkWidget* button, LayerControlDialog* self) {
-	while (true) {
-		// Query the name of the new layer from the user
-		std::string layerName;
-
-		try {
-			layerName = gtkutil::textEntryDialog(
-				"Enter Name", 
-				"Enter Layer Name", 
-				GTK_WINDOW(self->getWindow())
-			);
-		}
-		catch (gtkutil::EntryAbortedException e) {
-			break;
-		}
-
-		// Attempt to create the layer, this will return -1 if the operation fails
-		int layerID = scene::getLayerSystem().createLayer(layerName);
-
-		if (layerID != -1) {
-			// Reload the widgets, we're done here
-			self->refresh();
-			break;
-		}
-		else {
-			// Wrong name, let the user try again
-			gtkutil::errorDialog("This name already exists.", GTK_WINDOW(self->getWindow()));
-			continue; 
-		}
-	}
+	// Pass the call to the command
+	createLayer(cmd::ArgumentList());
 }
 
 void LayerControlDialog::onShowAllLayers(GtkWidget* button, LayerControlDialog* self) {

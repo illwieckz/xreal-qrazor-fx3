@@ -16,6 +16,8 @@
 #include "selection/algorithm/Shader.h"
 #include "ui/mediabrowser/MediaBrowser.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+
 namespace ui {
 
 namespace {
@@ -40,7 +42,6 @@ TextureBrowser::TextureBrowser() :
 	_popupMenu(gtk_menu_new()),
 	m_filter(0),
 	m_filterEntry(TextureBrowserQueueDrawCaller(*this), ClearFilterCaller(*this)),
-	m_gl_widget(false), // no z-buffer
 	m_texture_scroll(0),
 	m_heightChanged(true),
 	m_originInvalid(true),
@@ -80,8 +81,10 @@ TextureBrowser::TextureBrowser() :
 }
 
 void TextureBrowser::queueDraw() {
-	if (m_gl_widget != NULL) {
-		gtk_widget_queue_draw(m_gl_widget);
+	if (_glWidget != NULL) {
+		// Cast to GtkWidget* and issue a queue draw
+		GtkWidget* glWidget = *_glWidget;
+		gtk_widget_queue_draw(glWidget);
 	}
 }
 
@@ -130,15 +133,15 @@ int TextureBrowser::getTextureWidth(TexturePtr tex) {
     int width;
     if (!m_resizeTextures) {
 		// Don't use uniform size
-		width = (int)(tex->width * ((float)m_textureScale / 100));
+		width = (int)(tex->getWidth() * ((float)m_textureScale / 100));
 	}
-	else if (tex->width >= tex->height) {
+	else if (tex->getWidth() >= tex->getHeight()) {
 		// Texture is square, or wider than it is tall
 		width = m_uniformTextureSize;
 	}
 	else {
 		// Otherwise, preserve the texture's aspect ratio
-		width = (int)(m_uniformTextureSize * ((float)tex->width / tex->height));
+		width = (int)(m_uniformTextureSize * ((float)tex->getWidth() / tex->getHeight()));
 	}
     
     return width;
@@ -148,15 +151,15 @@ int TextureBrowser::getTextureHeight(TexturePtr tex) {
 	int height;
 	if (!m_resizeTextures) {
 		// Don't use uniform size
-		height = (int)(tex->height * ((float)m_textureScale / 100));
+		height = (int)(tex->getHeight() * ((float)m_textureScale / 100));
 	}
-    else if (tex->height >= tex->width) {
+    else if (tex->getHeight() >= tex->getWidth()) {
 		// Texture is square, or taller than it is wide
 		height = m_uniformTextureSize;
 	}
 	else {
 		// Otherwise, preserve the texture's aspect ratio
-		height = (int)(m_uniformTextureSize * ((float)tex->height / tex->width));
+		height = (int)(m_uniformTextureSize * ((float)tex->getHeight() / tex->getWidth()));
 	}
     
 	return height;
@@ -209,12 +212,14 @@ void TextureBrowser::nextTexturePos(TextureLayout& layout, TexturePtr tex, int *
 }
 
 // if texture_showinuse jump over non in-use textures
-bool TextureBrowser::shaderIsVisible(IShaderPtr shader) {
+bool TextureBrowser::shaderIsVisible(MaterialPtr shader) 
+{
 	if (shader == NULL) {
 		return false;
 	}
 	
-	if (!shader_equal_prefix(shader->getName(), "textures/")) {
+	if (!boost::algorithm::istarts_with(shader->getName(), "textures/")) 
+    {
 		return false;
 	}
 
@@ -222,9 +227,10 @@ bool TextureBrowser::shaderIsVisible(IShaderPtr shader) {
 		return false;
 	}
 
-  	if (!getFilter().empty()) {
+  	if (!getFilter().empty()) 
+    {
 		// some basic filtering
-		if (strstr( shader_get_textureName(shader->getName()), getFilter().c_str() ) == 0)
+		if (strstr( shader_get_textureName(shader->getName().c_str()), getFilter().c_str() ) == 0)
 			return false;
 	}
 
@@ -239,7 +245,8 @@ void TextureBrowser::heightChanged() {
 }
 
 void TextureBrowser::evaluateHeight() {
-	if (m_heightChanged) {
+	// greebo: Let the texture browser re-evaluate the scrollbar each frame
+	//if (m_heightChanged) {
 		m_heightChanged = false;
 
 		m_nTotalHeight = 0;
@@ -248,16 +255,16 @@ void TextureBrowser::evaluateHeight() {
 		
 	    for(QERApp_ActiveShaders_IteratorBegin(); !QERApp_ActiveShaders_IteratorAtEnd(); QERApp_ActiveShaders_IteratorIncrement())
 	    {
-	      IShaderPtr shader = QERApp_ActiveShaders_IteratorCurrent();
+	      MaterialPtr shader = QERApp_ActiveShaders_IteratorCurrent();
 	
 	      if (!shaderIsVisible(shader))
 	        continue;
 	
 	      int   x, y;
-	      nextTexturePos(layout, shader->getTexture(), &x, &y);
-	      m_nTotalHeight = std::max(m_nTotalHeight, abs(layout.current_y) + getFontHeight() + getTextureHeight(shader->getTexture()) + 4);
+	      nextTexturePos(layout, shader->getEditorImage(), &x, &y);
+	      m_nTotalHeight = std::max(m_nTotalHeight, abs(layout.current_y) + getFontHeight() + getTextureHeight(shader->getEditorImage()) + 4);
 	    }
-	}
+	//}
 }
 
 int TextureBrowser::getTotalHeight() {
@@ -299,7 +306,7 @@ void TextureBrowser::activeShadersChanged() {
 }
 
 // Static command target
-void TextureBrowser::toggle() {
+void TextureBrowser::toggle(const cmd::ArgumentList& args) {
 	GlobalGroupDialog().togglePage("textures");
 }
 
@@ -313,14 +320,14 @@ void TextureBrowser::focus(const std::string& name) {
   
   for(QERApp_ActiveShaders_IteratorBegin(); !QERApp_ActiveShaders_IteratorAtEnd(); QERApp_ActiveShaders_IteratorIncrement())
   {
-    IShaderPtr shader = QERApp_ActiveShaders_IteratorCurrent();
+    MaterialPtr shader = QERApp_ActiveShaders_IteratorCurrent();
 
     if (!shaderIsVisible(shader))
       continue;
 
     int x, y;
-    nextTexturePos(layout, shader->getTexture(), &x, &y);
-    TexturePtr q = shader->getTexture();
+    nextTexturePos(layout, shader->getEditorImage(), &x, &y);
+    TexturePtr q = shader->getEditorImage();
     if (!q)
       break;
 
@@ -347,7 +354,7 @@ void TextureBrowser::focus(const std::string& name) {
   }
 }
 
-IShaderPtr TextureBrowser::getShaderAtCoords(int mx, int my) {
+MaterialPtr TextureBrowser::getShaderAtCoords(int mx, int my) {
 	my += getOriginY() - height;
 
 	TextureLayout layout;
@@ -355,15 +362,15 @@ IShaderPtr TextureBrowser::getShaderAtCoords(int mx, int my) {
 		!QERApp_ActiveShaders_IteratorAtEnd(); 
 		QERApp_ActiveShaders_IteratorIncrement())
 	{
-		IShaderPtr shader = QERApp_ActiveShaders_IteratorCurrent();
+		MaterialPtr shader = QERApp_ActiveShaders_IteratorCurrent();
 
 		if (!shaderIsVisible(shader))
 			continue;
 
 		int x, y;
-		nextTexturePos(layout, shader->getTexture(), &x, &y);
+		nextTexturePos(layout, shader->getEditorImage(), &x, &y);
 		
-		TexturePtr tex = shader->getTexture();
+		TexturePtr tex = shader->getEditorImage();
 		if (tex == NULL) {
 			break;
 		}
@@ -375,11 +382,11 @@ IShaderPtr TextureBrowser::getShaderAtCoords(int mx, int my) {
 		}
 	}
 
-	return IShaderPtr();
+	return MaterialPtr();
 }
 
 void TextureBrowser::selectTextureAt(int mx, int my) {
-	IShaderPtr shader = getShaderAtCoords(mx, my);
+	MaterialPtr shader = getShaderAtCoords(mx, my);
 	
 	if (shader != NULL) {
   		setSelectedShader(shader->getName());
@@ -415,7 +422,7 @@ void TextureBrowser::trackingDelta(int x, int y, unsigned int state, void* data)
 ============
 Texture_Draw
 TTimo: relying on the shaders list to display the textures
-we must query all Texture* to manage and display through the IShaders interface
+we must query all Texture* to manage and display through the Materials interface
 this allows a plugin to completely override the texture system
 ============
 */
@@ -443,14 +450,14 @@ void TextureBrowser::draw() {
   TextureLayout layout;
   for(QERApp_ActiveShaders_IteratorBegin(); !QERApp_ActiveShaders_IteratorAtEnd(); QERApp_ActiveShaders_IteratorIncrement())
   {
-    IShaderPtr shader = QERApp_ActiveShaders_IteratorCurrent();
+    MaterialPtr shader = QERApp_ActiveShaders_IteratorCurrent();
 
     if (!shaderIsVisible(shader))
       continue;
 
     int x, y;
-    nextTexturePos(layout, shader->getTexture(), &x, &y);
-    TexturePtr q = shader->getTexture();
+    nextTexturePos(layout, shader->getEditorImage(), &x, &y);
+    TexturePtr q = shader->getEditorImage();
     if (!q)
       break;
 
@@ -523,7 +530,7 @@ void TextureBrowser::draw() {
       }
 
       // Draw the texture
-      glBindTexture (GL_TEXTURE_2D, q->texture_number);
+      glBindTexture (GL_TEXTURE_2D, q->getGLTexNum());
       GlobalOpenGL_debugAssertNoErrors();
       glColor3f (1,1,1);
       glBegin (GL_QUADS);
@@ -584,7 +591,7 @@ void TextureBrowser::openContextMenu() {
 	std::string shaderText = "No shader";
 	
 	if (_popupX > 0 && _popupY > 0) {
-		IShaderPtr shader = getShaderAtCoords(_popupX, _popupY);
+		MaterialPtr shader = getShaderAtCoords(_popupX, _popupY);
 		
 		if (shader != NULL) {
 			shaderText = shader->getName();
@@ -605,7 +612,7 @@ void TextureBrowser::openContextMenu() {
 void TextureBrowser::onSeekInMediaBrowser(GtkMenuItem* item, TextureBrowser* self) {
 	
 	if (self->_popupX > 0 && self->_popupY > 0) {
-		IShaderPtr shader = self->getShaderAtCoords(self->_popupX, self->_popupY);
+		MaterialPtr shader = self->getShaderAtCoords(self->_popupX, self->_popupY);
 	
 		if (shader != NULL) {
 			// Focus the MediaBrowser selection to the given shader
@@ -722,11 +729,15 @@ gboolean TextureBrowser::onSizeAllocate(GtkWidget* widget, GtkAllocation* alloca
 }
 
 gboolean TextureBrowser::onExpose(GtkWidget* widget, GdkEventExpose* event, TextureBrowser* self) {
+	// No widget, no drawing
+	if (self->_glWidget == NULL) return FALSE;
+
 	// This calls glwidget_make_current() for us and swap_buffers at the end of scope
-	gtkutil::GLWidgetSentry sentry(self->m_gl_widget);
+	gtkutil::GLWidgetSentry sentry(*self->_glWidget);
 	
     GlobalOpenGL_debugAssertNoErrors();
     self->evaluateHeight();
+	self->updateScroll();
     self->draw();
     GlobalOpenGL_debugAssertNoErrors();
 
@@ -736,8 +747,11 @@ gboolean TextureBrowser::onExpose(GtkWidget* widget, GdkEventExpose* event, Text
 GtkWidget* TextureBrowser::constructWindow(GtkWindow* parent) {
 	
 	m_parent = parent;
+
+	// Instantiate a new GLwidget without z-buffering
+	_glWidget = gtkutil::GLWidgetPtr(new gtkutil::GLWidget(false));
 	
-	GlobalShaderSystem().setActiveShadersChangedNotify(
+	GlobalMaterialManager().setActiveShadersChangedNotify(
 		MemberCaller<TextureBrowser, &TextureBrowser::activeShadersChanged>(*this)
 	);
 
@@ -784,7 +798,6 @@ GtkWidget* TextureBrowser::constructWindow(GtkWindow* parent) {
 	    	gtk_toolbar_insert(GTK_TOOLBAR(textureToolbar), sizeToggle, 0);
 	    	g_signal_connect(G_OBJECT(sizeToggle), "toggled", G_CALLBACK(onResizeToggle), this);
 
-	    	gdk_pixbuf_unref(pixBuf);
 	    	gtk_widget_show_all(GTK_WIDGET(textureToolbar));
 		}
 
@@ -801,8 +814,7 @@ GtkWidget* TextureBrowser::constructWindow(GtkWindow* parent) {
 
 		{
 			// Cast gtkutil::GLWidget to GtkWidget*
-			GtkWidget* glWidget = m_gl_widget;
-			gtk_widget_ref(glWidget);
+			GtkWidget* glWidget = *_glWidget;
 
 			gtk_widget_set_events(glWidget, GDK_DESTROY | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK);
 			GTK_WIDGET_SET_FLAGS(glWidget, GTK_CAN_FOCUS);
@@ -810,8 +822,8 @@ GtkWidget* TextureBrowser::constructWindow(GtkWindow* parent) {
 			gtk_box_pack_start(GTK_BOX(texbox), glWidget, TRUE, TRUE, 0);
 			gtk_widget_show(glWidget);
 
-			m_sizeHandler = g_signal_connect(G_OBJECT(glWidget), "size-allocate", G_CALLBACK(onSizeAllocate), this);
-			m_exposeHandler = g_signal_connect(G_OBJECT(glWidget), "expose-event", G_CALLBACK(onExpose), this);
+			g_signal_connect(G_OBJECT(glWidget), "size-allocate", G_CALLBACK(onSizeAllocate), this);
+			g_signal_connect(G_OBJECT(glWidget), "expose-event", G_CALLBACK(onExpose), this);
 
 			g_signal_connect(G_OBJECT(glWidget), "button-press-event", G_CALLBACK(onButtonPress), this);
 			g_signal_connect(G_OBJECT(glWidget), "button-release-event", G_CALLBACK(onButtonRelease), this);
@@ -827,13 +839,9 @@ GtkWidget* TextureBrowser::constructWindow(GtkWindow* parent) {
 }
 
 void TextureBrowser::destroyWindow() {
-	GlobalShaderSystem().setActiveShadersChangedNotify(Callback());
+	GlobalMaterialManager().setActiveShadersChangedNotify(Callback());
 
-	GtkWidget* glWidget = m_gl_widget;
-	g_signal_handler_disconnect(G_OBJECT(glWidget), m_sizeHandler);
-	g_signal_handler_disconnect(G_OBJECT(glWidget), m_exposeHandler);
-
-	gtk_widget_unref(glWidget);
+	_glWidget = gtkutil::GLWidgetPtr();
 }
 
 void TextureBrowser::registerPreferencesPage() {
@@ -861,9 +869,14 @@ void TextureBrowser::registerPreferencesPage() {
 
 void TextureBrowser::construct() {
 	GlobalEventManager().addRegistryToggle("ShowInUse", RKEY_TEXTURES_HIDE_UNUSED);
-	GlobalEventManager().addCommand("ViewTextures", FreeCaller<TextureBrowser::toggle>());
+	GlobalCommandSystem().addCommand("ViewTextures", TextureBrowser::toggle);
+	GlobalEventManager().addCommand("ViewTextures", "ViewTextures");
 
 	TextureBrowser::registerPreferencesPage();
+}
+
+void TextureBrowser::update() {
+	heightChanged();
 }
 
 } // namespace ui

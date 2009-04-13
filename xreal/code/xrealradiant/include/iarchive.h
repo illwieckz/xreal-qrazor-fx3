@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /**
  * \file iarchive.h
- * Types relating to the use of ZIP archives (PK3 files) and their contents.
+ * Types relating to the use of ZIP archives (PK4 files) and their contents.
  * \ingroup vfs
  */
 
@@ -180,7 +180,7 @@ inline ArchiveLoader& GlobalArchive(const std::string& fileType) {
 	// Cache the reference locally
 	static ArchiveLoader& _archive(
 		*boost::static_pointer_cast<ArchiveLoader>(
-			module::GlobalModuleRegistry().getModule(MODULE_ARCHIVE + fileType) // e.g. ArchivePK3
+			module::GlobalModuleRegistry().getModule(MODULE_ARCHIVE + fileType) // e.g. ArchivePK4
 		)
 	);
 	return _archive;

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "irender.h"
+#include "icommandsystem.h"
 #include "irenderable.h"
 #include "math/Vector3.h"
 
@@ -49,17 +50,17 @@ public:
 	/*
 	 * OpenGL render function (back-end).
 	 */
-	void render(RenderStateFlags state) const;
+	void render(const RenderInfo& info) const;
 
 	/*
 	 * Solid renderable submission function (front-end)
 	 */
-	void renderSolid(Renderer& renderer, const VolumeTest& volume) const;
+	void renderSolid(RenderableCollector& collector, const VolumeTest& volume) const;
 
 	/*
 	 * Wireframe renderable submission function (front-end).
 	 */
-	void renderWireframe(Renderer& renderer, const VolumeTest& volume) const;
+	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const;
 
 	/** greebo: This sets the camera position to the next/prev leak spot.
 	 * 	
@@ -75,11 +76,11 @@ public:
 	static void registerCommands();
 	
 	// Static command targets, these re-route the call to the static instance
-	static void nextLeakSpot();
-	static void prevLeakSpot();
+	static void nextLeakSpot(const cmd::ArgumentList& args);
+	static void prevLeakSpot(const cmd::ArgumentList& args);
 	
 	// Toggles visibility of the point file line
-	static void toggle();
+	static void toggle(const cmd::ArgumentList& args);
 
 private:
 	// Parse the current pointfile and read the vectors into the point list

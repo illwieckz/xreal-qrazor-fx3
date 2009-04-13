@@ -1,5 +1,6 @@
 #include "MenuManager.h"
 
+#include "itextstream.h"
 #include "iregistry.h"
 #include <gtk/gtkwidget.h>
 #include <gtk/gtkmenushell.h>
@@ -7,7 +8,6 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include "stream/textstream.h"
 
 namespace ui {
 
@@ -22,11 +22,15 @@ MenuManager::MenuManager() :
 	_root(new MenuItem(MenuItemPtr())) // Allocate the root item (type is set automatically)
 {}
 
+void MenuManager::clear() {
+	_root = MenuItemPtr();
+}
+
 void MenuManager::loadFromRegistry() {
 	xml::NodeList menuNodes = GlobalRegistry().findXPath(RKEY_MENU_ROOT);
 	
-	if (menuNodes.size() > 0) {
-		for (unsigned int i = 0; i < menuNodes.size(); i++) {
+	if (!menuNodes.empty()) {
+		for (std::size_t i = 0; i < menuNodes.size(); i++) {
 			std::string name = menuNodes[i].getAttributeValue("name");
 		
 			// Allocate a new MenuItem with root as parent
@@ -46,6 +50,9 @@ void MenuManager::loadFromRegistry() {
 }
 
 void MenuManager::setVisibility(const std::string& path, bool visible) {
+	// Sanity check for empty menu
+	if (_root == NULL) return;
+
 	MenuItemPtr foundMenu = _root->find(path);
 	
 	if (foundMenu != NULL) {
@@ -59,11 +66,14 @@ void MenuManager::setVisibility(const std::string& path, bool visible) {
 		}
 	}
 	else {
-		globalErrorStream() << "MenuManager: Warning: Menu " << path.c_str() << " not found!\n";
+		globalErrorStream() << "MenuManager: Warning: Menu " << path << " not found!\n";
 	}
 }
 
 GtkWidget* MenuManager::get(const std::string& path) {
+	// Sanity check for empty menu
+	if (_root == NULL) return NULL;
+
 	MenuItemPtr foundMenu = _root->find(path);
 	
 	if (foundMenu != NULL) {
@@ -83,6 +93,9 @@ GtkWidget* MenuManager::add(const std::string& insertPath,
 			 		  		const std::string& icon,
 					  		const std::string& eventName)
 {
+	// Sanity check for empty menu
+	if (_root == NULL) return NULL;
+
 	MenuItemPtr found = _root->find(insertPath);
 
 	if (found != NULL) {
@@ -148,6 +161,9 @@ GtkWidget* MenuManager::insert(const std::string& insertPath,
 						 const std::string& icon,
 						 const std::string& eventName)
 {
+	// Sanity check for empty menu
+	if (_root == NULL) return NULL;
+
 	MenuItemPtr found = _root->find(insertPath);
 	
 	if (found != NULL) {
@@ -182,17 +198,55 @@ GtkWidget* MenuManager::insert(const std::string& insertPath,
 		}
 		else {
 			globalErrorStream() << "MenuManager: Unparented menuitem, can't determine position: ";
-			globalErrorStream() << insertPath.c_str() << "\n";
+			globalErrorStream() << insertPath << "\n";
 			return NULL;
 		}
 	}
 	else {
-		globalErrorStream() << "MenuManager: Could not find insertPath: " << insertPath.c_str() << "\n";
+		globalErrorStream() << "MenuManager: Could not find insertPath: " << insertPath << "\n";
 		return NULL; 
 	}
 }
 
+void MenuManager::remove(const std::string& path) {
+	// Sanity check for empty menu
+	if (_root == NULL) return;
+
+	MenuItemPtr item = _root->find(path);
+
+	if (item == NULL) return; // nothing to do
+
+	MenuItemPtr parent = item->parent();
+
+	if (parent == NULL) return; // no parent ?
+
+	// Cast the parent onto a GtkWidget*
+	GtkWidget* parentWidget = *parent;
+
+	// Remove the found item from the parent menu item
+	parent->removeChild(item);
+
+	GtkMenuShell* shell = NULL;
+
+	if (parent->getType() == menuBar) {
+		// The parent is a menubar, it's a menushell in the first place
+		shell = GTK_MENU_SHELL(parentWidget);
+	}
+	else if (parent->getType() == menuFolder) {
+		// The parent is a submenu (=menuitem), try to retrieve the menushell first
+		shell = GTK_MENU_SHELL(gtk_menu_item_get_submenu(GTK_MENU_ITEM(parentWidget)));
+	}
+
+	if (shell != NULL) {
+		// Cast the item onto a GtkWidget to remove it from the parent container
+		gtk_container_remove(GTK_CONTAINER(shell), static_cast<GtkWidget*>(*item));
+	}
+}
+
 void MenuManager::updateAccelerators() {
+	// Sanity check for empty menu
+	if (_root == NULL) return;
+
 	_root->updateAcceleratorRecursive();
 }
 

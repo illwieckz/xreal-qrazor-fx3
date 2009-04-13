@@ -5,30 +5,71 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "NamedBindable.h"
 #include "parser/DefTokeniser.h"
 #include "textures/ImageLoaderManager.h"
 
 using parser::DefTokeniser;
 
-namespace shaders {
+namespace shaders 
+{
 
-class IMapExpression;
-typedef boost::shared_ptr<IMapExpression> MapExpressionPtr;
+class MapExpression;
+typedef boost::shared_ptr<MapExpression> MapExpressionPtr;
 
-// the base class, with the still accessible createForToken function
-class IMapExpression {
+/**
+ * \brief
+ * Abstract base class for map expressions.
+ *
+ * Map expression are recursive expressions that generate an image, such as
+ * "heightmap(addnormals(blah, bleh), 1).
+ */
+class MapExpression 
+: public NamedBindable
+{
+public: /* INTERFACE METHODS */
+
+	/**
+     * \brief
+     * Construct and return the image created from this map expression.
+     */
+	virtual ImagePtr getImage() const = 0;
+
+    /**
+     * \brief
+     * Return whether this map expression creates a cube map.
+     *
+     * \return
+     * true if this map expression creates a cube map, false if it is a single
+     * image.
+     */
+    virtual bool isCubeMap() const
+    {
+        return false;
+    }
+
 public:
+
+    /* BindableTexture interface */
+    TexturePtr bindTexture(const std::string& name) const
+    {
+        ImagePtr img = getImage();
+        if (img)
+            return getImage()->bindTexture(name);
+        else
+            return TexturePtr();
+    }
+
+public: /* STATIC CONSTRUCTION METHODS */
+
 	/** Creates the a MapExpression out of the given token. Nested mapexpressions
 	 * 	are recursively passed to child classes.
 	 */
 	static MapExpressionPtr createForToken(DefTokeniser& token);
 	static MapExpressionPtr createForString(std::string str);
-	
-	// These have to be implemented by the subclasses
-	virtual ImagePtr getImage() = 0;
-	virtual std::string getIdentifier() = 0;
-	
+
 protected:
+
 	/** greebo: Assures that the image is matching the desired dimensions.
 	 * 
 	 * @input: The image to be rescaled. If it doesn't match <width x height>
@@ -39,46 +80,46 @@ protected:
 	 *  
 	 * @returns: the resampled image, this might as well be input.  
 	 */
-	virtual ImagePtr getResampled(ImagePtr input, unsigned int width, unsigned int height);
+	static ImagePtr getResampled(ImagePtr input, unsigned int width, unsigned int height);
 };
 
 // the specific MapExpressions
-class HeightMapExpression : public IMapExpression {
+class HeightMapExpression : public MapExpression {
 	MapExpressionPtr heightMapExp;
 	float scale;
 public:
 	HeightMapExpression (DefTokeniser& token);
-	ImagePtr getImage();
-	std::string getIdentifier();
+	ImagePtr getImage() const;
+	std::string getIdentifier() const;
 };
 
-class AddNormalsExpression : public IMapExpression {
+class AddNormalsExpression : public MapExpression {
 	MapExpressionPtr mapExpOne;
 	MapExpressionPtr mapExpTwo;
 public:
 	AddNormalsExpression (DefTokeniser& token);
-	ImagePtr getImage();
-	std::string getIdentifier();
+	ImagePtr getImage() const;
+	std::string getIdentifier() const;
 };
 
-class SmoothNormalsExpression : public IMapExpression {
+class SmoothNormalsExpression : public MapExpression {
 	MapExpressionPtr mapExp;
 public:
 	SmoothNormalsExpression (DefTokeniser& token);
-	ImagePtr getImage();
-	std::string getIdentifier();
+	ImagePtr getImage() const;
+	std::string getIdentifier() const;
 };
 
-class AddExpression : public IMapExpression {
+class AddExpression : public MapExpression {
 	MapExpressionPtr mapExpOne;
 	MapExpressionPtr mapExpTwo;
 public:
 	AddExpression (DefTokeniser& token);
-	ImagePtr getImage();
-	std::string getIdentifier();
+	ImagePtr getImage() const;
+	std::string getIdentifier() const;
 };
 
-class ScaleExpression : public IMapExpression {
+class ScaleExpression : public MapExpression {
 	MapExpressionPtr mapExp;
 	float scaleRed;
 	float scaleGreen;
@@ -86,49 +127,59 @@ class ScaleExpression : public IMapExpression {
 	float scaleAlpha;
 public:
 	ScaleExpression (DefTokeniser& token);
-	ImagePtr getImage();
-	std::string getIdentifier();
+	ImagePtr getImage() const;
+	std::string getIdentifier() const;
 };
 
-class InvertAlphaExpression : public IMapExpression {
+class InvertAlphaExpression : public MapExpression {
 	MapExpressionPtr mapExp;
 public:
 	InvertAlphaExpression (DefTokeniser& token);
-	ImagePtr getImage();
-	std::string getIdentifier();
+	ImagePtr getImage() const;
+	std::string getIdentifier() const;
 };
 
-class InvertColorExpression : public IMapExpression {
+class InvertColorExpression : public MapExpression {
 	MapExpressionPtr mapExp;
 public:
 	InvertColorExpression (DefTokeniser& token);
-	ImagePtr getImage();
-	std::string getIdentifier();
+	ImagePtr getImage() const;
+	std::string getIdentifier() const;
 };
 
-class MakeIntensityExpression : public IMapExpression {
+class MakeIntensityExpression : public MapExpression {
 	MapExpressionPtr mapExp;
 public:
 	MakeIntensityExpression (DefTokeniser& token);
-	ImagePtr getImage();
-	std::string getIdentifier();
+	ImagePtr getImage() const;
+	std::string getIdentifier() const;
 };
 
-class MakeAlphaExpression : public IMapExpression {
+class MakeAlphaExpression : public MapExpression {
 	MapExpressionPtr mapExp;
 public:
 	MakeAlphaExpression (DefTokeniser& token);
-	ImagePtr getImage();
-	std::string getIdentifier();
+	ImagePtr getImage() const;
+	std::string getIdentifier() const;
 };
 
-class ImageExpression : public IMapExpression {
+/**
+ * \brief
+ * MapExpression consisting of a single image name. 
+ *
+ * This is the base for all map expressions.
+ */
+class ImageExpression 
+: public MapExpression 
+{
 	std::string _imgName;
-	ImageLoaderList _imageLoaders;
+
 public:
-	ImageExpression(std::string imgName);
-	ImagePtr getImage();
-	std::string getIdentifier();
+
+    /* MapExpression interface */
+	ImageExpression(const std::string& imgName);
+	ImagePtr getImage() const;
+	std::string getIdentifier() const;
 };
 
 } // namespace shaders

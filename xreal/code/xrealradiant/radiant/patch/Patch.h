@@ -162,9 +162,9 @@ public:
 	VolumeIntersectionValue intersectVolume(const VolumeTest& test, const Matrix4& localToWorld) const;
 	
 	// Render functions: solid mode, wireframe mode and components 
-	void render_solid(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
-	void render_wireframe(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
-	void render_component(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
+	void render_solid(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
+	void render_wireframe(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
+	void render_component(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
 
 	const ShaderPtr& getState() const;
 	
@@ -194,6 +194,9 @@ public:
 	
 	// Check if the patch has invalid control points or width/height are zero
 	bool isValid() const;
+
+	// Check whether all control vertices are in the same 3D spot (with minimal tolerance)
+	bool isDegenerate() const;
 
 	// Snaps the control points to the grid
 	void snapto(float snap);
@@ -360,8 +363,8 @@ public:
 	// Initialise the static member variables of this class, called from >> patchmodule.cpp
 	static void constructStatic(EPatchType type) {
 		Patch::m_type = type;
-		Patch::m_state_ctrl = GlobalShaderCache().capture("$POINT");
-		Patch::m_state_lattice = GlobalShaderCache().capture("$LATTICE");
+		Patch::m_state_ctrl = GlobalRenderSystem().capture("$POINT");
+		Patch::m_state_lattice = GlobalRenderSystem().capture("$LATTICE");
 	}
 
 	// Release the static member variables of this class, called from >> patchmodule.cpp

@@ -2,6 +2,7 @@
 #include "FloatingOrthoView.h"
 
 #include "ieventmanager.h"
+#include "iuimanager.h"
 #include "ipreferencesystem.h"
 
 #include "gtkutil/window/PersistentTransientWindow.h"
@@ -9,7 +10,8 @@
 #include "stringio.h"
 
 #include "selection/algorithm/General.h"
-#include "mainframe.h"
+#include "camera/GlobalCamera.h"
+#include <boost/bind.hpp>
 
 // Constructor
 XYWndManager::XYWndManager() :
@@ -38,6 +40,12 @@ XYWndManager::XYWndManager() :
 	
 	// Add the commands to the EventManager
 	registerCommands();
+
+	GlobalUIManager().getStatusBarManager().addTextElement(
+		"XYZPos", 
+		"",  // no icon
+		IStatusBarManager::POS_POSITION
+	);
 }
 
 void XYWndManager::construct() {
@@ -63,10 +71,12 @@ void XYWndManager::destroy() {
  * the original position. I have no full explanation for this and it is nasty, but the code
  * below seems to work.    
  */
-void XYWndManager::restoreState() {
+void XYWndManager::restoreState()
+{
 	xml::NodeList views = GlobalRegistry().findXPath(RKEY_XYVIEW_ROOT + "//views");
 	
-	if (views.size() > 0) {
+	if (!views.empty())
+	{
 		// Find all <view> tags under the first found <views> tag
 		xml::NodeList viewList = views[0].getNamedChildren("view");
 	
@@ -74,9 +84,13 @@ void XYWndManager::restoreState() {
 			 i != viewList.end();
 			 ++i) 
 		{
+			// Assemble the XPath for the viewstate
+			std::string path = RKEY_XYVIEW_ROOT + 
+				"/views/view[@name='" + i->getAttributeValue("name") + "']"; 
+
 			// Create the view and restore the size
 			XYWndPtr newWnd = createFloatingOrthoView(XY);
-			newWnd->readStateFromNode(*i);
+			newWnd->readStateFromPath(path);
 			
 			const std::string typeStr = i->getAttributeValue("type");
 	
@@ -100,27 +114,24 @@ void XYWndManager::restoreState() {
 	}
 }
 
-void XYWndManager::saveState() {
-
+void XYWndManager::saveState()
+{
 	// Delete all the current window states from the registry  
 	GlobalRegistry().deleteXPath(RKEY_XYVIEW_ROOT + "//views");
 	
 	// Create a new node
-	xml::Node rootNode(GlobalRegistry().createKey(RKEY_XYVIEW_ROOT + "/views"));
+	std::string rootNodePath(RKEY_XYVIEW_ROOT + "/views");
 	
-	for (XYWndMap::iterator i = _xyWnds.begin(); i
-		 != _xyWnds.end(); 
-		 ++i) 
+	for (XYWndMap::iterator i = _xyWnds.begin(); i != _xyWnds.end(); ++i)
 	{
-		XYWndPtr xyView = i->second;
-		
-		xyView->saveStateToNode(rootNode);
-		// gtk_widget_hide(GTK_WIDGET(xyView->getParent())); TODO: What?
+		// Save each XYView state to the registry
+		i->second->saveStateToPath(rootNodePath);
 	}
 }
 
 // Free the allocated XYViews from the heap
-void XYWndManager::destroyViews() {
+void XYWndManager::destroyViews()
+{
 	// Discard the whole list
 	for (XYWndMap::iterator i = _xyWnds.begin(); i != _xyWnds.end(); /* in-loop incr.*/)
 	{
@@ -140,21 +151,27 @@ void XYWndManager::destroyViews() {
 }
 
 void XYWndManager::registerCommands() {
-	GlobalEventManager().addCommand(
-		"NewOrthoView", 
-		MemberCaller<XYWndManager, &XYWndManager::createXYFloatingOrthoView>(
-			*this
-		)
-	);
-	GlobalEventManager().addCommand("NextView", MemberCaller<XYWndManager, &XYWndManager::toggleActiveView>(*this));
-	GlobalEventManager().addCommand("ZoomIn", MemberCaller<XYWndManager, &XYWndManager::zoomIn>(*this));
-	GlobalEventManager().addCommand("ZoomOut", MemberCaller<XYWndManager, &XYWndManager::zoomOut>(*this));
-	GlobalEventManager().addCommand("ViewTop", MemberCaller<XYWndManager, &XYWndManager::setActiveViewXY>(*this));
-	GlobalEventManager().addCommand("ViewSide", MemberCaller<XYWndManager, &XYWndManager::setActiveViewXZ>(*this));
-	GlobalEventManager().addCommand("ViewFront", MemberCaller<XYWndManager, &XYWndManager::setActiveViewYZ>(*this));
-	GlobalEventManager().addCommand("CenterXYViews", MemberCaller<XYWndManager, &XYWndManager::splitViewFocus>(*this));
-	GlobalEventManager().addCommand("CenterXYView", MemberCaller<XYWndManager, &XYWndManager::focusActiveView>(*this));
-	GlobalEventManager().addCommand("Zoom100", MemberCaller<XYWndManager, &XYWndManager::zoom100>(*this));
+	GlobalCommandSystem().addCommand("NewOrthoView", boost::bind(&XYWndManager::createXYFloatingOrthoView, this, _1));
+	GlobalCommandSystem().addCommand("NextView", boost::bind(&XYWndManager::toggleActiveView, this, _1));
+	GlobalCommandSystem().addCommand("ZoomIn", boost::bind(&XYWndManager::zoomIn, this, _1));
+	GlobalCommandSystem().addCommand("ZoomOut", boost::bind(&XYWndManager::zoomOut, this, _1));
+	GlobalCommandSystem().addCommand("ViewTop", boost::bind(&XYWndManager::setActiveViewXY, this, _1));
+	GlobalCommandSystem().addCommand("ViewSide", boost::bind(&XYWndManager::setActiveViewXZ, this, _1));
+	GlobalCommandSystem().addCommand("ViewFront", boost::bind(&XYWndManager::setActiveViewYZ, this, _1));
+	GlobalCommandSystem().addCommand("CenterXYViews", boost::bind(&XYWndManager::splitViewFocus, this, _1));
+	GlobalCommandSystem().addCommand("CenterXYView", boost::bind(&XYWndManager::focusActiveView, this, _1));
+	GlobalCommandSystem().addCommand("Zoom100", boost::bind(&XYWndManager::zoom100, this, _1));
+
+	GlobalEventManager().addCommand("NewOrthoView", "NewOrthoView");
+	GlobalEventManager().addCommand("NextView", "NextView");
+	GlobalEventManager().addCommand("ZoomIn", "ZoomIn");
+	GlobalEventManager().addCommand("ZoomOut", "ZoomOut");
+	GlobalEventManager().addCommand("ViewTop", "ViewTop");
+	GlobalEventManager().addCommand("ViewSide", "ViewSide");
+	GlobalEventManager().addCommand("ViewFront", "ViewFront");
+	GlobalEventManager().addCommand("CenterXYViews", "CenterXYViews");
+	GlobalEventManager().addCommand("CenterXYView", "CenterXYView");
+	GlobalEventManager().addCommand("Zoom100", "Zoom100");
 	
 	GlobalEventManager().addRegistryToggle("ToggleCrosshairs", RKEY_SHOW_CROSSHAIRS);
 	GlobalEventManager().addRegistryToggle("ToggleGrid", RKEY_SHOW_GRID);
@@ -260,13 +277,13 @@ void XYWndManager::updateAllViews() {
 	}
 }
 
-void XYWndManager::zoomIn() {
+void XYWndManager::zoomIn(const cmd::ArgumentList& args) {
 	if (_activeXY != NULL) {
 		_activeXY->zoomIn();
 	}
 }
 
-void XYWndManager::zoomOut() {
+void XYWndManager::zoomOut(const cmd::ArgumentList& args) {
 	if (_activeXY != NULL) {
 		_activeXY->zoomOut();
 	}
@@ -324,7 +341,7 @@ void XYWndManager::setActiveViewType(EViewType viewType) {
 	}
 }
 
-void XYWndManager::toggleActiveView() {
+void XYWndManager::toggleActiveView(const cmd::ArgumentList& args) {
 	if (_activeXY != NULL) {
 		if (_activeXY->getViewType() == XY) {
 			_activeXY->setViewType(XZ);
@@ -340,30 +357,30 @@ void XYWndManager::toggleActiveView() {
 	}
 }
 
-void XYWndManager::setActiveViewXY() {
+void XYWndManager::setActiveViewXY(const cmd::ArgumentList& args) {
 	setActiveViewType(XY);
 	positionView(getFocusPosition());
 }
 
-void XYWndManager::setActiveViewXZ() {
+void XYWndManager::setActiveViewXZ(const cmd::ArgumentList& args) {
 	setActiveViewType(XZ);
 	positionView(getFocusPosition());
 }
 
-void XYWndManager::setActiveViewYZ() {
+void XYWndManager::setActiveViewYZ(const cmd::ArgumentList& args) {
 	setActiveViewType(YZ);
 	positionView(getFocusPosition());
 }
 
-void XYWndManager::splitViewFocus() {
+void XYWndManager::splitViewFocus(const cmd::ArgumentList& args) {
 	positionAllViews(getFocusPosition());
 }
 
-void XYWndManager::zoom100() {
+void XYWndManager::zoom100(const cmd::ArgumentList& args) {
 	setScale(1);
 }
 
-void XYWndManager::focusActiveView() {
+void XYWndManager::focusActiveView(const cmd::ArgumentList& args) {
 	positionView(getFocusPosition());
 }
 
@@ -474,7 +491,7 @@ XYWndPtr XYWndManager::createFloatingOrthoView(EViewType viewType) {
 }
 
 // Shortcut method for connecting to a GlobalEventManager command
-void XYWndManager::createXYFloatingOrthoView() {
+void XYWndManager::createXYFloatingOrthoView(const cmd::ArgumentList& args) {
 	createFloatingOrthoView(XY);
 }
 
@@ -489,7 +506,11 @@ Vector3 XYWndManager::getFocusPosition() {
 		position = selection::algorithm::getCurrentSelectionCenter();
 	}
 	else {
-		position = g_pParentWnd->GetCamWnd()->getCameraOrigin();
+		CamWndPtr cam = GlobalCamera().getActiveCamWnd();
+
+		if (cam != NULL) {
+			position = cam->getCameraOrigin();
+		}
 	}
 	
 	return position;

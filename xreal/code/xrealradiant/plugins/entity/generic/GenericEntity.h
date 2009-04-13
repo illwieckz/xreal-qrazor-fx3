@@ -14,7 +14,6 @@
 #include "../namedentity.h"
 #include "../keyobservers.h"
 #include "../Doom3Entity.h"
-#include "../OptionalRenderedName.h"
 
 #include "RenderableArrow.h"
 
@@ -25,8 +24,7 @@ class GenericEntityNode;
 class GenericEntity :
 	public Cullable,
 	public Bounded,
-	public Snappable,
-    public OptionalRenderedName
+	public Snappable
 {
 	Doom3Entity& m_entity;
 	KeyObserverMap m_keyObservers;
@@ -52,8 +50,7 @@ class GenericEntity :
 	Callback m_evaluateTransform;
 public:
 	// Constructor
-	GenericEntity(IEntityClassPtr eclass, 
-				  GenericEntityNode& node, 
+	GenericEntity(GenericEntityNode& node, 
 				  const Callback& transformChanged, 
 				  const Callback& evaluateTransform);
 	
@@ -80,9 +77,9 @@ public:
 
 	VolumeIntersectionValue intersectVolume(const VolumeTest& volume, const Matrix4& localToWorld) const;
 
-	void renderArrow(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
-	void renderSolid(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
-	void renderWireframe(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
+	void renderArrow(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
+	void renderSolid(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
+	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
 
 	void testSelect(Selector& selector, SelectionTest& test, const Matrix4& localToWorld);
 

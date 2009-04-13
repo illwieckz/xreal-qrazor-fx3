@@ -22,8 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "clipboard.h"
 
 #include "stream/memstream.h"
-#include "stream/textstream.h"
 
+#include <memory.h>
 #include <sstream>
 
 

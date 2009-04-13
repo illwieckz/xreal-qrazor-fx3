@@ -1,4 +1,5 @@
 #include "MapExpression.h"
+#include <ifilesystem.h>
 
 #include <boost/algorithm/string/case_conv.hpp>
 #include <iostream>
@@ -9,8 +10,7 @@
 #include "math/FloatTools.h" // contains float_to_integer() helper
 #include "math/Vector3.h"
 
-#include "textures/DefaultConstructor.h"
-#include "textures/FileLoader.h"
+#include "textures/ImageFileLoader.h"
 #include "textures/HeightmapCreator.h"
 #include "textures/TextureManipulator.h"
 
@@ -24,7 +24,7 @@ namespace {
 	const std::string IMAGE_DEFAULT = "_default.bmp";
 	const std::string IMAGE_FLAT = "_flat.bmp";
 	const std::string IMAGE_FOG = "_fog.bmp";
-	const std::string IMAGE_NOFALLOFF = "_nofalloff.bmp";
+	const std::string IMAGE_NOFALLOFF = "noFalloff.bmp";
 	const std::string IMAGE_POINTLIGHT1 = "_pointlight1.bmp";
 	const std::string IMAGE_POINTLIGHT2 = "_pointlight2.bmp";
 	const std::string IMAGE_POINTLIGHT3 = "_pointlight3.bmp";
@@ -36,10 +36,9 @@ namespace {
 
 namespace shaders {
 
-MapExpressionPtr IMapExpression::createForToken(DefTokeniser& token) {
+MapExpressionPtr MapExpression::createForToken(DefTokeniser& token) {
 	// Switch on the first keyword, to determine what kind of expression this
 	// is.
-
 	// Tr3B: don't convert image names to lower because Unix filesystems are case sensitive
 	//std::string type = boost::algorithm::to_lower_copy(token.nextToken());
 	std::string type = token.nextToken();
@@ -73,16 +72,22 @@ MapExpressionPtr IMapExpression::createForToken(DefTokeniser& token) {
 	}
 	else {
 		// since we already took away the expression into the variable type, we need to pass type instead of token
-		return MapExpressionPtr(new ImageExpression (type));
+		return MapExpressionPtr(new ImageExpression(type));
 	}
 }
 
-MapExpressionPtr IMapExpression::createForString(std::string str) {
+MapExpressionPtr MapExpression::createForString(std::string str) {
 	parser::BasicDefTokeniser<std::string> token(str);
 	return createForToken(token);
 }
 
-ImagePtr IMapExpression::getResampled(ImagePtr input, unsigned int width, unsigned int height) {
+ImagePtr MapExpression::getResampled(ImagePtr input, unsigned int width, unsigned int height) {
+	// Don't process precompressed images
+	if (input->isPrecompressed()) {
+		globalWarningStream() << "Cannot resample precompressed texture." << std::endl;
+		return input;
+	}
+
 	// Check if the dimensions differ from the desired ones
 	if (width != input->getWidth(0) || height != input->getHeight(0)) {
 		// Allocate a new image buffer
@@ -111,18 +116,24 @@ HeightMapExpression::HeightMapExpression (DefTokeniser& token) {
 	token.assertNextToken(")");
 }
 
-ImagePtr HeightMapExpression::getImage() {
+ImagePtr HeightMapExpression::getImage() const {
 	// Get the heightmap from the contained expression
 	ImagePtr heightMap = heightMapExp->getImage();
 
 	if (heightMap == NULL) return ImagePtr();
 
+	// Don't process precompressed images
+	if (heightMap->isPrecompressed()) {
+		globalWarningStream() << "Cannot evaluate map expression with precompressed texture." << std::endl;
+		return heightMap;
+	}
+	
 	// Convert the heightmap into a normalmap
 	ImagePtr normalMap = createNormalmapFromHeightmap(heightMap, scale);
 	return normalMap;
 }
 
-std::string HeightMapExpression::getIdentifier() {
+std::string HeightMapExpression::getIdentifier() const {
 	std::string identifier = "_heightmap_";
 	identifier.append(heightMapExp->getIdentifier() + floatToStr(scale));
 	return identifier;
@@ -136,7 +147,7 @@ AddNormalsExpression::AddNormalsExpression (DefTokeniser& token) {
 	token.assertNextToken(")");
 }
 
-ImagePtr AddNormalsExpression::getImage() {
+ImagePtr AddNormalsExpression::getImage() const {
     ImagePtr imgOne = mapExpOne->getImage();
 
     if (imgOne == NULL) return ImagePtr();
@@ -148,7 +159,13 @@ ImagePtr AddNormalsExpression::getImage() {
 
     if (imgTwo == NULL) return ImagePtr();
 
-	// The image must match the dimensions of the first
+	// Don't process precompressed images
+	if (imgOne->isPrecompressed() || imgTwo->isPrecompressed()) {
+		globalWarningStream() << "Cannot evaluate map expression with precompressed texture." << std::endl;
+		return imgOne;
+	}
+    
+	// The image must match the dimensions of the first 
 	imgTwo = getResampled(imgTwo, width, height);
 
     ImagePtr result (new RGBAImage(width, height));
@@ -188,7 +205,7 @@ ImagePtr AddNormalsExpression::getImage() {
     return result;
 }
 
-std::string AddNormalsExpression::getIdentifier() {
+std::string AddNormalsExpression::getIdentifier() const {
 	std::string identifier = "_addnormals_";
 	identifier.append(mapExpOne->getIdentifier() + mapExpTwo->getIdentifier());
 	return identifier;
@@ -200,12 +217,18 @@ SmoothNormalsExpression::SmoothNormalsExpression (DefTokeniser& token) {
 	token.assertNextToken(")");
 }
 
-ImagePtr SmoothNormalsExpression::getImage() {
+ImagePtr SmoothNormalsExpression::getImage() const {
 
 	ImagePtr normalMap = mapExp->getImage();
 
 	if (normalMap == NULL) return ImagePtr();
 
+	// Don't process precompressed images
+	if (normalMap->isPrecompressed()) {
+		globalWarningStream() << "Cannot evaluate map expression with precompressed texture." << std::endl;
+		return normalMap;
+	}
+	 
 	unsigned int width = normalMap->getWidth(0);
 	unsigned int height = normalMap->getHeight(0);
 
@@ -264,7 +287,7 @@ ImagePtr SmoothNormalsExpression::getImage() {
     return result;
 }
 
-std::string SmoothNormalsExpression::getIdentifier() {
+std::string SmoothNormalsExpression::getIdentifier() const {
 	std::string identifier = "_smoothnormals_";
 	identifier.append(mapExp->getIdentifier());
 	return identifier;
@@ -278,7 +301,7 @@ AddExpression::AddExpression (DefTokeniser& token) {
 	token.assertNextToken(")");
 }
 
-ImagePtr AddExpression::getImage() {
+ImagePtr AddExpression::getImage() const {
     ImagePtr imgOne = mapExpOne->getImage();
 
     if (imgOne == NULL) return ImagePtr();
@@ -290,6 +313,12 @@ ImagePtr AddExpression::getImage() {
 
 	if (imgTwo == NULL) return ImagePtr();
 
+	// Don't process precompressed images
+	if (imgOne->isPrecompressed() || imgTwo->isPrecompressed()) {
+		globalWarningStream() << "Cannot evaluate map expression with precompressed texture." << std::endl;
+		return imgOne;
+	}
+	
 	// Resize the image to match the dimensions of the first
     imgTwo = getResampled(imgTwo, width, height);
 
@@ -317,7 +346,7 @@ ImagePtr AddExpression::getImage() {
 	return result;
 }
 
-std::string AddExpression::getIdentifier() {
+std::string AddExpression::getIdentifier() const {
 	std::string identifier = "_add_";
 	identifier.append(mapExpOne->getIdentifier() + mapExpTwo->getIdentifier());
 	return identifier;
@@ -343,10 +372,16 @@ ScaleExpression::ScaleExpression (DefTokeniser& token) : scaleGreen(0),scaleBlue
 	token.assertNextToken(")");
 }
 
-ImagePtr ScaleExpression::getImage() {
+ImagePtr ScaleExpression::getImage() const {
     ImagePtr img = mapExp->getImage();
 
     if (img == NULL) return ImagePtr();
+
+	// Don't process precompressed images
+	if (img->isPrecompressed()) {
+		globalWarningStream() << "Cannot evaluate map expression with precompressed texture." << std::endl;
+		return img;
+	}
 
     unsigned int width = img->getWidth(0);
     unsigned int height = img->getHeight(0);
@@ -385,7 +420,7 @@ ImagePtr ScaleExpression::getImage() {
 	return result;
 }
 
-std::string ScaleExpression::getIdentifier() {
+std::string ScaleExpression::getIdentifier() const {
 	std::string identifier = "_scale_";
 	identifier.append(mapExp->getIdentifier() + floatToStr(scaleRed) + floatToStr(scaleGreen) + floatToStr(scaleBlue) + floatToStr(scaleAlpha));
 	return identifier;
@@ -397,10 +432,16 @@ InvertAlphaExpression::InvertAlphaExpression (DefTokeniser& token) {
 	token.assertNextToken(")");
 }
 
-ImagePtr InvertAlphaExpression::getImage() {
+ImagePtr InvertAlphaExpression::getImage() const {
 	ImagePtr img = mapExp->getImage();
 
 	if (img == NULL) return ImagePtr();
+
+	// Don't process precompressed images
+	if (img->isPrecompressed()) {
+		globalWarningStream() << "Cannot evaluate map expression with precompressed texture." << std::endl;
+		return img;
+	}
 
 	unsigned int width = img->getWidth(0);
 	unsigned int height = img->getHeight(0);
@@ -426,7 +467,7 @@ ImagePtr InvertAlphaExpression::getImage() {
 	return result;
 }
 
-std::string InvertAlphaExpression::getIdentifier() {
+std::string InvertAlphaExpression::getIdentifier() const {
 	std::string identifier = "_invertalpha_";
 	identifier.append(mapExp->getIdentifier());
 	return identifier;
@@ -438,10 +479,16 @@ InvertColorExpression::InvertColorExpression (DefTokeniser& token) {
 	token.assertNextToken(")");
 }
 
-ImagePtr InvertColorExpression::getImage() {
+ImagePtr InvertColorExpression::getImage() const {
 	ImagePtr img = mapExp->getImage();
 
 	if (img == NULL) return ImagePtr();
+
+	// Don't process precompressed images
+	if (img->isPrecompressed()) {
+		globalWarningStream() << "Cannot evaluate map expression with precompressed texture." << std::endl;
+		return img;
+	}
 
 	unsigned int width = img->getWidth(0);
 	unsigned int height = img->getHeight(0);
@@ -467,7 +514,7 @@ ImagePtr InvertColorExpression::getImage() {
 	return result;
 }
 
-std::string InvertColorExpression::getIdentifier() {
+std::string InvertColorExpression::getIdentifier() const {
 	std::string identifier = "_invertcolor_";
 	identifier.append(mapExp->getIdentifier());
 	return identifier;
@@ -479,10 +526,16 @@ MakeIntensityExpression::MakeIntensityExpression (DefTokeniser& token) {
 	token.assertNextToken(")");
 }
 
-ImagePtr MakeIntensityExpression::getImage() {
+ImagePtr MakeIntensityExpression::getImage() const {
 	ImagePtr img = mapExp->getImage();
 
 	if (img == NULL) return ImagePtr();
+
+	// Don't process precompressed images
+	if (img->isPrecompressed()) {
+		globalWarningStream() << "Cannot evaluate map expression with precompressed texture." << std::endl;
+		return img;
+	}
 
 	unsigned int width = img->getWidth(0);
 	unsigned int height = img->getHeight(0);
@@ -508,7 +561,7 @@ ImagePtr MakeIntensityExpression::getImage() {
 	return result;
 }
 
-std::string MakeIntensityExpression::getIdentifier() {
+std::string MakeIntensityExpression::getIdentifier() const {
 	std::string identifier = "_makeintensity_";
 	identifier.append(mapExp->getIdentifier());
 	return identifier;
@@ -520,10 +573,16 @@ MakeAlphaExpression::MakeAlphaExpression (DefTokeniser& token) {
 	token.assertNextToken(")");
 }
 
-ImagePtr MakeAlphaExpression::getImage() {
+ImagePtr MakeAlphaExpression::getImage() const {
 	ImagePtr img = mapExp->getImage();
 
 	if (img == NULL) return ImagePtr();
+
+	// Don't process precompressed images
+	if (img->isPrecompressed()) {
+		globalWarningStream() << "Cannot evaluate map expression with precompressed texture." << std::endl;
+		return img;
+	}
 
 	unsigned int width = img->getWidth(0);
 	unsigned int height = img->getHeight(0);
@@ -549,85 +608,104 @@ ImagePtr MakeAlphaExpression::getImage() {
 	return result;
 }
 
-std::string MakeAlphaExpression::getIdentifier() {
+std::string MakeAlphaExpression::getIdentifier() const {
 	std::string identifier = "_makealpha_";
 	identifier.append(mapExp->getIdentifier());
 	return identifier;
 }
 
-ImageExpression::ImageExpression (std::string imgName) {
-	// Replace backslashes with forward slashes and strip of
-	// the file extension of the provided token, and store
+/* ImageExpression */
+
+ImageExpression::ImageExpression(const std::string& imgName)
+{
+	// Replace backslashes with forward slashes and strip of 
+	// the file extension of the provided token, and store 
 	// the result in the provided string.
 	_imgName = os::standardPath(imgName).substr(0, imgName.rfind("."));
 }
 
-ImagePtr ImageExpression::getImage() {
+ImagePtr ImageExpression::getImage() const 
+{
 	// Check for some image keywords and load the correct file
 	if (_imgName == "_black") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_BLACK);
-		return d.construct();
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_BLACK
+        );
 	}
-	else if (_imgName == "_cubicLight") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_CUBICLIGHT);
-		return d.construct();
+	else if (_imgName == "_cubiclight") {
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_CUBICLIGHT
+        );
 	}
 	else if (_imgName == "_currentRender") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_CURRENTRENDER);
-		return d.construct();
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_CURRENTRENDER
+        );
 	}
 	else if (_imgName == "_default") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_DEFAULT);
-		return d.construct();
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_DEFAULT
+        );
 	}
 	else if (_imgName == "_flat") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_FLAT);
-		return d.construct();
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_FLAT
+        );
 	}
 	else if (_imgName == "_fog") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_FOG);
-		return d.construct();
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_FOG
+        );
 	}
-	else if (_imgName == "_noFalloff") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_NOFALLOFF);
-		return d.construct();
+	else if (_imgName == "_nofalloff") {
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_NOFALLOFF
+        );
 	}
-	else if (_imgName == "_pointLight1") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_POINTLIGHT1);
-		return d.construct();
+	else if (_imgName == "_pointlight1") {
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_POINTLIGHT1
+        );
 	}
-	else if (_imgName == "_pointLight2") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_POINTLIGHT2);
-		return d.construct();
+	else if (_imgName == "_pointlight2") {
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_POINTLIGHT2
+        );
 	}
-	else if (_imgName == "_pointLight3") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_POINTLIGHT3);
-		return d.construct();
+	else if (_imgName == "_pointlight3") {
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_POINTLIGHT3
+        );
 	}
 	else if (_imgName == "_quadratic") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_QUADRATIC);
-		return d.construct();
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_QUADRATIC
+        );
 	}
 	else if (_imgName == "_scratch") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_SCRATCH);
-		return d.construct();
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_SCRATCH
+        );
 	}
 	else if (_imgName == "_spotlight") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_SPOTLIGHT);
-		return d.construct();
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_SPOTLIGHT
+        );
 	}
 	else if (_imgName == "_white") {
-		FileLoader d(GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_WHITE);
-		return d.construct();
+		return ImageFileLoader::imageFromFile(
+            GlobalRegistry().get("user/paths/bitmapsPath") + IMAGE_WHITE
+        );
 	}
-	// this is a normal material image, so we use the DefaultConstructor
-	else {
-		DefaultConstructor d(_imgName);
-		return d.construct();
+	else 
+    {
+        // this is a normal material image, so we load the image from VFS
+		return ImageFileLoader::imageFromVFS(_imgName);
 	}
 }
 
-std::string ImageExpression::getIdentifier() {
+std::string ImageExpression::getIdentifier() const 
+{
 	return _imgName;
 }
 

@@ -1,8 +1,8 @@
 #include "MenuItem.h"
 
+#include "itextstream.h"
 #include "iradiant.h"
 #include "ieventmanager.h"
-#include "stream/textstream.h"
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -22,17 +22,29 @@ namespace ui {
 		typedef std::vector<std::string> StringVector;
 	}
 
-MenuItem::MenuItem(MenuItemPtr parent) :
-	_parent(parent),
+MenuItem::MenuItem(const MenuItemPtr& parent) :
+	_parent(MenuItemWeakPtr(parent)),
 	_widget(NULL),
 	_type(menuNothing),
 	_constructed(false)
 {
-	if (_parent == NULL) {
+	if (parent == NULL) {
 		_type = menuRoot;
 	}
-	else if (_parent->isRoot()) {
+	else if (parent->isRoot()) {
 		_type = menuBar;
+	}
+}
+
+MenuItem::~MenuItem() {
+	if (!_event.empty()) {
+		IEventPtr ev = GlobalEventManager().findEvent(_event);
+
+		// Tell the eventmanager to disconnect the widget in any case
+		// even if has been destroyed already.
+		if (ev != NULL) {
+			ev->disconnectWidget(_widget);
+		}
 	}
 }
 
@@ -49,10 +61,10 @@ bool MenuItem::isRoot() const {
 }
 
 MenuItemPtr MenuItem::parent() const {
-	return _parent;
+	return _parent.lock();
 }
 
-void MenuItem::setParent(MenuItemPtr parent) {
+void MenuItem::setParent(const MenuItemPtr& parent) {
 	_parent = parent;
 }
 	
@@ -84,8 +96,17 @@ std::size_t MenuItem::numChildren() const {
 	return _children.size();
 }
 
-void MenuItem::addChild(MenuItemPtr newChild) {
+void MenuItem::addChild(const MenuItemPtr& newChild) {
 	_children.push_back(newChild);
+}
+
+void MenuItem::removeChild(const MenuItemPtr& child) {
+	for (MenuItemList::iterator i = _children.begin(); i != _children.end(); ++i) {
+		if (*i == child) {
+			_children.erase(i);
+			return;
+		}
+	}
 }
 
 std::string MenuItem::getEvent() const {
@@ -96,7 +117,7 @@ void MenuItem::setEvent(const std::string& eventName) {
 	_event = eventName;
 }
 
-int MenuItem::getMenuPosition(MenuItemPtr child) {
+int MenuItem::getMenuPosition(const MenuItemPtr& child) {
 	if (!_constructed) {
 		construct();
 	}
@@ -152,13 +173,14 @@ MenuItemPtr MenuItem::find(const std::string& menuPath) {
 	boost::algorithm::split(parts, menuPath, boost::algorithm::is_any_of("/"));
 	
 	// Any path items at all?
-	if (parts.size() > 0) {
+	if (!parts.empty()) {
 		MenuItemPtr child;
 		
 		// Path is not empty, try to find the first item among the item's children
-		for (unsigned int i = 0; i < _children.size(); i++) {
+		for (std::size_t i = 0; i < _children.size(); i++) {
 			if (_children[i]->getName() == parts[0]) {
 				child = _children[i];
+				break;
 			}
 		}
 		
@@ -172,7 +194,7 @@ MenuItemPtr MenuItem::find(const std::string& menuPath) {
 			else {
 				// No, pass the query down the hierarchy
 				std::string childPath("");
-				for (unsigned int i = 1; i < parts.size(); i++) {
+				for (std::size_t i = 1; i < parts.size(); i++) {
 					childPath += (childPath != "") ? "/" : "";
 					childPath += parts[i];
 				}
@@ -185,7 +207,7 @@ MenuItemPtr MenuItem::find(const std::string& menuPath) {
 	return MenuItemPtr();
 }
 
-void MenuItem::parseNode(xml::Node& node, MenuItemPtr thisItem) {
+void MenuItem::parseNode(xml::Node& node, const MenuItemPtr& thisItem) {
 	std::string nodeName = node.getName();
 	
 	setName(node.getAttributeValue("name"));
@@ -204,7 +226,7 @@ void MenuItem::parseNode(xml::Node& node, MenuItemPtr thisItem) {
 		_type = menuFolder;
 		
 		xml::NodeList subNodes = node.getChildren();
-		for (unsigned int i = 0; i < subNodes.size(); i++) {
+		for (std::size_t i = 0; i < subNodes.size(); i++) {
 			if (subNodes[i].getName() != "text" && subNodes[i].getName() != "comment") {
 				// Allocate a new child menuitem with a pointer to <self>
 				MenuItemPtr newChild = MenuItemPtr(new MenuItem(thisItem));
@@ -220,7 +242,7 @@ void MenuItem::parseNode(xml::Node& node, MenuItemPtr thisItem) {
 		_type = menuBar;
 		
 		xml::NodeList subNodes = node.getChildren();
-		for (unsigned int i = 0; i < subNodes.size(); i++) {
+		for (std::size_t i = 0; i < subNodes.size(); i++) {
 			if (subNodes[i].getName() != "text" && subNodes[i].getName() != "comment") {
 				// Allocate a new child menuitem with a pointer to <self>
 				MenuItemPtr newChild = MenuItemPtr(new MenuItem(thisItem));
@@ -234,14 +256,14 @@ void MenuItem::parseNode(xml::Node& node, MenuItemPtr thisItem) {
 	} 
 	else {
 		_type = menuNothing;
-		globalErrorStream() << "MenuItem: Unknown node found: " << nodeName.c_str() << "\n"; 
+		globalErrorStream() << "MenuItem: Unknown node found: " << nodeName << "\n"; 
 	}
 }
 
 void MenuItem::construct() {
 	if (_type == menuBar) {
 		_widget = gtk_menu_bar_new();
-		for (unsigned int i = 0; i < _children.size(); i++) {
+		for (std::size_t i = 0; i < _children.size(); i++) {
 			// Cast each children onto GtkWidget and append it to the menu
 			gtk_menu_shell_append(GTK_MENU_SHELL(_widget), *_children[i]);
 		}
@@ -257,7 +279,7 @@ void MenuItem::construct() {
 		gtk_widget_show(subMenu);
 		// Attach the submenu to the menuitem
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(_widget), subMenu);
-		for (unsigned int i = 0; i < _children.size(); i++) {
+		for (std::size_t i = 0; i < _children.size(); i++) {
 			// Cast each children onto GtkWidget and append it to the menu
 			gtk_menu_shell_append(GTK_MENU_SHELL(subMenu), *_children[i]);
 		}
@@ -277,7 +299,7 @@ void MenuItem::construct() {
 					new gtkutil::TextMenuItemAccelerator(
 						_caption,
 						accelText,
-						GlobalRadiant().getLocalPixbuf(_icon),
+						!_icon.empty() ? GlobalRadiant().getLocalPixbuf(_icon) : NULL,
 						event->isToggle()
 					)
 				);
@@ -289,7 +311,7 @@ void MenuItem::construct() {
 				event->connectWidget(_widget);
 			}
 			else {
-				std::cout << "MenuItem: Cannot find associated event: " << _event.c_str() << "\n"; 
+				std::cout << "MenuItem: Cannot find associated event: " << _event << std::endl; 
 			}
 		}
 		else {
@@ -329,7 +351,7 @@ void MenuItem::updateAcceleratorRecursive() {
 	}
 	
 	// Iterate over all the children and pass the call
-	for (unsigned int i = 0; i < _children.size(); i++) {
+	for (std::size_t i = 0; i < _children.size(); i++) {
 		_children[i]->updateAcceleratorRecursive();
 	}
 }

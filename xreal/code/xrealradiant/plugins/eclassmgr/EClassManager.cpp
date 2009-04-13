@@ -11,6 +11,8 @@
 #include "Doom3ModelDef.h"
 #include <boost/algorithm/string/case_conv.hpp>
 
+#include "debugging/ScopedDebugTimer.h"
+
 namespace eclass {
 
 // Constructor
@@ -82,7 +84,10 @@ void EClassManager::realise() {
 	}
 
 	globalOutputStream() << "searching vfs directory 'def' for *.def\n";
-	GlobalFileSystem().forEachFile("def/", "def", LoadFileCaller(*this));
+	{
+		ScopedDebugTimer timer("EntityDefs parsed: ");
+		GlobalFileSystem().forEachFile("def/", "def", LoadFileCaller(*this));
+	}
 
     // Resolve inheritance on the model classes
     for (Models::iterator i = _models.begin(); i != _models.end(); ++i) {
@@ -174,7 +179,7 @@ const StringSet& EClassManager::getDependencies() const {
 	if (_dependencies.empty()) {
 		_dependencies.insert(MODULE_VIRTUALFILESYSTEM);
 		_dependencies.insert(MODULE_XMLREGISTRY);
-		_dependencies.insert(MODULE_SHADERCACHE);
+		_dependencies.insert(MODULE_RENDERSYSTEM);
 		_dependencies.insert(MODULE_UIMANAGER);
 	}
 

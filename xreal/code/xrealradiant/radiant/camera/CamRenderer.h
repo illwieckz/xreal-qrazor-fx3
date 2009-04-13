@@ -3,7 +3,7 @@
 
 #include "renderer.h"
 
-class CamRenderer: public Renderer {
+class CamRenderer: public RenderableCollector {
   struct state_type
   {
     state_type() : m_highlight(0), m_lights(0)
@@ -79,7 +79,7 @@ public:
 
   void render(const Matrix4& modelview, const Matrix4& projection)
   {
-    GlobalShaderCache().render(m_globalstate, modelview, projection, m_viewer);
+    GlobalRenderSystem().render(m_globalstate, modelview, projection, m_viewer);
   }
 }; // class CamRenderer
 

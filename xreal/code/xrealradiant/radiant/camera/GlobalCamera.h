@@ -1,37 +1,29 @@
 #ifndef GLOBALCAMERA_H_
 #define GLOBALCAMERA_H_
 
-#include <list>
+#include <map>
 #include "icamera.h"
+#include "icommandsystem.h"
 
 #include "CamWnd.h"
+#include "FloatingCamWnd.h"
 #include "CameraObserver.h"
 
-/* FORWARD DECLS */
-namespace gtkutil {
-	class PersistentTransientWindow;
-	typedef boost::shared_ptr<PersistentTransientWindow> 
-			PersistentTransientWindowPtr;
-}
-
-/* greebo: This is the gateway class to access the currently active CamWindow
+/**
+ * greebo: This is the gateway class to access the currently active CamWindow
  * 
  * This class provides an interface for creating and deleting CamWnd instances
  * as well as some methods that are passed to the currently active CamWnd, like
  * resetCameraAngles() or lookThroughSelected().
- * 
- * The active CamWnd class is referenced by the _camWnd member pointer. */
-
+ **/
 class GlobalCameraManager :
 	public ICamera
 {
-	// The currently active camera window
-	CamWndPtr _camWnd;
-	
-	// The PersistentTransientWindow containing the CamWnd's GTK widget. This
-	// may not be set, since the splitpane view styles do not have the camera
-	// in its own window
-	gtkutil::PersistentTransientWindowPtr _floatingCamWindow;
+	typedef std::map<int, CamWndWeakPtr> CamWndMap;
+	CamWndMap _cameras;
+
+	// The currently active camera window (-1 if no cam active)
+	int _activeCam;
 	
 	// The parent widget for the camera window (this should be the main frame)
 	GtkWindow* _parent;
@@ -43,7 +35,6 @@ class GlobalCameraManager :
 	gtkutil::WindowPosition _windowPosition;
 	
 public:
-
 	// Constructor
 	GlobalCameraManager();
 	
@@ -54,50 +45,51 @@ public:
 	// This releases the shader states of the CamWnd class
 	void destroy();
 	
-	// Saves the current state of the camera window to the registry
-	void saveCamWndState();
-
 	/**
 	 * Specifies the parent window which should be used for the CamWnd.
 	 */
 	void setParent(GtkWindow* parent);
 	
 	/**
-	 * Get the single CamWnd instance, creating it if necessary. A parent window 
-	 * must have been set with setParent() before the instance can be created. 
+	 * Returns the currently active CamWnd or NULL if none is active.
 	 */
-	CamWndPtr getCamWnd();
+	CamWndPtr getActiveCamWnd();
+
+	/**
+	 * Create a new camera window, ready for packing into a parent widget.
+	 */
+	CamWndPtr createCamWnd();
+
+	// Remove the camwnd with the given ID
+	void removeCamWnd(int id);
 	
 	/**
 	 * Get a PersistentFloatingWindow containing the CamWnd widget, creating
 	 * it if necessary.
 	 */
-	gtkutil::PersistentTransientWindowPtr getFloatingWindow();
+	FloatingCamWndPtr createFloatingWindow();
 	
 	// Resets the camera angles of the currently active Camera
-	void resetCameraAngles();
+	void resetCameraAngles(const cmd::ArgumentList& args);
 
 	/** greebo: Sets the camera to the given point/angle.
 	 */
 	void focusCamera(const Vector3& point, const Vector3& angles);
 
 	// Toggles between lighting and solid rendering mode (passes the call to the CameraSettings class)
-	void toggleLightingMode();
+	void toggleLightingMode(const cmd::ArgumentList& args);
 
-	// Toggles the maximised/restored state of the camera window
-	void toggleFullscreen();
-	
 	// Increases/decreases the far clip plane distance (passes the call to CamWnd)
-	void cubicScaleIn();
-	void cubicScaleOut();
+	void cubicScaleIn(const cmd::ArgumentList& args);
+	void cubicScaleOut(const cmd::ArgumentList& args);
 
 	// Change the floor up/down, passes the call on to the CamWnd class
-	void changeFloorUp();
-	void changeFloorDown();
+	void changeFloorUp(const cmd::ArgumentList& args);
+	void changeFloorDown(const cmd::ArgumentList& args);
 
 	// angua: increases and decreases the movement speed of the camera
-	void increaseCameraSpeed();
-	void decreaseCameraSpeed();
+	void increaseCameraSpeed(const cmd::ArgumentList& args);
+	void decreaseCameraSpeed(const cmd::ArgumentList& args);
 	
 	// greebo: This measures the rendering time for a full 360 degrees turn of the camera
 	// Note: unused at the moment
@@ -113,16 +105,16 @@ public:
 	void movedNotify();
 	
 	// Movement commands (the calls are passed on to the Camera class)
-	void moveForwardDiscrete();
-	void moveBackDiscrete();
-	void moveUpDiscrete();
-	void moveDownDiscrete();
-	void moveLeftDiscrete();
-	void moveRightDiscrete();
-	void rotateLeftDiscrete();
-	void rotateRightDiscrete();
-	void pitchUpDiscrete();
-	void pitchDownDiscrete();
+	void moveForwardDiscrete(const cmd::ArgumentList& args);
+	void moveBackDiscrete(const cmd::ArgumentList& args);
+	void moveUpDiscrete(const cmd::ArgumentList& args);
+	void moveDownDiscrete(const cmd::ArgumentList& args);
+	void moveLeftDiscrete(const cmd::ArgumentList& args);
+	void moveRightDiscrete(const cmd::ArgumentList& args);
+	void rotateLeftDiscrete(const cmd::ArgumentList& args);
+	void rotateRightDiscrete(const cmd::ArgumentList& args);
+	void pitchUpDiscrete(const cmd::ArgumentList& args);
+	void pitchDownDiscrete(const cmd::ArgumentList& args);
 	
 public:
 	void freelookMoveForwardKeyUp();

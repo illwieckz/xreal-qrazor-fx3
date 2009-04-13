@@ -1,6 +1,7 @@
 #ifndef MEDIABROWSER_H_
 #define MEDIABROWSER_H_
 
+#include "icommandsystem.h"
 #include "ui/common/TexturePreviewCombo.h"
 
 #include "gtkutil/menu/PopupMenu.h"
@@ -49,6 +50,14 @@ private:
 	
 	static gboolean _onExpose(GtkWidget*, GdkEventExpose*, MediaBrowser*);
 	static void _onSelectionChanged(GtkWidget*, MediaBrowser*);
+
+	/**
+	 * greebo: Custom tree sort function to list folders before textures
+	 */
+	static gint treeViewSortFunc(GtkTreeModel *model, 
+								  GtkTreeIter *a, 
+								  GtkTreeIter *b, 
+								  gpointer user_data);
 	
 	/* Tree selection query functions */
 	
@@ -90,10 +99,20 @@ public:
 	 */
 	void reloadMedia();
 
+	/**
+	 * Called during startup, checks for preloading texture tree.
+	 */
+	static void init();
+
 	/** 
 	 * greebo: Static command target for toggling the mediabrowser tab in the groupdialog.
 	 */
-	static void toggle();
+	static void toggle(const cmd::ArgumentList& args);
+
+	/**
+	 * greebo: Registers the preference page.
+	 */
+	static void registerPreferences();
 };
 
 }

@@ -18,7 +18,7 @@ PatchNode::PatchNode(bool patchDef3) :
 	m_render_selected(GL_POINTS)
 {
 	m_patch.m_patchDef3 = patchDef3;
-	m_lightList = &GlobalShaderCache().attach(*this);
+	m_lightList = &GlobalRenderSystem().attach(*this);
 
 	m_patch.m_lightsChanged = LightsChangedCaller(*this);
 
@@ -57,7 +57,7 @@ PatchNode::PatchNode(const PatchNode& other) :
 	m_dragPlanes(SelectedChangedComponentCaller(*this)),
 	m_render_selected(GL_POINTS)
 {
-	m_lightList = &GlobalShaderCache().attach(*this);
+	m_lightList = &GlobalRenderSystem().attach(*this);
 
 	m_patch.m_lightsChanged = LightsChangedCaller(*this);
 
@@ -69,7 +69,7 @@ PatchNode::PatchNode(const PatchNode& other) :
 PatchNode::~PatchNode() {
 	m_patch.detach(this); // Patch::Observer
 
-	GlobalShaderCache().detach(*this);
+	GlobalRenderSystem().detach(*this);
 }
 
 void PatchNode::allocate(std::size_t size) {
@@ -245,7 +245,7 @@ const AABB& PatchNode::getSelectedComponentsBounds() const {
 }
 
 bool PatchNode::isVisible() const {
-	return visible() && m_patch.getState()->getIShader()->isVisible();
+	return visible() && m_patch.getState()->getMaterial()->isVisible();
 }
 
 void PatchNode::setSelected(bool select) {
@@ -310,30 +310,30 @@ bool PatchNode::testLight(const RendererLight& light) const {
 }
 
 void PatchNode::constructStatic() {
-	m_state_selpoint = GlobalShaderCache().capture("$SELPOINT");
+	m_state_selpoint = GlobalRenderSystem().capture("$SELPOINT");
 }
 
 void PatchNode::destroyStatic() {
 	m_state_selpoint = ShaderPtr();
 }
 
-void PatchNode::renderSolid(Renderer& renderer, const VolumeTest& volume) const {
+void PatchNode::renderSolid(RenderableCollector& collector, const VolumeTest& volume) const {
 	// If not visible, there's nothing to do for us
 	if (!isVisible())
 		return;
 
 	// greebo: Don't know yet, what evaluateTransform() is really doing
 	const_cast<Patch&>(m_patch).evaluateTransform();
-	renderer.setLights(*m_lightList);
+	collector.setLights(*m_lightList);
 	
 	// Pass the call to the patch instance, it adds the renderable
-	m_patch.render_solid(renderer, volume, localToWorld());
+	m_patch.render_solid(collector, volume, localToWorld());
 
 	// Render the selected components
-	renderComponentsSelected(renderer, volume);
+	renderComponentsSelected(collector, volume);
 }
 
-void PatchNode::renderWireframe(Renderer& renderer, const VolumeTest& volume) const {
+void PatchNode::renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const {
 	// If not visible, there's nothing to do for us
 	if (!isVisible())
 		return;
@@ -342,14 +342,14 @@ void PatchNode::renderWireframe(Renderer& renderer, const VolumeTest& volume) co
 	const_cast<Patch&>(m_patch).evaluateTransform();
 	
 	// Pass the call to the patch instance, it adds the renderable
-	m_patch.render_wireframe(renderer, volume, localToWorld());
+	m_patch.render_wireframe(collector, volume, localToWorld());
 	
 	// Render the selected components
-	renderComponentsSelected(renderer, volume);
+	renderComponentsSelected(collector, volume);
 }
 
 // Renders the components of this patch instance, makes use of the Patch::render_component() method 
-void PatchNode::renderComponents(Renderer& renderer, const VolumeTest& volume) const {
+void PatchNode::renderComponents(RenderableCollector& collector, const VolumeTest& volume) const {
 	if (!isVisible())
 		return;
 
@@ -359,7 +359,7 @@ void PatchNode::renderComponents(Renderer& renderer, const VolumeTest& volume) c
 	// Only render the components, if we are in the according ComponentMode
 	if (GlobalSelectionSystem().ComponentMode() == SelectionSystem::eVertex) {
 		// Call the method of the patch itself
-		m_patch.render_component(renderer, volume, localToWorld());
+		m_patch.render_component(collector, volume, localToWorld());
 	}
 }
 
@@ -381,7 +381,7 @@ void PatchNode::update_selected() const {
 	}
 }
 
-void PatchNode::renderComponentsSelected(Renderer& renderer, const VolumeTest& volume) const {
+void PatchNode::renderComponentsSelected(RenderableCollector& collector, const VolumeTest& volume) const {
 	// If not visible, there's nothing to do for us
 	if (!isVisible())
 		return;
@@ -392,12 +392,12 @@ void PatchNode::renderComponentsSelected(Renderer& renderer, const VolumeTest& v
 	// Rebuild the array of selected control vertices
 	update_selected();
 	
-	// If there are any selected components, add them to the renderer 
+	// If there are any selected components, add them to the collector 
 	if (!m_render_selected.empty()) {
-		renderer.Highlight(Renderer::ePrimitive, false);
-		renderer.SetState(PatchNode::m_state_selpoint, Renderer::eWireframeOnly);
-		renderer.SetState(PatchNode::m_state_selpoint, Renderer::eFullMaterials);
-		renderer.addRenderable(m_render_selected, localToWorld());
+		collector.Highlight(RenderableCollector::ePrimitive, false);
+		collector.SetState(PatchNode::m_state_selpoint, RenderableCollector::eWireframeOnly);
+		collector.SetState(PatchNode::m_state_selpoint, RenderableCollector::eFullMaterials);
+		collector.addRenderable(m_render_selected, localToWorld());
 	}
 }
 

@@ -2,6 +2,7 @@
 #define MODELSELECTOR_H_
 
 #include "modelskin.h"
+#include "iradiant.h"
 #include "ui/common/ModelPreview.h"
 
 #include <gtk/gtkwidget.h>
@@ -49,21 +50,27 @@ struct ModelSelectorResult {
 	: model(m), skin(s), createClip(clip) {}
 };
 
+class ModelSelector;
+typedef boost::shared_ptr<ModelSelector> ModelSelectorPtr;
+
 /** Singleton class encapsulating the Model Selector dialog and methods required to display the
  * dialog and retrieve the selected model.
  */
 
-class ModelSelector
+class ModelSelector :
+	public RadiantEventListener
 {
 private:
 	// Main dialog widget
 	GtkWidget* _widget;
 
 	// Model preview widget
-	ModelPreview _modelPreview;
+	ModelPreviewPtr _modelPreview;
 	
-	// Tree store containing model names
+	// Tree store containing model names (one with and one without skins)
 	GtkTreeStore* _treeStore;
+	GtkTreeStore* _treeStoreWithSkins;
+
 	GtkTreeView* _treeView;
 	
 	// Currently-selected row in the tree store
@@ -95,8 +102,11 @@ private:
 	// Home of the static instance
 	static ModelSelector& Instance();
 
+	// This is where the static shared_ptr of the singleton instance is held.
+	static ModelSelectorPtr& InstancePtr();
+
 	// Show the dialog, called internally by chooseModel(). Return the selected model path
-	ModelSelectorResult showAndBlock(const std::string& curModel = "", bool showOptions = false);
+	ModelSelectorResult showAndBlock(const std::string& curModel, bool showOptions, bool showSkins);
 	
 	// Helper functions to create GUI components
 	GtkWidget* createTreeView();
@@ -139,10 +149,13 @@ public:
 	 * @showOptions: whether to show the advanced options tab.
 	 */
 	static ModelSelectorResult chooseModel(
-			const std::string& curModel = "", bool showOptions = true);
+			const std::string& curModel = "", bool showOptions = true, bool showSkins = true);
 	
 	// greebo: Lets the modelselector repopulate its treeview next time the dialog is shown.
 	static void refresh();
+
+	// RadiantEventListener implementation
+	void onRadiantShutdown();
 };
 
 }

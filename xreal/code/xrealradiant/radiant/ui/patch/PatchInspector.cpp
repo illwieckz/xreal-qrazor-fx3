@@ -11,8 +11,8 @@
 #include "gtkutil/LeftAlignedLabel.h"
 #include "gtkutil/LeftAlignment.h"
 #include "gtkutil/ControlButton.h"
+#include "gtkutil/SerialisableWidgets.h"
 
-#include "mainframe.h"
 #include "patch/PatchNode.h"
 #include "selection/algorithm/Primitives.h"
 
@@ -43,7 +43,7 @@ namespace ui {
 	}
 
 PatchInspector::PatchInspector() 
-: gtkutil::PersistentTransientWindow(WINDOW_TITLE, MainFrame_getWindow(), true),
+: gtkutil::PersistentTransientWindow(WINDOW_TITLE, GlobalRadiant().getMainWindow(), true),
   _selectionInfo(GlobalSelectionSystem().getSelectionInfo()),
   _patchRows(0),
   _patchCols(0),
@@ -67,11 +67,7 @@ PatchInspector::PatchInspector()
 	rescanSelection();
 	
 	// Connect the window position tracker
-	xml::NodeList windowStateList = GlobalRegistry().findXPath(RKEY_WINDOW_STATE);
-	
-	if (windowStateList.size() > 0) {
-		_windowPosition.loadFromNode(windowStateList[0]);
-	}
+	_windowPosition.loadFromPath(RKEY_WINDOW_STATE);
 	
 	_windowPosition.connect(GTK_WINDOW(getWindow()));
 	_windowPosition.applyPosition();
@@ -94,14 +90,8 @@ PatchInspectorPtr& PatchInspector::InstancePtr() {
 void PatchInspector::onRadiantShutdown() {
 	globalOutputStream() << "PatchInspector shutting down.\n";
 
-	// Delete all the current window states from the registry  
-	GlobalRegistry().deleteXPath(RKEY_WINDOW_STATE);
-	
-	// Create a new node
-	xml::Node node(GlobalRegistry().createKey(RKEY_WINDOW_STATE));
-	
 	// Tell the position tracker to save the information
-	_windowPosition.saveToNode(node);
+	_windowPosition.saveToPath(RKEY_WINDOW_STATE);
 	
 	GlobalSelectionSystem().removeObserver(this);
 	GlobalEventManager().disconnectDialogWindow(GTK_WINDOW(getWindow()));
@@ -174,11 +164,37 @@ void PatchInspector::populateWindow() {
     _coords["t"] = createCoordRow("T:", _coordsTable, 4);
     
     // Connect the step values to the according registry values
-	_connector.connectGtkObject(GTK_OBJECT(_coords["x"].step), RKEY_X_STEP);
-	_connector.connectGtkObject(GTK_OBJECT(_coords["y"].step), RKEY_Y_STEP);
-	_connector.connectGtkObject(GTK_OBJECT(_coords["z"].step), RKEY_Z_STEP);
-	_connector.connectGtkObject(GTK_OBJECT(_coords["s"].step), RKEY_S_STEP);
-	_connector.connectGtkObject(GTK_OBJECT(_coords["t"].step), RKEY_T_STEP);
+   using namespace gtkutil;
+	_connector.addObject(
+      RKEY_X_STEP,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableTextEntry(_coords["x"].step)
+      )
+   );
+	_connector.addObject(
+      RKEY_Y_STEP,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableTextEntry(_coords["y"].step)
+      )
+   );
+	_connector.addObject(
+      RKEY_Z_STEP,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableTextEntry(_coords["z"].step)
+      )
+   );
+	_connector.addObject(
+      RKEY_S_STEP,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableTextEntry(_coords["s"].step)
+      )
+   );
+	_connector.addObject(
+      RKEY_T_STEP,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableTextEntry(_coords["t"].step)
+      )
+   );
     
     // Connect all the arrow buttons
     for (CoordMap::iterator i = _coords.begin(); i != _coords.end(); i++) {
@@ -297,28 +313,6 @@ void PatchInspector::update() {
 	_updateActive = true;
 	
 	if (_patch != NULL) {
-		// Load the "fixed tesselation" value
-		bool fixed = _patch->subdivionsFixed();
-		
-		gtk_toggle_button_set_active(
-			GTK_TOGGLE_BUTTON(_tesselation.fixed), 
-			fixed
-		);
-		
-		gtk_spin_button_set_value(
-			GTK_SPIN_BUTTON(_tesselation.horiz),
-			_patch->getSubdivisions()[0]
-		);
-		gtk_spin_button_set_value(
-			GTK_SPIN_BUTTON(_tesselation.vert),
-			_patch->getSubdivisions()[1]
-		);
-		
-		gtk_widget_set_sensitive(_tesselation.horiz, fixed);
-		gtk_widget_set_sensitive(_tesselation.vert, fixed);
-		gtk_widget_set_sensitive(_tesselation.vertLabel, fixed);
-		gtk_widget_set_sensitive(_tesselation.horizLabel, fixed);
-		
 		// Load the data from the vertex
 		loadControlVertex();
 	}
@@ -378,8 +372,9 @@ void PatchInspector::rescanSelection() {
 	gtk_widget_set_sensitive(GTK_WIDGET(_vertexChooser.table), sensitive);
 	gtk_widget_set_sensitive(GTK_WIDGET(_vertexChooser.title), sensitive);
 	
-	gtk_widget_set_sensitive(_tesselation.title, sensitive);
-	gtk_widget_set_sensitive(GTK_WIDGET(_tesselation.table), sensitive);
+	// Tesselation is always sensitive when one or more patches are selected
+	gtk_widget_set_sensitive(_tesselation.title, _selectionInfo.patchCount > 0);
+	gtk_widget_set_sensitive(GTK_WIDGET(_tesselation.table), _selectionInfo.patchCount > 0);
 	
 	gtk_widget_set_sensitive(_coordsLabel, sensitive);
 	gtk_widget_set_sensitive(GTK_WIDGET(_coordsTable), sensitive);
@@ -401,15 +396,64 @@ void PatchInspector::rescanSelection() {
 	_patchRows = 0;
 	_patchCols = 0;
 	
-	if (sensitive) {
+	if (_selectionInfo.patchCount > 0) {
+		// Get the list of selected patches
 		PatchPtrVector list = selection::algorithm::getSelectedPatches();
+
+		BasicVector2<unsigned int> tess(-1,-1);
+		bool tessIsFixed = false;
+		bool tessIsSame = false;
+
+		// Try to find a pair of same tesselation values
+		for (PatchPtrVector::const_iterator i = list.begin(); i != list.end(); ++i) {
+			Patch& p = (*i)->getPatch();
+
+			if (tess.x() == -1) {
+				// Not initialised yet, take these values for starters
+				tessIsSame = true;
+				tessIsFixed = p.subdivionsFixed();
+				tess = p.getSubdivisions();
+			}
+			else {
+				// We already have a pair of divisions, compare
+				BasicVector2<unsigned int> otherTess = p.getSubdivisions();
+
+				if (tessIsFixed != p.subdivionsFixed() || otherTess != tess) {
+					// Our journey ends here, we cannot find a pair of tesselations 
+					// for all selected patches or the same fixed/variable status
+					tessIsSame = false;
+					tessIsFixed = false;
+					break;
+				}
+			}
+		}
+
+		_updateActive = true;
+
+		// Load the "fixed tesselation" value
+		gtk_toggle_button_set_active(
+			GTK_TOGGLE_BUTTON(_tesselation.fixed), 
+			tessIsFixed
+		);
 		
-		if (list.size() > 0) {
+		gtk_spin_button_set_value(
+			GTK_SPIN_BUTTON(_tesselation.horiz),
+			tess[0]
+		);
+		gtk_spin_button_set_value(
+			GTK_SPIN_BUTTON(_tesselation.vert),
+			tess[1]
+		);
+		
+		gtk_widget_set_sensitive(_tesselation.horiz, tessIsFixed);
+		gtk_widget_set_sensitive(_tesselation.vert, tessIsFixed);
+		gtk_widget_set_sensitive(_tesselation.vertLabel, tessIsFixed);
+		gtk_widget_set_sensitive(_tesselation.horizLabel, tessIsFixed);
+		
+		if (_selectionInfo.patchCount == 1) {
 			_patch = &(list[0]->getPatch());
 			_patchRows = _patch->getHeight();
 			_patchCols = _patch->getWidth();
-			
-			_updateActive = true;
 			
 			for (std::size_t i = 0; i < _patchRows; i++) {
 				gtk_combo_box_append_text(
@@ -433,53 +477,57 @@ void PatchInspector::rescanSelection() {
 				GTK_COMBO_BOX(_vertexChooser.colCombo), 
 				0
 			);
-			
-			_updateActive = false;
 		}
+
+		_updateActive = false;
 	}
 	
 	update();
 }
 
-void PatchInspector::emitCoords() {
+void PatchInspector::emitCoords()
+{
+	if (_patch == NULL) return;
+
 	// Save the coords into the patch
-	if (_patch != NULL) {
-		int row = strToInt(gtk_combo_box_get_active_text(GTK_COMBO_BOX(_vertexChooser.rowCombo)));
-		int col = strToInt(gtk_combo_box_get_active_text(GTK_COMBO_BOX(_vertexChooser.colCombo)));
-		
-		// Retrieve the controlvertex
-		PatchControl& ctrl = _patch->ctrlAt(row, col);
-		
-		ctrl.m_vertex[0] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["x"].value)));
-		ctrl.m_vertex[1] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["y"].value)));
-		ctrl.m_vertex[2] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["z"].value)));
-		
-		ctrl.m_texcoord[0] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["s"].value)));
-		ctrl.m_texcoord[1] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["t"].value)));
-		
-		_patch->controlPointsChanged();
-	}
+	UndoableCommand emitCoordsCmd("patchAdjustControlVertex");
+
+	_patch->undoSave();
+
+	int row = strToInt(gtk_combo_box_get_active_text(GTK_COMBO_BOX(_vertexChooser.rowCombo)));
+	int col = strToInt(gtk_combo_box_get_active_text(GTK_COMBO_BOX(_vertexChooser.colCombo)));
+	
+	// Retrieve the controlvertex
+	PatchControl& ctrl = _patch->ctrlAt(row, col);
+	
+	ctrl.m_vertex[0] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["x"].value)));
+	ctrl.m_vertex[1] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["y"].value)));
+	ctrl.m_vertex[2] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["z"].value)));
+	
+	ctrl.m_texcoord[0] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["s"].value)));
+	ctrl.m_texcoord[1] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["t"].value)));
+	
+	_patch->controlPointsChanged();
 }
 
 void PatchInspector::emitTesselation() {
-	// Save the setting into the patch
-	if (_patch != NULL) {
-		UndoableCommand setFixedTessCmd("patchSetFixedTesselation");
-		
-		BasicVector2<unsigned int> tess(
-			gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(_tesselation.horiz)),
-			gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(_tesselation.vert))
-		);
-		
-		bool fixed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(_tesselation.fixed)) ? true : false;
-		
-		_patch->setFixedSubdivisions(fixed, tess);
-		
-		gtk_widget_set_sensitive(_tesselation.horiz, fixed);
-		gtk_widget_set_sensitive(_tesselation.vert, fixed);
-		gtk_widget_set_sensitive(_tesselation.vertLabel, fixed);
-		gtk_widget_set_sensitive(_tesselation.horizLabel, fixed);
-	}
+	UndoableCommand setFixedTessCmd("patchSetFixedTesselation");
+
+	BasicVector2<unsigned int> tess(
+		gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(_tesselation.horiz)),
+		gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(_tesselation.vert))
+	);
+
+	bool fixed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(_tesselation.fixed)) ? true : false;
+
+	// Save the setting into the selected patch(es)
+	selection::algorithm::PatchTesselationUpdater updater(fixed, tess);
+	GlobalSelectionSystem().foreachSelected(updater);	
+
+	gtk_widget_set_sensitive(_tesselation.horiz, fixed);
+	gtk_widget_set_sensitive(_tesselation.vert, fixed);
+	gtk_widget_set_sensitive(_tesselation.vertLabel, fixed);
+	gtk_widget_set_sensitive(_tesselation.horizLabel, fixed);
 }
 
 void PatchInspector::saveToRegistry() {
@@ -540,7 +588,7 @@ void PatchInspector::onClickSmaller(GtkWidget* button, CoordRow* row) {
 }
 
 // static command target
-void PatchInspector::toggle() {
+void PatchInspector::toggle(const cmd::ArgumentList& args) {
 	Instance().toggleWindow();
 }
 

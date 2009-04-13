@@ -6,7 +6,7 @@
 #include "igroupnode.h"
 #include "selectionlib.h"
 #include "gtkutil/dialog.h"
-#include "mainframe.h"
+#include "string/string.h"
 #include "brush/FaceInstance.h"
 #include "brush/BrushVisit.h"
 #include "brush/TextureProjection.h"
@@ -15,6 +15,8 @@
 #include "selection/algorithm/Primitives.h"
 #include "selection/shaderclipboard/ShaderClipboard.h"
 #include "ui/surfaceinspector/SurfaceInspector.h"
+
+#include <boost/algorithm/string/case_conv.hpp>
 
 // greebo: Nasty global that contains all the selected face instances
 extern FaceInstanceSet g_SelectedFaceInstances;
@@ -120,7 +122,8 @@ std::string getShaderFromSelection() {
 		else {
 			// Try to get the unique shader from the faces
 			try {
-				g_SelectedFaceInstances.foreach(UniqueShaderFinder(faceShader));
+				UniqueShaderFinder finder(faceShader);
+				g_SelectedFaceInstances.foreach(finder);
 			}
 			catch (AmbiguousShaderException a) {
 				faceShader = "";
@@ -185,13 +188,7 @@ void applyClipboardFaceToFace(Face& target) {
 	// Get a reference to the source Texturable in the clipboard
 	Texturable& source = GlobalShaderClipboard().getSource();
 	
-	// Retrieve the textureprojection from the source face
-	TextureProjection projection;
-	source.face->GetTexdef(projection);	
-	
-	target.SetShader(source.face->GetShader());
-	target.SetTexdef(projection);
-	target.SetFlags(source.face->getShader().m_flags);
+	target.applyShaderFromFace(*(source.face));
 }
 
 /** greebo: Applies the shader from the clipboard's patch to the given <target> face
@@ -293,7 +290,7 @@ void pasteShader(SelectionTest& test, bool projected, bool entireBrush) {
 	command += (projected ? "Projected" : "Natural");
 	command += (entireBrush ? "ToBrush" : "");
 	
-	UndoableCommand undo(command.c_str());
+	UndoableCommand undo(command);
 	
 	// Initialise an empty Texturable structure
 	Texturable target;
@@ -304,7 +301,7 @@ void pasteShader(SelectionTest& test, bool projected, bool entireBrush) {
 	
 	if (target.isPatch() && entireBrush) {
 		gtkutil::errorDialog("Can't paste shader to entire brush.\nTarget is not a brush.",
-			MainFrame_getWindow());
+			GlobalRadiant().getMainWindow());
 	}
 	else {
 		// Pass the call to the algorithm function taking care of all the IFs
@@ -339,19 +336,19 @@ void pasteTextureCoords(SelectionTest& test) {
 		}
 		else {
 			gtkutil::errorDialog("Can't paste Texture Coordinates.\nTarget patch dimensions must match.",
-					MainFrame_getWindow());
+					GlobalRadiant().getMainWindow());
 		}
 	}
 	else {
 		if (source.isPatch()) {
 		 	// Nothing to do, this works for patches only
 		 	gtkutil::errorDialog("Can't paste Texture Coordinates from patches to faces.",
-							 MainFrame_getWindow());
+							 GlobalRadiant().getMainWindow());
 		}
 		else {
 			// Nothing to do, this works for patches only
 		 	gtkutil::errorDialog("Can't paste Texture Coordinates from faces.",
-							 MainFrame_getWindow());
+							 GlobalRadiant().getMainWindow());
 		}
 	}
 	
@@ -360,7 +357,7 @@ void pasteTextureCoords(SelectionTest& test) {
 	ui::SurfaceInspector::Instance().update();
 }
 
-void pickShaderFromSelection() {
+void pickShaderFromSelection(const cmd::ArgumentList& args) {
 	GlobalShaderClipboard().clear();
 	
 	const SelectionInfo& info = GlobalSelectionSystem().getSelectionInfo();
@@ -373,7 +370,7 @@ void pickShaderFromSelection() {
 		}
 		catch (InvalidSelectionException e) {
 			gtkutil::errorDialog("Can't copy Shader. Couldn't retrieve patch.",
-		 		MainFrame_getWindow());
+		 		GlobalRadiant().getMainWindow());
 		}
 	}
 	else if (selectedFaceCount() == 1) {
@@ -383,13 +380,13 @@ void pickShaderFromSelection() {
 		}
 		catch (InvalidSelectionException e) {
 			gtkutil::errorDialog("Can't copy Shader. Couldn't retrieve face.",
-		 		MainFrame_getWindow());
+		 		GlobalRadiant().getMainWindow());
 		}
 	}
 	else {
 		// Nothing to do, this works for patches only
 		gtkutil::errorDialog("Can't copy Shader. Please select a single face or patch.",
-			 MainFrame_getWindow());
+			 GlobalRadiant().getMainWindow());
 	}
 }
 
@@ -419,7 +416,7 @@ public:
 	}
 };
 
-void pasteShaderToSelection() {
+void pasteShaderToSelection(const cmd::ArgumentList& args) {
 	if (GlobalShaderClipboard().getSource().empty()) {
 		return;
 	}
@@ -435,7 +432,7 @@ void pasteShaderToSelection() {
 	ui::SurfaceInspector::Instance().update();
 }
 
-void pasteShaderNaturalToSelection() {
+void pasteShaderNaturalToSelection(const cmd::ArgumentList& args) {
 	if (GlobalShaderClipboard().getSource().empty()) {
 		return;
 	}
@@ -541,11 +538,11 @@ void flipTexture(unsigned int flipAxis) {
 	SceneChangeNotify();
 }
 
-void flipTextureS() {
+void flipTextureS(const cmd::ArgumentList& args) {
 	flipTexture(0);
 }
 
-void flipTextureT() {
+void flipTextureT(const cmd::ArgumentList& args) {
 	flipTexture(1);
 }
 
@@ -574,11 +571,11 @@ public:
 	}
 };
 
-void naturalTexture() {
+void naturalTexture(const cmd::ArgumentList& args) {
 	UndoableCommand undo("naturalTexture");
 	
 	// Patches
-	Scene_forEachVisibleSelectedPatch(PatchTextureNaturaliser());
+	Scene_forEachSelectedPatch(PatchTextureNaturaliser());
 	
 	TextureProjection projection;
 	projection.constructDefault();
@@ -771,6 +768,83 @@ void rotateTextureCounter() {
 	rotateTexture(-fabs(GlobalRegistry().getFloat("user/ui/textures/surfaceInspector/rotStep")));
 }
 
+void rotateTexture(const cmd::ArgumentList& args) {
+	if (args.size() != 1) {
+		globalOutputStream() << "Usage: TexRotate [+1|-1]" << std::endl;
+		return;
+	}
+
+	if (args[0].getInt() > 0) {
+		// Clockwise
+		rotateTextureClock();
+	}
+	else {
+		// Counter-Clockwise
+		rotateTextureCounter();
+	}
+}
+
+void scaleTexture(const cmd::ArgumentList& args) {
+	if (args.size() != 1) {
+		globalOutputStream() << "Usage: TexScale 's t'" << std::endl;
+		globalOutputStream() << "       TexScale [up|down|left|right]" << std::endl;
+		globalOutputStream() << "Example: TexScale '0.05 0' performs" 
+			<< " a 105% scale in the s direction." << std::endl;
+		globalOutputStream() << "Example: TexScale up performs" 
+			<< " a vertical scale using the step value defined in the Surface Inspector." 
+			<< std::endl;
+		return;
+	}
+
+	std::string arg = boost::algorithm::to_lower_copy(args[0].getString());
+	
+	if (arg == "up") {
+		scaleTextureUp();
+	}
+	else if (arg == "down") {
+		scaleTextureDown();
+	}
+	if (arg == "left") {
+		scaleTextureLeft();
+	}
+	if (arg == "right") {
+		scaleTextureRight();
+	}
+	else {
+		// No special argument, retrieve the Vector2 argument and pass the call
+		scaleTexture(args[0].getVector2());
+	}
+}
+
+void shiftTextureCmd(const cmd::ArgumentList& args) {
+	if (args.size() != 1) {
+		globalOutputStream() << "Usage: TexShift 's t'" << std::endl
+			 << "       TexShift [up|down|left|right]" << std::endl
+			 << "[up|down|left|right| takes the step values " 
+			 << "from the Surface Inspector." << std::endl;
+		return;
+	}
+
+	std::string arg = boost::algorithm::to_lower_copy(args[0].getString());
+	
+	if (arg == "up") {
+		shiftTextureUp();
+	}
+	else if (arg == "down") {
+		shiftTextureDown();
+	}
+	if (arg == "left") {
+		shiftTextureLeft();
+	}
+	if (arg == "right") {
+		shiftTextureRight();
+	}
+	else {
+		// No special argument, retrieve the Vector2 argument and pass the call
+		shiftTexture(args[0].getVector2());
+	}
+}
+
 /** greebo: Normalises the texture of the visited faces/patches.
  */
 class TextureNormaliser :
@@ -786,7 +860,7 @@ public:
 	}
 };
 
-void normaliseTexture() {
+void normaliseTexture(const cmd::ArgumentList& args) {
 	UndoableCommand undo("normaliseTexture");
 	
 	TextureNormaliser normaliser;
@@ -854,7 +928,7 @@ int findAndReplaceShader(const std::string& find,
 		if (GlobalSelectionSystem().Mode() != SelectionSystem::eComponent) {
 			// Find & replace all the brush shaders
 			Scene_ForEachSelectedBrush_ForEachFace(GlobalSceneGraph(), replacer);
-			Scene_forEachVisibleSelectedPatch(replacer);
+			Scene_forEachSelectedPatch(replacer);
 		}
 		
 		// Search the single selected faces 

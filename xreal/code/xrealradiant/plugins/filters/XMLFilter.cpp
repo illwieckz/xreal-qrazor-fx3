@@ -6,13 +6,11 @@
 
 namespace filters {
 
-XMLFilter::XMLFilter(const std::string& name) : 
-	_name(name)
+XMLFilter::XMLFilter(const std::string& name, bool readOnly) : 
+	_name(name),
+	_readonly(readOnly)
 {
-	// Construct the eventname out of the filtername (strip the spaces and add "Filter" prefix)
-	_eventName = _name;
-	boost::algorithm::erase_all(_eventName, " ");
-	_eventName = "Filter" + _eventName;
+	updateEventName();
 }
 
 // Test visibility of an item against all rules
@@ -24,7 +22,7 @@ bool XMLFilter::isVisible(const std::string& item, const std::string& name) cons
 
 	bool visible = true; // default if unmodified by rules
 	
-	for (RuleList::const_iterator ruleIter = _rules.begin();
+	for (FilterRules::const_iterator ruleIter = _rules.begin();
 		 ruleIter != _rules.end();
 		 ++ruleIter)
 	{
@@ -55,5 +53,32 @@ void XMLFilter::toggle() {
 std::string XMLFilter::getEventName() const {
 	return _eventName;
 }
-	
+
+void XMLFilter::setName(const std::string& newName) {
+	// Set the name ...
+	_name = newName;
+
+	// ...and update the event name
+	updateEventName();
+}
+
+bool XMLFilter::isReadOnly() const {
+	return _readonly;
+}
+
+FilterRules XMLFilter::getRuleSet() {
+	return _rules;
+}
+
+void XMLFilter::setRules(const FilterRules& rules) {
+	_rules = rules;
+}
+
+void XMLFilter::updateEventName() {
+	// Construct the eventname out of the filtername (strip the spaces and add "Filter" prefix)
+	_eventName = _name;
+	boost::algorithm::erase_all(_eventName, " ");
+	_eventName = "Filter" + _eventName;
+}
+
 } // namespace filters

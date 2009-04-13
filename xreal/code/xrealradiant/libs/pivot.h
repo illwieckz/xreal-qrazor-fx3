@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 inline void billboard_viewplaneOriented(Matrix4& rotation, const Matrix4& world2screen)
 {
 #if 1
-  rotation = g_matrix4_identity;
+  rotation = Matrix4::getIdentity();
   Vector3 x(world2screen.x().getVector3().getNormalised());
   Vector3 y(world2screen.y().getVector3().getNormalised());
   Vector3 z(world2screen.z().getVector3().getNormalised());
@@ -60,7 +60,7 @@ inline void billboard_viewplaneOriented(Matrix4& rotation, const Matrix4& world2
       ).getProjected()
   );
 
-  rotation = g_matrix4_identity;
+  rotation = Matrix4::getIdentity();
   rotation.y().getVector3() = (up - near_).getNormalised();
   rotation.z().getVector3() = (near_ - far_).getNormalised();
   rotation.x().getVector3() = rotation.y().getVector3().crossProduct(rotation.z().getVector3()).getNormalised();
@@ -73,7 +73,7 @@ inline void billboard_viewpointOriented(Matrix4& rotation, const Matrix4& world2
   Matrix4 screen2world(matrix4_full_inverse(world2screen));
 
 #if 1
-  rotation = g_matrix4_identity;
+  rotation = Matrix4::getIdentity();
   rotation.y().getVector3() = screen2world.y().getVector3().getNormalised();
   rotation.z().getVector3() = -screen2world.z().getVector3().getNormalised();
   rotation.x().getVector3() = rotation.y().getVector3().crossProduct(rotation.z().getVector3()).getNormalised();
@@ -100,7 +100,7 @@ inline void billboard_viewpointOriented(Matrix4& rotation, const Matrix4& world2
       ).getProjected()
   );
 
-  rotation = g_matrix4_identity;
+  rotation = Matrix4::getIdentity();
   rotation.y().getVector3() = (up - near_).getNormalised();
   rotation.z().getVector3() = (near_ - far_).getNormalised();
   rotation.x().getVector3() = rotation.y().getVector3().crossProduct(rotation.z().getVector3()).getNormalised();
@@ -112,16 +112,16 @@ inline void billboard_viewpointOriented(Matrix4& rotation, const Matrix4& world2
 inline void ConstructObject2Screen(Matrix4& object2screen, const Matrix4& object2world, const Matrix4& world2view, const Matrix4& view2device, const Matrix4& device2screen)
 {
   object2screen = device2screen;
-  matrix4_multiply_by_matrix4(object2screen, view2device);
-  matrix4_multiply_by_matrix4(object2screen, world2view);
-  matrix4_multiply_by_matrix4(object2screen, object2world);
+  object2screen.multiplyBy(view2device);
+  object2screen.multiplyBy(world2view);
+  object2screen.multiplyBy(object2world);
 }
 
 inline void ConstructObject2Device(Matrix4& object2screen, const Matrix4& object2world, const Matrix4& world2view, const Matrix4& view2device)
 {
   object2screen = view2device;
-  matrix4_multiply_by_matrix4(object2screen, world2view);
-  matrix4_multiply_by_matrix4(object2screen, object2world);
+  object2screen.multiplyBy(world2view);
+  object2screen.multiplyBy(object2world);
 }
 
 inline void ConstructDevice2Object(Matrix4& device2object, const Matrix4& object2world, const Matrix4& world2view, const Matrix4& view2device)
@@ -133,21 +133,21 @@ inline void ConstructDevice2Object(Matrix4& device2object, const Matrix4& object
 //! S =  ( Inverse(Object2Screen *post ScaleOf(Object2Screen) ) *post Object2Screen
 inline void pivot_scale(Matrix4& scale, const Matrix4& pivot2screen)
 {
-  Matrix4 pre_scale(g_matrix4_identity);
+  Matrix4 pre_scale(Matrix4::getIdentity());
   pre_scale[0] = static_cast<float>(pivot2screen.x().getVector3().getLength());
   pre_scale[5] = static_cast<float>(pivot2screen.y().getVector3().getLength());
   pre_scale[10] = static_cast<float>(pivot2screen.z().getVector3().getLength());
 
   scale = pivot2screen;
-  matrix4_multiply_by_matrix4(scale, pre_scale);
+  scale.multiplyBy(pre_scale);
   matrix4_full_invert(scale);
-  matrix4_multiply_by_matrix4(scale, pivot2screen);
+  scale.multiplyBy(pivot2screen);
 }
 
 // scale by (inverse) W
 inline void pivot_perspective(Matrix4& scale, const Matrix4& pivot2screen)
 {
-  scale = g_matrix4_identity;
+  scale = Matrix4::getIdentity();
   scale[0] = scale[5] = scale[10] = pivot2screen[15];
 }
 
@@ -160,9 +160,9 @@ inline void ConstructDevice2Manip(Matrix4& device2manip, const Matrix4& object2w
 
   Matrix4 scale;
   pivot_scale(scale, pivot2screen);
-  matrix4_multiply_by_matrix4(device2manip, scale);
+  device2manip.multiplyBy(scale);
   pivot_perspective(scale, pivot2screen);
-  matrix4_multiply_by_matrix4(device2manip, scale);
+  device2manip.multiplyBy(scale);
 
   matrix4_full_invert(device2manip);
 }
@@ -176,9 +176,9 @@ inline void Pivot2World_worldSpace(Matrix4& manip2world, const Matrix4& pivot2wo
 
   Matrix4 scale;
   pivot_scale(scale, pivot2screen);
-  matrix4_multiply_by_matrix4(manip2world, scale);
+  manip2world.multiplyBy(scale);
   pivot_perspective(scale, pivot2screen);
-  matrix4_multiply_by_matrix4(manip2world, scale);
+  manip2world.multiplyBy(scale);
 }
 
 inline void Pivot2World_viewpointSpace(Matrix4& manip2world, Vector3& axis, const Matrix4& pivot2world, const Matrix4& modelview, const Matrix4& projection, const Matrix4& viewport)
@@ -190,14 +190,14 @@ inline void Pivot2World_viewpointSpace(Matrix4& manip2world, Vector3& axis, cons
 
   Matrix4 scale;
   pivot_scale(scale, pivot2screen);
-  matrix4_multiply_by_matrix4(manip2world, scale);
+  manip2world.multiplyBy(scale);
 
   billboard_viewpointOriented(scale, pivot2screen);
   axis = scale.z().getVector3();
-  matrix4_multiply_by_matrix4(manip2world, scale);
+  manip2world.multiplyBy(scale);
 
   pivot_perspective(scale, pivot2screen);
-  matrix4_multiply_by_matrix4(manip2world, scale);
+  manip2world.multiplyBy(scale);
 }
 
 inline void Pivot2World_viewplaneSpace(Matrix4& manip2world, const Matrix4& pivot2world, const Matrix4& modelview, const Matrix4& projection, const Matrix4& viewport)
@@ -209,13 +209,13 @@ inline void Pivot2World_viewplaneSpace(Matrix4& manip2world, const Matrix4& pivo
 
   Matrix4 scale;
   pivot_scale(scale, pivot2screen);
-  matrix4_multiply_by_matrix4(manip2world, scale);
+  manip2world.multiplyBy(scale);
 
   billboard_viewplaneOriented(scale, pivot2screen);
-  matrix4_multiply_by_matrix4(manip2world, scale);
+  manip2world.multiplyBy(scale);
 
   pivot_perspective(scale, pivot2screen);
-  matrix4_multiply_by_matrix4(manip2world, scale);
+  manip2world.multiplyBy(scale);
 }
 
 
@@ -271,7 +271,7 @@ public:
 		m_vertices.push_back(PointVertex(_pivot + Vector3(0, 0, 16), g_colour_z));
 	}
 
-  void render(RenderStateFlags state) const
+  void render(const RenderInfo& info) const
   {
     if(m_vertices.size() == 0) return;
     if(m_vertices.data() == 0) return;
@@ -280,19 +280,19 @@ public:
     glDrawArrays(GL_LINES, 0, m_vertices.size());
   }
 
-  void render(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const
+  void render(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const
   {
-    renderer.PushState();
+    collector.PushState();
 
 	// greebo: Commented this out to avoid the point from being moved along with the view.
     //Pivot2World_worldSpace(m_localToWorld, localToWorld, volume.GetModelview(), volume.GetProjection(), volume.GetViewport());
 
-    renderer.Highlight(Renderer::ePrimitive, false);
-    renderer.SetState(getShader(), Renderer::eWireframeOnly);
-    renderer.SetState(getShader(), Renderer::eFullMaterials);
-    renderer.addRenderable(*this, localToWorld);
+    collector.Highlight(RenderableCollector::ePrimitive, false);
+    collector.SetState(getShader(), RenderableCollector::eWireframeOnly);
+    collector.SetState(getShader(), RenderableCollector::eFullMaterials);
+    collector.addRenderable(*this, localToWorld);
 
-    renderer.PopState();
+    collector.PopState();
   }
 };
 

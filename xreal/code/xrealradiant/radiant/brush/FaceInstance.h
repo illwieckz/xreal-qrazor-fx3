@@ -14,6 +14,7 @@
 
 typedef const Plane3* PlanePointer;
 typedef PlanePointer* PlanesIterator;
+class RenderableCollector;
 
 class FaceInstance {
 	Face* m_face;
@@ -103,7 +104,13 @@ public:
 
 	bool intersectVolume(const VolumeTest& volume, const Matrix4& localToWorld) const;
 
-	void render(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
+    /**
+     * \brief
+     * Submit renderable geometry to a RenderableCollector.
+     */
+	void submitRenderables(RenderableCollector& collector,
+                           const VolumeTest& volume,
+                           const Matrix4& localToWorld) const;
 
 	void testSelect(SelectionTest& test, SelectionIntersection& best);
 
@@ -156,7 +163,7 @@ public:
 	}
 
 	template<typename Functor>
-	void foreach(Functor functor) {
+	void foreach(Functor& functor) {
 		for (FaceInstances::iterator i = m_faceInstances.begin(); i != m_faceInstances.end(); ++i) {
 			functor(*(*i));
 		}

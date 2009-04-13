@@ -11,6 +11,8 @@
 #include "SelectableComponents.h"
 #include "RenderableWireFrame.h"
 
+class RenderableCollector;
+
 const std::size_t c_brush_maxFaces = 1024;
 
 typedef std::size_t faceIndex_t;
@@ -84,6 +86,7 @@ public:
 };
 
 class Brush :
+	public IBrush,
 	public TransformNode,
 	public Bounded,
 	public Cullable,
@@ -190,6 +193,9 @@ public:
 	// Sets the shader of all faces to the given name
 	void setShader(const std::string& newShader);
 
+	// Returns TRUE if any of the faces has the given shader
+	bool hasShader(const std::string& name);
+
 	void evaluateBRep() const;
 	
 	void transformChanged();
@@ -205,7 +211,7 @@ public:
 	
 	VolumeIntersectionValue intersectVolume(const VolumeTest& test, const Matrix4& localToWorld) const;
 	
-	void renderComponents(SelectionSystem::EComponentMode mode, Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
+	void renderComponents(SelectionSystem::EComponentMode mode, RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
 	
 	void transform(const Matrix4& matrix);
 	

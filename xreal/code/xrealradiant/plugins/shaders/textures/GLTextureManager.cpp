@@ -3,7 +3,7 @@
 #include "iradiant.h"
 #include "texturelib.h"
 #include "igl.h"
-#include "FileLoader.h"
+#include "ImageFileLoader.h"
 #include "../MapExpression.h"
 #include "TextureManipulator.h"
 #include "parser/DefTokeniser.h"
@@ -35,61 +35,58 @@ void GLTextureManager::checkBindings() {
 	}
 }
 
-TexturePtr GLTextureManager::getBinding(MapExpressionPtr mapExp) {
-	// check if we got an empty MapExpression
-	if (mapExp != NULL) {
-		// check if the texture has to be loaded
-		std::string identifier = mapExp->getIdentifier();
-		TextureMap::iterator i = _textures.find(identifier);
+TexturePtr GLTextureManager::getBinding(NamedBindablePtr bindable) 
+{
+	// Check if we got an empty MapExpression, and return the NOT FOUND texture
+    // if so
+	if (!bindable)
+    {
+        return getShaderNotFound();
+    }
 
-		if (i == _textures.end()) {
-			// This may produce a NULL image if a file can't be found, for example.
-			ImagePtr img = mapExp->getImage();
-
-			// see if the MapExpression returned a valid image
-			if (img != NULL) {
-				// Constructor returned a valid image, now create the texture object
-				// and insert this into the map
-				std::pair<TextureMap::iterator, bool> result = _textures.insert(
-					TextureMap::value_type(identifier, TexturePtr(new Texture(identifier)))
-				);
-				
-				// Bind the texture and get the OpenGL id
-				load(result.first->second, img);
-
-				globalOutputStream() << "[shaders] Loaded texture: " << identifier << "\n";
-
-				return result.first->second;
-			}
-			else {
-				globalErrorStream() << "[shaders] Unable to load texture: " << identifier << "\n";
-			    // invalid image produced, return shader not found
-			    return getShaderNotFound();
-			}
-		}
-
-		return i->second;
-	}
-	// We got an empty MapExpression, so we'll return the "image missing texture"
-	// globalErrorStream() << "[shaders] Unable to load shader texture.\n";
-	return getShaderNotFound();
+    // Check if we already have the texture, otherwise construct it
+    std::string identifier = bindable->getIdentifier();
+    TextureMap::iterator i = _textures.find(identifier);
+    if (i != _textures.end()) 
+    {
+        // Found, return
+        return i->second;
+    }
+    else
+    {
+        // Create and insert texture object, if it is valid
+        TexturePtr texture = bindable->bindTexture(identifier);
+        if (texture)
+        {
+            _textures.insert(TextureMap::value_type(identifier, texture));
+            globalOutputStream() << "[shaders] Loaded texture: " << identifier << "\n";
+            return texture;
+        }
+        else
+        {
+            globalOutputStream() << "[shaders] Unable to load texture: "
+                                 << identifier << "\n";
+            return getShaderNotFound();
+        }
+    }
 }
 
-TexturePtr GLTextureManager::getBinding(const std::string& fullPath, const std::string& moduleNames) {
+TexturePtr GLTextureManager::getBinding(const std::string& fullPath,
+                                          const std::string& moduleNames) 
+{
     // check if the texture has to be loaded
     TextureMap::iterator i = _textures.find(fullPath);
 
-	if (i == _textures.end()) {
-	    TextureConstructorPtr constructor(new FileLoader(fullPath, moduleNames));
-	    ImagePtr img = constructor->construct();
+	if (i == _textures.end()) 
+    {
+	    ImagePtr img = ImageFileLoader::imageFromFile(fullPath, moduleNames);
 
 	    // see if the MapExpression returned a valid image
-	    if (img != NULL) {
-			// Constructor returned a valid image, now create the texture object
-			_textures[fullPath] = TexturePtr(new Texture(fullPath));
-	
-			// Bind the texture and get the OpenGL id
-			load(_textures[fullPath], img);
+	    if (img != NULL) 
+       {
+            // Constructor returned a valid image, now create the texture object
+            TexturePtr texture = img->bindTexture(fullPath);
+			_textures[fullPath] = texture;
 	
 			globalOutputStream() << "[shaders] Loaded texture: " << fullPath << "\n";
 	    }
@@ -100,12 +97,13 @@ TexturePtr GLTextureManager::getBinding(const std::string& fullPath, const std::
 	    }
 	}
 
+    // Cast should succeed since all single image textures will be Texture2D
     return _textures[fullPath];
 }
 
 // Return the shader-not-found texture, loading if necessary
-TexturePtr GLTextureManager::getShaderNotFound() {
-
+TexturePtr GLTextureManager::getShaderNotFound() 
+{
 	// Construct the texture if necessary
 	if (!_shaderNotFound) {
 		_shaderNotFound = loadStandardTexture(SHADER_NOT_FOUND);
@@ -115,20 +113,20 @@ TexturePtr GLTextureManager::getShaderNotFound() {
 	return _shaderNotFound;				  
 }
 
-TexturePtr GLTextureManager::loadStandardTexture(const std::string& filename) {
+TexturePtr GLTextureManager::loadStandardTexture(const std::string& filename) 
+{
 	// Create the texture path
 	std::string fullpath = GlobalRegistry().get("user/paths/bitmapsPath") + filename;
 	
-	TexturePtr returnValue(new Texture(fullpath));
+	TexturePtr returnValue;
 	
-	// load the image with the FileLoader (which can handle .bmp in contrast to the DefaultConstructor)
-	TextureConstructorPtr constructor(new FileLoader(fullpath, "bmp"));
-	ImagePtr img = constructor->construct();
+	// load the image with the ImageFileLoader (which can handle .bmp)
+	ImagePtr img = ImageFileLoader::imageFromFile(fullpath, "bmp");
 	
 	if (img != ImagePtr()) {
 		// Bind the (processed) texture and get the OpenGL id
 		// The getProcessed() call may substitute the passed image by another
-		load(returnValue, img);
+		returnValue = img->bindTexture(filename);
 	}
 	else {
 		globalErrorStream() << "[shaders] Couldn't load Standard Texture texture: " 
@@ -136,21 +134,6 @@ TexturePtr GLTextureManager::loadStandardTexture(const std::string& filename) {
 	}
 	
 	return returnValue;
-}
-
-void GLTextureManager::load(TexturePtr texture, ImagePtr image) {
-	// Download the texture and set the reference number
-	texture->texture_number = image->downloadTextureToGL();
-
-	// Fill the Texture structure with the metadata
-	texture->width = image->getWidth(0);
-	texture->height = image->getHeight(0);
-
-	// Flat-shade colour mode will not be supported in the near future (TODO)
-	texture->color = Colour3(0.5, 0.5, 0.5);
-	
-	/*// Calculate an average, representative colour for flatshade rendering 
-	texture->color = TextureManipulator::instance().getFlatshadeColour(image);*/
 }
 
 } // namespace shaders

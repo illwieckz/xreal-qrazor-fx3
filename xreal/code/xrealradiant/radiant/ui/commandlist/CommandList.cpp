@@ -1,5 +1,6 @@
 #include "CommandList.h"
 
+#include "iradiant.h"
 #include "iuimanager.h"
 
 #include "gtk/gtk.h"
@@ -8,8 +9,6 @@
 #include "gtkutil/TextButton.h"
 #include "gtkutil/TextColumn.h"
 #include "gtkutil/TreeModel.h"
-
-#include "mainframe.h"
 
 #include "CommandListPopulator.h"
 #include "ShortcutChooser.h"
@@ -24,7 +23,7 @@ namespace ui {
 	}
 
 CommandList::CommandList() :
-	gtkutil::BlockingTransientWindow(CMDLISTDLG_WINDOW_TITLE, MainFrame_getWindow())
+	gtkutil::BlockingTransientWindow(CMDLISTDLG_WINDOW_TITLE, GlobalRadiant().getMainWindow())
 {
 	// Set the default border width in accordance to the HIG
 	gtk_container_set_border_width(GTK_CONTAINER(getWindow()), 12);
@@ -166,7 +165,7 @@ void CommandList::callbackClose(GtkWidget* widget, CommandList* self) {
 	GlobalUIManager().getMenuManager().updateAccelerators();
 }
 
-void CommandList::showDialog() {
+void CommandList::showDialog(const cmd::ArgumentList& args) {
 	new CommandList(); // self-destructs in GTK callback
 }
 

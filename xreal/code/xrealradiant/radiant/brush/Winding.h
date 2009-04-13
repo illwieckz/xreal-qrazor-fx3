@@ -122,8 +122,8 @@ public:
 	void updateNormals(const Vector3& normal);
 	
 	// Submits this winding to OpenGL
-	void draw(RenderStateFlags state) const;
-	
+	void render(const RenderInfo& info) const;
+
 	// Submits the wireframe render commands to OpenGL
 	void drawWireframe() const;
 	

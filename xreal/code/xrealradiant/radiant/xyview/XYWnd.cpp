@@ -4,17 +4,18 @@
 #include "iscenegraph.h"
 #include "iundo.h"
 #include "ieventmanager.h"
+#include "imainframe.h"
 #include "ientity.h"
 #include "igrid.h"
 #include "iuimanager.h"
 
 #include "gtkutil/GLWidget.h"
 #include "gtkutil/GLWidgetSentry.h"
+#include "string/string.h"
 
 #include "brush/TexDef.h"
 #include "ibrush.h"
 #include "brushmanip.h"
-#include "mainframe.h"
 #include "select.h"
 #include "entity.h"
 #include "renderer.h"
@@ -31,6 +32,7 @@
 #include "XYRenderer.h"
 
 #include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
 
 inline float Betwixt(float f1, float f2) {
 	return (f1 + f2) * 0.5f;
@@ -91,6 +93,8 @@ XYWnd::XYWnd(int id) :
 	gtk_widget_set_events(m_gl_widget, GDK_DESTROY | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK);
 	GTK_WIDGET_SET_FLAGS(m_gl_widget, GTK_CAN_FOCUS);
 	gtk_widget_set_size_request(m_gl_widget, XYWND_MINSIZE_X, XYWND_MINSIZE_Y);
+
+	g_object_set(m_gl_widget, "can-focus", TRUE, NULL);
 
 	m_sizeHandler = g_signal_connect(G_OBJECT(m_gl_widget), "size_allocate", G_CALLBACK(callbackSizeAllocate), this);
 	m_exposeHandler = g_signal_connect(G_OBJECT(m_gl_widget), "expose_event", G_CALLBACK(callbackExpose), this);
@@ -194,7 +198,7 @@ GtkWindow* XYWnd::getParent() const {
 }
 
 void XYWnd::captureStates() {
-	_selectedShader = GlobalShaderCache().capture("$XY_OVERLAY");
+	_selectedShader = GlobalRenderSystem().capture("$XY_OVERLAY");
 }
 
 void XYWnd::releaseStates() {
@@ -400,7 +404,7 @@ void XYWnd::Clipper_OnMouseMoved(int x, int y) {
 		convertXYToWorld(x, y , GlobalClipper().getMovingClipCoords());
 		snapToGrid(GlobalClipper().getMovingClipCoords());
 		GlobalClipper().update();
-		ClipperChangeNotify();
+		GlobalMainFrame().updateAllWindows();
 	}
 }
 
@@ -529,14 +533,14 @@ void XYWnd::beginMove() {
 		endMove();
 	}
 	_moveStarted = true;
-	_freezePointer.freeze_pointer(_parent != 0 ? _parent : MainFrame_getWindow(), callbackMoveDelta, this);
+	_freezePointer.freeze_pointer(_parent != 0 ? _parent : GlobalRadiant().getMainWindow(), callbackMoveDelta, this);
 	m_move_focusOut = g_signal_connect(G_OBJECT(m_gl_widget), "focus_out_event", G_CALLBACK(callbackMoveFocusOut), this);
 }
 
 
 void XYWnd::endMove() {
 	_moveStarted = false;
-	_freezePointer.unfreeze_pointer(_parent != 0 ? _parent : MainFrame_getWindow());
+	_freezePointer.unfreeze_pointer(_parent != 0 ? _parent : GlobalRadiant().getMainWindow());
 	g_signal_handler_disconnect(G_OBJECT(m_gl_widget), m_move_focusOut);
 }
 
@@ -546,13 +550,13 @@ void XYWnd::beginZoom() {
 	}
 	_zoomStarted = true;
 	_dragZoom = 0;
-	_freezePointer.freeze_pointer(_parent != 0 ? _parent : MainFrame_getWindow(), callbackZoomDelta, this);
+	_freezePointer.freeze_pointer(_parent != 0 ? _parent : GlobalRadiant().getMainWindow(), callbackZoomDelta, this);
 	m_zoom_focusOut = g_signal_connect(G_OBJECT(m_gl_widget), "focus_out_event", G_CALLBACK(callbackZoomFocusOut), this);
 }
 
 void XYWnd::endZoom() {
 	_zoomStarted = false;
-	_freezePointer.unfreeze_pointer(_parent != 0 ? _parent : MainFrame_getWindow());
+	_freezePointer.unfreeze_pointer(_parent != 0 ? _parent : GlobalRadiant().getMainWindow());
 	g_signal_handler_disconnect(G_OBJECT(m_gl_widget), m_zoom_focusOut);
 }
 
@@ -594,11 +598,17 @@ void XYWnd::mouseDown(int x, int y, GdkEventButton* event) {
 	}
 	
 	if (mouseEvents.stateMatchesXYViewEvent(ui::xyCameraMove, event)) {
-		positionCamera(x, y, *g_pParentWnd->GetCamWnd());
+		CamWndPtr cam = GlobalCamera().getActiveCamWnd();
+		if (cam != NULL) {
+			positionCamera(x, y, *cam);
+		}
 	}
 	
 	if (mouseEvents.stateMatchesXYViewEvent(ui::xyCameraAngle, event)) {
-		orientCamera(x, y, *g_pParentWnd->GetCamWnd());
+		CamWndPtr cam = GlobalCamera().getActiveCamWnd();
+		if (cam != NULL) {
+			orientCamera(x, y, *cam);
+		}
 	}
 	
 	// Only start a NewBrushDrag operation, if not other elements are selected
@@ -627,11 +637,17 @@ void XYWnd::mouseMoved(int x, int y, const unsigned int& state) {
 	IMouseEvents& mouseEvents = GlobalEventManager().MouseEvents();
 	
 	if (mouseEvents.stateMatchesXYViewEvent(ui::xyCameraMove, state)) {
-		positionCamera(x, y, *g_pParentWnd->GetCamWnd());
+		CamWndPtr cam = GlobalCamera().getActiveCamWnd();
+		if (cam != NULL) {
+			positionCamera(x, y, *cam);
+		}
 	}
 	
 	if (mouseEvents.stateMatchesXYViewEvent(ui::xyCameraAngle, state)) {
-		orientCamera(x, y, *g_pParentWnd->GetCamWnd());
+		CamWndPtr cam = GlobalCamera().getActiveCamWnd();
+		if (cam != NULL) {
+			orientCamera(x, y, *cam);
+		}
 	}
 	
 	// Check, if we are in a NewBrushDrag operation and continue it
@@ -655,11 +671,13 @@ void XYWnd::mouseMoved(int x, int y, const unsigned int& state) {
 	convertXYToWorld(x, y , m_mousePosition);
 	snapToGrid(m_mousePosition);
 
-	std::ostringstream status;
-	status << "x:: " << FloatFormat(m_mousePosition[0], 6, 1)
-			<< "  y:: " << FloatFormat(m_mousePosition[1], 6, 1)
-			<< "  z:: " << FloatFormat(m_mousePosition[2], 6, 1);
-	g_pParentWnd->SetStatusText(g_pParentWnd->m_position_status, status.str());
+	GlobalUIManager().getStatusBarManager().setText(
+		"XYZPos", 
+		(boost::format("x: %6.1lf y: %6.1lf z: %6.1lf") 
+			% m_mousePosition[0] 
+			% m_mousePosition[1] 
+			% m_mousePosition[2]).str()
+	);
 
 	if (GlobalXYWnd().showCrossHairs()) {
 		queueDraw();
@@ -1441,7 +1459,11 @@ void XYWnd::draw() {
 	glScalef(m_fScale, m_fScale, 1);
 	glTranslatef(-m_vOrigin[nDim1], -m_vOrigin[nDim2], 0);
 
-	drawCameraIcon(g_pParentWnd->GetCamWnd()->getCameraOrigin(), g_pParentWnd->GetCamWnd()->getCameraAngles());
+	CamWndPtr cam = GlobalCamera().getActiveCamWnd();
+
+	if (cam != NULL) {
+		drawCameraIcon(cam->getCameraOrigin(), cam->getCameraAngles());
+	}
 
 	if (GlobalXYWnd().showOutline()) {
 		if (isActive()) {
@@ -1452,22 +1474,16 @@ void XYWnd::draw() {
 			glMatrixMode (GL_MODELVIEW);
 			glLoadIdentity();
 
-			// four view mode doesn't colorize
-			if (g_pParentWnd->CurrentStyle() == MainFrame::eSplit) {
-				glColor3dv(ColourSchemes().getColour("active_view_name"));
-			}
-			else {
-				switch (m_viewType) {
-					case YZ:
-						glColor3dv(ColourSchemes().getColour("axis_x"));
-						break;
-					case XZ:
-						glColor3dv(ColourSchemes().getColour("axis_y"));
-						break;
-					case XY:
-						glColor3dv(ColourSchemes().getColour("axis_z"));
-						break;
-				}
+			switch (m_viewType) {
+				case YZ:
+					glColor3dv(ColourSchemes().getColour("axis_x"));
+					break;
+				case XZ:
+					glColor3dv(ColourSchemes().getColour("axis_y"));
+					break;
+				case XY:
+					glColor3dv(ColourSchemes().getColour("axis_z"));
+					break;
 			}
 
 			glBegin (GL_LINE_LOOP);
@@ -1540,23 +1556,26 @@ int& XYWnd::dragZoom() {
 	return _dragZoom;
 }
 
-void XYWnd::saveStateToNode(xml::Node& rootNode) {
-	if (_parent != NULL) {
-		if (GTK_WIDGET_VISIBLE(GTK_WIDGET(_parent))) {
-			xml::Node viewNode = rootNode.createChild("view");
-			viewNode.setAttributeValue("type", getViewTypeStr(m_viewType));
-			
-			_windowPosition.readPosition();
-			_windowPosition.saveToNode(viewNode);
-			
-			viewNode.addText(" ");
-		}
-	}
+void XYWnd::saveStateToPath(const std::string& rootPath)
+{
+	if (_parent == NULL || !GTK_WIDGET_VISIBLE(GTK_WIDGET(_parent))) return;
+
+	// Create a new child under the given root path
+	std::string viewNodePath = rootPath + "/view[@name='" + intToStr(_id) + "']";
+
+	// Remove any previously existing nodes with the same name
+	GlobalRegistry().deleteXPath(viewNodePath);
+	GlobalRegistry().createKeyWithName(rootPath, "view", intToStr(_id));
+	
+	_windowPosition.readPosition();
+	_windowPosition.saveToPath(viewNodePath);
+	GlobalRegistry().setAttribute(viewNodePath, "type", getViewTypeStr(m_viewType));
 }
 
-void XYWnd::readStateFromNode(const xml::Node& node) {
+void XYWnd::readStateFromPath(const std::string& path)
+{
 	// Load the sizes from the node
-	_windowPosition.loadFromNode(node);
+	_windowPosition.loadFromPath(path);
 	_windowPosition.applyPosition();
 }
 
@@ -1566,6 +1585,10 @@ void XYWnd::readStateFromNode(const xml::Node& node) {
  * it checks for the correct event type and passes the call to the according xy view window. 
  */
 gboolean XYWnd::callbackButtonPress(GtkWidget* widget, GdkEventButton* event, XYWnd* self) {
+
+	// Move the focus to this GL widget
+	gtk_widget_grab_focus(widget);
+
 	if (event->type == GDK_BUTTON_PRESS) {
 
 		// Put the focus on the xy view that has been clicked on
@@ -1632,7 +1655,7 @@ gboolean XYWnd::callbackSizeAllocate(GtkWidget* widget, GtkAllocation* allocatio
 gboolean XYWnd::callbackExpose(GtkWidget* widget, GdkEventExpose* event, XYWnd* self) {
 	gtkutil::GLWidgetSentry sentry(self->getWidget());
 	
-	if (GlobalMap().isValid() && ScreenUpdates_Enabled()) {
+	if (GlobalMap().isValid() && GlobalMainFrame().screenUpdatesEnabled()) {
 		GlobalOpenGL_debugAssertNoErrors();
 		self->draw();
 		GlobalOpenGL_debugAssertNoErrors();

@@ -195,7 +195,7 @@ GtkWidget* ShaderSelector::createTreeView() {
 	gtkutil::VFSTreePopulator populator(store);
 	
 	ShaderNameFunctor func(populator, _prefixes);
-	GlobalShaderSystem().foreachShaderName(makeCallback1(func));
+	GlobalMaterialManager().foreachShaderName(makeCallback1(func));
 	
 	// Now visit the created GtkTreeIters to load the actual data into the tree
 	DataInserter inserter;
@@ -211,6 +211,16 @@ GtkWidget* ShaderSelector::createTreeView() {
 								gtkutil::IconTextColumn("Value",
 														NAME_COL,
 														IMAGE_COL));
+
+	// Set the tree store to sort on this column
+    gtk_tree_sortable_set_sort_column_id(
+        GTK_TREE_SORTABLE(store),
+        NAME_COL,
+        GTK_SORT_ASCENDING
+    );
+
+	// Use the TreeModel's full string search function
+	gtk_tree_view_set_search_equal_func(GTK_TREE_VIEW(_treeView), gtkutil::TreeModel::equalFuncStringContains, NULL, NULL);
 
 	// Get selection and connect the changed callback
 	_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(_treeView));
@@ -259,8 +269,8 @@ GtkWidget* ShaderSelector::createPreview() {
 }
 
 // Get the selected shader
-IShaderPtr ShaderSelector::getSelectedShader() {
-	return GlobalShaderSystem().getShaderForName(getSelection());	
+MaterialPtr ShaderSelector::getSelectedShader() {
+	return GlobalMaterialManager().getMaterialForName(getSelection());	
 }
 
 // Update the attributes table
@@ -302,7 +312,7 @@ void ShaderSelector::_onExpose(GtkWidget* widget,
 
 	// Get the selected texture, and set up OpenGL to render it on
 	// the quad.
-	IShaderPtr shader = self->getSelectedShader();
+	MaterialPtr shader = self->getSelectedShader();
 	
 	bool drawQuad = false;
 	TexturePtr tex;
@@ -312,23 +322,25 @@ void ShaderSelector::_onExpose(GtkWidget* widget,
 		// This is a light, take the first layer texture
 		const ShaderLayer* first = shader->firstLayer();
 		if (first != NULL) {
-			tex = shader->firstLayer()->texture();
-			glBindTexture (GL_TEXTURE_2D, tex->texture_number);
+			tex = shader->firstLayer()->getTexture();
+			glBindTexture (GL_TEXTURE_2D, tex->getGLTexNum());
 			drawQuad = true;
 		} 
 	}
 	else {
 		// This is an "ordinary" texture, take the editor image
-		tex = shader->getTexture();
+		tex = shader->getEditorImage();
 		if (tex != NULL) {
-			glBindTexture (GL_TEXTURE_2D, tex->texture_number);
+			glBindTexture (GL_TEXTURE_2D, tex->getGLTexNum());
 			drawQuad = true;
 		}
 	}
 	
-	if (drawQuad) {
-		// Calculate the correct aspect ratio for preview
-		float aspect = float(tex->width) / float(tex->height);
+	if (drawQuad) 
+    {
+		// Calculate the correct aspect ratio for preview. 
+      float aspect = float(tex->getWidth()) / float(tex->getHeight());
+
 		float hfWidth, hfHeight;
 		if (aspect > 1.0) {
 			hfWidth = 0.5*req.width;
@@ -355,27 +367,17 @@ void ShaderSelector::_onExpose(GtkWidget* widget,
 	}
 }
 
-void ShaderSelector::displayShaderInfo(IShaderPtr shader, GtkListStore* listStore) {
+void ShaderSelector::displayShaderInfo(MaterialPtr shader, GtkListStore* listStore) 
+{
 	// Update the infostore in the ShaderSelector
 	GtkTreeIter iter;
 	
 	gtk_list_store_append(listStore, &iter);
 	gtk_list_store_set(listStore, &iter, 
 					   0, "<b>Shader</b>",
-					   1, shader->getName(),
+					   1, shader->getName().c_str(),
 					   -1);
 	
-	/* greebo: Disabled this part, this loads the full-sized diffuse map, allocating massloads of memory.
-
-	TexturePtr tex = shader->getDiffuse();
-	std::string dimStr = sizetToStr(tex->width) + " x " + sizetToStr(tex->height);
-	
-	gtk_list_store_append(listStore, &iter);
-	gtk_list_store_set(listStore, &iter,
-					   0, "<b>Diffuse</b>",
-					   1, dimStr.c_str(),
-					   -1);*/
-					   
 	// Containing MTR	
 	gtk_list_store_append(listStore, &iter);
 	gtk_list_store_set(listStore, &iter, 
@@ -391,13 +393,13 @@ void ShaderSelector::displayShaderInfo(IShaderPtr shader, GtkListStore* listStor
 					   -1);
 }
 
-void ShaderSelector::displayLightShaderInfo(IShaderPtr shader, GtkListStore* listStore) {
+void ShaderSelector::displayLightShaderInfo(MaterialPtr shader, GtkListStore* listStore) {
 	
 	const ShaderLayer* first = shader->firstLayer();
 	std::string texName = "None";
 	if (first != NULL) {
-		TexturePtr tex = shader->firstLayer()->texture();
-		texName = tex->name;
+		TexturePtr tex = shader->firstLayer()->getTexture();
+		texName = tex->getName();
 	}
 
 	GtkTreeIter iter;
@@ -414,7 +416,7 @@ void ShaderSelector::displayLightShaderInfo(IShaderPtr shader, GtkListStore* lis
 					   1, shader->getShaderFileName(),
 					   -1);
 
-	// Light types, from the IShader
+	// Light types, from the Material
 
 	std::string lightType;
 	if (shader->isAmbientLight())

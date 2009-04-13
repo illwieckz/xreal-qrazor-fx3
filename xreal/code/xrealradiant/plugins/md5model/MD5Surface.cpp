@@ -57,11 +57,14 @@ void MD5Surface::updateGeometry() {
 }
 
 // Back-end render
-void MD5Surface::render(RenderStateFlags state) const {
-	if (state & RENDER_BUMP) {
+void MD5Surface::render(const RenderInfo& info) const 
+{
+	if (info.checkFlag(RENDER_BUMP)) 
+    {
 		glCallList(_lightingList);
 	}
-	else {
+	else 
+    {
 		glCallList(_normalList);
 	}
 }
@@ -137,7 +140,7 @@ void MD5Surface::testSelect(Selector& selector,
 }
 
 void MD5Surface::captureShader() {
-	_shader = GlobalShaderCache().capture(_shaderName);
+	_shader = GlobalRenderSystem().capture(_shaderName);
 }
 
 MD5Surface::vertices_t& MD5Surface::vertices() {
@@ -189,13 +192,13 @@ const AABB& MD5Surface::localAABB() const {
 	return _aabb_local;
 }
 
-void MD5Surface::render(Renderer& renderer, const Matrix4& localToWorld, ShaderPtr state) const {
-	renderer.SetState(state, Renderer::eFullMaterials);
-	renderer.addRenderable(*this, localToWorld);
+void MD5Surface::render(RenderableCollector& collector, const Matrix4& localToWorld, ShaderPtr state) const {
+	collector.SetState(state, RenderableCollector::eFullMaterials);
+	collector.addRenderable(*this, localToWorld);
 }
 
-void MD5Surface::render(Renderer& renderer, const Matrix4& localToWorld) const {
-	render(renderer, localToWorld, _shader);
+void MD5Surface::render(RenderableCollector& collector, const Matrix4& localToWorld) const {
+	render(collector, localToWorld, _shader);
 }
 
 } // namespace md5

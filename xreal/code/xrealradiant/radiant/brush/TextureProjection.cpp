@@ -62,7 +62,7 @@ Matrix4 TextureProjection::getBasisForNormal(const Vector3& normal) const {
 	
 	Matrix4 basis;
 	
-	basis = g_matrix4_identity;
+	basis = Matrix4::getIdentity();
 	ComputeAxisBase(normal, basis.x().getVector3(), basis.y().getVector3());
 	basis.z().getVector3() = normal;
 	
@@ -100,9 +100,15 @@ void TextureProjection::transformLocked(std::size_t width, std::size_t height, c
 	
 	Matrix4 transformed2stTransformed = getBasisForNormal(normalTransformed);
 	
-	Matrix4 stTransformed2identity(matrix4_affine_inverse(matrix4_multiplied_by_matrix4(transformed2stTransformed, identity2transformed)));
+	Matrix4 stTransformed2identity(
+        matrix4_multiplied_by_matrix4(
+            transformed2stTransformed, identity2transformed
+        ).getInverse()
+    );
 	
-	Vector3 originalProjectionAxis(matrix4_affine_inverse(identity2stIdentity).z().getVector3());
+	Vector3 originalProjectionAxis(
+        identity2stIdentity.getInverse().z().getVector3()
+    );
 	
 	Vector3 transformedProjectionAxis(stTransformed2identity.z().getVector3());
 	
@@ -153,7 +159,7 @@ void TextureProjection::fitTexture(std::size_t width, std::size_t height, const 
 	{
 		Matrix4 xyz2st; 
 		xyz2st = getBasisForNormal(normal);
-		matrix4_multiply_by_matrix4(local2tex, xyz2st);
+		local2tex.multiplyBy(xyz2st);
 	}
 
 	// the bounds of the current texture transform
@@ -186,12 +192,12 @@ void TextureProjection::flipTexture(unsigned int flipAxis) {
 	
 	// Check for x flip (x-component not zero)
 	if (flipAxis == 0) {
-		// Invert the x scale and rotate 180°
+		// Invert the x scale and rotate 180 degrees
 		texdef._scale[0] *= -1;
 		texdef._rotate -= 180;
 	}
 	else if (flipAxis == 1) {
-		// Invert the y scale and rotate 180°
+		// Invert the y scale and rotate 180 degrees
 		texdef._scale[1] *= -1;
 		texdef._rotate -= 180;
 	}
@@ -220,12 +226,12 @@ Matrix4 TextureProjection::getWorldToTexture(const Vector3& normal, const Matrix
 		
 		// Transform the basis vectors with the according texture scale, rotate and shift operations
 		// These are contained in the local2tex matrix, so the matrices have to be multiplied. 
-		matrix4_multiply_by_matrix4(local2tex, xyz2st);
+		local2tex.multiplyBy(xyz2st);
 	}
 	
 	// Transform the texture basis vectors into the "BrushFace space"
 	// usually the localToWorld matrix is identity, so this doesn't do anything.
-	matrix4_multiply_by_matrix4(local2tex, localToWorld);
+	local2tex.multiplyBy(localToWorld);
 	
 	return local2tex;
 }
@@ -259,7 +265,7 @@ void TextureProjection::emitTextureCoordinates(Winding& w, const Vector3& normal
 		
 		// Transform the basis vectors with the according texture scale, rotate and shift operations
 		// These are contained in the local2tex matrix, so the matrices have to be multiplied. 
-		matrix4_multiply_by_matrix4(local2tex, xyz2st);
+		local2tex.multiplyBy(xyz2st);
 	}
 	
 	// Calculate the tangent and bitangent vectors to allow the correct openGL transformations
@@ -268,7 +274,7 @@ void TextureProjection::emitTextureCoordinates(Winding& w, const Vector3& normal
 	
 	// Transform the texture basis vectors into the "BrushFace space"
 	// usually the localToWorld matrix is identity, so this doesn't do anything.
-	matrix4_multiply_by_matrix4(local2tex, localToWorld);
+	local2tex.multiplyBy(localToWorld);
 	
 	// Cycle through the winding vertices and apply the texture transformation matrix
 	// onto each of them.

@@ -2,13 +2,12 @@
 
 namespace entity {
 
-EclassModelNode::EclassModelNode(IEntityClassPtr eclass) :
+EclassModelNode::EclassModelNode(const IEntityClassConstPtr& eclass) :
 	EntityNode(eclass),
 	TransformModifier(EclassModel::TransformChangedCaller(m_contained), 
 					  ApplyTransformCaller(*this)),
 	TargetableNode(_entity, *this),
-	m_contained(eclass, 
-				*this, // pass <self> as scene::INode&
+	m_contained(*this, // pass <self> as scene::INode&
 				Node::TransformChangedCaller(*this), 
 				EvaluateTransformCaller(*this)),
 	_updateSkin(true)
@@ -82,7 +81,7 @@ void EclassModelNode::refreshModel() {
 	m_contained.getNamespaced().setNamespace(space);
 }*/
 
-void EclassModelNode::renderSolid(Renderer& renderer, const VolumeTest& volume) const {
+void EclassModelNode::renderSolid(RenderableCollector& collector, const VolumeTest& volume) const {
 	// greebo: Check if the skin needs updating before rendering.
 	if (_updateSkin) {
 		// Instantiate a walker class equipped with the new value
@@ -93,11 +92,11 @@ void EclassModelNode::renderSolid(Renderer& renderer, const VolumeTest& volume) 
 		_updateSkin = false;
 	}
 
-	m_contained.renderSolid(renderer, volume, localToWorld(), isSelected());
+	m_contained.renderSolid(collector, volume, localToWorld(), isSelected());
 }
 
-void EclassModelNode::renderWireframe(Renderer& renderer, const VolumeTest& volume) const {
-	m_contained.renderWireframe(renderer, volume, localToWorld(), isSelected());
+void EclassModelNode::renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const {
+	m_contained.renderWireframe(collector, volume, localToWorld(), isSelected());
 }
 
 scene::INodePtr EclassModelNode::clone() const {

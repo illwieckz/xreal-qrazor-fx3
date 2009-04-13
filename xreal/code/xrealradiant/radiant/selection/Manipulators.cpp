@@ -110,7 +110,7 @@ void RotateManipulator::updateCircleTransforms()  {
     _circleX_visible = !vector3_equal_epsilon(g_vector3_axis_x, localViewpoint, 1e-6);
     if(_circleX_visible)
     {
-      _local2worldX = g_matrix4_identity;
+      _local2worldX = Matrix4::getIdentity();
       _local2worldX.y().getVector3() = g_vector3_axis_x.crossProduct(localViewpoint).getNormalised();
       _local2worldX.z().getVector3() = _local2worldX.x().getVector3().crossProduct( 
         											_local2worldX.y().getVector3()).getNormalised();
@@ -120,7 +120,7 @@ void RotateManipulator::updateCircleTransforms()  {
     _circleY_visible = !vector3_equal_epsilon(g_vector3_axis_y, localViewpoint, 1e-6);
     if(_circleY_visible)
     {
-      _local2worldY = g_matrix4_identity;
+      _local2worldY = Matrix4::getIdentity();
       _local2worldY.z().getVector3() = g_vector3_axis_y.crossProduct(localViewpoint).getNormalised();
       _local2worldY.x().getVector3() = _local2worldY.y().getVector3().crossProduct( 
       											 		_local2worldY.z().getVector3()).getNormalised();
@@ -130,7 +130,7 @@ void RotateManipulator::updateCircleTransforms()  {
     _circleZ_visible = !vector3_equal_epsilon(g_vector3_axis_z, localViewpoint, 1e-6);
     if(_circleZ_visible)
     {
-      _local2worldZ = g_matrix4_identity;
+      _local2worldZ = Matrix4::getIdentity();
       _local2worldZ.x().getVector3() = g_vector3_axis_z.crossProduct(localViewpoint).getNormalised();
       _local2worldZ.y().getVector3() = _local2worldZ.z().getVector3().crossProduct( 
       												_local2worldZ.x().getVector3()).getNormalised();
@@ -138,30 +138,30 @@ void RotateManipulator::updateCircleTransforms()  {
     }
 }
 
-void RotateManipulator::render(Renderer& renderer, const VolumeTest& volume, const Matrix4& pivot2world) {
+void RotateManipulator::render(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& pivot2world) {
     _pivot.update(pivot2world, volume.GetModelview(), volume.GetProjection(), volume.GetViewport());
     updateCircleTransforms();
 
     // temp hack
     UpdateColours();
 
-    renderer.SetState(_stateOuter, Renderer::eWireframeOnly);
-    renderer.SetState(_stateOuter, Renderer::eFullMaterials);
+    collector.SetState(_stateOuter, RenderableCollector::eWireframeOnly);
+    collector.SetState(_stateOuter, RenderableCollector::eFullMaterials);
 
-    renderer.addRenderable(_circleScreen, _pivot._viewpointSpace);
-    renderer.addRenderable(_circleSphere, _pivot._viewpointSpace);
+    collector.addRenderable(_circleScreen, _pivot._viewpointSpace);
+    collector.addRenderable(_circleSphere, _pivot._viewpointSpace);
 
     if(_circleX_visible)
     {
-      renderer.addRenderable(_circleX, _local2worldX);
+      collector.addRenderable(_circleX, _local2worldX);
     }
     if(_circleY_visible)
     {
-      renderer.addRenderable(_circleY, _local2worldY);
+      collector.addRenderable(_circleY, _local2worldY);
     }
     if(_circleZ_visible)
     {
-      renderer.addRenderable(_circleZ, _local2worldZ);
+      collector.addRenderable(_circleZ, _local2worldZ);
     }
 }
 
@@ -307,7 +307,7 @@ bool TranslateManipulator::manipulator_show_axis(const Pivot2World& pivot, const
     return fabs(pivot._axisScreen.dot(axis)) < 0.95;
 }
 
-void TranslateManipulator::render(Renderer& renderer, const VolumeTest& volume, const Matrix4& pivot2world) {
+void TranslateManipulator::render(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& pivot2world) {
     _pivot.update(pivot2world, volume.GetModelview(), volume.GetProjection(), volume.GetViewport());
 
     // temp hack
@@ -322,38 +322,38 @@ void TranslateManipulator::render(Renderer& renderer, const VolumeTest& volume, 
     Vector3 z = _pivot._worldSpace.z().getVector3().getNormalised();
     bool show_z = manipulator_show_axis(_pivot, z);
 
-    renderer.SetState(_stateWire, Renderer::eWireframeOnly);
-    renderer.SetState(_stateWire, Renderer::eFullMaterials);
+    collector.SetState(_stateWire, RenderableCollector::eWireframeOnly);
+    collector.SetState(_stateWire, RenderableCollector::eFullMaterials);
 
     if(show_x)
     {
-      renderer.addRenderable(_arrowX, _pivot._worldSpace);
+      collector.addRenderable(_arrowX, _pivot._worldSpace);
     }
     if(show_y)
     {
-      renderer.addRenderable(_arrowY, _pivot._worldSpace);
+      collector.addRenderable(_arrowY, _pivot._worldSpace);
     }
     if(show_z)
     {
-      renderer.addRenderable(_arrowZ, _pivot._worldSpace);
+      collector.addRenderable(_arrowZ, _pivot._worldSpace);
     }
 
-    renderer.addRenderable(_quadScreen, _pivot._viewplaneSpace);
+    collector.addRenderable(_quadScreen, _pivot._viewplaneSpace);
 
-    renderer.SetState(_stateFill, Renderer::eWireframeOnly);
-    renderer.SetState(_stateFill, Renderer::eFullMaterials);
+    collector.SetState(_stateFill, RenderableCollector::eWireframeOnly);
+    collector.SetState(_stateFill, RenderableCollector::eFullMaterials);
 
     if(show_x)
     {
-      renderer.addRenderable(_arrowHeadX, _pivot._worldSpace);
+      collector.addRenderable(_arrowHeadX, _pivot._worldSpace);
     }
     if(show_y)
     {
-      renderer.addRenderable(_arrowHeadY, _pivot._worldSpace);
+      collector.addRenderable(_arrowHeadY, _pivot._worldSpace);
     }
     if(show_z)
     {
-      renderer.addRenderable(_arrowHeadZ, _pivot._worldSpace);
+      collector.addRenderable(_arrowHeadZ, _pivot._worldSpace);
     }
 }
   
@@ -525,17 +525,17 @@ void ScaleManipulator::UpdateColours() {
     _quadScreen.setColour(colourSelected(g_colour_screen, _selectableScreen.isSelected()));
 }
 
-void ScaleManipulator::render(Renderer& renderer, const VolumeTest& volume, const Matrix4& pivot2world) {
+void ScaleManipulator::render(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& pivot2world) {
     _pivot.update(pivot2world, volume.GetModelview(), volume.GetProjection(), volume.GetViewport());
 
     // temp hack
     UpdateColours();
 
-    renderer.addRenderable(_arrowX, _pivot._worldSpace);
-    renderer.addRenderable(_arrowY, _pivot._worldSpace);
-    renderer.addRenderable(_arrowZ, _pivot._worldSpace);
+    collector.addRenderable(_arrowX, _pivot._worldSpace);
+    collector.addRenderable(_arrowY, _pivot._worldSpace);
+    collector.addRenderable(_arrowZ, _pivot._worldSpace);
 
-    renderer.addRenderable(_quadScreen, _pivot._viewpointSpace);
+    collector.addRenderable(_quadScreen, _pivot._viewpointSpace);
 }
 
 void ScaleManipulator::testSelect(const View& view, const Matrix4& pivot2world) {
@@ -634,10 +634,10 @@ void DragManipulator::testSelect(const View& view, const Matrix4& pivot2world) {
     {
     	// Find all entities
 		BooleanSelector entitySelector;
-		Scene_forEachVisible(
-			GlobalSceneGraph(), view, 
-			testselect_entity_visible(entitySelector, test)
-		);
+
+		testselect_entity_visible selectionTest(entitySelector, test);
+
+		Scene_forEachVisible(GlobalSceneGraph(), view, selectionTest);
     	
     	// Find all primitives that are selectable 
 		BooleanSelector booleanSelector;
@@ -654,7 +654,7 @@ void DragManipulator::testSelect(const View& view, const Matrix4& pivot2world) {
 		}
 		else {
 			// Check for selectable faces
-			_selected = Scene_forEachPlaneSelectable_selectPlanes(GlobalSceneGraph(), selector, test);
+			_selected = Scene_forEachPlaneSelectable_selectPlanes(selector, test);
 		}
     }
     // Check for entities that can be selected
@@ -663,8 +663,8 @@ void DragManipulator::testSelect(const View& view, const Matrix4& pivot2world) {
 		BooleanSelector booleanSelector;
 	
 		// Find the visible entities
-		Scene_forEachVisible(GlobalSceneGraph(), view, 
-							 testselect_entity_visible(booleanSelector, test));
+		testselect_entity_visible tester(booleanSelector, test);
+		Scene_forEachVisible(GlobalSceneGraph(), view, tester);
 
 		// Check, if an entity could be found
       	if (booleanSelector.isSelected()) {

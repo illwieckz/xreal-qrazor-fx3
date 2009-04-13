@@ -1,247 +1,302 @@
 #include "ShaderTemplate.h"
 #include "MapExpression.h"
+#include "CameraCubeMapDecl.h"
+
+#include "itextstream.h"
 
 #include "os/path.h"
+#include "parser/DefTokeniser.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <iostream>
 
-/*	Searches a token for known shaderflags (e.g. "translucent") and sets the flags
- *  in the member variable m_nFlags
- *
- * 	Note: input "token" has to be lowercase for the keywords to be recognized
- */
-bool ShaderTemplate::parseShaderFlags(parser::DefTokeniser& tokeniser, const std::string& token)
+namespace shaders
 {
-	if (token == "qer_trans") {
-		m_fTrans = boost::lexical_cast<float>(tokeniser.nextToken());
+
+/*  Searches a token for known shaderflags (e.g. "translucent") and sets the flags
+ *  in the member variable m_nFlags
+ * 
+ *  Note: input "token" has to be lowercase for the keywords to be recognized
+ */
+void ShaderTemplate::parseShaderFlags(parser::DefTokeniser& tokeniser, const std::string& token) 
+{   
+    if (token == "qer_trans") {
+        m_fTrans = boost::lexical_cast<float>(tokeniser.nextToken());
         m_nFlags |= QER_TRANS;
-	}
-	else if (token == "translucent") {
+    }
+    else if (token == "translucent") {
         m_fTrans = 1;
         m_nFlags |= QER_TRANS;
-	}
-	else if (token == "decal_macro") {
-		m_fTrans = 1;
-		m_nFlags |= QER_TRANS;
-	}
-	else if (token == "twosided") {
-		m_Cull = IShader::eCullNone;
-		m_nFlags |= QER_CULL;
-	}
-	else if (token == "nodraw") {
-		m_nFlags |= QER_NODRAW;
-	}
-	else if (token == "nonsolid") {
-		m_nFlags |= QER_NONSOLID;
-	}
-	else if (token == "liquid") {
-		m_nFlags |= QER_WATER;
-	}
-	else if (token == "areaportal") {
-		m_nFlags |= QER_AREAPORTAL;
-	}
-	else if (token == "playerclip" || token == "monsterclip"
-			|| token == "ikclip" || token == "moveableclip") {
-		m_nFlags |= QER_CLIP;
-	}
-	else if (token == "description") {
-		// greebo: Parse description token, this should be the next one
-		description = tokeniser.nextToken();
-	}
-	else {
-		// We haven't found anything of interest >> return false
-		return false;
-	}
-
-	return true;
+    } 
+    else if (token == "decal_macro") {
+        m_fTrans = 1;
+        m_nFlags |= QER_TRANS;
+    } 
+    else if (token == "twosided") {
+        m_Cull = Material::eCullNone;
+        m_nFlags |= QER_CULL;
+    }
+    else if (token == "nodraw") {
+        m_nFlags |= QER_NODRAW;
+    }
+    else if (token == "nonsolid") {
+        m_nFlags |= QER_NONSOLID;
+    }
+    else if (token == "liquid") {
+        m_nFlags |= QER_WATER;
+    }
+    else if (token == "areaportal") {
+        m_nFlags |= QER_AREAPORTAL;
+    }
+    else if (token == "playerclip" || token == "monsterclip" 
+            || token == "ikclip" || token == "moveableclip") {
+        m_nFlags |= QER_CLIP;
+    }
+    else if (token == "description") {
+        // greebo: Parse description token, this should be the next one
+        description = tokeniser.nextToken();
+    }
 }
 
 /* Searches for light-specific keywords and takes the appropriate actions
  */
-bool ShaderTemplate::parseLightFlags(parser::DefTokeniser& tokeniser, const std::string& token)
-{
-	if (token == "ambientlight") {
-		ambientLight = true;
-	}
-	else if (token == "blendlight") {
-		blendLight = true;
-	}
-	else if (token == "foglight") {
+void ShaderTemplate::parseLightFlags(parser::DefTokeniser& tokeniser, const std::string& token) 
+{   
+    if (token == "ambientlight") {
+        ambientLight = true;
+    } 
+    else if (token == "blendlight") {
+        blendLight = true;
+    } 
+    else if (token == "foglight") {
         fogLight = true;
     }
     else if (!fogLight && token == "lightfalloffimage") {
-    	_lightFalloff = shaders::IMapExpression::createForToken(tokeniser);
+        _lightFalloff = shaders::MapExpression::createForToken(tokeniser);
     }
-	else {
-		// No light-specific keywords found, return false
-		return false;
-	}
-	return true;
 }
 
 // Parse any single-line stages (such as "diffusemap x/y/z")
-bool ShaderTemplate::parseBlendShortcuts(parser::DefTokeniser& tokeniser,
-										 const std::string& token)
+void ShaderTemplate::parseBlendShortcuts(parser::DefTokeniser& tokeniser, 
+                                         const std::string& token) 
 {
-	if (token == "qer_editorimage") {
-		_texture = shaders::IMapExpression::createForToken(tokeniser);
-	}
-	else if (token == "diffusemap") {
-		_diffuse = shaders::IMapExpression::createForToken(tokeniser);
-	}
-	else if (token == "specularmap") {
-		_specular = shaders::IMapExpression::createForToken(tokeniser);
-	}
-	else if (token == "bumpmap") {
-		_bump = shaders::IMapExpression::createForToken(tokeniser);
-	}
-	else if (token == "normalmap") {
-		_bump = shaders::IMapExpression::createForToken(tokeniser);
-	}
-	else {
-		// No shortcuts found, return false
-		return false;
-	}
-	return true;
+    if (token == "qer_editorimage") 
+    {
+        _editorTex = MapExpression::createForToken(tokeniser);
+    }
+    else if (token == "diffusemap") 
+    {
+        // Parse the map expression
+        MapExpressionPtr difMapExp = MapExpression::createForToken(tokeniser);
+
+        // Add the diffuse layer
+        Doom3ShaderLayerPtr layer(
+            new Doom3ShaderLayer(ShaderLayer::DIFFUSE, difMapExp)
+        );
+        m_layers.push_back(layer);
+
+        // If there is no editor texture set, use the diffusemap texture instead
+        if (_editorTex)
+        {
+            _editorTex = difMapExp;
+        }
+    }
+    else if (token == "specularmap") 
+    {
+        Doom3ShaderLayerPtr layer(
+            new Doom3ShaderLayer(
+                ShaderLayer::SPECULAR, 
+                MapExpression::createForToken(tokeniser)
+            )
+        );
+        m_layers.push_back(layer);
+    }
+    else if (token == "bumpmap" || token == "normalmap") 
+    {
+        Doom3ShaderLayerPtr layer(
+            new Doom3ShaderLayer(
+                ShaderLayer::BUMP,
+                MapExpression::createForToken(tokeniser)
+            )
+        );
+        m_layers.push_back(layer);
+    }
 }
 
 /* Parses for possible blend commands like "add", "diffusemap", "gl_one, gl_zero" etc.
  * Note: input "token" has to be lowercase
  * Output: true, if the blend keyword was found, false otherwise.
  */
-bool ShaderTemplate::parseBlendType(parser::DefTokeniser& tokeniser, const std::string& token)
+void ShaderTemplate::parseBlendType(parser::DefTokeniser& tokeniser, const std::string& token) 
 {
-	if (token == "blend" || token == "stage") {
-		std::string blendType = boost::algorithm::to_lower_copy(tokeniser.nextToken());
-
-		if (blendType == "diffusemap") {
-			m_currentLayer.m_type = LAYER_DIFFUSEMAP;
-		}
-		else if (blendType == "bumpmap") {
-			m_currentLayer.m_type = LAYER_BUMPMAP;
-		}
-		else if (blendType == "normalmap") {
-			m_currentLayer.m_type = LAYER_BUMPMAP;
-		}
-		else if (blendType == "specularmap") {
-			m_currentLayer.m_type = LAYER_SPECULARMAP;
-		}
-		else {
-			m_currentLayer.m_blendFunc.first = blendType.c_str();
-
-			if (blendType.substr(0,3) == "gl_") {
-				// there is a second argument to parse
-				tokeniser.assertNextToken(",");
-				m_currentLayer.m_blendFunc.second = tokeniser.nextToken().c_str();
-			} else {
-				m_currentLayer.m_blendFunc.second = "";
-			}
-		}
-	}
-	else {
-		// Nothing found
-		return false;
-	}
-
-	return true;
+    if (token == "blend" || token == "stage") 
+    {
+        std::string blendType = boost::algorithm::to_lower_copy(tokeniser.nextToken());
+        
+        if (blendType == "diffusemap") {
+            _currentLayer->setLayerType(ShaderLayer::DIFFUSE);
+        }
+        else if (blendType == "bumpmap") {
+            _currentLayer->setLayerType(ShaderLayer::BUMP);
+        }
+        else if (blendType == "specularmap") {
+            _currentLayer->setLayerType(ShaderLayer::SPECULAR);
+        }
+        else 
+        {
+            // Special blend type, either predefined like "add" or "modulate",
+            // or an explicit combination of GL blend modes
+            StringPair blendFuncStrings;
+            blendFuncStrings.first = blendType;
+            
+            if (blendType.substr(0,3) == "gl_") 
+            {
+                // This is an explicit GL blend mode
+                tokeniser.assertNextToken(",");
+                blendFuncStrings.second = tokeniser.nextToken();
+            } else {
+                blendFuncStrings.second = "";
+            }           
+            _currentLayer->setBlendFuncStrings(blendFuncStrings);
+        }       
+    } 
 }
 
-/* Searches for clamp keywords in stage 2, expects token to be lowercase
+/* Searches for the map keyword in stage 2, expects token to be lowercase 
  */
-bool ShaderTemplate::parseClamp(parser::DefTokeniser& tokeniser, const std::string& token)
-{
-	if (token == "zeroclamp") {
-		m_currentLayer.m_clampToBorder = true;
-	}
-	else {
-		return false;
-	}
-
-	return true;
+void ShaderTemplate::parseBlendMaps(parser::DefTokeniser& tokeniser, const std::string& token) 
+{   
+    if (token == "map") 
+    {
+        _currentLayer->setBindableTexture(
+            MapExpression::createForToken(tokeniser)
+        );     
+    }
+    else if (token == "cameracubemap")
+    {
+        std::string cubeMapPrefix = tokeniser.nextToken();
+        _currentLayer->setBindableTexture(
+            CameraCubeMapDecl::createForPrefix(cubeMapPrefix)
+        );
+        _currentLayer->setCubeMapMode(ShaderLayer::CUBE_MAP_CAMERA);
+    }
 }
 
-/* Searches for the map keyword in stage 2, expects token to be lowercase
- */
-bool ShaderTemplate::parseBlendMaps(parser::DefTokeniser& tokeniser, const std::string& token)
+// Search for colour modifications, e.g. red, green, blue, rgb or vertexColor
+void ShaderTemplate::parseColourModulation(parser::DefTokeniser& tokeniser,
+                                           const std::string& token)
 {
-	if (token == "map") {
-		m_currentLayer.mapExpr = shaders::IMapExpression::createForToken(tokeniser);
-	}
-	else {
-		return false;
-	}
+    if (token == "vertexcolor")
+    {
+        _currentLayer->setVertexColourMode(
+            ShaderLayer::VERTEX_COLOUR_MULTIPLY
+        );
+    }
+    else if (token == "inversevertexcolor")
+    {
+        _currentLayer->setVertexColourMode( 
+            ShaderLayer::VERTEX_COLOUR_INVERSE_MULTIPLY
+        );
+    }
+    else if (token == "red" 
+             || token == "green" 
+             || token == "blue" 
+             || token == "rgb")
+    {
+        // Get the colour value
+        std::string valueString = tokeniser.nextToken();
+        float value = strToFloat(valueString);
 
-	return true;
+        // Set the appropriate component(s)
+        Vector3 currentColour = _currentLayer->getColour();
+        if (token == "red")
+        {
+            currentColour[0] = value;
+        }
+        else if (token == "green")
+        {
+            currentColour[1] = value;
+        }
+        else if (token == "blue")
+        {
+            currentColour[2] = value;
+        }
+        else
+        {
+            currentColour = Vector3(value, value, value);
+        }
+        _currentLayer->setColour(currentColour);
+    }
 }
 
-/* Saves the accumulated data (m_type, m_blendFunc etc.) to the m_layers vector.
+/* Saves the accumulated data (m_type, m_blendFunc etc.) to the m_layers vector.  
  */
 bool ShaderTemplate::saveLayer()
 {
-	switch (m_currentLayer.m_type) {
-		case LAYER_DIFFUSEMAP:
-			_diffuse = m_currentLayer.mapExpr;
-			break;
-		case LAYER_BUMPMAP:
-			_bump = m_currentLayer.mapExpr;
-			break;
-		case LAYER_SPECULARMAP:
-			_specular = m_currentLayer.mapExpr;
-			break;
-		default:
-			if (m_currentLayer.mapExpr) {
-				m_layers.push_back(m_currentLayer);
-			}
-	}
-
-	// Clear the currentLayer structure for possible future layers
-	m_currentLayer.m_type = LAYER_NONE;
-	m_currentLayer.mapExpr = shaders::MapExpressionPtr();
-	return true;
+    // Append layer to list of all layers
+    if (_currentLayer->getBindableTexture()) {
+        m_layers.push_back(_currentLayer);
+    }
+    
+    // Clear the currentLayer structure for possible future layers
+    _currentLayer = Doom3ShaderLayerPtr(new Doom3ShaderLayer);
+    return true;
 }
 
-/* Parses a material definition for shader keywords and takes the according
- * actions.
+/* Parses a material definition for shader keywords and takes the according 
+ * actions. 
  */
-void ShaderTemplate::parseDoom3(parser::DefTokeniser& tokeniser)
+void ShaderTemplate::parseDefinition() 
 {
-	int curStage = 1;	// we always start at stage 1
+    // Construct a local deftokeniser to parse the unparsed block
+    parser::BasicDefTokeniser<std::string> tokeniser(
+        _blockContents,
+        " \t\n\v\r",    // delimiters (whitespace)
+        "{}(),"         // add the comma character to the kept delimiters
+    );
 
-	while (curStage>0 && tokeniser.hasMoreTokens()) {
-		std::string token = tokeniser.nextToken();
-		std::string token_lowercase = boost::algorithm::to_lower_copy(token);
+    _parsed = true; // we're parsed from now on
 
-		if (token=="}") {
-
-			if (--curStage == 1) {
-				saveLayer();
-			}
-
-			// If the texture is missing (i.e. no editorimage provided),
-			// substitute this with the diffusemap
-			if (!_texture) {
-				_texture = _diffuse;
-			}
-		}
-		else if (token=="{") {
-			++curStage;
-		}
-		else {
-			switch (curStage) {
-				case 1:
-					parseShaderFlags(tokeniser, token_lowercase);
-					parseLightFlags(tokeniser, token_lowercase);
-					parseBlendShortcuts(tokeniser, token_lowercase);
-					break;
-				case 2:
-					parseBlendType(tokeniser, token_lowercase);
-					parseBlendMaps(tokeniser, token_lowercase);
-					parseClamp(tokeniser, token_lowercase);
-					break;
-			}
-		}
-	}
+    try
+    {
+        int level = 1;  // we always start at top level
+            
+        while (level > 0 && tokeniser.hasMoreTokens()) 
+        {
+            std::string token = tokeniser.nextToken();
+            std::string token_lowercase = boost::algorithm::to_lower_copy(token);
+            
+            if (token=="}") {
+                
+                if (--level == 1) {
+                    saveLayer();
+                }
+            } 
+            else if (token=="{") {
+                ++level;
+            }
+            else {
+                switch (level) {
+                    case 1: // global level
+                        parseShaderFlags(tokeniser, token_lowercase);
+                        parseLightFlags(tokeniser, token_lowercase);
+                        parseBlendShortcuts(tokeniser, token_lowercase);
+                        break;
+                    case 2: // stage level
+                        parseBlendType(tokeniser, token_lowercase);
+                        parseBlendMaps(tokeniser, token_lowercase);
+                        parseColourModulation(tokeniser, token_lowercase);
+                        break;
+                }
+            } 
+        }
+    }
+    catch (parser::ParseException p) {
+        globalErrorStream() << "Error while parsing shader " << _name << ": "
+            << p.what() << std::endl;
+    }
+}
 
 }
+

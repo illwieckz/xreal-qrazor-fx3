@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "igl.h"
 #include "imodule.h"
+#include "ishaders.h"
+
 #include "math/Vector3.h"
 #include "math/Vector4.h"
 class AABB;
@@ -58,10 +60,15 @@ public:
 	virtual void disable() = 0;
 	
 	/**
-	 * Provide the local parameters that should be passed to the shader program.
+	 * \brief
+     * Apply render parameters used by this program to OpenGL.
+     *
+     * This method is invoked shortly before the renderable geometry is
+     * submitted for rendering; the GLProgram must apply to the GL state any
+     * parameters it uses.
 	 * 
 	 * @param viewer
-	 * Location of the viewer in 3D space.
+	 * Location of the viewer in object space.
 	 * 
 	 * @param localToWorld
 	 * Local to world transformation matrix.
@@ -80,15 +87,19 @@ public:
 	 * 0.0 for a normal light, 1.0 for an ambient light. This affects whether
 	 * the lighting is directional or not.
 	 */
-	virtual void setParameters(const Vector3& viewer, 
-  							   const Matrix4& localToWorld, 
-  							   const Vector3& origin, 
-  							   const Vector3& colour, 
-  							   const Matrix4& world2light,
-  							   float ambientFactor) = 0;
+	virtual void applyRenderParams(const Vector3& viewer, 
+  							       const Matrix4& localToWorld, 
+  							       const Vector3& origin, 
+  							       const Vector3& colour, 
+  							       const Matrix4& world2light,
+  							       float ambientFactor) = 0;
 };
 
-//! A collection of opengl state information.
+/**
+ * \brief
+ * Data structure encapsulating various parameters of the OpenGL state machine,
+ * as well as parameters used internally by Radiant.
+ */
 class OpenGLState
 {
 public:
@@ -111,16 +122,34 @@ public:
     eSortLast = 4096,
   };
 
-  unsigned int m_state;
+    /**
+     * \brief
+     * Render state flags.
+     *
+     * A bitfield containing render flags such as RENDER_COLOURWRITE or
+     * RENDER_BLEND.
+     */
+    unsigned int renderFlags;
+
   std::size_t m_sort;
-  GLint m_texture;
-  GLint m_texture1;
-  GLint m_texture2;
-  GLint m_texture3;
-  GLint m_texture4;
-  GLint m_texture5;
-  GLint m_texture6;
-  GLint m_texture7;
+
+    /**
+     * \brief
+     * GL texture numbers to be bound to texture units.
+     *
+     * \{
+     */
+
+    GLint texture0;
+    GLint texture1;
+    GLint texture2;
+    GLint texture3;
+    GLint texture4;
+
+    /**
+     * \}
+     */
+
   Vector4 m_colour;
   GLenum m_blend_src, m_blend_dst;
   GLenum m_depthfunc;
@@ -132,17 +161,20 @@ public:
   GLushort m_linestipple_pattern;
   GLProgram* m_program;
 
+    /**
+     * \brief 
+     * The cube-map texgen mode for rendering.
+     */
+    ShaderLayer::CubeMapMode cubeMapMode;
+
 	// Default constructor
 	OpenGLState() 
-	: m_state(0), // corresponds to RENDER_DEFAULT. TODO: potentially fragile
-	  m_texture(0),
-	  m_texture1(0),
-	  m_texture2(0),
-	  m_texture3(0),
-	  m_texture4(0),
-	  m_texture5(0),
-	  m_texture6(0),
-	  m_texture7(0),
+	: renderFlags(0), // corresponds to RENDER_DEFAULT. TODO: potentially fragile
+	  texture0(0),
+	  texture1(0),
+	  texture2(0),
+      texture3(0),
+      texture4(0),
 	  m_colour(1, 1, 1, 1),
 	  m_blend_src(GL_SRC_ALPHA),
 	  m_blend_dst(GL_ONE_MINUS_SRC_ALPHA),
@@ -153,47 +185,9 @@ public:
 	  m_pointsize(1),
 	  m_linestipple_factor(1),
 	  m_linestipple_pattern(0xAAAA),
-	  m_program(0)
+	  m_program(0),
+      cubeMapMode(ShaderLayer::CUBE_MAP_NONE)
 	{ }
 };
-
-const std::string MODULE_OPENGL_STATE_LIBRARY("OpenGLStateLibrary");
-
-/**
- * Library of named OpenGLState objects.
- */
-class OpenGLStateLibrary :
-	public RegisterableModule
-{
-public:
-	virtual void getDefaultState(OpenGLState& state) const = 0;
-
-	/** 
-	 * Add a named state.
-	 */
-	virtual void insert(const std::string& name, const OpenGLState& state) = 0;
-	
-	/**
-	 * Erase a named state.
-	 */
-	virtual void erase(const std::string& name) = 0;
-	
-	/**
-	 * Find a named state. Throws an std::runtime_error exception if the
-	 * state is not found.
-	 */
-	virtual const OpenGLState& find(const std::string& name) = 0;
-	
-};
-
-inline OpenGLStateLibrary& GlobalOpenGLStateLibrary() {
-	// Cache the reference locally
-	static OpenGLStateLibrary& _openGLStateLib(
-		*boost::static_pointer_cast<OpenGLStateLibrary>(
-			module::GlobalModuleRegistry().getModule(MODULE_OPENGL_STATE_LIBRARY)
-		)
-	);
-	return _openGLStateLib;
-}
 
 #endif

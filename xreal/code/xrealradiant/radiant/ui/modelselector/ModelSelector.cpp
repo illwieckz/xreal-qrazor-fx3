@@ -2,15 +2,14 @@
 #include "ModelFileFunctor.h"
 #include "ModelDataInserter.h"
 
-#include "mainframe.h"
 #include "gtkutil/TreeModel.h"
 #include "gtkutil/IconTextColumn.h"
 #include "gtkutil/RightAlignment.h"
 #include "gtkutil/ScrolledFrame.h"
 #include "math/Vector3.h"
 #include "ifilesystem.h"
+#include "itextstream.h"
 #include "iregistry.h"
-#include "iradiant.h"
 
 #include <cstdlib>
 #include <cmath>
@@ -19,6 +18,8 @@
 #include <map>
 #include <sstream>
 #include <GL/glew.h>
+
+#include "generic/callback.h"
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
@@ -30,11 +31,17 @@ namespace ui
 
 ModelSelector::ModelSelector()
 : _widget(gtk_window_new(GTK_WINDOW_TOPLEVEL)),
+  _modelPreview(new ModelPreview),
   _treeStore(gtk_tree_store_new(N_COLUMNS, 
   								G_TYPE_STRING,
   								G_TYPE_STRING,
   								G_TYPE_STRING,
   								GDK_TYPE_PIXBUF)),
+  _treeStoreWithSkins(gtk_tree_store_new(N_COLUMNS, 
+  										G_TYPE_STRING,
+  										G_TYPE_STRING,
+  										G_TYPE_STRING,
+  										GDK_TYPE_PIXBUF)),
   _infoStore(gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING)),
   _lastModel(""),
   _lastSkin(""),
@@ -59,7 +66,7 @@ ModelSelector::ModelSelector()
 	_position.fitToScreen(0.8f, previewHeightFactor);
 	_position.applyPosition();
 
-	_modelPreview.setSize(_position.getSize()[1]);
+	_modelPreview->setSize(_position.getSize()[1]);
 
 	// Re-center the window
 	gtk_window_set_position(GTK_WINDOW(_widget), GTK_WIN_POS_CENTER_ON_PARENT);
@@ -85,7 +92,7 @@ ModelSelector::ModelSelector()
 	gtk_box_pack_start(GTK_BOX(hbx), leftVbx, TRUE, TRUE, 0);
 	
 	GtkWidget* previewBox = gtk_vbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(previewBox), _modelPreview, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(previewBox), *_modelPreview, FALSE, FALSE, 0);
 	
 	gtk_box_pack_start(GTK_BOX(hbx), previewBox, FALSE, FALSE, 0);
 	
@@ -101,15 +108,34 @@ ModelSelector::ModelSelector()
 
 ModelSelector& ModelSelector::Instance() {
 	// Static instance pointer
-	typedef boost::shared_ptr<ModelSelector> ModelSelectorPtr;
-	static ModelSelectorPtr _selector(new ModelSelector);
-	
-	return *_selector;
+	return *InstancePtr();
+}
+
+ModelSelectorPtr& ModelSelector::InstancePtr() {
+	static ModelSelectorPtr _instancePtr;
+
+	if (_instancePtr == NULL) {
+		// Not yet instantiated, do it now
+		_instancePtr = ModelSelectorPtr(new ModelSelector);
+		
+		// Register this instance with GlobalRadiant() at once
+		GlobalRadiant().addEventListener(_instancePtr);
+	}
+
+	return _instancePtr;
+}
+
+void ModelSelector::onRadiantShutdown() {
+	globalOutputStream() << "ModelSelector shutting down.\n";
+
+	_modelPreview = ModelPreviewPtr();
 }
 
 // Show the dialog and enter recursive main loop
-ModelSelectorResult ModelSelector::showAndBlock(const std::string& curModel, bool showOptions) {
-
+ModelSelectorResult ModelSelector::showAndBlock(const std::string& curModel,
+                                                bool showOptions,
+                                                bool showSkins) 
+{
 	if (!_populated) {
 		// Attempt to construct the static instance. This could throw an 
 		// exception if the population of models is aborted by the user.
@@ -130,12 +156,21 @@ ModelSelectorResult ModelSelector::showAndBlock(const std::string& curModel, boo
 	if (!showOptions) {
 		gtk_widget_hide(GTK_WIDGET(_advancedOptions));
 	}
-	
-	if (!curModel.empty()) {
+
+	// Choose the model based on the "showSkins" setting
+	gtk_tree_view_set_model(
+		GTK_TREE_VIEW(_treeView), 
+		(showSkins) ? GTK_TREE_MODEL(_treeStoreWithSkins) : GTK_TREE_MODEL(_treeStore)
+	);
+
+	// If an empty string was passed for the current model, use the last selected one
+	std::string previouslySelected = (!curModel.empty()) ? curModel : _lastModel;
+
+	if (!previouslySelected.empty()) {
 		// Lookup the model path in the treemodel
-		gtkutil::TreeModel::SelectionFinder finder(curModel, FULLNAME_COLUMN);
+		gtkutil::TreeModel::SelectionFinder finder(previouslySelected, FULLNAME_COLUMN);
 		
-		GtkTreeModel* model = GTK_TREE_MODEL(_treeStore);
+		GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(_treeView));
 		gtk_tree_model_foreach(model, gtkutil::TreeModel::SelectionFinder::forEach, &finder);
 		
 		// Get the found TreePath (may be NULL)
@@ -152,13 +187,13 @@ ModelSelectorResult ModelSelector::showAndBlock(const std::string& curModel, boo
 
 	// Update the model preview widget, forcing an update of the selected model
 	// since the preview model is deleted on dialog hide
-	_modelPreview.initialisePreview();
+	_modelPreview->initialisePreview();
 	updateSelected();
 
 	gtk_main(); // recursive main loop. This will block until the dialog is closed in some way.
 
 	// Reset the preview model to release resources
-	_modelPreview.setModel("");
+	_modelPreview->clear();
 
 	// Construct the model/skin combo and return it
 	return ModelSelectorResult(
@@ -170,9 +205,9 @@ ModelSelectorResult ModelSelector::showAndBlock(const std::string& curModel, boo
 
 // Static function to display the instance, and return the selected model to the 
 // calling function
-ModelSelectorResult ModelSelector::chooseModel(const std::string& curModel, bool showOptions) {
+ModelSelectorResult ModelSelector::chooseModel(const std::string& curModel, bool showOptions, bool showSkins) {
 	// Use the instance to select a model.
-	return Instance().showAndBlock(curModel, showOptions);
+	return Instance().showAndBlock(curModel, showOptions, showSkins);
 }
 
 void ModelSelector::refresh() {
@@ -195,12 +230,20 @@ GtkWidget* ModelSelector::createTreeView()
 	);
 	gtk_tree_view_append_column(_treeView, nameCol);				
 
-    // Set the tree store to sort on this column
+    // Set the tree stores to sort on this column
     gtk_tree_sortable_set_sort_column_id(
         GTK_TREE_SORTABLE(_treeStore),
         NAME_COLUMN,
         GTK_SORT_ASCENDING
     );
+    gtk_tree_sortable_set_sort_column_id(
+        GTK_TREE_SORTABLE(_treeStoreWithSkins),
+        NAME_COLUMN,
+        GTK_SORT_ASCENDING
+    );
+
+	// Use the TreeModel's full string search function
+	gtk_tree_view_set_search_equal_func(_treeView, gtkutil::TreeModel::equalFuncStringContains, NULL, NULL);
 
 	// Get the selection object and connect to its changed signal
 	_selection = gtk_tree_view_get_selection(_treeView);
@@ -217,19 +260,25 @@ void ModelSelector::populateModels()
 {
 	// Clear the treestore first
 	gtk_tree_store_clear(_treeStore);
-	
+	gtk_tree_store_clear(_treeStoreWithSkins);
+
 	// Create a VFSTreePopulator for the treestore
 	gtkutil::VFSTreePopulator pop(_treeStore);
+	gtkutil::VFSTreePopulator popSkins(_treeStoreWithSkins);
 	
 	// Use a ModelFileFunctor to add paths to the populator
-	ModelFileFunctor functor(pop);
+	ModelFileFunctor functor(pop, popSkins);
 	GlobalFileSystem().forEachFile(MODELS_FOLDER, 
 								   "*", 
 								   makeCallback1(functor), 
 								   0);
 	
-	// Fill in the column data
-	ModelDataInserter inserter;
+	// Fill in the column data (TRUE = including skins)
+	ModelDataInserter inserterSkins(true);
+	popSkins.forEachNode(inserterSkins);
+
+	// Insert data into second model (FALSE = without skins)
+	ModelDataInserter inserter(false);
 	pop.forEachNode(inserter);
 	
 	// Set the flag, we're done	
@@ -325,12 +374,12 @@ void ModelSelector::updateSelected() {
 	std::string skinName = getSelectedValue(SKIN_COLUMN);
 
 	// Pass the model and skin to the preview widget
-	_modelPreview.setModel(mName);
-	_modelPreview.setSkin(skinName);
+	_modelPreview->setModel(mName);
+	_modelPreview->setSkin(skinName);
 
 	// Check that the model is actually valid by querying the IModelPtr 
 	// returned from the preview widget.
-	model::IModelPtr mdl = _modelPreview.getModel();
+	model::IModelPtr mdl = _modelPreview->getModel();
 	if (!mdl) {
 		return; // no valid model
 	}

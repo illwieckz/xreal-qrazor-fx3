@@ -9,7 +9,6 @@
 #include "iselection.h"
 #include "scenelib.h"
 #include "gtkutil/dialog.h"
-#include "mainframe.h"
 #include "map/algorithm/Clone.h"
 #include "map/BasicContainer.h"
 
@@ -39,7 +38,7 @@ void scaleSelected(const Vector3& scaleXYZ) {
 		GlobalSelectionSystem().scaleSelected(scaleXYZ);
 	}
 	else {
-		gtkutil::errorDialog("Cannot scale by zero value.", MainFrame_getWindow());
+		gtkutil::errorDialog("Cannot scale by zero value.", GlobalRadiant().getMainWindow());
 	}
 }
 
@@ -124,7 +123,7 @@ void selectNode(scene::INodePtr node) {
 	Node_setSelected(node, true);
 }
 
-void cloneSelected() {
+void cloneSelected(const cmd::ArgumentList& args) {
 	// Check for the correct editing mode (don't clone components)
 	if (GlobalSelectionSystem().Mode() != SelectionSystem::ePrimitive) {
 		return;

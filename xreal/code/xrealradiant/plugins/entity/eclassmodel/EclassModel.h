@@ -16,15 +16,13 @@
 #include "../namedentity.h"
 #include "../SkinChangedWalker.h"
 #include "../Doom3Entity.h"
-#include "../OptionalRenderedName.h"
 
 namespace entity {
 
 class EclassModelNode;
 
 class EclassModel :
-	public Snappable,
-    public OptionalRenderedName
+	public Snappable
 {
 	EclassModelNode& _owner;
 
@@ -50,8 +48,7 @@ class EclassModel :
 	
 	InstanceCounter m_instanceCounter;
 public:
-	EclassModel(IEntityClassPtr eclass,
-				EclassModelNode& owner,
+	EclassModel(EclassModelNode& owner,
 				const Callback& transformChanged, 
 				const Callback& evaluateTransform);
 	
@@ -79,8 +76,8 @@ public:
 	TransformNode& getTransformNode();
 	const TransformNode& getTransformNode() const;
 
-	void renderSolid(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld, bool selected) const;
-	void renderWireframe(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld, bool selected) const;
+	void renderSolid(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld, bool selected) const;
+	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld, bool selected) const;
 
 	void translate(const Vector3& translation);
 	void rotate(const Quaternion& rotation);

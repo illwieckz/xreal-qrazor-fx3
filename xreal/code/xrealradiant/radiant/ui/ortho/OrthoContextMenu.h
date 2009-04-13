@@ -1,8 +1,11 @@
 #ifndef ORTHOCONTEXTMENU_H_
 #define ORTHOCONTEXTMENU_H_
 
-#include <gtk/gtk.h>
+#include <map>
 #include "math/Vector3.h"
+
+typedef struct _GtkMenuItem GtkMenuItem;
+typedef struct _GtkWidget GtkWidget;
 
 namespace ui
 {
@@ -23,23 +26,10 @@ class OrthoContextMenu
 	
 	// Last provided 3D point for action
 	Vector3 _lastPoint;
+
+	// The widgets, indexed by an enum
+	std::map<int, GtkWidget*> _widgets;
 	
-	// GTK MENU ITEMS
-	GtkWidget* _addEntity;
-	GtkWidget* _addPlayerStart;
-	GtkWidget* _movePlayerStart;
-	GtkWidget* _addModel;
-	GtkWidget* _addMonsterClip;
-	GtkWidget* _addLight;
-	GtkWidget* _addPrefab;
-	GtkWidget* _addSpkr;
-	GtkWidget* _convertStatic;
-	GtkWidget* _revertWorldspawn;
-
-	GtkWidget* _addToLayer;
-	GtkWidget* _moveToLayer;
-	GtkWidget* _removeFromLayer;
-
 	LayerContextMenuPtr _addToLayerSubmenu;
 	LayerContextMenuPtr _moveToLayerSubmenu;
 	LayerContextMenuPtr _removeFromLayerSubmenu;
@@ -63,6 +53,8 @@ class OrthoContextMenu
 	// mohij: changes the "Add PlayerStart" entry if an info_player_start already exists
 	void checkPlayerStart();
 
+	void checkMakeVisportal();
+
 	// Refreshes the layer submenus
 	void repopulateLayerMenus();
 
@@ -77,7 +69,6 @@ class OrthoContextMenu
 	static void callbackAddPrefab(GtkMenuItem* item, OrthoContextMenu* self);
 	static void callbackAddSpeaker(GtkMenuItem*, OrthoContextMenu* self);
 	static void callbackConvertToStatic(GtkMenuItem* item, OrthoContextMenu* self);
-	static void callbackRevertToWorldspawn(GtkMenuItem* item, OrthoContextMenu* self);
 
 	// Gets called by the items in the "Add to Layer" submenu
 	static void callbackAddToLayer(int layerID);

@@ -68,9 +68,9 @@ bool MapPosition::empty() const {
 	return (_position == Vector3(0,0,0) && _angle == Vector3(0,0,0));
 }
 
-void MapPosition::store() {
+void MapPosition::store(const cmd::ArgumentList& args) {
 	globalOutputStream() << "Storing map position #" << _index << "\n";
-	CamWndPtr camwnd = GlobalCamera().getCamWnd();
+	CamWndPtr camwnd = GlobalCamera().getActiveCamWnd();
 	
 	if (camwnd != NULL) {
 		_position = camwnd->getCameraOrigin();
@@ -84,7 +84,7 @@ void MapPosition::store() {
 	}
 }
 
-void MapPosition::recall() {
+void MapPosition::recall(const cmd::ArgumentList& args) {
 	if (!empty()) {
 		globalOutputStream() << "Restoring map position #" << _index << "\n";
 		// Focus the view with the default angle

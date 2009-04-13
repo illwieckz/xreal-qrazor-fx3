@@ -5,7 +5,7 @@
 
 /**
  * Interface for objects representing resources which were defined within
- * either a directory or a PK3 archive belonging to a particular mod. Provides
+ * either a directory or a PK4 archive belonging to a particular mod. Provides
  * a single method to retrieve the name of the mod that contains this particular
  * resource.
  */

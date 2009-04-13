@@ -11,6 +11,8 @@
 #include "ShaderFileLoader.h"
 #include "MissingXMLNodeException.h"
 
+#include "debugging/ScopedDebugTimer.h"
+
 #include <boost/algorithm/string/predicate.hpp>
 
 namespace {
@@ -22,6 +24,11 @@ in game descriptor";
 	const char* MISSING_EXTENSION_NODE =
 		"Failed to find \"/game/filesystem/shaders/extension\" node \
 in game descriptor";
+
+	// Default image maps for optional material stages
+	const std::string IMAGE_FLAT = "_flat.bmp";
+	const std::string IMAGE_BLACK = "_black.bmp";
+	
 }
 
 namespace shaders {
@@ -54,16 +61,17 @@ void Doom3ShaderSystem::destroy() {
 	// the CShader destructors.
 }
 
-void Doom3ShaderSystem::loadMaterialFiles() {
+void Doom3ShaderSystem::loadMaterialFiles() 
+{
 	// Get the shaders path and extension from the XML game file
 	xml::NodeList nlShaderPath = 
 		GlobalRegistry().findXPath("game/filesystem/shaders/basepath");
-	if (nlShaderPath.size() != 1)
+	if (nlShaderPath.empty())
 		throw MissingXMLNodeException(MISSING_BASEPATH_NODE);
 
 	xml::NodeList nlShaderExt = 
 		GlobalRegistry().findXPath("game/filesystem/shaders/extension");
-	if (nlShaderExt.size() != 1)
+	if (nlShaderExt.empty())
 		throw MissingXMLNodeException(MISSING_EXTENSION_NODE);
 
 	// Load the shader files from the VFS
@@ -75,10 +83,15 @@ void Doom3ShaderSystem::loadMaterialFiles() {
 	
 	// Load each file from the global filesystem
 	ShaderFileLoader ldr(sPath);
-	GlobalFileSystem().forEachFile(sPath, 
-								   extension, 
-								   makeCallback1(ldr), 
-								   0);
+	{
+		ScopedDebugTimer timer("ShaderFiles parsed: ");
+		GlobalFileSystem().forEachFile(sPath, 
+									   extension, 
+									   makeCallback1(ldr), 
+									   0);
+	}
+
+	globalOutputStream() << _library->getNumShaders() << " shaders found." << std::endl;
 }
 
 void Doom3ShaderSystem::realise() {
@@ -122,9 +135,9 @@ bool Doom3ShaderSystem::isRealised() {
 }
 
 // Return a shader by name
-IShaderPtr Doom3ShaderSystem::getShaderForName(const std::string& name) {
-	ShaderPtr shader = _library->findShader(name);
-	//activeShadersChangedNotify();
+MaterialPtr Doom3ShaderSystem::getMaterialForName(const std::string& name) 
+{
+	CShaderPtr shader = _library->findShader(name);
 	return shader;
 }
 
@@ -139,7 +152,7 @@ void Doom3ShaderSystem::beginActiveShadersIterator() {
 bool Doom3ShaderSystem::endActiveShadersIterator() {
 	return _library->getIterator() == _library->end();
 }
-IShaderPtr Doom3ShaderSystem::dereferenceActiveShadersIterator() {
+MaterialPtr Doom3ShaderSystem::dereferenceActiveShadersIterator() {
 	return _library->getIterator()->second;
 }
 void Doom3ShaderSystem::incrementActiveShadersIterator() {
@@ -189,6 +202,31 @@ ShaderLibrary& Doom3ShaderSystem::getLibrary() {
 
 GLTextureManager& Doom3ShaderSystem::getTextureManager() {
 	return *_textureManager;
+}
+
+// Get default textures
+TexturePtr Doom3ShaderSystem::getDefaultInteractionTexture(ShaderLayer::Type t)
+{
+    TexturePtr defaultTex;
+
+    // Look up based on layer type
+    switch (t)
+    {
+    case ShaderLayer::DIFFUSE:
+    case ShaderLayer::SPECULAR:
+        defaultTex = GetTextureManager().getBinding(
+            GlobalRegistry().get(RKEY_BITMAPS_PATH) + IMAGE_BLACK
+        );
+        break;
+
+    case ShaderLayer::BUMP:
+        defaultTex = GetTextureManager().getBinding(
+            GlobalRegistry().get(RKEY_BITMAPS_PATH) + IMAGE_FLAT
+        );
+        break;
+    }
+
+    return defaultTex;
 }
 
 void Doom3ShaderSystem::activeShadersChangedNotify() {

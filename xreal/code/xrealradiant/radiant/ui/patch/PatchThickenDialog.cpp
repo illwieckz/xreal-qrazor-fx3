@@ -1,7 +1,7 @@
 #include "PatchThickenDialog.h"
 
+#include "iradiant.h"
 #include <gtk/gtk.h>
-#include "mainframe.h"
 #include "string/string.h"
 
 namespace {
@@ -21,7 +21,7 @@ namespace {
 namespace ui {
 
 PatchThickenDialog::PatchThickenDialog() :
-	_parent(MainFrame_getWindow()),
+	_parent(GlobalRadiant().getMainWindow()),
 	_dialog(NULL)
 {
 	// Create the new dialog window with OK and CANCEL button    

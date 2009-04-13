@@ -1,7 +1,7 @@
 #include "LayerSystem.h"
 
 #include "ieventmanager.h"
-#include "stream/textstream.h"
+#include "icommandsystem.h"
 #include "scene/Node.h"
 #include "modulesystem/StaticModule.h"
 
@@ -107,6 +107,24 @@ void LayerSystem::reset() {
 	ui::LayerControlDialog::Instance().refresh();
 }
 
+bool LayerSystem::renameLayer(int layerID, const std::string& newLayerName) {
+	// Check sanity
+	if (newLayerName.empty() || newLayerName == DEFAULT_LAYER_NAME) {
+		return false; // empty name or default name used
+	}
+
+	LayerMap::iterator i = _layers.find(layerID);
+
+	if (i == _layers.end()) {
+		return false; // not found
+	}
+
+	// Rename that layer
+	i->second = newLayerName;
+
+	return true;
+}
+
 int LayerSystem::getFirstVisibleLayer() const {
 	// Iterate over all IDs and check the visibility status, return the first visible
 	for (LayerMap::const_iterator i = _layers.begin(); i != _layers.end(); i++) {
@@ -115,8 +133,8 @@ int LayerSystem::getFirstVisibleLayer() const {
 		}
 	}
 
-	// No layer visible, return
-	return -1;
+	// No layer visible, return 0 to prevent callers from doing unreasonable things.
+	return 0;
 }
 
 bool LayerSystem::layerIsVisible(const std::string& layerName) {
@@ -350,6 +368,7 @@ const StringSet& LayerSystem::getDependencies() const {
 
 	if (_dependencies.empty()) {
 		_dependencies.insert(MODULE_EVENTMANAGER);
+		_dependencies.insert(MODULE_COMMANDSYSTEM);
 	}
 
 	return _dependencies;
@@ -368,14 +387,11 @@ void LayerSystem::initialiseModule(const ApplicationContext& ctx) {
 		);
 	}
 
-	GlobalEventManager().addCommand(
+	GlobalCommandSystem().addCommand(
 		"ToggleLayerControlDialog", 
-		FreeCaller<ui::LayerControlDialog::toggle>()
+		ui::LayerControlDialog::toggle
 	);
-}
-
-void LayerSystem::shutdownModule() {
-	
+	GlobalEventManager().addCommand("ToggleLayerControlDialog", "ToggleLayerControlDialog");
 }
 
 // Define the static LayerSystem module

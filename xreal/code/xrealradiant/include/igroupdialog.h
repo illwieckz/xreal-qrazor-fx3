@@ -30,6 +30,12 @@ public:
 							   const std::string& tabLabel, const std::string& tabIcon, 
 							   GtkWidget* page, const std::string& windowLabel) = 0;
 
+	/**
+	 * Removes the named page from the TextureBrowser. If the page doesn't exist,
+	 * nothing happens.
+	 */
+	virtual void removePage(const std::string& name) = 0;
+
 	/** greebo: Sets the active tab to the given widget.
 	 * 
 	 * @page: The widget that should be displayed, must have been added
@@ -71,6 +77,14 @@ public:
 
 	// Hides the dialog
 	virtual void hideDialogWindow() = 0;
+
+	/**
+	 * Special function for mainframe layouts. This method allows to detach the
+	 * contained notebook from the group dialog to pack it somewhere else.
+	 * Layout code shouldn't forget to reparent it to the groupdialog again
+	 * on deactivation.
+	 */
+	virtual void reparentNotebook(GtkWidget* newParent) = 0;
 };
 
 #endif /* INCLUDE_GROUP_DIALOG_H_ */

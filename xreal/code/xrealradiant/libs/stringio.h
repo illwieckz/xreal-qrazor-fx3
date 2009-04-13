@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "math/Vector3.h"
 #include "string/string.h"
-#include "stream/textstream.h"
 #include "generic/callback.h"
 
 inline float string_read_float(const char* string)
@@ -302,13 +301,14 @@ inline void Size_importString(std::size_t& self, const char* string)
   }
 }
 typedef ReferenceCaller1<std::size_t, const char*, Size_importString> SizeImportStringCaller;
-inline void Size_exportString(const std::size_t& self, const StringImportCallback& importer)
+
+/*inline void Size_exportString(const std::size_t& self, const StringImportCallback& importer)
 {
   char buffer[16];
-  sprintf(buffer, "%u", Unsigned(self));
+  sprintf(buffer, "%u", self);
   importer(buffer);
 }
-typedef ConstReferenceCaller1<std::size_t, const StringImportCallback&, Size_exportString> SizeExportStringCaller;
+typedef ConstReferenceCaller1<std::size_t, const StringImportCallback&, Size_exportString> SizeExportStringCaller;*/
 
 inline void Float_importString(float& self, const char* string)
 {
@@ -341,120 +341,5 @@ inline void Vector3_exportString(const Vector3& self, const StringImportCallback
   importer(buffer);
 }
 typedef ConstReferenceCaller1<Vector3, const StringImportCallback&, Vector3_exportString> Vector3ExportStringCaller;
-
-
-
-template<typename FirstArgument, typename Caller, typename FirstConversion>
-class ImportConvert1
-{
-public:
-  static void thunk(void* environment, FirstArgument firstArgument)
-  {
-    Caller::thunk(environment, FirstConversion(firstArgument));
-  }
-};
-
-
-class BoolFromString
-{
-  bool m_value;
-public:
-  BoolFromString(const char* string)
-  {
-    Bool_importString(m_value, string);
-  }
-  operator bool() const
-  {
-    return m_value;
-  }
-};
-
-inline void Bool_toString(const StringImportCallback& self, bool value)
-{
-  Bool_exportString(value, self);
-}
-typedef ConstReferenceCaller1<StringImportCallback, bool, Bool_toString> BoolToString;
-
-
-template<typename Caller>
-inline StringImportCallback makeBoolStringImportCallback(const Caller& caller)
-{
-  return StringImportCallback(caller.getEnvironment(), ImportConvert1<StringImportCallback::first_argument_type, Caller, BoolFromString>::thunk);
-}
-
-template<typename Caller>
-inline StringExportCallback makeBoolStringExportCallback(const Caller& caller)
-{
-  return StringExportCallback(caller.getEnvironment(), ImportConvert1<StringExportCallback::first_argument_type, Caller, BoolToString>::thunk);
-}
-
-
-class IntFromString
-{
-  int m_value;
-public:
-  IntFromString(const char* string)
-  {
-    Int_importString(m_value, string);
-  }
-  operator int() const
-  {
-    return m_value;
-  }
-};
-
-inline void Int_toString(const StringImportCallback& self, int value)
-{
-  Int_exportString(value, self);
-}
-typedef ConstReferenceCaller1<StringImportCallback, int, Int_toString> IntToString;
-
-
-template<typename Caller>
-inline StringImportCallback makeIntStringImportCallback(const Caller& caller)
-{
-  return StringImportCallback(caller.getEnvironment(), ImportConvert1<StringImportCallback::first_argument_type, Caller, IntFromString>::thunk);
-}
-
-template<typename Caller>
-inline StringExportCallback makeIntStringExportCallback(const Caller& caller)
-{
-  return StringExportCallback(caller.getEnvironment(), ImportConvert1<StringExportCallback::first_argument_type, Caller, IntToString>::thunk);
-}
-
-
-
-class SizeFromString
-{
-  std::size_t m_value;
-public:
-  SizeFromString(const char* string)
-  {
-    Size_importString(m_value, string);
-  }
-  operator std::size_t() const
-  {
-    return m_value;
-  }
-};
-
-inline void Size_toString(const StringImportCallback& self, std::size_t value)
-{
-  Size_exportString(value, self);
-}
-typedef ConstReferenceCaller1<StringImportCallback, std::size_t, Size_toString> SizeToString;
-
-
-template<typename Caller>
-inline StringImportCallback makeSizeStringImportCallback(const Caller& caller)
-{
-  return StringImportCallback(caller.getEnvironment(), ImportConvert1<StringImportCallback::first_argument_type, Caller, SizeFromString>::thunk);
-}
-
-template<typename Caller>
-inline StringExportCallback makeSizeStringExportCallback(const Caller& caller)
-{
-  return StringExportCallback(caller.getEnvironment(), ImportConvert1<StringExportCallback::first_argument_type, Caller, SizeToString>::thunk);
-}
 
 #endif

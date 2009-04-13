@@ -2,6 +2,7 @@
 #define LIGHTINSPECTOR_H_
 
 #include "iselection.h"
+#include "icommandsystem.h"
 #include "iradiant.h"
 #include "ui/common/ShaderSelector.h"
 #include "gtkutil/WindowPosition.h"
@@ -124,9 +125,9 @@ public:
 	 *
 	 * Note: This is declared static to make it usable as a target for FreeCaller<> stuff.
 	 */
-	static void toggleInspector();
-
-	/** greebo: This is the actual home of the static instance
+	static void toggleInspector(const cmd::ArgumentList& args);
+	
+	/** greebo: This is the actual home of the static instance 
 	 */
 	static LightInspector& Instance();
 

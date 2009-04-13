@@ -6,6 +6,7 @@
 #include "imap.h"
 #include "parser/DefTokeniser.h"
 #include "gtkutil/ModalProgressDialog.h"
+#include "EventRateLimiter.h"
 
 #include "PrimitiveParser.h"
 
@@ -29,9 +30,6 @@ class NodeImporter {
 	// The helper class containing the meta-information for this map file
 	InfoFile& _infoFile;
 
-	// The number of elements to be parsed before the progress dialog is updated
-	std::size_t _loadStatusInterleave;
-
 	// The number of entities found in this map file so far
 	std::size_t _entityCount;
 
@@ -42,9 +40,13 @@ class NodeImporter {
 	std::size_t _layerInfoCount;
 
 	// The progress dialog
-	gtkutil::ModalProgressDialog _dialog;
+	gtkutil::ModalProgressDialogPtr _dialog;
+
 	// The progress dialog text for the current entity
 	std::string _dlgEntityText;
+
+   // Event rate limiter for the progress dialog
+   EventRateLimiter _dialogEventLimiter;
 
 	// The helper module, which will parse the primitive tokens
 	const PrimitiveParser& _parser;
@@ -58,7 +60,8 @@ public:
 				 const PrimitiveParser& parser);
 
 	// Start parsing, this should not "leak" any exceptions
-	void parse();
+	// Returns TRUE if the parsing succeeded without errors or exceptions.
+	bool parse();
 
 private:
 	// Parse the version tag at the beginning, returns TRUE on success

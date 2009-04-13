@@ -9,27 +9,31 @@
 
 namespace {
 	
-// Utility function to set OpenGL texture state
+// Bind the given texture to the texture unit, if it is different from the
+// current state, then set the current state to the new texture.
 inline void setTextureState(GLint& current, 
 							const GLint& texture, 
-							GLenum textureUnit)
+							GLenum textureUnit,
+                            GLenum textureMode)
 {
-  if(texture != current)
-  {
-    glActiveTexture(textureUnit);
-    glClientActiveTexture(textureUnit);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    GlobalOpenGL_debugAssertNoErrors();
-    current = texture;
-  }
+    if(texture != current)
+    {
+        glActiveTexture(textureUnit);
+        glClientActiveTexture(textureUnit);
+        glBindTexture(textureMode, texture);
+        GlobalOpenGL_debugAssertNoErrors();
+        current = texture;
+    }
 }
 
-// Another texture state setter
-inline void setTextureState(GLint& current, const GLint& texture)
+// Same as setTextureState() above without texture unit parameter
+inline void setTextureState(GLint& current,
+                            const GLint& texture,
+                            GLenum textureMode)
 {
   if(texture != current)
   {
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(textureMode, texture);
     GlobalOpenGL_debugAssertNoErrors();
     current = texture;
   }
@@ -55,204 +59,318 @@ inline void setState(unsigned int state,
 
 } // namespace
 
+// GL state enabling/disabling helpers
+
+void OpenGLShaderPass::setTexture0()
+{
+    if(GLEW_VERSION_1_3)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glClientActiveTexture(GL_TEXTURE0);
+    }
+}
+
+void OpenGLShaderPass::enableTexture2D()
+{
+    GlobalOpenGL_debugAssertNoErrors();
+
+    setTexture0();
+    glEnable(GL_TEXTURE_2D);
+
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    GlobalOpenGL_debugAssertNoErrors();
+}
+
+void OpenGLShaderPass::disableTexture2D()
+{
+    setTexture0();
+    glDisable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    GlobalOpenGL_debugAssertNoErrors();
+}
+
+// Enable cubemap texturing and texcoord array
+void OpenGLShaderPass::enableTextureCubeMap()
+{
+    setTexture0();
+    glEnable(GL_TEXTURE_CUBE_MAP);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    GlobalOpenGL_debugAssertNoErrors();
+}
+
+// Disable cubemap texturing and texcoord array
+void OpenGLShaderPass::disableTextureCubeMap()
+{
+    setTexture0();
+    glDisable(GL_TEXTURE_CUBE_MAP);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    GlobalOpenGL_debugAssertNoErrors();
+}
+
+void OpenGLShaderPass::enableRenderBlend()
+{
+    glEnable(GL_BLEND);
+    setTexture0();
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    GlobalOpenGL_debugAssertNoErrors();
+}
+
+void OpenGLShaderPass::disableRenderBlend()
+{
+    glDisable(GL_BLEND);
+    setTexture0();
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    GlobalOpenGL_debugAssertNoErrors();
+}
+
+// Apply all textures to texture units
+void OpenGLShaderPass::applyAllTextures(OpenGLState& current,
+                                        unsigned requiredState)
+{
+    // Set the texture dimensionality from render flags. There is only a global
+    // mode for all textures, we can't have texture1 as 2D and texture2 as
+    // CUBE_MAP for example.
+    GLenum textureMode = 0;
+    if (requiredState & RENDER_TEXTURE_CUBEMAP) // cube map has priority
+        textureMode = GL_TEXTURE_CUBE_MAP;
+    else if (requiredState & RENDER_TEXTURE_2D)
+        textureMode = GL_TEXTURE_2D;
+
+    // Apply our texture numbers to the current state
+    if (textureMode != 0) // only if one of the RENDER_TEXTURE options
+    {
+        if(GLEW_VERSION_1_3)
+        {
+            setTextureState(
+                current.texture0, _state.texture0, GL_TEXTURE0, textureMode
+            );
+            setTextureState(
+                current.texture1, _state.texture1, GL_TEXTURE1, textureMode
+            );
+            setTextureState(
+                current.texture2, _state.texture2, GL_TEXTURE2, textureMode
+            );
+            setTextureState(
+                current.texture3, _state.texture2, GL_TEXTURE2, textureMode
+            );
+            setTextureState(
+                current.texture4, _state.texture2, GL_TEXTURE2, textureMode
+            );
+        }
+        else
+        {
+            setTextureState(
+                current.texture0, _state.texture0, textureMode
+            );
+        }
+    }
+}
+
+// Set up cube map
+void OpenGLShaderPass::setUpCubeMapAndTexGen(OpenGLState& current,
+                                             unsigned requiredState,
+                                             const Vector3& viewer)
+{
+    if (requiredState & RENDER_TEXTURE_CUBEMAP)
+    {
+        // Copy cubemap mode enum to current state object
+        current.cubeMapMode = _state.cubeMapMode;
+
+        // Apply axis transformation (swap Y and Z coordinates)
+        Matrix4 transform(
+            1, 0, 0, 0,
+            0, 0, 1, 0,
+            0, 1, 0, 0,
+            0, 0, 0, 1
+        );
+
+        // Subtract the viewer position
+        transform.translateBy(-viewer);
+
+        // Apply to the texture matrix
+        glMatrixMode(GL_TEXTURE);
+        glLoadMatrixd(transform);
+        glMatrixMode(GL_MODELVIEW);
+    }
+}
+
 // Apply own state to current state object
 void OpenGLShaderPass::applyState(OpenGLState& current,
-								   unsigned int globalstate) 
+					              unsigned int globalStateMask,
+                                  const Vector3& viewer)
 {
-  if(_state.m_state & RENDER_OVERRIDE)
+  if(_state.renderFlags & RENDER_OVERRIDE)
   {
-    globalstate |= RENDER_FILL | RENDER_DEPTHWRITE;
+    globalStateMask |= RENDER_FILL | RENDER_DEPTHWRITE;
   }
   
-	// Required state bitmask is combination of this statebucket's internal
-	// state and the current global state
-	const unsigned int requiredState = _state.m_state & globalstate;
+    // Apply the global state mask to our own desired render flags to determine
+    // the final set of flags that must bet set
+	const unsigned int requiredState = _state.renderFlags & globalStateMask;
 	
-	// Delta is change between the current state and the required state
-	const unsigned int stateDelta = requiredState ^ current.m_state;
+    // Construct a mask containing all the flags that will be changing between
+    // the current state and the required state. This avoids performing
+    // unnecessary GL calls to set the state to its existing value.
+	const unsigned int changingBitsMask = requiredState ^ current.renderFlags;
 
+    // Set the GLProgram if required
 	GLProgram* program = (requiredState & RENDER_PROGRAM) != 0 
 						  ? _state.m_program 
 						  : 0;
 						  
-  if(program != current.m_program)
-  {
-    if(current.m_program != 0)
+    if(program != current.m_program)
     {
-      current.m_program->disable();
-      glColor4dv(current.m_colour);
+        if(current.m_program != 0)
+        {
+          current.m_program->disable();
+          glColor4dv(current.m_colour);
+        }
+
+        current.m_program = program;
+
+        if(current.m_program != 0)
+        {
+          current.m_program->enable();
+        }
     }
 
-    current.m_program = program;
-
-    if(current.m_program != 0)
-    {
-      current.m_program->enable();
-    }
-  }
-
-    // State changes. Only perform these if stateDelta > 0, since if there are
+    // State changes. Only perform these if changingBitsMask > 0, since if there are
     // no changes required we don't want a whole load of unnecessary bit
     // operations.
-    if (stateDelta != 0) {
-        if(stateDelta & requiredState & RENDER_FILL)
+    if (changingBitsMask != 0) 
+    {
+        if(changingBitsMask & requiredState & RENDER_FILL)
         {
             glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
             GlobalOpenGL_debugAssertNoErrors();
         }
-        else if(stateDelta & ~requiredState & RENDER_FILL)
+        else if(changingBitsMask & ~requiredState & RENDER_FILL)
         {
             glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
             GlobalOpenGL_debugAssertNoErrors();
         }
 
-        setState(requiredState, stateDelta, RENDER_OFFSETLINE, GL_POLYGON_OFFSET_LINE);
+        setState(requiredState, changingBitsMask, RENDER_OFFSETLINE, GL_POLYGON_OFFSET_LINE);
 
-        if(stateDelta & requiredState & RENDER_LIGHTING)
+        if(changingBitsMask & requiredState & RENDER_LIGHTING)
         {
             glEnable(GL_LIGHTING);
             glEnable(GL_COLOR_MATERIAL);
-            //qglEnable(GL_RESCALE_NORMAL);
             glEnableClientState(GL_NORMAL_ARRAY);
             GlobalOpenGL_debugAssertNoErrors();
         }
-        else if(stateDelta & ~requiredState & RENDER_LIGHTING)
+        else if(changingBitsMask & ~requiredState & RENDER_LIGHTING)
         {
             glDisable(GL_LIGHTING);
             glDisable(GL_COLOR_MATERIAL);
-            //qglDisable(GL_RESCALE_NORMAL);
             glDisableClientState(GL_NORMAL_ARRAY);
             GlobalOpenGL_debugAssertNoErrors();
         }
 
-        if(stateDelta & requiredState & RENDER_TEXTURE)
-        {
-            GlobalOpenGL_debugAssertNoErrors();
-
-            if(GLEW_VERSION_1_3)
-            {
-                glActiveTexture(GL_TEXTURE0);
-                glClientActiveTexture(GL_TEXTURE0);
-            }
-
-            glEnable(GL_TEXTURE_2D);
-
-            glColor4d(1,1,1,_state.m_colour[3]);
-
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            GlobalOpenGL_debugAssertNoErrors();
+        // RENDER_TEXTURE_2D
+        if(changingBitsMask & requiredState & RENDER_TEXTURE_2D)
+        { 
+            enableTexture2D();
         }
-        else if(stateDelta & ~requiredState & RENDER_TEXTURE)
-        {
-            if(GLEW_VERSION_1_3)
-            {
-                glActiveTexture(GL_TEXTURE0);
-                glClientActiveTexture(GL_TEXTURE0);
-            }
-
-            glDisable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-            GlobalOpenGL_debugAssertNoErrors();
+        else if(changingBitsMask & ~requiredState & RENDER_TEXTURE_2D)
+        { 
+            disableTexture2D();
         }
 
-        if(stateDelta & requiredState & RENDER_BLEND)
-        {
-            // FIXME: some .TGA are buggy, have a completely empty alpha channel
-            // if such brushes are rendered in this loop they would be totally transparent with GL_MODULATE
-            // so I decided using GL_DECAL instead
-            // if an empty-alpha-channel or nearly-empty texture is used. It will be blank-transparent.
-            // this could get better if you can get glTexEnviv (GL_TEXTURE_ENV, to work .. patches are welcome
-
-            glEnable(GL_BLEND);
-            if(GLEW_VERSION_1_3)
-            {
-                glActiveTexture(GL_TEXTURE0);
-            }
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-            GlobalOpenGL_debugAssertNoErrors();
+        // RENDER_TEXTURE_CUBEMAP
+        if(changingBitsMask & requiredState & RENDER_TEXTURE_CUBEMAP)
+        { 
+            enableTextureCubeMap();
         }
-        else if(stateDelta & ~requiredState & RENDER_BLEND)
-        {
-            glDisable(GL_BLEND);
-            if(GLEW_VERSION_1_3)
-            {
-                glActiveTexture(GL_TEXTURE0);
-            }
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-            GlobalOpenGL_debugAssertNoErrors();
+        else if(changingBitsMask & ~requiredState & RENDER_TEXTURE_CUBEMAP)
+        { 
+            disableTextureCubeMap();
         }
 
-        setState(requiredState, stateDelta, RENDER_CULLFACE, GL_CULL_FACE);
+        // RENDER_BLEND
+        if(changingBitsMask & requiredState & RENDER_BLEND)
+        { 
+            enableRenderBlend();
+        }
+        else if(changingBitsMask & ~requiredState & RENDER_BLEND)
+        { 
+            disableRenderBlend();
+        }
 
-        if(stateDelta & requiredState & RENDER_SMOOTH)
+        setState(requiredState, changingBitsMask, RENDER_CULLFACE, GL_CULL_FACE);
+
+        if(changingBitsMask & requiredState & RENDER_SMOOTH)
         {
             glShadeModel(GL_SMOOTH);
             GlobalOpenGL_debugAssertNoErrors();
         }
-        else if(stateDelta & ~requiredState & RENDER_SMOOTH)
+        else if(changingBitsMask & ~requiredState & RENDER_SMOOTH)
         {
             glShadeModel(GL_FLAT);
             GlobalOpenGL_debugAssertNoErrors();
         }
 
-        setState(requiredState, stateDelta, RENDER_SCALED, GL_NORMALIZE); // not GL_RESCALE_NORMAL
+        setState(requiredState, changingBitsMask, RENDER_SCALED, GL_NORMALIZE); // not GL_RESCALE_NORMAL
 
-        setState(requiredState, stateDelta, RENDER_DEPTHTEST, GL_DEPTH_TEST);
+        setState(requiredState, changingBitsMask, RENDER_DEPTHTEST, GL_DEPTH_TEST);
 
-        if(stateDelta & requiredState & RENDER_DEPTHWRITE)
+        if(changingBitsMask & requiredState & RENDER_DEPTHWRITE)
         {
             glDepthMask(GL_TRUE);
 
             GlobalOpenGL_debugAssertNoErrors();
         }
-        else if(stateDelta & ~requiredState & RENDER_DEPTHWRITE)
+        else if(changingBitsMask & ~requiredState & RENDER_DEPTHWRITE)
         {
             glDepthMask(GL_FALSE);
 
             GlobalOpenGL_debugAssertNoErrors();
         }
 
-        if(stateDelta & requiredState & RENDER_COLOURWRITE)
+        if(changingBitsMask & requiredState & RENDER_COLOURWRITE)
         {
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
             GlobalOpenGL_debugAssertNoErrors();
         }
-        else if(stateDelta & ~requiredState & RENDER_COLOURWRITE)
+        else if(changingBitsMask & ~requiredState & RENDER_COLOURWRITE)
         {
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
             GlobalOpenGL_debugAssertNoErrors();
         }
 
-        setState(requiredState, stateDelta, RENDER_ALPHATEST, GL_ALPHA_TEST);
+        setState(requiredState, changingBitsMask, RENDER_ALPHATEST, GL_ALPHA_TEST);
 
-        if(stateDelta & requiredState & RENDER_COLOURARRAY)
+        if(changingBitsMask & requiredState & RENDER_COLOURARRAY)
         {
             glEnableClientState(GL_COLOR_ARRAY);
             GlobalOpenGL_debugAssertNoErrors();
         }
-        else if(stateDelta & ~requiredState & RENDER_COLOURARRAY)
+        else if(changingBitsMask & ~requiredState & RENDER_COLOURARRAY)
         {
             glDisableClientState(GL_COLOR_ARRAY);
             glColor4dv(_state.m_colour);
             GlobalOpenGL_debugAssertNoErrors();
         }
 
-        if(stateDelta & ~requiredState & RENDER_COLOURCHANGE)
+        if(changingBitsMask & ~requiredState & RENDER_COLOURCHANGE)
         {
             glColor4dv(_state.m_colour);
             GlobalOpenGL_debugAssertNoErrors();
         }
 
-        setState(requiredState, stateDelta, RENDER_LINESTIPPLE, GL_LINE_STIPPLE);
-        setState(requiredState, stateDelta, RENDER_LINESMOOTH, GL_LINE_SMOOTH);
+        // Set GL states corresponding to RENDER_ flags
+        setState(requiredState, changingBitsMask, RENDER_LINESTIPPLE, GL_LINE_STIPPLE);
+        setState(requiredState, changingBitsMask, RENDER_LINESMOOTH, GL_LINE_SMOOTH);
 
-        setState(requiredState, stateDelta, RENDER_POLYGONSTIPPLE, GL_POLYGON_STIPPLE);
-        setState(requiredState, stateDelta, RENDER_POLYGONSMOOTH, GL_POLYGON_SMOOTH);
+        setState(requiredState, changingBitsMask, RENDER_POLYGONSTIPPLE, GL_POLYGON_STIPPLE);
+        setState(requiredState, changingBitsMask, RENDER_POLYGONSMOOTH, GL_POLYGON_SMOOTH);
 
-        setState(requiredState, stateDelta, RENDER_FOG, GL_FOG);
-    } // end of stateDelta-dependent changes
+    } // end of changingBitsMask-dependent changes
 
   if(requiredState & RENDER_DEPTHTEST && _state.m_depthfunc != current.m_depthfunc)
   {
@@ -282,61 +400,19 @@ void OpenGLShaderPass::applyState(OpenGLState& current,
     current.m_alpharef = _state.m_alpharef;
   }
 
-  {
-    GLint texture0 = 0;
-    GLint texture1 = 0;
-    GLint texture2 = 0;
-    GLint texture3 = 0;
-    GLint texture4 = 0;
-    GLint texture5 = 0;
-    GLint texture6 = 0;
-    GLint texture7 = 0;
-    //if(state & RENDER_TEXTURE) != 0)
+    // Apply the GL textures
+    applyAllTextures(current, requiredState);
+
+    // Set the GL colour if it isn't set already
+    if (_state.m_colour != current.m_colour)
     {
-      texture0 = _state.m_texture;
-      texture1 = _state.m_texture1;
-      texture2 = _state.m_texture2;
-      texture3 = _state.m_texture3;
-      texture4 = _state.m_texture4;
-      texture5 = _state.m_texture5;
-      texture6 = _state.m_texture6;
-      texture7 = _state.m_texture7;
+        glColor4dv(_state.m_colour);
+        current.m_colour = _state.m_colour;
+        GlobalOpenGL_debugAssertNoErrors();
     }
 
-    if(GLEW_VERSION_1_3)
-    {
-      setTextureState(current.m_texture, texture0, GL_TEXTURE0);
-      setTextureState(current.m_texture1, texture1, GL_TEXTURE1);
-      setTextureState(current.m_texture2, texture2, GL_TEXTURE2);
-      setTextureState(current.m_texture3, texture3, GL_TEXTURE3);
-      setTextureState(current.m_texture4, texture4, GL_TEXTURE4);
-      setTextureState(current.m_texture5, texture5, GL_TEXTURE5);
-      setTextureState(current.m_texture6, texture6, GL_TEXTURE6);
-      setTextureState(current.m_texture7, texture7, GL_TEXTURE7);
-    }
-    else
-    {
-      setTextureState(current.m_texture, texture0);
-    }
-  }
-
-
-  if(requiredState & RENDER_TEXTURE && _state.m_colour[3] != current.m_colour[3])
-  {
-    glColor4d(1,1,1,_state.m_colour[3]);
-    GlobalOpenGL_debugAssertNoErrors();
-  }
-
-  if(!(requiredState & RENDER_TEXTURE)
-    && (_state.m_colour[0] != current.m_colour[0]
-    || _state.m_colour[1] != current.m_colour[1]
-    || _state.m_colour[2] != current.m_colour[2]
-    || _state.m_colour[3] != current.m_colour[3]))
-  {
-    glColor4dv(_state.m_colour);
-    GlobalOpenGL_debugAssertNoErrors();
-  }
-  current.m_colour = _state.m_colour;
+    // Set up the cubemap and texgen parameters
+    setUpCubeMapAndTexGen(current, requiredState, viewer);
 
   if(requiredState & RENDER_BLEND
     && (_state.m_blend_src != current.m_blend_src || _state.m_blend_dst != current.m_blend_dst))
@@ -363,7 +439,7 @@ void OpenGLShaderPass::applyState(OpenGLState& current,
     current.m_pointsize = _state.m_pointsize;
   }
 
-  current.m_state = requiredState;
+  current.renderFlags = requiredState;
 
   GlobalOpenGL_debugAssertNoErrors();
 }
@@ -391,48 +467,55 @@ void OpenGLShaderPass::addRenderable(const OpenGLRenderable& renderable,
 
 // Render the bucket contents
 void OpenGLShaderPass::render(OpenGLState& current, 
-							   unsigned int globalstate, 
-							   const Vector3& viewer)
+                              unsigned int flagsMask, 
+                              const Vector3& viewer)
 {
+    // Reset the texture matrix
+    glMatrixMode(GL_TEXTURE);
+    glLoadMatrixd(Matrix4::getIdentity());
+    glMatrixMode(GL_MODELVIEW);
+
 	// Apply our state to the current state object
-	applyState(current, globalstate);
+	applyState(current, flagsMask, viewer);
 	
-  if((globalstate & _state.m_state & RENDER_SCREEN) != 0)
-  {
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadMatrixd(g_matrix4_identity);
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadMatrixd(g_matrix4_identity);
-
-    glBegin(GL_QUADS);
-    glVertex3f(-1, -1, 0);
-    glVertex3f(1, -1, 0);
-    glVertex3f(1, 1, 0);
-    glVertex3f(-1, 1, 0);
-    glEnd();
-
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-  }
-	else if(!_renderables.empty()) {
-		flushRenderables(current, globalstate, viewer);
+    // If RENDER_SCREEN is set, just render a quad, otherwise render all
+    // objects.
+    if((flagsMask & _state.renderFlags & RENDER_SCREEN) != 0)
+    {
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadMatrixd(Matrix4::getIdentity());
+        
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadMatrixd(Matrix4::getIdentity());
+        
+        glBegin(GL_QUADS);
+        glVertex3f(-1, -1, 0);
+        glVertex3f(1, -1, 0);
+        glVertex3f(1, 1, 0);
+        glVertex3f(-1, 1, 0);
+        glEnd();
+        
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+        
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+    }
+	else if(!_renderables.empty()) 
+    {
+		renderAllContained(current, viewer);
 	}
 }
 
 // Flush renderables
-void OpenGLShaderPass::flushRenderables(OpenGLState& current, 
-										 unsigned int globalstate, 
-										 const Vector3& viewer)
+void OpenGLShaderPass::renderAllContained(OpenGLState& current,
+                                          const Vector3& viewer)
 {
 	// Keep a pointer to the last transform matrix used
 	const Matrix4* transform = 0;
-	
+
 	glPushMatrix();
 	
 	// Iterate over each transformed renderable in the vector
@@ -450,9 +533,9 @@ void OpenGLShaderPass::flushRenderables(OpenGLState& current,
       		glPopMatrix();
       		glPushMatrix();
       		glMultMatrixd(*transform);
-      		
+
       		// Determine the face direction
-      		if ((current.m_state & RENDER_CULLFACE) != 0
+      		if ((current.renderFlags & RENDER_CULLFACE) != 0
       			&& matrix4_handedness(*transform) == MATRIX4_RIGHTHANDED)
       		{
       			glFrontFace(GL_CW);
@@ -463,55 +546,65 @@ void OpenGLShaderPass::flushRenderables(OpenGLState& current,
       		}
     	}
 
+        // Calculate viewer location in object space
+        Matrix4 inverseObjTransform = transform->getInverse();
+        Vector3 osViewer = matrix4_transformed_point(
+                inverseObjTransform, viewer
+        );
+
 		// If we are using a lighting program and this renderable is lit, set
 		// up the lighting calculation
-		if(current.m_program != 0 && i->light != 0) 
+		const RendererLight* light = i->light;
+
+		if (current.m_program != 0 && light != NULL) 
         {
 			// Get the light shader and examine its first (and only valid) layer
-			IShaderPtr lightShader = i->light->getShader()->getIShader();
+			MaterialPtr lightShader = light->getShader()->getMaterial();
       
-			if(lightShader->firstLayer() != 0) 
+			if (lightShader->firstLayer() != 0) 
             {
 				// Get the XY and Z falloff texture numbers.
 	        	GLuint attenuation_xy = 
-	        		lightShader->firstLayer()->texture()->texture_number;
+	        		lightShader->firstLayer()->getTexture()->getGLTexNum();
                 GLuint attenuation_z = 
-                	lightShader->lightFalloffImage()->texture_number;
+                	lightShader->lightFalloffImage()->getGLTexNum();
 
                 // Bind the falloff textures
-                setTextureState(current.m_texture3, attenuation_xy, GL_TEXTURE3);
-                glActiveTexture(GL_TEXTURE3);
-                glBindTexture(GL_TEXTURE_2D, attenuation_xy);
+                assert(current.renderFlags & RENDER_TEXTURE_2D);
+
+                setTextureState(
+                    current.texture3, attenuation_xy, GL_TEXTURE3, GL_TEXTURE_2D
+                );
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-                setTextureState(current.m_texture4, attenuation_z, GL_TEXTURE4);
-                glActiveTexture(GL_TEXTURE4);
-                glBindTexture(GL_TEXTURE_2D, attenuation_z);
+                setTextureState(
+                    current.texture4, attenuation_z, GL_TEXTURE4, GL_TEXTURE_2D
+                );
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
                 // Calculate the world-space to light-space transformation
                 // matrix
-                AABB lightBounds((*i).light->aabb());
+                AABB lightBounds(light->aabb());
 
-                Matrix4 world2light(g_matrix4_identity);
+                Matrix4 world2light(Matrix4::getIdentity());
 
-                if (i->light->isProjected()) 
+                if (light->isProjected()) 
                 {
-                  world2light = (*i).light->projection();
-                  matrix4_multiply_by_matrix4(world2light, i->light->rotation().getTransposed());
+                  world2light = light->projection();
+                  world2light.multiplyBy(light->rotation().getTransposed());
                   
-                  // greebo: old code: matrix4_translate_by_vec3(world2light, -lightBounds.origin); // world->lightBounds
-                  matrix4_translate_by_vec3(world2light, -(i->light->offset()));
+                  // greebo: old code: world2light.translateBy(-lightBounds.origin); // world->lightBounds
+                  world2light.translateBy(-(light->offset()));
                 }
                 else 
                 {
-                  matrix4_translate_by_vec3(world2light, Vector3(0.5f, 0.5f, 0.5f));
-                  matrix4_scale_by_vec3(world2light, Vector3(0.5f, 0.5f, 0.5f));
-                  matrix4_scale_by_vec3(world2light, Vector3(1.0f / lightBounds.extents.x(), 1.0f / lightBounds.extents.y(), 1.0f / lightBounds.extents.z()));
-                  matrix4_multiply_by_matrix4(world2light, i->light->rotation().getTransposed());
-                  matrix4_translate_by_vec3(world2light, -lightBounds.origin); // world->lightBounds
+                  world2light.translateBy(Vector3(0.5f, 0.5f, 0.5f));
+                  world2light.scaleBy(Vector3(0.5f, 0.5f, 0.5f));
+                  world2light.scaleBy(Vector3(1.0f / lightBounds.extents.x(), 1.0f / lightBounds.extents.y(), 1.0f / lightBounds.extents.z()));
+                  world2light.multiplyBy(light->rotation().getTransposed());
+                  world2light.translateBy(-lightBounds.origin); // world->lightBounds
                 }
 
                 // Set the ambient factor - 1.0 for an ambient light, 0.0 for normal light
@@ -520,14 +613,14 @@ void OpenGLShaderPass::flushRenderables(OpenGLState& current,
                     ambient = 1.0;
 
                 // Bind the GL program parameters
-                Vector3 lightOrigin = (i->light->isProjected() 
-                                       ? i->light->worldOrigin()
-                                       : lightBounds.origin + i->light->offset());
-                current.m_program->setParameters(
-                    viewer,
-                    *(*i).transform,
+                Vector3 lightOrigin = (light->isProjected() 
+                                       ? light->worldOrigin()
+                                       : lightBounds.origin + light->offset());
+                current.m_program->applyRenderParams(
+                    osViewer,
+                    *i->transform,
                     lightOrigin,
-                    (*i).light->colour(),
+                    light->colour(),
                     world2light,
                     ambient
                 );
@@ -535,7 +628,8 @@ void OpenGLShaderPass::flushRenderables(OpenGLState& current,
         }
 
         // Render the renderable
-        i->renderable->render(current.m_state);
+        RenderInfo info(current.renderFlags, viewer, current.cubeMapMode);
+        i->renderable->render(info);
     }
 
     // Cleanup

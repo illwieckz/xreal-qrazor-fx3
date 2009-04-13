@@ -1,5 +1,7 @@
 #include "PrefDialog.h"
 
+#include "imainframe.h"
+
 #include <gtk/gtk.h>
 #include "gtkutil/TextColumn.h"
 #include "gtkutil/window/PersistentTransientWindow.h"
@@ -9,8 +11,6 @@
 #include "gtkutil/TreeModel.h"
 #include "gtkutil/LeftAlignment.h"
 #include "PrefPageWalkers.h"
-
-#include "mainframe.h" // for UpdateAllWindows()
 
 namespace ui {
 
@@ -157,7 +157,7 @@ void PrefDialog::toggleWindow(bool isModal) {
 	}
 }
 
-void PrefDialog::toggle() {
+void PrefDialog::toggle(const cmd::ArgumentList& args) {
 	Instance().toggleWindow();
 }
 
@@ -221,7 +221,12 @@ void PrefDialog::save() {
 	toggleWindow();
 	_requestedPage = "";
 	_isModal = false;
-	UpdateAllWindows();
+
+	// greebo: Check if the mainframe module is already "existing". It might be
+	// uninitialised if this dialog is shown during DarkRadiant startup
+	if (module::GlobalModuleRegistry().moduleExists(MODULE_MAINFRAME)) {
+		GlobalMainFrame().updateAllWindows();
+	}
 }
 
 void PrefDialog::cancel() {
@@ -240,7 +245,7 @@ void PrefDialog::showModal(const std::string& path) {
 	}
 }
 
-void PrefDialog::showProjectSettings() {
+void PrefDialog::showProjectSettings(const cmd::ArgumentList& args) {
 	showModal("Game");
 }
 

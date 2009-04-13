@@ -6,10 +6,14 @@
 
 #include "MenuManager.h"
 #include "ToolbarManager.h"
+#include "StatusBarManager.h"
 #include "colourscheme/ColourSchemeManager.h"
 #include <iostream>
 
 namespace ui {
+
+class UIManagerShutdownListener;
+typedef boost::shared_ptr<UIManagerShutdownListener> UIManagerShutdownListenerPtr;
 
 class UIManager :
 	public IUIManager
@@ -18,6 +22,11 @@ class UIManager :
 	MenuManager _menuManager;
 	
 	ToolbarManager _toolbarManager;
+
+	StatusBarManager _statusBarManager;
+
+	UIManagerShutdownListenerPtr _shutdownListener;
+
 public:
 
 	/** greebo: Retrieves the helper class to manipulate the menu.
@@ -29,6 +38,11 @@ public:
 	IColourSchemeManager& getColourSchemeManager();
 
 	IGroupDialog& getGroupDialog();
+
+	IStatusBarManager& getStatusBarManager();
+
+	// Called on radiant shutdown
+	void clear();
 
 	// RegisterableModule implementation
 	virtual const std::string& getName() const;

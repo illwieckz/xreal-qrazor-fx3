@@ -62,6 +62,7 @@ DefaultAllocator - Memory allocation using new/delete, compliant with std::alloc
 #include "iregistry.h"
 #include "ieventmanager.h"
 #include "iuimanager.h"
+#include "imainframe.h"
 #include "debugging/debugging.h"
 
 #include <gtk/gtkmain.h>
@@ -73,8 +74,8 @@ DefaultAllocator - Memory allocation using new/delete, compliant with std::alloc
 #include "log/PIDFile.h"
 #include "log/LogStream.h"
 #include "map/Map.h"
-#include "mainframe.h"
-#include "ui/mru/MRU.h"
+#include "mainframe_old.h"
+#include "ui/mediabrowser/MediaBrowser.h"
 #include "settings/GameManager.h"
 #include "ui/splash/Splash.h"
 #include "modulesystem/ModuleLoader.h"
@@ -218,12 +219,16 @@ int main (int argc, char* argv[]) {
 
 		Radiant_Initialise();
 		
-		ui::Splash::Instance().setProgressAndText("Starting MainFrame", 0.92f);
-		
-		g_pParentWnd = 0;
-	  g_pParentWnd = new MainFrame();
-	  
-	  // Load the shortcuts from the registry
+		// Initialise the mediabrowser
+		ui::Splash::Instance().setProgressAndText("Initialising MediaBrowser", 0.92f);
+		ui::MediaBrowser::init();
+
+		ui::Splash::Instance().setProgressAndText("Starting MainFrame", 0.95f);
+
+		// Initialise the mainframe
+		GlobalMainFrame().construct();
+
+		// Load the shortcuts from the registry
    		GlobalEventManager().loadAccelerators();
 	   	
    		// Update all accelerators, at this point all commands should be setup
@@ -232,14 +237,6 @@ int main (int argc, char* argv[]) {
 		ui::Splash::Instance().setProgressAndText("Complete", 1.0f);  
 
 		ui::Splash::Instance().hide();
-
-		std::string lastMap = GlobalMRU().getLastMapName();
-		if (GlobalMRU().loadLastMap() && !lastMap.empty() && file_exists(lastMap.c_str())) {
-			GlobalMap().load(lastMap);
-		}
-		else {
-			GlobalMap().createNew();
-		}
 
 		// Scope ends here, PIDFile is deleted by its destructor
 	}
@@ -259,11 +256,9 @@ int main (int argc, char* argv[]) {
 	
 	GlobalMap().freeMap();
 
-  delete g_pParentWnd;
+	GlobalMainFrame().destroy();
 
-	GlobalMRU().saveRecentFiles();
-
-  	// Issue a shutdown() call to all the modules
+	// Issue a shutdown() call to all the modules
   	module::GlobalModuleRegistry().shutdownModules();
 
 	// Close the logfile 

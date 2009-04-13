@@ -20,7 +20,7 @@
 class WidgetToggle :
 	public Toggle
 {
-	typedef std::vector<GtkWidget*> WidgetList;
+	typedef std::list<GtkWidget*> WidgetList;
 
 	// The list of all the connected widgets
 	WidgetList _widgets;
@@ -29,8 +29,6 @@ public:
 	// Constructor
 	WidgetToggle();
 
-	virtual ~WidgetToggle() {}
-	
 	// Dummy callback for the Toggle base class, we don't need any callbacks...
 	void doNothing();
 	
@@ -38,6 +36,7 @@ public:
 	 * is NOT of type GtkCheckMenuItem/GtkToggleToolButtons. Any other
 	 * widgets are added to the show/hide list */
 	virtual void connectWidget(GtkWidget* widget);
+	virtual void disconnectWidget(GtkWidget* widget);
 	
 	virtual void updateWidgets();
 	

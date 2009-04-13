@@ -43,9 +43,11 @@ void AboutDialog::populateWindow() {
 	
 	bool showBuildTime = GlobalRegistry().get(RKEY_SHOW_BUILD_TIME) == "1";
 	std::string buildDate = (showBuildTime) ? date + " " + time : date;
-	
+
+	std::string appName(RADIANT_APPNAME_FULL);
+
 	GtkWidget* title = gtkutil::LeftAlignedLabel(
-		std::string("<b><span size=\"large\">XreaLRadiant ") + RADIANT_VERSION + "</span></b>\n" +
+		std::string("<b><span size=\"large\">") + appName + "</span></b>\n" +
 		 "Build date: " + buildDate + "\n\n"
 		"<b>XreaL</b> (xreal.sourceforge.net)\n\n"
 		"This product contains software technology\n"
@@ -139,7 +141,7 @@ void AboutDialog::callbackClose(GtkWidget* widget, AboutDialog* self) {
 	self->destroy();
 }
 
-void AboutDialog::showDialog() {
+void AboutDialog::showDialog(const cmd::ArgumentList& args) {
 	AboutDialog dialog; 
 	dialog.show(); // blocks
 }

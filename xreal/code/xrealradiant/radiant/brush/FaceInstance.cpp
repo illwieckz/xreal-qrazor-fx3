@@ -137,19 +137,23 @@ bool FaceInstance::intersectVolume(const VolumeTest& volume, const Matrix4& loca
 	return m_face->intersectVolume(volume, localToWorld);
 }
 
-void FaceInstance::render(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const {
+// Submit renderable geometry
+void FaceInstance::submitRenderables(RenderableCollector& collector,
+                                     const VolumeTest& volume,
+                                     const Matrix4& localToWorld) const 
+{
 	if (m_face->contributes() && intersectVolume(volume, localToWorld)) {
-			renderer.PushState();
+			collector.PushState();
 			if (selectedComponents()) {
-					renderer.Highlight(Renderer::eFace);
+					collector.Highlight(RenderableCollector::eFace);
 				}
-			m_face->render(renderer, localToWorld);
-			renderer.PopState();
+			m_face->submitRenderables(collector, localToWorld);
+			collector.PopState();
 		}
 }
 
 void FaceInstance::testSelect(SelectionTest& test, SelectionIntersection& best) {
-	if (getFace().getShader().state()->getIShader()->isVisible()) {
+	if (getFace().getShader().getGLShader()->getMaterial()->isVisible()) {
 		m_face->testSelect(test, best);
 	}
 }

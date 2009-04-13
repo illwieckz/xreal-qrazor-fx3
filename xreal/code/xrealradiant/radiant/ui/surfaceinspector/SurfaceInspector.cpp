@@ -10,16 +10,17 @@
 #include "gtkutil/LeftAlignedLabel.h"
 #include "gtkutil/LeftAlignment.h"
 #include "gtkutil/dialog.h"
+#include "gtkutil/SerialisableWidgets.h"
 
 #include "selectionlib.h"
 #include "math/FloatTools.h"
+#include "string/string.h"
 
 #include "textool/TexTool.h"
 #include "ui/patch/PatchInspector.h"
 #include "brush/TextureProjection.h"
 #include "selection/algorithm/Primitives.h"
 #include "selection/algorithm/Shader.h"
-#include "mainframe.h"
 
 namespace ui {
 
@@ -73,7 +74,7 @@ namespace ui {
 	}
 
 SurfaceInspector::SurfaceInspector() 
-: gtkutil::PersistentTransientWindow(WINDOW_TITLE, MainFrame_getWindow(), true),
+: gtkutil::PersistentTransientWindow(WINDOW_TITLE, GlobalRadiant().getMainWindow(), true),
   _callbackActive(false),
   _selectionInfo(GlobalSelectionSystem().getSelectionInfo())
 {
@@ -87,15 +88,51 @@ SurfaceInspector::SurfaceInspector()
 	populateWindow();
 	
 	// Connect the defaultTexScale and texLockButton widgets to "their" registry keys
-	_connector.connectGtkObject(GTK_OBJECT(_defaultTexScale), RKEY_DEFAULT_TEXTURE_SCALE);
-	_connector.connectGtkObject(GTK_OBJECT(_texLockButton), RKEY_ENABLE_TEXTURE_LOCK);
+   using namespace gtkutil;
+	_connector.addObject(
+      RKEY_DEFAULT_TEXTURE_SCALE,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableSpinButton(_defaultTexScale)
+      )
+   );
+	_connector.addObject(
+      RKEY_ENABLE_TEXTURE_LOCK,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableToggleButton(_texLockButton)
+      )
+   );
 	
 	// Connect the step values to the according registry values
-	_connector.connectGtkObject(GTK_OBJECT(_manipulators[HSHIFT].step), RKEY_HSHIFT_STEP);
-	_connector.connectGtkObject(GTK_OBJECT(_manipulators[VSHIFT].step), RKEY_VSHIFT_STEP);
-	_connector.connectGtkObject(GTK_OBJECT(_manipulators[HSCALE].step), RKEY_HSCALE_STEP);
-	_connector.connectGtkObject(GTK_OBJECT(_manipulators[VSCALE].step), RKEY_VSCALE_STEP);
-	_connector.connectGtkObject(GTK_OBJECT(_manipulators[ROTATION].step), RKEY_ROTATION_STEP);
+	_connector.addObject(
+      RKEY_HSHIFT_STEP,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableTextEntry(_manipulators[HSHIFT].step)
+      )
+   );
+	_connector.addObject(
+      RKEY_VSHIFT_STEP,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableTextEntry(_manipulators[VSHIFT].step)
+      )
+   );
+	_connector.addObject(
+      RKEY_HSCALE_STEP,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableTextEntry(_manipulators[HSCALE].step)
+      )
+   );
+	_connector.addObject(
+      RKEY_VSCALE_STEP,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableTextEntry(_manipulators[VSCALE].step)
+      )
+   );
+	_connector.addObject(
+      RKEY_ROTATION_STEP,
+      SerialisableWidgetWrapperPtr(
+         new SerialisableTextEntry(_manipulators[ROTATION].step)
+      )
+   );
 	
 	// Load the values from the Registry
 	_connector.importValues();
@@ -117,11 +154,7 @@ SurfaceInspector::SurfaceInspector()
 	connectEvents();
 	
 	// Connect the window position tracker
-	xml::NodeList windowStateList = GlobalRegistry().findXPath(RKEY_WINDOW_STATE);
-	
-	if (windowStateList.size() > 0) {
-		_windowPosition.loadFromNode(windowStateList[0]);
-	}
+	_windowPosition.loadFromPath(RKEY_WINDOW_STATE);
 	
 	_windowPosition.connect(GTK_WINDOW(getWindow()));
 	_windowPosition.applyPosition();
@@ -144,14 +177,8 @@ SurfaceInspectorPtr& SurfaceInspector::InstancePtr() {
 void SurfaceInspector::onRadiantShutdown() {
 	globalOutputStream() << "SurfaceInspector shutting down.\n";
 
-	// Delete all the current window states from the registry  
-	GlobalRegistry().deleteXPath(RKEY_WINDOW_STATE);
-	
-	// Create a new node
-	xml::Node node(GlobalRegistry().createKey(RKEY_WINDOW_STATE));
-	
 	// Tell the position tracker to save the information
-	_windowPosition.saveToNode(node);
+	_windowPosition.saveToPath(RKEY_WINDOW_STATE);
 	
 	GlobalSelectionSystem().removeObserver(this);
 	GlobalEventManager().disconnectDialogWindow(GTK_WINDOW(getWindow()));
@@ -300,8 +327,8 @@ void SurfaceInspector::populateWindow() {
 	_fitTexture.label = gtkutil::LeftAlignedLabel(LABEL_FIT_TEXTURE);
 	gtk_table_attach_defaults(operTable, _fitTexture.label, 0, 1, 0, 1);
 	
-	_fitTexture.widthAdj = gtk_adjustment_new(1.0f, 0.0f, 1000.0f, 1.0f, 1.0f, 1.0f);
-	_fitTexture.heightAdj = gtk_adjustment_new(1.0f, 0.0f, 1000.0f, 1.0f, 1.0f, 1.0f);
+	_fitTexture.widthAdj = gtk_adjustment_new(1.0f, 0.0f, 1000.0f, 1.0f, 1.0f, 0);
+	_fitTexture.heightAdj = gtk_adjustment_new(1.0f, 0.0f, 1000.0f, 1.0f, 1.0f, 0);
 	
 	// Create the width entry field
 	_fitTexture.width = gtk_spin_button_new(GTK_ADJUSTMENT(_fitTexture.widthAdj), 1.0f, 4);
@@ -359,7 +386,7 @@ void SurfaceInspector::populateWindow() {
 	// Create the default texture scale spinner
 	GtkObject* defaultAdj = gtk_adjustment_new(
 		GlobalRegistry().getFloat(RKEY_DEFAULT_TEXTURE_SCALE), 
-		0.0f, 1000.0f, 0.1f, 0.1f, 0.1f
+		0.0f, 1000.0f, 0.1f, 0.1f, 0
 	);
 	_defaultTexScale = gtk_spin_button_new(GTK_ADJUSTMENT(defaultAdj), 1.0f, 4);
 	gtk_widget_set_size_request(_defaultTexScale, 55, -1);
@@ -649,7 +676,7 @@ void SurfaceInspector::onShaderSelect(GtkWidget* button, SurfaceInspector* self)
 }
 
 // Static command target to toggle the window
-void SurfaceInspector::toggle() {
+void SurfaceInspector::toggle(const cmd::ArgumentList& args) {
 	Instance().toggleWindow();
 }
 

@@ -7,9 +7,11 @@
 #include "render.h"
 #include "math/aabb.h"
 
+#include "ishaders.h"
+
 /* FORWARD DECLS */
 class ModelSkin;
-class Renderer;
+class RenderableCollector;
 class SelectionTest;
 class Selector;
 class Shader;
@@ -52,8 +54,10 @@ class RenderablePicoSurface
 	AABB _localAABB;
 
 	// The GL display lists for this surface's geometry
-	GLuint _normalList;
-	GLuint _lightingList;
+	GLuint _dlRegular;
+	GLuint _dlProgramPosVCol;
+    GLuint _dlProgramNegVCol;
+    GLuint _dlProgramNoVCol;
 	
 private:
 
@@ -64,6 +68,7 @@ private:
 	void calculateTangents();
 	
 	// Create the display lists
+    GLuint compileProgramList(ShaderLayer::VertexColourMode);
 	void createDisplayLists();
 
 public:
@@ -83,17 +88,17 @@ public:
 	 * Front-end render function used by the main renderer.
 	 * 
 	 * @param rend
-	 * The sorting Renderer object which accepts renderable geometry.
+	 * The sorting RenderableCollector object which accepts renderable geometry.
 	 * 
 	 * @param localToWorld
 	 * Object to world-space transform.
 	 */
-	void submitRenderables(Renderer& rend, const Matrix4& localToWorld);		
+	void submitRenderables(RenderableCollector& rend, const Matrix4& localToWorld);		
 	
 	/** 
 	 * Render function from OpenGLRenderable
 	 */
-	void render(RenderStateFlags flags) const;
+	void render(const RenderInfo& info) const;
 	
 	/** Return the vertex count for this surface
 	 */

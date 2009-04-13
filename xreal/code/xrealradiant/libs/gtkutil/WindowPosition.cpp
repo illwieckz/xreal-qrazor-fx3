@@ -1,6 +1,8 @@
 #include "WindowPosition.h"
 
+#include "iregistry.h"
 #include "string/string.h"
+#include "MultiMonitor.h"
 
 namespace {
 	const int DEFAULT_POSITION_X = 50;
@@ -43,18 +45,21 @@ void WindowPosition::setSize(int width, int height) {
 	_size[1] = height;
 }
 
-void WindowPosition::saveToNode(xml::Node& node) {
-	node.setAttributeValue("xPosition", intToStr(_position[0]));
-	node.setAttributeValue("yPosition", intToStr(_position[1]));
-	node.setAttributeValue("width", intToStr(_size[0]));
-	node.setAttributeValue("height", intToStr(_size[1]));
+void WindowPosition::saveToPath(const std::string& path)
+{
+	GlobalRegistry().setAttribute(path, "xPosition", intToStr(_position[0]));
+	GlobalRegistry().setAttribute(path, "yPosition", intToStr(_position[1]));
+	GlobalRegistry().setAttribute(path, "width", intToStr(_size[0]));
+	GlobalRegistry().setAttribute(path, "height", intToStr(_size[1]));
 }
 
-void WindowPosition::loadFromNode(const xml::Node& node) {
-	_position[0] = strToInt(node.getAttributeValue("xPosition"));
-	_position[1] = strToInt(node.getAttributeValue("yPosition"));
-	_size[0] = strToInt(node.getAttributeValue("width"));
-	_size[1] = strToInt(node.getAttributeValue("height"));
+void WindowPosition::loadFromPath(const std::string& path)
+{
+	_position[0] = strToInt(GlobalRegistry().getAttribute(path, "xPosition"));
+	_position[1] = strToInt(GlobalRegistry().getAttribute(path, "yPosition"));
+
+	_size[0] = strToInt(GlobalRegistry().getAttribute(path, "width"));
+	_size[1] = strToInt(GlobalRegistry().getAttribute(path, "height"));
 }
 
 // Applies the internally stored size/position info to the GtkWindow
@@ -91,15 +96,8 @@ void WindowPosition::readPosition() {
 void WindowPosition::fitToScreen(float xfraction, float yfraction) {
 	if (_window == NULL) return;
 
-	GdkScreen* screen = gtk_window_get_screen(_window);
+	GdkRectangle geom = MultiMonitor::getMonitorForWindow(_window);
 	
-	gint x,y;
-	gtk_window_get_position(GTK_WINDOW(_window), &x, &y);
-	gint monitorNum = gdk_screen_get_monitor_at_point(screen, x, y);
-
-	GdkRectangle geom;
-	gdk_screen_get_monitor_geometry(screen, monitorNum, &geom);
-
 	// Pass the call
 	fitToScreen(geom, xfraction, yfraction);
 }

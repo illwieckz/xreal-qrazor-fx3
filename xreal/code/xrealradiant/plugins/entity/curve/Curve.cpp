@@ -80,10 +80,10 @@ ControlPoints& Curve::getControlPoints() {
 	return _controlPoints;
 }
 
-void Curve::renderSolid(Renderer& renderer, const VolumeTest& volume, 
+void Curve::renderSolid(RenderableCollector& collector, const VolumeTest& volume, 
 	const Matrix4& localToWorld) const
 {
-	renderer.addRenderable(_renderCurve, localToWorld);
+	collector.addRenderable(_renderCurve, localToWorld);
 }
 
 const AABB& Curve::getBounds() const {
@@ -95,7 +95,7 @@ bool Curve::isEmpty() const {
 }
 
 bool Curve::parseCurve(const std::string& value) {
-	parser::StringTokeniser tokeniser(value, " ");
+	parser::BasicStringTokeniser tokeniser(value, " ");
 	
 	try {
 		// First token is the number of control points

@@ -39,7 +39,7 @@ RenderablePicoModel::RenderablePicoModel(picoModel_t* mod,
 }
 
 // Front end renderable submission
-void RenderablePicoModel::submitRenderables(Renderer& rend, 
+void RenderablePicoModel::submitRenderables(RenderableCollector& rend, 
 											const Matrix4& localToWorld)
 {
 	// Submit renderables from each surface
@@ -49,7 +49,7 @@ void RenderablePicoModel::submitRenderables(Renderer& rend,
 	{
 		// Check if the surface's shader is filtered, if not then submit it for
 		// rendering
-		IShaderPtr surfaceShader = (*i)->getShader()->getIShader();
+		MaterialPtr surfaceShader = (*i)->getShader()->getMaterial();
 		if (surfaceShader->isVisible()) {		
 			(*i)->submitRenderables(rend, localToWorld);
 		}
@@ -57,12 +57,12 @@ void RenderablePicoModel::submitRenderables(Renderer& rend,
 }
 
 // OpenGL (back-end) render function
-void RenderablePicoModel::render(RenderStateFlags flags) const {
+void RenderablePicoModel::render(const RenderInfo& info) const {
 	
 	// Render options
-	if (flags & RENDER_TEXTURE)
+	if (info.checkFlag(RENDER_TEXTURE_2D))
 		glEnable(GL_TEXTURE_2D);
-	if (flags & RENDER_SMOOTH)
+	if (info.checkFlag(RENDER_SMOOTH))
 		glShadeModel(GL_SMOOTH);
 	
 	// Iterate over the surfaces, calling the render function on each one
@@ -70,13 +70,13 @@ void RenderablePicoModel::render(RenderStateFlags flags) const {
 		 i != _surfVec.end();
 		 ++i)
 	{
-		// Get the IShader to test the shader name against the filter system
-		IShaderPtr surfaceShader = (*i)->getShader()->getIShader();
+		// Get the Material to test the shader name against the filter system
+		MaterialPtr surfaceShader = (*i)->getShader()->getMaterial();
 		if (surfaceShader->isVisible()) {
 			// Bind the OpenGL texture and render the surface geometry
-			Texture& tex = (*i)->getShader()->getTexture();
-			glBindTexture(GL_TEXTURE_2D, tex.texture_number);
-			(*i)->render(flags);
+			TexturePtr tex = surfaceShader->getEditorImage();
+			glBindTexture(GL_TEXTURE_2D, tex->getGLTexNum());
+			(*i)->render(info.getFlags());
 		}
 	}
 }

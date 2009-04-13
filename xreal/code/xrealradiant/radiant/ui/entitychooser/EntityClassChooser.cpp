@@ -1,7 +1,6 @@
 #include "EntityClassChooser.h"
 #include "EntityClassTreePopulator.h"
 
-#include "mainframe.h"
 #include "ieclass.h"
 #include "iregistry.h"
 #include "gtkutil/dialog.h"
@@ -9,6 +8,7 @@
 #include "gtkutil/ScrolledFrame.h"
 #include "gtkutil/RightAlignment.h"
 #include "gtkutil/IconTextColumn.h"
+#include "gtkutil/MultiMonitor.h"
 #include "string/string.h"
 
 #include "entity.h" // Entity_createFromSelection()
@@ -18,8 +18,27 @@ namespace ui
 
 // Display the singleton instance
 std::string EntityClassChooser::chooseEntityClass() {
-	static EntityClassChooser instance;
-	return instance.showAndBlock();
+	return InstancePtr()->showAndBlock();
+}
+
+EntityClassChooserPtr& EntityClassChooser::InstancePtr() {
+	static EntityClassChooserPtr _instancePtr;
+
+	if (_instancePtr == NULL) {
+		// Not yet instantiated, do it now
+		_instancePtr = EntityClassChooserPtr(new EntityClassChooser);
+		
+		// Register this instance with GlobalRadiant() at once
+		GlobalRadiant().addEventListener(_instancePtr);
+	}
+
+	return _instancePtr;
+}
+
+void EntityClassChooser::onRadiantShutdown() {
+	globalOutputStream() << "EntityClassChooser shutting down.\n";
+
+	_modelPreview = ModelPreviewPtr();
 }
 
 // Show the dialog
@@ -29,13 +48,16 @@ std::string EntityClassChooser::showAndBlock() {
 	gtk_widget_show_all(_widget);
 	gtk_widget_grab_focus(_treeView);
 
-	_modelPreview.initialisePreview();
+	_modelPreview->initialisePreview();
 
 	// Update the member variables
 	updateSelection();
 	
 	// Enter recursive main loop
 	gtk_main();
+
+	// Release the models
+	_modelPreview->clear();
 	
 	// Return the last selection (may be "" if dialog was cancelled)
 	return _selectedName;
@@ -48,23 +70,23 @@ EntityClassChooser::EntityClassChooser()
   _treeStore(NULL),
   _selection(NULL),
   _okButton(NULL),
-  _selectedName("")
+  _selectedName(""),
+  _modelPreview(new ModelPreview)
 {
-	gtk_window_set_transient_for(GTK_WINDOW(_widget), MainFrame_getWindow());
+	GtkWindow* mainWindow = GlobalRadiant().getMainWindow();
+	gtk_window_set_transient_for(GTK_WINDOW(_widget), mainWindow);
     gtk_window_set_modal(GTK_WINDOW(_widget), TRUE);
     gtk_window_set_position(GTK_WINDOW(_widget), GTK_WIN_POS_CENTER_ON_PARENT);
 	gtk_window_set_title(GTK_WINDOW(_widget), ECLASS_CHOOSER_TITLE);
 
 	// Set the default size of the window
 	
-	GdkScreen* scr = gtk_window_get_screen(GTK_WINDOW(_widget));
-	gint w = gdk_screen_get_width(scr);
-	gint h = gdk_screen_get_height(scr);
+	GdkRectangle rect = gtkutil::MultiMonitor::getMonitorForWindow(mainWindow);
 	gtk_window_set_default_size(
-		GTK_WINDOW(_widget), gint(w * 0.7f), gint(h * 0.6f)
+		GTK_WINDOW(_widget), gint(rect.width * 0.7f), gint(rect.height * 0.6f)
 	);
 
-	_modelPreview.setSize(gint(w*0.3f));
+	_modelPreview->setSize(gint(rect.width * 0.3f));
 
 	// Create GUI elements and pack into main VBox
 	
@@ -77,7 +99,7 @@ EntityClassChooser::EntityClassChooser()
 	gtk_container_set_border_width(GTK_CONTAINER(_widget), 12);
 
 	gtk_box_pack_start(GTK_BOX(hbox), vbx, TRUE, TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(hbox), _modelPreview, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), *_modelPreview, FALSE, FALSE, 0);
 
 	gtk_container_add(GTK_CONTAINER(_widget), hbox);
 
@@ -102,6 +124,14 @@ GtkWidget* EntityClassChooser::createTreeView() {
 	// Construct the tree view widget with the now-populated model
 	_treeView = gtk_tree_view_new_with_model(GTK_TREE_MODEL(_treeStore));
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(_treeView), TRUE);
+
+	// Use the TreeModel's full string search function
+	gtk_tree_view_set_search_equal_func(
+		GTK_TREE_VIEW(_treeView), 
+		gtkutil::TreeModel::equalFuncStringContains, 
+		NULL, 
+		NULL
+	);
 
 	_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(_treeView));
 	gtk_tree_selection_set_mode(_selection, GTK_SELECTION_BROWSE);
@@ -201,16 +231,16 @@ void EntityClassChooser::updateSelection() {
 		IEntityClassPtr eclass = GlobalEntityClassManager().findClass(selName);	
 
 		if (eclass != NULL) {
-			_modelPreview.setModel(eclass->getAttribute("model").value);
-			_modelPreview.setSkin(eclass->getAttribute("skin").value);
+			_modelPreview->setModel(eclass->getAttribute("model").value);
+			_modelPreview->setSkin(eclass->getAttribute("skin").value);
 		}
 
 		// Update the _selectionName field
 		_selectedName = selName;
 	}
 	else {
-		_modelPreview.setModel("");
-		_modelPreview.setSkin("");
+		_modelPreview->setModel("");
+		_modelPreview->setSkin("");
 
 		gtk_widget_set_sensitive(_okButton, FALSE);
 	}

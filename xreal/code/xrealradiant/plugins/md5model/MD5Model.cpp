@@ -106,21 +106,21 @@ const std::vector<std::string>& MD5Model::getActiveMaterials() const {
 	return _surfaceNames;
 }
 
-void MD5Model::render(RenderStateFlags state) const {
+void MD5Model::render(const RenderInfo& info) const {
 	// Render options
-	if (state & RENDER_TEXTURE)
+	if (info.checkFlag(RENDER_TEXTURE_2D))
 		glEnable(GL_TEXTURE_2D);
-	if (state & RENDER_SMOOTH)
+	if (info.checkFlag(RENDER_SMOOTH))
 		glShadeModel(GL_SMOOTH);
 
 	for (SurfaceList::const_iterator i = _surfaces.begin(); i != _surfaces.end(); ++i) {
-		// Get the IShader to test the shader name against the filter system
-		IShaderPtr surfaceShader = (*i)->getState()->getIShader();
+		// Get the Material to test the shader name against the filter system
+		MaterialPtr surfaceShader = (*i)->getState()->getMaterial();
 		if (surfaceShader->isVisible()) {
 			// Bind the OpenGL texture and render the surface geometry
-			TexturePtr tex = surfaceShader->getTexture();
-			glBindTexture(GL_TEXTURE_2D, tex->texture_number);
-			(*i)->render(state);
+			TexturePtr tex = surfaceShader->getEditorImage();
+			glBindTexture(GL_TEXTURE_2D, tex->getGLTexNum());
+			(*i)->render(info.getFlags());
 		}
 	}
 }

@@ -23,18 +23,27 @@ public:
 	typedef std::map<std::string, GamePtr> GameMap;
 
 private:	
+
+   // Map of named games
 	GameMap _games;
-	
+
 	std::string _currentGameType;
 	
 	// The fs_game argument (usually "darkmod")
 	std::string _fsGame;
+
+	// Optional, defines the "mod base", which the fs_game builds upon
+	std::string _fsGameBase;
 	
 	// The current engine path
 	std::string _enginePath;
 	
 	// The "userengine" path (where the fs_game is stored)
 	// this is ~/.doom3/<fs_game> in linux, and <enginepath>/<fs_game> in Win32
+	std::string _modBasePath;
+
+	// The "mod mod" path (where the fs_game_base is stored)
+	// this is ~/.doom3/<fs_game_base> in linux, and <enginepath>/<fs_game_base> in Win32
 	std::string _modPath;
 	
 	// The sorted list of VFS search paths (valid after module initialisation) 
@@ -42,6 +51,11 @@ private:
 	
 	bool _enginePathInitialised;
 	
+private:
+
+   // Set the map and prefab file paths from the current game information
+   void setMapAndPrefabPaths(const std::string& baseGamePath);
+
 public:
 	Manager();
 
@@ -73,6 +87,10 @@ public:
 	/** greebo: Accessor method for the fs_game parameter
 	 */
 	const std::string& getFSGame() const;
+
+	/** greebo: Accessor method for the fs_game_base parameter
+	 */
+	const std::string& getFSGameBase() const;
 
 	/** greebo: Initialises the engine path from the settings in the registry.
 	 * 			If nothing is found, the game file is queried.

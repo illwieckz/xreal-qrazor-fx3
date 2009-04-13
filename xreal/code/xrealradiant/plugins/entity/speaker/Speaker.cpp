@@ -4,14 +4,13 @@
 #include "irenderable.h"
 #include "isound.h"
 #include <stdlib.h>
-#include "SpeakerSettings.h"
 #include "SpeakerNode.h"
+#include "../EntitySettings.h"
 
 namespace entity {
 
-Speaker::Speaker(IEntityClassPtr eclass,
-		SpeakerNode& node,
-		const Callback& transformChanged,
+Speaker::Speaker(SpeakerNode& node, 
+		const Callback& transformChanged, 
 		const Callback& boundsChanged,
 		const Callback& evaluateTransform) :
 	m_entity(node._entity),
@@ -110,29 +109,29 @@ VolumeIntersectionValue Speaker::intersectVolume(
 	return volume.TestAABB(localAABB(), localToWorld);
 }
 
-void Speaker::renderSolid(Renderer& renderer,
+void Speaker::renderSolid(RenderableCollector& collector, 
 	const VolumeTest& volume, const Matrix4& localToWorld) const
 {
-	renderer.SetState(m_entity.getEntityClass()->getFillShader(), Renderer::eFullMaterials);
-	renderer.addRenderable(m_aabb_solid, localToWorld);
-	if (SpeakerSettings().showAllSpeakerRadii())
-		renderer.addRenderable(m_speakerRadii, localToWorld);
+	collector.SetState(m_entity.getEntityClass()->getFillShader(), RenderableCollector::eFullMaterials);
+	collector.addRenderable(m_aabb_solid, localToWorld);
+	if (EntitySettings::InstancePtr()->showAllSpeakerRadii())
+		collector.addRenderable(m_speakerRadii, localToWorld);
 }
 
-void Speaker::renderWireframe(Renderer& renderer,
+void Speaker::renderWireframe(RenderableCollector& collector, 
 	const VolumeTest& volume, const Matrix4& localToWorld) const
 {
-	renderer.SetState(m_entity.getEntityClass()->getWireShader(), Renderer::eWireframeOnly);
-	renderer.addRenderable(m_aabb_wire, localToWorld);
-	if (SpeakerSettings().showAllSpeakerRadii())
-		renderer.addRenderable(m_speakerRadii, localToWorld);
-
-	if (isNameVisible()) {
-		renderer.addRenderable(m_renderName, localToWorld);
+	collector.SetState(m_entity.getEntityClass()->getWireShader(), RenderableCollector::eWireframeOnly);
+	collector.addRenderable(m_aabb_wire, localToWorld);
+	if (EntitySettings::InstancePtr()->showAllSpeakerRadii())
+		collector.addRenderable(m_speakerRadii, localToWorld);
+	
+	if (EntitySettings::InstancePtr()->renderEntityNames()) {
+		collector.addRenderable(m_renderName, localToWorld);
 	}
 }
 
-void Speaker::testSelect(Selector& selector,
+void Speaker::testSelect(Selector& selector, 
 	SelectionTest& test, const Matrix4& localToWorld)
 {
 	test.BeginMesh(localToWorld);
@@ -200,8 +199,8 @@ void Speaker::updateAABB() {
 }
 
 void Speaker::updateTransform() {
-	m_transform.localToParent() = g_matrix4_identity;
-	matrix4_translate_by_vec3(m_transform.localToParent(), m_origin);
+	m_transform.localToParent() = Matrix4::getIdentity();
+	m_transform.localToParent().translateBy(m_origin);
 	m_ray.direction = matrix4_transformed_direction(matrix4_rotation_for_z(degrees_to_radians(m_angle)), Vector3(1, 0, 0));
 	m_transformChanged();
 }

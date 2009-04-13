@@ -346,12 +346,12 @@ void Node::evaluateTransform() const {
 			parent->boundsChanged();
 		}
 
-		_local2world = (parent != NULL) ? boost::static_pointer_cast<Node>(parent)->localToWorld() : g_matrix4_identity;
+		_local2world = (parent != NULL) ? boost::static_pointer_cast<Node>(parent)->localToWorld() : Matrix4::getIdentity();
 
 		const TransformNode* transformNode = dynamic_cast<const TransformNode*>(this);
 
 		if (transformNode != NULL) {
-			matrix4_multiply_by_matrix4(_local2world, transformNode->localToParent());
+			_local2world.multiplyBy(transformNode->localToParent());
 		}
 
 		_transformMutex = false;

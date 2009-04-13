@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "iregistry.h"
 #include "ieclass.h"
+#include "ieventmanager.h"
 #include "ifilter.h"
 #include "selectable.h"
 #include "inamespace.h"
@@ -35,6 +36,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "light/LightShader.h"
 #include "curve/CurveEditInstance.h"
 #include "target/RenderableTargetInstances.h"
+#include "EntitySettings.h"
 
 // Initialise the static variables of the entitylibraries (we're in a module here)
 EntityCreator::KeyValueChangedFunc entity::Doom3Entity::_keyValueChangedNotify = 0;
@@ -48,16 +50,22 @@ void constructStatic() {
 	LightShader::m_defaultShader = GlobalRegistry().get("game/defaults/lightShader");
 
 	// Construct Doom3Group stuff
-	CurveEditInstance::StaticShaders::instance().controlsShader = GlobalShaderCache().capture("$POINT");
-	CurveEditInstance::StaticShaders::instance().selectedShader = GlobalShaderCache().capture("$SELPOINT");
+	CurveEditInstance::StaticShaders::instance().controlsShader = GlobalRenderSystem().capture("$POINT");
+	CurveEditInstance::StaticShaders::instance().selectedShader = GlobalRenderSystem().capture("$SELPOINT");
 
-	RenderablePivot::StaticShader::instance() = GlobalShaderCache().capture("$PIVOT");
+	RenderablePivot::StaticShader::instance() = GlobalRenderSystem().capture("$PIVOT");
 
-	GlobalShaderCache().attachRenderable(RenderableTargetInstances::Instance());
+	GlobalRenderSystem().attachRenderable(RenderableTargetInstances::Instance());
+
+	GlobalEventManager().addRegistryToggle("ToggleShowAllLightRadii", RKEY_SHOW_ALL_LIGHT_RADII);
+	GlobalEventManager().addRegistryToggle("ToggleShowAllSpeakerRadii", RKEY_SHOW_ALL_SPEAKER_RADII);
 }
 
 void destroyStatic() {
-	GlobalShaderCache().detachRenderable(RenderableTargetInstances::Instance());
+	GlobalRenderSystem().detachRenderable(RenderableTargetInstances::Instance());
+
+	// Destroy the settings instance
+	EntitySettings::destroy();
 }
 
 } // namespace entity

@@ -15,7 +15,7 @@
 #include "../namedentity.h"
 #include "../keyobservers.h"
 #include "../Doom3Entity.h"
-#include "../OptionalRenderedName.h"
+#include "../EntitySettings.h"
 
 #include "SpeakerRenderables.h"
 
@@ -26,8 +26,7 @@ class SpeakerNode;
 class Speaker :
 	public Cullable,
 	public Bounded,
-	public Snappable,
-    public OptionalRenderedName
+	public Snappable
 {
 	Doom3Entity& m_entity;
 	KeyObserverMap m_keyObservers;
@@ -41,7 +40,7 @@ class Speaker :
 	NamedEntity m_named;
 	//NamespaceManager m_nameKeys;
 
-	entity::RenderSpeakerRadii m_speakerRadii;
+	RenderSpeakerRadii m_speakerRadii;
 	SoundRadii m_stdVal;
 	bool m_useSpeakerRadii;
 	bool m_minIsSet;
@@ -62,16 +61,15 @@ class Speaker :
 	Callback m_evaluateTransform;
 public:
 	// Constructor
-	Speaker(IEntityClassPtr eclass,
-		entity::SpeakerNode& node,
-				  const Callback& transformChanged,
+	Speaker(entity::SpeakerNode& node,
+				  const Callback& transformChanged, 
 				  const Callback& boundsChanged,
 				  const Callback& evaluateTransform);
-
+	
 	// Copy constructor
-	Speaker(const Speaker& other,
-				  SpeakerNode& node,
-				  const Callback& transformChanged,
+	Speaker(const Speaker& other, 
+				  SpeakerNode& node, 
+				  const Callback& transformChanged, 
 				  const Callback& boundsChanged,
 				  const Callback& evaluateTransform);
 
@@ -92,16 +90,16 @@ public:
 
 	VolumeIntersectionValue intersectVolume(const VolumeTest& volume, const Matrix4& localToWorld) const;
 
-	void renderSolid(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
-	void renderWireframe(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const;
+	void renderSolid(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
+	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
 
 	void testSelect(Selector& selector, SelectionTest& test, const Matrix4& localToWorld);
 
 	void translate(const Vector3& translation);
 	void rotate(const Quaternion& rotation);
-
+	
 	void snapto(float snap);
-
+	
 	void revertTransform();
 	void freezeTransform();
 	void transformChanged();

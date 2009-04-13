@@ -14,14 +14,23 @@
 #include "RadiantCameraView.h"
 #include "Camera.h"
 
+#include <boost/shared_ptr.hpp>
+#include <boost/noncopyable.hpp>
+
 const int CAMWND_MINSIZE_X = 240;
 const int CAMWND_MINSIZE_Y = 200;
 
 class SelectionTest;
 
 class CamWnd :
-	public scene::Graph::Observer
+	public scene::Graph::Observer,
+	public boost::noncopyable
 {
+	// The ID of this window
+	int _id;
+
+	static int _maxId;
+
 	View m_view;
 	
 	// The contained camera
@@ -44,8 +53,9 @@ class CamWnd :
 	gtkutil::GLWidget m_gl_widget;
 	GtkWindow* _parentWidget;
 
-public:
+	SignalHandlerId _mapValidHandle;
 
+public:
 	SelectionSystemWindowObserver* m_window_observer;
 
 	XORRectangle m_XORRectangle;
@@ -63,7 +73,11 @@ public:
 
 	// Constructor and destructor
 	CamWnd();
-	~CamWnd();
+
+	virtual ~CamWnd();
+
+	// The unique ID of this camwindow
+	int getId();
 
 	void queueDraw();
 	void draw();
@@ -129,6 +143,7 @@ private:
  * Shared pointer typedef.
  */
 typedef boost::shared_ptr<CamWnd> CamWndPtr;
+typedef boost::weak_ptr<CamWnd> CamWndWeakPtr;
 
 typedef MemberCaller<CamWnd, &CamWnd::queueDraw> CamWndQueueDraw;
 typedef MemberCaller<CamWnd, &CamWnd::update> CamWndUpdate;

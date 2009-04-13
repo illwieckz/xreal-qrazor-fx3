@@ -28,9 +28,16 @@ Document::~Document() {
 	}
 }
 
-Document Document::create() {
+Document Document::create()
+{
+	xmlChar* versionStr = xmlCharStrdup("1.0");
+
 	// Create a new xmlDocPtr and return the object
-	return Document(xmlNewDoc(xmlCharStrdup("1.0")));
+	xmlDocPtr doc = xmlNewDoc(versionStr);
+
+	xmlFree(versionStr);
+
+	return Document(doc);
 }
 
 void Document::addTopLevelNode(const std::string& name) {
@@ -38,9 +45,20 @@ void Document::addTopLevelNode(const std::string& name) {
 		return; // is not Valid, place an assertion here?
 	}
 
-	_xmlDoc->children = xmlNewDocNode(_xmlDoc, NULL, 
-  									  xmlCharStrdup(name.c_str()), 
-  									  xmlCharStrdup(""));
+	xmlChar* nameStr = xmlCharStrdup(name.c_str());
+	xmlChar* emptyStr = xmlCharStrdup("");
+
+	xmlNodePtr root = xmlNewDocNode(_xmlDoc, NULL, nameStr, emptyStr);
+	xmlNodePtr oldRoot = xmlDocSetRootElement(_xmlDoc, root);
+
+	if (oldRoot != NULL) {
+		// Old root element, remove it
+		xmlUnlinkNode(oldRoot);
+		xmlFreeNode(oldRoot);
+	}
+	
+	xmlFree(nameStr);
+	xmlFree(emptyStr);
 }
 
 Node Document::getTopLevelNode() const {
@@ -80,7 +98,7 @@ void Document::copyNodes(const NodeList& nodeList) {
 		// Copy the node
 		xmlNodePtr node = xmlCopyNode(nodeList[i].getNodePtr(), 1);
 		// Add this node to the top level node of this document
-		xmlAddChild(_xmlDoc->children, node);
+		xmlAddChild(xmlDocGetRootElement(_xmlDoc), node);
 	}
 }
 
@@ -89,12 +107,11 @@ bool Document::isValid() const {
 }
 
 // Evaluate an XPath expression and return matching Nodes.
-NodeList Document::findXPath(const std::string& path) const {
+NodeList Document::findXPath(const std::string& path) const
+{
     // Set up the XPath context
-    xmlXPathContextPtr context;
-    xmlXPathObjectPtr result;
-    
-    context = xmlXPathNewContext(_xmlDoc);
+    xmlXPathContextPtr context = xmlXPathNewContext(_xmlDoc);
+
     if (context == NULL) {
         std::cerr << "ERROR: xml::findPath() failed to create XPath context "
                   << "when searching for " << path << std::endl;
@@ -103,7 +120,7 @@ NodeList Document::findXPath(const std::string& path) const {
     
     // Evaluate the expression  
     const xmlChar* xpath = reinterpret_cast<const xmlChar*>(path.c_str());
-    result = xmlXPathEvalExpression(xpath, context);
+    xmlXPathObjectPtr result = xmlXPathEvalExpression(xpath, context);
     xmlXPathFreeContext(context);
 
     if (result == NULL) {

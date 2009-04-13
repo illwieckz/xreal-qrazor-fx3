@@ -1,8 +1,8 @@
 #include "ModuleRegistry.h"
 
+#include "itextstream.h"
 #include <stdexcept>
 #include <iostream>
-#include "stream/textstream.h"
 #include "ApplicationContextImpl.h"
 #include "ModuleLoader.h"
 
@@ -58,17 +58,17 @@ void ModuleRegistry::registerModule(RegisterableModulePtr module) {
 		);
 	}
 	
+	// Add this module to the list of uninitialised ones 
+	std::pair<ModulesMap::iterator, bool> result = _uninitialisedModules.insert(
+		ModulesMap::value_type(module->getName(), module)
+	);
+
 	// Don't allow modules with the same name being added twice 
-	if (moduleExists(module->getName())) {
+	if (!result.second) {
 		throw std::logic_error(
 			"ModuleRegistry: multiple modules named " + module->getName()
 		);
 	}
-	
-	// Add this module to the list of uninitialised ones 
-	_uninitialisedModules.insert(
-		ModulesMap::value_type(module->getName(), module)
-	);
 	
 	globalOutputStream() << "Module registered: " << module->getName().c_str() << "\n";
 }
@@ -94,7 +94,7 @@ void ModuleRegistry::initialiseModuleRecursive(const std::string& name) {
 		ModulesMap::value_type(name, _uninitialisedModules[name])
 	);
 	
-	globalOutputStream() << "Initialising module: " << name.c_str() << "\n";
+	globalOutputStream() << "Initialising module: " << name << "\n";
 	
 	// Create a shortcut to the module
 	RegisterableModulePtr module = _uninitialisedModules[name];
@@ -117,7 +117,7 @@ void ModuleRegistry::initialiseModuleRecursive(const std::string& name) {
 	// Initialise the module itself, now that the dependencies are ready
 	module->initialiseModule(_context);
 	
-	globalOutputStream() << "=> Module " << name.c_str() << " initialised.\n";
+	globalOutputStream() << "=> Module " << name << " initialised.\n";
 }
 
 // Initialise all registered modules
@@ -160,9 +160,9 @@ void ModuleRegistry::shutdownModules() {
 }
 
 bool ModuleRegistry::moduleExists(const std::string& name) const {
-	// Try to find the module
-	ModulesMap::const_iterator found = _uninitialisedModules.find(name);
-	return (found != _uninitialisedModules.end());
+	// Try to find the initialised module, uninitialised don't count as existing
+	ModulesMap::const_iterator found = _initialisedModules.find(name);
+	return (found != _initialisedModules.end());
 }
 
 // Get the module

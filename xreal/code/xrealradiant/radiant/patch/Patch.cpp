@@ -11,7 +11,6 @@
 #include "brush/TextureProjection.h"
 #include "brush/Winding.h"
 #include "gtkutil/dialog.h"
-#include "mainframe.h"
 #include "ui/surfaceinspector/SurfaceInspector.h"
 #include "ui/patch/PatchInspector.h"
 
@@ -248,7 +247,7 @@ void Patch::onAllocate(std::size_t size) {
 // For the TransformNode implementation (localToParent() is abstract and needs to be here)
 const Matrix4& Patch::localToParent() const {
 	// Just return the identity matrix
-	return g_matrix4_identity;
+	return Matrix4::getIdentity();
 }
 
 // Return the interally stored AABB
@@ -261,31 +260,31 @@ VolumeIntersectionValue Patch::intersectVolume(const VolumeTest& test, const Mat
 }
 
 // Render functions: solid mode
-void Patch::render_solid(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const {
-	renderer.SetState(m_state, Renderer::eFullMaterials);
-	renderer.addRenderable(m_render_solid, localToWorld);
+void Patch::render_solid(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const {
+	collector.SetState(m_state, RenderableCollector::eFullMaterials);
+	collector.addRenderable(m_render_solid, localToWorld);
 }
 
 // Render functions for WireFrame rendering
-void Patch::render_wireframe(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const {
-	renderer.SetState(m_state, Renderer::eFullMaterials);
+void Patch::render_wireframe(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const {
+	collector.SetState(m_state, RenderableCollector::eFullMaterials);
 	if (m_patchDef3) {
-		renderer.addRenderable(m_render_wireframe_fixed, localToWorld);
+		collector.addRenderable(m_render_wireframe_fixed, localToWorld);
 	}
 	else {
-		renderer.addRenderable(m_render_wireframe, localToWorld);
+		collector.addRenderable(m_render_wireframe, localToWorld);
 	}
 }
 
 // greebo: This renders the patch components, namely the lattice and the corner controls
-void Patch::render_component(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const {
-	renderer.SetState(m_state_lattice, Renderer::eWireframeOnly);
-	renderer.SetState(m_state_lattice, Renderer::eFullMaterials);
-	renderer.addRenderable(m_render_lattice, localToWorld);
+void Patch::render_component(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const {
+	collector.SetState(m_state_lattice, RenderableCollector::eWireframeOnly);
+	collector.SetState(m_state_lattice, RenderableCollector::eFullMaterials);
+	collector.addRenderable(m_render_lattice, localToWorld);
 
-	renderer.SetState(m_state_ctrl, Renderer::eWireframeOnly);
-	renderer.SetState(m_state_ctrl, Renderer::eFullMaterials);
-	renderer.addRenderable(m_render_ctrl, localToWorld);
+	collector.SetState(m_state_ctrl, RenderableCollector::eWireframeOnly);
+	collector.SetState(m_state_ctrl, RenderableCollector::eFullMaterials);
+	collector.addRenderable(m_render_ctrl, localToWorld);
 }
 
 const ShaderPtr& Patch::getState() const {
@@ -476,7 +475,7 @@ void Patch::importState(const UndoMemento* state) {
 }
 
 void Patch::captureShader() {
-	m_state = GlobalShaderCache().capture(m_shader.c_str());
+	m_state = GlobalRenderSystem().capture(m_shader.c_str());
 }
 
 void Patch::releaseShader() {
@@ -521,6 +520,32 @@ bool Patch::isValid() const
     }
   }
   return true;
+}
+
+bool Patch::isDegenerate() const {
+	
+	if (!isValid()) {
+		// Invalid patches are also "degenerate"
+		return true;
+	}
+
+	Vector3 prev(0,0,0);
+
+	// Compare each control's 3D coordinates with the previous one and break out 
+	// on the first non-equal one
+	for (PatchControlConstIter i = m_ctrl.begin(); i != m_ctrl.end(); ++i) {
+		
+		// Skip the first comparison
+		if (i != m_ctrl.begin() && !vector3_equal_epsilon(i->m_vertex, prev, 0.0001)) {
+			return false;
+		}
+
+		// Remember the coords of this vertex
+		prev = i->m_vertex;
+	}
+
+	// The loop went through, all vertices the same
+	return true;
 }
 
 void Patch::UpdateCachedData()
@@ -889,8 +914,8 @@ void Patch::TranslateTexture(float s, float t)
 {
   undoSave();
 
-  s = -1 * s / m_state->getTexture().width;
-  t = t / m_state->getTexture().height;
+    s = -1 * s / m_state->getMaterial()->getEditorImage()->getWidth();
+    t = t / m_state->getMaterial()->getEditorImage()->getHeight();
 
 	translateTexCoords(Vector2(s,t));
   
@@ -1048,7 +1073,7 @@ void Patch::NaturalTexture() {
 	 * the scaled texture size in pixels.
 	 */	
 	{
-		float fSize = (float)m_state->getTexture().width * defaultScale;
+		float fSize = (float)m_state->getMaterial()->getEditorImage()->getWidth() * defaultScale;
   
 		double texBest = 0;
 		double tex = 0;
@@ -1112,7 +1137,7 @@ void Patch::NaturalTexture() {
 	// and calculate the longest distances, convert them to texture coordinates
 	// and apply them to the according texture coordinates.
 	{
-		float fSize = -(float)m_state->getTexture().height * defaultScale;
+		float fSize = -(float)m_state->getMaterial()->getEditorImage()->getHeight() * defaultScale;
 		
 		double texBest = 0;
 		double tex = 0;
@@ -1677,7 +1702,7 @@ void Patch::pasteTextureNatural(const Face* face) {
 
 		if (widthVector.getLength() == 0.0f || heightVector.getLength() == 0.0f) {
 			gtkutil::errorDialog("Sorry. Patch is not suitable for this kind of operation.",
-								 MainFrame_getWindow());
+								 GlobalRadiant().getMainWindow());
 			return;
 		}
 		
@@ -1868,8 +1893,8 @@ void Patch::ProjectTexture(int nAxis) {
 
 	/* Calculate the conversion factor between world and texture coordinates
 	 * by using the image width/height.*/
-	float fWidth = 1 / (m_state->getTexture().width * defaultScale);
-	float fHeight = 1 / (m_state->getTexture().height * -defaultScale);
+	float fWidth = 1 / (m_state->getMaterial()->getEditorImage()->getWidth() * defaultScale);
+	float fHeight = 1 / (m_state->getMaterial()->getEditorImage()->getHeight() * -defaultScale);
 
 	// Cycle through all the control points with an iterator
 	for (PatchControlIter i = m_ctrl.data(); i != m_ctrl.data() + m_ctrl.size(); ++i) {
@@ -2077,30 +2102,39 @@ void Patch::ConstructPrefab(const AABB& aabb, EPatchPrefab eType, int axis, std:
       return;
     }
   }
-  else if  (eType == eBevel)
-  {
-    unsigned char *pIndex;
-    unsigned char pBevIndex[] =
-    {
-      0, 0,
-      2, 0,
-      2, 2,
-    };
+	else if  (eType == eBevel)
+	{
+		std::size_t pBevIndex[] =
+		{
+			0, 0, // y and z mapping of first col
+			0, 2, // y and z mapping of second col
+			2, 2, // y and z mapping of third col
+		};
 
-    setDims(3, 3);
+		setDims(3, 3);
 
-    PatchControl* pCtrl = m_ctrl.data();
-    for(std::size_t h=0; h<3; h++)
-    {
-      pIndex=pBevIndex;
-      for(std::size_t w=0; w<3; w++, pIndex+=2, pCtrl++)
-      {
-        pCtrl->m_vertex[0] = vPos[pIndex[0]][0];
-        pCtrl->m_vertex[1] = vPos[pIndex[1]][1];
-        pCtrl->m_vertex[2] = vPos[h][2];
-      }
-    }
-  }
+		PatchControlIter pCtrl = m_ctrl.begin();
+
+		for (std::size_t h = 0; h < 3; h++)
+		{
+			std::size_t* pIndex = pBevIndex;
+			
+			for (std::size_t w = 0; w < 3; w++, pIndex += 2, pCtrl++)
+			{
+				// The x coordinate stays the same for each row
+				pCtrl->m_vertex.x() = vPos[h].x();
+
+				// Use the same y coordinate for the first two columns
+				// The third column uses the highest y value
+				pCtrl->m_vertex.y() = vPos[pIndex[0]].y();
+
+				// The first column is using the lowest z value
+				// the other two columns use the highest z value
+				// to create an upright bevel
+				pCtrl->m_vertex.z() = vPos[pIndex[1]].z();
+			}
+		}
+	}
   else if(eType == eEndCap)
   {
     unsigned char *pIndex;

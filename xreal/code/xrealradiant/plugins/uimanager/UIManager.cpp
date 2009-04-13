@@ -1,12 +1,14 @@
 #include "UIManager.h"
 
+#include "itextstream.h"
 #include "iregistry.h"
 #include "iradiant.h"
+#include "icommandsystem.h"
 #include "ieventmanager.h"
-#include "stream/textstream.h"
 #include "generic/callback.h"
 #include "colourscheme/ColourSchemeEditor.h"
 #include "GroupDialog.h"
+#include "ShutdownListener.h"
 
 namespace ui {
 
@@ -26,6 +28,14 @@ IGroupDialog& UIManager::getGroupDialog() {
 	return GroupDialog::Instance();
 }
 
+IStatusBarManager& UIManager::getStatusBarManager() {
+	return _statusBarManager;
+}
+
+void UIManager::clear() {
+	_menuManager.clear();
+}
+
 const std::string& UIManager::getName() const {
 	static std::string _name(MODULE_UIMANAGER);
 	return _name;
@@ -38,6 +48,7 @@ const StringSet& UIManager::getDependencies() const {
 		_dependencies.insert(MODULE_EVENTMANAGER);
 		_dependencies.insert(MODULE_XMLREGISTRY);
 		_dependencies.insert(MODULE_RADIANT);
+		_dependencies.insert(MODULE_COMMANDSYSTEM);
 	}
 
 	return _dependencies;
@@ -49,10 +60,11 @@ void UIManager::initialiseModule(const ApplicationContext& ctx) {
 	_toolbarManager.initialise();
 	ColourSchemeManager::Instance().loadColourSchemes();
 	
-	GlobalEventManager().addCommand(
-		"EditColourScheme", 
-		FreeCaller<ColourSchemeEditor::editColourSchemes>()
-	);
+	GlobalCommandSystem().addCommand("EditColourScheme", ColourSchemeEditor::editColourSchemes);
+	GlobalEventManager().addCommand("EditColourScheme", "EditColourScheme");
+
+	_shutdownListener = UIManagerShutdownListenerPtr(new UIManagerShutdownListener(*this));
+	GlobalRadiant().addEventListener(_shutdownListener);
 }
 
 } // namespace ui

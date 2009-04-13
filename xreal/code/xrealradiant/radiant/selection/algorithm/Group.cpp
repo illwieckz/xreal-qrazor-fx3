@@ -7,7 +7,6 @@
 #include "entitylib.h"
 #include "map/Map.h"
 #include "gtkutil/dialog.h"
-#include "mainframe.h"
 
 namespace selection {
 
@@ -79,8 +78,9 @@ public:
 	}
 };
 
-void revertGroupToWorldSpawn() {
-		
+void revertGroupToWorldSpawn(const cmd::ArgumentList& args) {
+	UndoableCommand cmd("revertToWorldspawn");
+
 	typedef std::list<scene::INodePtr> GroupNodeList;
 
 	// Collect all groupnodes
@@ -172,6 +172,9 @@ class ParentSelectedBrushesToEntityWalker :
 	const scene::INodePtr _parent;
 
 	mutable std::list<scene::INodePtr> _childrenToReparent;
+
+	// Old parents will be checked for emptiness afterwards
+	mutable std::set<scene::INodePtr> _oldParents;
 public:
 	ParentSelectedBrushesToEntityWalker(const scene::INodePtr& parent) : 
 		_parent(parent)
@@ -186,6 +189,23 @@ public:
 
 			// Insert the child node into the parent node 
 			_parent->addChildNode(*i);
+		}
+
+		// Now check if any parents were left behind empty
+		for (std::set<scene::INodePtr>::iterator i = _oldParents.begin();
+			 i != _oldParents.end(); i++)
+		{
+			if (!(*i)->hasChildNodes()) {
+				// Is empty, but make sure we're not removing the worldspawn
+				if (Node_getEntity(*i) != NULL && 
+					Node_getEntity(*i)->getKeyValue("classname") == "worldspawn")
+				{
+					continue;
+				}
+
+				// Is empty now, remove it
+				scene::removeNodeFromParent(*i);
+			}
 		}
 
 		// Update the scene
@@ -206,6 +226,8 @@ public:
 		if (contains != eNodeUnknown && contains == type) {
 			// Got a child, add it to the list
 			_childrenToReparent.push_back(node);
+
+			_oldParents.insert(node->getParent());
 		}
 		else {
 			gtkutil::errorDialog(
@@ -218,7 +240,7 @@ public:
 };
 
 // re-parents the selected brushes/patches
-void parentSelection() {
+void parentSelection(const cmd::ArgumentList& args) {
 	// Retrieve the selection information structure
 	const SelectionInfo& info = GlobalSelectionSystem().getSelectionInfo();
 	
@@ -237,6 +259,17 @@ void parentSelection() {
 							 "(The entity has to be selected last.)", 
 							 GlobalRadiant().getMainWindow());
 	}
+}
+
+void parentSelectionToWorldspawn(const cmd::ArgumentList& args) {
+	UndoableCommand undo("parentSelectedPrimitives");
+
+	scene::INodePtr world = GlobalMap().findOrInsertWorldspawn();
+	if (world == NULL) return;
+
+	// Take the last selected item (this should be an entity)
+	ParentSelectedBrushesToEntityWalker visitor(world);
+	GlobalSelectionSystem().foreachSelected(visitor);
 }
 
 class GroupNodeChildSelector :
@@ -288,7 +321,7 @@ public:
 	}
 };
 
-void selectChildren() {
+void selectChildren(const cmd::ArgumentList& args) {
 	// Traverse the selection and identify the groupnodes
 	GlobalSelectionSystem().foreachSelected(
 		GroupNodeChildSelector()
@@ -296,16 +329,16 @@ void selectChildren() {
 }
 
 /**
- * greebo: This walker traverses the entire scenegraph, 
+ * greebo: This walker traverses the entire subgraph, 
  *         searching for entities with selected child primitives.
  *         If such an entity is found, it is traversed and all
  *         child primitives are selected.
  */
 class ExpandSelectionToEntitiesWalker : 
-	public scene::Graph::Walker
+	public scene::NodeVisitor
 {
 public:
-	bool pre(const scene::Path& path, const scene::INodePtr& node) const {
+	bool pre(const scene::INodePtr& node) {
 		Entity* entity = Node_getEntity(node);
 
 		if (entity != NULL) {
@@ -323,8 +356,9 @@ public:
 	}
 };
 
-void expandSelectionToEntities() {
-	GlobalSceneGraph().traverse(ExpandSelectionToEntitiesWalker());
+void expandSelectionToEntities(const cmd::ArgumentList& args) {
+	ExpandSelectionToEntitiesWalker walker;
+	Node_traverseSubgraph(GlobalSceneGraph().root(), walker);
 }
 
 } // namespace algorithm

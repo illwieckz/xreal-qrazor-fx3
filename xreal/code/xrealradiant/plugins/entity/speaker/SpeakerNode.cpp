@@ -4,12 +4,11 @@
 
 namespace entity {
 
-SpeakerNode::SpeakerNode(IEntityClassPtr eclass) :
+SpeakerNode::SpeakerNode(const IEntityClassConstPtr& eclass) :
 	EntityNode(eclass),
 	TransformModifier(Speaker::TransformChangedCaller(m_contained), ApplyTransformCaller(*this)),
 	TargetableNode(_entity, *this),
-	m_contained(eclass, 
-		*this, 
+	m_contained(*this, 
 		Node::TransformChangedCaller(*this), 
 		Node::BoundsChangedCaller(*this),
 		EvaluateTransformCaller(*this))
@@ -112,11 +111,11 @@ void SpeakerNode::detach(const NameCallback& callback) {
 	m_contained.getNameable().detach(callback);
 }
 
-void SpeakerNode::renderSolid(Renderer& renderer, const VolumeTest& volume) const {
-	m_contained.renderSolid(renderer, volume, localToWorld());
+void SpeakerNode::renderSolid(RenderableCollector& collector, const VolumeTest& volume) const {
+	m_contained.renderSolid(collector, volume, localToWorld());
 }
-void SpeakerNode::renderWireframe(Renderer& renderer, const VolumeTest& volume) const {
-	m_contained.renderWireframe(renderer, volume, localToWorld());
+void SpeakerNode::renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const {
+	m_contained.renderWireframe(collector, volume, localToWorld());
 }
 
 void SpeakerNode::evaluateTransform() {

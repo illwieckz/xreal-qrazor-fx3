@@ -1,11 +1,12 @@
 #include "OverlayDialog.h"
-#include "mainframe.h"
 
+#include "iradiant.h"
 #include "iscenegraph.h"
 #include "iregistry.h"
 
 #include "gtkutil/LeftAlignment.h"
 #include "gtkutil/LeftAlignedLabel.h"
+#include "gtkutil/SerialisableWidgets.h"
 
 #include <gtk/gtk.h>
 
@@ -26,7 +27,7 @@ OverlayDialog::OverlayDialog() :
 {
 	// Set up the window
     gtk_window_set_position(GTK_WINDOW(_widget), GTK_WIN_POS_CENTER_ON_PARENT);
-    gtk_window_set_transient_for(GTK_WINDOW(_widget), MainFrame_getWindow());
+    gtk_window_set_transient_for(GTK_WINDOW(_widget), GlobalRadiant().getMainWindow());
     gtk_window_set_title(GTK_WINDOW(_widget), DIALOG_TITLE);
     g_signal_connect(G_OBJECT(_widget), "delete-event",
     				 G_CALLBACK(gtk_widget_hide_on_delete), NULL);
@@ -183,7 +184,7 @@ GtkWidget* OverlayDialog::createButtons() {
 }
 
 // Static show method
-void OverlayDialog::display() {
+void OverlayDialog::display(const cmd::ArgumentList& args) {
 	
 	// Maintain a static dialog instance and display it on demand
 	static OverlayDialog _instance;
@@ -194,14 +195,55 @@ void OverlayDialog::display() {
 }
 
 void OverlayDialog::connectWidgets() {
-	_connector.connectGtkObject(GTK_OBJECT(_subWidgets["useImage"]), RKEY_OVERLAY_VISIBLE);
-	_connector.connectGtkObject(GTK_OBJECT(_subWidgets["transparency"]), RKEY_OVERLAY_TRANSPARENCY);
-	_connector.connectGtkObject(GTK_OBJECT(_subWidgets["scale"]), RKEY_OVERLAY_SCALE);
-	_connector.connectGtkObject(GTK_OBJECT(_subWidgets["keepAspect"]), RKEY_OVERLAY_PROPORTIONAL);
-	_connector.connectGtkObject(GTK_OBJECT(_subWidgets["scaleImage"]), RKEY_OVERLAY_SCALE_WITH_XY);
-	_connector.connectGtkObject(GTK_OBJECT(_subWidgets["panImage"]), RKEY_OVERLAY_PAN_WITH_XY);
-	_connector.connectGtkObject(GTK_OBJECT(_subWidgets["translateX"]), RKEY_OVERLAY_TRANSLATIONX);
-	_connector.connectGtkObject(GTK_OBJECT(_subWidgets["translateY"]), RKEY_OVERLAY_TRANSLATIONY);
+   using namespace gtkutil;
+	_connector.addObject(
+        RKEY_OVERLAY_VISIBLE,
+        SerialisableWidgetWrapperPtr(
+            new SerialisableToggleButton(_subWidgets["useImage"])
+        )
+    );
+	_connector.addObject(
+        RKEY_OVERLAY_TRANSPARENCY,
+        SerialisableWidgetWrapperPtr(
+            new SerialisableScaleWidget(_subWidgets["transparency"])
+        )
+    );
+	_connector.addObject(
+        RKEY_OVERLAY_SCALE,
+        SerialisableWidgetWrapperPtr(
+            new SerialisableScaleWidget(_subWidgets["scale"])
+        )
+    );
+	_connector.addObject(
+        RKEY_OVERLAY_PROPORTIONAL,
+        SerialisableWidgetWrapperPtr(
+            new SerialisableToggleButton(_subWidgets["keepAspect"])
+        )
+    );
+	_connector.addObject(
+        RKEY_OVERLAY_SCALE_WITH_XY,
+        SerialisableWidgetWrapperPtr(
+            new SerialisableToggleButton(_subWidgets["scaleImage"])
+        )
+    );
+	_connector.addObject(
+        RKEY_OVERLAY_PAN_WITH_XY,
+        SerialisableWidgetWrapperPtr(
+            new SerialisableToggleButton(_subWidgets["panImage"])
+        )
+    );
+	_connector.addObject(
+        RKEY_OVERLAY_TRANSLATIONX,
+        SerialisableWidgetWrapperPtr(
+            new SerialisableScaleWidget(_subWidgets["translateX"])
+        )
+    );
+	_connector.addObject(
+        RKEY_OVERLAY_TRANSLATIONY,
+        SerialisableWidgetWrapperPtr(
+            new SerialisableScaleWidget(_subWidgets["translateY"])
+        )
+    );
 }
 
 // Get the dialog state from the registry

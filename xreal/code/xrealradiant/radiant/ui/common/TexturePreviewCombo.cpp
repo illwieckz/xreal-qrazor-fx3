@@ -74,7 +74,7 @@ void TexturePreviewCombo::refreshInfoTable() {
 	if (_texName.empty())
 		return;
 
-	IShaderPtr shader = GlobalShaderSystem().getShaderForName(_texName);
+	MaterialPtr shader = GlobalMaterialManager().getMaterialForName(_texName);
 	ShaderSelector::displayShaderInfo(shader, _infoStore);
 }
 
@@ -111,15 +111,15 @@ void TexturePreviewCombo::_onExpose(GtkWidget* widget, GdkEventExpose* ev, Textu
 		return;
 
 	// Get a reference to the selected shader
-	IShaderPtr shader = GlobalShaderSystem().getShaderForName(self->_texName);
+	MaterialPtr shader = GlobalMaterialManager().getMaterialForName(self->_texName);
 
 	// This is an "ordinary" texture, take the editor image
-	TexturePtr tex = shader->getTexture();
+	TexturePtr tex = shader->getEditorImage();
 	if (tex != NULL) {
-		glBindTexture (GL_TEXTURE_2D, tex->texture_number);
+		glBindTexture (GL_TEXTURE_2D, tex->getGLTexNum());
 		
 		// Calculate the correct aspect ratio for preview
-		float aspect = float(tex->width) / float(tex->height);
+		float aspect = float(tex->getWidth()) / float(tex->getHeight());
 		float hfWidth, hfHeight;
 		if (aspect > 1.0) {
 			hfWidth = 0.5*req.width;

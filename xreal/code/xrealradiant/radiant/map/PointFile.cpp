@@ -11,7 +11,7 @@
 #include "math/matrix.h"
 #include "math/Vector3.h"
 #include "map/Map.h"
-#include "mainframe.h"
+#include "camera/GlobalCamera.h"
 #include "camera/CamWnd.h"
 #include "xyview/GlobalXYWnd.h"
 
@@ -22,12 +22,12 @@ PointFile::PointFile() :
 	_curPos(_points.begin()), 
 	_displayList(0)
 {
-	_renderstate = GlobalShaderCache().capture("$POINTFILE");
-	GlobalShaderCache().attachRenderable(*this);
+	_renderstate = GlobalRenderSystem().capture("$POINTFILE");
+	GlobalRenderSystem().attachRenderable(*this);
 }
 
 void PointFile::destroy() {
-	GlobalShaderCache().detachRenderable(*this);
+	GlobalRenderSystem().detachRenderable(*this);
 	_renderstate = ShaderPtr();
 }
 
@@ -72,26 +72,26 @@ void PointFile::show(bool show) {
 /*
  * OpenGL render function (back-end).
  */
-void PointFile::render(RenderStateFlags state) const {
+void PointFile::render(const RenderInfo& info) const {
 	glCallList(_displayList);
 }
 
 /*
  * Solid renderable submission function (front-end)
  */
-void PointFile::renderSolid(Renderer& renderer, const VolumeTest& volume) const {
+void PointFile::renderSolid(RenderableCollector& collector, const VolumeTest& volume) const {
 	if(isVisible()) {
-		renderer.SetState(_renderstate, Renderer::eWireframeOnly);
-		renderer.SetState(_renderstate, Renderer::eFullMaterials);
-		renderer.addRenderable(*this, g_matrix4_identity);
+		collector.SetState(_renderstate, RenderableCollector::eWireframeOnly);
+		collector.SetState(_renderstate, RenderableCollector::eFullMaterials);
+		collector.addRenderable(*this, Matrix4::getIdentity());
 	}
 }
 
 /*
  * Wireframe renderable submission function (front-end).
  */
-void PointFile::renderWireframe(Renderer& renderer, const VolumeTest& volume) const {
-	renderSolid(renderer, volume);
+void PointFile::renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const {
+	renderSolid(collector, volume);
 }
 
 // Parse the current pointfile and read the vectors into the point list
@@ -106,7 +106,7 @@ void PointFile::parse() {
 	std::ifstream inFile(pfName.c_str());
 	if (!inFile) {
 		gtkutil::errorDialog("Could not open pointfile:\n\n" + pfName,
-							 MainFrame_getWindow());
+			GlobalRadiant().getMainWindow());
 		return;
 	}
 
@@ -165,7 +165,10 @@ void PointFile::advance(bool forward) {
 		_curPos--;
 	}
 
-	CamWnd& camwnd = *g_pParentWnd->GetCamWnd();
+	CamWndPtr cam = GlobalCamera().getActiveCamWnd();
+	if (cam == NULL) return;
+	CamWnd& camwnd = *cam;
+
 	camwnd.setCameraOrigin(*_curPos);
 	GlobalXYWnd().getActiveXY()->setOrigin(*_curPos);
 	{
@@ -180,11 +183,11 @@ void PointFile::advance(bool forward) {
 	SceneChangeNotify();
 }
 
-void PointFile::nextLeakSpot() {
+void PointFile::nextLeakSpot(const cmd::ArgumentList& args) {
 	Instance().advance(true);
 }
 
-void PointFile::prevLeakSpot() {
+void PointFile::prevLeakSpot(const cmd::ArgumentList& args) {
 	Instance().advance(false);
 }
 
@@ -192,14 +195,18 @@ void PointFile::clear() {
 	show(false);
 }
 
-void PointFile::toggle() {
+void PointFile::toggle(const cmd::ArgumentList& args) {
 	Instance().show(!Instance().isVisible());
 }
 
 void PointFile::registerCommands() {
-	GlobalEventManager().addCommand("TogglePointfile", FreeCaller<PointFile::toggle>());
-	GlobalEventManager().addCommand("NextLeakSpot", FreeCaller<PointFile::nextLeakSpot>());
-	GlobalEventManager().addCommand("PrevLeakSpot", FreeCaller<PointFile::prevLeakSpot>());
+	GlobalCommandSystem().addCommand("TogglePointfile", toggle);
+	GlobalCommandSystem().addCommand("NextLeakSpot", nextLeakSpot);
+	GlobalCommandSystem().addCommand("PrevLeakSpot", prevLeakSpot);
+
+	GlobalEventManager().addCommand("TogglePointfile", "TogglePointfile");
+	GlobalEventManager().addCommand("NextLeakSpot", "NextLeakSpot");
+	GlobalEventManager().addCommand("PrevLeakSpot", "PrevLeakSpot");
 }
 
 } // namespace map

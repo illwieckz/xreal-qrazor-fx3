@@ -23,15 +23,24 @@ EntitySelectByClassnameWalker::EntitySelectByClassnameWalker(const ClassnameList
 	_classnames(classnames)
 {}
 
-bool EntitySelectByClassnameWalker::pre(
-	const scene::Path& path, const scene::INodePtr& node) const
-{
+bool EntitySelectByClassnameWalker::pre(const scene::INodePtr& node) {
+	// don't traverse invisible nodes
+	if (!node->visible()) return false; 
+
 	Entity* entity = Node_getEntity(node);
 	
-	if (entity != NULL && entityMatches(entity)) {
-		Node_setSelected(node, true);
+	if (entity != NULL) {
+
+		if (entityMatches(entity)) {
+			// Got a matching entity
+			Node_setSelected(node, true);
+		}
+
+		// Don't traverse entities
+		return false;
 	}
 
+	// Not an entity, traverse
 	return true;
 }
 
@@ -70,7 +79,7 @@ public:
 	}
 };
 
-void selectAllOfType() {
+void selectAllOfType(const cmd::ArgumentList& args) {
 	if (GlobalSelectionSystem().Mode() == SelectionSystem::eComponent) {
 		if (GlobalSelectionSystem().ComponentMode() == SelectionSystem::eFace) {
 			// Deselect all faces
@@ -94,7 +103,7 @@ void selectAllOfType() {
 			);
 
 			// Traverse the scenegraph, select all matching the classname list
-			GlobalSceneGraph().traverse(classnameSelector);
+			Node_traverseSubgraph(GlobalSceneGraph().root(), classnameSelector);
 		}
 		else {
 			Scene_BrushSelectByShader(GlobalSceneGraph(), GlobalTextureBrowser().getSelectedShader());
@@ -129,7 +138,7 @@ public:
 	}
 };
 
-void hideSelected() {
+void hideSelected(const cmd::ArgumentList& args) {
 	// Traverse the selection, hiding all nodes
 	GlobalSelectionSystem().foreachSelected(HideSelectedWalker(true));
 
@@ -141,17 +150,17 @@ void hideSelected() {
 
 // Hides all nodes that are not selected
 class HideDeselectedWalker : 
-	public scene::Graph::Walker
+	public scene::NodeVisitor
 {
 	bool _hide;
 
-	mutable std::stack<bool> _stack;
+	std::stack<bool> _stack;
 public:
 	HideDeselectedWalker(bool hide) : 
 		_hide(hide)
 	{}
 
-	bool pre(const scene::Path& path, const scene::INodePtr& node) const {
+	bool pre(const scene::INodePtr& node) {
 		// Check the selection status
 		bool isSelected = Node_isSelected(node);
 
@@ -171,8 +180,7 @@ public:
 		return !isSelected;
 	}
 
-	virtual void post(const scene::Path& path, const scene::INodePtr& node) const {
-		
+	void post(const scene::INodePtr& node) {
 		// greebo: We've traversed this subtree, now check if we had selected children
 		if (!node->isRoot() && 
 			_stack.size() > 0 && _stack.top() == false && 
@@ -187,15 +195,18 @@ public:
 	}
 };
 
-void hideDeselected() {
-	GlobalSceneGraph().traverse(HideDeselectedWalker(true));
+void hideDeselected(const cmd::ArgumentList& args) {
+	HideDeselectedWalker walker(true);
+	Node_traverseSubgraph(GlobalSceneGraph().root(), walker);
+
 	// Hide all components, there might be faces selected
 	GlobalSelectionSystem().setSelectedAllComponents(false);
+
 	SceneChangeNotify();
 }
 
 class HideAllWalker : 
-	public scene::Graph::Walker
+	public scene::NodeVisitor
 {
 	bool _hide;
 public:
@@ -203,28 +214,29 @@ public:
 		_hide(hide)
 	{}
 
-	bool pre(const scene::Path& path, const scene::INodePtr& node) const {
+	bool pre(const scene::INodePtr& node) {
 		hideNode(node, _hide);
 		return true;
 	}
 };
 
-void showAllHidden() {
-	GlobalSceneGraph().traverse(HideAllWalker(false));
+void showAllHidden(const cmd::ArgumentList& args) {
+	HideAllWalker walker(false);
+	Node_traverseSubgraph(GlobalSceneGraph().root(), walker);
 	SceneChangeNotify();
 }
 
 class InvertSelectionWalker : 
-	public scene::Graph::Walker
+	public scene::NodeVisitor
 {
 	SelectionSystem::EMode _mode;
-	mutable SelectablePtr _selectable;
+	SelectablePtr _selectable;
 public:
 	InvertSelectionWalker(SelectionSystem::EMode mode) : 
 		_mode(mode)
 	{}
 	
-	bool pre(const scene::Path& path, const scene::INodePtr& node) const {
+	bool pre(const scene::INodePtr& node) {
 		// Check if we have a selectable
 		SelectablePtr selectable = Node_getSelectable(node);
 
@@ -264,7 +276,7 @@ public:
 		return true;
 	}
 	
-	void post(const scene::Path& path, const scene::INodePtr& node) const {
+	void post(const scene::INodePtr& node) {
 		if (_selectable != NULL) {
 			_selectable->invertSelected();
 			_selectable = SelectablePtr();
@@ -272,68 +284,36 @@ public:
 	}
 };
 
-void invertSelection() {
-	GlobalSceneGraph().traverse(
-		InvertSelectionWalker(GlobalSelectionSystem().Mode())
-	);
+void invertSelection(const cmd::ArgumentList& args) {
+	InvertSelectionWalker walker(GlobalSelectionSystem().Mode());
+	Node_traverseSubgraph(GlobalSceneGraph().root(), walker);
 }
 
-class DeleteSelected : 
-	public scene::Graph::Walker
+class DeleteSelected :
+	public SelectionSystem::Visitor
 {
-	mutable bool _remove;
-	mutable bool _removedChild;
-
 	mutable std::set<scene::INodePtr> _eraseList;
 public:
-	DeleteSelected() : 
-		_remove(false), 
-		_removedChild(false)
-	{}
-
-	// Actually destroy the nodes
+	// Destructor performs the actual deletion
 	~DeleteSelected() {
-		for (std::set<scene::INodePtr>::iterator i = _eraseList.begin(); i != _eraseList.end(); i++) {
+		for (std::set<scene::INodePtr>::iterator i = _eraseList.begin(); i != _eraseList.end(); ++i) {
+
+			scene::INodePtr parent = (*i)->getParent();
+
+			// Remove the childnodes
 			scene::removeNodeFromParent(*i);
+
+			if (!parent->hasChildNodes()) {
+				// Remove the parent as well
+				scene::removeNodeFromParent(parent);
+			}
 		}
 	}
 
-	bool pre(const scene::Path& path, const scene::INodePtr& node) const {
-		_removedChild = false;
-
-		if (Node_isSelected(node) && path.size() > 1 && !node->isRoot()) {
-			_remove = true;
-			return false;// dont traverse into child elements of deletion candidates
-		}
-
-		return true;
-	}
-
-	void post(const scene::Path& path, const scene::INodePtr& node) const {
-		if (_removedChild) {
-			// A child node has been removed, check if we have an empty entity
-			_removedChild = false;
-
-			// Delete empty entities, but leave the worldspawn alone
-			Entity* entity = Node_getEntity(node);
-
-			if (entity != NULL && 
-				node != GlobalMap().findWorldspawn() && 
-				!node->hasChildNodes())
-			{
-				_eraseList.insert(node);
-			}
-		}
-
-		// node should be removed
-		if (_remove) {
-			if (Node_isEntity(path.parent())) {
-				// The parent node is an entity, set the bool to indicate
-				// the child removal. The entity is then checked for emptiness.
-				_removedChild = true;
-			}
-
-			_remove = false;
+	void visit(const scene::INodePtr& node) const {
+		// Check for selected nodes whose parent is not NULL and are not root
+		if (node->getParent() != NULL && !node->isRoot()) {
+			// Found a candidate
 			_eraseList.insert(node);
 		}
 	}
@@ -341,12 +321,13 @@ public:
 
 void deleteSelection() {
 	// Traverse the scene, deleting all selected nodes
-	GlobalSceneGraph().traverse(DeleteSelected());
-
+	DeleteSelected walker;
+	GlobalSelectionSystem().foreachSelected(walker);
+	
 	SceneChangeNotify();
 }
 
-void deleteSelectionCmd() {
+void deleteSelectionCmd(const cmd::ArgumentList& args) {
 	UndoableCommand undo("deleteSelected");
 
 	deleteSelection();
@@ -398,7 +379,7 @@ public:
  */
 template<class TSelectionPolicy>
 class SelectByBounds : 
-	public scene::Graph::Walker
+	public scene::NodeVisitor
 {
 	AABB* _aabbs;				// selection aabbs
 	std::size_t _count;			// number of aabbs in _aabbs
@@ -410,7 +391,7 @@ public:
         _count(count)
 	{}
 
-	bool pre(const scene::Path& path, const scene::INodePtr& node) const {
+	bool pre(const scene::INodePtr& node) {
 		// Don't traverse hidden nodes
 		if (!node->visible()) {
 			return false;
@@ -428,7 +409,7 @@ public:
     
     	bool selected = false;
     
-		if (path.size() > 1 && !node->isRoot() && selectable != NULL) {
+		if (selectable != NULL && node->getParent() != NULL && !node->isRoot()) {
 			for (std::size_t i = 0; i < _count; ++i) {
 				// Check if the selectable passes the AABB test
 				if (policy.evaluate(_aabbs[i], node)) {
@@ -476,24 +457,23 @@ public:
 		}
 
 		// Instantiate a "self" object SelectByBounds and use it as visitor
-		GlobalSceneGraph().traverse(
-			SelectByBounds<TSelectionPolicy>(aabbs, count)
-		);
-      
+		SelectByBounds<TSelectionPolicy> walker(aabbs, count);
+		Node_traverseSubgraph(GlobalSceneGraph().root(), walker);
+		
 		SceneChangeNotify();
 		delete[] aabbs;
 	}
 };
 
-void selectInside() {
+void selectInside(const cmd::ArgumentList& args) {
 	SelectByBounds<SelectionPolicy_Inside>::DoSelection();
 }
 
-void selectTouching() {
+void selectTouching(const cmd::ArgumentList& args) {
 	SelectByBounds<SelectionPolicy_Touching>::DoSelection(false);
 }
 
-void selectCompleteTall() {
+void selectCompleteTall(const cmd::ArgumentList& args) {
 	SelectByBounds<SelectionPolicy_Complete_Tall>::DoSelection();
 }
 

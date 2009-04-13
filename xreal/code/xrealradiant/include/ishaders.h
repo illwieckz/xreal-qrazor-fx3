@@ -26,64 +26,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "iimage.h"
 #include "imodule.h"
 
-#include <ostream>
+#include "math/Vector3.h"
 
-class Texture; 	// defined in texturelib.h
-typedef boost::shared_ptr<Texture> TexturePtr;
+#include <ostream>
+#include <vector>
+
+#include "Texture.h"
+#include "ShaderLayer.h"
 
 class Image;
-
-/* greebo: A TextureConstructor creates an actual bitmap image
- * that can be used to perform an OpenGL bind.
- * 
- * The image can either be loaded from a disk file (simple)
- * or the result of a MapExpression hierarchy (addnormals and such)
- */
-class TextureConstructor
-{
-public:
-	virtual ImagePtr construct() = 0;
-};
-typedef boost::shared_ptr<TextureConstructor> TextureConstructorPtr;
 
 // Forward declaration
 namespace shaders {
 	
-class IMapExpression;
-typedef boost::shared_ptr<IMapExpression> MapExpressionPtr;
-
-/* greebo: The TextureManager keeps track of all the Textures that are
- * bound in OpenGL. It is responsible for loading/unloading the textures
- * on demand and/or retrieving the pointers to these textures.
- */
-class IGLTextureManager
-{
-public:
-	
-	/**
-	 * Retrieves the pointer to the Texture object named by the textureKey 
-	 * string. If the texture is already bound in OpenGL the pointer to the 
-	 * existing Texture is returned.
-	 * 
-	 * @param textureKey
-	 * Name of the texture to look up.
-	 * 
-	 * @param constructor
-	 * TextureConstructor object which will be used to populate and bind this
-	 * texture if it is not found in the cache. 
-	 */
-	virtual TexturePtr getBinding(MapExpressionPtr mapExp) = 0;
-	
-	/** greebo: This loads a texture directly from the disk using the
-	 * 			specified <fullPath>.
-	 * 
-	 * @fullPath: The absolute path to the file (no VFS paths).
-	 * @moduleNames: The module names used to invoke the correct imageloader.
-	 * 				 This usually defaults to "BMP".
-	 */
-	virtual TexturePtr getBinding(const std::string& fullPath,
-								  const std::string& moduleNames) = 0;
-};
+class MapExpression;
+typedef boost::shared_ptr<MapExpression> MapExpressionPtr;
 
 } // namespace shaders
 
@@ -107,42 +64,15 @@ template<typename Element> class BasicVector3;
 typedef BasicVector3<double> Vector3;
 typedef Vector3 Colour3;
 
-enum BlendFactor {
-	BLEND_ZERO,
-	BLEND_ONE,
-	BLEND_SRC_COLOUR,
-	BLEND_ONE_MINUS_SRC_COLOUR,
-	BLEND_SRC_ALPHA,
-	BLEND_ONE_MINUS_SRC_ALPHA,
-	BLEND_DST_COLOUR,
-	BLEND_ONE_MINUS_DST_COLOUR,
-	BLEND_DST_ALPHA,
-	BLEND_ONE_MINUS_DST_ALPHA,
-	BLEND_SRC_ALPHA_SATURATE
-};
-
-class BlendFunc
-{
-public:
-  BlendFunc(BlendFactor src, BlendFactor dst) : m_src(src), m_dst(dst)
-  {
-  }
-  BlendFactor m_src;
-  BlendFactor m_dst;
-};
-
-class ShaderLayer
-{
-public:
-  virtual TexturePtr texture() const = 0;
-  virtual BlendFunc blendFunc() const = 0;
-  virtual bool clampToBorder() const = 0;
-  virtual float alphaTest() const = 0;
-};
-
-typedef Callback1<const ShaderLayer&> ShaderLayerCallback;
-
-class IShader
+/**
+ * \brief
+ * Interface for a material shader.
+ *
+ * A material shader consists of global parameters, an editor image, and zero or
+ * more shader layers (including diffusemap, bumpmap and specularmap textures
+ * which are handled specially).
+ */
+class Material
 {
 public:
   enum EAlphaFunc
@@ -160,13 +90,18 @@ public:
     eCullBack,
   };
 
-  // get/set the qtexture_t* Radiant uses to represent this shader object
-  virtual TexturePtr getTexture() = 0;
-  virtual TexturePtr getDiffuse() = 0;
-  virtual TexturePtr getBump() = 0;
-  virtual TexturePtr getSpecular() = 0;
-  // get shader name
-  virtual const char* getName() const = 0;
+    /**
+     * \brief
+     * Return the editor image texture for this shader.
+     */
+    virtual TexturePtr getEditorImage() = 0;
+
+    /**
+     * \brief
+     * Get the string name of this shader.
+     */
+    virtual std::string getName() const = 0;
+
   virtual bool IsInUse() const = 0;
   virtual void SetInUse(bool bInUse) = 0;
   // get the editor flags (QER_NOCARVE QER_TRANS)
@@ -177,7 +112,6 @@ public:
   virtual bool IsDefault() const = 0;
   // get the alphaFunc
   virtual void getAlphaFunc(EAlphaFunc *func, float *ref) = 0;
-  virtual BlendFunc getBlendFunc() const = 0;
   // get the cull type
   virtual ECull getCull() = 0;
   // get shader file name (ie the file where this one is defined)
@@ -199,7 +133,14 @@ public:
 	virtual bool isFogLight() const = 0;
 
   virtual const ShaderLayer* firstLayer() const = 0;
-  virtual void forEachLayer(const ShaderLayerCallback& layer) const = 0;
+
+    /**
+     * \brief
+     * Return a std::vector containing all layers in this material shader.
+     *
+     * This includes all diffuse, bump, specular or blend layers.
+     */
+    virtual const ShaderLayerVector& getAllLayers() const = 0;
 
   virtual TexturePtr lightFalloffImage() = 0;
 
@@ -218,14 +159,14 @@ public:
 	virtual void setVisible(bool visible) = 0;
 };
 
-typedef boost::shared_ptr<IShader> IShaderPtr;
+typedef boost::shared_ptr<Material> MaterialPtr;
 
 /**
- * Stream insertion of IShader for debugging purposes.
+ * Stream insertion of Material for debugging purposes.
  */
 inline
-std::ostream& operator<< (std::ostream& os, const IShader& shader) {
-	os << "IShader { name = " << shader.getName()
+std::ostream& operator<< (std::ostream& os, const Material& shader) {
+	os << "Material { name = " << shader.getName()
 	   << ", filename = " << shader.getShaderFileName()
 	   << ", firstlayer = " << shader.firstLayer()
 	   << " }";
@@ -240,7 +181,7 @@ namespace shaders {
 class ShaderVisitor
 {
 public:
-	virtual void visit(const IShaderPtr& shader) = 0;
+	virtual void visit(const MaterialPtr& shader) = 0;
 };
 
 } // namespace shaders
@@ -250,10 +191,17 @@ typedef Callback1<const char*> ShaderNameCallback;
 
 class ModuleObserver;
 
-const std::string MODULE_SHADERSYSTEM("ShaderSystem");
+const std::string MODULE_SHADERSYSTEM("MaterialManager");
 
-class ShaderSystem :
-	public RegisterableModule
+/**
+ * \brief
+ * Interface for the material manager.
+ *
+ * The material manager parses all of the MTR declarations and provides access
+ * to Material objects representing the loaded materials.
+ */
+class MaterialManager 
+: public RegisterableModule
 {
 public:
   // NOTE: shader and texture names used must be full path.
@@ -280,9 +228,9 @@ public:
 	 * The text name of the shader to load.
 	 * 
 	 * @returns
-	 * IShaderPtr shared ptr corresponding to the named shader object.
+	 * MaterialPtr shared ptr corresponding to the named shader object.
 	 */
-	virtual IShaderPtr getShaderForName(const std::string& name) = 0;
+	virtual MaterialPtr getMaterialForName(const std::string& name) = 0;
 
 	virtual void foreachShaderName(const ShaderNameCallback& callback) = 0;
 
@@ -294,7 +242,7 @@ public:
   // iterate over the list of active shaders (deprecated functions)
   virtual void beginActiveShadersIterator() = 0;
   virtual bool endActiveShadersIterator() = 0;
-  virtual IShaderPtr dereferenceActiveShadersIterator() = 0;
+  virtual MaterialPtr dereferenceActiveShadersIterator() = 0;
   virtual void incrementActiveShadersIterator() = 0;
 
     // Set the callback to be invoked when the active shaders list has changed
@@ -312,6 +260,16 @@ public:
 
   virtual const char* getTexturePrefix() const = 0;
 
+    /**
+     * \brief
+     * Return the default texture to be used for lighting mode rendering if it
+     * is not defined for a shader.
+     *
+     * \param type
+     * The type of interaction layer whose default texture is required.
+     */
+    virtual TexturePtr getDefaultInteractionTexture(ShaderLayer::Type type) = 0;
+    
 	/**
 	 * greebo: This is a substitution for the "old" TexturesCache method
 	 * used to load an image from a file to graphics memory for arbitrary
@@ -328,20 +286,19 @@ public:
 			const std::string& moduleNames = "GDK") = 0;
 };
 
-inline ShaderSystem& GlobalShaderSystem() {
+inline MaterialManager& GlobalMaterialManager() {
 	// Cache the reference locally
-	static ShaderSystem& _shaderSystem(
-		*boost::static_pointer_cast<ShaderSystem>(
+	static MaterialManager& _shaderSystem(
+		*boost::static_pointer_cast<MaterialManager>(
 			module::GlobalModuleRegistry().getModule(MODULE_SHADERSYSTEM)
 		)
 	);
 	return _shaderSystem;
 }
 
-#define QERApp_Shader_ForName GlobalShaderSystem().getShaderForName
-#define QERApp_ActiveShaders_IteratorBegin GlobalShaderSystem().beginActiveShadersIterator
-#define QERApp_ActiveShaders_IteratorAtEnd GlobalShaderSystem().endActiveShadersIterator
-#define QERApp_ActiveShaders_IteratorCurrent GlobalShaderSystem().dereferenceActiveShadersIterator
-#define QERApp_ActiveShaders_IteratorIncrement GlobalShaderSystem().incrementActiveShadersIterator
+#define QERApp_ActiveShaders_IteratorBegin GlobalMaterialManager().beginActiveShadersIterator
+#define QERApp_ActiveShaders_IteratorAtEnd GlobalMaterialManager().endActiveShadersIterator
+#define QERApp_ActiveShaders_IteratorCurrent GlobalMaterialManager().dereferenceActiveShadersIterator
+#define QERApp_ActiveShaders_IteratorIncrement GlobalMaterialManager().incrementActiveShadersIterator
 
 #endif

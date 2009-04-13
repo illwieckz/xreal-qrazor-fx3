@@ -66,7 +66,10 @@ public:
 private:
 	FacePlane m_plane;
 	FacePlane m_planeTransformed;
-	FaceShader m_shader;
+
+    // Face shader, stores material name and GL shader object
+	FaceShader _faceShader;
+
 	FaceTexdef m_texdef;
 	TextureProjection m_texdefTransformed;
 	
@@ -106,7 +109,8 @@ public:
 	void instanceAttach(MapFile* map);
 	void instanceDetach(MapFile* map);
 	
-	void render(RenderStateFlags state) const;
+    /* OpenGLRenderable implementation */
+	void render(const RenderInfo& info) const;
 
 	void undoSave();
 
@@ -118,7 +122,12 @@ public:
 
 	bool intersectVolume(const VolumeTest& volume, const Matrix4& localToWorld) const;
 
-	void render(Renderer& renderer, const Matrix4& localToWorld) const;
+    /**
+     * \brief
+     * Submit renderable geometry to a RenderableCollector.
+     */
+	void submitRenderables(RenderableCollector& collector,
+                           const Matrix4& localToWorld) const;
 
 	void transform(const Matrix4& matrix, bool mirror);
 
@@ -145,6 +154,13 @@ public:
 
 	void GetTexdef(TextureProjection& projection) const;
 	void SetTexdef(const TextureProjection& projection);
+
+	/**
+	 * greebo: Copies the shader (texdef) from the other face,
+	 * and attempts to move the texture such that the transition
+	 * between the faces are seamless.
+	 */
+	void applyShaderFromFace(const Face& other);
 	
 	void GetFlags(ContentsFlagsValue& flags) const;
 	void SetFlags(const ContentsFlagsValue& flags);

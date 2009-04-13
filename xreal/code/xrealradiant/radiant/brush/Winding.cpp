@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "texturelib.h"
 #include "Brush.h"
 
+#include "GLProgramAttributes.h"
+
 namespace {
 	struct indexremap_t {
 		indexremap_t(std::size_t _x, std::size_t _y, std::size_t _z) :
@@ -56,8 +58,11 @@ void Winding::drawWireframe() const {
 	}
 }
 
-void Winding::draw(RenderStateFlags state) const {
-	if (points.size() == 0) {
+void Winding::render(const RenderInfo& info) const 
+{
+    // Do not render if there are no points
+	if (points.empty()) 
+    {
 		return;
 	}
 
@@ -68,22 +73,51 @@ void Winding::draw(RenderStateFlags state) const {
 	// Set the vertex pointer first
 	glVertexPointer(3, GL_DOUBLE, sizeof(WindingVertex), &firstElement.vertex);
 
-	if ((state & RENDER_BUMP) != 0) {
-		glVertexAttribPointerARB(11, 3, GL_DOUBLE, 0, sizeof(WindingVertex), &firstElement.normal);
-		glVertexAttribPointerARB(8, 2, GL_DOUBLE, 0, sizeof(WindingVertex), &firstElement.texcoord);
-		glVertexAttribPointerARB(9, 3, GL_DOUBLE, 0, sizeof(WindingVertex), &firstElement.tangent);
-		glVertexAttribPointerARB(10, 3, GL_DOUBLE, 0, sizeof(WindingVertex), &firstElement.bitangent);
+    // Check render flags. Multiple flags may be set, so the order matters.
+    if (info.checkFlag(RENDER_TEXTURE_CUBEMAP))
+    {
+        // In cube-map mode, we submit the vertex coordinate as the texture
+        // coordinate. The RenderSystem will set the appropriate texture matrix
+        // etc.
+        glTexCoordPointer(
+            3, GL_DOUBLE, sizeof(WindingVertex), &firstElement.vertex
+        );
+    }
+	else if (info.checkFlag(RENDER_BUMP)) 
+    {
+        // Lighting mode, submit normals, tangents and texcoords to the shader
+        // program.
+		glVertexAttribPointerARB(
+            ATTR_NORMAL, 3, GL_DOUBLE, 0, sizeof(WindingVertex), &firstElement.normal
+        );
+		glVertexAttribPointerARB(
+            ATTR_TEXCOORD, 2, GL_DOUBLE, 0, sizeof(WindingVertex), &firstElement.texcoord
+        );
+		glVertexAttribPointerARB(
+            ATTR_TANGENT, 3, GL_DOUBLE, 0, sizeof(WindingVertex), &firstElement.tangent
+        );
+		glVertexAttribPointerARB(
+            ATTR_BITANGENT, 3, GL_DOUBLE, 0, sizeof(WindingVertex), &firstElement.bitangent
+        );
 	} 
-	else {
-		if (state & RENDER_LIGHTING) {
+	else 
+    {
+        // Submit normals in lighting mode
+		if (info.checkFlag(RENDER_LIGHTING)) 
+        {
 			glNormalPointer(GL_DOUBLE, sizeof(WindingVertex), &firstElement.normal);
 		}
 
-		if (state & RENDER_TEXTURE) {
-			glTexCoordPointer(2, GL_DOUBLE, sizeof(WindingVertex), &firstElement.texcoord);
+        // Set texture coordinates in 2D texture mode
+		if (info.checkFlag(RENDER_TEXTURE_2D)) 
+        {
+            glTexCoordPointer(
+                2, GL_DOUBLE, sizeof(WindingVertex), &firstElement.texcoord
+            );
 		}
 	}
 	
+    // Submit all data to OpenGL
 	glDrawArrays(GL_POLYGON, 0, GLsizei(numpoints));
 }
 
@@ -221,7 +255,7 @@ Vector3 Winding::centroid(const Plane3& plane) const {
 void Winding::printConnectivity() {
 	for (iterator i = begin(); i != end(); ++i) {
 		std::size_t vertexIndex = std::distance(begin(), i);
-		globalOutputStream() << "vertex: " << Unsigned(vertexIndex)
-			<< " adjacent: " << Unsigned(i->adjacent) << "\n";
+		globalOutputStream() << "vertex: " << vertexIndex
+			<< " adjacent: " << i->adjacent << "\n";
 	}
 }

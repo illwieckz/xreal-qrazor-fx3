@@ -4,11 +4,12 @@
 #include "ParticleStage.h"
 
 #include "ifilesystem.h"
-#include "stream/textstream.h"
 
 #include "generic/callback.h"
 #include "parser/DefTokeniser.h"
 #include "math/Vector4.h"
+
+#include "debugging/ScopedDebugTimer.h"
 
 #include <boost/lexical_cast.hpp>
 #include <iostream>
@@ -130,6 +131,8 @@ void ParticlesManager::initialiseModule(const ApplicationContext& ctx) {
 	
 	// Use a ParticleFileLoader to load each file
 	ParticleFileLoader loader(*this);
+
+	ScopedDebugTimer timer("Particle definitions parsed: ");
 	GlobalFileSystem().forEachFile(
 		PARTICLES_DIR, 
 		PARTICLES_EXT,

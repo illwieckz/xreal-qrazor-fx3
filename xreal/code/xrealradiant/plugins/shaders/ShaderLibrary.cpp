@@ -4,7 +4,7 @@
 #include <utility>
 #include "ShaderTemplate.h"
 #include "Doom3ShaderSystem.h"
-#include "textures/FileLoader.h"
+#include "textures/ImageFileLoader.h"
 #include "parser/DefTokeniser.h"
 
 
@@ -19,16 +19,11 @@ ShaderLibrary::ShaderLibrary()
 bool ShaderLibrary::addDefinition(const std::string& name, 
 								  const ShaderDefinition& def) 
 {
-	ShaderDefinitionMap::iterator i = _definitions.find(name);
+	std::pair<ShaderDefinitionMap::iterator, bool> result = _definitions.insert(
+		ShaderDefinitionMap::value_type(name, def)
+	);
 	
-	if (i != _definitions.end()) {
-		// Return the definition
-		return false;
-	}
-	else {
-		_definitions.insert(std::make_pair(name, def));
-		return true;
-	}
+	return result.second;
 }
 
 ShaderDefinition& ShaderLibrary::getDefinition(const std::string& name) {
@@ -43,7 +38,7 @@ ShaderDefinition& ShaderLibrary::getDefinition(const std::string& name) {
 		globalErrorStream() << "Definition not found: " << name << "\n";
 		
 		// Create an empty template with this name
-		ShaderTemplatePtr shaderTemplate(new ShaderTemplate(name));
+		ShaderTemplatePtr shaderTemplate(new ShaderTemplate(name, ""));
 				
 		// Take this empty shadertemplate and create a ShaderDefinition
 		ShaderDefinition def(shaderTemplate, "");
@@ -55,7 +50,7 @@ ShaderDefinition& ShaderLibrary::getDefinition(const std::string& name) {
 	}
 }
 
-ShaderPtr ShaderLibrary::findShader(const std::string& name) {
+CShaderPtr ShaderLibrary::findShader(const std::string& name) {
 	// Try to lookup the shader in the active shaders list
 	ShaderMap::iterator i = _shaders.find(name);
 	
@@ -68,7 +63,7 @@ ShaderPtr ShaderLibrary::findShader(const std::string& name) {
 		ShaderDefinition& def = getDefinition(name);
 		
 		// Construct a new shader object with this def and insert it into the map
-		ShaderPtr shader(new CShader(name, def));
+		CShaderPtr shader(new CShader(name, def));
 		
 		_shaders[name] = shader;
 		
@@ -79,6 +74,10 @@ ShaderPtr ShaderLibrary::findShader(const std::string& name) {
 void ShaderLibrary::clear() {
 	_shaders.clear();
 	_definitions.clear();
+}
+
+std::size_t ShaderLibrary::getNumShaders() {
+	return _definitions.size();
 }
 
 ShaderLibrary::iterator& ShaderLibrary::getIterator() {
@@ -108,8 +107,9 @@ void ShaderLibrary::foreachShaderName(const ShaderNameCallback& callback) {
 	}
 }
 
-TexturePtr ShaderLibrary::loadTextureFromFile(const std::string& filename, const std::string& moduleNames) {
-
+TexturePtr ShaderLibrary::loadTextureFromFile(const std::string& filename,
+                                                const std::string& moduleNames) 
+{
 	// Get the binding (i.e. load the texture)
 	TexturePtr texture = GetTextureManager().getBinding(filename, moduleNames);
 

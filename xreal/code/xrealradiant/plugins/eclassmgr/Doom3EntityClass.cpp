@@ -168,8 +168,8 @@ void Doom3EntityClass::captureColour() {
 	std::string fillCol = (boost::format("(%g %g %g)") % _colour[0] % _colour[1] % _colour[2]).str();
 	std::string wireCol = (boost::format("<%g %g %g>") % _colour[0] % _colour[1] % _colour[2]).str();
 
-	_fillShader = GlobalShaderCache().capture(fillCol);
-	_wireShader = GlobalShaderCache().capture(wireCol);
+	_fillShader = GlobalRenderSystem().capture(fillCol);
+	_wireShader = GlobalRenderSystem().capture(wireCol);
 }
 
 // Release the shaders for the current colour
@@ -237,6 +237,11 @@ void Doom3EntityClass::resolveInheritance(EntityClasses& classmap)
 	if (getAttribute("model").value != "") {
 		// We have a model path (probably an inherited one)
 		setModelPath(getAttribute("model").value);
+	}
+
+	if (getAttribute("editor_light").value == "1" || getAttribute("spawnclass").value == "idLight") {
+		// We have a light
+		setIsLight(true);
 	}
 }
 
@@ -341,9 +346,9 @@ void Doom3EntityClass::parseFromTokens(parser::DefTokeniser& tokeniser) {
 				
 				// Get the type by trimming the string left and right
 				std::string type = key.substr(7, key.length() - attName.length() - 8);
-		
-				if (!attName.empty()) {
 
+				// Ignore editor_setKeyValue
+				if (!attName.empty() && type != "setKeyValue") {
 					// Transform the type into a better format
 					if (type == "var" || type == "string") {
 						type = "text";

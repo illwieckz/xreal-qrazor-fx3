@@ -2,11 +2,11 @@
 
 #include "iregistry.h"
 #include "EclassModelNode.h"
+#include "../EntitySettings.h"
 
 namespace entity {
 
-EclassModel::EclassModel(IEntityClassPtr eclass,
-						 EclassModelNode& owner, 
+EclassModel::EclassModel(EclassModelNode& owner, 
 						 const Callback& transformChanged, 
 						 const Callback& evaluateTransform) :
 	_owner(owner),
@@ -63,10 +63,10 @@ EclassModel::~EclassModel() {
 }
 
 void EclassModel::updateTransform() {
-	m_transform.localToParent() = g_matrix4_identity;
-	matrix4_translate_by_vec3(m_transform.localToParent(), m_origin);
+	m_transform.localToParent() = Matrix4::getIdentity();
+	m_transform.localToParent().translateBy(m_origin);
 
-	matrix4_multiply_by_matrix4(m_transform.localToParent(), rotation_toMatrix(m_rotation));
+	m_transform.localToParent().multiplyBy(rotation_toMatrix(m_rotation));
 	m_transformChanged();
 }
 
@@ -141,21 +141,21 @@ const TransformNode& EclassModel::getTransformNode() const {
 	return m_transform;
 }
 
-void EclassModel::renderSolid(Renderer& renderer, 
+void EclassModel::renderSolid(RenderableCollector& collector, 
 	const VolumeTest& volume, const Matrix4& localToWorld, bool selected) const
 {
 	if(selected) {
-		m_renderOrigin.render(renderer, volume, localToWorld);
+		m_renderOrigin.render(collector, volume, localToWorld);
 	}
 
-	renderer.SetState(m_entity.getEntityClass()->getWireShader(), Renderer::eWireframeOnly);
+	collector.SetState(m_entity.getEntityClass()->getWireShader(), RenderableCollector::eWireframeOnly);
 }
-void EclassModel::renderWireframe(Renderer& renderer, 
+void EclassModel::renderWireframe(RenderableCollector& collector, 
 	const VolumeTest& volume, const Matrix4& localToWorld, bool selected) const
 {
-	renderSolid(renderer, volume, localToWorld, selected);
-	if (isNameVisible()) {
-		renderer.addRenderable(m_renderName, localToWorld);
+	renderSolid(collector, volume, localToWorld, selected);
+	if (EntitySettings::InstancePtr()->renderEntityNames()) {
+		collector.addRenderable(m_renderName, localToWorld);
 	}
 }
 

@@ -13,7 +13,7 @@ class ShaderLibrary
 	// These are referenced by name. 
 	ShaderDefinitionMap _definitions;
 	
-	typedef std::map<std::string, ShaderPtr, ShaderNameCompareFunctor> ShaderMap;
+	typedef std::map<std::string, CShaderPtr, ShaderNameCompareFunctor> ShaderMap;
 	
 	ShaderMap _shaders;
 	
@@ -43,13 +43,16 @@ public:
 	/* greebo: Clears out the stored shader definitions
 	 */
 	void clear();
+
+	// Get the number of known shaders
+	std::size_t getNumShaders();
 	
 	/* greebo: Retrieves the shader with the given name.
 	 * 
-	 * @returns: the according ShaderPtr, this may also
+	 * @returns: the according CShaderPtr, this may also
 	 * be a pointer to a dummy shader (shader not found) 
 	 */
-	ShaderPtr findShader(const std::string& name);
+	CShaderPtr findShader(const std::string& name);
 
 	// --- Support for this ActiveShaders_IteratorAtEnd() stuff ---
 	
@@ -61,7 +64,8 @@ public:
 	
 	void foreachShaderName(const ShaderNameCallback& callback);
 	
-	TexturePtr loadTextureFromFile(const std::string& filename, const std::string& moduleNames);
+	TexturePtr loadTextureFromFile(const std::string& filename,
+                                     const std::string& moduleNames);
 
 	// Traverse the library using the given shadername
 	void foreachShader(ShaderVisitor& visitor);

@@ -5,6 +5,7 @@
 #include "render.h"
 #include "transformlib.h"
 
+#include "../EntitySettings.h"
 #include "Doom3GroupNode.h"
 
 namespace entity {
@@ -26,7 +27,7 @@ inline void PointVertexArray_testSelect(PointVertex* first, std::size_t count,
 	);
 }
 
-Doom3Group::Doom3Group(IEntityClassPtr eclass, 
+Doom3Group::Doom3Group(
 		Doom3GroupNode& owner,
 		const Callback& transformChanged, 
 		const Callback& boundsChanged, 
@@ -136,33 +137,33 @@ const AABB& Doom3Group::localAABB() const {
 	return m_curveBounds;
 }
 
-void Doom3Group::renderSolid(Renderer& renderer, const VolumeTest& volume, 
+void Doom3Group::renderSolid(RenderableCollector& collector, const VolumeTest& volume, 
 	const Matrix4& localToWorld, bool selected) const 
 {
 	if (selected) {
-		m_renderOrigin.render(renderer, volume, localToWorld);
+		m_renderOrigin.render(collector, volume, localToWorld);
 	}
 
-	renderer.SetState(_entity.getEntityClass()->getWireShader(), Renderer::eWireframeOnly);
-	renderer.SetState(_entity.getEntityClass()->getWireShader(), Renderer::eFullMaterials);
+	collector.SetState(_entity.getEntityClass()->getWireShader(), RenderableCollector::eWireframeOnly);
+	collector.SetState(_entity.getEntityClass()->getWireShader(), RenderableCollector::eFullMaterials);
 
 	if (!m_curveNURBS.isEmpty()) {
-		m_curveNURBS.renderSolid(renderer, volume, localToWorld);
+		m_curveNURBS.renderSolid(collector, volume, localToWorld);
 	}
 	
 	if (!m_curveCatmullRom.isEmpty()) {
-		m_curveCatmullRom.renderSolid(renderer, volume, localToWorld);
+		m_curveCatmullRom.renderSolid(collector, volume, localToWorld);
 	}
 }
 
-void Doom3Group::renderWireframe(Renderer& renderer, const VolumeTest& volume, 
+void Doom3Group::renderWireframe(RenderableCollector& collector, const VolumeTest& volume, 
 	const Matrix4& localToWorld, bool selected) const 
 {
-	renderSolid(renderer, volume, localToWorld, selected);
+	renderSolid(collector, volume, localToWorld, selected);
 
     // Render the name if required
-	if (isNameVisible()) {
-		renderer.addRenderable(m_renderName, localToWorld);
+	if (EntitySettings::InstancePtr()->renderEntityNames()) {
+		collector.addRenderable(m_renderName, localToWorld);
 	}
 }
 
@@ -393,10 +394,10 @@ void Doom3Group::setTransformChanged(Callback& callback) {
 }
 
 void Doom3Group::updateTransform() {
-	m_transform.localToParent() = g_matrix4_identity;
+	m_transform.localToParent() = Matrix4::getIdentity();
 	if (isModel()) {
-		matrix4_translate_by_vec3(m_transform.localToParent(), m_origin);
-		matrix4_multiply_by_matrix4(m_transform.localToParent(), rotation_toMatrix(m_rotation));
+		m_transform.localToParent().translateBy(m_origin);
+		m_transform.localToParent().multiplyBy(rotation_toMatrix(m_rotation));
 	}
 	
 	// Notify the Node about this transformation change	to update the local2World matrix 

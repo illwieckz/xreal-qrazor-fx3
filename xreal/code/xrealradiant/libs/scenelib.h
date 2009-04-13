@@ -78,12 +78,6 @@ inline void Node_traverseSubgraph(const scene::INodePtr& node, scene::NodeVisito
 	visitor.post(node);
 }
 
-inline void Path_deleteTop(const scene::Path& path) {
-	if (path.size() > 1) {
-		path.parent()->removeChildNode(path.top());
-	}
-}
-
 inline SelectablePtr Node_getSelectable(const scene::INodePtr& node) {
 	return boost::dynamic_pointer_cast<Selectable>(node);
 }
@@ -175,13 +169,15 @@ namespace scene {
  *         The node is also deselected beforehand.
  */
 inline void removeNodeFromParent(const scene::INodePtr& node) {
-	// Unselect the node
-	Node_setSelected(node, false);
-
+	// Check if the node has a parent in the first place
 	scene::INodePtr parent = node->getParent();
-	assert(parent != NULL);
 
-	parent->removeChildNode(node);
+	if (parent != NULL) {
+		// Unselect the node
+		Node_setSelected(node, false);
+
+		parent->removeChildNode(node);
+	}
 }
 
 /** 
@@ -201,6 +197,27 @@ inline void assignNodeToLayers(const scene::INodePtr& node, const scene::LayerLi
 		}
 	}
 }
+
+/**
+ * This assigns every visited node to the given set of layers. 
+ * Any previous assignments of the node get overwritten by this routine.
+ */
+class AssignNodeToLayersWalker :
+	public scene::NodeVisitor
+{
+	const scene::LayerList& _layers;
+public:
+	AssignNodeToLayersWalker(const scene::LayerList& layers) :
+		_layers(layers)
+	{}
+
+	bool pre(const INodePtr& node) {
+		// Pass the call to the single-node method
+		assignNodeToLayers(node, _layers);
+
+		return true; // full traverse
+	}
+};
 
 class UpdateNodeVisibilityWalker :
 	public scene::NodeVisitor
@@ -517,5 +534,33 @@ inline scene::Path findPath(const scene::INodePtr& node) {
 	GlobalSceneGraph().traverse(finder);
 	return finder.getPath();
 }
+
+namespace scene {
+
+/**
+ * greebo: This walker removes all encountered child nodes without
+ * traversing each node's children. This deselects all removed nodes as well.
+ *
+ * Use this to clear all children from a node:
+ *
+ * NodeRemover walker();
+ * node->traverse(walker);
+ */
+class NodeRemover :
+	public scene::NodeVisitor
+{
+public:
+	bool pre(const INodePtr& node) {
+		// Copy the node, the reference might point right to 
+		// the parent's container
+		scene::INodePtr copy(node);
+
+		removeNodeFromParent(copy);
+
+		return false;
+	}
+};
+
+} // namespace scene
 
 #endif

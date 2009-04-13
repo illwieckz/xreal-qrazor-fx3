@@ -25,21 +25,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ifiletypes.h"
 #include "iregistry.h"
+#include "icommandsystem.h"
 #include "ifilesystem.h"
+#include "iuimanager.h"
 #include "ieclass.h"
 #include "ipreferencesystem.h"
 #include "ieventmanager.h"
+#include "iclipper.h"
 
 #include "entity.h"
-#include "map.h"
 #include "select.h"
 #include "map/AutoSaver.h"
 #include "map/PointFile.h"
 #include "camera/GlobalCamera.h"
 #include "xyview/GlobalXYWnd.h"
 #include "ui/texturebrowser/TextureBrowser.h"
+#include "ui/mediabrowser/MediaBrowser.h"
 
 #include "modulesystem/StaticModule.h"
+
+#include "mainframe_old.h"
 
 namespace radiant {
 
@@ -70,7 +75,15 @@ GdkPixbuf* RadiantModule::getLocalPixbuf(const std::string& fileName) {
 
 	GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file(fullFileName.c_str(), NULL);
 
-	_localPixBufs.insert(PixBufMap::value_type(fileName, pixbuf));
+	if (pixbuf != NULL) {
+		_localPixBufs.insert(PixBufMap::value_type(fileName, pixbuf));
+		
+		// Avoid destruction of this pixbuf
+		g_object_ref(pixbuf);
+	}
+	else {
+		globalErrorStream() << "Couldn't load pixbuf " << fullFileName << std::endl; 
+	}
 
 	return pixbuf;
 }
@@ -96,10 +109,14 @@ GdkPixbuf* RadiantModule::getLocalPixbufWithMask(const std::string& fileName) {
 
 		_localPixBufsWithMask.insert(PixBufMap::value_type(fileName, rgba));
 
+		// Avoid destruction of this pixbuf
+		g_object_ref(rgba);
+
 		return rgba;
 	}
 	else {
 		// File load failed
+		globalErrorStream() << "Couldn't load pixbuf " << fullFileName << std::endl; 
 		return NULL;
 	}
 }
@@ -110,11 +127,13 @@ ICounter& RadiantModule::getCounter(CounterType counter) {
 }
 	
 void RadiantModule::setStatusText(const std::string& statusText) {
-	Sys_Status(statusText);
+	// Pass the call
+	GlobalUIManager().getStatusBarManager().setText(STATUSBAR_COMMAND, statusText);
 }
 	
 void RadiantModule::updateAllWindows() {
-	UpdateAllWindows();
+	GlobalCamera().update();
+	GlobalXYWnd().updateAllViews();
 }
 	
 void RadiantModule::addEventListener(RadiantEventListenerPtr listener) {
@@ -183,6 +202,7 @@ const StringSet& RadiantModule::getDependencies() const {
 	static StringSet _dependencies;
 	
 	if (_dependencies.empty()) {
+		_dependencies.insert(MODULE_COMMANDSYSTEM);
 		_dependencies.insert(MODULE_FILETYPES);
 		_dependencies.insert(MODULE_SCENEGRAPH);
 		_dependencies.insert(MODULE_XMLREGISTRY);
@@ -190,7 +210,9 @@ const StringSet& RadiantModule::getDependencies() const {
 		_dependencies.insert(MODULE_EVENTMANAGER);
 		_dependencies.insert(MODULE_ECLASSMANAGER);
 		_dependencies.insert(MODULE_SELECTIONSYSTEM);
-		_dependencies.insert(MODULE_SHADERCACHE);
+		_dependencies.insert(MODULE_RENDERSYSTEM);
+		_dependencies.insert(MODULE_CLIPPER);
+		_dependencies.insert(MODULE_UIMANAGER);
 	}
 	
 	return _dependencies;
@@ -207,13 +229,22 @@ void RadiantModule::initialiseModule(const ApplicationContext& ctx) {
 
     Selection_construct();
     map::PointFile::Instance().registerCommands();
-    Map_Construct();
     MainFrame_Construct();
     GlobalCamera().construct();
     GlobalXYWnd().construct();
+	ui::MediaBrowser::registerPreferences();
     GlobalTextureBrowser().construct();
     Entity_Construct();
     map::AutoSaver().init();
+
+	// Add the statusbar command text item
+	GlobalUIManager().getStatusBarManager().addTextElement(
+		STATUSBAR_COMMAND, 
+		"",  // no icon
+		IStatusBarManager::POS_COMMAND
+	);
+
+	_counters.init();
 }
 
 void RadiantModule::shutdownModule() {
@@ -229,6 +260,19 @@ void RadiantModule::shutdownModule() {
     // lock the instances. This is just for safety, usually all
 	// EventListeners get cleared upon OnRadiantShutdown anyway.
     _eventListeners.clear();
+
+	// Remove all remaining pixbufs
+	for (PixBufMap::iterator i = _localPixBufs.begin(); i != _localPixBufs.end(); ++i) {
+		if (GDK_IS_PIXBUF(i->second)) {
+			g_object_unref(i->second);
+		}
+	}
+
+	for (PixBufMap::iterator i = _localPixBufsWithMask.begin(); i != _localPixBufsWithMask.end(); ++i) {
+		if (GDK_IS_PIXBUF(i->second)) {
+			g_object_unref(i->second);
+		}
+	}
 }
 
 // Define the static Radiant module

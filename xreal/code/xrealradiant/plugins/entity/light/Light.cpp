@@ -5,7 +5,7 @@
 #include "stringio.h"
 #include "Doom3LightRadius.h"
 #include "LightShader.h"
-#include "LightSettings.h"
+#include "../EntitySettings.h"
 
 #include "LightNode.h"
 
@@ -65,7 +65,7 @@ void light_draw(const AABB& aabb_light, RenderStateFlags state) {
 // ----- Light Class Implementation -------------------------------------------------
 
 // Constructor
-Light::Light(IEntityClassPtr eclass, LightNode& node, const Callback& transformChanged, const Callback& boundsChanged, const Callback& evaluateTransform) :
+Light::Light(LightNode& node, const Callback& transformChanged, const Callback& boundsChanged, const Callback& evaluateTransform) :
 	m_entity(node._entity),
 	m_originKey(OriginChangedCaller(*this)),
 	m_rotationKey(RotationChangedCaller(*this)),
@@ -141,6 +141,10 @@ void Light::construct() {
 	m_doom3Radius.setCenterColour(m_entity.getEntityClass()->getColour());
 
 	m_entity.setIsContainer(true);
+
+	// Load the light colour (might be inherited)
+	m_colour.colourChanged(m_entity.getKeyValue("_color"));
+	m_shader.valueChanged(m_entity.getKeyValue("texture"));
 }
 
 void Light::updateOrigin() {
@@ -391,8 +395,8 @@ const TransformNode& Light::getTransformNode() const {
 }
 
 // Backend render function (GL calls)
-void Light::render(RenderStateFlags state) const {
-	light_draw(m_aabb_light, state);
+void Light::render(const RenderInfo& info) const {
+	light_draw(m_aabb_light, info.getFlags());
 }
 
 VolumeIntersectionValue Light::intersectVolume(const VolumeTest& volume, const Matrix4& localToWorld) const {
@@ -403,32 +407,32 @@ Doom3LightRadius& Light::getDoom3Radius() {
 	return m_doom3Radius;
 }
 
-// Adds the light centre renderable to the given renderer
-void Light::renderLightCentre(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const {
-	renderer.Highlight(Renderer::ePrimitive, false);
-	renderer.Highlight(Renderer::eFace, false);
-	renderer.SetState(_rCentre.getShader(), Renderer::eFullMaterials);
-	renderer.SetState(_rCentre.getShader(), Renderer::eWireframeOnly);
+// Adds the light centre renderable to the given collector
+void Light::renderLightCentre(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const {
+	collector.Highlight(RenderableCollector::ePrimitive, false);
+	collector.Highlight(RenderableCollector::eFace, false);
+	collector.SetState(_rCentre.getShader(), RenderableCollector::eFullMaterials);
+	collector.SetState(_rCentre.getShader(), RenderableCollector::eWireframeOnly);
 
-	renderer.addRenderable(_rCentre, localToWorld);
+	collector.addRenderable(_rCentre, localToWorld);
 }
 
-void Light::renderWireframe(Renderer& renderer,
+void Light::renderWireframe(RenderableCollector& collector,
 							const VolumeTest& volume,
 							const Matrix4& localToWorld,
 							bool selected) const
 {
 	// Main render, submit the diamond that represents the light entity
-	renderer.SetState(
-		m_entity.getEntityClass()->getWireShader(), Renderer::eWireframeOnly
+	collector.SetState(
+		m_entity.getEntityClass()->getWireShader(), RenderableCollector::eWireframeOnly
 	);
-	renderer.SetState(
-		m_entity.getEntityClass()->getWireShader(), Renderer::eFullMaterials
+	collector.SetState(
+		m_entity.getEntityClass()->getWireShader(), RenderableCollector::eFullMaterials
 	);
-	renderer.addRenderable(*this, localToWorld);
+	collector.addRenderable(*this, localToWorld);
 
 	// Render bounding box if selected or the showAllLighRadii flag is set
-	if (selected || LightSettings().showAllLightRadii()) {
+	if (selected || EntitySettings::InstancePtr()->showAllLightRadii()) {
 
 		if (isProjected()) {
 			// greebo: This is not much of an performance impact as the projection gets only recalculated when it has actually changed.
@@ -443,23 +447,23 @@ void Light::renderWireframe(Renderer& renderer,
 			0, 0, 1, 0,
 			-1, 0, 0, 0,
 			0, 0, 0, 1);
-			matrix4_multiply_by_matrix4(m_projectionOrientation, radiant2opengl);
+			m_projectionOrientation.multiplyBy(radiant2opengl);
 
 			m_projectionOrientation.t().getVector3() = m_aabb_light.origin; //localAABB().origin;
-			renderer.addRenderable(m_renderProjection, m_projectionOrientation);
+			collector.addRenderable(m_renderProjection, m_projectionOrientation);
 #else
-			renderer.addRenderable(m_renderProjection, localToWorld);
+			collector.addRenderable(m_renderProjection, localToWorld);
 #endif
 		}
 		else {
 			updateLightRadiiBox();
-			renderer.addRenderable(m_radii_box, localToWorld);
+			collector.addRenderable(m_radii_box, localToWorld);
 		}
 	}
 
 	// Render the name
-	if (isNameVisible()) {
-		renderer.addRenderable(m_renderName, localToWorld);
+	if (EntitySettings::InstancePtr()->renderEntityNames()) {
+		collector.addRenderable(m_renderName, localToWorld);
 	}
 }
 
@@ -514,7 +518,8 @@ const AABB& Light::aabb() const {
 		yMin = -yMax;
 
 		// start with an empty AABB and include all the projection vertices
-		m_doom3AABB = AABB(Vector3(-zNear, xMin * zFar, yMin * zFar), Vector3(zFar, xMax * zFar, yMax * zFar));
+		Vector3 extends = Vector3(-zNear, xMin * zFar, yMin * zFar) - Vector3(zFar, xMax * zFar, yMax * zFar);
+		m_doom3AABB = AABB(m_aabb_light.origin, extends);
 	}
 	else {
 		m_doom3AABB = AABB(m_aabb_light.origin, m_doom3Radius.m_radiusTransformed);
@@ -612,9 +617,9 @@ const Matrix4& Light::projection() const {
 	}
 
 	m_doom3ProjectionChanged = false;
-	m_doom3Projection = g_matrix4_identity;
-	matrix4_translate_by_vec3(m_doom3Projection, Vector3(0.5f, 0.5f, 0));
-	matrix4_scale_by_vec3(m_doom3Projection, Vector3(0.5f, 0.5f, 1));
+	m_doom3Projection = Matrix4::getIdentity();
+	m_doom3Projection.translateBy(Vector3(0.5f, 0.5f, 0));
+	m_doom3Projection.scaleBy(Vector3(0.5f, 0.5f, 1));
 
 
 #if 1
@@ -636,8 +641,10 @@ const Matrix4& Light::projection() const {
     //xMax = zNear * tan(_lightUp.getLength() * M_PI / 360.0f);
     yMin = -yMax;
 
-    matrix4_multiply_by_matrix4(m_doom3Projection, matrix4_frustum(xMin, xMax, yMin, yMax, zNear, zFar));
+    Matrix4 frustum = matrix4_frustum(xMin, xMax, yMin, yMax, zNear, zFar);
+    m_doom3Projection.multiplyBy(frustum);
     m_doom3Frustum = frustum_from_viewproj(m_doom3Projection);
+
 #else
 	Plane3 lightProject[4];
 
@@ -705,7 +712,7 @@ const Matrix4& Light::projection() const {
 	m_doom3Frustum.back = -m_doom3Frustum.back;
 
 	Matrix4 test(matrix4_from_planes(m_doom3Frustum.left, m_doom3Frustum.right, m_doom3Frustum.bottom, m_doom3Frustum.top, m_doom3Frustum.front, m_doom3Frustum.back));
-	matrix4_multiply_by_matrix4(m_doom3Projection, test);
+	m_doom3Projection.multiplyBy(test);
 
 	m_doom3Frustum.left = m_doom3Frustum.left.getNormalised();
 	m_doom3Frustum.right = m_doom3Frustum.right.getNormalised();
@@ -713,9 +720,9 @@ const Matrix4& Light::projection() const {
 	m_doom3Frustum.top = m_doom3Frustum.top.getNormalised();
 	m_doom3Frustum.back = m_doom3Frustum.back.getNormalised();
 	m_doom3Frustum.front = m_doom3Frustum.front.getNormalised();
-
-	//matrix4_scale_by_vec3(m_doom3Projection, Vector3(1.0 / 128, 1.0 / 128, 1.0 / 128));
+	//m_doom3Projection.scaleBy(Vector3(1.0 / 128, 1.0 / 128, 1.0 / 128));
 #endif
+
 	return m_doom3Projection;
 }
 

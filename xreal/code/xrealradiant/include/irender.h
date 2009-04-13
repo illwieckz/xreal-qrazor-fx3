@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "imodule.h"
 #include "generic/callbackfwd.h"
 
+#include "math/Vector3.h"
+
+#include "ShaderLayer.h"
+
 // Rendering states to sort by.
 // Higher bits have the most effect - slowest state changes should be highest.
 
@@ -40,18 +44,20 @@ const unsigned int RENDER_COLOURWRITE = 1 << 7; // glColorMask(GL_TRUE; GL_TRUE;
 const unsigned int RENDER_CULLFACE = 1 << 8; // glglEnable(GL_CULL_FACE)
 const unsigned int RENDER_SCALED = 1 << 9; // glEnable(GL_NORMALIZE)
 const unsigned int RENDER_SMOOTH = 1 << 10; // glShadeModel
-const unsigned int RENDER_FOG = 1 << 11; // glEnable(GL_FOG)
-const unsigned int RENDER_LIGHTING = 1 << 12; // glEnable(GL_LIGHTING)
-const unsigned int RENDER_BLEND = 1 << 13; // glEnable(GL_BLEND)
-const unsigned int RENDER_OFFSETLINE = 1 << 14; // glEnable(GL_POLYGON_OFFSET_LINE)
-const unsigned int RENDER_FILL = 1 << 15; // glPolygonMode
-const unsigned int RENDER_COLOURARRAY = 1 << 16; // glEnableClientState(GL_COLOR_ARRAY)
-const unsigned int RENDER_COLOURCHANGE = 1 << 17; // render() is allowed to call glColor*()
-const unsigned int RENDER_TEXTURE = 1 << 18; // glEnable(GL_TEXTURE_2D)
-const unsigned int RENDER_BUMP = 1 << 19;
-const unsigned int RENDER_PROGRAM = 1 << 20;
-const unsigned int RENDER_SCREEN = 1 << 21;
-const unsigned int RENDER_OVERRIDE = 1 << 22;
+const unsigned int RENDER_LIGHTING = 1 << 11; // glEnable(GL_LIGHTING)
+const unsigned int RENDER_BLEND = 1 << 12; // glEnable(GL_BLEND)
+const unsigned int RENDER_OFFSETLINE = 1 << 13; // glEnable(GL_POLYGON_OFFSET_LINE)
+const unsigned int RENDER_FILL = 1 << 14; // glPolygonMode
+const unsigned int RENDER_COLOURARRAY = 1 << 15; // glEnableClientState(GL_COLOR_ARRAY)
+const unsigned int RENDER_COLOURCHANGE = 1 << 16; // render() is allowed to call glColor*()
+const unsigned int RENDER_MATERIAL_VCOL = 1 << 17; // material requests per-vertex colour
+const unsigned int RENDER_VCOL_INVERT = 1 << 18; // vertex colours should be inverted
+const unsigned int RENDER_TEXTURE_2D = 1 << 19; // glEnable(GL_TEXTURE_2D)
+const unsigned int RENDER_TEXTURE_CUBEMAP = 1 << 20; // glEnable(GL_TEXTURE_CUBE_MAP)
+const unsigned int RENDER_BUMP = 1 << 21;
+const unsigned int RENDER_PROGRAM = 1 << 22;
+const unsigned int RENDER_SCREEN = 1 << 23;
+const unsigned int RENDER_OVERRIDE = 1 << 24;
 typedef unsigned int RenderStateFlags;
 
 
@@ -59,10 +65,13 @@ class AABB;
 class Matrix4;
 
 template<typename Element> class BasicVector3;
-typedef BasicVector3<double> Vector3;
 
 class Shader;
 
+/**
+ * \brief
+ * Interface for a light source in the renderer.
+ */
 class RendererLight
 {
 public:
@@ -83,6 +92,22 @@ public:
 };
 typedef boost::shared_ptr<RendererLight> RendererLightPtr;
 
+/**
+ * \brief
+ * Interface for an object which can test its intersection with a RendererLight.
+ *
+ * Objects which implement this interface define a testLight() function which
+ * determines whether the given light intersects the object. They also provide
+ * methods to allow the renderer to provide the list of lights which will be
+ * illuminating the object, subsequent to the intersection test.
+ *
+ * \todo
+ * This interface seems to exist because of the design decision that lit objects
+ * should maintain a list of lights which illuminate them. This is a poor
+ * design because this should be the responsibility of the renderer. When the
+ * renderer is refactored to process the scene light-by-light this class will
+ * not be necessary.
+ */
 class LightCullable
 {
 public:
@@ -109,10 +134,97 @@ const int c_attr_TexCoord0 = 1;
 const int c_attr_Tangent = 3;
 const int c_attr_Binormal = 4;
 
+/**
+ * \brief
+ * Data object passed to the backend OpenGLRenderable::render() method
+ * containing information about the render pass which may be of use to
+ * renderable objects, including the render flags and various
+ * matrices/coordinates.
+ */
+class RenderInfo
+{
+    // Render flags
+    RenderStateFlags _flags;
+
+    // Viewer location in 3D space
+    Vector3 _viewerLocation;
+
+    // Cube map mode
+    ShaderLayer::CubeMapMode _cubeMapMode;
+
+public:
+
+    /**
+     * \brief
+     * Constructor.
+     */
+    RenderInfo(RenderStateFlags flags = RENDER_DEFAULT,
+               const Vector3& viewer = Vector3(0, 0, 0),
+               ShaderLayer::CubeMapMode cubeMode = ShaderLayer::CUBE_MAP_NONE)
+    : _flags(flags),
+      _viewerLocation(viewer),
+      _cubeMapMode(cubeMode)
+    { }
+
+    /**
+     * \brief
+     * Check if a flag is set
+     */
+    bool checkFlag(unsigned flag) const
+    {
+        return (_flags & flag) != 0;
+    }
+
+    /**
+     * \brief
+     * Get the entire flag bitfield.
+     */
+    RenderStateFlags getFlags() const
+    {
+        return _flags;
+    }
+
+    /**
+     * \brief
+     * Get the viewer location.
+     */
+    const Vector3& getViewerLocation() const
+    {
+        return _viewerLocation;
+    }
+
+    /**
+     * \brief
+     * Get the cube map mode.
+     */
+    ShaderLayer::CubeMapMode getCubeMapMode() const
+    {
+        return _cubeMapMode;
+    }
+
+};
+
+/**
+ * \brief
+ * Interface for objects which can render themselves in OpenGL.
+ *
+ * This interface is used by the render backend, after renderable objects have
+ * first been submitted using the Renderable interface. The backend render()
+ * function should contain the OpenGL calls necessary to submit vertex, normal
+ * and texture-coordinate data. 
+ *
+ * No GL state changes should occur in render(), other than those specifically
+ * allowed by the render flags (such as glColor() if RENDER_COLOURWRITE is set).
+ */
 class OpenGLRenderable
 {
 public:
-  virtual void render(RenderStateFlags state) const = 0;
+
+    /**
+     * \brief
+     * Submit OpenGL render calls.
+     */
+    virtual void render(const RenderInfo& info) const = 0;
 };
 
 class Matrix4;
@@ -121,12 +233,12 @@ class ModuleObserver;
 
 #include "math/Vector3.h"
 
-class IShader;
-typedef boost::shared_ptr<IShader> IShaderPtr;
+class Material;
+typedef boost::shared_ptr<Material> MaterialPtr;
 
 /**
  * A Shader represents a single material which can be rendered in OpenGL, which
- * may correspond to an actual material (IShader), a raw colour or a special 
+ * may correspond to an actual material (Material), a raw colour or a special 
  * GL shader.
  * 
  * Importantly, a Shader also maintains its own list of OpenGLRenderable objects
@@ -159,15 +271,14 @@ public:
   virtual void decrementUsed() = 0;
   virtual void attach(ModuleObserver& observer) = 0;
   virtual void detach(ModuleObserver& observer) = 0;
-  virtual Texture& getTexture() const = 0;
   
-	/** Retrieve the contained IShader from this object.
+	/** Retrieve the contained Material from this object.
 	 * 
 	 * @returns
-	 * An IShader subclass with information about the shader definition
+	 * An Material subclass with information about the shader definition
 	 */
 	 
-	virtual IShaderPtr getIShader() const = 0;
+	virtual MaterialPtr getMaterial() const = 0;
   
   virtual unsigned int getFlags() const = 0;
 };
@@ -177,15 +288,23 @@ public:
  */
 typedef boost::shared_ptr<Shader> ShaderPtr;
 
-const std::string MODULE_SHADERCACHE("ShaderCache");
+const std::string MODULE_RENDERSYSTEM("ShaderCache");
 
-class ShaderCache :
-	public RegisterableModule
+/**
+ * \brief
+ * The main interface for the backend renderer.
+ */
+class RenderSystem
+: public RegisterableModule
 {
 public:
-	/** Capture the given shader, increasing its reference count and
-	 * returning a pointer to the Shader object. The object must be freed
-	 * after use by calling release().
+
+	/** 
+     * \brief
+     * Capture the given shader, increasing its reference count and
+	 * returning a pointer to the Shader object.
+     *
+     * The object must be freed after use by calling release().
 	 * 
 	 * @param name
 	 * The name of the shader to capture.
@@ -196,8 +315,32 @@ public:
 	 
 	virtual ShaderPtr capture(const std::string& name) = 0;
 
-  /*! Render all Shader objects. */
-  virtual void render(RenderStateFlags globalstate, const Matrix4& modelview, const Matrix4& projection, const Vector3& viewer = Vector3(0, 0, 0)) = 0;
+    /**
+     * \brief
+     * Main render method.
+     *
+     * This method traverses all of the OpenGLRenderable objects that have been
+     * submitted to Shader instances, and invokes their render() method to draw
+     * their geometry.
+     *
+     * \param globalFlagsMask
+     * The mask of render flags which are permitted during this render pass. Any
+     * render flag which is 0 in this mask will not be enabled during rendering,
+     * even if the particular shader requests it.
+     *
+     * \param modelview
+     * The modelview transformation matrix to apply before rendering.
+     *
+     * \param projection
+     * The view projection matrix to apply before rendering.
+     *
+     * \param viewer
+     * Location of the viewer in world space.
+     */
+    virtual void render(RenderStateFlags globalFlagsMask,
+                        const Matrix4& modelview,
+                        const Matrix4& projection,
+                        const Vector3& viewer = Vector3(0, 0, 0)) = 0;
 
   virtual void realise() = 0;
   virtual void unrealise() = 0;
@@ -218,9 +361,24 @@ public:
   virtual const LightList& attach(LightCullable& cullable) = 0;
   virtual void detach(LightCullable& cullable) = 0;
   virtual void changed(LightCullable& cullable) = 0;
-  virtual void attach(RendererLight& light) = 0;
-  virtual void detach(RendererLight& light) = 0;
-  virtual void changed(RendererLight& light) = 0;
+
+    /**
+     * \brief
+     * Attach a light source to the renderer.
+     */
+    virtual void attachLight(RendererLight& light) = 0;
+
+    /**
+     * \brief
+     * Detach a light source from the renderer.
+     */
+    virtual void detachLight(RendererLight& light) = 0;
+
+    /**
+     * \brief
+     * Indicate that the given light source has been modified.
+     */
+    virtual void lightChanged(RendererLight& light) = 0;
 
   virtual void attachRenderable(const Renderable& renderable) = 0;
   virtual void detachRenderable(const Renderable& renderable) = 0;
@@ -230,14 +388,19 @@ public:
     virtual void extensionsInitialised() = 0;
 };
 
-inline ShaderCache& GlobalShaderCache() {
+/**
+ * \brief
+ * Global accessor method for the RenderSystem instance.
+ */
+inline RenderSystem& GlobalRenderSystem() 
+{
 	// Cache the reference locally
-	static ShaderCache& _shaderCache(
-		*boost::static_pointer_cast<ShaderCache>(
-			module::GlobalModuleRegistry().getModule(MODULE_SHADERCACHE)
+	static RenderSystem& _instance(
+		*boost::static_pointer_cast<RenderSystem>(
+			module::GlobalModuleRegistry().getModule(MODULE_RENDERSYSTEM)
 		)
 	);
-	return _shaderCache;
+	return _instance;
 }
 
 #endif

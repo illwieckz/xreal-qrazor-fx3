@@ -56,6 +56,11 @@ void MapResource::rename(const std::string& fullPath) {
 	_type = fullPath.substr(fullPath.rfind(".") + 1);
 	_path = rootPath(_originalName);
 	_name = os::getRelativePath(_originalName, _path);
+
+	// Rename the map root as well
+	if (_mapRoot != NULL && boost::dynamic_pointer_cast<RootNode>(_mapRoot) != NULL) {
+		boost::static_pointer_cast<RootNode>(_mapRoot)->setName(_name);
+	}
 }
 
 bool MapResource::load() {
@@ -150,10 +155,6 @@ bool MapResource::saveBackup() {
 	return false;
 }
 
-void MapResource::flush() {
-	// greebo: Nothing to do, no cache is used for MapResources
-}
-
 scene::INodePtr MapResource::getNode() {
 	return _mapRoot;
 }
@@ -246,12 +247,9 @@ bool MapResource::isModified() const {
 			|| !path_equal(rootPath(_originalName).c_str(), _path.c_str()); // OR absolute vfs-root changed
 }
 
-void MapResource::refresh() {
-    if (isModified()) {
-		flush();
-		unrealise();
-		realise();
-	}
+void MapResource::reload() {
+    unrealise();
+	realise();
 }
 
 MapFormatPtr MapResource::getMapFormat() {
@@ -314,13 +312,17 @@ scene::INodePtr MapResource::loadMapNode() {
   	std::string fullpath = _path + _name;
 
 	if (path_is_absolute(fullpath.c_str())) {
-		loadFile(*format, root, fullpath);
+
+		if (loadFile(*format, root, fullpath)) {
+			return root;
+		}
 	}
 	else {
 		globalErrorStream() << "map path is not fully qualified: " << fullpath << "\n";
 	}
 
-	return root;
+	// Return the NULL node on failure
+	return model::NullModelNode::InstancePtr();
 }
 
 bool MapResource::loadFile(const MapFormat& format, scene::INodePtr root, const std::string& filename) {
@@ -345,17 +347,17 @@ bool MapResource::loadFile(const MapFormat& format, scene::INodePtr root, const 
 			// Infostream is open, call the MapFormat
 			MapImportInfo importInfo(file, infoFileStream);
 			importInfo.root = root;
-			format.readGraph(importInfo);
+
+			return format.readGraph(importInfo);
 		}
 		else {
 			// No active infostream, pass a dummy stream
 			std::istringstream emptyStream;
 			MapImportInfo importInfo(file, emptyStream);
 			importInfo.root = root;
-			format.readGraph(importInfo);
-		}
 
-		return true;
+			return format.readGraph(importInfo);
+		}
 	}
 	else
 	{

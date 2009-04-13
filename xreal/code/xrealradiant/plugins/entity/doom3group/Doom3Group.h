@@ -15,7 +15,6 @@
 #include "../Doom3Entity.h"
 #include "../curve/CurveCatmullRom.h"
 #include "../curve/CurveNURBS.h"
-#include "../OptionalRenderedName.h"
 #include "scene/TraversableNodeSet.h"
 
 namespace entity {
@@ -28,8 +27,7 @@ class Doom3GroupNode;
  */
 class Doom3Group 
 : public Bounded, 
-  public Snappable,
-  public OptionalRenderedName
+  public Snappable
 {
 	KeyObserverMap m_keyObservers;
 	
@@ -74,13 +72,12 @@ public:
 	SignalHandlerId m_curveCatmullRomChanged;
 	InstanceCounter m_instanceCounter;
 
-	/** greebo: The constructor takes the Entity class and the Node as argument
+	/** greebo: The constructor takes the Node as argument
 	 * as well as some callbacks for transformation and bounds changes.
 	 * 
 	 * These callbacks point to and InstanceSet::transformChangedCaller(), for example.  
 	 */
-	Doom3Group(IEntityClassPtr eclass, 
-			   Doom3GroupNode& owner,
+	Doom3Group(Doom3GroupNode& owner,
 			   const Callback& transformChanged, 
 			   const Callback& boundsChanged, 
 			   const Callback& evaluateTransform);
@@ -120,8 +117,8 @@ public:
 	void appendControlPoints(unsigned int numPoints);
 	void convertCurveType();
 	
-	void renderSolid(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld, bool selected) const;
-	void renderWireframe(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld, bool selected) const;
+	void renderSolid(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld, bool selected) const;
+	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld, bool selected) const;
 
 	void testSelect(Selector& selector, SelectionTest& test, SelectionIntersection& best);
 

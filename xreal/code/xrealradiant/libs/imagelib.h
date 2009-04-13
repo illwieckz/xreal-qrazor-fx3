@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #if !defined(INCLUDED_IMAGELIB_H)
 #define INCLUDED_IMAGELIB_H
 
+#include "BasicTexture2D.h"
+
 #include "iimage.h"
 #include "iarchive.h"
 #include "idatastream.h"
@@ -59,10 +61,6 @@ public:
 		delete[] pixels;
 	}
 
-	virtual std::size_t getNumMipMaps() const {
-		return 1; // we only have one mipmap at all times
-	}
-
 	virtual byte* getMipMapPixels(std::size_t mipMapIndex) const {
 		assert(mipMapIndex == 0); // only one mipmap is allowed here
 
@@ -81,7 +79,9 @@ public:
 		return height;
 	}
 
-	virtual GLuint downloadTextureToGL() {
+    /* BindableTexture implementation */
+    TexturePtr bindTexture(const std::string& name) const
+    {
 		GLuint textureNum;
 
 		// Allocate a new texture number and store it into the Texture structure
@@ -101,7 +101,12 @@ public:
 		// Un-bind the texture
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		return textureNum;
+        // Construct texture object
+        BasicTexture2DPtr tex2DObject(new BasicTexture2D(textureNum, name));
+        tex2DObject->setWidth(getWidth(0));
+        tex2DObject->setHeight(getHeight(0));
+
+		return tex2DObject;
 	}
 
 	bool isPrecompressed() const {

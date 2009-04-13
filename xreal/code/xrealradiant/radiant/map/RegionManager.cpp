@@ -10,9 +10,9 @@
 #include "ieventmanager.h"
 
 #include "selectionlib.h"
+#include "string/string.h"
 #include "gtkutil/dialog.h"
 
-#include "mainframe.h" // MainFrame_getWindow()
 #include "select.h"
 
 #include "brushmanip.h" // Construct_RegionBrushes()
@@ -170,7 +170,8 @@ void RegionManager::addRegionBrushes() {
 	// Create the info_player_start entity
 	_playerStart = GlobalEntityCreator().createEntity(playerStart);
 	
-	CamWndPtr camWnd = GlobalCamera().getCamWnd();
+	CamWndPtr camWnd = GlobalCamera().getActiveCamWnd();
+
 	if (camWnd != NULL) { 
 		// Obtain the camera origin = player start point
 		Vector3 camOrigin = camWnd->getCameraOrigin();
@@ -186,7 +187,7 @@ void RegionManager::addRegionBrushes() {
 		else {
 			gtkutil::errorDialog(
 				"Warning: Camera not within region, can't set info_player_start.", 
-				MainFrame_getWindow()
+				GlobalRadiant().getMainWindow()
 			);
 		}
 	}
@@ -211,12 +212,12 @@ void RegionManager::removeRegionBrushes() {
 
 // Static members (used as command targets for EventManager)
 
-void RegionManager::disableRegion() {
+void RegionManager::disableRegion(const cmd::ArgumentList& args) {
 	GlobalRegion().disable();
 	SceneChangeNotify();
 }
 
-void RegionManager::setRegionXY() {
+void RegionManager::setRegionXY(const cmd::ArgumentList& args) {
 	// Obtain the current XY orthoview, if there is one
 	XYWndPtr xyWnd = GlobalXYWnd().getView(XY);
 	
@@ -235,13 +236,13 @@ void RegionManager::setRegionXY() {
 		GlobalRegion().setRegionFromXY(topLeft, lowerRight);
 	}
 	else {
-		gtkutil::errorDialog("Could not set Region: XY Top View not found.", MainFrame_getWindow());
+		gtkutil::errorDialog("Could not set Region: XY Top View not found.", GlobalRadiant().getMainWindow());
 		GlobalRegion().disable();
 	}
 	SceneChangeNotify();
 }
 
-void RegionManager::setRegionFromBrush() {
+void RegionManager::setRegionFromBrush(const cmd::ArgumentList& args) {
 	const SelectionInfo& info = GlobalSelectionSystem().getSelectionInfo();
 	
 	// Check, if exactly one brush is selected
@@ -253,17 +254,20 @@ void RegionManager::setRegionFromBrush() {
 		GlobalRegion().setRegion(node->worldAABB());
 		
 		// Delete the currently selected brush (undoable command)
-		selection::algorithm::deleteSelectionCmd();
+		{
+			UndoableCommand undo("deleteSelected");
+			selection::algorithm::deleteSelection();
+		}
 		
 		SceneChangeNotify();
 	}
 	else {
-		gtkutil::errorDialog("Could not set Region: please select a single Brush.", MainFrame_getWindow());
+		gtkutil::errorDialog("Could not set Region: please select a single Brush.", GlobalRadiant().getMainWindow());
 		GlobalRegion().disable();
 	}
 }
 
-void RegionManager::setRegionFromSelection() {
+void RegionManager::setRegionFromSelection(const cmd::ArgumentList& args) {
 	const SelectionInfo& info = GlobalSelectionSystem().getSelectionInfo();
 	
 	// Check, if there is anything selected
@@ -286,12 +290,12 @@ void RegionManager::setRegionFromSelection() {
 		}
 		else {
 			gtkutil::errorDialog("This command is not available in component mode.", 
-								 MainFrame_getWindow());
+								 GlobalRadiant().getMainWindow());
 			GlobalRegion().disable();
 		}
 	}
 	else {
-		gtkutil::errorDialog("Could not set Region: nothing selected.", MainFrame_getWindow());
+		gtkutil::errorDialog("Could not set Region: nothing selected.", GlobalRadiant().getMainWindow());
 		GlobalRegion().disable();
 	}
 }
@@ -303,7 +307,7 @@ void RegionManager::traverseRegion(scene::INodePtr root, scene::NodeVisitor& nod
 	root->traverse(visitor);
 }
 
-void RegionManager::saveRegion() {
+void RegionManager::saveRegion(const cmd::ArgumentList& args) {
 	// Query the desired filename from the user
 	std::string filename = map::MapFileManager::getMapFilename(false, "Export region");
 	
@@ -322,18 +326,12 @@ void RegionManager::saveRegion() {
 		// Add the region brushes
 		GlobalRegion().addRegionBrushes();
 		
-		// Substract the origin from child primitives (of entities like func_static)
-		selection::algorithm::removeOriginFromChildPrimitives();
-		
 		// Save the map and pass the RegionManager::traverseRegion functor 
 		// that assures that only regioned items are traversed
 		MapResource_saveFile(Map::getFormatForFile(filename),
 							 GlobalSceneGraph().root(),
   							 RegionManager::traverseRegion,
   							 filename.c_str());
-		
-		// Add the origin to all the children of func_static, etc.
-		selection::algorithm::addOriginToChildPrimitives();
 		
 		// Remove the region brushes
 		GlobalRegion().removeRegionBrushes();
@@ -347,11 +345,17 @@ void RegionManager::saveRegion() {
 }
 
 void RegionManager::initialiseCommands() {
-	GlobalEventManager().addCommand("SaveRegion", FreeCaller<RegionManager::saveRegion>());
-	GlobalEventManager().addCommand("RegionOff", FreeCaller<RegionManager::disableRegion>());
-	GlobalEventManager().addCommand("RegionSetXY", FreeCaller<RegionManager::setRegionXY>());
-	GlobalEventManager().addCommand("RegionSetBrush", FreeCaller<RegionManager::setRegionFromBrush>());
-	GlobalEventManager().addCommand("RegionSetSelection", FreeCaller<RegionManager::setRegionFromSelection>());
+	GlobalCommandSystem().addCommand("SaveRegion", saveRegion);
+	GlobalCommandSystem().addCommand("RegionOff", disableRegion);
+	GlobalCommandSystem().addCommand("RegionSetXY", setRegionXY);
+	GlobalCommandSystem().addCommand("RegionSetBrush", setRegionFromBrush);
+	GlobalCommandSystem().addCommand("RegionSetSelection", setRegionFromSelection);
+
+	GlobalEventManager().addCommand("SaveRegion", "SaveRegion");
+	GlobalEventManager().addCommand("RegionOff", "RegionOff");
+	GlobalEventManager().addCommand("RegionSetXY", "RegionSetXY");
+	GlobalEventManager().addCommand("RegionSetBrush", "RegionSetBrush");
+	GlobalEventManager().addCommand("RegionSetSelection", "RegionSetSelection");
 }
 
 } // namespace map

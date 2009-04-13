@@ -11,14 +11,7 @@ class DDSImage :
 	public Image,
 	public boost::noncopyable
 {
-	// The actual pixels
-	byte* _pixelData;
-
-	// The amount of memory used by the image data
-	std::size_t _memSize;
-
-	// The compression format ID
-	GLuint _format;
+public:
 
 	struct MipMapInfo 
 	{
@@ -37,6 +30,16 @@ class DDSImage :
 		{}
 	};
 	typedef std::vector<MipMapInfo> MipMapInfoList;
+
+private:
+	// The actual pixels
+	byte* _pixelData;
+
+	// The amount of memory used by the image data
+	std::size_t _memSize;
+
+	// The compression format ID
+	GLuint _format;
 
 	MipMapInfoList _mipMapInfo;
 
@@ -94,10 +97,6 @@ public:
 		_pixelData = NULL;
 	}
 
-	virtual std::size_t getNumMipMaps() const {
-		return _mipMapInfo.size();
-	}
-
 	/**
 	 * greebo: Returns the specified mipmap pixel data.
 	 */
@@ -122,7 +121,9 @@ public:
 		return _mipMapInfo[mipMapIndex].height;
 	}
 
-	virtual GLuint downloadTextureToGL() {
+    /* BindableTexture implementation */
+	TexturePtr bindTexture(const std::string& name) const
+    {
 		GLuint textureNum;
 
 		// Allocate a new texture number and store it into the Texture structure
@@ -144,7 +145,12 @@ public:
 		// Un-bind the texture
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		return textureNum;
+        // Create and return texture object
+        BasicTexture2DPtr texObj(new BasicTexture2D(textureNum, name));
+        texObj->setWidth(getWidth(0));
+        texObj->setHeight(getHeight(0));
+
+		return texObj;
 	}
 
 	bool isPrecompressed() const {

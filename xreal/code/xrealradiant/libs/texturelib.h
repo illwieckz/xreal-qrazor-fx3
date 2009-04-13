@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "iimage.h"
 #include "ishaders.h"
 
-typedef Vector3 Colour3;
 typedef unsigned int GLuint;
 
 enum ProjectionAxis {
@@ -39,40 +38,6 @@ enum ProjectionAxis {
 	eProjectionAxisY = 1,
 	eProjectionAxisZ = 2,
 };
-
-// describes a GL texture
-class Texture
-{
-public:
-	// The name of this texture
-	const std::string name;
-	
-	// The constructor object to retrieve the pixel data for this texture
-	TextureConstructorPtr constructor;
-	
-	// Texture Dimensions
-	std::size_t width, height;
-	
-	// The GL bind number for use in OpenGL calls
-	GLuint texture_number;
-	
-	// for flat shade mode
-	Colour3 color;
-	
-	// Constructor
-	Texture(const std::string& name) :
-		name(name),
-		texture_number(0)
-	{}
-	
-	~Texture() {
-		if (texture_number != 0) {
-			// Remove this texture from openGL if it's still loaded
-			glDeleteTextures(1, &texture_number);
-		}
-	}
-
-}; // class Texture 
 
 inline Matrix4 matrix4_rotation_for_vector3(const Vector3& x, const Vector3& y, const Vector3& z) {
 	return Matrix4(
@@ -110,7 +75,7 @@ inline Matrix4 matrix4_swap_axes(const Vector3& from, const Vector3& to) {
 
 	ERROR_MESSAGE("unhandled axis swap case");
 
-	return g_matrix4_identity;
+	return Matrix4::getIdentity();
 }
 
 inline Matrix4 matrix4_reflection_for_plane(const Plane3& plane) {

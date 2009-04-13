@@ -1,6 +1,5 @@
 #include "ApplicationContextImpl.h"
 
-#include "stream/textstream.h"
 #include "string/string.h"
 #include "debugging/debugging.h"
 #include "itextstream.h"
@@ -32,6 +31,14 @@ const std::string& ApplicationContextImpl::getSettingsPath() const {
 
 const std::string& ApplicationContextImpl::getBitmapsPath() const {
 	return _bitmapsPath;
+}
+
+std::size_t ApplicationContextImpl::getNumCmdLineArgs() const {
+	return _cmdLineArgs.size();
+}
+
+std::string ApplicationContextImpl::getCmdLineArg(std::size_t index) const {
+	return (index < _cmdLineArgs.size()) ? _cmdLineArgs[index] : "";
 }
 
 std::ostream& ApplicationContextImpl::getOutputStream() const {
@@ -169,6 +176,11 @@ void ApplicationContextImpl::initialise(int argc, char* argv[]) {
 // ============== OS-Specific Implementations end ===================
 
 void ApplicationContextImpl::initArgs(int argc, char* argv[]) {
+	// Store the arguments locally, ignore the first one
+	for (int i = 1; i < argc; i++) {
+		_cmdLineArgs.push_back(argv[i]);
+	}
+	
 	int i, j, k;
 	
 	for (i = 1; i < argc; i++) {

@@ -11,11 +11,13 @@
 #include "LogWriter.h"
 #include "StringLogDevice.h"
 
+#include <boost/bind.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 namespace ui {
 
 Console::Console() :
+	_vbox(gtk_vbox_new(FALSE, 6)),
 	_scrolled(gtk_scrolled_window_new(NULL, NULL))
 {
 	// Set the properties of the scrolled frame
@@ -25,6 +27,7 @@ Console::Console() :
 
 	// Create the textview, which acts as textbuffer
 	_textView = gtk_text_view_new();
+
 	gtk_widget_set_size_request(_textView, 0, -1); // allow shrinking
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(_textView), GTK_WRAP_WORD);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(_textView), FALSE);
@@ -40,6 +43,11 @@ Console::Console() :
 
 	gtk_container_set_focus_chain(GTK_CONTAINER(_scrolled), NULL);
 
+	// Pack the scrolled textview and the entry box to the vbox
+	gtk_box_pack_start(GTK_BOX(_vbox), _scrolled, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(_vbox), _commandEntry, FALSE, FALSE, 0);
+	gtk_widget_show_all(_vbox);
+
 	// Remember the pointer to the textbuffer
 	_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(_textView));
 
@@ -48,9 +56,9 @@ Console::Console() :
 	const GdkColor red = { 0, 0xffff, 0x0000, 0x0000 };
 	const GdkColor black = { 0, 0x0000, 0x0000, 0x0000 };
 
-	errorTag = gtk_text_buffer_create_tag(_buffer, "red_foreground", "foreground-gdk", &red, 0);
-	warningTag = gtk_text_buffer_create_tag(_buffer, "yellow_foreground", "foreground-gdk", &yellow, 0);
-	standardTag = gtk_text_buffer_create_tag(_buffer, "black_foreground", "foreground-gdk", &black, 0);
+	_errorTag = gtk_text_buffer_create_tag(_buffer, "red_foreground", "foreground-gdk", &red, 0);
+	_warningTag = gtk_text_buffer_create_tag(_buffer, "yellow_foreground", "foreground-gdk", &yellow, 0);
+	_standardTag = gtk_text_buffer_create_tag(_buffer, "black_foreground", "foreground-gdk", &black, 0);
 
 	// We're ready to catch log output, register ourselves
 	applog::LogWriter::Instance().attach(this);
@@ -70,9 +78,15 @@ Console::Console() :
 
 	// Destruct the temporary buffer
 	applog::StringLogDevice::destroy();
+
+	GlobalCommandSystem().addCommand("clear", boost::bind(&Console::clearCmd, this, _1));
 }
 
-void Console::toggle() {
+void Console::clearCmd(const cmd::ArgumentList& args) {
+	gtk_text_buffer_set_text(_buffer, "", -1);
+}
+
+void Console::toggle(const cmd::ArgumentList& args) {
 	GlobalGroupDialog().togglePage("console");  
 }
 
@@ -83,16 +97,16 @@ void Console::writeLog(const std::string& outputStr, applog::ELogLevel level) {
 	switch (level) {
 		case applog::SYS_VERBOSE:
 		case applog::SYS_STANDARD:
-			tag = standardTag;
+			tag = _standardTag;
 			break;
 		case applog::SYS_WARNING:
-			tag = warningTag;
+			tag = _warningTag;
 			break;
 		case applog::SYS_ERROR:
-			tag = errorTag;
+			tag = _errorTag;
 			break;
 		default:
-			tag = standardTag;
+			tag = _standardTag;
 	};
 
 	GtkTextIter iter;
@@ -115,11 +129,13 @@ void Console::writeLog(const std::string& outputStr, applog::ELogLevel level) {
 }
 
 GtkWidget* Console::getWidget() {
-	return _scrolled;
+	return _vbox;
 }
 
 void Console::shutdown() {
 	applog::LogWriter::Instance().detach(this);
+
+	GlobalCommandSystem().removeCommand("clear");
 }
 
 Console& Console::Instance() {

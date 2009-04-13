@@ -4,12 +4,12 @@
 #include "irenderable.h"
 #include "math/frustum.h"
 
+#include "../EntitySettings.h"
 #include "GenericEntityNode.h"
 
 namespace entity {
 
-GenericEntity::GenericEntity(IEntityClassPtr eclass, 
-		GenericEntityNode& node, 
+GenericEntity::GenericEntity(GenericEntityNode& node, 
 		const Callback& transformChanged, 
 		const Callback& evaluateTransform) :
 	m_entity(node._entity),
@@ -99,31 +99,31 @@ VolumeIntersectionValue GenericEntity::intersectVolume(
 	return volume.TestAABB(localAABB(), localToWorld);
 }
 
-void GenericEntity::renderArrow(Renderer& renderer, 
+void GenericEntity::renderArrow(RenderableCollector& collector, 
 	const VolumeTest& volume, const Matrix4& localToWorld) const
 {
 	if (GlobalRegistry().get("user/ui/xyview/showEntityAngles") == "1") {
-		renderer.addRenderable(m_arrow, localToWorld);
+		collector.addRenderable(m_arrow, localToWorld);
 	}
 }
 
-void GenericEntity::renderSolid(Renderer& renderer, 
+void GenericEntity::renderSolid(RenderableCollector& collector, 
 	const VolumeTest& volume, const Matrix4& localToWorld) const
 {
-	renderer.SetState(m_entity.getEntityClass()->getFillShader(), Renderer::eFullMaterials);
-	renderer.addRenderable(m_aabb_solid, localToWorld);
-	renderArrow(renderer, volume, localToWorld);
+	collector.SetState(m_entity.getEntityClass()->getFillShader(), RenderableCollector::eFullMaterials);
+	collector.addRenderable(m_aabb_solid, localToWorld);
+	renderArrow(collector, volume, localToWorld);
 }
 
-void GenericEntity::renderWireframe(Renderer& renderer, 
+void GenericEntity::renderWireframe(RenderableCollector& collector, 
 	const VolumeTest& volume, const Matrix4& localToWorld) const
 {
-	renderer.SetState(m_entity.getEntityClass()->getWireShader(), Renderer::eWireframeOnly);
-	renderer.addRenderable(m_aabb_wire, localToWorld);
-	renderArrow(renderer, volume, localToWorld);
+	collector.SetState(m_entity.getEntityClass()->getWireShader(), RenderableCollector::eWireframeOnly);
+	collector.addRenderable(m_aabb_wire, localToWorld);
+	renderArrow(collector, volume, localToWorld);
 	
-	if (isNameVisible()) {
-		renderer.addRenderable(m_renderName, localToWorld);
+	if (EntitySettings::InstancePtr()->renderEntityNames()) {
+		collector.addRenderable(m_renderName, localToWorld);
 	}
 }
 
@@ -183,8 +183,8 @@ void GenericEntity::construct() {
 }
 
 void GenericEntity::updateTransform() {
-	m_transform.localToParent() = g_matrix4_identity;
-	matrix4_translate_by_vec3(m_transform.localToParent(), m_origin);
+	m_transform.localToParent() = Matrix4::getIdentity();
+	m_transform.localToParent().translateBy(m_origin);
 	m_ray.direction = matrix4_transformed_direction(matrix4_rotation_for_z(degrees_to_radians(m_angle)), Vector3(1, 0, 0));
 	m_transformChanged();
 }

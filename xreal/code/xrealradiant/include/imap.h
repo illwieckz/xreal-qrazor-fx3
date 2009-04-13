@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "imodule.h"
 #include "inode.h"
 
+// Registry setting for suppressing the map load progress dialog
+const std::string RKEY_MAP_SUPPRESS_LOAD_STATUS_DIALOG = "user/ui/map/suppressMapLoadDialog";
+
 // Forward declaration
 namespace parser { class DefTokeniser; }
 
@@ -73,8 +76,10 @@ public:
 	/**
 	 * Read the contents of the given streams (which are contained in MapImportInfo)
 	 * and add them as children to the given root node (also in MapImportInfo).
+	 *
+	 * @returns: TRUE on success, FALSE if parsing errors occurred.
 	 */
-	virtual void readGraph(const map::MapImportInfo& importInfo) const = 0;
+	virtual bool readGraph(const map::MapImportInfo& importInfo) const = 0;
 
 	/** Traverse the scene graph and write contents into the provided output stream.
 	 * 

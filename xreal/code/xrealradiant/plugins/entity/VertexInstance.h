@@ -28,7 +28,7 @@ public:
 		_vertex(vertex), 
 		_selectable(observer),
 		_colour(ColourSchemes().getColour("light_vertex_deselected")),
-		_shader(GlobalShaderCache().capture("$BIGPOINT"))
+		_shader(GlobalRenderSystem().capture("$BIGPOINT"))
 	{}
   
 	void setVertex(const Vector3& vertex) {
@@ -71,17 +71,17 @@ public:
 	}
 	
 	// Front-end render function
-	void render(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld) const {
-		renderer.Highlight(Renderer::ePrimitive, false);
-		renderer.Highlight(Renderer::eFace, false);
-		renderer.SetState(_shader, Renderer::eFullMaterials);
-		renderer.SetState(_shader, Renderer::eWireframeOnly);
+	void render(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const {
+		collector.Highlight(RenderableCollector::ePrimitive, false);
+		collector.Highlight(RenderableCollector::eFace, false);
+		collector.SetState(_shader, RenderableCollector::eFullMaterials);
+		collector.SetState(_shader, RenderableCollector::eWireframeOnly);
 		
-		renderer.addRenderable(*this, localToWorld);
+		collector.addRenderable(*this, localToWorld);
 	}
 	
 	// GL render function (backend)
-  	virtual void render(RenderStateFlags state) const {
+  	virtual void render(const RenderInfo& info) const {
 		// Draw the center point
 	    glBegin(GL_POINTS);
 	    glColor3dv(_colour);

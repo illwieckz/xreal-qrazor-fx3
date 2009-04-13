@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define INCLUDED_TEXWINDOW_H
 
 #include "iregistry.h"
+#include "icommandsystem.h"
 #include "generic/callbackfwd.h"
 #include "signal/signalfwd.h"
 #include "gtkutil/nonmodal.h"
@@ -76,10 +77,7 @@ class TextureBrowser :
   NonModalEntry m_filterEntry;
 
   GtkWindow* m_parent;
-  gtkutil::GLWidget m_gl_widget;
-
-  guint m_sizeHandler;
-  guint m_exposeHandler;
+	gtkutil::GLWidgetPtr _glWidget;
 
   GtkWidget* m_texture_scroll;
 
@@ -113,6 +111,9 @@ public:
 	 * 			adds the options to the preferences dialog (called by plugin.cpp).
 	 */
 	void construct();
+
+	// Triggers a refresh
+	void update();
   
 	void clearFilter();
 	typedef MemberCaller<TextureBrowser, &TextureBrowser::clearFilter> ClearFilterCaller;
@@ -155,7 +156,7 @@ public:
 	 * 
 	 * Note: This is a command target, hence the static 
 	 */
-	static void toggle();
+	static void toggle(const cmd::ArgumentList& args);
 
 	/** greebo: Adds the according options to the Preferences dialog.
 	 */
@@ -217,9 +218,9 @@ public:
 private:
 	/** greebo: Returns the shader at the given coords.
 	 * 
-	 * @returns: the IShaderPtr, which may be empty.
+	 * @returns: the MaterialPtr, which may be empty.
 	 */
-	IShaderPtr getShaderAtCoords(int mx, int my);
+	MaterialPtr getShaderAtCoords(int mx, int my);
 	
 	/** greebo: Tries to select the shader at the given coords.
 	 * 			When successful, this applies the shader to the 
@@ -230,7 +231,7 @@ private:
 	/** greebo: Returns true if the given <shader> is visible,
 	 * 			taking filter and showUnused into account. 
 	 */ 
-	bool shaderIsVisible(IShaderPtr shader);
+	bool shaderIsVisible(MaterialPtr shader);
 	
 	// Static GTK Callbacks
 	static gboolean onExpose(GtkWidget* widget, GdkEventExpose* event, TextureBrowser* self);

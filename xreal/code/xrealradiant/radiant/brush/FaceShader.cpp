@@ -3,18 +3,11 @@
 #include "texturelib.h"
 #include "shaderlib.h"
 
-// Helper function
-void brush_check_shader(const std::string& name) {
-	if (!shader_valid(name.c_str())) {
-		globalErrorStream() << "brush face has invalid texture name: '" << name.c_str() << "'\n";
-	}
-}
-
 // Constructor
 FaceShader::FaceShader(const std::string& shader, const ContentsFlagsValue& flags) :
-	m_shader(shader),
+	_inUse(false),
+	_materialName(shader),
 	m_flags(flags),
-	m_instanced(false),
 	m_realised(false)
 {
 	captureShader();
@@ -25,25 +18,30 @@ FaceShader::~FaceShader() {
 	releaseShader();
 }
 
-void FaceShader::instanceAttach() {
-	m_instanced = true;
-	m_state->incrementUsed();
+void FaceShader::setInUse(bool inUse) 
+{
+	_inUse = inUse;
+    
+    // Update the shader's use count
+    if (inUse)
+        _glShader->incrementUsed();
+    else
+        _glShader->decrementUsed();
 }
 
-void FaceShader::instanceDetach() {
-	m_state->decrementUsed();
-	m_instanced = false;
-}
+void FaceShader::captureShader() 
+{
+    std::cout << "FaceShader::captureShader() name is " << _materialName << std::endl;
 
-void FaceShader::captureShader() {
-	brush_check_shader(m_shader);
-	m_state = GlobalShaderCache().capture(m_shader.c_str());
-	m_state->attach(*this);
+	_glShader = GlobalRenderSystem().capture(_materialName);
+    assert(_glShader);
+
+	_glShader->attach(*this);
 }
 
 void FaceShader::releaseShader() {
-	m_state->detach(*this);
-	m_state = ShaderPtr();
+	_glShader->detach(*this);
+	_glShader = ShaderPtr();
 }
 
 void FaceShader::realise() {
@@ -72,19 +70,19 @@ void FaceShader::detach(FaceShaderObserver& observer) {
 	m_observers.detach(observer);
 }
 
-const std::string& FaceShader::getShader() const {
-	return m_shader;
+const std::string& FaceShader::getMaterialName() const {
+	return _materialName;
 }
 
-void FaceShader::setShader(const std::string& name) {
-	if (m_instanced) {
-		m_state->decrementUsed();
+void FaceShader::setMaterialName(const std::string& name) {
+	if (_inUse) {
+		_glShader->decrementUsed();
 	}
 	releaseShader();
-	m_shader = name;
+	_materialName = name;
 	captureShader();
-	if (m_instanced) {
-		m_state->incrementUsed();
+	if (_inUse) {
+		_glShader->incrementUsed();
 	}
 }
 
@@ -102,27 +100,21 @@ void FaceShader::setFlags(const ContentsFlagsValue& flags) {
 	// greebo: old code // ContentsFlagsValue_assignMasked(m_flags, flags);
 }
 
-ShaderPtr FaceShader::state() const {
-	return m_state;
+ShaderPtr FaceShader::getGLShader() const {
+	return _glShader;
 }
 
 std::size_t FaceShader::width() const {
 	if (m_realised) {
-		return m_state->getTexture().width;
+		return _glShader->getMaterial()->getEditorImage()->getWidth();
 	}
 	return 1;
 }
 
 std::size_t FaceShader::height() const {
 	if (m_realised) {
-		return m_state->getTexture().height;
+		return _glShader->getMaterial()->getEditorImage()->getHeight();
 	}
 	return 1;
 }
 
-unsigned int FaceShader::shaderFlags() const {
-	if (m_realised) {
-		return m_state->getFlags();
-	}
-	return 0;
-}

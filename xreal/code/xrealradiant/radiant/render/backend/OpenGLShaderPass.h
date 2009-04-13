@@ -55,13 +55,36 @@ class OpenGLShaderPass
 private:
 
 	// Apply own state to the "current" state object passed in as a reference,
-	// in combination with the global state parameter
-	void applyState(OpenGLState& current, unsigned int globalState);
+	// in combination with the global state mask, as well as setting
+    // relevant GL parameters directly.
+	void applyState(OpenGLState& current,
+                    unsigned int globalStateMask,
+                    const Vector3& viewer);
 
-	// Flush out the renderables in the vector and draw them to screen
-	void flushRenderables(OpenGLState& current, 
-						  unsigned int globalstate, 
-						  const Vector3& viewer);
+	// Render all of our contained TransformedRenderables
+	void renderAllContained(OpenGLState& current, 
+						    const Vector3& viewer);
+
+    /* Helper functions to enable/disable particular GL states */
+
+    void setTexture0();
+
+    void enableTexture2D();
+    void disableTexture2D();
+
+    void enableTextureCubeMap();
+    void disableTextureCubeMap();
+
+    void enableRenderBlend();
+    void disableRenderBlend();
+
+    // Apply all OpenGLState textures to texture units
+    void applyAllTextures(OpenGLState& current, unsigned requiredState);
+
+    // Set up the cube map texture matrix if necessary
+    void setUpCubeMapAndTexGen(OpenGLState& current,
+                               unsigned requiredState,
+                               const Vector3& viewer);
 
 public:
 
@@ -81,10 +104,21 @@ public:
 	}
 
 	/**
-	 * Render the contents of this bucket.
-	 */
+	 * \brief
+     * Render the renderables attached to this shader pass.
+     *
+     * \param current
+     * The current OpenGL state variables.
+     *
+     * \param flagsMask
+     * Mask of allowed render flags.
+     *
+     * \param viewer
+     * Viewer location in world space.
+     *
+     */
 	void render(OpenGLState& current, 
-				unsigned int globalstate, 
+				unsigned int flagsMask, 
 				const Vector3& viewer);
 };
 

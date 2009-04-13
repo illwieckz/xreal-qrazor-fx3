@@ -10,7 +10,6 @@
 #include "GameFileLoader.h"
 #include "gtkutil/dialog.h"
 #include "gtkutil/messagebox.h"
-#include "mainframe.h"
 #include "Win32Registry.h"
 #include "modulesystem/StaticModule.h"
 #include "modulesystem/ApplicationContextImpl.h"
@@ -22,8 +21,7 @@ namespace game {
 	namespace {
 		const std::string RKEY_GAME_TYPE = "user/game/type";
 		const std::string RKEY_FS_GAME = "user/game/fs_game";
-		// This key is only temporarily used
-		const std::string RKEY_GAME_INDEX = "user/game/typeIndex";
+		const std::string RKEY_FS_GAME_BASE = "user/game/fs_game_base";
 		const std::string RKEY_PREFAB_FOLDER = "game/mapFormat/prefabFolder";
 		const std::string RKEY_MAPS_FOLDER = "game/mapFormat/mapFolder";
 	}
@@ -65,8 +63,13 @@ const std::string& Manager::getFSGame() const {
 	return _fsGame;
 }
 
+const std::string& Manager::getFSGameBase() const {
+	return _fsGameBase;
+}
+
 const std::string& Manager::getModPath() const {
-	return _modPath;
+	// Return the fs_game path if available
+	return (!_modPath.empty()) ? _modPath : _modBasePath;
 }
 
 /** greebo: Returns the current Game.
@@ -80,41 +83,48 @@ IGamePtr Manager::currentGame() {
 	return _games[_currentGameType];
 }
 
-void Manager::constructPreferences() {
+void Manager::constructPreferences() 
+{
 	PreferencesPagePtr page = GetPreferenceSystem().getPage("Game");
 	
 	ComboBoxValueList gameList;
-	for (GameMap::iterator i = _games.begin(); i != _games.end(); i++) {
+	for (GameMap::iterator i = _games.begin(); i != _games.end(); i++) 
+   {
 		gameList.push_back(i->second->getKeyValue("name"));
 	}
-	page->appendCombo("Select a Game:", RKEY_GAME_INDEX, gameList); 
-	
+	page->appendCombo("Select a Game:", RKEY_GAME_TYPE, gameList, true); 
 	page->appendPathEntry("Engine Path", RKEY_ENGINE_PATH, true);
-	page->appendEntry("Game Mod (fs_game)", RKEY_FS_GAME);
+	page->appendEntry("Mod (fs_game)", RKEY_FS_GAME);
+	page->appendEntry("Mod Base (fs_game_base, optional)", RKEY_FS_GAME_BASE);
 }
 
 /** greebo: Loads the game files and the saved settings.
  * 			If no saved game setting is found, the user
  * 			is asked to enter the relevant information in a Dialog. 
  */
-void Manager::initialise(const std::string& appPath) {
+void Manager::initialise(const std::string& appPath) 
+{
 	// Scan the <applicationpath>/games folder for .game files
 	loadGameFiles(appPath);
+   if (_games.empty()) 
+   {
+      // No game types available, bail out, the program would crash anyway on
+      // module load
+      gtkutil::fatalErrorDialog(
+         "GameManager: No valid game files found, can't continue\n", NULL
+      );
+   }
 	
 	// Add the settings widgets to the Preference Dialog, we might need it
 	constructPreferences();
 	
+	// Find the user's selected game from the XML registry, and attempt to find
+   // it in the set of available games.
 	std::string gameType = GlobalRegistry().get(RKEY_GAME_TYPE);
-	// Try to lookup the game
 	GameMap::iterator i = _games.find(gameType);
 	
-	if (gameType.empty() || i == _games.end()) {
-		// Check the number of available games
-		if (_games.size() == 0) {
-			// No game type selected, bail out, the program would crash anyway on module load
-			gtkutil::fatalErrorDialog("GameManager: No valid game files found, can't continue\n", NULL);
-		}
-		
+	if (gameType.empty() || i == _games.end()) 
+   {
 		// We have at least one game type available, select the first
 		// Store the name of the only game into the Registry 
 		GlobalRegistry().set(RKEY_GAME_TYPE, _games.begin()->first); 
@@ -153,10 +163,35 @@ void Manager::constructPaths() {
 	
 	// Make sure it's a well formatted path
 	_enginePath = os::standardPathWithSlash(_enginePath);
+
+	// Read command line parameters, these override any existing preference setting
+	const ApplicationContext& ctx = module::getRegistry().getApplicationContext();
+
+	for (std::size_t i = 0; i < ctx.getNumCmdLineArgs(); ++i) {
+		// get the argument and investigate it
+		std::string arg = ctx.getCmdLineArg(i);
+
+		if (boost::algorithm::istarts_with(arg, "fs_game=")) {
+			GlobalRegistry().set(RKEY_FS_GAME, arg.substr(8));
+		}
+		else if (boost::algorithm::istarts_with(arg, "fs_game_base=")) {
+			GlobalRegistry().set(RKEY_FS_GAME_BASE, arg.substr(13));
+		}
+	}
 	
-	// Load the fsGame from the registry
+	// Load the fsGame and fsGameBase from the registry
 	_fsGame = GlobalRegistry().get(RKEY_FS_GAME);
+	_fsGameBase = GlobalRegistry().get(RKEY_FS_GAME_BASE);
 	
+	if (!_fsGameBase.empty()) {	
+		// Create the mod base path
+		_modBasePath = os::standardPathWithSlash(getUserEnginePath() + _fsGameBase);
+	}
+	else {
+		// No fs_game_base, no mod base path
+		_modBasePath = "";
+	}
+
 	if (!_fsGame.empty()) {	
 		// Create the mod path
 		_modPath = os::standardPathWithSlash(getUserEnginePath() + _fsGame);
@@ -180,14 +215,14 @@ void Manager::initEnginePath() {
 		
 		globalOutputStream() << "GameManager: Querying Windows Registry for game path: "
 							 << "HKEY_LOCAL_MACHINE\\"
-							 << regKey.c_str() << "\\" << regValue.c_str() << "\n";
+							 << regKey << "\\" << regValue << "\n";
 		  
 		// Query the Windows Registry for a default installation path
 		// This will return "" for non-Windows environments
 		enginePath = Win32Registry::getKeyValue(regKey, regValue);
 		
 		globalOutputStream() << "GameManager: Windows Registry returned result: "
-							 << enginePath.c_str() << "\n";  	
+							 << enginePath << "\n";  	
 	}
 	
 	// If the engine path is still empty, consult the .game file for a fallback value
@@ -209,6 +244,9 @@ void Manager::initEnginePath() {
 			currentGame()->getRequiredKeyValue(ENGINEPATH_ATTRIBUTE)
 		);
 	}
+
+	// Normalise the path in any case
+	enginePath = os::standardPathWithSlash(enginePath);
 	
 	// Take this path and store it into the Registry, it's expected to be there
 	GlobalRegistry().set(RKEY_ENGINE_PATH, enginePath);
@@ -236,6 +274,11 @@ void Manager::initEnginePath() {
 			if (!_fsGame.empty() && !file_exists(_modPath.c_str())) {
 				msg += "The fs_game folder does not exist.\n";
 			}
+
+			if (!_fsGameBase.empty() && !file_exists(_modBasePath.c_str())) {
+				msg += "The fs_game_base folder does not exist.\n";
+			}
+
 			msg += "Do you want to correct these settings?";
 			if (gtk_MessageBox(0, msg.c_str(), "Invalid Settings", eMB_YESNO, eMB_ICONQUESTION) == eIDNO) {
 				break;
@@ -246,38 +289,94 @@ void Manager::initEnginePath() {
 	// Register as observer, to get notified about future engine path changes
 	GlobalRegistry().addKeyObserver(this, RKEY_ENGINE_PATH);
 	GlobalRegistry().addKeyObserver(this, RKEY_FS_GAME);
+	GlobalRegistry().addKeyObserver(this, RKEY_FS_GAME_BASE);
 	
 	// Force an update ((re-)initialises the VFS)
 	updateEnginePath(true);
 	
 	// Add the note to the preference page
 	PreferencesPagePtr page = GetPreferenceSystem().getPage("Game");
-	page->appendLabel("<b>Note</b>: You will have to restart XreaLRadiant for the changes to take effect.");
+	page->appendLabel("<b>Note</b>: You will have to restart DarkRadiant for the changes to take effect.");
 }
 
 bool Manager::settingsValid() const {
 	if (file_exists(_enginePath.c_str())) {
-		// Return true, if the fs_game is empty OR the modPath exists
-		return (_fsGame.empty() || file_exists(_modPath.c_str())); 
+
+		// Check the mod base path, if appropriate
+		if (!_fsGameBase.empty() && !file_exists(_modBasePath.c_str())) {
+			// Mod base name is not empty, but folder doesnt' exist
+			return false;
+		}
+
+		// Check the mod path, if appropriate
+		if (!_fsGame.empty() && !file_exists(_modPath.c_str())) {
+			// Mod name is not empty, but mod folder doesnt' exist
+			return false;
+		}
+
+		return true; // all settings there
 	}
+
+	// Engine path doesn't exist
 	return false;
 }
 
+// Callback when a registry key is changed
 void Manager::keyChanged(const std::string& key, const std::string& val) 
 {
 	// call the engine path setter, fs_game is updated there as well
 	updateEnginePath();
 }
 
-void Manager::updateEnginePath(bool forced) {
+void Manager::setMapAndPrefabPaths(const std::string& baseGamePath)
+{
+   // Construct the map path and make sure the folder exists
+   std::string mapPath;
+   
+   // Get the maps folder (e.g. "maps/")
+   std::string mapFolder = GlobalRegistry().get(RKEY_MAPS_FOLDER);
+   if (mapFolder.empty()) {
+      mapFolder = "maps/"; 
+   }
+    
+   if (_fsGame.empty() && _fsGameBase.empty()) {
+      mapPath = baseGamePath + mapFolder;
+   }
+   else if (!_fsGame.empty()) {
+      mapPath = _modPath + mapFolder;
+   }
+   else { // fsGameBase is not empty
+      mapPath = _modBasePath + mapFolder;
+   }
+   globalOutputStream() << "GameManager: Map path set to " << mapPath << "\n";
+   os::makeDirectory(mapPath);
+
+   // Save the map path to the registry
+   GlobalRegistry().set(RKEY_MAP_PATH, mapPath);
+
+   // Setup the prefab path
+   std::string prefabPath = mapPath;
+   std::string pfbFolder = GlobalRegistry().get(RKEY_PREFAB_FOLDER);
+   
+   // Replace the "maps/" with "prefabs/"
+   boost::algorithm::replace_last(prefabPath, mapFolder, pfbFolder);
+   // Store the path into the registry
+   globalOutputStream() << "GameManager: Prefab path set to " << prefabPath << "\n";
+   GlobalRegistry().set(RKEY_PREFAB_PATH, prefabPath);
+}
+
+void Manager::updateEnginePath(bool forced) 
+{
 	// Clean the new path
 	std::string newPath = os::standardPathWithSlash(
 		GlobalRegistry().get(RKEY_ENGINE_PATH)
 	);
+
 	std::string newFSGame = GlobalRegistry().get(RKEY_FS_GAME);
+	std::string newFSGameBase = GlobalRegistry().get(RKEY_FS_GAME_BASE);
 	
 	// Only update if any settings were changed, or if this is a "forced" update
-	if (newPath != _enginePath || newFSGame != _fsGame || forced) {
+	if (newPath != _enginePath || newFSGame != _fsGame || newFSGameBase != _fsGameBase || forced) {
 		// Check, if the engine path was already initialised in this session
 		// If yes, shutdown the virtual filesystem.
 		if (_enginePathInitialised) {
@@ -289,9 +388,10 @@ void Manager::updateEnginePath(bool forced) {
 		
 		// Set the new fs_game and engine paths
 		_fsGame = newFSGame;
+		_fsGameBase = newFSGameBase;
 		_enginePath = newPath;
 		
-		// Reconstruct the paths basing on these two, the _modPath may be out of date
+		// Reconstruct the paths basing on these two, the _modBasePath may be out of date
 		constructPaths();
 		
 		if (!_enginePathInitialised) {
@@ -305,14 +405,25 @@ void Manager::updateEnginePath(bool forced) {
 				_vfsSearchPaths.push_back(baseModPath);
 #endif
 			}
-			
+
+			if (!_fsGameBase.empty()) {
+				// We have a MOD base, register this directory as second
+				_vfsSearchPaths.push_back(_modBasePath);
+				
 #if defined(POSIX)
-			// this is the *NIX path ~/.doom3/base/
+				// On Linux, the above was in ~/.doom3/, search the engine mod path as well
+				std::string baseModPath = os::standardPathWithSlash(_enginePath + _fsGameBase);
+				_vfsSearchPaths.push_back(baseModPath);
+#endif
+			}
+			
+			// On UNIX this is the user-local enginepath, e.g. ~/.doom3/base/
+         // On Windows this will be the same as global engine path
 			std::string userBasePath = os::standardPathWithSlash(
-				getUserEnginePath() + _enginePath + currentGame()->getRequiredKeyValue("basegame")
+				getUserEnginePath() // ~/.doom3
+            + currentGame()->getRequiredKeyValue("basegame") // base
 			);
 			_vfsSearchPaths.push_back(userBasePath);
-#endif
 			
 			// Register the base game folder (/usr/local/games/doom3/<basegame>) last
 			// This will always be searched, but *after* the other paths
@@ -321,42 +432,17 @@ void Manager::updateEnginePath(bool forced) {
 			);
 			_vfsSearchPaths.push_back(baseGame);
 			
-			// Construct the map path and make sure the folder exists
-			std::string mapPath;
-			
-			// Get the maps folder (e.g. "maps/")
-			std::string mapFolder = GlobalRegistry().get(RKEY_MAPS_FOLDER);
-			if (mapFolder.empty()) {
-				mapFolder = "maps/"; 
-			}
-			 
-			if (_fsGame.empty()) {
-				mapPath = baseGame + mapFolder;
-			}
-			else {
-				mapPath = _modPath + mapFolder;
-			}
-			globalOutputStream() << "GameManager: Map path set to " << mapPath.c_str() << "\n";
-			os::makeDirectory(mapPath);
-
-			// Save the map path to the registry
-			GlobalRegistry().set(RKEY_MAP_PATH, mapPath);
-
-			// Setup the prefab path
-			std::string prefabPath = mapPath;
-			std::string pfbFolder = GlobalRegistry().get(RKEY_PREFAB_FOLDER);
-			
-			// Replace the "maps/" with "prefabs/"
-			boost::algorithm::replace_last(prefabPath, mapFolder, pfbFolder);
-			// Store the path into the registry
-			globalOutputStream() << "GameManager: Prefab path set to " << prefabPath.c_str() << "\n";
-			GlobalRegistry().set(RKEY_PREFAB_PATH, prefabPath);
+         // Update map and prefab paths
+         setMapAndPrefabPaths(userBasePath);
 
 			_enginePathInitialised = true;
 			
 			globalOutputStream() << "VFS Search Path priority is: \n"; 
-			for (PathList::iterator i = _vfsSearchPaths.begin(); i != _vfsSearchPaths.end(); i++) {
-				globalOutputStream() << "- " << i->c_str() << "\n";
+			for (PathList::iterator i = _vfsSearchPaths.begin();
+              i != _vfsSearchPaths.end();
+              i++) 
+         {
+				globalOutputStream() << "- " << (*i) << "\n";
 			}
 		}
 	}
@@ -380,17 +466,18 @@ const std::string& Manager::getCurrentGameType() const {
 
 /** greebo: Scans the "games/" subfolder for .game description foles.
  */
-void Manager::loadGameFiles(const std::string& appPath) {
+void Manager::loadGameFiles(const std::string& appPath) 
+{
 	std::string gamePath = appPath + "games/";
-	globalOutputStream() << "GameManager: Scanning for game description files: " << gamePath.c_str() << '\n';
+	globalOutputStream() << "GameManager: Scanning for game description files: " << gamePath << '\n';
 
 	// Invoke a GameFileLoader functor on every file in the games/ dir.
 	GameFileLoader gameFileLoader(_games, gamePath);
 	Directory_forEach(gamePath.c_str(), gameFileLoader);
 	
-	globalOutputStream() << "GameManager: Found game definitions: ";
+	globalOutputStream() << "GameManager: Found game definitions:\n";
 	for (GameMap::iterator i = _games.begin(); i != _games.end(); i++) {
-		globalOutputStream() << i->first.c_str() << " ";
+		globalOutputStream() << "  " << i->first << "\n";
 	}
 	globalOutputStream() << "\n";
 }

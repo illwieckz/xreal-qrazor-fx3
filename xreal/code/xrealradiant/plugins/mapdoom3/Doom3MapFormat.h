@@ -32,10 +32,16 @@ public:
     /**
      * Read tokens from a map stream and create entities accordingly.
      */
-    void readGraph(const MapImportInfo& importInfo) const;
+    bool readGraph(const MapImportInfo& importInfo) const;
 
 	// Write scene graph to an ostream
 	void writeGraph(const MapExportInfo& exportInfo) const;
+
+private:
+	// Helper functions to handle child brushes of func_statics which have to
+	// be saved relative to their parent's origin
+	void addOriginToChildPrimitives(const scene::INodePtr& root) const;
+	void removeOriginFromChildPrimitives(const scene::INodePtr& root) const;
 };
 typedef boost::shared_ptr<Doom3MapFormat> Doom3MapFormatPtr;
 

@@ -71,6 +71,7 @@ public:
 	
 	// Connect a GtkWidget to this event (the event must support the according widget). 
 	virtual void connectWidget(GtkWidget* widget) = 0; 
+	virtual void disconnectWidget(GtkWidget* widget) = 0; 
 	
 	// Exports the current state to the widgets
 	virtual void updateWidgets() = 0;
@@ -172,7 +173,10 @@ public:
 	virtual std::string getAcceleratorStr(const IEventPtr event, bool forMenu) = 0;
 	
 	// Creates a new command that calls the given callback when invoked  
-	virtual IEventPtr addCommand(const std::string& name, const Callback& callback, bool reactOnKeyUp = false) = 0;
+	//virtual IEventPtr addCommand(const std::string& name, const Callback& callback, bool reactOnKeyUp = false) = 0;
+
+	// Add a command and specify the statement to execute when triggered
+	virtual IEventPtr addCommand(const std::string& name, const std::string& statement, bool reactOnKeyUp = false) = 0;
 	
 	// Creates a new keyevent that calls the given callback when invoked  
 	virtual IEventPtr addKeyEvent(const std::string& name, const Callback& keyUpCallback, const Callback& keyDownCallback) = 0;
@@ -215,6 +219,9 @@ public:
 	// Enables/Disables the specified command
 	virtual void enableEvent(const std::string& eventName) = 0;
 	virtual void disableEvent(const std::string& eventName) = 0;
+
+	// Removes the given event and disconnects all accelerators from it
+	virtual void removeEvent(const std::string& eventName) = 0;
 	
 	// Visit each event with the given class
 	virtual void foreachEvent(IEventVisitor& eventVisitor) = 0;

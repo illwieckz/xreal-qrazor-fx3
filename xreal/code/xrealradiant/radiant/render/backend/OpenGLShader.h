@@ -16,11 +16,67 @@
 class OpenGLShader 
 : public Shader
 {
+    // List of shader passes for this shader
 	typedef std::list<OpenGLShaderPass*> Passes;
-	Passes m_passes;
-	IShaderPtr m_shader;
+	Passes _shaderPasses;
+
+    // The Material corresponding to this OpenGLShader
+	MaterialPtr _iShader;
+
 	std::size_t m_used;
 	ModuleObservers m_observers;
+
+private:
+
+    // Triplet of diffuse, bump and specular shaders
+    struct DBSTriplet
+    {
+        // DBS layers
+        ShaderLayerPtr diffuse;
+        ShaderLayerPtr bump;
+        ShaderLayerPtr specular;
+
+        // Need-depth-fill flag
+        bool needDepthFill;
+
+        // Initialise
+        DBSTriplet()
+        : needDepthFill(true)
+        { }
+
+        // Clear pointers
+        void reset()
+        {
+            diffuse.reset();
+            bump.reset();
+            specular.reset();
+            needDepthFill = false;
+        }
+    };
+
+private:
+
+    // Start point for constructing shader passes from the shader name
+	void construct(const std::string& name);
+
+    // Construct shader passes from a regular shader (as opposed to a special
+    // built-in shader)
+    void constructNormalShader(const std::string& name);
+
+    // Shader pass construction helpers
+    void appendBlendLayer(ShaderLayerPtr layer);
+    void appendInteractionLayer(const DBSTriplet& triplet);
+    void constructLightingPassesFromMaterial();
+    void constructEditorPreviewPassFromMaterial();
+
+    // Destroy internal data
+	void destroy();
+
+    // Add a shader pass to the end of the list, and return its state object
+	OpenGLState& appendDefaultPass();
+
+    // Test if we can render using lighting mode
+    bool canUseLightingMode() const;
 
 public:
 	
@@ -30,9 +86,6 @@ public:
 	OpenGLShader() 
 	: m_used(0)
 	{ }
-
-	void construct(const std::string& name);
-	void destroy();
 
 	/**
 	 * Add a renderable object to this shader.
@@ -47,7 +100,7 @@ public:
 
   bool realised() const
   {
-    return m_shader != 0;
+    return _iShader != 0;
   }
 
   void attach(ModuleObserver& observer)
@@ -75,16 +128,13 @@ public:
 
 	void unrealise();
 
-	// Return the IShader*
-	IShaderPtr getIShader() const {
-		return m_shader;
+	// Return the Material*
+	MaterialPtr getMaterial() const {
+		return _iShader;
 	}
-
-	Texture& getTexture() const;
 
 	unsigned int getFlags() const;
 
-	OpenGLState& appendDefaultPass();
 };
 
 

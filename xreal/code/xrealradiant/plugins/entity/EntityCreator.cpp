@@ -28,7 +28,7 @@ namespace entity {
 		}
 	}
 
-scene::INodePtr Doom3EntityCreator::getEntityForEClass(IEntityClassPtr eclass) {
+scene::INodePtr Doom3EntityCreator::getEntityForEClass(const IEntityClassConstPtr& eclass) {
 	
 	// Null entityclass check
 	if (!eclass) {
@@ -65,7 +65,7 @@ scene::INodePtr Doom3EntityCreator::getEntityForEClass(IEntityClassPtr eclass) {
 	return node;
 }
 
-scene::INodePtr Doom3EntityCreator::createEntity(IEntityClassPtr eclass) {
+scene::INodePtr Doom3EntityCreator::createEntity(const IEntityClassConstPtr& eclass) {
 	scene::INodePtr node = getEntityForEClass(eclass);
 	Entity* entity = Node_getEntity(node);
 	assert(entity != NULL);
@@ -159,7 +159,7 @@ const StringSet& Doom3EntityCreator::getDependencies() const {
 		_dependencies.insert(MODULE_XMLREGISTRY);
 		_dependencies.insert(MODULE_MAP);
 		_dependencies.insert(MODULE_SCENEGRAPH);
-		_dependencies.insert(MODULE_SHADERCACHE);
+		_dependencies.insert(MODULE_RENDERSYSTEM);
 		_dependencies.insert(MODULE_UNDOSYSTEM);
 	}
 
