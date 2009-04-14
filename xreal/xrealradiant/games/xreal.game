@@ -89,6 +89,12 @@
 			<filterCriterion type="texture" match="textures/common/clip(_plusmovables)*$" action="hide" />
 			<filterCriterion type="texture" match="textures/common/moveableclipmodel" action="hide" />
 		</filter>
+		<filter name="Hint Textures">
+			<filterCriterion 
+				type="texture" 
+				match="textures/common/hint(.*)" 
+				action="hide" />
+		</filter>
 		<filter name="Trigger Textures">
 			<filterCriterion 
 				type="texture" 
