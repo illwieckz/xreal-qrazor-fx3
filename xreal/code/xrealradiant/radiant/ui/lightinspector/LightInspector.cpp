@@ -25,27 +25,27 @@ namespace ui
 /* CONSTANTS */
 
 namespace {
-
+	
 	const char* LIGHTINSPECTOR_TITLE = "Light properties";
-
+	
 	const char* PARALLEL_TEXT = "Parallel";
 	const char* NOSHADOW_TEXT = "Do not cast shadows";
 	const char* NORADIOSITY_TEXT = "Realtime: skip XMap2 lightmap creation";
 
 	const std::string RKEY_WINDOW_STATE = "user/ui/lightInspector/window";
 	const std::string RKEY_INSTANT_APPLY = "user/ui/lightInspector/instantApply";
-
+	
 	const char* LIGHT_PREFIX_XPATH = "game/light/texture//prefix";
-
+	
 	/** greebo: Loads the prefixes from the registry and creates a
 	 * 			comma-separated list string
 	 */
 	inline std::string getPrefixList() {
 		std::string prefixes;
-
+		
 		// Get the list of light texture prefixes from the registry
 		xml::NodeList prefList = GlobalRegistry().findXPath(LIGHT_PREFIX_XPATH);
-
+		
 		// Copy the Node contents into the prefix vector
 		for (xml::NodeList::iterator i = prefList.begin();
 			 i != prefList.end();
@@ -54,26 +54,26 @@ namespace {
 			prefixes += (prefixes.empty()) ? "" : ",";
 			prefixes += i->getContent();
 		}
-
+		
 		return prefixes;
 	}
 }
 
 // Private constructor creates GTK widgets
-LightInspector::LightInspector() 
+LightInspector::LightInspector()
 : gtkutil::PersistentTransientWindow(LIGHTINSPECTOR_TITLE, GlobalRadiant().getMainWindow(), true),
   _isProjected(false),
   _texSelector(this, getPrefixList(), true),
   _updateActive(false)
 {
 	gtk_window_set_type_hint(GTK_WINDOW(getWindow()), GDK_WINDOW_TYPE_HINT_DIALOG);
-
+	
     // Window size
 	GdkScreen* scr = gtk_window_get_screen(GTK_WINDOW(getWindow()));
 	gtk_window_set_default_size(GTK_WINDOW(getWindow()),
 								gint(gdk_screen_get_width(scr) * 0.5),
 								-1);
-
+	
 	// Left-hand panels (volume, colour, options)
 	GtkWidget* panels = gtk_vbox_new(FALSE, 12);
 
@@ -117,7 +117,7 @@ LightInspector::LightInspector()
 
 	_mainVBox = gtk_vbox_new(FALSE, 12);
 	gtk_box_pack_start(GTK_BOX(_mainVBox), hbx, TRUE, TRUE, 0);
-
+	
 	// Create an apply button, if instant-apply is disabled
 	if (GlobalRegistry().get(RKEY_INSTANT_APPLY) == "0") {
 		gtk_box_pack_start(GTK_BOX(_mainVBox), gtk_hseparator_new(), FALSE, FALSE, 0);
@@ -126,13 +126,13 @@ LightInspector::LightInspector()
 
 	gtk_container_set_border_width(GTK_CONTAINER(getWindow()), 12);
 	gtk_container_add(GTK_CONTAINER(getWindow()), _mainVBox);
-
+	
 	// Register to get notified upon selection change
 	GlobalSelectionSystem().addObserver(this);
-
+	
 	// Propagate shortcuts that are not processed by this window
 	GlobalEventManager().connectDialogWindow(GTK_WINDOW(getWindow()));
-
+	
 	// Connect the window position tracker
 	_windowPosition.loadFromPath(RKEY_WINDOW_STATE);
 	
@@ -142,15 +142,15 @@ LightInspector::LightInspector()
 
 LightInspectorPtr& LightInspector::InstancePtr() {
 	static LightInspectorPtr _instancePtr;
-
+	
 	if (_instancePtr == NULL) {
 		// Not yet instantiated, do it now
 		_instancePtr = LightInspectorPtr(new LightInspector);
-
+		
 		// Register this instance with GlobalRadiant() at once
 		GlobalRadiant().addEventListener(_instancePtr);
 	}
-
+	
 	return _instancePtr;
 }
 
@@ -158,10 +158,10 @@ void LightInspector::onRadiantShutdown()
 {
 	// Tell the position tracker to save the information
 	_windowPosition.saveToPath(RKEY_WINDOW_STATE);
-	
+
 	GlobalSelectionSystem().removeObserver(this);
 	GlobalEventManager().disconnectDialogWindow(GTK_WINDOW(getWindow()));
-	
+
 	// Destroy the window
 	destroy();
 }
@@ -482,18 +482,6 @@ void LightInspector::getValuesFromEntity()
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(_projLightToggle), _isProjected);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(_pointLightToggle), !_isProjected);
 
-	// If this entity has light_start and light_end keys, set the checkbox
-	/*
-	if (!entity->getKeyValue("light_start").empty()
-		&& !entity->getKeyValue("light_end").empty())
-	{
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(_useStartEnd), TRUE);
-	}
-	else {
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(_useStartEnd), FALSE);
-	}
-	*/
-
 	// Set the options checkboxes
 	for (WidgetMap::iterator i = _options.begin(); i != _options.end(); ++i) {
 		if (entity->getKeyValue(i->first) == "1")
@@ -552,12 +540,6 @@ void LightInspector::setValuesOnEntity(Entity* entity)
 	// Remove vector keys that should not exist, depending on the lightvolume
 	// options
 	if (_isProjected) {
-
-		// Clear start/end vectors if checkbox is disabled
-//		if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(_useStartEnd))) {
-//			entity->setKeyValue("light_start", "");
-//			entity->setKeyValue("light_end", "");
-//		}
 
 		// Blank out pointlight values
 		entity->setKeyValue("light_radius", "");

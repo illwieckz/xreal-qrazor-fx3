@@ -348,6 +348,22 @@ void Light::freezeTransform() {
 			_lightEnd = _lightEndTransformed;
 			m_entity.setKeyValue("light_end", _lightEnd);
 		}
+#else
+		if(m_useLightFovX) {
+			m_entity.setKeyValue("light_fovX", floatToStr(m_lightFovX, "45"));
+		}
+
+		if(m_useLightFovY) {
+			m_entity.setKeyValue("light_fovY", floatToStr(m_lightFovY, "45"));
+		}
+
+		if(m_useLightNear) {
+			m_entity.setKeyValue("light_near", floatToStr(m_lightNear, "1"));
+		}
+
+		if(m_useLightFar) {
+			m_entity.setKeyValue("light_far", floatToStr(m_lightFar, "300"));
+		}
 #endif
     }
     else

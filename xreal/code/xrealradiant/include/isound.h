@@ -57,6 +57,7 @@ struct ISoundFile {
 	 */
 	//virtual SoundFileList getSoundFileList() const = 0;
 };
+typedef boost::shared_ptr<ISoundFile> ISoundFilePtr;
 
 /**
  * Sound shader visitor function typedef.
