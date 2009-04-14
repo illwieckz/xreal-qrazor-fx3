@@ -14,10 +14,12 @@ copy ..\..\w32deps\gtk2\bin\iconv.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\intl.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\jpeg62.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libatk-1.0-0.dll ..\..\..\..\xrealradiant
+copy ..\..\w32deps\gtk2\bin\libgailutil-18.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libcairo-2.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libfontconfig-1.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libgdk_pixbuf-2.0-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libgdk-win32-2.0-0.dll ..\..\..\..\xrealradiant
+copy ..\..\w32deps\gtk2\bin\libgio-2.0-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libglib-2.0-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libgmodule-2.0-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libgobject-2.0-0.dll ..\..\..\..\xrealradiant
@@ -28,5 +30,5 @@ copy ..\..\w32deps\gtk2\bin\libpangoft2-1.0-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libpangowin32-1.0-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libgdkglext-win32-1.0-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libgtkglext-win32-1.0-0.dll ..\..\..\..\xrealradiant
-copy ..\..\w32deps\gtk2\bin\libpng12.dll ..\..\..\..\xrealradiant
+copy ..\..\w32deps\gtk2\bin\libpng12-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\zlib1.dll ..\..\..\..\xrealradiant
