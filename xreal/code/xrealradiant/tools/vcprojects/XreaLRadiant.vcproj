@@ -465,55 +465,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\radiant\mainframe.cpp"
+				RelativePath="..\..\radiant\mainframe_old.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\radiant\mainframe.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\radiant\map.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\radiant\map.h"
+				RelativePath="..\..\radiant\mainframe_old.h"
 				>
 			</File>
 			<File
@@ -872,6 +828,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\radiant\camera\FloatingCamWnd.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\radiant\camera\FloatingCamWnd.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\radiant\camera\GlobalCamera.cpp"
 					>
 				</File>
@@ -945,6 +909,14 @@
 				</File>
 				<File
 					RelativePath="..\..\radiant\map\Map.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\radiant\map\MapFileChooserPreview.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\radiant\map\MapFileChooserPreview.h"
 					>
 				</File>
 				<File
@@ -1028,6 +1000,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\radiant\map\StartupMapLoader.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\radiant\map\StartupMapLoader.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\radiant\map\UndoFileChangeTracker.h"
 					>
 				</File>
@@ -1048,6 +1028,10 @@
 					</File>
 					<File
 						RelativePath="..\..\radiant\map\algorithm\Traverse.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\map\algorithm\WorldspawnArgFinder.h"
 						>
 					</File>
 				</Filter>
@@ -1220,11 +1204,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\radiant\render\OpenGLShaderCache.cpp"
+					RelativePath="..\..\radiant\render\OpenGLRenderSystem.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\radiant\render\OpenGLShaderCache.h"
+					RelativePath="..\..\radiant\render\OpenGLRenderSystem.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\radiant\render\RenderStatistics.h"
 					>
 				</File>
 				<Filter
@@ -1262,17 +1250,13 @@
 						RelativePath="..\..\radiant\render\backend\OpenGLStateLess.h"
 						>
 					</File>
-					<File
-						RelativePath="..\..\radiant\render\backend\OpenGLStateMap.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\radiant\render\backend\OpenGLStateMap.h"
-						>
-					</File>
 					<Filter
 						Name="glprogram"
 						>
+						<File
+							RelativePath="..\..\radiant\render\backend\glprogram\ARBBumpProgram.cpp"
+							>
+						</File>
 						<File
 							RelativePath="..\..\radiant\render\backend\glprogram\ARBBumpProgram.h"
 							>
@@ -1447,7 +1431,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|x64"
 							>
 							<Tool
 								Name="VCCLCompilerTool"
@@ -1456,7 +1440,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Debug|x64"
+							Name="Release|Win32"
 							>
 							<Tool
 								Name="VCCLCompilerTool"
@@ -1719,6 +1703,26 @@
 					Name="common"
 					>
 					<File
+						RelativePath="..\..\radiant\ui\common\CommandEntry.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\common\CommandEntry.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\common\MapPreview.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\common\MapPreview.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\common\MapPreviewView.h"
+						>
+					</File>
+					<File
 						RelativePath="..\..\radiant\ui\common\ModelPreview.cpp"
 						>
 					</File>
@@ -1752,6 +1756,14 @@
 					</File>
 					<File
 						RelativePath="..\..\radiant\ui\common\ShaderSelector.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\common\SoundChooser.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\common\SoundChooser.h"
 						>
 					</File>
 					<File
@@ -1884,14 +1896,6 @@
 					</File>
 					<File
 						RelativePath="..\..\radiant\ui\einspector\SkinPropertyEditor.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\radiant\ui\einspector\SoundChooser.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\radiant\ui\einspector\SoundChooser.h"
 						>
 					</File>
 					<File
@@ -2259,6 +2263,94 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="filterdialog"
+					>
+					<File
+						RelativePath="..\..\radiant\ui\filterdialog\Filter.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\filterdialog\FilterDialog.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\filterdialog\FilterDialog.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\filterdialog\FilterEditor.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\filterdialog\FilterEditor.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="mainframe"
+					>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\EmbeddedLayout.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\EmbeddedLayout.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\FloatingLayout.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\FloatingLayout.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\LayoutCommand.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\MainFrame.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\MainFrame.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\MainFrameLayoutManager.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\MainFrameLayoutManager.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\RegularLayout.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\RegularLayout.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\ScreenUpdateBlocker.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\ScreenUpdateBlocker.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\SplitPaneLayout.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\mainframe\SplitPaneLayout.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="xyview"
@@ -2312,7 +2404,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32"
+						Name="Debug|x64"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2321,7 +2413,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|x64"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2408,7 +2500,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32"
+						Name="Debug|x64"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2417,7 +2509,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|x64"
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
