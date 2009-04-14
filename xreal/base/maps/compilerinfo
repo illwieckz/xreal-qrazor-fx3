@@ -9,7 +9,7 @@ esac
 
 if [ ! -f $COMPILER ]; then
         echo "`basename $COMPILER` not found!"
-        echo "Did you build with mapping=1?"
+        echo "Did you build XreaL with scons xmap=1?"
         exit 1
 fi
 
