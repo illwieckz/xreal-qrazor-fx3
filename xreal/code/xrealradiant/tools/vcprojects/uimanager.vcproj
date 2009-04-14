@@ -439,6 +439,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\plugins\uimanager\ShutdownListener.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\plugins\uimanager\StatusBarManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\plugins\uimanager\StatusBarManager.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\plugins\uimanager\ToolbarManager.cpp"
 				>
 			</File>

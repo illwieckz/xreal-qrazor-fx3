@@ -132,6 +132,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\include\icommandsystem.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\icounter.h"
 			>
 		</File>
@@ -204,6 +208,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\include\imainframe.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\imainframelayout.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\imap.h"
 			>
 		</File>
@@ -272,6 +284,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\include\iscript.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\iselection.h"
 			>
 		</File>
@@ -336,7 +352,19 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\include\ShaderLayer.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\stream_version.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\StringSerialisable.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Texture.h"
 			>
 		</File>
 		<File

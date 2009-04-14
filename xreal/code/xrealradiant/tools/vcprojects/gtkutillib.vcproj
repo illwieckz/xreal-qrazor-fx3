@@ -307,6 +307,10 @@
 				RelativePath="..\..\libs\gtkutil\ifc\EditorWidget.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\libs\gtkutil\ifc\Widget.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath="..\..\libs\gtkutil\clipboard.cpp"
@@ -441,6 +445,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\libs\gtkutil\MultiMonitor.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\libs\gtkutil\nonmodal.cpp"
 			>
 		</File>
@@ -490,6 +498,14 @@
 		</File>
 		<File
 			RelativePath="..\..\libs\gtkutil\SeparatorMenuItem.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\libs\gtkutil\SerialisableWidgets.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\libs\gtkutil\SerialisableWidgets.h"
 			>
 		</File>
 		<File
