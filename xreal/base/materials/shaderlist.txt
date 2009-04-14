@@ -1,5 +1,6 @@
 blend2xmap
 bja_mapobject
+cardigan_skies
 common
 #common_lights
 #common_misc
@@ -48,6 +49,7 @@ raynorpat
 reflex_layout
 reflex_mapobject
 #reflex_sfx
+reflex_skies
 reflex_special
 reflex_trim
 reflex_ugly
@@ -60,6 +62,7 @@ tr3b_parallax
 tr3b_sky
 tr3b_video
 tr3b_water
+trak
 #zogg_floor
 #zogg_mapobject
 #zogg_misc
