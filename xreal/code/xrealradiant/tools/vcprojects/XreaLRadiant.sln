@@ -117,6 +117,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgtkglext", "libgtkglext\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgdkglext", "libgdkglext\libgdkglext.vcproj", "{C001FB56-998C-414A-A87D-BD48043CFD48}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "commandsystem", "commandsystem.vcproj", "{3E374D7E-B371-4373-9700-AA896E530C85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -345,6 +347,12 @@ Global
 		{C001FB56-998C-414A-A87D-BD48043CFD48}.Debug|x64.ActiveCfg = Debug|Win32
 		{C001FB56-998C-414A-A87D-BD48043CFD48}.Release|Win32.ActiveCfg = Release|Win32
 		{C001FB56-998C-414A-A87D-BD48043CFD48}.Release|x64.ActiveCfg = Release|Win32
+		{3E374D7E-B371-4373-9700-AA896E530C85}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3E374D7E-B371-4373-9700-AA896E530C85}.Debug|Win32.Build.0 = Debug|Win32
+		{3E374D7E-B371-4373-9700-AA896E530C85}.Debug|x64.ActiveCfg = Debug|Win32
+		{3E374D7E-B371-4373-9700-AA896E530C85}.Release|Win32.ActiveCfg = Release|Win32
+		{3E374D7E-B371-4373-9700-AA896E530C85}.Release|Win32.Build.0 = Release|Win32
+		{3E374D7E-B371-4373-9700-AA896E530C85}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
