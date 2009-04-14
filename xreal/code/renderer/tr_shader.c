@@ -1432,6 +1432,11 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 		imageBits |= IF_NORMALMAP;
 	}
 
+	if(stage->type == ST_NORMALMAP && shader.parallax)
+	{
+		imageBits |= IF_DISPLACEMAP;
+	}
+
 	if(stage->uncompressed || stage->highQuality || stage->forceHighQuality)
 	{
 		imageBits |= IF_NOCOMPRESSION;
