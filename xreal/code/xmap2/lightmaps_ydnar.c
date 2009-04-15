@@ -37,6 +37,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 #include "xmap2.h"
 
 
+#define USE_HDR_LIGHTMAPS 1
 
 
 /* -------------------------------------------------------------------------------
@@ -1934,6 +1935,7 @@ static void SetupOutLightmap(rawLightmap_t * lm, outLightmap_t * olm)
 	olm->lightBits = safe_malloc((olm->customWidth * olm->customHeight / 8) + 8);
 	memset(olm->lightBits, 0, (olm->customWidth * olm->customHeight / 8) + 8);
 
+#if defined(USE_HDR_LIGHTMAPS)
 	if(hdr)
 	{
 		olm->bspLightFloats = safe_malloc(olm->customWidth * olm->customHeight * 3 * sizeof(float));
@@ -1941,6 +1943,7 @@ static void SetupOutLightmap(rawLightmap_t * lm, outLightmap_t * olm)
 		olm->bspLightBytes = NULL;
 	}
 	else
+#endif
 	{
 		olm->bspLightBytes = safe_malloc(olm->customWidth * olm->customHeight * 3);
 		memset(olm->bspLightBytes, 0, olm->customWidth * olm->customHeight * 3);
@@ -2221,6 +2224,7 @@ static void FindOutLightmaps(rawLightmap_t * lm)
 				olm->freeLuxels--;
 
 				/* store color */
+#if defined(USE_HDR_LIGHTMAPS)
 				if(hdr)
 				{
 					float		*hdrPixel;
@@ -2233,6 +2237,7 @@ static void FindOutLightmaps(rawLightmap_t * lm)
 					//VectorCopy(color, hdrPixel);
 				}
 				else
+#endif
 				{
 					pixel = olm->bspLightBytes + (((oy * olm->customWidth) + ox) * 3);
 					ColorToBytes(color, pixel, lm->brightness);
@@ -2792,11 +2797,13 @@ void StoreSurfaceLightmaps(void)
 		for(i = 0; i < numOutLightmaps; i++)
 		{
 			free(outLightmaps[i].lightBits);
+#if defined(USE_HDR_LIGHTMAPS)
 			if(hdr)
 			{
 				free(outLightmaps[i].bspLightFloats);
 			}
 			else
+#endif
 			{
 				free(outLightmaps[i].bspLightBytes);
 			}
@@ -2920,6 +2927,7 @@ void StoreSurfaceLightmaps(void)
 			olm->extLightmapNum = numExtLightmaps;
 
 			/* write lightmap */
+#if defined(USE_HDR_LIGHTMAPS)
 			if(hdr)
 			{
 				sprintf(filename, "%s/" EXTERNAL_HDRLIGHTMAP, dirname, numExtLightmaps);
@@ -2927,6 +2935,7 @@ void StoreSurfaceLightmaps(void)
 				WriteRGBE(filename, olm->bspLightFloats, olm->customWidth, olm->customHeight);
 			}
 			else
+#endif
 			{
 				sprintf(filename, "%s/" EXTERNAL_LIGHTMAP, dirname, numExtLightmaps);
 				Sys_FPrintf(SYS_VRB, "\nwriting %s", filename);
