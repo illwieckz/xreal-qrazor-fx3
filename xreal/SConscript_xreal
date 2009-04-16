@@ -5,6 +5,7 @@ Import('env')
 xreal_env = env.Clone()
 
 xreal_src = [
+'code/client/cin_ogm.c',
 'code/client/cl_avi.c',
 'code/client/cl_cgame.c',
 'code/client/cl_cin.c',
@@ -212,7 +213,34 @@ xreal_src = [
 'code/speex/stereo.c',
 'code/speex/vbr.c',
 'code/speex/vq.c',
+'code/theora/lib/dec/apiwrapper.c',
+'code/theora/lib/dec/bitpack.c',
+'code/theora/lib/dec/decapiwrapper.c',
+'code/theora/lib/dec/decinfo.c',
+'code/theora/lib/dec/decode.c',
+'code/theora/lib/dec/dequant.c',
+'code/theora/lib/dec/fragment.c',
+'code/theora/lib/dec/huffdec.c',
+'code/theora/lib/dec/idct.c',
+'code/theora/lib/dec/info.c',
+'code/theora/lib/dec/internal.c',
+'code/theora/lib/dec/quant.c',
+'code/theora/lib/dec/state.c',
 'code/openexr/half.cpp'
+]
+
+theora_decoder_x86_32_src = [
+'code/theora/lib/dec/x86/mmxidct.c',
+'code/theora/lib/dec/x86/mmxfrag.c',
+'code/theora/lib/dec/x86/mmxstate.c',
+'code/theora/lib/dec/x86/x86state.c'
+]
+
+theora_decoder_x86_64_src = [
+'code/theora/lib/dec/x86/mmxidct.c',
+'code/theora/lib/dec/x86/mmxfrag.c',
+'code/theora/lib/dec/x86/mmxstate.c',
+'code/theora/lib/dec/x86/x86state.c'
 ]
 
 unix_src = [
@@ -247,6 +275,8 @@ xreal_env.Append(CCFLAGS='-DUSE_VOIP')
 xreal_env.Append(CCFLAGS='-DFLOATING_POINT')
 xreal_env.Append(CCFLAGS='-DUSE_ALLOCA')
 xreal_env.Append(CCFLAGS='-Icode/speex/include')
+xreal_env.Append(CCFLAGS='-DUSE_CIN_THEORA')
+xreal_env.Append(CCFLAGS='-Icode/theora/include')
 
 if env['optimize'] != '0':
 	env.Append(CCFLAGS = '-fno-strict-aliasing -funroll-loops')
@@ -281,8 +311,8 @@ if env['arch'] == 'linux-i386':
 	if env['smp'] == 1:
 		xreal_env.Append(CCFLAGS='-DSMP')
 		xreal_env.Append(LIBS=['pthread'])
-	
-	xreal_env.Program('xreal', [xreal_src, unix_src])	
+		
+	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])	
 	xreal_env.InstallAs('#xreal.x86', 'xreal')
 
 elif env['arch'] == 'linux-x86_64':
@@ -297,7 +327,7 @@ elif env['arch'] == 'linux-x86_64':
 		xreal_env.Append(CCFLAGS='-DSMP')
 		xreal_env.Append(LIBS=['pthread'])
 	
-	xreal_env.Program('xreal', [xreal_src, unix_src])		
+	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_64_src])		
 	xreal_env.InstallAs('#xreal.x86_64', 'xreal')
 
 elif env['arch'] == 'freebsd-i386':
@@ -311,7 +341,7 @@ elif env['arch'] == 'freebsd-i386':
 		xreal_env.Append(CCFLAGS='-DSMP')
 		xreal_env.Append(LIBS=['pthread'])
 	
-	xreal_env.Program('xreal', [xreal_src, unix_src])	
+	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])	
 	xreal_env.InstallAs('#xreal.x86', 'xreal')
 
 elif env['arch'] == 'win32-mingw':
@@ -321,7 +351,7 @@ elif env['arch'] == 'win32-mingw':
 	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
 
 	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm'])
-	xreal_env.Program('xreal', [xreal_src, win_src])
+	xreal_env.Program('xreal', [xreal_src, win_src, theora_decoder_x86_32_src])
 	xreal_env.Install('#', 'xreal.exe')
 
 elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
@@ -341,7 +371,7 @@ elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
 		xreal_env.Append(CCFLAGS='-DSMP')
 		xreal_env.Append(LIBS=['pthread'])
 	
-	xreal_env.Program('xreal', [xreal_src, unix_src])
+	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])
 	if env['arch'] == 'darwin-ppc':
 		xreal_env.InstallAs('#xreal.ppc', 'xreal')
 	elif env['arch'] == 'darwin-i386':
