@@ -663,6 +663,8 @@ intptr_t CL_CgameSystemCalls(intptr_t * args)
 			return 0;
 		case CG_R_LERPTAG:
 			return re.LerpTag(VMA(1), args[2], args[3], args[4], VMF(5), VMA(6));
+		case CG_R_CHECKSKELETON:
+			return re.CheckSkeleton(VMA(1), args[2], args[3]);
 		case CG_R_BUILDSKELETON:
 			return re.BuildSkeleton(VMA(1), args[2], args[3], args[4], VMF(5), args[6]);
 		case CG_R_BLENDSKELETON:
@@ -1156,7 +1158,7 @@ void CL_SetCGameTime(void)
 	else
 	{
 		// cl_timeNudge is a user adjustable cvar that allows more
-		// or less latency to be added in the interest of better 
+		// or less latency to be added in the interest of better
 		// smoothness or better responsiveness.
 		int             tn;
 
