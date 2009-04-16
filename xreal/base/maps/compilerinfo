@@ -20,7 +20,7 @@ COMPILE="$COMPILER -fs_basepath $FS_BASEPATH -fs_game $FS_GAME -game $GAME"
 
 # map_ convention used to prevent possible binary name collision
 map_bsp() {
-	$COMPILE -v -meta -leaktest $MAP
+	$COMPILE -v -meta -leaktest $BSPOPTS $MAP
 }
 
 map_debugportals() {
@@ -32,15 +32,19 @@ map_debugsurfaces() {
 }
 
 map_fastvis() {
-	$COMPILE -vis -fast $MAP
+	$COMPILE -vis -fast $VISOPTS $MAP
 }
 
 map_vis() {
-	$COMPILE -vis $MAP
+	$COMPILE -vis $VISOPTS $MAP
 }
 
 map_light() {
 	$COMPILE -light -v $LIGHTOPTS $MAP 
+}
+
+map_scale() {
+	$COMPILE -v -scale "$@" $MAP
 }
 
 map_defaultcommand() {
@@ -49,7 +53,7 @@ map_defaultcommand() {
 
 case $1 in
 	-bsp)
-		map_bsp;
+		map_bsp $BSPOPTS;
 		;;
 		
 	-debugportals)
@@ -61,11 +65,11 @@ case $1 in
 		;;
 
 	-fastvis)
-		map_fastvis;
+		map_fastvis $VISOPTS;
 		;;
 		
 	-vis)
-		map_vis;
+		map_vis $VISOPTS;
 		;;
 
 	-light)
@@ -73,8 +77,8 @@ case $1 in
 		;;
 
 	-all)
-		map_bsp;
-		map_vis;
+		map_bsp $BSPOPTS;
+		map_vis $VISOPTS;
 		map_light $LIGHTOPTS;
 		;;
 	*)
