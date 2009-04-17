@@ -17,6 +17,7 @@ __________________________________________
 	* improved Doom 3 .MD5Mesh/.MD5Anim model and animation support
 	* added Unreal Actor X .PSK/.PSA model and animation support
 	* updated core engine to the latest ioquake3 1.36 code
+	* merged OGG Theora playback support for cinematics from the WOP engine
 	* improved and added new Blender 3D import/export scripts
 	* tons of bugfixes and overall performance optimizations
 	* redesigned the menu
