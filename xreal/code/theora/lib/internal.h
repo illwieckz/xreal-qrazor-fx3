@@ -18,9 +18,10 @@
 #if !defined(_internal_H)
 # define _internal_H (1)
 # include <stdlib.h>
-# if defined(HAVE_CONFIG_H)
-#  include <config.h>
-# endif
+// Tr3B: commented HAVE_CONFIG_H
+//# if defined(HAVE_CONFIG_H)
+//#  include <config.h>
+//# endif
 # include "theora/codec.h"
 # include "theora/theora.h"
 # include "dec/ocintrin.h"

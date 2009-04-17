@@ -3529,11 +3529,11 @@ void Com_Init(char *commandLine)
 		// if the user didn't give any commands, run default action
 		if(!com_dedicated->integer)
 		{
-			Cbuf_AddText("cinematic idlogo.RoQ\n");
+			Cbuf_AddText("cinematic logo.ogv\n");
 			if(!com_introPlayed->integer)
 			{
 				Cvar_Set(com_introPlayed->name, "1");
-				Cvar_Set("nextmap", "cinematic intro.RoQ");
+				Cvar_Set("nextmap", "cinematic logo.ogv");
 			}
 		}
 	}

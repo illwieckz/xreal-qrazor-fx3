@@ -48,8 +48,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;STANDALONE;USE_CODEC_VORBIS;USE_VOIP;HAVE_CONFIG_H"
+				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include;.\theora\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;STANDALONE;USE_CODEC_VORBIS;USE_VOIP;HAVE_CONFIG_H;USE_CIN_THEORA"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/xreal.pch"
@@ -155,8 +155,8 @@
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;STANDALONE;SIMD_SSE;USE_CODEC_VORBIS;USE_VOIP;HAVE_CONFIG_H"
+				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include;.\theora\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;STANDALONE;SIMD_SSE;USE_CODEC_VORBIS;USE_VOIP;HAVE_CONFIG_H;USE_CIN_THEORA"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -231,6 +231,10 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
 			>
+			<File
+				RelativePath=".\client\cin_ogm.c"
+				>
+			</File>
 			<File
 				RelativePath="client\cl_avi.c"
 				>
@@ -2596,6 +2600,110 @@
 					RelativePath=".\openexr\toFloat.h"
 					>
 				</File>
+			</Filter>
+			<Filter
+				Name="theora"
+				>
+				<Filter
+					Name="Header Files"
+					>
+					<File
+						RelativePath=".\theora\include\theora\codec.h"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\include\theora\theora.h"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\include\theora\theoradec.h"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\include\theora\theoraenc.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Source Files"
+					>
+					<File
+						RelativePath=".\theora\lib\dec\apiwrapper.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\bitpack.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\decapiwrapper.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\decinfo.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\decode.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\dequant.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\fragment.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\huffdec.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\idct.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\internal.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\quant.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\state.c"
+						>
+					</File>
+					<File
+						RelativePath=".\theora\lib\dec\thinfo.c"
+						>
+					</File>
+					<Filter
+						Name="x86_32"
+						>
+						<File
+							RelativePath=".\theora\lib\dec\x86\mmxfrag.c"
+							>
+						</File>
+						<File
+							RelativePath=".\theora\lib\dec\x86\mmxidct.c"
+							>
+						</File>
+						<File
+							RelativePath=".\theora\lib\dec\x86\mmxstate.c"
+							>
+						</File>
+						<File
+							RelativePath=".\theora\lib\dec\x86\x86int.h"
+							>
+						</File>
+						<File
+							RelativePath=".\theora\lib\dec\x86\x86state.c"
+							>
+						</File>
+					</Filter>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter

@@ -64,7 +64,7 @@ typedef struct
 static cinematicsMenuInfo_t cinematicsMenuInfo;
 
 static char    *cinematics[] = {
-	"idlogo",
+	"logo",
 	"intro",
 	"tier1",
 	"tier2",
