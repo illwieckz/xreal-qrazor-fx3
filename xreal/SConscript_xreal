@@ -222,7 +222,7 @@ xreal_src = [
 'code/theora/lib/dec/fragment.c',
 'code/theora/lib/dec/huffdec.c',
 'code/theora/lib/dec/idct.c',
-'code/theora/lib/dec/info.c',
+'code/theora/lib/dec/thinfo.c',
 'code/theora/lib/dec/internal.c',
 'code/theora/lib/dec/quant.c',
 'code/theora/lib/dec/state.c',
