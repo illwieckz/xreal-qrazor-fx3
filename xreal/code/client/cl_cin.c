@@ -1738,11 +1738,11 @@ int CIN_PlayCinematic(const char *arg, int x, int y, int w, int h, int systemBit
 	strcpy(cinTable[currentHandle].fileName, name);
 
 	fileextPtr = S_FileExtension(name);	// using the function from soundfile/audiocodec-detection
-	if(!Q_stricmp(fileextPtr, ".ogm"))
+	if(!Q_stricmp(fileextPtr, ".ogm") || !Q_stricmp(fileextPtr, ".ogv"))
 	{
 		if(Cin_OGM_Init(name))
 		{
-			Com_Printf("starting ogm-playback failed(%s)\n", arg);
+			Com_DPrintf("starting ogm-playback failed(%s)\n", arg);
 			cinTable[currentHandle].fileName[0] = 0;
 			Cin_OGM_Shutdown();
 			return -1;

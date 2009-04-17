@@ -686,7 +686,7 @@ int Cin_OGM_Init(const char *filename)
 
 	if(g_ogm.ogmFile)
 	{
-		Com_Printf("WARNING: it seams there was already a ogm running, it will be killed to start %s\n", filename);
+		Com_Printf(S_COLOR_YELLOW "WARNING: it seams there was already a ogm running, it will be killed to start %s\n", filename);
 		Cin_OGM_Shutdown();
 	}
 
@@ -695,8 +695,7 @@ int Cin_OGM_Init(const char *filename)
 	FS_FOpenFileRead(filename, &g_ogm.ogmFile, qtrue);
 	if(!g_ogm.ogmFile)
 	{
-		Com_Printf("Can't open ogm-file for reading (%s)\n", filename);
-
+		Com_Printf(S_COLOR_YELLOW "WARNING: Can't open ogm-file for reading (%s)\n", filename);
 		return -1;
 	}
 
@@ -713,7 +712,7 @@ int Cin_OGM_Init(const char *filename)
 				//FIXME? better way to find audio stream
 				if(g_ogm.os_audio.serialno)
 				{
-					Com_Printf("more than one audio stream, in ogm-file(%s) ... we will stay at the first one\n", filename);
+					Com_Printf(S_COLOR_YELLOW "WARNING: more than one audio stream, in ogm-file(%s) ... we will stay at the first one\n", filename);
 				}
 				else
 				{
@@ -726,7 +725,7 @@ int Cin_OGM_Init(const char *filename)
 			{
 				if(g_ogm.os_video.serialno)
 				{
-					Com_Printf("more than one video stream, in ogm-file(%s) ... we will stay at the first one\n", filename);
+					Com_Printf(S_COLOR_YELLOW "WARNING: more than one video stream, in ogm-file(%s) ... we will stay at the first one\n", filename);
 				}
 				else
 				{
@@ -778,23 +777,20 @@ int Cin_OGM_Init(const char *filename)
 
 	if(g_ogm.videoStreamIsXvid && g_ogm.videoStreamIsTheora)
 	{
-		Com_Printf("Found \"video\"- and \"theora\"-stream ,ogm-file (%s)\n", filename);
-
+		Com_Printf(S_COLOR_YELLOW "WARNING: Found \"video\"- and \"theora\"-stream ,ogm-file (%s)\n", filename);
 		return -2;
 	}
 
 #if 1
 	if(!g_ogm.os_audio.serialno)
 	{
-		Com_Printf("Haven't found a audio(vorbis) stream in ogm-file (%s)\n", filename);
-
+		Com_Printf(S_COLOR_YELLOW "WARNING: Haven't found a audio(vorbis) stream in ogm-file (%s)\n", filename);
 		return -2;
 	}
 #endif
 	if(!g_ogm.os_video.serialno)
 	{
-		Com_Printf("Haven't found a video stream in ogm-file (%s)\n", filename);
-
+		Com_Printf(S_COLOR_YELLOW "WARNING: Haven't found a video stream in ogm-file (%s)\n", filename);
 		return -3;
 	}
 
@@ -807,8 +803,7 @@ int Cin_OGM_Init(const char *filename)
 		status = ogg_stream_packetout(&g_ogm.os_audio, &op);
 		if(status < 0)
 		{
-			Com_Printf("Corrupt ogg packet while loading vorbis-headers, ogm-file(%s)\n", filename);
-
+			Com_Printf(S_COLOR_YELLOW "WARNING: Corrupt ogg packet while loading vorbis-headers, ogm-file(%s)\n", filename);
 			return -8;
 		}
 		if(status > 0)
@@ -816,8 +811,7 @@ int Cin_OGM_Init(const char *filename)
 			status = vorbis_synthesis_headerin(&g_ogm.vi, &g_ogm.vc, &op);
 			if(i == 0 && status < 0)
 			{
-				Com_Printf("This Ogg bitstream does not contain Vorbis audio data, ogm-file(%s)\n", filename);
-
+				Com_Printf(S_COLOR_YELLOW "WARNING: This Ogg bitstream does not contain Vorbis audio data, ogm-file(%s)\n", filename);
 				return -9;
 			}
 			++i;
@@ -826,8 +820,7 @@ int Cin_OGM_Init(const char *filename)
 		{
 			if(loadBlockToSync())
 			{
-				Com_Printf("Couldn't find all vorbis headers before end of ogm-file (%s)\n", filename);
-
+				Com_Printf(S_COLOR_YELLOW "WARNING: Couldn't find all vorbis headers before end of ogm-file (%s)\n", filename);
 				return -10;
 			}
 		}
@@ -859,8 +852,7 @@ int Cin_OGM_Init(const char *filename)
 			status = ogg_stream_packetout(&g_ogm.os_video, &op);
 			if(status < 0)
 			{
-				Com_Printf("Corrupt ogg packet while loading theora-headers, ogm-file(%s)\n", filename);
-
+				Com_Printf(S_COLOR_YELLOW "WARNING: Corrupt ogg packet while loading theora-headers, ogm-file(%s)\n", filename);
 				return -8;
 			}
 			if(status > 0)
@@ -868,8 +860,7 @@ int Cin_OGM_Init(const char *filename)
 				status = theora_decode_header(&g_ogm.th_info, &g_ogm.th_comment, &op);
 				if(i == 0 && status != 0)
 				{
-					Com_Printf("This Ogg bitstream does not contain theora data, ogm-file(%s)\n", filename);
-
+					Com_Printf(S_COLOR_YELLOW "WARNING: This Ogg bitstream does not contain theora data, ogm-file(%s)\n", filename);
 					return -9;
 				}
 				++i;
@@ -878,8 +869,7 @@ int Cin_OGM_Init(const char *filename)
 			{
 				if(loadBlockToSync())
 				{
-					Com_Printf("Couldn't find all theora headers before end of ogm-file (%s)\n", filename);
-
+					Com_Printf(S_COLOR_YELLOW "WARNING: Couldn't find all theora headers before end of ogm-file (%s)\n", filename);
 					return -10;
 				}
 			}
@@ -889,23 +879,20 @@ int Cin_OGM_Init(const char *filename)
 
 		if(!isPowerOf2(g_ogm.th_info.width))
 		{
-			Com_Printf("VideoWidth of the ogm-file isn't a power of 2 value (%s)\n", filename);
-
+			Com_Printf(S_COLOR_YELLOW "WARNING: VideoWidth of the ogm-file isn't a power of 2 value (%s)\n", filename);
 			return -5;
 		}
 		if(!isPowerOf2(g_ogm.th_info.height))
 		{
-			Com_Printf("VideoHeight of the ogm-file isn't a power of 2 value (%s)\n", filename);
-
+			Com_Printf(S_COLOR_YELLOW "WARNING: VideoHeight of the ogm-file isn't a power of 2 value (%s)\n", filename);
 			return -6;
 		}
-
 
 		g_ogm.Vtime_unit = ((ogg_int64_t) g_ogm.th_info.fps_denominator * 1000 * 10000 / g_ogm.th_info.fps_numerator);
 	}
 #endif
 
-	Com_Printf("OGM-Init done (%s)\n", filename);
+	Com_DPrintf("OGM-Init done (%s)\n", filename);
 
 	return 0;
 }
@@ -958,11 +945,13 @@ void Cin_OGM_Shutdown()
 	if(status)
 		Com_Printf("[Xvid]Decore RELEASE problem, return value %d\n", status);
 #endif
+
 #ifdef USE_CIN_THEORA
 	theora_clear(&g_ogm.th_state);
 	theora_comment_clear(&g_ogm.th_comment);
 	theora_info_clear(&g_ogm.th_info);
 #endif
+
 	if(g_ogm.outputBuffer)
 		free(g_ogm.outputBuffer);
 	g_ogm.outputBuffer = NULL;
@@ -998,3 +987,4 @@ void Cin_OGM_Shutdown()
 {
 }
 #endif
+
