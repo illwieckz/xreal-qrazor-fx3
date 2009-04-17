@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -21,13 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 attribute vec4		attr_Position;
-attribute vec3		attr_Normal;
 
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec3		var_Position;
-varying vec3		var_Normal;
 
 void	main()
 {
@@ -36,8 +34,5 @@ void	main()
 	
 	// transform position into world space
 	var_Position = (u_ModelMatrix * attr_Position).xyz;
-	
-	// transform normal into world space
-	var_Normal = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 }
 

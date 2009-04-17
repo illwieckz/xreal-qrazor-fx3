@@ -1420,7 +1420,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// skybox drawing for abitrary polygons
-	GLSL_InitGPUShader(&tr.skyBoxShader, "skybox", ATTR_POSITION | ATTR_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.skyBoxShader, "skybox", ATTR_POSITION, qtrue);
 
 	tr.skyBoxShader.u_ColorMap = qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ColorMap");
 	tr.skyBoxShader.u_ViewOrigin = qglGetUniformLocationARB(tr.skyBoxShader.program, "u_ViewOrigin");

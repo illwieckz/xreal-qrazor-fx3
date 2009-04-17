@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -24,22 +24,11 @@ uniform samplerCube	u_ColorMap;
 uniform vec3		u_ViewOrigin;
 
 varying vec3		var_Position;
-varying vec3		var_Normal;
 
 void	main()
 {
 	// compute incident ray
 	vec3 I = normalize(var_Position - u_ViewOrigin);
 	
-	// compute normal
-	vec3 N = normalize(var_Normal);
-	
-	// compute refraction ray
-	vec3 R = refract(I, N, 1.0);
-	
-	// compute reflection color
-	vec4 color = textureCube(u_ColorMap, R).rgba;
-
-	// compute final color
-	gl_FragColor = color;
+	gl_FragColor = textureCube(u_ColorMap, I).rgba;
 }

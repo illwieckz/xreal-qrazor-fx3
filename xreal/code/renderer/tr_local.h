@@ -734,7 +734,7 @@ typedef enum
 typedef struct
 {
 	float           cloudHeight;
-	image_t        *outerbox[6], *innerbox[6];
+	image_t        *outerbox, *innerbox;
 } skyParms_t;
 
 typedef struct

@@ -2702,10 +2702,7 @@ skyParms <outerbox> <cloudheight> <innerbox>
 static void ParseSkyParms(char **text)
 {
 	char           *token;
-	static char    *suf[6] = { "rt", "bk", "lf", "ft", "up", "dn" };
-	char            pathname[MAX_QPATH];
 	char            prefix[MAX_QPATH];
-	int             i;
 
 	// outerbox
 	token = Com_ParseExt(text, qfalse);
@@ -2717,14 +2714,12 @@ static void ParseSkyParms(char **text)
 	if(strcmp(token, "-"))
 	{
 		Q_strncpyz(prefix, token, sizeof(prefix));
-		for(i = 0; i < 6; i++)
+
+		shader.sky.outerbox = R_FindCubeImage(prefix, IF_NONE, FT_DEFAULT, WT_EDGE_CLAMP);
+		if(!shader.sky.outerbox)
 		{
-			Com_sprintf(pathname, sizeof(pathname), "%s_%s", prefix, suf[i]);
-			shader.sky.outerbox[i] = R_FindImageFile(pathname, IF_NONE, FT_DEFAULT, WT_EDGE_CLAMP);
-			if(!shader.sky.outerbox[i])
-			{
-				shader.sky.outerbox[i] = tr.defaultImage;
-			}
+			ri.Printf(PRINT_WARNING, "WARNING: could not find cubemap '%s' for outer skybox in shader '%s'\n", prefix, shader.name);
+			shader.sky.outerbox = tr.blackCubeImage;
 		}
 	}
 
@@ -2753,14 +2748,12 @@ static void ParseSkyParms(char **text)
 	if(strcmp(token, "-"))
 	{
 		Q_strncpyz(prefix, token, sizeof(prefix));
-		for(i = 0; i < 6; i++)
+
+		shader.sky.innerbox = R_FindCubeImage(prefix, IF_NONE, FT_DEFAULT, WT_EDGE_CLAMP);
+		if(!shader.sky.innerbox)
 		{
-			Com_sprintf(pathname, sizeof(pathname), "%s_%s", prefix, suf[i]);
-			shader.sky.innerbox[i] = R_FindImageFile(pathname, IF_NONE, FT_DEFAULT, WT_EDGE_CLAMP);
-			if(!shader.sky.innerbox[i])
-			{
-				shader.sky.innerbox[i] = tr.defaultImage;
-			}
+			ri.Printf(PRINT_WARNING, "WARNING: could not find cubemap '%s' for inner skybox in shader '%s'\n", prefix, shader.name);
+			shader.sky.innerbox = tr.blackCubeImage;
 		}
 	}
 

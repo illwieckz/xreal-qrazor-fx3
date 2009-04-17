@@ -390,70 +390,6 @@ static void DrawSkySide(struct image_s *image, const int mins[2], const int maxs
 }
 */
 
-/*
-static void DrawSkyBox(shader_t * shader)
-{
-	int             i;
-
-	sky_min = 0;
-	sky_max = 1;
-
-	Com_Memset(s_skyTexCoords, 0, sizeof(s_skyTexCoords));
-
-	for(i = 0; i < 6; i++)
-	{
-		int             sky_mins_subd[2], sky_maxs_subd[2];
-		int             s, t;
-
-		sky_mins[0][i] = floor(sky_mins[0][i] * HALF_SKY_SUBDIVISIONS) / HALF_SKY_SUBDIVISIONS;
-		sky_mins[1][i] = floor(sky_mins[1][i] * HALF_SKY_SUBDIVISIONS) / HALF_SKY_SUBDIVISIONS;
-		sky_maxs[0][i] = ceil(sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS) / HALF_SKY_SUBDIVISIONS;
-		sky_maxs[1][i] = ceil(sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS) / HALF_SKY_SUBDIVISIONS;
-
-		if((sky_mins[0][i] >= sky_maxs[0][i]) || (sky_mins[1][i] >= sky_maxs[1][i]))
-		{
-			continue;
-		}
-
-		sky_mins_subd[0] = sky_mins[0][i] * HALF_SKY_SUBDIVISIONS;
-		sky_mins_subd[1] = sky_mins[1][i] * HALF_SKY_SUBDIVISIONS;
-		sky_maxs_subd[0] = sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS;
-		sky_maxs_subd[1] = sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS;
-
-		if(sky_mins_subd[0] < -HALF_SKY_SUBDIVISIONS)
-			sky_mins_subd[0] = -HALF_SKY_SUBDIVISIONS;
-		else if(sky_mins_subd[0] > HALF_SKY_SUBDIVISIONS)
-			sky_mins_subd[0] = HALF_SKY_SUBDIVISIONS;
-		if(sky_mins_subd[1] < -HALF_SKY_SUBDIVISIONS)
-			sky_mins_subd[1] = -HALF_SKY_SUBDIVISIONS;
-		else if(sky_mins_subd[1] > HALF_SKY_SUBDIVISIONS)
-			sky_mins_subd[1] = HALF_SKY_SUBDIVISIONS;
-
-		if(sky_maxs_subd[0] < -HALF_SKY_SUBDIVISIONS)
-			sky_maxs_subd[0] = -HALF_SKY_SUBDIVISIONS;
-		else if(sky_maxs_subd[0] > HALF_SKY_SUBDIVISIONS)
-			sky_maxs_subd[0] = HALF_SKY_SUBDIVISIONS;
-		if(sky_maxs_subd[1] < -HALF_SKY_SUBDIVISIONS)
-			sky_maxs_subd[1] = -HALF_SKY_SUBDIVISIONS;
-		else if(sky_maxs_subd[1] > HALF_SKY_SUBDIVISIONS)
-			sky_maxs_subd[1] = HALF_SKY_SUBDIVISIONS;
-
-		// iterate through the subdivisions
-		for(t = sky_mins_subd[1] + HALF_SKY_SUBDIVISIONS; t <= sky_maxs_subd[1] + HALF_SKY_SUBDIVISIONS; t++)
-		{
-			for(s = sky_mins_subd[0] + HALF_SKY_SUBDIVISIONS; s <= sky_maxs_subd[0] + HALF_SKY_SUBDIVISIONS; s++)
-			{
-				MakeSkyVec((s - HALF_SKY_SUBDIVISIONS) / (float)HALF_SKY_SUBDIVISIONS,
-						   (t - HALF_SKY_SUBDIVISIONS) / (float)HALF_SKY_SUBDIVISIONS,
-						   i, s_skyTexCoords[t][s], s_skyPoints[t][s]);
-			}
-		}
-
-		DrawSkySide(shader->sky.outerbox[sky_texorder[i]], sky_mins_subd, sky_maxs_subd);
-	}
-}
-*/
-
 static void FillCloudySkySide(const int mins[2], const int maxs[2], qboolean addIndexes)
 {
 	int             s, t;
@@ -507,6 +443,80 @@ static void FillCloudySkySide(const int mins[2], const int maxs[2], qboolean add
 			}
 		}
 	}
+}
+
+static void DrawSkyBox(shader_t * shader)
+{
+	int             i;
+
+	sky_min = 0;
+	sky_max = 1;
+
+	Com_Memset(s_skyTexCoords, 0, sizeof(s_skyTexCoords));
+
+	// set up for drawing
+	tess.numIndexes = 0;
+	tess.numVertexes = 0;
+
+	for(i = 0; i < 6; i++)
+	{
+		int             sky_mins_subd[2], sky_maxs_subd[2];
+		int             s, t;
+
+		sky_mins[0][i] = floor(sky_mins[0][i] * HALF_SKY_SUBDIVISIONS) / HALF_SKY_SUBDIVISIONS;
+		sky_mins[1][i] = floor(sky_mins[1][i] * HALF_SKY_SUBDIVISIONS) / HALF_SKY_SUBDIVISIONS;
+		sky_maxs[0][i] = ceil(sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS) / HALF_SKY_SUBDIVISIONS;
+		sky_maxs[1][i] = ceil(sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS) / HALF_SKY_SUBDIVISIONS;
+
+		if((sky_mins[0][i] >= sky_maxs[0][i]) || (sky_mins[1][i] >= sky_maxs[1][i]))
+		{
+			continue;
+		}
+
+		sky_mins_subd[0] = sky_mins[0][i] * HALF_SKY_SUBDIVISIONS;
+		sky_mins_subd[1] = sky_mins[1][i] * HALF_SKY_SUBDIVISIONS;
+		sky_maxs_subd[0] = sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS;
+		sky_maxs_subd[1] = sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS;
+
+		if(sky_mins_subd[0] < -HALF_SKY_SUBDIVISIONS)
+			sky_mins_subd[0] = -HALF_SKY_SUBDIVISIONS;
+		else if(sky_mins_subd[0] > HALF_SKY_SUBDIVISIONS)
+			sky_mins_subd[0] = HALF_SKY_SUBDIVISIONS;
+		if(sky_mins_subd[1] < -HALF_SKY_SUBDIVISIONS)
+			sky_mins_subd[1] = -HALF_SKY_SUBDIVISIONS;
+		else if(sky_mins_subd[1] > HALF_SKY_SUBDIVISIONS)
+			sky_mins_subd[1] = HALF_SKY_SUBDIVISIONS;
+
+		if(sky_maxs_subd[0] < -HALF_SKY_SUBDIVISIONS)
+			sky_maxs_subd[0] = -HALF_SKY_SUBDIVISIONS;
+		else if(sky_maxs_subd[0] > HALF_SKY_SUBDIVISIONS)
+			sky_maxs_subd[0] = HALF_SKY_SUBDIVISIONS;
+		if(sky_maxs_subd[1] < -HALF_SKY_SUBDIVISIONS)
+			sky_maxs_subd[1] = -HALF_SKY_SUBDIVISIONS;
+		else if(sky_maxs_subd[1] > HALF_SKY_SUBDIVISIONS)
+			sky_maxs_subd[1] = HALF_SKY_SUBDIVISIONS;
+
+		// iterate through the subdivisions
+		for(t = sky_mins_subd[1] + HALF_SKY_SUBDIVISIONS; t <= sky_maxs_subd[1] + HALF_SKY_SUBDIVISIONS; t++)
+		{
+			for(s = sky_mins_subd[0] + HALF_SKY_SUBDIVISIONS; s <= sky_maxs_subd[0] + HALF_SKY_SUBDIVISIONS; s++)
+			{
+				MakeSkyVec((s - HALF_SKY_SUBDIVISIONS) / (float)HALF_SKY_SUBDIVISIONS,
+						   (t - HALF_SKY_SUBDIVISIONS) / (float)HALF_SKY_SUBDIVISIONS,
+						   i, s_skyTexCoords[t][s], s_skyPoints[t][s]);
+			}
+		}
+
+		//DrawSkySide(shader->sky.outerbox[sky_texorder[i]], sky_mins_subd, sky_maxs_subd);
+
+		// only add indexes for first stage
+		FillCloudySkySide(sky_mins_subd, sky_maxs_subd, qtrue);
+	}
+
+	// Tr3B: FIXME analyze required vertex attribs by the current material
+	Tess_UpdateVBOs(0);
+
+	Tess_DrawElements();
 }
 
 static void FillCloudBox(const shader_t * shader, int stage)
@@ -894,41 +904,25 @@ void Tess_StageIteratorSky(void)
 		qglDepthRange(1.0, 1.0);
 	}
 
-	// Tr3B: FIXME draw the outer skybox
-	/*
-	   if(tess.surfaceShader->sky.outerbox[0] && tess.surfaceShader->sky.outerbox[0] != tr.defaultImage)
-	   {
-	   matrix_t     transformMatrix;
-	   matrix_t     modelViewMatrix;
+	// draw the outer skybox
+	if(tess.surfaceShader->sky.outerbox && tess.surfaceShader->sky.outerbox != tr.blackCubeImage)
+	{
+		// enable shader, set arrays
+		GL_BindProgram(&tr.skyBoxShader);
+		GL_VertexAttribsState(tr.skyBoxShader.attribs);
 
-	   qglVertexAttrib4fARB(ATTR_INDEX_COLOR, tr.identityLight, tr.identityLight, tr.identityLight, 1);
+		// set uniforms
+		GLSL_SetUniform_ViewOrigin(&tr.skyBoxShader, backEnd.viewParms.orientation.origin);
 
-	   GL_PushMatrix();
+		GLSL_SetUniform_ModelMatrix(&tr.skyBoxShader, backEnd.orientation.transformMatrix);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.skyBoxShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-	   GL_BindProgram(&tr.genericSingleShader);
+		// bind u_ColorMap
+		GL_SelectTexture(0);
+		GL_Bind(tess.surfaceShader->sky.outerbox);
 
-	   // set uniforms
-	   GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
-	   qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
-	   if(glConfig.vboVertexSkinningAvailable)
-	   {
-	   GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
-	   }
-	   GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
-
-	   MatrixSetupTranslation(transformMatrix, backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2]);
-	   MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);
-
-	   GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
-	   GL_LoadModelViewMatrix(modelViewMatrix);
-
-	  GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-
-	   DrawSkyBox(tess.surfaceShader);
-
-	   GL_PopMatrix();
-	   }
-	 */
+		DrawSkyBox(tess.surfaceShader);
+	}
 
 	// generate the vertexes for all the clouds, which will be drawn
 	// by the generic shader routine
