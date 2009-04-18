@@ -136,12 +136,10 @@ void Face::submitRenderables(RenderableCollector& collector,
 {
     // Get the shader for rendering
     ShaderPtr glShader = _faceShader.getGLShader();
-    assert(glShader);
 
     // Submit this face to the RenderableCollector only if its shader is not
     // filtered
-    assert(glShader->getMaterial());
-    if (glShader->getMaterial()->isVisible()) 
+    if (glShader && glShader->getMaterial() && glShader->getMaterial()->isVisible()) 
     {
         collector.SetState(
             glShader, RenderableCollector::eFullMaterials

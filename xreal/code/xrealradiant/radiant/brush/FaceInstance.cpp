@@ -153,7 +153,8 @@ void FaceInstance::submitRenderables(RenderableCollector& collector,
 }
 
 void FaceInstance::testSelect(SelectionTest& test, SelectionIntersection& best) {
-	if (getFace().getShader().getGLShader()->getMaterial()->isVisible()) {
+	ShaderPtr glShader = getFace().getShader().getGLShader();
+	if (glShader && glShader->getMaterial()->isVisible()) {
 		m_face->testSelect(test, best);
 	}
 }
