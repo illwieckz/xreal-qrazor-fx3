@@ -71,7 +71,7 @@ typedef enum
 	MOVER_2TO1
 } moverState_t;
 
-#define SP_PODIUM_MODEL		"models/ppodium.md5mesh"
+#define SP_PODIUM_MODEL		"models/meshes/ppodium.md5mesh"
 
 //============================================================================
 
