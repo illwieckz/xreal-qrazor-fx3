@@ -1931,7 +1931,7 @@ void Menu_Cache(void)
 
 
 //single podium the playermodel is standing on in the menu
-	uis.podiumModel = trap_R_RegisterModel("models/ppodium.md5mesh", qtrue);
+	uis.podiumModel = trap_R_RegisterModel("models/meshes/ppodium.md5mesh", qtrue);
 
 	uis.cursor = trap_R_RegisterShaderNoMip("ui/cursor");
 
