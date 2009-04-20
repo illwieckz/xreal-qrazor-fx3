@@ -3,8 +3,9 @@ Version 2
 {
 "classname" "worldspawn"
 "_lightMapScale" "0.5"
+"_keeplights" "1"
 "give" "armor 10,machinegun"
-"message" "^1Gaelish ^7by Ingar^3=^7KCT^3="
+"message" "^1Ingar DM1 ^7by Ingar^3=^7KCT^3="
 "editor_drLastCameraPos" "-1578.82 16.3298 481.907"
 "editor_drLastCameraAngle" "-0.899998 97.8 0"
 // primitive 0

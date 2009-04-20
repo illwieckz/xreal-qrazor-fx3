@@ -1,9 +1,9 @@
 
-// ----------------------- Sky by hipshot
+// ----------------------- Skys by hipshot
 
 textures/hipshot_sky/grimmnight
 {
-	qer_editorimage	cubemaps/hipshot/grimmnight_px.tga
+	qer_editorimage	cubemaps/hipshot/grimmnight_px.png
 	
 	noFragment
 	noshadows
@@ -18,5 +18,25 @@ textures/hipshot_sky/grimmnight
 		stage skyboxMap
 		noPicMip
 		cubeMap	cubemaps/hipshot/grimmnight
+	}
+}
+
+textures/hipshot_sky/stormydays
+{
+	qer_editorimage cubemaps/hipshot/stormydays_nz.png
+
+	noFragment
+	noshadows
+	forceOpaque				
+	noimpact
+	sky
+	nolightmap
+
+	xmap_sun 1 1 0.7 2000 315 45
+
+	{ 
+		stage skyboxMap
+		noPicMip
+		cubeMap cubemaps/hipshot/stormydays
 	}
 }
