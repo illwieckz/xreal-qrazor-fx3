@@ -506,32 +506,32 @@ typedef vec_t   matrix3x3_t[9];
 static float m3_det( matrix3x3_t mat )
 {
   float det;
-  
+
   det = mat[0] * ( mat[4]*mat[8] - mat[7]*mat[5] )
     - mat[1] * ( mat[3]*mat[8] - mat[6]*mat[5] )
     + mat[2] * ( mat[3]*mat[7] - mat[6]*mat[4] );
-  
+
   return( det );
 }
 
 static int m3_inverse( matrix3x3_t mr, matrix3x3_t ma )
 {
   float det = m3_det( ma );
- 
+
   if (det == 0 )
   {
     return 1;
   }
 
-  
+
   mr[0] =    ma[4]*ma[8] - ma[5]*ma[7]   / det;
   mr[1] = -( ma[1]*ma[8] - ma[7]*ma[2] ) / det;
   mr[2] =    ma[1]*ma[5] - ma[4]*ma[2]   / det;
-  
+
   mr[3] = -( ma[3]*ma[8] - ma[5]*ma[6] ) / det;
   mr[4] =    ma[0]*ma[8] - ma[6]*ma[2]   / det;
   mr[5] = -( ma[0]*ma[5] - ma[3]*ma[2] ) / det;
-  
+
   mr[6] =    ma[3]*ma[7] - ma[6]*ma[4]   / det;
   mr[7] = -( ma[0]*ma[7] - ma[6]*ma[1] ) / det;
   mr[8] =    ma[0]*ma[4] - ma[1]*ma[3]   / det;
@@ -542,7 +542,7 @@ static int m3_inverse( matrix3x3_t mr, matrix3x3_t ma )
 static void m4_submat( matrix_t mr, matrix3x3_t mb, int i, int j )
 {
   int ti, tj, idst, jdst;
-  
+
   for ( ti = 0; ti < 4; ti++ )
   {
     if ( ti < i )
@@ -550,7 +550,7 @@ static void m4_submat( matrix_t mr, matrix3x3_t mb, int i, int j )
     else
       if ( ti > i )
         idst = ti-1;
-      
+
       for ( tj = 0; tj < 4; tj++ )
       {
         if ( tj < j )
@@ -558,62 +558,62 @@ static void m4_submat( matrix_t mr, matrix3x3_t mb, int i, int j )
         else
           if ( tj > j )
             jdst = tj-1;
-          
+
           if ( ti != i && tj != j )
             mb[idst*3 + jdst] = mr[ti*4 + tj ];
       }
   }
 }
 
-static float m4_det( matrix_t mr )
+float MatrixDet(matrix_t mr)
 {
   float  det, result = 0, i = 1;
   matrix3x3_t msub3;
   int     n;
-  
+
   for ( n = 0; n < 4; n++, i *= -1 )
   {
     m4_submat( mr, msub3, 0, n );
-    
+
     det     = m3_det( msub3 );
     result += mr[n] * det * i;
   }
-  
+
   return result;
 }
 
 qboolean MatrixInverse(matrix_t matrix)
 {
-  float  mdet = m4_det(matrix);
+  float  mdet = MatrixDet(matrix);
   matrix3x3_t mtemp;
   int     i, j, sign;
   matrix_t m4x4_temp;
-  
+
 #if 0
   if ( fabs( mdet ) < 0.0000000001 )
     return qtrue;
 #endif
 
   MatrixCopy(matrix, m4x4_temp);
-  
+
   for ( i = 0; i < 4; i++ )
     for ( j = 0; j < 4; j++ )
     {
       sign = 1 - ( (i +j) % 2 ) * 2;
-      
+
       m4_submat( m4x4_temp, mtemp, i, j );
-      
+
 	  // FIXME: try using * inverse det and see if speed/accuracy are good enough
-      matrix[i+j*4] = ( m3_det( mtemp ) * sign ) / mdet; 
+      matrix[i+j*4] = ( m3_det( mtemp ) * sign ) / mdet;
     }
-    
+
   return qfalse;
 }
 
 void MatrixSetupXRotation(matrix_t m, vec_t degrees)
 {
 	vec_t a = DEG2RAD(degrees);
-	
+
 	m[ 0] = 1;      m[ 4] = 0;              m[ 8] = 0;              m[12] = 0;
 	m[ 1] = 0;      m[ 5] = cos(a);         m[ 9] =-sin(a);         m[13] = 0;
 	m[ 2] = 0;      m[ 6] = sin(a);         m[10] = cos(a);         m[14] = 0;
@@ -623,7 +623,7 @@ void MatrixSetupXRotation(matrix_t m, vec_t degrees)
 void MatrixSetupYRotation(matrix_t m, vec_t degrees)
 {
 	vec_t a = DEG2RAD(degrees);
-	
+
 	m[ 0] = cos(a);         m[ 4] = 0;      m[ 8] = sin(a);         m[12] = 0;
 	m[ 1] = 0;              m[ 5] = 1;      m[ 9] = 0;              m[13] = 0;
 	m[ 2] =-sin(a);         m[ 6] = 0;      m[10] = cos(a);         m[14] = 0;
@@ -633,7 +633,7 @@ void MatrixSetupYRotation(matrix_t m, vec_t degrees)
 void MatrixSetupZRotation(matrix_t m, vec_t degrees)
 {
 	vec_t a = DEG2RAD(degrees);
-	
+
 	m[ 0] = cos(a);         m[ 4] =-sin(a);         m[ 8] = 0;      m[12] = 0;
 	m[ 1] = sin(a);         m[ 5] = cos(a);         m[ 9] = 0;      m[13] = 0;
 	m[ 2] = 0;              m[ 6] = 0;              m[10] = 1;      m[14] = 0;
@@ -718,7 +718,7 @@ void MatrixMultiplyScale(matrix_t m, vec_t x, vec_t y, vec_t z)
 void MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
 {
 	static float    sr, sp, sy, cr, cp, cy;
-	
+
 	// static to help MS compiler fp bugs
 	sp = sin(DEG2RAD(pitch));
 	cp = cos(DEG2RAD(pitch));
@@ -759,14 +759,14 @@ void MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up
 		forward[1] = m[ 1];     // cp*sy;
 		forward[2] = m[ 2];     //-sp;
 	}
-     
+
     if(left)
-    {   
+    {
 		left[0] = m[ 4];        // sr*sp*cy+cr*-sy;
 		left[1] = m[ 5];        // sr*sp*sy+cr*cy;
 		left[2] = m[ 6];        // sr*cp;
     }
-	
+
 	if(up)
 	{
 		up[0] = m[ 8];  // cr*sp*cy+-sr*-sy;
@@ -783,9 +783,9 @@ void MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t u
 		forward[1] = m[ 1];
 		forward[2] = m[ 2];
 	}
-	
+
 	if(right)
-	{   
+	{
 		right[0] =-m[ 4];
 		right[1] =-m[ 5];
 		right[2] =-m[ 6];
@@ -821,7 +821,7 @@ void MatrixAffineInverse(const matrix_t in, matrix_t out)
 	out[ 1] = in[ 4];       out[ 5] = in[ 5];       out[ 9] = in[ 6];
 	out[ 2] = in[ 8];       out[ 6] = in[ 9];       out[10] = in[10];
 	out[ 3] = 0;            out[ 7] = 0;            out[11] = 0;            out[15] = 1;
-	
+
 	out[12] = -( in[12] * out[ 0] + in[13] * out[ 4] + in[14] * out[ 8] );
 	out[13] = -( in[12] * out[ 1] + in[13] * out[ 5] + in[14] * out[ 9] );
 	out[14] = -( in[12] * out[ 2] + in[13] * out[ 6] + in[14] * out[10] );
@@ -837,11 +837,11 @@ void MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out)
 void MatrixTransformNormal2(const matrix_t m, vec3_t inout)
 {
 	vec3_t          tmp;
-	
+
 	tmp[ 0] = m[ 0]*inout[ 0] + m[ 4]*inout[ 1] + m[ 8]*inout[ 2];
 	tmp[ 1] = m[ 1]*inout[ 0] + m[ 5]*inout[ 1] + m[ 9]*inout[ 2];
 	tmp[ 2] = m[ 2]*inout[ 0] + m[ 6]*inout[ 1] + m[10]*inout[ 2];
-	
+
 	VectorCopy(tmp, inout);
 }
 
@@ -855,12 +855,27 @@ void MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out)
 void MatrixTransformPoint2(const matrix_t m, vec3_t inout)
 {
 	vec3_t          tmp;
-	
+
 	tmp[ 0] = m[ 0]*inout[ 0] + m[ 4]*inout[ 1] + m[ 8]*inout[ 2] + m[12];
 	tmp[ 1] = m[ 1]*inout[ 0] + m[ 5]*inout[ 1] + m[ 9]*inout[ 2] + m[13];
 	tmp[ 2] = m[ 2]*inout[ 0] + m[ 6]*inout[ 1] + m[10]*inout[ 2] + m[14];
-	
+
 	VectorCopy(tmp, inout);
+}
+
+void MatrixTransformVec4(const matrix_t matrix, vec4_t vector)
+{
+	float out1, out2, out3, out4;
+
+	out1 =  matrix[0]  * vector[0] + matrix[4]  * vector[1] + matrix[8]  * vector[2] + matrix[12] * vector[3];
+	out2 =  matrix[1]  * vector[0] + matrix[5]  * vector[1] + matrix[9]  * vector[2] + matrix[13] * vector[3];
+	out3 =  matrix[2]  * vector[0] + matrix[6]  * vector[1] + matrix[10] * vector[2] + matrix[14] * vector[3];
+	out4 =  matrix[3]  * vector[0] + matrix[7]  * vector[1] + matrix[11] * vector[2] + matrix[15] * vector[3];
+
+	vector[0] = out1;
+	vector[1] = out2;
+	vector[2] = out3;
+	vector[3] = out4;
 }
 
 // *INDENT-ON*

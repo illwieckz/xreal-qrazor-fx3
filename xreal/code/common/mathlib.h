@@ -110,6 +110,7 @@ void            MatrixCopy(const matrix_t in, matrix_t out);
 void            MatrixTranspose(const matrix_t in, matrix_t out);
 
 // invert any m4x4 using Kramer's rule.. return qtrue if matrix is singular, else return qfalse
+float			MatrixDet(matrix_t mr);
 qboolean        MatrixInverse(matrix_t m);
 void            MatrixSetupXRotation(matrix_t m, vec_t degrees);
 void            MatrixSetupYRotation(matrix_t m, vec_t degrees);
@@ -135,5 +136,6 @@ void            MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t 
 void            MatrixTransformNormal2(const matrix_t m, vec3_t inout);
 void            MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out);
 void            MatrixTransformPoint2(const matrix_t m, vec3_t inout);
+void			MatrixTranformVec4(const matrix_t matrix, vec4_t vector);
 
 #endif
