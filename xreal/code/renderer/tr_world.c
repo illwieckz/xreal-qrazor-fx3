@@ -876,7 +876,7 @@ static void R_UpdateClusterSurfaces()
 			{
 				surface2 = surfacesSorted[l];
 
-				if(surface2->shader != shader)
+				if(surface2->shader != shader || surface2->lightmapNum != lightmapNum)
 					continue;
 
 				if(*surface2->data == SF_FACE)
@@ -925,7 +925,7 @@ static void R_UpdateClusterSurfaces()
 			{
 				surface2 = surfacesSorted[l];
 
-				if(surface2->shader != shader)
+				if(surface2->shader != shader || surface2->lightmapNum != lightmapNum)
 					continue;
 
 				// set up triangle indices

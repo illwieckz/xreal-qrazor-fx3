@@ -2014,12 +2014,12 @@ static void BindLightMap()
 {
 	image_t        *lightmap;
 
-	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+	if(tess.lightmapNum >= 0 && (tess.lightmapNum / 2) < tr.lightmaps.currentElements)
 	{
 #if defined(COMPAT_Q3A)
 		lightmap = tr.fatLightmap;
 #else
-		lightmap = tr.lightmaps[tess.lightmapNum];
+		lightmap = Com_GrowListElement(&tr.lightmaps, tess.lightmapNum / 2);
 #endif
 	}
 	else
@@ -2027,7 +2027,7 @@ static void BindLightMap()
 		lightmap = NULL;
 	}
 
-	if(!tr.numLightmaps || !lightmap)
+	if(!tr.lightmaps.currentElements || !lightmap)
 	{
 		GL_Bind(tr.whiteImage);
 		return;
@@ -2045,16 +2045,16 @@ static void BindDeluxeMap()
 {
 	image_t        *deluxemap;
 
-	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+	if(tess.lightmapNum >= 0 && (tess.lightmapNum / 2) < tr.deluxemaps.currentElements)
 	{
-		deluxemap = tr.lightmaps[tess.lightmapNum + 1];
+		deluxemap = Com_GrowListElement(&tr.deluxemaps, tess.lightmapNum / 2);
 	}
 	else
 	{
 		deluxemap = NULL;
 	}
 
-	if(!tr.numLightmaps || !deluxemap)
+	if(!tr.deluxemaps.currentElements || !deluxemap)
 	{
 		GL_Bind(tr.flatImage);
 		return;
@@ -4238,7 +4238,7 @@ void Tess_StageIteratorGeneric()
 				{
 					if(r_precomputedLighting->integer || r_vertexLighting->integer)
 					{
-						if(!r_vertexLighting->integer && tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+						if(!r_vertexLighting->integer && tess.lightmapNum >= 0 && (tess.lightmapNum / 2) < tr.lightmaps.currentElements)
 						{
 							if(tr.worldDeluxeMapping && r_normalMapping->integer)
 							{

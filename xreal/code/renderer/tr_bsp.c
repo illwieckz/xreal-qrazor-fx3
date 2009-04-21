@@ -701,13 +701,13 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 	image_t        *image;
 	static byte     data[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
 	int             i, j;
+	int             numLightmaps;
 
 	len = l->filelen;
 	if(!len)
 	{
 		char            mapName[MAX_QPATH];
 		char          **lightmapFiles;
-		int             numLightmaps;
 
 		Q_strncpyz(mapName, bspName, sizeof(mapName));
 		Com_StripExtension(mapName, mapName, sizeof(mapName));
@@ -729,13 +729,6 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 				return;
 			}
 
-			if(numLightmaps > MAX_LIGHTMAPS)
-			{
-				ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
-				numLightmaps = MAX_LIGHTMAPS;
-			}
-
-			tr.numLightmaps = numLightmaps;
 			ri.Printf(PRINT_ALL, "...loading %i HDR lightmaps\n", numLightmaps);
 
 			if(r_hdrRendering->integer && r_hdrLightmap->integer && glConfig.framebufferObjectAvailable &&
@@ -754,15 +747,11 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 					//ri.Printf(PRINT_ALL, "...converted '%s/%s' to HALF format\n", mapName, lightmapFiles[i]);
 
-					// create dummy image
-					//tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+					image = R_AllocImage(va("%s/%s", mapName, lightmapFiles[i]), qtrue);
+					if(!image)
+						break;
 
-					image = ri.Hunk_Alloc(sizeof(image_t), h_low);
-					Com_AddToGrowList(&tr.images, image);
-
-					tr.lightmaps[i * 2] = image;
-
-					Q_strncpyz(image->name, va("%s/%s", mapName, lightmapFiles[i]), sizeof(image->name));
+					//Q_strncpyz(image->name, );
 					image->type = GL_TEXTURE_2D;
 
 					image->width = width;
@@ -807,6 +796,8 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					GL_CheckErrors();
 
 					Com_Dealloc(hdrImage);
+
+					Com_AddToGrowList(&tr.lightmaps, image);
 				}
 			}
 			else
@@ -821,9 +812,10 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					width = height = 0;
 					LoadRGBEToBytes(va("%s/%s", mapName, lightmapFiles[i]), &ldrImage, &width, &height);
 
-					tr.lightmaps[i * 2] = image =
-						R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) ldrImage, width, height,
+					image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) ldrImage, width, height,
 									  IF_NOPICMIP | IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
+
+					Com_AddToGrowList(&tr.lightmaps, image);
 
 					ri.Free(ldrImage);
 				}
@@ -847,22 +839,14 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 				qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
 
-				if(numLightmaps > MAX_LIGHTMAPS)
-				{
-					ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
-					numLightmaps = MAX_LIGHTMAPS;
-				}
-
-				tr.numLightmaps += numLightmaps;
 				ri.Printf(PRINT_ALL, "...loading %i deluxemaps\n", numLightmaps);
 
 				for(i = 0; i < numLightmaps; i++)
 				{
 					ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
 
-					tr.lightmaps[i * 2 + 1] =
-						R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP | IF_NOCOMPRESSION, FT_DEFAULT,
-										WT_CLAMP);
+					image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
+					Com_AddToGrowList(&tr.deluxemaps, image);
 				}
 			}
 		}
@@ -884,14 +868,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 			qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
 
-			if(numLightmaps > MAX_LIGHTMAPS)
-			{
-				ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
-				numLightmaps = MAX_LIGHTMAPS;
-			}
-
-			tr.numLightmaps = numLightmaps;
-			ri.Printf(PRINT_ALL, "...loading %i lightmaps\n", tr.numLightmaps);
+			ri.Printf(PRINT_ALL, "...loading %i lightmaps\n", numLightmaps);
 
 			// we are about to upload textures
 			R_SyncRenderThread();
@@ -904,22 +881,19 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 				{
 					if(i % 2 == 0)
 					{
-						tr.lightmaps[i] =
-							R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT,
-											WT_CLAMP);
+						image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
+						Com_AddToGrowList(&tr.lightmaps, image);
 					}
 					else
 					{
-						tr.lightmaps[i] =
-							R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP | IF_NOCOMPRESSION, FT_DEFAULT,
-											WT_CLAMP);
+						image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
+						Com_AddToGrowList(&tr.deluxemaps, image);
 					}
 				}
 				else
 				{
-					tr.lightmaps[i] =
-						R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT,
-										WT_CLAMP);
+					image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
+					Com_AddToGrowList(&tr.lightmaps, image);
 				}
 			}
 		}
@@ -951,9 +925,8 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 						R_ColorShiftLightingBytes(&buf_p[j * 3], &data[j * 4]);
 						data[j * 4 + 3] = 255;
 					}
-					tr.lightmaps[i] =
-						R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT,
-									  WT_CLAMP);
+					image = R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
+					Com_AddToGrowList(&tr.lightmaps, image);
 				}
 				else
 				{
@@ -964,9 +937,8 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 						data[j * 4 + 2] = buf_p[j * 3 + 2];
 						data[j * 4 + 3] = 255;
 					}
-					tr.lightmaps[i] =
-						R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, FT_DEFAULT,
-									  WT_CLAMP);
+					image = R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
+					Com_AddToGrowList(&tr.deluxemaps, image);
 				}
 			}
 			else
@@ -976,8 +948,8 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					R_ColorShiftLightingBytes(&buf_p[j * 3], &data[j * 4]);
 					data[j * 4 + 3] = 255;
 				}
-				tr.lightmaps[i] =
-					R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
+				image = R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
+				Com_AddToGrowList(&tr.lightmaps, image);
 			}
 		}
 	}
@@ -1006,21 +978,21 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 		R_SyncRenderThread();
 
 		// create all the lightmaps
-		tr.numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
-		if(tr.numLightmaps == 1)
+		numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
+		if(numLightmaps == 1)
 		{
 			//FIXME: HACK: maps with only one lightmap turn up fullbright for some reason.
 			//this avoids this, but isn't the correct solution.
-			tr.numLightmaps++;
+			numLightmaps++;
 		}
-		else if(tr.numLightmaps >= MAX_LIGHTMAPS)
+		else if(numLightmaps >= MAX_LIGHTMAPS)
 		{
 			// 20051020 misantropia
 			ri.Printf(PRINT_WARNING, "WARNING: number of lightmaps > MAX_LIGHTMAPS\n");
-			tr.numLightmaps = MAX_LIGHTMAPS;
+			numLightmaps = MAX_LIGHTMAPS;
 		}
 
-		if(tr.numLightmaps < 65)
+		if(numLightmaps < 65)
 		{
 			// optimize: use a 1024 if we can get away with it
 			tr.fatLightmapSize = 1024;
@@ -1030,7 +1002,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 		fatbuffer = ri.Hunk_AllocateTempMemory(sizeof(byte) * tr.fatLightmapSize * tr.fatLightmapSize * 4);
 
 		Com_Memset(fatbuffer, 128, tr.fatLightmapSize * tr.fatLightmapSize * 4);
-		for(i = 0; i < tr.numLightmaps; i++)
+		for(i = 0; i < numLightmaps; i++)
 		{
 			// expand the 24 bit on-disk to 32 bit
 			buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
@@ -1079,15 +1051,11 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 		//memset(fatbuffer,128,tr.fatLightmapSize*tr.fatLightmapSize*4);
 
 		tr.fatLightmap = R_CreateImage(va("_fatlightmap%d", 0), fatbuffer, tr.fatLightmapSize, tr.fatLightmapSize, IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
+		Com_AddToGrowList(&tr.lightmaps, tr.fatLightmap);
 
 		ri.Hunk_FreeTempMemory(fatbuffer);
 	}
 #endif
-
-	if(tr.worldDeluxeMapping)
-	{
-		tr.numLightmaps /= 2;
-	}
 }
 
 static float FatPackU(float input, int lightmapnum)

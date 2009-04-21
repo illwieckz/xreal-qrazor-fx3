@@ -2715,8 +2715,8 @@ typedef struct
 	shader_t       *flareShader;
 	shader_t       *sunShader;
 
-	int             numLightmaps;
-	image_t        *lightmaps[MAX_LIGHTMAPS];
+	growList_t      lightmaps;
+	growList_t      deluxemaps;
 
 	image_t        *fatLightmap;
 	int				fatLightmapSize;
