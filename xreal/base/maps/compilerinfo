@@ -53,6 +53,7 @@ map_package() {
 	MAP_STRIPPED=`basename $MAP .map`
 	PK3NAME=map-$MAP_STRIPPED-$DATE.pk3
 	zip $PK3NAME maps/$MAP_STRIPPED.bsp
+	zip $PK3NAME maps/$MAP_STRIPPED.map
 	zip $PK3NAME maps/$MAP_STRIPPED/*.hdr
 	zip $PK3NAME maps/$MAP_STRIPPED/*.png
 	zip $PK3NAME levelshot/$MAP_STRIPPED.png
