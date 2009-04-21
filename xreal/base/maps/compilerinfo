@@ -47,8 +47,20 @@ map_scale() {
 	$COMPILE -v -scale "$@" $MAP
 }
 
+map_package() {
+	cd ..
+	DATE=`date +%Y%m%d`
+	MAP_STRIPPED=`basename $MAP .map`
+	PK3NAME=map-$MAP_STRIPPED-$DATE.pk3
+	zip $PK3NAME maps/$MAP_STRIPPED.bsp
+	zip $PK3NAME maps/$MAP_STRIPPED/*.hdr
+	zip $PK3NAME maps/$MAP_STRIPPED/*.png
+	zip $PK3NAME levelshot/$MAP_STRIPPED.png
+	zip $PK3NAME scripts/$MAP_STRIPPED.arena
+}
+
 map_defaultcommand() {
-	echo "specify command: -bsp, -fastvis, -vis, -light, or -all"
+	echo "specify command: -bsp, -fastvis, -vis, -light, -pk3, or -all"
 }
 
 case $1 in
@@ -74,6 +86,10 @@ case $1 in
 
 	-light)
 		map_light $LIGHTOPTS;
+		;;
+		
+	-pk3)
+		map_package $PACKAGEOTPS;
 		;;
 
 	-all)
