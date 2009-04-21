@@ -4,6 +4,8 @@ Version 2
 "classname" "worldspawn"
 "_lightMapScale" "0.5"
 "_keeplights" "1"
+"fogColor" "0.405081 0.378088 0.25214"
+"fogDensity" "0.0005"
 "give" "armor 10,machinegun"
 "message" "^1Ingar DM1 ^7by Ingar^3=^7KCT^3="
 "editor_drLastCameraPos" "-1578.82 16.3298 481.907"
