@@ -332,8 +332,8 @@ entityDef team_CTF_redplayer
 entityDef team_CTF_redspawn 
 {   
 	"editor_color"				"1 .2 0" 	
-	"editor_mins"				"-16 -16 -24"
-	"editor_maxs"				"16 16 50"
+	"editor_mins"				"-18 -18 -24"
+	"editor_maxs"				"18 18 50"
 	"editor_showangle"			"1"
 	
 	"editor_usage"				"Red team respawning position for CTF games. This is where Red team players respawn after they get fragged."
