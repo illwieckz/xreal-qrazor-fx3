@@ -1,6 +1,6 @@
 /* -------------------------------------------------------------------------------
 
-Copyright (C) 1999-2006 Id Software, Inc. and contributors.
+Copyright (C) 1999-2007 id Software, Inc. and contributors.
 For a list of contributors, see the accompanying CONTRIBUTORS file.
 
 This file is part of GtkRadiant.
@@ -64,7 +64,8 @@ into the abstracted bsp file used by xmap2.
 #define	LUMP_LIGHTMAPS		14
 #define	LUMP_LIGHTGRID		15
 #define	LUMP_VISIBILITY		16
-#define	HEADER_LUMPS		17
+#define LUMP_ADVERTISEMENTS 17
+#define	HEADER_LUMPS		18
 
 
 /* types */
@@ -100,14 +101,14 @@ static void CopyBrushSidesLump(ibspHeader_t * header)
 
 	/* copy */
 	in = GetLump((bspHeader_t *) header, LUMP_BRUSHSIDES);
-	out = bspBrushSides;
 	for(i = 0; i < numBSPBrushSides; i++)
 	{
+		AUTOEXPAND_BY_REALLOC(bspBrushSides, i, allocatedBSPBrushSides, 1024);
+		out = &bspBrushSides[i];
 		out->planeNum = in->planeNum;
 		out->shaderNum = in->shaderNum;
 		out->surfaceNum = -1;
 		in++;
-		out++;
 	}
 }
 
@@ -453,8 +454,6 @@ static void AddLightGridLumps(FILE * file, ibspHeader_t * header)
 	free(buffer);
 }
 
-
-
 /*
 LoadIBSPFile()
 loads a quake 3 bsp file into memory
@@ -478,21 +477,31 @@ void LoadIBSPFile(const char *filename)
 		Error("%s is version %d, not %d", filename, header->version, game->bspVersion);
 
 	/* load/convert lumps */
-	numBSPShaders = CopyLump((bspHeader_t *) header, LUMP_SHADERS, bspShaders, sizeof(bspShader_t));
+	numBSPShaders =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_SHADERS, (void **)&bspShaders, sizeof(bspShader_t), &allocatedBSPShaders);
 
-	numBSPModels = CopyLump((bspHeader_t *) header, LUMP_MODELS, bspModels, sizeof(bspModel_t));
+	numBSPModels =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_MODELS, (void **)&bspModels, sizeof(bspModel_t), &allocatedBSPModels);
 
-	numBSPPlanes = CopyLump((bspHeader_t *) header, LUMP_PLANES, bspPlanes, sizeof(bspPlane_t));
+	numBSPPlanes =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_PLANES, (void **)&bspPlanes, sizeof(bspPlane_t), &allocatedBSPPlanes);
 
 	numBSPLeafs = CopyLump((bspHeader_t *) header, LUMP_LEAFS, bspLeafs, sizeof(bspLeaf_t));
 
-	numBSPNodes = CopyLump((bspHeader_t *) header, LUMP_NODES, bspNodes, sizeof(bspNode_t));
+	numBSPNodes =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_NODES, (void **)&bspNodes, sizeof(bspNode_t), &allocatedBSPNodes);
 
-	numBSPLeafSurfaces = CopyLump((bspHeader_t *) header, LUMP_LEAFSURFACES, bspLeafSurfaces, sizeof(bspLeafSurfaces[0]));
+	numBSPLeafSurfaces =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_LEAFSURFACES, (void **)&bspLeafSurfaces, sizeof(bspLeafSurfaces[0]),
+						  &allocatedBSPLeafSurfaces);
 
-	numBSPLeafBrushes = CopyLump((bspHeader_t *) header, LUMP_LEAFBRUSHES, bspLeafBrushes, sizeof(bspLeafBrushes[0]));
+	numBSPLeafBrushes =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_LEAFBRUSHES, (void **)&bspLeafBrushes, sizeof(bspLeafBrushes[0]),
+						  &allocatedBSPLeafBrushes);
 
-	numBSPBrushes = CopyLump((bspHeader_t *) header, LUMP_BRUSHES, bspBrushes, sizeof(bspBrush_t));
+	numBSPBrushes =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_BRUSHES, (void **)&bspBrushes, sizeof(bspBrush_t),
+						  &allocatedBSPLeafBrushes);
 
 	CopyBrushSidesLump(header);
 
@@ -513,6 +522,12 @@ void LoadIBSPFile(const char *filename)
 	bspEntDataSize = CopyLump((bspHeader_t *) header, LUMP_ENTITIES, bspEntData, 1);
 
 	CopyLightGridLumps(header);
+
+	/* advertisements */
+	if(header->version == 47)	// quake live's bsp version
+		numBSPAds = CopyLump((bspHeader_t *) header, LUMP_ADVERTISEMENTS, bspAds, sizeof(bspAdvertisement_t));
+	else
+		numBSPAds = 0;
 
 	/* free the file buffer */
 	free(header);
@@ -571,6 +586,9 @@ void WriteIBSPFile(const char *filename)
 	AddLump(file, (bspHeader_t *) header, LUMP_ENTITIES, bspEntData, bspEntDataSize);
 	AddLump(file, (bspHeader_t *) header, LUMP_FOGS, bspFogs, numBSPFogs * sizeof(bspFog_t));
 	AddLump(file, (bspHeader_t *) header, LUMP_DRAWINDEXES, bspDrawIndexes, numBSPDrawIndexes * sizeof(bspDrawIndexes[0]));
+
+	/* advertisements */
+	AddLump(file, (bspHeader_t *) header, LUMP_ADVERTISEMENTS, bspAds, numBSPAds * sizeof(bspAdvertisement_t));
 
 	/* emit bsp size */
 	size = ftell(file);

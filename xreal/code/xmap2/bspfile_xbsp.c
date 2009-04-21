@@ -100,14 +100,14 @@ static void CopyBrushSidesLump(xbspHeader_t * header)
 
 	/* copy */
 	in = GetLump((bspHeader_t *) header, LUMP_BRUSHSIDES);
-	out = bspBrushSides;
 	for(i = 0; i < numBSPBrushSides; i++)
 	{
+		AUTOEXPAND_BY_REALLOC(bspBrushSides, i, allocatedBSPBrushSides, 1024);
+		out = &bspBrushSides[i];
 		out->planeNum = in->planeNum;
 		out->shaderNum = in->shaderNum;
 		out->surfaceNum = -1;
 		in++;
-		out++;
 	}
 }
 
@@ -473,8 +473,6 @@ static void AddLightGridLumps(FILE * file, xbspHeader_t * header)
 	free(buffer);
 }
 
-
-
 /*
 LoadXBSPFile()
 loads a quake 3 bsp file into memory
@@ -498,21 +496,31 @@ void LoadXBSPFile(const char *filename)
 		Error("%s is version %d, not %d", filename, header->version, game->bspVersion);
 
 	/* load/convert lumps */
-	numBSPShaders = CopyLump((bspHeader_t *) header, LUMP_SHADERS, bspShaders, sizeof(bspShader_t));
+	numBSPShaders =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_SHADERS, (void **)&bspShaders, sizeof(bspShader_t), &allocatedBSPShaders);
 
-	numBSPModels = CopyLump((bspHeader_t *) header, LUMP_MODELS, bspModels, sizeof(bspModel_t));
+	numBSPModels =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_MODELS, (void **)&bspModels, sizeof(bspModel_t), &allocatedBSPModels);
 
-	numBSPPlanes = CopyLump((bspHeader_t *) header, LUMP_PLANES, bspPlanes, sizeof(bspPlane_t));
+	numBSPPlanes =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_PLANES, (void **)&bspPlanes, sizeof(bspPlane_t), &allocatedBSPPlanes);
 
 	numBSPLeafs = CopyLump((bspHeader_t *) header, LUMP_LEAFS, bspLeafs, sizeof(bspLeaf_t));
 
-	numBSPNodes = CopyLump((bspHeader_t *) header, LUMP_NODES, bspNodes, sizeof(bspNode_t));
+	numBSPNodes =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_NODES, (void **)&bspNodes, sizeof(bspNode_t), &allocatedBSPNodes);
 
-	numBSPLeafSurfaces = CopyLump((bspHeader_t *) header, LUMP_LEAFSURFACES, bspLeafSurfaces, sizeof(bspLeafSurfaces[0]));
+	numBSPLeafSurfaces =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_LEAFSURFACES, (void **)&bspLeafSurfaces, sizeof(bspLeafSurfaces[0]),
+						  &allocatedBSPLeafSurfaces);
 
-	numBSPLeafBrushes = CopyLump((bspHeader_t *) header, LUMP_LEAFBRUSHES, bspLeafBrushes, sizeof(bspLeafBrushes[0]));
+	numBSPLeafBrushes =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_LEAFBRUSHES, (void **)&bspLeafBrushes, sizeof(bspLeafBrushes[0]),
+						  &allocatedBSPLeafBrushes);
 
-	numBSPBrushes = CopyLump((bspHeader_t *) header, LUMP_BRUSHES, bspBrushes, sizeof(bspBrush_t));
+	numBSPBrushes =
+		CopyLump_Allocate((bspHeader_t *) header, LUMP_BRUSHES, (void **)&bspBrushes, sizeof(bspBrush_t),
+						  &allocatedBSPLeafBrushes);
 
 	CopyBrushSidesLump(header);
 

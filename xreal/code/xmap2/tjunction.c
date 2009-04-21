@@ -57,7 +57,7 @@ typedef struct edgeLine_s
 	vec3_t          origin;
 	vec3_t          dir;
 
-	edgePoint_t     chain;		// unused element of doubly linked list
+	edgePoint_t    *chain;		// unused element of doubly linked list
 } edgeLine_t;
 
 typedef struct
@@ -66,14 +66,14 @@ typedef struct
 	bspDrawVert_t  *dv[2];
 } originalEdge_t;
 
-#define	MAX_ORIGINAL_EDGES	0x10000
-originalEdge_t  originalEdges[MAX_ORIGINAL_EDGES];
+originalEdge_t *originalEdges = NULL;
 int             numOriginalEdges;
+int             allocatedOriginalEdges = 0;
 
 
-#define	MAX_EDGE_LINES		0x10000
-edgeLine_t      edgeLines[MAX_EDGE_LINES];
+edgeLine_t     *edgeLines = NULL;
 int             numEdgeLines;
+int             allocatedEdgeLines = 0;
 
 int             c_degenerateEdges;
 int             c_addedVerts;
@@ -82,7 +82,7 @@ int             c_totalVerts;
 int             c_natural, c_rotate, c_cant;
 
 // these should be whatever epsilon we actually expect,
-// plus SNAP_INT_TO_FLOAT
+// plus SNAP_INT_TO_FLOAT 
 #define	LINE_POSITION_EPSILON	0.25
 #define	POINT_ON_LINE_EPSILON	0.25
 
@@ -104,15 +104,15 @@ void InsertPointOnEdge(vec3_t v, edgeLine_t * e)
 	p->intercept = d;
 	VectorCopy(v, p->xyz);
 
-	if(e->chain.next == &e->chain)
+	if(e->chain->next == e->chain)
 	{
-		e->chain.next = e->chain.prev = p;
-		p->next = p->prev = &e->chain;
+		e->chain->next = e->chain->prev = p;
+		p->next = p->prev = e->chain;
 		return;
 	}
 
-	scan = e->chain.next;
-	for(; scan != &e->chain; scan = scan->next)
+	scan = e->chain->next;
+	for(; scan != e->chain; scan = scan->next)
 	{
 		d = p->intercept - scan->intercept;
 		if(d > -LINE_POSITION_EPSILON && d < LINE_POSITION_EPSILON)
@@ -165,10 +165,7 @@ int AddEdge(vec3_t v1, vec3_t v2, qboolean createNonAxial)
 	{
 		if(fabs(dir[0] + dir[1] + dir[2]) != 1.0)
 		{
-			if(numOriginalEdges == MAX_ORIGINAL_EDGES)
-			{
-				Error("MAX_ORIGINAL_EDGES");
-			}
+			AUTOEXPAND_BY_REALLOC(originalEdges, numOriginalEdges, allocatedOriginalEdges, 1024);
 			originalEdges[numOriginalEdges].dv[0] = (bspDrawVert_t *) v1;
 			originalEdges[numOriginalEdges].dv[1] = (bspDrawVert_t *) v2;
 			originalEdges[numOriginalEdges].length = d;
@@ -210,15 +207,13 @@ int AddEdge(vec3_t v1, vec3_t v2, qboolean createNonAxial)
 	}
 
 	// create a new edge
-	if(numEdgeLines >= MAX_EDGE_LINES)
-	{
-		Error("MAX_EDGE_LINES");
-	}
+	AUTOEXPAND_BY_REALLOC(edgeLines, numEdgeLines, allocatedEdgeLines, 1024);
 
 	e = &edgeLines[numEdgeLines];
 	numEdgeLines++;
 
-	e->chain.next = e->chain.prev = &e->chain;
+	e->chain = safe_malloc(sizeof(edgePoint_t));
+	e->chain->next = e->chain->prev = e->chain;
 
 	VectorCopy(v1, e->origin);
 	VectorCopy(dir, e->dir);
@@ -408,14 +403,14 @@ void FixSurfaceJunctions(mapDrawSurface_t * ds)
 
 		if(start < end)
 		{
-			p = e->chain.next;
+			p = e->chain->next;
 		}
 		else
 		{
-			p = e->chain.prev;
+			p = e->chain->prev;
 		}
 
-		for(; p != &e->chain;)
+		for(; p != e->chain;)
 		{
 			if(start < end)
 			{
@@ -569,7 +564,6 @@ int             c_broken = 0;
 
 qboolean FixBrokenSurface(mapDrawSurface_t * ds)
 {
-	qboolean        valid = qtrue;
 	bspDrawVert_t  *dv1, *dv2, avg;
 	int             i, j, k;
 	float           dist;
@@ -584,10 +578,6 @@ qboolean FixBrokenSurface(mapDrawSurface_t * ds)
 	/* check all verts */
 	for(i = 0; i < ds->numVerts; i++)
 	{
-		/* don't remove points if winding is a triangle */
-		if(ds->numVerts == 3)
-			return valid;
-
 		/* get verts */
 		dv1 = &ds->verts[i];
 		dv2 = &ds->verts[(i + 1) % ds->numVerts];
@@ -597,7 +587,6 @@ qboolean FixBrokenSurface(mapDrawSurface_t * ds)
 		dist = VectorLength(avg.xyz);
 		if(dist < DEGENERATE_EPSILON)
 		{
-			valid = qfalse;
 			Sys_FPrintf(SYS_VRB, "WARNING: Degenerate T-junction edge found, fixing...\n");
 
 			/* create an average drawvert */
@@ -635,13 +624,16 @@ qboolean FixBrokenSurface(mapDrawSurface_t * ds)
 				memcpy(dv2, dv1, sizeof(bspDrawVert_t));
 			}
 			ds->numVerts--;
+
+			/* after welding, we have to consider the same vertex again, as it now has a new neighbor dv2 */
+			--i;
+
+			/* should ds->numVerts have become 0, then i is now -1. In the next iteration, the loop will abort. */
 		}
 	}
 
 	/* one last check and return */
-	if(ds->numVerts < 3)
-		valid = qfalse;
-	return valid;
+	return ds->numVerts >= 3;
 }
 
 
@@ -689,11 +681,11 @@ void FixTJunctions(entity_t * ent)
 	shaderInfo_t   *si;
 	int             axialEdgeLines;
 	originalEdge_t *e;
-
+	bspDrawVert_t  *dv;
 
 	/* meta mode has its own t-junction code (currently not as good as this code) */
 	//% if( meta )
-	//%     return;
+	//%     return; 
 
 	/* note it */
 	Sys_FPrintf(SYS_VRB, "--- FixTJunctions ---\n");
@@ -741,7 +733,8 @@ void FixTJunctions(entity_t * ent)
 	for(i = 0; i < numOriginalEdges; i++)
 	{
 		e = &originalEdges[i];
-		e->dv[0]->lightmap[0][0] = AddEdge(e->dv[0]->xyz, e->dv[1]->xyz, qtrue);
+		dv = e->dv[0];			// e might change during AddEdge
+		dv->lightmap[0][0] = AddEdge(e->dv[0]->xyz, e->dv[1]->xyz, qtrue);
 	}
 
 	Sys_FPrintf(SYS_VRB, "%9d axial edge lines\n", axialEdgeLines);

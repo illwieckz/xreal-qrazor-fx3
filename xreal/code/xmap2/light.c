@@ -89,7 +89,8 @@ static void CreateSunLight(sun_t * sun)
 			{
 				da = (Random() * 2.0f - 1.0f) * sun->deviance;
 				de = (Random() * 2.0f - 1.0f) * sun->deviance;
-			} while((da * da + de * de) > (sun->deviance * sun->deviance));
+			}
+			while((da * da + de * de) > (sun->deviance * sun->deviance));
 			angle += da;
 			elevation += de;
 
@@ -317,6 +318,14 @@ void CreateEntityLights(void)
 			flags &= ~LIGHT_SURFACES;
 		}
 
+		/* vortex: unnormalized? */
+		if(spawnflags & 32)
+			flags |= LIGHT_UNNORMALIZED;
+
+		/* vortex: distance atten? */
+		if(spawnflags & 64)
+			flags |= LIGHT_ATTEN_DISTANCE;
+
 		/* store the flags */
 		light->flags = flags;
 
@@ -342,9 +351,10 @@ void CreateEntityLights(void)
 		if(light->style < LS_NORMAL || light->style >= LS_NONE)
 			Error("Invalid lightstyle (%d) on entity %d", light->style, i);
 
-		/* override */
-		if(noStyles)
-			light->style = LS_NORMAL;
+		if(light->style != LS_NORMAL)
+		{
+			Sys_FPrintf(SYS_WRN, "WARNING: Styled light found targeting %s\n **", target);
+		}
 
 		/* set light intensity */
 		GetVectorForKey(e, "light_radius", light->radius);
@@ -391,7 +401,10 @@ void CreateEntityLights(void)
 		if(_color && _color[0])
 		{
 			sscanf(_color, "%f %f %f", &light->color[0], &light->color[1], &light->color[2]);
-			ColorNormalize(light->color, light->color);
+			if(!(light->flags & LIGHT_UNNORMALIZED))
+			{
+				ColorNormalize(light->color, light->color);
+			}
 		}
 		else
 			light->color[0] = light->color[1] = light->color[2] = 1.0f;
@@ -747,6 +760,7 @@ int LightContributionToSample(trace_t * trace)
 
 	/* clear color */
 	VectorClear(trace->color);
+	VectorClear(trace->colorNoShadow);
 
 	/* ydnar: early out */
 	if(!(light->flags & LIGHT_SURFACES) || light->envelope <= 0.0f)
@@ -771,7 +785,6 @@ int LightContributionToSample(trace_t * trace)
 		float           factor;
 		float           d;
 		vec3_t          pushedOrigin;
-
 
 		/* project sample point into light plane */
 		d = DotProduct(trace->origin, light->normal) - light->dist;
@@ -887,7 +900,6 @@ int LightContributionToSample(trace_t * trace)
 			float           distByNormal, radiusAtDist, sampleRadius;
 			vec3_t          pointAtDist, distToSample;
 
-
 			/* do cone calculation */
 			distByNormal = -DotProduct(trace->displacement, light->normal);
 			if(distByNormal < 0.0f)
@@ -926,6 +938,9 @@ int LightContributionToSample(trace_t * trace)
 		if(add <= 0.0f)
 			return 0;
 
+		/* VorteX: set noShadow color */
+		VectorScale(light->color, add, trace->colorNoShadow);
+
 		/* setup trace */
 		trace->testAll = qtrue;
 		VectorScale(light->color, add, trace->color);
@@ -945,6 +960,9 @@ int LightContributionToSample(trace_t * trace)
 		/* return to sender */
 		return 1;
 	}
+
+	/* VorteX: set noShadow color */
+	VectorScale(light->color, add, trace->colorNoShadow);
 
 	/* ydnar: changed to a variable number */
 	if(add <= 0.0f || (add <= light->falloffTolerance && (light->flags & LIGHT_FAST_ACTUAL)))
@@ -1377,6 +1395,57 @@ void TraceGrid(int num)
 			break;
 	}
 
+	/////// Floodlighting for point //////////////////
+	//do our floodlight ambient occlusion loop, and add a single contribution based on the brightest dir
+	if(floodlighty)
+	{
+		int             q;
+		float           addSize, f;
+		vec3_t          col, dir;
+
+		col[0] = col[1] = col[2] = floodlightIntensity;
+		dir[0] = dir[1] = 0;
+		dir[2] = 1;
+
+		trace.testOcclusion = qtrue;
+		trace.forceSunlight = qfalse;
+		trace.inhibitRadius = DEFAULT_INHIBIT_RADIUS;
+		trace.testAll = qtrue;
+
+		for(q = 0; q < 2; q++)
+		{
+			if(q == 0)			//upper hemisphere
+			{
+				trace.normal[0] = 0;
+				trace.normal[1] = 0;
+				trace.normal[2] = 1;
+			}
+			else				//lower hemisphere
+			{
+				trace.normal[0] = 0;
+				trace.normal[1] = 0;
+				trace.normal[2] = -1;
+			}
+
+			f = FloodLightForSample(&trace, floodlightDistance, floodlight_lowquality);
+
+			contributions[numCon].color[0] = col[0] * f;
+			contributions[numCon].color[1] = col[1] * f;
+			contributions[numCon].color[2] = col[2] * f;
+
+			contributions[numCon].dir[0] = dir[0];
+			contributions[numCon].dir[1] = dir[1];
+			contributions[numCon].dir[2] = dir[2];
+
+			contributions[numCon].style = 0;
+			numCon++;
+			/* push average direction around */
+			addSize = VectorLength(col);
+			VectorMA(gp->dir, addSize, dir, gp->dir);
+		}
+	}
+	/////////////////////
+
 	/* normalize to get primary light direction */
 	VectorNormalize2(gp->dir, gp->dir);
 
@@ -1419,6 +1488,9 @@ void TraceGrid(int num)
 
 		/* ambient light will be at 1/4 the value of directed light */
 		/* (ydnar: nuke this in favor of more dramatic lighting?) */
+		/* (PM: how about actually making it work? d=1 when it got here for single lights/sun :P */
+//      d = 0.25f;
+		/* (Hobbes: always setting it to .25 is hardly any better) */
 		d = 0.25f * (1.0f - d);
 		VectorMA(gp->ambient[j], d, contributions[i].color, gp->ambient[j]);
 	}
@@ -1665,6 +1737,9 @@ void LightWorld(void)
 		RunThreadsOnIndividual(numRawLightmaps, qtrue, DirtyRawLightmap);
 	}
 
+	/* floodlight pass */
+	FloodlightRawLightmaps();
+
 	/* ydnar: set up light envelopes */
 	SetupEnvelopes(qfalse, fast);
 
@@ -1697,6 +1772,7 @@ void LightWorld(void)
 	{
 		/* store off the bsp between bounces */
 		StoreSurfaceLightmaps();
+		UnparseEntities();
 		Sys_Printf("Writing %s\n", source);
 		WriteBSPFile(source);
 
@@ -1706,6 +1782,7 @@ void LightWorld(void)
 		/* flag bouncing */
 		bouncing = qtrue;
 		VectorClear(ambientColor);
+		floodlighty = qfalse;
 
 		/* generate diffuse lights */
 		RadFreeLights();
@@ -1777,11 +1854,21 @@ int LightMain(int argc, char **argv)
 
 	/* note it */
 	Sys_Printf("--- Light ---\n");
+	Sys_Printf("--- ProcessGameSpecific ---\n");
 
 	/* set standard game flags */
 	wolfLight = game->wolfLight;
+	if(wolfLight == qtrue)
+		Sys_Printf(" lightning model: wolf\n");
+	else
+		Sys_Printf(" lightning model: quake3\n");
+
 	lmCustomSize = game->lightmapSize;
+	Sys_Printf(" lightmap size: %d x %d pixels\n", lmCustomSize, lmCustomSize);
+
 	lightmapGamma = game->lightmapGamma;
+	Sys_Printf(" lightning gamma: %f\n", lightmapGamma);
+
 	lightmapCompensate = game->lightmapCompensate;
 
 	/* process commandline arguments */
@@ -1831,11 +1918,35 @@ int LightMain(int argc, char **argv)
 			i++;
 		}
 
+		else if(!strcmp(argv[i], "-gridscale"))
+		{
+			f = atof(argv[i + 1]);
+			Sys_Printf("Grid lightning scaled by %f\n", f);
+			gridScale *= f;
+			i++;
+		}
+
+		else if(!strcmp(argv[i], "-gridambientscale"))
+		{
+			f = atof(argv[i + 1]);
+			Sys_Printf("Grid ambient lightning scaled by %f\n", f);
+			gridAmbientScale *= f;
+			i++;
+		}
+
 		else if(!strcmp(argv[i], "-gamma"))
 		{
 			f = atof(argv[i + 1]);
 			lightmapGamma = f;
 			Sys_Printf("Lighting gamma set to %f\n", lightmapGamma);
+			i++;
+		}
+
+		else if(!strcmp(argv[i], "-exposure"))
+		{
+			f = atof(argv[i + 1]);
+			lightmapExposure = f;
+			Sys_Printf("Lighting exposure set to %f\n", lightmapExposure);
 			i++;
 		}
 
@@ -1925,13 +2036,28 @@ int LightMain(int argc, char **argv)
 				Sys_Printf("Approximating lightmaps within a byte tolerance of %d\n", approximateTolerance);
 			i++;
 		}
-
 		else if(!strcmp(argv[i], "-deluxe") || !strcmp(argv[i], "-deluxemap"))
 		{
 			deluxemap = qtrue;
 			Sys_Printf("Generating deluxemaps for average light direction\n");
 		}
-
+		else if(!strcmp(argv[i], "-deluxemode"))
+		{
+			deluxemode = atoi(argv[i + 1]);
+			if(deluxemode == 0 || deluxemode > 1 || deluxemode < 0)
+			{
+				Sys_Printf("Generating modelspace deluxemaps\n");
+				deluxemode = 0;
+			}
+			else
+				Sys_Printf("Generating tangentspace deluxemaps\n");
+			i++;
+		}
+		else if(!strcmp(argv[i], "-nodeluxe") || !strcmp(argv[i], "-nodeluxemap"))
+		{
+			deluxemap = qfalse;
+			Sys_Printf("Disabling generating of deluxemaps for average light direction\n");
+		}
 		else if(!strcmp(argv[i], "-hdr"))
 		{
 			hdr = qtrue;
@@ -2156,6 +2282,20 @@ int LightMain(int argc, char **argv)
 			i++;
 			Sys_Printf("Default lightmap sample size set to %dx%d units\n", sampleSize, sampleSize);
 		}
+		else if(!strcmp(argv[i], "-minsamplesize"))
+		{
+			minSampleSize = atoi(argv[i + 1]);
+			if(minSampleSize < 1)
+				minSampleSize = 1;
+			i++;
+			Sys_Printf("Minimum lightmap sample size set to %dx%d units\n", minSampleSize, minSampleSize);
+		}
+		else if(!strcmp(argv[i], "-samplescale"))
+		{
+			sampleScale = atoi(argv[i + 1]);
+			i++;
+			Sys_Printf("Lightmaps sample scale set to %d\n", sampleScale);
+		}
 		else if(!strcmp(argv[i], "-novertex"))
 		{
 			noVertexLighting = qtrue;
@@ -2196,6 +2336,21 @@ int LightMain(int argc, char **argv)
 			cpmaHack = qtrue;
 			Sys_Printf("Enabling Challenge Pro Mode Asstacular Vertex Lighting Mode (tm)\n");
 		}
+		else if(!strcmp(argv[i], "-floodlight"))
+		{
+			floodlighty = qtrue;
+			Sys_Printf("FloodLighting enabled\n");
+		}
+		else if(!strcmp(argv[i], "-debugnormals"))
+		{
+			debugnormals = qtrue;
+			Sys_Printf("DebugNormals enabled\n");
+		}
+		else if(!strcmp(argv[i], "-lowquality"))
+		{
+			floodlight_lowquality = qtrue;
+			Sys_Printf("Low Quality FloodLighting enabled\n");
+		}
 
 		/* r7: dirtmapping */
 		else if(!strcmp(argv[i], "-dirty"))
@@ -2217,6 +2372,7 @@ int LightMain(int argc, char **argv)
 				Sys_Printf("Enabling randomized dirtmapping\n");
 			else
 				Sys_Printf("Enabling ordered dir mapping\n");
+			i++;
 		}
 		else if(!strcmp(argv[i], "-dirtdepth"))
 		{
@@ -2224,6 +2380,7 @@ int LightMain(int argc, char **argv)
 			if(dirtDepth <= 0.0f)
 				dirtDepth = 128.0f;
 			Sys_Printf("Dirtmapping depth set to %.1f\n", dirtDepth);
+			i++;
 		}
 		else if(!strcmp(argv[i], "-dirtscale"))
 		{
@@ -2231,6 +2388,7 @@ int LightMain(int argc, char **argv)
 			if(dirtScale <= 0.0f)
 				dirtScale = 1.0f;
 			Sys_Printf("Dirtmapping scale set to %.1f\n", dirtScale);
+			i++;
 		}
 		else if(!strcmp(argv[i], "-dirtgain"))
 		{
@@ -2238,11 +2396,21 @@ int LightMain(int argc, char **argv)
 			if(dirtGain <= 0.0f)
 				dirtGain = 1.0f;
 			Sys_Printf("Dirtmapping gain set to %.1f\n", dirtGain);
+			i++;
 		}
-
+		else if(!strcmp(argv[i], "-trianglecheck"))
+		{
+			lightmapTriangleCheck = qtrue;
+		}
+		else if(!strcmp(argv[i], "-extravisnudge"))
+		{
+			lightmapExtraVisClusterNudge = qtrue;
+		}
 		/* unhandled args */
 		else
+		{
 			Sys_Printf("WARNING: Unknown argument \"%s\"\n", argv[i]);
+		}
 
 	}
 
@@ -2296,6 +2464,7 @@ int LightMain(int argc, char **argv)
 	/* ydnar: set up optimization */
 	SetupBrushes();
 	SetupDirt();
+	SetupFloodLight();
 	SetupSurfaceLightmaps();
 
 	/* initialize the surface facet tracing */

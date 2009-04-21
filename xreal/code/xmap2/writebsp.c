@@ -1,6 +1,6 @@
 /* -------------------------------------------------------------------------------
 
-Copyright (C) 1999-2006 Id Software, Inc. and contributors.
+Copyright (C) 1999-2007 id Software, Inc. and contributors.
 For a list of contributors, see the accompanying CONTRIBUTORS file.
 
 This file is part of GtkRadiant.
@@ -71,8 +71,8 @@ int EmitShader(const char *shader, int *contentFlags, int *surfaceFlags)
 	si = ShaderInfoForShader(shader);
 
 	/* emit a new shader */
-	if(i == MAX_MAP_SHADERS)
-		Error("MAX_MAP_SHADERS");
+	AUTOEXPAND_BY_REALLOC_BSP(Shaders, 1024);
+
 	numBSPShaders++;
 	strcpy(bspShaders[i].shader, shader);
 	bspShaders[i].surfaceFlags = si->surfaceFlags;
@@ -114,6 +114,7 @@ void EmitPlanes(void)
 	mp = mapplanes;
 	for(i = 0; i < nummapplanes; i++, mp++)
 	{
+		AUTOEXPAND_BY_REALLOC_BSP(Planes, 1024);
 		bp = &bspPlanes[numBSPPlanes];
 		VectorCopy(mp->normal, bp->normal);
 		bp->dist = mp->dist;
@@ -136,7 +137,6 @@ void EmitLeaf(node_t * node)
 	bspLeaf_t      *leaf_p;
 	brush_t        *b;
 	drawSurfRef_t  *dsr;
-	int             i = 0;
 
 
 	/* check limits */
@@ -158,7 +158,7 @@ void EmitLeaf(node_t * node)
 	for(b = node->brushlist; b; b = b->next)
 	{
 		/* something is corrupting brushes */
-		if((int)b < 256)
+		if((size_t) b < 256)
 		{
 			Sys_Printf("WARNING: Node brush list corrupted (0x%08X)\n", b);
 			break;
@@ -166,8 +166,7 @@ void EmitLeaf(node_t * node)
 		//% if( b->guard != 0xDEADBEEF )
 		//%     Sys_Printf( "Brush %6d: 0x%08X Guard: 0x%08X Next: 0x%08X Original: 0x%08X Sides: %d\n", b->brushNum, b, b, b->next, b->original, b->numsides );
 
-		if(numBSPLeafBrushes >= MAX_MAP_LEAFBRUSHES)
-			Error("MAX_MAP_LEAFBRUSHES");
+		AUTOEXPAND_BY_REALLOC_BSP(LeafBrushes, 1024);
 		bspLeafBrushes[numBSPLeafBrushes] = b->original->outputNum;
 		numBSPLeafBrushes++;
 	}
@@ -182,8 +181,7 @@ void EmitLeaf(node_t * node)
 	leaf_p->firstBSPLeafSurface = numBSPLeafSurfaces;
 	for(dsr = node->drawSurfReferences; dsr; dsr = dsr->nextRef)
 	{
-		if(numBSPLeafSurfaces >= MAX_MAP_LEAFFACES)
-			Error("MAX_MAP_LEAFFACES");
+		AUTOEXPAND_BY_REALLOC_BSP(LeafSurfaces, 1024);
 		bspLeafSurfaces[numBSPLeafSurfaces] = dsr->outputNum;
 		numBSPLeafSurfaces++;
 	}
@@ -200,7 +198,7 @@ recursively emit the bsp nodes
 int EmitDrawNode_r(node_t * node)
 {
 	bspNode_t      *n;
-	int             i;
+	int             i, n0;
 
 
 	/* check for leafnode */
@@ -211,9 +209,9 @@ int EmitDrawNode_r(node_t * node)
 	}
 
 	/* emit a node */
-	if(numBSPNodes == MAX_MAP_NODES)
-		Error("MAX_MAP_NODES");
-	n = &bspNodes[numBSPNodes];
+	AUTOEXPAND_BY_REALLOC_BSP(Nodes, 1024);
+	n0 = numBSPNodes;
+	n = &bspNodes[n0];
 	numBSPNodes++;
 
 	VectorCopy(node->mins, n->mins);
@@ -225,7 +223,7 @@ int EmitDrawNode_r(node_t * node)
 
 	//
 	// recursively output the other nodes
-	//
+	//  
 	for(i = 0; i < 2; i++)
 	{
 		if(node->children[i]->planenum == PLANENUM_LEAF)
@@ -237,6 +235,8 @@ int EmitDrawNode_r(node_t * node)
 		{
 			n->children[i] = numBSPNodes;
 			EmitDrawNode_r(node->children[i]);
+			// n may have become invalid here, so...
+			n = &bspNodes[n0];
 		}
 	}
 
@@ -412,6 +412,8 @@ void EndBSPFile(void)
 	char            path[1024];
 
 
+	Sys_FPrintf(SYS_VRB, "--- EndBSPFile ---\n");
+
 	EmitPlanes();
 
 	numBSPEntities = numEntities;
@@ -451,8 +453,7 @@ void EmitBrushes(brush_t * brushes, int *firstBrush, int *numBrushes)
 	for(b = brushes; b != NULL; b = b->next)
 	{
 		/* check limits */
-		if(numBSPBrushes == MAX_MAP_BRUSHES)
-			Error("MAX_MAP_BRUSHES (%d)", numBSPBrushes);
+		AUTOEXPAND_BY_REALLOC_BSP(Brushes, 1024);
 
 		/* get bsp brush */
 		b->outputNum = numBSPBrushes;
@@ -472,8 +473,7 @@ void EmitBrushes(brush_t * brushes, int *firstBrush, int *numBrushes)
 			b->sides[j].outputNum = -1;
 
 			/* check count */
-			if(numBSPBrushSides == MAX_MAP_BRUSHSIDES)
-				Error("MAX_MAP_BRUSHSIDES ");
+			AUTOEXPAND_BY_REALLOC_BSP(BrushSides, 1024);
 
 			/* emit side */
 			b->sides[j].outputNum = numBSPBrushSides;
@@ -558,8 +558,7 @@ void BeginModel(void)
 	bspModel_t     *mod;
 
 	/* test limits */
-	if(numBSPModels == MAX_MAP_MODELS)
-		Error("MAX_MAP_MODELS");
+	AUTOEXPAND_BY_REALLOC_BSP(Models, 256);
 
 	/* get model and entity */
 	mod = &bspModels[numBSPModels];

@@ -66,7 +66,7 @@ fixedWinding_t *NewFixedWinding(int points)
 	if(points > MAX_POINTS_ON_WINDING)
 		Error("NewWinding: %i points", points);
 
-	size = (int)((fixedWinding_t *) 0)->points[points];
+	size = (int)((size_t) ((fixedWinding_t *) 0)->points[points]);
 	w = safe_malloc(size);
 	memset(w, 0, size);
 
@@ -1063,6 +1063,11 @@ int VisMain(int argc, char **argv)
 			Sys_Printf("merge = true\n");
 			mergevis = qtrue;
 		}
+		else if(!strcmp(argv[i], "-mergeportals"))
+		{
+			Sys_Printf("mergeportals = true\n");
+			mergevisportals = qtrue;
+		}
 		else if(!strcmp(argv[i], "-nopassage"))
 		{
 			Sys_Printf("nopassage = true\n");
@@ -1097,7 +1102,9 @@ int VisMain(int argc, char **argv)
 		}
 
 		else
+		{
 			Sys_Printf("WARNING: Unknown option \"%s\"\n", argv[i]);
+		}
 	}
 
 	if(i != argc - 1)
@@ -1129,10 +1136,10 @@ int VisMain(int argc, char **argv)
 	ParseEntities();
 
 	if(mergevis)
-	{
 		MergeLeaves();
+
+	if(mergevis || mergevisportals)
 		MergeLeafPortals();
-	}
 
 	CountActivePortals();
 	/* WritePortals( "maps/hints.prs" ); */

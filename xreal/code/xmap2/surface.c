@@ -303,7 +303,7 @@ void TidyEntitySurfaces(entity_t * e)
 		out = &mapDrawSurfs[i];
 
 		/* walk the surface list again until a proper surface is found */
-		for(j; j < numMapDrawSurfs; j++)
+		for(; j < numMapDrawSurfs; j++)
 		{
 			/* get in surface */
 			in = &mapDrawSurfs[j];
@@ -481,7 +481,7 @@ void ClassifySurfaces(int numSurfs, mapDrawSurface_t * ds)
 
 
 	/* walk the list of surfaces */
-	for(numSurfs; numSurfs > 0; numSurfs--, ds++)
+	for(; numSurfs > 0; numSurfs--, ds++)
 	{
 		/* ignore bogus (or flare) surfaces */
 		if(ds->type == SURFACE_BAD || ds->numVerts <= 0)
@@ -637,7 +637,9 @@ void ClassifySurfaces(int numSurfs, mapDrawSurface_t * ds)
 				ds->sampleSize *= ds->lightmapScale;
 			if(ds->sampleSize <= 0)
 				ds->sampleSize = 1;
-			else if(ds->sampleSize > 16384)	/* powers of 2 are preferred */
+			if(ds->sampleSize < minSampleSize)
+				ds->sampleSize = minSampleSize;
+			if(ds->sampleSize > 16384)	/* powers of 2 are preferred */
 				ds->sampleSize = 16384;
 		}
 	}
@@ -2253,8 +2255,6 @@ void EmitDrawVerts(mapDrawSurface_t * ds, bspDrawSurface_t * out)
 	for(i = 0; i < ds->numVerts; i++)
 	{
 		/* allocate a new vert */
-		if(numBSPDrawVerts == MAX_MAP_DRAW_VERTS)
-			Error("MAX_MAP_DRAW_VERTS");
 		IncDrawVerts();
 		dv = &bspDrawVerts[numBSPDrawVerts - 1];
 
@@ -2445,25 +2445,27 @@ void EmitFlareSurface(mapDrawSurface_t * ds)
 	numSurfacesByType[ds->type]++;
 }
 
-
-
 /*
 EmitPatchSurface()
 emits a bsp patch drawsurface
 */
 
-void EmitPatchSurface(mapDrawSurface_t * ds)
+void EmitPatchSurface(entity_t * e, mapDrawSurface_t * ds)
 {
 	int             i, j;
 	bspDrawSurface_t *out;
 	int             surfaceFlags, contentFlags;
+	int             forcePatchMeta;
 
+	/* vortex: _patchMeta support */
+	forcePatchMeta = IntForKey(e, "_patchMeta");
+	if(!forcePatchMeta)
+		forcePatchMeta = IntForKey(e, "patchMeta");
 
 	/* invert the surface if necessary */
 	if(ds->backSide || ds->shaderInfo->invert)
 	{
 		bspDrawVert_t  *dv1, *dv2, temp;
-
 
 		/* walk the verts, flip the normal */
 		for(i = 0; i < ds->numVerts; i++)
@@ -2498,7 +2500,7 @@ void EmitPatchSurface(mapDrawSurface_t * ds)
 	out->surfaceType = MST_PATCH;
 	if(debugSurfaces)
 		out->shaderNum = EmitShader("debugSurfaces", NULL, NULL);
-	else if(patchMeta)
+	else if(patchMeta || forcePatchMeta)
 	{
 		/* patch meta requires that we have nodraw patches for collision */
 		surfaceFlags = ds->shaderInfo->surfaceFlags;
@@ -2547,8 +2549,6 @@ void EmitPatchSurface(mapDrawSurface_t * ds)
 	/* add to count */
 	numSurfacesByType[ds->type]++;
 }
-
-
 
 /*
 OptimizeTriangleSurface() - ydnar
@@ -2672,11 +2672,10 @@ EmitTriangleSurface()
 creates a bsp drawsurface from arbitrary triangle surfaces
 */
 
-static void EmitTriangleSurface(mapDrawSurface_t * ds)
+void EmitTriangleSurface(mapDrawSurface_t * ds)
 {
 	int             i, temp;
 	bspDrawSurface_t *out;
-
 
 	/* invert the surface if necessary */
 	if(ds->backSide || ds->shaderInfo->invert)
@@ -2808,7 +2807,6 @@ static void EmitFaceSurface(mapDrawSurface_t * ds)
 }
 
 
-
 /*
 MakeDebugPortalSurfs_r() - ydnar
 generates drawsurfaces for passable portals in the bsp
@@ -2846,10 +2844,6 @@ static void MakeDebugPortalSurfs_r(node_t * node, shaderInfo_t * si)
 		{
 			/* is this portal passable? */
 			if(PortalPassable(p) == qfalse)
-				continue;
-
-			/* Tr3B: filter area portals */
-			if(debugAreaPortals && !(p->compileFlags & C_AREAPORTAL))
 				continue;
 
 			/* check max points */
@@ -2908,10 +2902,7 @@ void MakeDebugPortalSurfs(tree_t * tree)
 	Sys_FPrintf(SYS_VRB, "--- MakeDebugPortalSurfs ---\n");
 
 	/* get portal debug shader */
-	if(debugAreaPortals)
-		si = ShaderInfoForShader("debugAreaPortals");
-	else
-		si = ShaderInfoForShader("debugPortals");
+	si = ShaderInfoForShader("debugPortals");
 
 	/* walk the tree */
 	MakeDebugPortalSurfs_r(tree->headnode, si);
@@ -3521,7 +3512,7 @@ void FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree)
 				if(refs == 0)
 					refs = FilterPatchIntoTree(ds, tree);
 				if(refs > 0)
-					EmitPatchSurface(ds);
+					EmitPatchSurface(e, ds);
 				break;
 
 				/* handle triangle surfaces */

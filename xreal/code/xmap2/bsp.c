@@ -1,6 +1,6 @@
 /* -------------------------------------------------------------------------------
 
-Copyright (C) 1999-2006 Id Software, Inc. and contributors.
+Copyright (C) 1999-2007 id Software, Inc. and contributors.
 For a list of contributors, see the accompanying CONTRIBUTORS file.
 
 This file is part of GtkRadiant.
@@ -208,7 +208,6 @@ void ProcessWorldModel(void)
 	char            level[2], shader[1024];
 	const char     *value;
 
-
 	/* sets integer blockSize from worldspawn "_blocksize" key if it exists */
 	value = ValueForKey(&entities[0], "_blocksize");
 	if(value[0] == '\0')
@@ -345,7 +344,7 @@ void ProcessWorldModel(void)
 	MergeMetaTriangles();
 
 	/* ydnar: debug portals */
-	if(debugPortals || debugAreaPortals)
+	if(debugPortals)
 		MakeDebugPortalSurfs(tree);
 
 	/* ydnar: fog hull */
@@ -392,7 +391,7 @@ void ProcessWorldModel(void)
 					{
 						GetVectorForKey(target, "origin", targetOrigin);
 						VectorSubtract(targetOrigin, origin, normal);
-						VectorNormalize2(normal, normal);
+						VectorNormalize(normal);
 					}
 				}
 				else
@@ -553,6 +552,9 @@ void ProcessModels(void)
 
 	/* write fogs */
 	EmitFogs();
+
+	/* vortex: emit meta stats */
+	EmitMetaStats();
 }
 
 
@@ -685,6 +687,14 @@ int BSPMain(int argc, char **argv)
 			i++;
 			Sys_Printf("Lightmap sample size set to %dx%d units\n", sampleSize, sampleSize);
 		}
+		else if(!strcmp(argv[i], "-minsamplesize"))
+		{
+			minSampleSize = atoi(argv[i + 1]);
+			if(minSampleSize < 1)
+				minSampleSize = 1;
+			i++;
+			Sys_Printf("Minimum lightmap sample size set to %dx%d units\n", minSampleSize, minSampleSize);
+		}
 		else if(!strcmp(argv[i], "-custinfoparms"))
 		{
 			Sys_Printf("Custom info parms enabled\n");
@@ -805,15 +815,22 @@ int BSPMain(int argc, char **argv)
 			Sys_Printf("Debug portal surfaces enabled\n");
 			debugPortals = qtrue;
 		}
-		else if(!strcmp(argv[i], "-debugareaportals"))
+		else if(!strcmp(argv[i], "-altsplit"))
 		{
-			Sys_Printf("Debug area portal surfaces enabled\n");
-			debugAreaPortals = qtrue;
+			Sys_Printf("Alternate BSP splitting (by 27) enabled\n");
+			bspAlternateSplitWeights = qtrue;
+		}
+		else if(!strcmp(argv[i], "-deep"))
+		{
+			Sys_Printf("Deep BSP tree generation enabled\n");
+			deepBSP = qtrue;
 		}
 		else if(!strcmp(argv[i], "-bsp"))
 			Sys_Printf("-bsp argument unnecessary\n");
 		else
+		{
 			Sys_Printf("WARNING: Unknown option \"%s\"\n", argv[i]);
+		}
 	}
 
 	/* fixme: print more useful usage here */

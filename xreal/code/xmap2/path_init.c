@@ -49,11 +49,11 @@ int             numBasePaths;
 char           *basePaths[MAX_BASE_PATHS];
 int             numGamePaths;
 char           *gamePaths[MAX_GAME_PATHS];
-
+char           *homeBasePath = NULL;
 
 
 /*
-some of this code is based off the original xmap port from loki
+some of this code is based off the original q3map port from loki
 and finds various paths. moved here from bsp.c for clarity.
 */
 
@@ -277,7 +277,7 @@ void AddHomeBasePath(char *path)
 		return;
 
 	/* make a hole */
-	for(i = 0; i < (MAX_BASE_PATHS - 1); i++)
+	for(i = (MAX_BASE_PATHS - 2); i >= 0; i--)
 		basePaths[i + 1] = basePaths[i];
 
 	/* concatenate home dir and path */
@@ -375,12 +375,22 @@ void InitPaths(int *argc, char **argv)
 			AddGamePath(argv[i]);
 			argv[i] = NULL;
 		}
+
+		/* -fs_nohomebase */
+		else if(strcmp(argv[i], "-fs_homebase") == 0)
+		{
+			if(++i >= *argc)
+				Error("Out of arguments: No path specified after %s.", argv[i - 1]);
+			argv[i - 1] = NULL;
+			homeBasePath = argv[i];
+			argv[i] = NULL;
+		}
 	}
 
 	/* remove processed arguments */
 	for(i = 0, j = 0, k = 0; i < *argc && j < *argc; i++, j++)
 	{
-		for(j; j < *argc && argv[j] == NULL; j++);
+		for(; j < *argc && argv[j] == NULL; j++);
 		argv[i] = argv[j];
 		if(argv[i] != NULL)
 			k++;
@@ -430,7 +440,10 @@ void InitPaths(int *argc, char **argv)
 	}
 
 	/* this only affects unix */
-	AddHomeBasePath(game->homeBasePath);
+	if(homeBasePath)
+		AddHomeBasePath(homeBasePath);
+	else
+		AddHomeBasePath(game->homeBasePath);
 
 	/* initialize vfs paths */
 	if(numBasePaths > MAX_BASE_PATHS)

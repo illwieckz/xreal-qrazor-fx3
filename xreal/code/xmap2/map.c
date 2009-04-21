@@ -44,7 +44,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 #define	USE_HASHING
 #define	PLANE_HASHES	8192
 
-plane_t        *planehash[PLANE_HASHES];
+int             planehash[PLANE_HASHES];
 
 int             c_boxbevels;
 int             c_edgebevels;
@@ -94,7 +94,7 @@ void AddPlaneToHash(plane_t * p)
 	hash = (PLANE_HASHES - 1) & (int)fabs(p->dist);
 
 	p->hash_chain = planehash[hash];
-	planehash[hash] = p;
+	planehash[hash] = p - mapplanes + 1;
 }
 
 /*
@@ -113,8 +113,7 @@ int CreateNewFloatPlane(vec3_t normal, vec_t dist)
 	}
 
 	// create a new plane
-	if(nummapplanes + 2 > MAX_MAP_PLANES)
-		Error("MAX_MAP_PLANES");
+	AUTOEXPAND_BY_REALLOC(mapplanes, nummapplanes + 1, allocatedmapplanes, 1024);
 
 	p = &mapplanes[nummapplanes];
 	VectorCopy(normal, p->normal);
@@ -182,9 +181,26 @@ SnapPlane()
 snaps a plane to normal/distance epsilons
 */
 
-void SnapPlane(vec3_t normal, vec_t * dist)
+void SnapPlane(vec3_t normal, vec_t * dist, vec3_t center)
 {
+// SnapPlane disabled by LordHavoc because it often messes up collision
+// brushes made from triangles of embedded models, and it has little effect
+// on anything else (axial planes are usually derived from snapped points)
+/*
+  SnapPlane reenabled by namespace because of multiple reports of
+  q3map2-crashes which were triggered by this patch.
+*/
+	// div0: ensure the point "center" stays on the plane (actually, this
+	// rotates the plane around the point center).
+	// if center lies on the plane, it is guaranteed to stay on the plane by
+	// this fix.
 	SnapNormal(normal);
+
+	if(center)
+	{
+		vec_t           centerDist = DotProduct(normal, center);
+		*dist += (DotProduct(normal, center) - centerDist);
+	}
 
 	if(fabs(*dist - Q_rint(*dist)) < distanceEpsilon)
 		*dist = Q_rint(*dist);
@@ -202,20 +218,27 @@ int FindFloatPlane(vec3_t normal, vec_t dist, int numPoints, vec3_t * points)
 #ifdef USE_HASHING
 {
 	int             i, j, hash, h;
+	int             pidx;
 	plane_t        *p;
 	vec_t           d;
+	vec3_t          centerofweight;
 
+	VectorClear(centerofweight);
+	for(i = 0; i < numPoints; ++i)
+		VectorMA(centerofweight, 1.0 / numPoints, points[i], centerofweight);
 
 	/* hash the plane */
-	SnapPlane(normal, &dist);
+	SnapPlane(normal, &dist, centerofweight);
 	hash = (PLANE_HASHES - 1) & (int)fabs(dist);
 
 	/* search the border bins as well */
 	for(i = -1; i <= 1; i++)
 	{
 		h = (hash + i) & (PLANE_HASHES - 1);
-		for(p = planehash[h]; p != NULL; p = p->hash_chain)
+		for(pidx = planehash[h] - 1; pidx != -1; pidx = mapplanes[pidx].hash_chain - 1)
 		{
+			p = &mapplanes[pidx];
+
 			/* do standard plane compare */
 			if(!PlaneEqual(p, normal, dist))
 				continue;
@@ -247,7 +270,13 @@ int FindFloatPlane(vec3_t normal, vec_t dist, int numPoints, vec3_t * points)
 	plane_t        *p;
 
 
-	SnapPlane(normal, &dist);
+	vec3_t          centerofweight;
+
+	VectorClear(centerofweight);
+	for(i = 0; i < numPoints; ++i)
+		VectorMA(centerofweight, 1.0 / numPoints, points[i], centerofweight);
+
+	SnapPlane(normal, &dist, centerofweight);
 	for(i = 0, p = mapplanes; i < nummapplanes; i++, p++)
 	{
 		if(PlaneEqual(p, normal, dist))
@@ -298,7 +327,7 @@ int MapPlaneFromEquation(vec4_t plane)
 	if(mag)
 		plane[3] /= mag;
 
-	SnapPlane(normal, &dist);
+	SnapPlane(normal, &dist, NULL);
 
 	/* Tr3B: debug it */
 //  Sys_FPrintf( SYS_VRB, "MapPlaneFromEquation: (%i %i %i %i)\n", (int)normal[0], (int)normal[1], (int)normal[2], (int)dist);
@@ -642,6 +671,23 @@ produces a final brush based on the buildBrush->sides array
 and links it to the current entity
 */
 
+static void MergeOrigin(entity_t * ent, vec3_t origin)
+{
+	vec3_t          adjustment;
+
+	/* we have not parsed the brush completely yet... */
+	GetVectorForKey(ent, "origin", ent->origin);
+
+	VectorMA(origin, -1, ent->originbrush_origin, adjustment);
+	VectorAdd(adjustment, ent->origin, ent->origin);
+	VectorCopy(origin, ent->originbrush_origin);
+
+	char            string[128];
+
+	sprintf(string, "%f %f %f", ent->origin[0], ent->origin[1], ent->origin[2]);
+	SetKeyValue(ent, "origin", string);
+}
+
 brush_t        *FinishBrush(void)
 {
 	brush_t        *b;
@@ -658,6 +704,8 @@ brush_t        *FinishBrush(void)
 		char            string[32];
 		vec3_t          origin;
 
+		Sys_Printf("Entity %i, Brush %i: origin brush detected\n", mapEnt->mapEntityNum, entitySourceBrushes);
+
 		if(numEntities == 1)
 		{
 			Sys_Printf("Entity %i, Brush %i: origin brushes not allowed in world\n", mapEnt->mapEntityNum, entitySourceBrushes);
@@ -667,10 +715,7 @@ brush_t        *FinishBrush(void)
 		VectorAdd(buildBrush->mins, buildBrush->maxs, origin);
 		VectorScale(origin, 0.5, origin);
 
-		sprintf(string, "%i %i %i", (int)origin[0], (int)origin[1], (int)origin[2]);
-		SetKeyValue(&entities[numEntities - 1], "origin", string);
-
-		VectorCopy(origin, entities[numEntities - 1].origin);
+		MergeOrigin(&entities[numEntities - 1], origin);
 
 		/* don't keep this brush */
 		return NULL;
