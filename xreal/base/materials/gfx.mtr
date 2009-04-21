@@ -1067,12 +1067,11 @@ burnMark
 	parallax
 	sort decal
 	{
-		stage diffuseMap
+		stage colorMap
 		map textures/decals/explo_burn01.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		vertexColor
 	}
-	normalMap	textures/decals/particle_burn01_local.png
 }
 
 gfx/damage/bullet_mrk
@@ -1082,12 +1081,11 @@ gfx/damage/bullet_mrk
 	sort decal
 
 	{
-		stage diffuseMap
+		stage colorMap
 		map gfx/damage/bullet_mrk.png
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		vertexColor
 	}
-	normalMap	gfx/damage/bullet_mrk_local.png
 }
 
 gfx/damage/burn_med_mrk
@@ -1096,24 +1094,22 @@ gfx/damage/burn_med_mrk
 	parallax
 	sort decal
 	{
-		stage diffuseMap
+		stage colorMap
 		map textures/decals/explo_burn01.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		vertexColor
 	}
-	normalMap	gfx/damage/burn_med_mrk_local.png
 }
 
 gfx/damage/hole_lg_mrk
 {
 	polygonOffset
 	{
-		stage diffuseMap
+		stage colorMap
 		map gfx/damage/hole_lg_mrk.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		vertexColor
 	}
-	normalMap	gfx/damage/burn_lg_mrk_local.png
 }
 
 gfx/damage/plasma_mrk
