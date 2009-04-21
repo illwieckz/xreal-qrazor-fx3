@@ -2,7 +2,7 @@ Version 2
 // entity 0
 {
 "classname" "worldspawn"
-"_lightmapscale" "0.25"
+"_lightmapscale" "0.125"
 "ambientColor" "0.51 0.54 0.62"
 "message" "DEAD SIMPLE REDUX by Stefan 'Reflex' Lautner"
 "music" "music/jamendo.com/Silence/Encre/03-Pollution.ogg"
