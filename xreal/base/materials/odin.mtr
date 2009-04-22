@@ -1,0 +1,41 @@
+textures/odin/sector1
+{	
+	qer_editorImage textures/odin/sector1.png
+
+	nopicmip
+	polygonOffset
+	{
+		clamp
+		map textures/odin/sector1.png
+		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+		vertexColor
+	}
+}
+
+textures/odin/sector2
+{	
+	qer_editorImage textures/odin/sector2.png
+
+	nopicmip
+	polygonOffset
+	{
+		clamp
+		map textures/odin/sector2.png
+		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+		vertexColor
+	}
+}
+
+textures/odin/sector3
+{	
+	qer_editorImage textures/odin/sector3.png
+
+	nopicmip
+	polygonOffset
+	{
+		clamp
+		map textures/odin/sector3.png
+		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+		vertexColor
+	}
+}
