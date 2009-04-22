@@ -11,13 +11,7 @@ decals
 #dk_q4dm1
 #dk_q4dm6
 eX
-fabz0r_floor_clayhex
-fabz0r_light_amblight
-fabz0r_light_blubox
-fabz0r_portal_round
-fabz0r_stone_gaterock
-fabz0r_stone_glyphrock
-fabz0r_trim_dangertape
+fabz0r
 #gfx
 #gw_dm1_rock
 #gw_dm1_skies
