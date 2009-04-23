@@ -457,9 +457,140 @@ textures/trak/trak5/light1a
 	glowMap			textures/trak/trak5/light1a.blend.png
 }
 
+textures/trak/trak5/light1a_1k
+{
+	qer_editorImage		textures/trak/trak5/light1a.png
+	xmap_surfaceLight	1000
+	xmap_lightSubdivide	256
+	xmap_lightImage		textures/trak/trak5/light1a.blend.png
+
+	parallax
+
+	{
+		stage		diffuseMap
+		map		textures/trak/trak5/light1a.png
+		depthScale	-0.05
+	}
+	normalMap		textures/trak/trak5/light1a_nm.png
+	specularMap		textures/trak/trak5/light1a.png
+	{
+		stage		glowMap
+		map		textures/trak/trak5/light1a.blend.png
+		rgb		0.1
+		blend		add
+	}
+}
+
+textures/trak/trak5/light1a_5k
+{
+	qer_editorImage		textures/trak/trak5/light1a.png
+	xmap_surfaceLight	5000
+	xmap_lightSubdivide	256
+	xmap_lightImage		textures/trak/trak5/light1a.blend.png
+
+	parallax
+
+	{
+		stage		diffuseMap
+		map		textures/trak/trak5/light1a.png
+		depthScale	-0.05
+	}
+	normalMap		textures/trak/trak5/light1a_nm.png
+	specularMap		textures/trak/trak5/light1a.png
+	{
+		stage		glowMap
+		map		textures/trak/trak5/light1a.blend.png
+		rgb		0.5
+		blend		add
+	}
+}
+
+textures/trak/trak5/light1a_10k
+{
+	qer_editorImage		textures/trak/trak5/light1a.png
+	xmap_surfaceLight	10000
+	xmap_lightSubdivide	256
+	xmap_lightImage		textures/trak/trak5/light1a.blend.png
+
+	parallax
+
+	{
+		stage		diffuseMap
+		map		textures/trak/trak5/light1a.png
+		depthScale	-0.05
+	}
+	normalMap		textures/trak/trak5/light1a_nm.png
+	specularMap		textures/trak/trak5/light1a.png
+	glowMap			textures/trak/trak5/light1a.blend.png
+}
+
 textures/trak/trak5/light2a
 {
 	qer_editorImage		textures/trak/trak5/light2a.png
+
+	parallax
+
+	{
+		stage		diffuseMap
+		map		textures/trak/trak5/light2a.png
+		depthScale	-0.05
+	}
+	normalMap		textures/trak/trak5/light2a_nm.png
+	specularMap		textures/trak/trak5/light2a.png
+	glowMap			textures/trak/trak5/light2a.blend.png
+}
+
+textures/trak/trak5/light2a_1k
+{
+	qer_editorImage		textures/trak/trak5/light2a.png
+	xmap_surfaceLight	1000
+	xmap_lightImage		textures/trak/trak5/light2a.blend.png
+
+	parallax
+
+	{
+		stage		diffuseMap
+		map		textures/trak/trak5/light2a.png
+		depthScale	-0.05
+	}
+	normalMap		textures/trak/trak5/light2a_nm.png
+	specularMap		textures/trak/trak5/light2a.png
+	{
+		stage		glowMap
+		map		textures/trak/trak5/light2a.blend.png
+		rgb		0.1
+		blend		add
+	}
+}
+
+textures/trak/trak5/light2a_5k
+{
+	qer_editorImage		textures/trak/trak5/light2a.png
+	xmap_surfaceLight	5000
+	xmap_lightImage		textures/trak/trak5/light2a.blend.png
+
+	parallax
+
+	{
+		stage		diffuseMap
+		map		textures/trak/trak5/light2a.png
+		depthScale	-0.05
+	}
+	normalMap		textures/trak/trak5/light2a_nm.png
+	specularMap		textures/trak/trak5/light2a.png
+	{
+		stage		glowMap
+		map		textures/trak/trak5/light2a.blend.png
+		rgb		0.5
+		blend		add
+	}
+}
+
+textures/trak/trak5/light2a_10k
+{
+	qer_editorImage		textures/trak/trak5/light2a.png
+	xmap_surfaceLight	5000
+	xmap_lightImage		textures/trak/trak5/light2a.blend.png
 
 	parallax
 
@@ -486,6 +617,71 @@ textures/trak/trak5/light3a
 	}
 	normalMap		textures/trak/trak5/light3a_nm.png
 	specularMap		textures/trak/trak5/light3a.png
+	glowMap			textures/trak/trak5/light3a.blend.png
+}
+
+textures/trak/trak5/light3a_1k
+{
+	qer_editorImage		textures/trak/trak5/light3a.png
+	xmap_surfaceLight	1000
+	xmap_lightImage		textures/trak/trak5/light3a.blend.png
+
+	parallax
+
+	{
+		stage		diffuseMap
+		map		textures/trak/trak5/light3a.png
+		depthScale	-0.05
+	}
+	normalMap		textures/trak/trak5/light3a_nm.png
+	specularMap		textures/trak/trak5/light3a.png
+	{
+		stage		glowMap
+		map		textures/trak/trak5/light3a.blend.png
+		rgb		0.1
+		blend		add
+	}
+}
+
+textures/trak/trak5/light3a_5k
+{
+	qer_editorImage		textures/trak/trak5/light3a.png
+	xmap_surfaceLight	5000
+	xmap_lightImage		textures/trak/trak5/light3a.blend.png
+
+	parallax
+
+	{
+		stage		diffuseMap
+		map		textures/trak/trak5/light3a.png
+		depthScale	-0.05
+	}
+	normalMap		textures/trak/trak5/light3a_nm.png
+	specularMap		textures/trak/trak5/light3a.png
+	{
+		stage		glowMap
+		map		textures/trak/trak5/light3a.blend.png
+		rgb		0.5
+		blend		add
+	}
+}
+
+textures/trak/trak5/light3a_10k
+{
+	qer_editorImage		textures/trak/trak5/light3a.png
+	xmap_surfaceLight	10000
+	xmap_lightImage		textures/trak/trak5/light3a.blend.png
+
+	parallax
+
+	{
+		stage		diffuseMap
+		map		textures/trak/trak5/light3a.png
+		depthScale	-0.05
+	}
+	normalMap		textures/trak/trak5/light3a_nm.png
+	specularMap		textures/trak/trak5/light3a.png
+	glowMap			textures/trak/trak5/light3a.blend.png
 }
 
 textures/trak/trak5/panel1a
@@ -521,6 +717,7 @@ textures/trak/trak5/panel2a
 textures/trak/trak5/pipe1a
 {
 	qer_editorImage		textures/trak/trak5/pipe1a.png
+	xmap_shadeAngle		180
 
 	parallax
 
@@ -536,6 +733,7 @@ textures/trak/trak5/pipe1a
 textures/trak/trak5/pipe1b
 {
 	qer_editorImage		textures/trak/trak5/pipe1b.png
+	xmap_shadeAngle		180
 
 	parallax
 
@@ -551,6 +749,7 @@ textures/trak/trak5/pipe1b
 textures/trak/trak5/pipe1c
 {
 	qer_editorImage		textures/trak/trak5/pipe1c.png
+	xmap_shadeAngle		180
 
 	parallax
 
@@ -566,6 +765,7 @@ textures/trak/trak5/pipe1c
 textures/trak/trak5/pipe1d
 {
 	qer_editorImage		textures/trak/trak5/pipe1d.png
+	xmap_shadeAngle		180
 
 	parallax
 
