@@ -4,10 +4,13 @@ textures/odin/sector1
 
 	nopicmip
 	polygonOffset
+	noLightMap
+	translucent
+	noShadows
 	{
 		clamp
-		map textures/odin/sector1.png
-		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+		map		textures/odin/sector1.png
+		blend		add
 		vertexColor
 	}
 }
@@ -18,10 +21,13 @@ textures/odin/sector2
 
 	nopicmip
 	polygonOffset
+	noLightMap
+	translucent
+	noShadows
 	{
 		clamp
-		map textures/odin/sector2.png
-		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+		map		textures/odin/sector2.png
+		blend		add
 		vertexColor
 	}
 }
@@ -32,10 +38,13 @@ textures/odin/sector3
 
 	nopicmip
 	polygonOffset
+	noLightMap
+	translucent
+	noShadows
 	{
 		clamp
-		map textures/odin/sector3.png
-		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+		map		textures/odin/sector3.png
+		blend		add
 		vertexColor
 	}
 }
