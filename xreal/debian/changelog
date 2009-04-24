@@ -1,0 +1,5 @@
+xreal (0.1-1) unstable; urgency=low
+
+  * Initial debian package creation
+
+ -- Robert Beckebans <robert.beckebans@googlemail.com>  Thu, 23 Apr 2009 22:58:45 -0400

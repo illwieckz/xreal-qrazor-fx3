@@ -1,0 +1,99 @@
+Source: xreal
+Section: games
+Priority: optional
+Maintainer: Robert Beckebans <robert.beckebans@googlemail.com>
+Build-Depends: debhelper (>= 7),
+               libsdl1.2-dev,
+               libfreetype6-dev (>=2.3.5),
+               libopenal-dev,
+               libcurl3-dev,
+               libgtk2.0-dev,
+               libgtkglext1-dev (>=1.0.0), 
+               libxml2-dev (>=2.0),
+               zlib1g-dev (>=1.2.0),
+               libglew-dev,
+               libboost-dev
+Homepage: http://www.xreal-project.net
+
+Package: xreal
+Section: games
+Priority: optional
+Architecture: i386 amd64
+Depends: xreal-client,
+         xreal-server,
+         xreal-data
+Suggests: xreal-radiant | xmap2
+Description:
+Homepage: http://www.xreal-project.net
+
+Package: xreal-client
+Section: games
+Priority: optional
+Architecture: i386 amd64
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         libsdl1.2debian,
+         libfreetype6 (>=2.3.5),
+         libopenal1,
+         libcurl3,
+         xreal-data
+Suggests: xreal-server | xreal-radiant | xmap2
+Provides: xreal
+Description:
+Homepage: http://www.xreal-project.net
+
+Package: xreal-server
+Section: games
+Priority: optional
+Architecture: i386 amd64
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         xreal-data
+Suggests: xreal-client | xreal-radiant | xmap2
+Provides: xreal
+Description:
+Homepage: http://www.xreal-project.net
+
+Package: xreal-radiant
+Section: games
+Priority: optional
+Architecture: i386 amd64
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         xreal-data
+Suggests: xmap | xmap2
+Provides: xreal
+Description:
+Homepage: http://www.xreal-project.net
+
+Package: xmap
+Section: games
+Priority: optional
+Architecture: i386 amd64
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Suggests: xreal-radiant | xmap2
+Provides: xreal
+Description:
+Homepage: http://www.xreal-project.net
+
+Package: xmap2
+Section: games
+Priority: optional
+Architecture: i386 amd64
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Suggests: xreal-radiant | xmap2
+Provides: xreal
+Description:
+Homepage: http://www.xreal-project.net
+
+Package: xreal-data
+Section: games
+Priority: optional
+Architecture: any
+Depends:
+Suggests: xreal-client | xreal-server | xreal-radiant | xmap2
+Provides: xreal
+Description:
+Homepage: http://www.xreal-project.net
