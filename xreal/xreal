@@ -1,0 +1,24 @@
+#!/bin/bash
+function check_file() {
+	if [ -e $BINARY ]; then
+		./$BINARY "$@"
+	else
+		echo "$BINARY does not exist. Please compile XreaL first to play."
+		exit 1
+	fi
+}
+
+case `uname -m` in
+	"x86_64")
+		BINARY='xreal.x86_64'
+		check_file;
+		;;
+	"i686")
+		BINARY='xreal.x86'
+		check_file;
+		;;
+	"*")
+		echo "You are not running a supported platform for playing XreaL. If you would like to play XreaL on your platform, please visit http://www.xreal-project.net for contact information."
+		exit 0
+		;;	
+esac
