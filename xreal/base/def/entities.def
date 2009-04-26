@@ -2049,15 +2049,15 @@ entityDef func_static
 	"editor_usage"				"Same as misc_model in Q3A."
 	"editor_usage1"				"Static non-solid bspmodel. Can be used for conditional walls and models."
 	
-	"editor_bool forceMeta"		"if 1, XMap2 turns model triangles into planar surfaces so models can be lightmapped"
-	"editor_bool clipModel"		"if 1, XMap2 creates collision brushes for this model"
+	"editor_bool forceMeta"			"if 1, XMap2 turns model triangles into planar surfaces so models can be lightmapped."
+	"editor_bool clipModel"			"if 1, XMap2 creates collision brushes for this model."
 	"editor_bool solid"			"if 0, XMap2 adds a "nonsolid" material parameter to it."
 	
 	"spawnclass"				"idStaticEntity"
 	
-	"forceMeta"					"0"
-	"clipModel"					"0"
-	"solid"						"1"
+	"forceMeta"				"0"
+	"clipModel"				"0"
+	"solid"					"1"
 }
 
 
@@ -2070,19 +2070,19 @@ entityDef func_timer
 	"editor_usage"				"Time delay trigger that will continuously fire its targets after a preset time delay. The time delay can also be randomized. When triggered, the timer will toggle on/off."
 	
 	"editor_float wait"			"Delay in seconds between each triggering of its targets."
-	"editor_float random"		"Random time variance in seconds added or subtracted from wait delay."
-	"editor_bool start_on"		"timer will start on in the game and continuously fire its targets."
-	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
-	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
-	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	"editor_float random"			"Random time variance in seconds added or subtracted from wait delay."
+	"editor_bool start_on"			"timer will start on in the game and continuously fire its targets."
+	"editor_bool notfree"			"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"			"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"			"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 
 	"spawnclass"				"idSpawnableEntity"
-    "wait"                      "1"  
-    "random"                    "0"
-    "start_on"					"0"
-    "notfree"                   "0"  
-    "notteam"                   "0"  
-    "notsingle"                 "0"
+	"wait"					"1"  
+	"random"				"0"
+	"start_on"				"0"
+	"notfree"				"0"  
+	"notteam"				"0"  
+	"notsingle"				"0"
 }
 
 
@@ -2097,18 +2097,18 @@ entityDef func_train
 	"editor_usage4"				"4. Trains are not triggerable or toggle-able."
 	"editor_usage5"				"5. Trains cannot be block-stopped just by getting in their way, the player must be wedged between the train and another obstacle to block it."
 	
-	"editor_float speed"		"-(default 100 or overridden by speed value of path)- Speed of displacement of train."
+	"editor_float speed"			"-(default 100 or overridden by speed value of path)- Speed of displacement of train."
 	"editor_var target"			"This points to the first path_corner of the path which is also the spawn location of the train's origin."
-	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
-	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
-	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	"editor_bool notfree"			"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"			"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"			"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 
 	"spawnclass"				"idSpawnableEntity"
-    "speed"                     "0"  
-    "target"                    "0"  
-    "notfree"                   "0"  
-    "notteam"                   "0"  
-    "notsingle"                 "0"  
+	"speed"					"0"  
+	"target"				"0"  
+	"notfree"				"0"  
+	"notteam"				"0"  
+	"notsingle"				"0"  
 }
 
 
@@ -2119,16 +2119,16 @@ entityDef func_mover
 	
 	"editor_usage"				"Movers are objects meant to be controlled through scripts."
 	
-	"editor_var luaThink"		"Lua Think Function."
-	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
-	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
-	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	"editor_var luaThink"			"Lua Think Function."
+	"editor_bool notfree"			"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"			"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"			"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idSpawnableEntity"
-	"luaThink"                  ""
-    "notfree"                   "0" 
-    "notteam"                   "0" 
-    "notsingle"					"0" 
+	"luaThink"				""
+	"notfree"				"0" 
+	"notteam"				"0" 
+	"notsingle"				"0" 
 }
 
 
@@ -2141,14 +2141,14 @@ entityDef func_teleporter
  	
  	"editor_usage"				"Activating this will teleport players to the location of this entity. Unlike trigger_teleport, this entity must be activated by a trigger and does NOT allow client prediction of events."
 
-	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
-	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
-	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	"editor_bool notfree"			"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"			"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"			"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
  	
  	"spawnclass"				"idSpawnableEntity"
-    "notfree"                   "0"
-    "notteam"                   "0"
-    "notsingle"                 "0"
+	"notfree"				"0"
+	"notteam"				"0"
+	"notsingle"				"0"
 }
 
 /*
@@ -2168,18 +2168,18 @@ entityDef misc_portal_camera
 	
 	"editor_usage"				"Portal camera. This camera is used to project its view onto a portal surface in the level through the intermediary of a misc_portal_surface entity. Use a target_position entity to set the camera's pointing direction."
 	
-	"editor_bool slowrotate"	"makes the portal camera rotate slowly along the roll axis."
-	"editor_bool fastrotate"	"makes the portal camera rotate faster along the roll axis."
-	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
-	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
-	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	"editor_bool slowrotate"		"makes the portal camera rotate slowly along the roll axis."
+	"editor_bool fastrotate"		"makes the portal camera rotate faster along the roll axis."
+	"editor_bool notfree"			"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"			"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"			"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idCamera"
 	"slowrotate"				"0"
 	"fastrotate"				"0"
-    "notfree" 					"0" 
-    "notteam" 					"0" 
-    "notsingle"					"0" 
+	"notfree" 				"0" 
+	"notteam" 				"0" 
+	"notsingle"				"0" 
 }
 
 
@@ -2194,14 +2194,14 @@ entityDef misc_portal_surface
 	"editor_usage1"				"The entity must be no farther than 64 units away from the portal surface to lock onto it."
 	"editor_usage2"				"To make a mirror, apply the common/mirror shader to the surface, place this entity near it but don't target a misc_portal_camera."
 	
-	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
-	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
-	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	"editor_bool notfree"			"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"			"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"			"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idStaticEntity"
-    "notfree" 					"0"
-    "notteam" 					"0" 
-    "notsingle"					"0" 
+	"notfree" 				"0"
+	"notteam" 				"0" 
+	"notsingle"				"0" 
 }
 
 
@@ -2214,14 +2214,14 @@ entityDef misc_teleporter_dest
 	
 	"editor_usage"				"Teleport destination location point for trigger_teleporter entities."
 	
-	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
-	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
-	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	"editor_bool notfree"			"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"			"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"			"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idStaticEntity"
-    "notfree" 					"0" 
-    "notteam" 					"0" 
-    "notsingle" 				"0" 
+	"notfree" 				"0" 
+	"notteam" 				"0" 
+	"notsingle" 				"0" 
 }
 
 
@@ -2242,18 +2242,18 @@ entityDef path_corner
 	"editor_usage"				"Path corner entity that func_trains can be made to follow."
 	"editor_usage1"				"Point it to next path_corner in the path."
 	
-	"editor_float speed"		"speed of func_train while moving to the next path corner. This will override the speed value of the train."
+	"editor_float speed"			"speed of func_train while moving to the next path corner. This will override the speed value of the train."
 	"editor_float wait"			"number of seconds func_train will pause on path corner before moving to next path corner."
-	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
-	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
-	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	"editor_bool notfree"			"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"			"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"			"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idStaticEntity"
-    "speed" 					"0" 
-    "wait" 						"0" 
-    "notfree" 					"0" 
-    "notteam"					"0" 
-    "notsingle" 				"0" 
+	"speed" 				"0" 
+	"wait" 					"0" 
+	"notfree" 				"0" 
+	"notteam"				"0" 
+	"notsingle" 				"0" 
 }
 
 

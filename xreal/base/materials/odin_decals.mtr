@@ -1,0 +1,50 @@
+textures/odin/decals/sector1
+{	
+	qer_editorImage textures/odin/decals/sector1.png
+
+	nopicmip
+	polygonOffset
+	noLightMap
+	translucent
+	noShadows
+	{
+		clamp
+		map		textures/odin/decals/sector1.png
+		blend		add
+		vertexColor
+	}
+}
+
+textures/odin/decals/sector2
+{	
+	qer_editorImage textures/odin/decals/sector2.png
+
+	nopicmip
+	polygonOffset
+	noLightMap
+	translucent
+	noShadows
+	{
+		clamp
+		map		textures/odin/decals/sector2.png
+		blend		add
+		vertexColor
+	}
+}
+
+textures/odin/decals/sector3
+{	
+	qer_editorImage textures/odin/decals/sector3.png
+
+	noPicMip
+	polygonOffset
+	noLightMap
+	translucent
+	noShadows
+	{
+		clamp
+		map		textures/odin/decals/sector3.png
+		blend		add
+		vertexColor
+	}
+}

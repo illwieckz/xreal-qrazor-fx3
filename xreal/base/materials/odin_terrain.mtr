@@ -1,0 +1,71 @@
+textures/odin/terrain/cobbleroad1
+{
+	qer_editorImage	textures/odin/terrain/cobbleroad1_d.png
+	diffuseMap	textures/odin/terrain/cobbleroad1_d.png
+	bumpMap		heightMap(textures/odin/terrain/cobbleroad1_local.png, addNormals(textures/odin/terrain/cobbleroad1_h.png))
+	specularMap	textures/odin/terrain/cobbleroad1_s.png
+}
+
+textures/odin/terrain/concrete1
+{
+	qer_editorImage	textures/odin/terrain/concrete1_d.png
+	diffuseMap	textures/odin/terrain/concrete1_d.png
+	bumpMap		heightMap(textures/odin/terrain/concrete1_local.png, addNormals(textures/odin/terrain/concrete1_h.png))
+	specularMap	textures/odin/terrain/concrete1_s.png
+}
+
+textures/odin/terrain/concrete2
+{
+	qer_editorImage	textures/odin/terrain/concrete2_d.png
+	diffuseMap	textures/odin/terrain/concrete2_d.png
+	bumpMap		heightMap(textures/odin/terrain/concrete2_local.png, addNormals(textures/odin/terrain/concrete2_h.png))
+	specularMap	textures/odin/terrain/concrete2_s.png
+}
+
+textures/odin/terrain/dirtground1
+{
+	qer_editorImage	textures/odin/terrain/dirtground1_d.png
+	diffuseMap	textures/odin/terrain/dirtground1_d.png
+	bumpMap		heightMap(textures/odin/terrain/dirtground1_local.png, addNormals(textures/odin/terrain/dirtground1_h.png))
+	specularMap	textures/odin/terrain/dirtground1_s.png
+}
+
+textures/odin/terrain/rockwall1
+{
+	qer_editorImage	textures/odin/terrain/rockwall1_d.png
+	diffuseMap	textures/odin/terrain/rockwall1_d.png
+	bumpMap		heightMap(textures/odin/terrain/rockwall1_local.png, addNormals(textures/odin/terrain/rockwall1_h.png))
+	specularMap	textures/odin/terrain/rockwall1_s.png
+}
+
+textures/odin/terrain/m_rustywall1.png
+{
+	qer_editorImage	textures/odin/terrain/m_rustywall1.png
+	diffuseMap	textures/odin/terrain/m_rustywall1.png
+	specularMap	textures/odin/terrain/m_rustywall1.png
+	bumpMap		textures/odin/terrain/m_rustywall1.png
+}
+
+textures/odin/terrain/m_rustywall2.png
+{
+	qer_editorImage	textures/odin/terrain/m_rustywall2.png
+	diffuseMap	textures/odin/terrain/m_rustywall2.png
+	specularMap	textures/odin/terrain/m_rustywall2.png
+	bumpMap		textures/odin/terrain/m_rustywall2.png
+}
+
+textures/odin/terrain/m_rustywall3.png
+{
+	qer_editorImage	textures/odin/terrain/m_rustywall3.png
+	diffuseMap	textures/odin/terrain/m_rustywall3.png
+	specularMap	textures/odin/terrain/m_rustywall3.png
+	bumpMap		textures/odin/terrain/m_rustywall3.png
+}
+
+textures/odin/terrain/m_rustywall4.png
+{
+	qer_editorImage	textures/odin/terrain/m_rustywall4.png
+	diffuseMap	textures/odin/terrain/m_rustywall4.png
+	specularMap	textures/odin/terrain/m_rustywall4.png
+	bumpMap		textures/odin/terrain/m_rustywall4.png
+}

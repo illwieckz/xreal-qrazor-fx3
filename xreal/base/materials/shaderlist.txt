@@ -63,4 +63,5 @@ trak
 #zogg_terrain
 #zogg_trim
 #zogg_wall
-odin
+odin_decals
+odin_terrain
