@@ -10,8 +10,7 @@ textures/odin/decals/sector1
 	{
 		clamp
 		map		textures/odin/decals/sector1.png
-		blend		add
-		vertexColor
+		blend		GL_DST_COLOR, GL_SRC_COLOR
 	}
 }
 
@@ -27,8 +26,7 @@ textures/odin/decals/sector2
 	{
 		clamp
 		map		textures/odin/decals/sector2.png
-		blend		add
-		vertexColor
+		blend		GL_DST_COLOR, GL_SRC_COLOR
 	}
 }
 
@@ -44,7 +42,6 @@ textures/odin/decals/sector3
 	{
 		clamp
 		map		textures/odin/decals/sector3.png
-		blend		add
-		vertexColor
+		blend		GL_DST_COLOR, GL_SRC_COLOR
 	}
 }
