@@ -353,7 +353,7 @@ qboolean G_CallSpawn(gentity_t * ent)
 	// check item spawn functions
 	for(item = bg_itemlist + 1; item->classname; item++)
 	{
-		if(!stricmp(item->classname, ent->classname))
+		if(!Q_stricmp(item->classname, ent->classname))
 		{
 			// found it
 			if(ent->name)
@@ -373,7 +373,7 @@ qboolean G_CallSpawn(gentity_t * ent)
 	// check normal spawn functions
 	for(s = spawns; s->name; s++)
 	{
-		if(!stricmp(s->name, ent->classname))
+		if(!Q_stricmp(s->name, ent->classname))
 		{
 			// found it
 			if(ent->name)
