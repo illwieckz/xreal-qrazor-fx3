@@ -153,8 +153,7 @@ void	main()
 	float fresnel = clamp(u_FresnelBias + pow(1.0 - dot(I, N), u_FresnelPower) * 
 			u_FresnelScale, 0.0, 1.0);
 
-	texScreen.x += u_NormalScale * N2.x; 
-	texScreen.y += u_NormalScale * N2.y;
+	texScreen += u_NormalScale * N2.xy;
 
 	vec3 refractColor = texture2D(u_CurrentMap, texScreen).rgb;
 	vec3 reflectColor = texture2D(u_PortalMap, texScreen).rgb;

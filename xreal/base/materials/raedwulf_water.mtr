@@ -8,20 +8,19 @@ textures/raedwulf/water/water1
 	water
 	mirror
 	sort postProcess
-	//tessSize 32
 
-	//deformVertexes wave 64 sin -2 1.5 0 1.5
 	{
 		stage liquidMap
-		map textures/torley/water9.png
-		//map displacemap(textures/torley/water8.png, textures/torley/water8.png)
-		scroll	time * 0.2, 0
-		scale	2.0, 2.0
+		//map textures/kjelll/water1.png
+		map displacemap(textures/kjelll/water1.png, textures/kjelll/water1.png)
+		scroll	0, time * 0.2
+		scale	1.5, 1.5
 		refractionIndex 1.3 // water
 		
 		fresnelPower 2.0
 		fresnelScale 0.85 + sinTable[time * 0.4] * 0.25
 		fresnelBias  0.20
+		normalScale  sinTable[time * 0.5] * 0.004 + 0.02
 		
 		fogDensity	0.0001	// underwater fog 
 		color		0.0, 0.0, 0.7, 1.0	// underwater fog color
