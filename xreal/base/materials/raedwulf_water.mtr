@@ -8,7 +8,7 @@ textures/raedwulf/water/water1
 	water
 	mirror
 	sort postProcess
-	tessSize 32
+	//tessSize 32
 
 	//deformVertexes wave 64 sin -2 1.5 0 1.5
 	{
