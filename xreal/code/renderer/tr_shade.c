@@ -1603,6 +1603,7 @@ void GLSL_InitGPUShaders(void)
 	tr.liquidShader.u_FresnelPower = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelPower");
 	tr.liquidShader.u_FresnelScale = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelScale");
 	tr.liquidShader.u_FresnelBias = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelBias");
+	tr.liquidShader.u_NormalScale = qglGetUniformLocationARB(tr.liquidShader.program, "u_NormalScale");
 	tr.liquidShader.u_FogDensity = qglGetUniformLocationARB(tr.liquidShader.program, "u_FogDensity");
 	tr.liquidShader.u_FogColor = qglGetUniformLocationARB(tr.liquidShader.program, "u_FogColor");
 	tr.liquidShader.u_ModelMatrix = qglGetUniformLocationARB(tr.liquidShader.program, "u_ModelMatrix");
@@ -3677,6 +3678,7 @@ static void Render_liquid(int stage)
 	qglUniform1fARB(tr.liquidShader.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
 	qglUniform1fARB(tr.liquidShader.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 1.0));
 	qglUniform1fARB(tr.liquidShader.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 0.05));
+	qglUniform1fARB(tr.liquidShader.u_NormalScale, RB_EvalExpression(&pStage->normalScaleExp, 0.05));
 	qglUniform1fARB(tr.liquidShader.u_FogDensity, fogDensity);
 	qglUniform3fARB(tr.liquidShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
 

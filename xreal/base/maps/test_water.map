@@ -177,12 +177,12 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 1 0 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.015625 ) ) "textures/tr3b/water/watertest1" 0 0 0
-( 0 1 0 -160 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.125 ) ) "textures/tr3b/water/watertest1" 0 0 0
-( 1 0 0 -96 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.125 ) ) "textures/tr3b/water/watertest1" 0 0 0
-( 0 0 -1 -184 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.125 ) ) "textures/tr3b/water/watertest1" 0 0 0
-( 0 -1 0 -32 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.125 ) ) "textures/tr3b/water/watertest1" 0 0 0
-( -1 0 0 -96 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.125 ) ) "textures/tr3b/water/watertest1" 0 0 0
+( 0 0 1 0 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.015625 ) ) "textures/raedwulf/water/water1" 0 0 0
+( 0 1 0 -160 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.125 ) ) "textures/raedwulf/water/water1" 0 0 0
+( 1 0 0 -96 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.125 ) ) "textures/raedwulf/water/water1" 0 0 0
+( 0 0 -1 -184 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.125 ) ) "textures/raedwulf/water/water1" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.125 ) ) "textures/raedwulf/water/water1" 0 0 0
+( -1 0 0 -96 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.125 ) ) "textures/raedwulf/water/water1" 0 0 0
 }
 }
 }

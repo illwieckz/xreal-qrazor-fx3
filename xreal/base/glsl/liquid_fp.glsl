@@ -31,6 +31,7 @@ uniform float		u_RefractionIndex;
 uniform float		u_FresnelPower;
 uniform float		u_FresnelScale;
 uniform float		u_FresnelBias;
+uniform float		u_NormalScale;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_UnprojectMatrix;
 
@@ -41,8 +42,6 @@ varying vec3		var_Binormal;
 varying vec3		var_Normal;
 varying vec4		var_LightColor;
 varying vec3		var_LightDirection;
-
-
 
 #if defined(r_ParallaxMapping)
 float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
@@ -123,64 +122,48 @@ void	main()
 	vec2 texScreen = gl_FragCoord.st * r_FBufScale * r_NPOTScale;
 	vec2 texNormal = var_TexNormal.st;
 
-/*
-#if 0 //defined(r_ParallaxMapping)
-	//if(bool(u_ParallaxMapping))
-	{
-		// compute view direction in tangent space
-		vec3 V = worldToTangentMatrix * (I);
-		V = normalize(V);
+#if defined(r_ParallaxMapping)
+	// compute view direction in tangent space
+	vec3 V = worldToTangentMatrix * (I);
+	V = normalize(V);
+	
+	// ray intersect in view direction
+	
+	// size and start position of search in texture space
+	//vec2 S = V.xy * -u_DepthScale / V.z;
+	vec2 S = V.xy * -0.03 / V.z;
 		
-		// ray intersect in view direction
-		
-		// size and start position of search in texture space
-		//vec2 S = V.xy * -u_DepthScale / V.z;
-		vec2 S = V.xy * -0.03 / V.z;
-			
-		float depth = RayIntersectDisplaceMap(texNormal, S);
-		
-		// compute texcoords offset
-		vec2 texOffset = S * depth;
-		
-		texScreen.st += texOffset;
-		texNormal.st += texOffset;
-	}
+	float depth = RayIntersectDisplaceMap(texNormal, S);
+	
+	// compute texcoords offset
+	vec2 texOffset = S * depth;
+	
+	texScreen.st += texOffset;
+	texNormal.st += texOffset;
 #endif
-*/
-	
+
 	// compute normals
-	vec3 N = normalize(var_Normal);
 	
+	vec3 N = normalize(var_Normal);
+
 	vec3 N2 = 2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5);
 	N2 = tangentToWorldMatrix * N2;
 			
 	// compute fresnel term
-	float fresnel = clamp(u_FresnelBias + pow(1.0 - dot(I, N), u_FresnelPower) * u_FresnelScale, 0.0, 1.0);
-	
-	vec4 color;
-	
+	float fresnel = clamp(u_FresnelBias + pow(1.0 - dot(I, N), u_FresnelPower) * 
+			u_FresnelScale, 0.0, 1.0);
+
+	texScreen.x += u_NormalScale * N2.x; 
+	texScreen.y += u_NormalScale * N2.y;
+
 	vec3 refractColor = texture2D(u_CurrentMap, texScreen).rgb;
 	vec3 reflectColor = texture2D(u_PortalMap, texScreen).rgb;
-
 	
+	vec4 color;
+
 	color.rgb = mix(refractColor, reflectColor, fresnel);
 	color.a = 1.0;
-	
-	#if 0
-	color.r = fresnel;
-	color.g = fresnel;
-	color.b = fresnel;
-	
-	color.rgb = reflectColor;
-	#endif
-	
-	//color.rgb = (worldToTangentMatrix * N2) * 0.5 + 0.5;
-	//color.r = dot(I, N);
-	//color.g = dot(I, N);
-	//color.b = dot(I, N);
 
-/*
-#if 0
 	if(u_FogDensity > 0.0)
 	{
 		// reconstruct vertex position in world space
@@ -199,8 +182,6 @@ void	main()
 		
 		color.rgb = mix(u_FogColor, color.rgb, fogFactor);
 	}
-#endif
-*/
 	
 	vec3 L = normalize(var_LightDirection);
 	

@@ -710,6 +710,8 @@ typedef struct
 	expression_t    fresnelScaleExp;
 	expression_t    fresnelBiasExp;
 
+	expression_t	normalScaleExp;
+
 	expression_t    etaExp;
 	expression_t    etaDeltaExp;
 
@@ -1081,6 +1083,8 @@ typedef struct shaderProgram_s
 	GLint           u_FresnelPower;
 	GLint           u_FresnelScale;
 	GLint           u_FresnelBias;
+
+	GLint		u_NormalScale;
 
 	GLint           u_EtaRatio;
 

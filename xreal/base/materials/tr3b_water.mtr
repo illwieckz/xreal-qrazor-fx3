@@ -12,8 +12,8 @@ textures/tr3b/water/watertest1
 	
 	{
 		stage liquidMap
-		map		textures/tr3b/water/watertest_local.tga
-		//map displacemap(textures/tr3b/water/watertest1_local.tga, textures/tr3b/water/watertest1_local.tga)
+		map		textures/tr3b/water/watertest_local.jpg
+		//map displacemap(textures/tr3b/water/watertest_local.tga, textures/tr3b/water/watertest_local.tga)
 		//map displacemap( textures/tr3b/parallax/brick_local, invertColor(textures/tr3b/parallax/brick_disp) )
 		scroll	time * 0.1 , time * 0.1
 		scale	2.0, 2.0

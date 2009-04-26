@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /// \brief Text-stream interfaces.
 
 #include <cstddef>
+#include <cstdio>
 #include <string>
 #include <streambuf>
 #include <istream>

@@ -35,6 +35,7 @@ mikebart_mapobject
 pk01
 #pjw4tourney1
 q4bolledm2
+raedwulf_water
 raynorpat
 #reflex_base
 #reflex_castle

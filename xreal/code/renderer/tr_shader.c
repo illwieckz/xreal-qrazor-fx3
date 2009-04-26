@@ -2398,6 +2398,11 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		{
 			ParseExpression(text, &stage->fresnelBiasExp);
 		}
+		// normalScale <arithmetic expression>
+		else if(!Q_stricmp(token, "normalScale"))
+		{
+			ParseExpression(text, &stage->normalScaleExp);
+		}
 		// fogDensity <arithmetic expression>
 		else if(!Q_stricmp(token, "fogDensity"))
 		{
