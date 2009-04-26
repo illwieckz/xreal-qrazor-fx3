@@ -42,8 +42,8 @@ textures/odin/terrain/m_rustywall1.png
 {
 	qer_editorImage	textures/odin/terrain/m_rustywall1.png
 	diffuseMap	textures/odin/terrain/m_rustywall1.png
-	specularMap	textures/odin/terrain/m_rustywall1.png
-	bumpMap		textures/odin/terrain/m_rustywall1.png
+	specularMap	textures/odin/terrain/m_rustywall1_s.png
+	normalMap	textures/odin/terrain/m_rustywall1_local.png
 }
 
 textures/odin/terrain/m_rustywall2.png

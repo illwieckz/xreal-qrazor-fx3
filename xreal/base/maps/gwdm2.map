@@ -8557,7 +8557,7 @@ patchDef2
 {
 patchDef2
 {
-"textures/tr3b_metal/Totally_Rusted_Metal_Tube"
+"textures/odin/terrain/m_rustywall3"
 ( 9 3 0 0 0 )
 (
 ( ( 832 784 112 0 0 ) ( 832 784 132 0 0.0625 ) ( 832 784 152 0 0.125 ) )
@@ -9604,7 +9604,7 @@ brushDef3
 {
 patchDef2
 {
-"textures/tr3b_metal/Totally_Rusted_Metal_Tube"
+"textures/odin/terrain/m_rustywall3"
 ( 9 3 0 0 0 )
 (
 ( ( 472 480 704 0 0.1640625 ) ( 472 480 664 0 -0.1484375 ) ( 472 480 624 0 -0.4609375 ) )
@@ -9674,7 +9674,7 @@ brushDef3
 {
 patchDef2
 {
-"textures/tr3b_metal/Totally_Rusted_Metal_Tube"
+"textures/odin/terrain/m_rustywall3"
 ( 9 3 0 0 0 )
 (
 ( ( -648 -504 48 0 0 ) ( -648 -504 56 0 0.0625 ) ( -648 -504 64 0 0.125 ) )
@@ -9758,7 +9758,7 @@ patchDef2
 {
 patchDef2
 {
-"textures/tr3b_metal/Totally_Rusted_Metal_Tube"
+"textures/odin/terrain/m_rustywall3"
 ( 9 3 0 0 0 )
 (
 ( ( -408 480 624 0 -0.4609375 ) ( -408 480 664 0 -0.1484375 ) ( -408 480 704 0 0.1640625 ) )
