@@ -1,37 +1,22 @@
 
 
-models/weapons/railgun/railgun
+models\weapons\railgun\body
 {
 
-	noShadows
-//  noselfShadow
-//	unsmoothedTangents
+	//noShadows
 
-    diffusemap		models/weapons/railgun/v_railgun_d.tga
-	{
-		blend bumpmap
-        map  			addnormals(models/weapons/railgun/v_railgun_local.tga, heightmap(models/weapons/railgun/v_railgun_h.tga, 5 ) ) 
-	}
-    specularmap	 	models/weapons/railgun/v_railgun_s.tga
-	{
-		map			models/weapons/railgun/v_railgun_add.tga
-		blend 		add
-		rgb			q2flickertable [ time * 4 ]
-	}
+    	diffusemap		models\weapons\railgun\body_diffuse
+	normalMap 		models\weapons\railgun\body_NRM
+	specularMap 		models\weapons\railgun\body_spec
+
 }
 
-models/weapons/rail/railgun_world
+models\weapons\railgun\bgf
 {
-	ricochet
-    //noselfShadow
-	//smoothedTangents
+    	//noselfShadow
+	twosided
+    	diffusemap	 	models\weapons\railgun\bgf_diffuse
+	normalmap      		models\weapons\railgun\bgf_NRM
+	specularmap	 	models\weapons\railgun\bgf_spec
 
-    diffusemap	 	models/weapons/railgun/w_railgun_d.tga
-	bumpmap      	models/weapons/railgun/w_railgun_local.tga
-	specularmap	 	models/weapons/railgun/w_railgun_s.tga
-	{
-		map			models/weapons/railgun/w_railgun_add.tga
-		blend			add
-		rgb			q2flickertable [ time * 4 ]
-	}
 }
