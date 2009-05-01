@@ -411,9 +411,13 @@ static void CG_Item(centity_t * cent)
 			wi->weaponMidpoint[1] * ent.axis[1][2] + wi->weaponMidpoint[2] * ent.axis[2][2];
 
 		cent->lerpOrigin[2] += 8;	// an extra height boost
-	}
 
-	ent.hModel = cg_items[es->modelindex].models[0];
+		ent.hModel = wi->weaponModel;
+	}
+	else
+	{
+		ent.hModel = cg_items[es->modelindex].models[0];
+	}
 
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);

@@ -246,7 +246,7 @@ gitem_t         bg_itemlist[] = {
 	{
 	 "weapon_flak_cannon",
 	 "sound/misc/w_pkup.ogg",
-	 {"models/weapons/rocketl/rocketl.md3",	0, 0, 0},
+	 {"models/weapons/rocketl/rocketl.md5mesh",	0, 0, 0},
 	 {NULL, NULL, NULL, NULL},
 /* icon */ "icons/weapon_grenade",
 /* pickup */ "Flak Cannon",
@@ -297,7 +297,7 @@ gitem_t         bg_itemlist[] = {
 	{
 	 "weapon_railgun",
 	 "sound/misc/w_pkup.ogg",
-	 {"models/weapons/railgun/railgun.md3", 0, 0, 0},
+	 {"models/weapons/railgun/railgun.md5mesh", 0, 0, 0},
 	 {NULL, NULL, NULL, NULL},
 /* icon */ "icons/weapon_railgun",
 /* pickup */ "Railgun",

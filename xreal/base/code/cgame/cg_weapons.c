@@ -780,6 +780,15 @@ void CG_RegisterWeapon(int weaponNum)
 	// load cmodel before model so filecache works
 	weaponInfo->weaponModel = trap_R_RegisterModel(item->models[0], qtrue);
 
+	// try to load .md5mesh model if the .md3 could not be found
+	if(!weaponInfo->weaponModel)
+	{
+		strcpy(path, item->models[0]);
+		Com_StripExtension(path, path, sizeof(path));
+		strcat(path, ".md5mesh");
+		weaponInfo->weaponModel = trap_R_RegisterModel(path, qtrue);
+	}
+
 	// calc midpoint for rotation
 	trap_R_ModelBounds(weaponInfo->weaponModel, mins, maxs);
 	for(i = 0; i < 3; i++)
@@ -978,7 +987,7 @@ void CG_RegisterWeapon(int weaponNum)
 			break;
 
 		case WP_RAILGUN:
-			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/railgun/rg_hum.wav");
+			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/lightning/lg_hum.ogg");	// FIXME
 			MAKERGB(weaponInfo->flashLightColor, 1, 0.5f, 0);
 
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.ogg");
@@ -2114,7 +2123,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 			}
 
 			case WP_SHOTGUN:
-			case WP_RAILGUN:
+			//case WP_RAILGUN:
 			{
 				VectorMA(gun.origin, cg_gunX.value + 1, cg.refdef.viewaxis[0], gun.origin);
 				VectorMA(gun.origin, cg_gunY.value - 2, cg.refdef.viewaxis[1], gun.origin);
