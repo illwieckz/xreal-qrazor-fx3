@@ -7265,68 +7265,6 @@ static void RB_RenderView(void)
 		// we will only draw a sun if there was sky rendered in this view
 		backEnd.skyRenderedThisView = qfalse;
 
-		// clip to the plane of the portal
-		if(backEnd.viewParms.isPortal)
-		{
-			float           plane[4];
-			double          plane2[4];
-			vec4_t			q, c;
-			float			*matrix;
-
-			// clipping plane in world space
-			plane[0] = backEnd.viewParms.portalPlane.normal[0];
-			plane[1] = backEnd.viewParms.portalPlane.normal[1];
-			plane[2] = backEnd.viewParms.portalPlane.normal[2];
-			plane[3] = backEnd.viewParms.portalPlane.dist;
-
-			// rotate clipping plane into camera space
-			plane2[0] = DotProduct(backEnd.viewParms.orientation.axis[0], plane);
-			plane2[1] = DotProduct(backEnd.viewParms.orientation.axis[1], plane);
-			plane2[2] = DotProduct(backEnd.viewParms.orientation.axis[2], plane);
-			plane2[3] = DotProduct(plane, backEnd.viewParms.orientation.origin) - plane[3];
-
-			//GL_LoadModelViewMatrix(quakeToOpenGLMatrix);
-			qglClipPlane(GL_CLIP_PLANE0, plane2);
-			qglEnable(GL_CLIP_PLANE0);
-
-			// Tr3B: however this is not enough and other people have experienced the same
-			// see http://hacksoflife.blogspot.com/2008/10/user-clip-planes-and-glsl.html
-
-			// however the technique Oblique Frustum Culling helps us to fix the problem
-			// http://www.terathon.com/code/oblique.html
-			// For algorithmic details, see Game Programming Gems 5, Section 2.6.
-
-#if 0
-			matrix = backEnd.viewParms.projectionMatrix;
-
-			//plane2[3] = -plane2[3];
-
-			// calculate the clip-space corner point opposite the clipping plane
-			// as (sgn(clipPlane.x), sgn(clipPlane.y), 1, 1) and
-			// transform it into camera space by multiplying it
-			// by the inverse of the projection matrix
-			q[0] = (sign(plane2[0]) + matrix[8]) / matrix[0];
-			q[1] = (sign(plane2[1]) + matrix[9]) / matrix[5];
-			q[2] = -1.0F;
-			q[3] = (1.0F + matrix[10]) / matrix[14];
-
-			// calculate the scaled plane vector
-			VectorScale(plane2, (2.0F / DotProduct4(plane2, q)), c);
-
-			// replace the third row of the projection matrix
-			matrix[2] = c[0];
-			matrix[6] = c[1];
-			matrix[10] = c[2] + 1.0F;
-			matrix[14] = c[3];
-
-			GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
-#endif
-		}
-		else
-		{
-			qglDisable(GL_CLIP_PLANE0);
-		}
-
 		GL_CheckErrors();
 
 #if 1
@@ -7518,34 +7456,6 @@ static void RB_RenderView(void)
 
 		// we will only draw a sun if there was sky rendered in this view
 		backEnd.skyRenderedThisView = qfalse;
-
-		// clip to the plane of the portal
-		if(backEnd.viewParms.isPortal)
-		{
-			float           plane[4];
-			double          plane2[4];
-
-			// clipping plane in world space
-			plane[0] = backEnd.viewParms.portalPlane.normal[0];
-			plane[1] = backEnd.viewParms.portalPlane.normal[1];
-			plane[2] = backEnd.viewParms.portalPlane.normal[2];
-			plane[3] = backEnd.viewParms.portalPlane.dist;
-
-			// rotate clipping plane into camera space
-			plane2[0] = DotProduct(backEnd.viewParms.orientation.axis[0], plane);
-			plane2[1] = DotProduct(backEnd.viewParms.orientation.axis[1], plane);
-			plane2[2] = DotProduct(backEnd.viewParms.orientation.axis[2], plane);
-			plane2[3] = DotProduct(plane, backEnd.viewParms.orientation.origin) - plane[3];
-
-			GL_LoadModelViewMatrix(quakeToOpenGLMatrix);
-			//GL_LoadModelViewMatrix(matrixIdentity);
-			qglClipPlane(GL_CLIP_PLANE0, plane2);
-			qglEnable(GL_CLIP_PLANE0);
-		}
-		else
-		{
-			qglDisable(GL_CLIP_PLANE0);
-		}
 
 		GL_CheckErrors();
 

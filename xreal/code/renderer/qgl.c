@@ -45,7 +45,6 @@ void            (APIENTRY * qglClear) (GLbitfield mask);
 void            (APIENTRY * qglClearColor) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 void            (APIENTRY * qglClearDepth) (GLclampd depth);
 void            (APIENTRY * qglClearStencil) (GLint s);
-void            (APIENTRY * qglClipPlane) (GLenum plane, const GLdouble * equation);
 void            (APIENTRY * qglColorMask) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 void            (APIENTRY * qglCopyPixels) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
 void            (APIENTRY * qglCopyTexImage1D) (GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y,
@@ -124,7 +123,6 @@ static void     (APIENTRY * dllClear) (GLbitfield mask);
 static void     (APIENTRY * dllClearColor) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 static void     (APIENTRY * dllClearDepth) (GLclampd depth);
 static void     (APIENTRY * dllClearStencil) (GLint s);
-static void     (APIENTRY * dllClipPlane) (GLenum plane, const GLdouble * equation);
 static void     (APIENTRY * dllColorMask) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 static void     (APIENTRY * dllCopyPixels) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
 static void     (APIENTRY * dllCopyTexImage1D) (GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y,
@@ -388,12 +386,6 @@ static void APIENTRY logClearStencil(GLint s)
 {
 	fprintf(log_fp, "glClearStencil( %d )\n", s);
 	dllClearStencil(s);
-}
-
-static void APIENTRY logClipPlane(GLenum plane, const GLdouble * equation)
-{
-	fprintf(log_fp, "glClipPlane\n");
-	dllClipPlane(plane, equation);
 }
 
 
@@ -706,7 +698,6 @@ void QGL_Shutdown(void)
 	qglClearColor                = NULL;
 	qglClearDepth                = NULL;
 	qglClearStencil              = NULL;
-	qglClipPlane                 = NULL;
 	qglColorMask                 = NULL;
 	qglCopyPixels                = NULL;
 	qglCopyTexImage1D            = NULL;
@@ -798,7 +789,6 @@ int QGL_Init()
 	qglClearColor                = dllClearColor = GPA( "glClearColor" );
 	qglClearDepth                = dllClearDepth = GPA( "glClearDepth" );
 	qglClearStencil              = dllClearStencil = GPA( "glClearStencil" );
-	qglClipPlane                 = dllClipPlane = GPA( "glClipPlane" );
 	qglColorMask                 = dllColorMask = GPA( "glColorMask" );
 	qglCopyPixels                = dllCopyPixels = GPA( "glCopyPixels" );
 	qglCopyTexImage1D            = dllCopyTexImage1D = GPA( "glCopyTexImage1D" );
@@ -909,7 +899,6 @@ void QGL_EnableLogging(int enable)
 		qglClearColor                = logClearColor;
 		qglClearDepth                = logClearDepth;
 		qglClearStencil              = logClearStencil;
-		qglClipPlane                 = logClipPlane;
 		qglColorMask                 = logColorMask;
 		qglCopyPixels                = logCopyPixels;
 		qglCopyTexImage1D            = logCopyTexImage1D;
@@ -972,7 +961,6 @@ void QGL_EnableLogging(int enable)
 		qglClearColor                = dllClearColor;
 		qglClearDepth                = dllClearDepth;
 		qglClearStencil              = dllClearStencil;
-		qglClipPlane                 = dllClipPlane;
 		qglColorMask                 = dllColorMask;
 		qglCopyPixels                = dllCopyPixels;
 		qglCopyTexImage1D            = dllCopyTexImage1D;
