@@ -8,7 +8,10 @@ models\weapons\railgun\body
     	diffusemap		models\weapons\railgun\body_diffuse
 	normalMap 		models\weapons\railgun\body_NRM
 	specularMap 		models\weapons\railgun\body_spec
-
+	{
+		blend 		add
+		map		models\weapons\railgun\body_glo
+	}
 }
 
 models\weapons\railgun\bgf
