@@ -5,12 +5,13 @@ models\weapons\railgun\body
 
 	//noShadows
 
-    	diffusemap		models\weapons\railgun\body_diffuse
+    diffusemap		models\weapons\railgun\body_diffuse
 	normalMap 		models\weapons\railgun\body_NRM
 	specularMap 		models\weapons\railgun\body_spec
 	{
 		blend 		add
 		map		models\weapons\railgun\body_glo
+		colored
 	}
 }
 
