@@ -5610,17 +5610,23 @@ static void RB_CalculateAdaptation()
 		Q_clamp(maxLuminance, r_hdrMinLuminance->value, r_hdrMaxLuminance->value);
 	}
 
-	newAdaptation = backEnd.hdrAverageLuminance + (avgLuminance - backEnd.hdrAverageLuminance) * (1 - pow(0.98f, 30.0f * deltaTime));
-	newMaximum = backEnd.hdrMaxLuminance + (maxLuminance - backEnd.hdrMaxLuminance) * (1 - pow(0.98f, 30.0f * deltaTime));
+	newAdaptation = backEnd.hdrAverageLuminance + (avgLuminance - backEnd.hdrAverageLuminance) * (1.0f - powf(0.98f, 30.0f * deltaTime));
+	newMaximum = backEnd.hdrMaxLuminance + (maxLuminance - backEnd.hdrMaxLuminance) * (1.0f - powf(0.98f, 30.0f * deltaTime));
 
-#if 1
-	backEnd.hdrAverageLuminance = newAdaptation;
-	backEnd.hdrMaxLuminance = newMaximum;
-#else
-	backEnd.hdrAverageLuminance = avgLuminance;
-	backEnd.hdrMaxLuminance = maxLuminance;
-#endif
+	if(!Q_isnan(newAdaptation) && !Q_isnan(newMaximum))
+	{
+		#if 1
+		backEnd.hdrAverageLuminance = newAdaptation;
+		backEnd.hdrMaxLuminance = newMaximum;
+		#else
+		backEnd.hdrAverageLuminance = avgLuminance;
+		backEnd.hdrMaxLuminance = maxLuminance;
+		#endif
+	}
+
 	backEnd.hdrTime = curTime;
+
+	//ri.Printf(PRINT_ALL, "RB_CalculateAdaptation: avg = %f  max = %f\n", backEnd.hdrAverageLuminance, backEnd.hdrMaxLuminance);
 
 	GL_CheckErrors();
 }
