@@ -5633,13 +5633,57 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 
 	R_BindNullFBO();
 
+	/*
+	   if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+	   {
+	   GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+	   }
+	   else
+	 */
+	{
+		GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
+	}
+
+	GL_Cull(CT_TWO_SIDED);
+
+	// set uniforms
+
+	// set 2D virtual screen size
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
+
 	if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_hdrRendering->integer)
 	{
+		R_BindNullFBO();
+
 		GL_BindProgram(&tr.toneMappingShader);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
 		GL_Bind(tr.deferredRenderFBOImage);
+
+		if(r_hdrKey->value <= 0)
+		{
+			float			key;
+
+			// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
+			key = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
+			qglUniform1fARB(tr.toneMappingShader.u_HDRKey, key);
+		}
+		else
+		{
+			qglUniform1fARB(tr.toneMappingShader.u_HDRKey, r_hdrKey->value);
+		}
+
+		qglUniform1fARB(tr.toneMappingShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
+		qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
+
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.toneMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
 	else
 	{
@@ -5669,58 +5713,11 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 		{
 			GL_Bind(tr.deferredRenderFBOImage);
 		}
-	}
 
-	/*
-	   if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
-	   {
-	   GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
-	   }
-	   else
-	 */
-	{
-		GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
-	}
-
-	GL_Cull(CT_TWO_SIDED);
-
-	// set uniforms
-
-	// set 2D virtual screen size
-	GL_PushMatrix();
-	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
-									-99999, 99999);
-	GL_LoadProjectionMatrix(ortho);
-	GL_LoadModelViewMatrix(matrixIdentity);
-
-	if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_hdrRendering->integer)
-	{
-		R_BindNullFBO();
-
-		if(r_hdrKey->value <= 0)
-		{
-			float			key;
-
-			// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
-			key = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
-			qglUniform1fARB(tr.contrastShader.u_HDRKey, key);
-		}
-		else
-		{
-			qglUniform1fARB(tr.contrastShader.u_HDRKey, r_hdrKey->value);
-		}
-
-		qglUniform1fARB(tr.toneMappingShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
-		qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
-
-		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.toneMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-	}
-	else
-	{
 		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
+
+	GL_CheckErrors();
 
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 
@@ -5736,6 +5733,8 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 	if(!r_hdrRendering->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable)
 		return;
 
+	GL_CheckErrors();
+
 	R_BindNullFBO();
 
 	// bind u_ColorMap
@@ -5744,6 +5743,8 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 
 	GL_State(GLS_DEPTHTEST_DISABLE);
 	GL_Cull(CT_TWO_SIDED);
+
+	GL_CheckErrors();
 
 	// set uniforms
 
@@ -5775,11 +5776,11 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 
 			// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
 			key = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
-			qglUniform1fARB(tr.contrastShader.u_HDRKey, key);
+			qglUniform1fARB(tr.toneMappingShader.u_HDRKey, key);
 		}
 		else
 		{
-			qglUniform1fARB(tr.contrastShader.u_HDRKey, r_hdrKey->value);
+			qglUniform1fARB(tr.toneMappingShader.u_HDRKey, r_hdrKey->value);
 		}
 
 		qglUniform1fARB(tr.toneMappingShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
@@ -5787,6 +5788,8 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 
 		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.toneMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
+
+	GL_CheckErrors();
 
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 
