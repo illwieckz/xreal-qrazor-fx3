@@ -1442,11 +1442,7 @@ static void CG_AddCEntity(centity_t * cent)
 			CG_General(cent);
 			break;
 		case ET_PLAYER:
-#ifdef XPPM
-			CG_XPPM_Player(cent);
-#else
 			CG_Player(cent);
-#endif
 			break;
 		case ET_ITEM:
 			CG_Item(cent);

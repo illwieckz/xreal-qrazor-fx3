@@ -1163,7 +1163,7 @@ static void CG_SetWeaponLerpFrameAnimation(weaponInfo_t * wi, lerpFrame_t * lf, 
 
 /*
 ===============
-CG_RunLerpFrame
+CG_RunWeaponLerpFrame
 
 Sets cg.snap, cg.oldFrame, and cg.backlerp
 cg.time should be between oldFrameTime and frameTime after exit

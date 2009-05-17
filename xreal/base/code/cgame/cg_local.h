@@ -419,7 +419,6 @@ typedef struct
 	footstep_t      footsteps;
 	gender_t        gender;		// from model
 
-#ifdef XPPM
 	// Tr3B: don't forget to add these values to CG_CopyClientInfoModel !
 	char            firstTorsoBoneName[MAX_QPATH];
 	char            lastTorsoBoneName[MAX_QPATH];
@@ -431,7 +430,6 @@ typedef struct
 
 	qhandle_t       bodyModel;
 	qhandle_t       bodySkin;
-#endif
 
 	qhandle_t       modelIcon;
 
@@ -1587,6 +1585,9 @@ void            CG_BuildSpectatorString();
 qboolean		CG_RegisterAnimation(animation_t * anim, const char *filename,
 										   qboolean loop, qboolean reversed, qboolean clearOrigin);
 
+void			CG_SetLerpFrameAnimation(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation);
+void			CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation, float speedScale);
+
 
 //
 // cg_view.c
@@ -1956,7 +1957,6 @@ void			CG_BreathPuffs(centity_t * cent, const vec3_t headOrigin, const vec3_t he
 
 void            CG_PlayerSprites(centity_t * cent);
 void            CG_PlayerSplash(centity_t * cent);
-void            CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShadowID);
 qboolean        CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID);
 qboolean        CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, const char *modelName,
 									   const char *skinName, const char *base, const char *ext);
@@ -1980,18 +1980,7 @@ void            CG_OSDInput(void);
 //
 void			CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation, float speedScale);
 
-#ifdef XPPM
 
-//
-// cg_xppm.c
-//
-
-
-qboolean        CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, const char *skinName, const char *teamName);
-void            CG_XPPM_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to);
-void            CG_XPPM_Player(centity_t * cent);
-
-#endif
 
 //===============================================
 

@@ -801,10 +801,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\cg_xppm.c"
-				>
-			</File>
-			<File
 				RelativePath=".\lua_cgame.c"
 				>
 			</File>

@@ -21,7 +21,6 @@ cgame_src = [
 'base/code/cgame/cg_localents.c',
 'base/code/cgame/cg_marks.c',
 'base/code/cgame/cg_particles.c',
-'base/code/cgame/cg_xppm.c',
 'base/code/cgame/cg_osd.c',
 'base/code/cgame/cg_players.c',
 'base/code/cgame/cg_playerstate.c',
