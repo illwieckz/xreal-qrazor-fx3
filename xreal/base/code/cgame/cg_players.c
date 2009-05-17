@@ -1058,7 +1058,7 @@ static void CG_SetPlayerLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, 
 {
 	animation_t    *anim;
 
-	//save old animation
+	// save old animation
 	lf->old_animationNumber = lf->animationNumber;
 	lf->old_animation = lf->animation;
 
@@ -1073,7 +1073,7 @@ static void CG_SetPlayerLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, 
 	anim = &ci->animations[newAnimation];
 
 	lf->animation = anim;
-	lf->animationTime = lf->frameTime + anim->initialLerp;
+	lf->animationStartTime = lf->frameTime + anim->initialLerp;
 
 	if(cg_debugPlayerAnim.integer)
 	{
@@ -1100,8 +1100,7 @@ static void CG_SetPlayerLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, 
 
 	//Com_Printf("new: %i old %i\n", newAnimation,lf->old_animationNumber);
 
-	if(!trap_R_BuildSkeleton
-	   (&lf->oldSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->blendlerp, lf->old_animation->clearOrigin))
+	if(!trap_R_BuildSkeleton(&lf->oldSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->blendlerp, lf->old_animation->clearOrigin))
 	{
 		CG_Printf("Can't blend skeleton\n");
 		return;
@@ -1197,15 +1196,15 @@ static void CG_RunPlayerLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAn
 			return;				// shouldn't happen
 		}
 
-		if(cg.time < lf->animationTime)
+		if(cg.time < lf->animationStartTime)
 		{
-			lf->frameTime = lf->animationTime;	// initial lerp
+			lf->frameTime = lf->animationStartTime;	// initial lerp
 		}
 		else
 		{
 			lf->frameTime = lf->oldFrameTime + anim->frameTime;
 		}
-		f = (lf->frameTime - lf->animationTime) / anim->frameTime;
+		f = (lf->frameTime - lf->animationStartTime) / anim->frameTime;
 		f *= speedScale;		// adjust for haste, etc
 
 		numFrames = anim->numFrames;

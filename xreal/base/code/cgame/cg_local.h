@@ -117,7 +117,7 @@ typedef enum
 // because corpses after respawn are outside the normal
 // client numbering range
 
-// when changing animation, set animationTime to frameTime + lerping time
+// when changing animation, set animationStartTime to frameTime + lerping time
 // The current lerp will finish out, then it will lerp to the new animation
 typedef struct
 {
@@ -138,17 +138,19 @@ typedef struct
 
 	int             animationNumber;	// may include ANIM_TOGGLEBIT
 	animation_t    *animation;
-	int             animationTime;	// time when the first frame of the animation will be exact
+	int             animationStartTime;	// time when the first frame of the animation will be exact
 	float           animationScale;
 
-	//added for smooth blending between animations on change
+	// added for smooth blending between animations on change
 
 	int             old_animationNumber;	// may include ANIM_TOGGLEBIT
 	animation_t    *old_animation;
+
 	float           blendlerp;
 	float           blendtime;
 
 	int             weaponNumber;
+	int				old_weaponNumber;
 } lerpFrame_t;
 
 // debugging values:

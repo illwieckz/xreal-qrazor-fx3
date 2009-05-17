@@ -1130,6 +1130,11 @@ static void CG_SetWeaponLerpFrameAnimation(weaponInfo_t * wi, lerpFrame_t * lf, 
 	animation_t    *anim;
 	int             shouldTime, wouldTime;
 
+	// save old animation
+	lf->old_animationNumber = lf->animationNumber;
+	lf->old_animation = lf->animation;
+	lf->old_weaponNumber = lf->weaponNumber;
+
 	lf->weaponNumber = weaponNumber;
 	lf->animationNumber = weaponAnimation;
 
@@ -1141,12 +1146,12 @@ static void CG_SetWeaponLerpFrameAnimation(weaponInfo_t * wi, lerpFrame_t * lf, 
 	anim = &wi->viewModel_animations[weaponAnimation];
 
 	lf->animation = anim;
-	lf->animationTime = lf->frameTime + anim->initialLerp;
+	lf->animationStartTime = lf->frameTime + anim->initialLerp;
 
 	shouldTime = weaponTime;
 	wouldTime = anim->numFrames * anim->frameTime;
 
-	if(shouldTime != wouldTime)
+	if(shouldTime != wouldTime && shouldTime > 0)
 	{
 		lf->animationScale = (float)wouldTime / shouldTime;
 	}
@@ -1155,9 +1160,33 @@ static void CG_SetWeaponLerpFrameAnimation(weaponInfo_t * wi, lerpFrame_t * lf, 
 		lf->animationScale = 1.0f;
 	}
 
+	if(lf->old_animationNumber <= 0 || lf->old_weaponNumber != lf->weaponNumber)
+	{
+		// skip initial / invalid blending
+		lf->blendlerp = 0.0f;
+		return;
+	}
+
+	// TODO: blend through two blendings!
+
+	if((lf->blendlerp <= 0.0f))
+		lf->blendlerp = 1.0f;
+	else
+		lf->blendlerp = 1.0f - lf->blendlerp;	// use old blending for smooth blending between two blended animations
+
+#if 0
+	memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
+#else
+	if(!trap_R_BuildSkeleton(&lf->oldSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->blendlerp, lf->old_animation->clearOrigin))
+	{
+		CG_Printf("CG_SetWeaponLerpFrameAnimation: can't build old skeleton\n");
+		return;
+	}
+#endif
+
 	if(cg_debugWeaponAnim.integer)
 	{
-		CG_Printf("weapon anim: %i\n", weaponAnimation);
+		Com_Printf("CG_SetWeaponLerpFrameAnimation: weapon=%i new anim=%i old anim=%i time=%i\n", weaponNumber, weaponAnimation, lf->old_animationNumber, weaponTime);
 	}
 }
 
@@ -1188,12 +1217,10 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 	{
 		CG_SetWeaponLerpFrameAnimation(wi, lf, weaponNumber, weaponAnimation, weaponTime);
 
-		/*
-		   if(!lf->animation)
-		   {
-		   memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
-		   }
-		 */
+		if(!lf->animation)
+		{
+			memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
+		}
 
 		animChanged = qtrue;
 	}
@@ -1206,14 +1233,12 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 	// oldFrame and calculate a new frame
 	if(cg.time >= lf->frameTime || animChanged)
 	{
-#if 1
 		if(animChanged)
 		{
 			lf->oldFrame = 0;
 			lf->oldFrameTime = cg.time;
 		}
 		else
-#endif
 		{
 			lf->oldFrame = lf->frame;
 			lf->oldFrameTime = lf->frameTime;
@@ -1230,16 +1255,20 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 			return;				// shouldn't happen
 		}
 
-		if(cg.time < lf->animationTime)
+		if(cg.time < lf->animationStartTime)
 		{
-			lf->frameTime = lf->animationTime;	// initial lerp
+			lf->frameTime = lf->animationStartTime;	// initial lerp
 		}
 		else
 		{
 			lf->frameTime = lf->oldFrameTime + anim->frameTime;
 		}
-		f = (lf->frameTime - lf->animationTime) / anim->frameTime;
-		f *= lf->animationScale * speedScale;	// adjust for haste, etc
+
+		f = (lf->frameTime - lf->animationStartTime) / anim->frameTime;
+		f *= lf->animationScale;
+		f *= speedScale;	// adjust for haste, etc
+
+		//CG_Printf("CG_RunWeaponLerpFrame: lf->frameTime=%i anim->frameTime=%i startTime=%i frame=%i weapon=%i\n", lf->frameTime, anim->frameTime, lf->animationStartTime, f, weaponNumber);
 
 		numFrames = anim->numFrames;
 
@@ -1254,6 +1283,9 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 
 			if(anim->loopFrames)
 			{
+				//CG_Printf("CG_RunWeaponLerpFrame: looping animation %i for weapon %i\n", weaponAnimation, weaponNumber);
+
+				//f %= anim->numFrames;
 				f %= anim->loopFrames;
 				f += anim->numFrames - anim->loopFrames;
 			}
@@ -1309,23 +1341,48 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 		lf->backlerp = 1.0 - (float)(cg.time - lf->oldFrameTime) / (lf->frameTime - lf->oldFrameTime);
 	}
 
-	if(!trap_R_BuildSkeleton(&lf->skeleton,
-							 lf->animation->handle, lf->oldFrame, lf->frame, 1.0 - lf->backlerp, lf->animation->clearOrigin))
+	// blend old and current animation
+	if(cg_animBlend.value <= 0.0f)
+	{
+		lf->blendlerp = 0.0f;
+	}
+
+	if((lf->blendlerp > 0.0f) && (cg.time > lf->blendtime))
+	{
+#if 0
+		// linear blending
+		lf->blendlerp -= 0.025f;
+#else
+		// exp blending
+		lf->blendlerp -= lf->blendlerp / cg_animBlend.value;
+#endif
+		if(lf->blendlerp <= 0.0f)
+		{
+			lf->blendlerp = 0.0f;
+		}
+
+		if(lf->blendlerp >= 1.0f)
+		{
+			lf->blendlerp = 1.0f;
+		}
+
+		lf->blendtime = cg.time + 10;
+	}
+
+	if(!trap_R_BuildSkeleton(&lf->skeleton, lf->animation->handle, lf->oldFrame, lf->frame, 1.0 - lf->backlerp, lf->animation->clearOrigin))
 	{
 		CG_Printf("CG_RunWeaponLerpFrame: Can't build lf->skeleton\n");
 	}
 
-#if 0
-	if(animChanged && lf->oldSkeleton.type == SK_RELATIVE)
+	// lerp between old and new animation if possible
+	if(lf->blendlerp > 0.0f)
 	{
-		if(!trap_R_BlendSkeleton(&lf->oldSkeleton, &lf->oldSkeleton, 1.0 - lf->backlerp))
+		if(!trap_R_BlendSkeleton(&lf->skeleton, &lf->oldSkeleton, lf->blendlerp))
 		{
-			CG_Printf("Can't blend lf->oldSkeleton\n");
+			CG_Printf("CG_RunWeaponLerpFrame: Can't blend lf->skeleton\n");
+			return;
 		}
-
-		memcpy(&lf->skeleton, &lf->oldSkeleton, sizeof(refSkeleton_t));
 	}
-#endif
 }
 
 /*

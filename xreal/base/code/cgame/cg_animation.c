@@ -83,10 +83,11 @@ void CG_SetLerpFrameAnimation(lerpFrame_t * lf, animation_t * anims, int animsNu
 	anim = &anims[newAnimation];
 
 	lf->animation = anim;
-	lf->animationTime = lf->frameTime + anim->initialLerp;
+	lf->animationStartTime = lf->frameTime + anim->initialLerp;
 
 	if(lf->old_animationNumber <= 0)
-	{							// skip initial / invalid blending
+	{
+		// skip initial / invalid blending
 		lf->blendlerp = 0.0f;
 		return;
 	}
@@ -102,14 +103,11 @@ void CG_SetLerpFrameAnimation(lerpFrame_t * lf, animation_t * anims, int animsNu
 
 	//Com_Printf("new: %i old %i\n", newAnimation,lf->old_animationNumber);
 
-	if(!trap_R_BuildSkeleton
-	   (&lf->oldSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->blendlerp, lf->old_animation->clearOrigin))
+	if(!trap_R_BuildSkeleton(&lf->oldSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->blendlerp, lf->old_animation->clearOrigin))
 	{
 		CG_Printf("CG_SetLerpFrameAnimation: can't blend skeleton\n");
 		return;
 	}
-
-
 }
 
 /*
@@ -170,15 +168,15 @@ void CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int ne
 			return;				// shouldn't happen
 		}
 
-		if(cg.time < lf->animationTime)
+		if(cg.time < lf->animationStartTime)
 		{
-			lf->frameTime = lf->animationTime;	// initial lerp
+			lf->frameTime = lf->animationStartTime;	// initial lerp
 		}
 		else
 		{
 			lf->frameTime = lf->oldFrameTime + anim->frameTime;
 		}
-		f = (lf->frameTime - lf->animationTime) / anim->frameTime;
+		f = (lf->frameTime - lf->animationStartTime) / anim->frameTime;
 		f *= speedScale;		// adjust for haste, etc
 
 		numFrames = anim->numFrames;
@@ -268,8 +266,7 @@ void CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int ne
 		lf->blendtime = cg.time + 10;
 	}
 
-	if(!trap_R_BuildSkeleton
-	   (&lf->skeleton, lf->animation->handle, lf->oldFrame, lf->frame, 1.0 - lf->backlerp, lf->animation->clearOrigin))
+	if(!trap_R_BuildSkeleton(&lf->skeleton, lf->animation->handle, lf->oldFrame, lf->frame, 1.0 - lf->backlerp, lf->animation->clearOrigin))
 	{
 		CG_Printf("Can't build lf->skeleton\n");
 	}
