@@ -987,7 +987,7 @@ void CG_RegisterWeapon(int weaponNum)
 			break;
 
 		case WP_RAILGUN:
-			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/lightning/lg_hum.ogg");	// FIXME
+			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/railgun/rg_hum.ogg");
 			MAKERGB(weaponInfo->flashLightColor, 1, 0.5f, 0);
 
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.ogg");
