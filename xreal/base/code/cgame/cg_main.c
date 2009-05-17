@@ -606,43 +606,7 @@ static void CG_RegisterItemSounds(int itemNum)
 }
 
 
-qboolean CG_RegisterAnimation(animation_t * anim, const char *filename,
-										   qboolean loop, qboolean reversed, qboolean clearOrigin)
-{
-	int             frameRate;
 
-	anim->handle = trap_R_RegisterAnimation(filename);
-	if(!anim->handle)
-	{
-		Com_Printf("Failed to load animation file %s\n", filename);
-		return qfalse;
-	}
-
-	anim->firstFrame = 0;
-	anim->numFrames = trap_R_AnimNumFrames(anim->handle);
-	frameRate = trap_R_AnimFrameRate(anim->handle);
-
-	if(frameRate == 0)
-	{
-		frameRate = 1;
-	}
-	anim->frameTime = 1000 / frameRate;
-	anim->initialLerp = 1000 / frameRate;
-
-	if(loop)
-	{
-		anim->loopFrames = anim->numFrames;
-	}
-	else
-	{
-		anim->loopFrames = 0;
-	}
-
-	anim->reversed = reversed;
-	anim->clearOrigin = clearOrigin;
-
-	return qtrue;
-}
 
 /*
 =================

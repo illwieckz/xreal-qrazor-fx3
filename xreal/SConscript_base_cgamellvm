@@ -10,6 +10,7 @@ cgame_src = [
 'base/code/game/bg_slidemove.c',
 'code/qcommon/q_math.c',
 'code/qcommon/q_shared.c',
+'base/code/cgame/cg_animation.c',
 'base/code/cgame/cg_consolecmds.c',
 'base/code/cgame/cg_draw.c',
 'base/code/cgame/cg_drawtools.c',

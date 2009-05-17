@@ -30,7 +30,7 @@
 			<Tool
 				Name="VCCustomBuildTool"
 			/>
-			<Tool
+			<Tool<
 				Name="VCXMLDataGeneratorTool"
 			/>
 			<Tool
@@ -263,6 +263,29 @@
 			</File>
 			<File
 				RelativePath="..\game\bg_slidemove.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						BrowseInformation="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="cg_animation.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
