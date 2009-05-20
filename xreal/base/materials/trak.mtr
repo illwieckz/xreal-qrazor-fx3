@@ -388,10 +388,16 @@ textures/trak/trak5/floor2f
 textures/trak/trak5/glass
 {
 	qer_editorImage		textures/trak/trak5/glass.png
+	qer_trans		0.9
+	twosided
 
-	parallax
-
-	diffuseMap		textures/trak/trak5/glass.png
+	{
+		stage		diffuseMap
+		map		textures/trak/trak5/glass.png
+		blend		GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+	}
+	specularMap		textures/trak/trak5/glass.png
+	normalMap		textures/trak/trak5/glass_nm.png
 }
 
 textures/trak/trak5/grate1a
