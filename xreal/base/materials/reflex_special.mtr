@@ -168,3 +168,225 @@ textures/reflex/special/wallwalktrim01_orange
 	}
 }
 
+textures/reflex/special/glass01
+{
+
+qer_editorimage  cubemaps/reflex/glass01_nx
+
+	noshadows
+	twosided
+      translucent
+
+	{
+                        stage reflectionmap
+            blend       gl_dst_alpha, gl_one
+		cubeMap	cubemaps/reflex/glass01
+	}
+}
+
+
+textures/reflex/special/launchpad01
+{
+    qer_editorimage  textures/reflex/special/launchpad01 
+
+    xmap_surfaceLight 800
+	xmap_lightRGB 0.94 0.57 0.13
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
+
+      {
+            blend diffusemap
+            map textures/reflex/special/launchpad01_treads
+            scroll    time * -1.4, time* 0.0
+      }
+	{
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_treads_local
+            scroll    time * -1.4, time* 0.0
+	}
+	{
+		blend specularMap      
+		map textures/reflex/special/launchpad01_treads_spec
+            scroll    time * -1.4, time* 0.0
+	}
+      {
+            blend add
+            map textures/reflex/special/launchpad01_add
+color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
+      }
+      {
+            blend diffusemap
+            map textures/reflex/special/launchpad01
+            alphaTest .5
+      }
+	{
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_local
+	}
+	{
+		blend specularMap      
+		map textures/reflex/special/launchpad01_spec
+	}
+}
+
+textures/reflex/special/launchpad01_red
+{
+    qer_editorimage  textures/reflex/special/launchpad01_red 
+
+    xmap_surfaceLight 800
+	xmap_lightRGB 0.75 0.17 0.05
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
+
+      {
+            blend diffusemap
+            map textures/reflex/special/launchpad01_treads
+            scroll    time * -1.4, time* 0.0
+      }
+	{
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_treads_local
+            scroll    time * -1.4, time* 0.0
+	}
+	{
+		blend specularMap      
+		map textures/reflex/special/launchpad01_treads_spec
+            scroll    time * -1.4, time* 0.0
+	}
+      {
+            blend add
+            map textures/reflex/special/launchpad01_add
+color       0.85 * (jitter5 [time * 2]), 0.15 * (jitter5 [time * 2]), 0.15 * (jitter5 [time * 2]), 1.0
+      }
+      {
+            blend diffusemap
+            map textures/reflex/special/launchpad01_red
+            alphaTest .5
+      }
+	{
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_local
+	}
+	{
+		blend specularMap      
+		map textures/reflex/special/launchpad01_spec
+	}
+}
+
+textures/reflex/special/launchpad01_blue
+{
+    qer_editorimage  textures/reflex/special/launchpad01_blue 
+
+    xmap_surfaceLight 800
+	xmap_lightRGB 0.24 0.41 0.77
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
+
+      {
+            blend diffusemap
+            map textures/reflex/special/launchpad01_treads
+            scroll    time * -1.4, time* 0.0
+      }
+	{
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_treads_local
+            scroll    time * -1.4, time* 0.0
+	}
+	{
+		blend specularMap      
+		map textures/reflex/special/launchpad01_treads_spec
+            scroll    time * -1.4, time* 0.0
+	}
+      {
+            blend add
+            map textures/reflex/special/launchpad01_add
+color       0.15 * (jitter5 [time * 2]), 0.15 * (jitter5 [time * 2]), 0.85 * (jitter5 [time * 2]), 1.0
+      }
+      {
+            blend diffusemap
+            map textures/reflex/special/launchpad01_blue
+            alphaTest .5
+      }
+	{
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_local
+	}
+	{
+		blend specularMap      
+		map textures/reflex/special/launchpad01_spec
+	}
+}
+
+textures/reflex/special/launchpad01_metal
+{
+    qer_editorimage  textures/reflex/special/launchpad01_metal
+    diffusemap       textures/reflex/special/launchpad01_metal
+    bumpmap          textures/reflex/special/launchpad01_metal_local
+    specularMap      textures/reflex/special/launchpad01_metal_spec
+}
+
+textures/reflex/special/launchpad01_trim
+{
+    qer_editorimage  textures/reflex/special/launchpad01_trim
+    diffusemap       textures/reflex/special/launchpad01_trim
+    bumpmap          textures/reflex/special/launchpad01_trim_local
+    specularMap      textures/reflex/special/launchpad01_trim_spec
+}
+
+textures/reflex/special/bouncepad01
+{
+    qer_editorimage  textures/reflex/special/bouncepad01
+
+      xmap_surfaceLight 800
+	xmap_lightRGB 0.94 0.57 0.13
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
+
+      {
+            blend diffusemap
+            map textures/reflex/special/black
+      }
+      {
+            blend add
+            map textures/reflex/special/bouncepad01_twirl
+            rotate	time * -180
+color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
+      }
+      {
+            blend diffusemap
+            map textures/reflex/special/bouncepad01_fan
+            rotate	time * -240
+            alphaTest .5
+      }
+	{
+		blend bumpmap          
+		map textures/reflex/special/bouncepad01_fan_local
+            rotate	time * -240
+	}
+	{
+		blend specularMap      
+		map textures/reflex/special/bouncepad01_fan_spec
+            rotate	time * -240
+	}
+      {
+            blend diffusemap
+            map textures/reflex/special/bouncepad01
+            alphaTest .5
+      }
+	{
+		blend bumpmap          
+		map textures/reflex/special/bouncepad01_local
+	}
+	{
+		blend specularMap      
+		map textures/reflex/special/bouncepad01_spec
+	}
+      {
+            blend add
+            map textures/reflex/special/bouncepad01_add
+color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
+      }
+}
+
+
+
