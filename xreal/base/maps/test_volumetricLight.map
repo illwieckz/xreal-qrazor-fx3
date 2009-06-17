@@ -120,6 +120,7 @@ brushDef3
 "_color" "0.78 0.78 0.84"
 "light_radius" "225 225 225"
 "texture" "lights/volumetricLight"
+"noradiosity" "1"
 }
 // entity 5
 {

@@ -61,7 +61,7 @@ typedef unsigned short glIndex_t;
 
 #define MAX_VISCOUNTS			5
 
-//#define VOLUMETRIC_LIGHTING
+#define VOLUMETRIC_LIGHTING 1
 
 #define DEBUG_OPTIMIZEVERTICES 0
 #define CALC_REDUNDANT_SHADOWVERTS 0

@@ -1245,6 +1245,8 @@ void GLSL_InitGPUShaders(void)
 	// volumetric lighting
 	GLSL_InitGPUShader(&tr.lightVolumeShader_omni, "lightVolume_omni", ATTR_POSITION, qtrue);
 
+	tr.lightVolumeShader_omni.u_DepthMap =
+		qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_DepthMap");
 	tr.lightVolumeShader_omni.u_AttenuationMapXY =
 		qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_AttenuationMapXY");
 	tr.lightVolumeShader_omni.u_AttenuationMapZ =
@@ -1258,14 +1260,15 @@ void GLSL_InitGPUShaders(void)
 	tr.lightVolumeShader_omni.u_LightAttenuationMatrix =
 		qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_LightAttenuationMatrix");
 	tr.lightVolumeShader_omni.u_ShadowCompare = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_ShadowCompare");
-	tr.lightVolumeShader_omni.u_ModelMatrix = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_ModelMatrix");
 	tr.lightVolumeShader_omni.u_ModelViewProjectionMatrix =
-		qglGetUniformLocationARB(tr.lightVolumeShader.program, "u_ModelViewProjectionMatrix");
+		qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_ModelViewProjectionMatrix");
+	tr.lightVolumeShader_omni.u_UnprojectMatrix = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_UnprojectMatrix");
 
 	qglUseProgramObjectARB(tr.lightVolumeShader_omni.program);
-	qglUniform1iARB(tr.lightVolumeShader_omni.u_AttenuationMapXY, 0);
-	qglUniform1iARB(tr.lightVolumeShader_omni.u_AttenuationMapZ, 1);
-	qglUniform1iARB(tr.lightVolumeShader_omni.u_ShadowMap, 2);
+	qglUniform1iARB(tr.lightVolumeShader_omni.u_DepthMap, 0);
+	qglUniform1iARB(tr.lightVolumeShader_omni.u_AttenuationMapXY, 1);
+	qglUniform1iARB(tr.lightVolumeShader_omni.u_AttenuationMapZ, 2);
+	qglUniform1iARB(tr.lightVolumeShader_omni.u_ShadowMap, 3);
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.lightVolumeShader_omni.program);

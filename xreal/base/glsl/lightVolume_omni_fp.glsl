@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+uniform sampler2D	u_DepthMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
 uniform samplerCube	u_ShadowMap;
@@ -30,29 +31,63 @@ uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform mat4		u_LightAttenuationMatrix;
 uniform int			u_ShadowCompare;
-uniform mat4		u_ModelMatrix;
+uniform mat4		u_UnprojectMatrix;
 
-varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
 varying vec3		var_TexAttenXYZ;
 
 void	main()
 {
+	// calculate the screen texcoord in the 0.0 to 1.0 range
+	vec2 st = gl_FragCoord.st * r_FBufScale;
+	
+	// scale by the screen non-power-of-two-adjust
+	st *= r_NPOTScale;
+		
+	// reconstruct vertex position in world space
+	float depth = texture2D(u_DepthMap, st).r;
+	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
+	P.xyz /= P.w;
+	
+#if 0
+	if(bool(u_PortalClipping))
+	{
+		float dist = dot(P.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
+		if(dist < 0.0)
+		{
+			discard;
+			return;
+		}
+	}
+#endif
+	
 	// compute incident ray in world space
-	vec3 I = normalize(u_ViewOrigin - var_Position);
-	//vec3 I = normalize(var_Position - u_ViewOrigin);
+	//vec3 R = normalize(P.xyz - u_ViewOrigin);
+	vec3 R = normalize(u_ViewOrigin - P.xyz);
+	
+	//float traceDistance = dot(P.xyz - (u_ViewOrigin.xyz + R * u_ZNear ), forward);
+	//traceDistance = clamp(traceDistance, 0.0, 2500.0 ); // Far trace distance
+	
+	float traceDistance = distance(P.xyz, u_ViewOrigin);
+	traceDistance = clamp(traceDistance, 0.0, 2500.0);
+	
+	// TODO move to front clipping plane
 	
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 	
 	int steps = 40;
-	float stepSize = u_LightRadius / float(steps);
+	//float stepSize = u_LightRadius / float(steps);
+	
+	//int steps = int(min(traceDistance / length(forward), 2000));	// TODO r_MaxSteps
+	float stepSize = traceDistance / float(steps);
+	//float stepSize = 1.0;
 	
 	for(int i = 0; i < steps; i++)
 	{
-		vec3 P = var_Position + (I * stepSize * float(i));
+		vec3 T = P.xyz + (R * stepSize * float(i));
 	
 		// compute attenuation
-		vec3 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(P, 1.0)).xyz;
+		vec3 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(T, 1.0)).xyz;
 		vec3 attenuationXY		= texture2D(u_AttenuationMapXY, texAttenXYZ.xy).rgb;
 		vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(texAttenXYZ.z, 0)).rgb;
 		
@@ -62,9 +97,9 @@ void	main()
 		if(bool(u_ShadowCompare))
 		{
 			// compute incident ray
-			vec3 I = P - u_LightOrigin;
+			vec3 I2 = T - u_LightOrigin;
 			
-			vec4 shadowMoments = textureCube(u_ShadowMap, I);
+			vec4 shadowMoments = textureCube(u_ShadowMap, I2);
 			
 			#if defined(VSM_CLAMP)
 			// convert to [-1, 1] vector space
@@ -75,7 +110,7 @@ void	main()
 			float shadowDistanceSquared = shadowMoments.g;
 		
 			const float	SHADOW_BIAS = 0.001;
-			float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
+			float vertexDistance = length(I2) / u_LightRadius - SHADOW_BIAS;
 	
 			// standard shadow map comparison
 			shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
