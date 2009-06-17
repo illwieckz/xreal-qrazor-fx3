@@ -3257,7 +3257,6 @@ void R_ShutdownImages(void)
 	Com_DestroyGrowList(&tr.deluxemaps);
 	Com_DestroyGrowList(&tr.cubeProbes);
 
-	void FreeVertexHashTable(vertexHash_t ** hashTable);
 	FreeVertexHashTable(tr.cubeHashTable);
 }
 

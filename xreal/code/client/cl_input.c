@@ -674,7 +674,9 @@ void CL_JoystickMove(usercmd_t * cmd)
 CL_MouseMove
 =================
 */
-#define FLOATSIGNBITSET(x)		({floatint_t __f; __f.f = x; __f.i >> 31;})
+#define FLOATSIGNBITSET(f)		((*(const unsigned int *)&(f)) >> 31)
+// strict aliasing... better?
+//#define FLOATSIGNBITSET(x)		({floatint_t __f; __f.f = x; __f.i >> 31;})
 
 void CL_MouseMove(usercmd_t * cmd)
 {

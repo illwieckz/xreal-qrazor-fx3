@@ -3819,6 +3819,8 @@ void            RE_TakeVideoFrame(int width, int height, byte * captureBuffer, b
 // cubemap reflections stuff
 //void            R_BuildCubeMaps(void);
 
+void            FreeVertexHashTable(vertexHash_t ** hashTable);
+
 // font stuff
 void            R_InitFreeType();
 void            R_DoneFreeType();
