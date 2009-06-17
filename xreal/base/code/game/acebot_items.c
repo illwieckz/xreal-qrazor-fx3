@@ -445,7 +445,7 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 						VectorNormalize2(ent->s.origin2, v2);
 						VectorMA(v, 32, v2, v);
 					}
-					else if(nodes[i].type == NODE_PLATFORM)
+					else /*if(nodes[i].type == NODE_PLATFORM)*/
 					{
 						VectorCopy(ent->r.maxs, v1);
 						VectorCopy(ent->r.mins, v2);

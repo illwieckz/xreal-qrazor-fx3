@@ -652,7 +652,7 @@ Tess_SurfacePolychain
 */
 static void Tess_SurfacePolychain(srfPoly_t * p)
 {
-	int             i, j;
+	int             i;
 	int             numVertexes;
 	int             numIndexes;
 
@@ -2378,9 +2378,9 @@ Draws x/y/z lines from the origin for orientation debugging
 */
 static void Tess_SurfaceAxis(void)
 {
-	int             k;
-	vec4_t          verts[3];
-	vec3_t          forward, right, up;
+	//int             k;
+	//vec4_t          verts[3];
+	//vec3_t          forward, right, up;
 
 	GLimp_LogComment("--- Tess_SurfaceAxis ---\n");
 

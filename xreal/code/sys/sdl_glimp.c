@@ -1099,7 +1099,7 @@ static void GLimp_InitExtensions(void)
 	// GL_ARB_shading_language_100
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_shading_language_100"))
 	{
-		Q_strncpyz(glConfig.shadingLanguageVersion, qglGetString(GL_SHADING_LANGUAGE_VERSION_ARB),
+		Q_strncpyz(glConfig.shadingLanguageVersion, (char*)qglGetString(GL_SHADING_LANGUAGE_VERSION_ARB),
 				   sizeof(glConfig.shadingLanguageVersion));
 		ri.Printf(PRINT_ALL, "...using GL_ARB_shading_language_100\n");
 	}

@@ -230,7 +230,7 @@ void G_RunLuaFunction(const char *func, const char *sig, ...)
 		{
 			case 'f':
 				// float argument
-				lua_pushnumber(L, va_arg(vl, float));
+				lua_pushnumber(L, va_arg(vl, double));
 
 				break;
 

@@ -1173,7 +1173,7 @@ Draws a vector against
 the surface player is looking at
 ===============
 */
-static void CG_DrawSurfNormal(void)
+/*static void CG_DrawSurfNormal(void)
 {
 	trace_t         tr;
 	vec3_t          end, temp;
@@ -1209,7 +1209,7 @@ static void CG_DrawSurfNormal(void)
 	VectorCopy4(color, normal[3].modulate);
 
 	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB_twoSided, 4, normal);
-}
+}*/
 
 /*
 ===============
@@ -1342,7 +1342,7 @@ static void CG_smoothWWTransitions(playerState_t * ps, const vec3_t in, vec3_t o
 CG_smoothWJTransitions
 ===============
 */
-static void CG_smoothWJTransitions(playerState_t * ps, const vec3_t in, vec3_t out)
+/*static void CG_smoothWJTransitions(playerState_t * ps, const vec3_t in, vec3_t out)
 {
 	int             i;
 	float           stLocal, sFraction;
@@ -1381,7 +1381,7 @@ static void CG_smoothWJTransitions(playerState_t * ps, const vec3_t in, vec3_t o
 		AxisToAngles(outAxis, out);
 	else
 		VectorCopy(in, out);
-}
+}*/
 
 
 /*

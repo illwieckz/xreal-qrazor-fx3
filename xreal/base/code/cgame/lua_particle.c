@@ -34,8 +34,6 @@ static int particle_Spawn(lua_State * L)
 	cparticle_t    *p;
 	lua_Particle   *lp;
 
-	vec3_t          randVec, tempVec;
-
 	p = CG_AllocParticle();
 	if(!p)
 	{

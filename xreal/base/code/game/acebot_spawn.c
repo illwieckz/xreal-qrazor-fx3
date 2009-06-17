@@ -304,7 +304,7 @@ static void ACESP_LoadBots(void)
 
 
 
-static char    *ACESP_GetBotInfoByNumber(int num)
+/*static char    *ACESP_GetBotInfoByNumber(int num)
 {
 	if(num < 0 || num >= g_numBots)
 	{
@@ -312,7 +312,7 @@ static char    *ACESP_GetBotInfoByNumber(int num)
 		return NULL;
 	}
 	return g_botInfos[num];
-}
+}*/
 
 
 static char    *ACESP_GetBotInfoByName(const char *name)
@@ -399,7 +399,6 @@ void ACESP_SpawnBot(char *name, float skill, char *team)
 	char           *s;
 	char           *botname;
 	char           *model;
-	char           *headmodel;
 	char            userinfo[MAX_INFO_STRING];
 
 	G_Printf("ACESP_SpawnBot(%s, %f, %s)\n", name, skill, team);
@@ -582,7 +581,7 @@ void ACESP_SetupBotState(gentity_t * self)
 {
 	int             clientNum;
 	char            userinfo[MAX_INFO_STRING];
-	char           *team;
+	//char           *team;
 
 	//G_Printf("ACESP_SetupBotState()\n");
 

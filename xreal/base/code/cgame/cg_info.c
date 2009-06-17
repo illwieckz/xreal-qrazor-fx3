@@ -34,12 +34,12 @@ vec4_t          text_color_highlight = { 0.90f, 0.90f, 1.00f, 0.95f };	// bright
 
 vec4_t          text_color_warning = { 0.90f, 0.10f, 0.10f, 0.75f };	// bright white
 
-qhandle_t       load0 = NULL;
-qhandle_t       load1 = NULL;
+qhandle_t       load0 = 0;
+qhandle_t       load1 = 0;
 
-qhandle_t       levelshot = NULL;
-qhandle_t       menuback = NULL;
-qhandle_t       detail = NULL;
+qhandle_t       levelshot = 0;
+qhandle_t       menuback = 0;
+qhandle_t       detail = 0;
 
 
 /*
@@ -74,8 +74,6 @@ CG_DrawProgress
 static void CG_DrawProgress(void)
 {
 	int             x, y;
-	float           rectColor[4];
-	const char     *s = NULL;
 	int             i;
 	vec4_t          color;
 	int             style = 0;
@@ -149,11 +147,10 @@ void CG_DrawInformation(void)
 	const char     *s = NULL;
 	const char     *info;
 	const char     *sysInfo;
-	int             x, y, w;
+	int             x, y;
 	int             value;
 
 	char            buf[1024];
-	char            st[1024];
 
 	int             y_offset;
 

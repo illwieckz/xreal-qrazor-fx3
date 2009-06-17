@@ -303,7 +303,7 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
 	return qtrue;
 }
 
-static void UI_PlayerFloatSprite(playerInfo_t * pi, vec3_t origin, qhandle_t shader)
+/*static void UI_PlayerFloatSprite(playerInfo_t * pi, vec3_t origin, qhandle_t shader)
 {
 	refEntity_t     ent;
 
@@ -315,7 +315,7 @@ static void UI_PlayerFloatSprite(playerInfo_t * pi, vec3_t origin, qhandle_t sha
 	ent.radius = 10;
 	ent.renderfx = 0;
 	trap_R_AddRefEntityToScene(&ent);
-}
+}*/
 
 
 void UI_XPPM_TransformSkeleton(refSkeleton_t * skel, const vec3_t scale)
@@ -374,7 +374,7 @@ void UI_XPPM_TransformSkeleton(refSkeleton_t * skel, const vec3_t scale)
 }
 
 
-static void UI_XPPM_SwingAngles(float destination, float swingTolerance, float clampTolerance,
+/*static void UI_XPPM_SwingAngles(float destination, float swingTolerance, float clampTolerance,
 						   float speed, float *angle, qboolean * swinging)
 {
 	float           swing;
@@ -546,7 +546,7 @@ static void UI_XPPM_PlayerAngles(playerInfo_t * pi, vec3_t legsAngles, vec3_t to
 	// pull the angles back out of the hierarchial chain
 	AnglesSubtract(headAngles, torsoAngles, headAngles);
 	AnglesSubtract(torsoAngles, legsAngles, torsoAngles);
-}
+}*/
 
 
 
@@ -557,8 +557,8 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 	refdef_t        refdef;
 
 	vec3_t          legsAngles;
-	vec3_t          torsoAngles;
-	vec3_t          headAngles;
+	//vec3_t          torsoAngles;
+	//vec3_t          headAngles;
 
 	vec3_t          podiumAngles;
 

@@ -646,7 +646,7 @@ void StartServer_Cache(void)
 {
 	int             i;
 	const char     *info;
-	char            picname[64];
+	//char            picname[64];
 
 	trap_R_RegisterShaderNoMip(GAMESERVER_BACK0);
 	trap_R_RegisterShaderNoMip(GAMESERVER_BACK1);

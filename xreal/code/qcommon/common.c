@@ -2821,10 +2821,10 @@ static void Com_PrintMatrix(const matrix_t m)
 			   (int)m[8], (int)m[9], (int)m[10], (int)m[11], (int)m[12], (int)m[13], (int)m[14], (int)m[15]);
 }
 
-static void Com_PrintQuat(const quat_t q)
+/*static void Com_PrintQuat(const quat_t q)
 {
 	Com_Printf("%f %f %f %f\n", q[0], q[1], q[2], q[3]);
-}
+}*/
 
 static void Com_MathTest_f(void)
 {
@@ -2959,6 +2959,7 @@ static void Com_GenerateMediaTXT_f(void)
 	char            propertyName[MAX_TOKEN_CHARS];
 	char            propertyValue[MAX_TOKEN_CHARS];
 	int             len;
+	int             unused;
 
 	const int       maxMediaLen = 100;
 	const int       maxCopyrightLen = 50;
@@ -2969,7 +2970,7 @@ static void Com_GenerateMediaTXT_f(void)
 	copyrightEntry_t *entry;
 
 	// FIXME: this assumes fs_game is set to the default: "base"
-	system("svn proplist -R -v base/ > base/PROPERTIES.txt");
+	unused = system("svn proplist -R -v base/ > base/PROPERTIES.txt");
 
 	Com_sprintf(fileName, sizeof(fileName), "PROPERTIES.txt");
 	Com_Printf("reading '%s' ...\n", fileName);
@@ -3250,9 +3251,10 @@ static void Com_GenerateCorePK3_f(void)
 	char            mediaName[MAX_TOKEN_CHARS];
 	char            propertyName[MAX_TOKEN_CHARS];
 	char            propertyValue[MAX_TOKEN_CHARS];
+	int             unused;
 
 	// FIXME: this assumes fs_game is set to the default: "base"
-	system("svn proplist -R -v base/ > base/PROPERTIES.txt");
+	unused = system("svn proplist -R -v base/ > base/PROPERTIES.txt");
 
 	Com_sprintf(fileName, sizeof(fileName), "PROPERTIES.txt");
 	Com_Printf("reading '%s' ...\n", fileName);
@@ -3365,6 +3367,7 @@ static void Com_DetectAltivec(void)
 	}
 }
 
+#if id386
 static void Com_DetectSSE(void)
 {
 #if id386_sse && !defined(DEDICATED)
@@ -3374,6 +3377,7 @@ static void Com_DetectSSE(void)
 	}
 #endif
 }
+#endif
 
 
 /*

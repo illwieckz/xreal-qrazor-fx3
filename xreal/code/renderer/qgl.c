@@ -147,7 +147,7 @@ static void     (APIENTRY * dllFlush) (void);
 static void     (APIENTRY * dllFrontFace) (GLenum mode);
 static void     (APIENTRY * dllGenTextures) (GLsizei n, GLuint * textures);
 static void     (APIENTRY * dllGetBooleanv) (GLenum pname, GLboolean * params);
-static void     (APIENTRY * dllGetDoublev) (GLenum pname, GLdouble * params);
+//static void     (APIENTRY * dllGetDoublev) (GLenum pname, GLdouble * params);
 
 GLenum(APIENTRY * dllGetError) (void);
 static void     (APIENTRY * dllGetFloatv) (GLenum pname, GLfloat * params);

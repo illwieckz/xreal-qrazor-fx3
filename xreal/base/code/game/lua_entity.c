@@ -145,7 +145,7 @@ static int entity_IsRocket(lua_State * L)
 
 	lent = lua_getentity(L, 1);
 
-	if(lent->e->classname == "rocket")
+	if(Q_stricmp(lent->e->classname, "rocket"))
 		rocket = qtrue;
 
 	lua_pushboolean(L, rocket);
@@ -159,7 +159,7 @@ static int entity_IsGrenade(lua_State * L)
 
 	lent = lua_getentity(L, 1);
 
-	if(lent->e->classname == "grenade")
+	if(Q_stricmp(lent->e->classname, "grenade"))
 		grenade = qtrue;
 
 	lua_pushboolean(L, grenade);

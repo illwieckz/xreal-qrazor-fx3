@@ -183,13 +183,8 @@ void CG_OSD_offset(void)
 	osd_group_t    *group;
 	osd_entry_t    *entry;
 
-	vec3_t          dir;
-	vec3_t          start;
-	vec3_t          dest;
-
-	float           step;
+	float           step = 0.f;
 	int             i, n;
-	float           offset;
 
 	if(cg.osd.curEntry)
 		step = (abs(cg.osd.curEntry->angle - 180)) / 15.0f;
@@ -245,9 +240,6 @@ void CG_OSD_offset(void)
 
 void CG_RegisterOSD(void)
 {
-	osd_group_t    *group;
-	osd_entry_t    *entry;
-
 	Com_Printf("----- registering OSD -----\n");
 
 	memset(&osdGroups, 0, sizeof(osd_group_t));
@@ -361,7 +353,7 @@ void CG_DrawOSD(void)
 				trap_R_SetColor(NULL);
 			}
 
-			s = va("%s", entry->caption, entry->angle);
+			s = va("%s %f", entry->caption, entry->angle);
 
 			CG_Text_PaintAligned(entry->endpos[0], entry->endpos[1], s, 0.3f, UI_CENTER | UI_DROPSHADOW, fontcolor,
 								 &cgs.media.freeSansBoldFont);

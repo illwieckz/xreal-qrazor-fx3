@@ -590,7 +590,7 @@ void            SCR_Text_PaintChar(float x, float y, float width, float height, 
 								   qhandle_t hShader);
 void            SCR_Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit,
 							   int style, const fontInfo_t * font);
-void            SCR_Text_PaintAligned(int x, int y, char *s, float scale, int style, const vec4_t color, const fontInfo_t * font);
+void            SCR_Text_PaintAligned(int x, int y, const char *s, float scale, int style, const vec4_t color, const fontInfo_t * font);
 void            SCR_Text_PaintSingleChar(float x, float y, float scale, const vec4_t color, int ch, float adjust, int limit,
 										 int style, const fontInfo_t * font);
 

@@ -705,7 +705,6 @@ RE_RegisterAnimation
 */
 qhandle_t RE_RegisterAnimation(const char *name)
 {
-	int             i, j;
 	qhandle_t       hAnim;
 	skelAnimation_t *anim;
 	char           *buffer;

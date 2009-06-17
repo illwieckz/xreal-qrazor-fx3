@@ -52,7 +52,7 @@ Returns false if the triangle is degenrate.
 The normal will point out of the clock for clockwise ordered points
 =====================
 */
-static qboolean CM_PlaneFromPoints(vec4_t plane, vec3_t a, vec3_t b, vec3_t c)
+static qboolean CM_PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c)
 {
 	vec3_t          d1, d2;
 
@@ -298,11 +298,11 @@ static int CM_FindPlane2(float plane[4], int *flipped)
 CM_FindPlane
 ==================
 */
-static int CM_FindPlane(float *p1, float *p2, float *p3)
+static int CM_FindPlane(const float *p1, const float *p2, const float *p3)
 {
 	float           plane[4];
 	int             i;
-	float           d;
+	//float           d;
 
 	if(!CM_PlaneFromPoints(plane, p1, p2, p3))
 	{
@@ -383,7 +383,7 @@ static int CM_PointOnPlaneSide(float *p, int planeNum)
 CM_TrianglePlane
 ==================
 */
-static int CM_TrianglePlane(int trianglePlanes[SHADER_MAX_TRIANGLES], int tri)
+/*static int CM_TrianglePlane(int trianglePlanes[SHADER_MAX_TRIANGLES], int tri)
 {
 	int             p;
 
@@ -397,7 +397,7 @@ static int CM_TrianglePlane(int trianglePlanes[SHADER_MAX_TRIANGLES], int tri)
 	// should never happen
 	Com_Printf("WARNING: CM_TrianglePlane unresolvable\n");
 	return -1;
-}
+}*/
 
 /*
 ==================
@@ -847,7 +847,6 @@ CM_GenerateFacetFor4Points
 qboolean CM_GenerateFacetFor4Points(cFacet_t * facet, const vec3_t p1, const vec3_t p2, const vec3_t p3, const vec3_t p4)
 {
 	float           dist;
-	int             i;
 	vec4_t          plane;
 
 	// if we can't generate a valid plane for the points, ignore the facet
@@ -893,12 +892,10 @@ CM_SurfaceCollideFromTriangleSoup
 static void CM_SurfaceCollideFromTriangleSoup(cTriangleSoup_t * triSoup, cSurfaceCollide_t * sc)
 {
 	int             i;
-	float          *p1, *p2, *p3, *p4;
-	int             i1, i2, i3, i4, i5, i6;
+	float          *p1, *p2, *p3;
+	int             i1, i2, i3;
 
 	cFacet_t       *facet;
-	int             borders[4];
-	int             noAdjust[4];
 
 	numPlanes = 0;
 	numFacets = 0;

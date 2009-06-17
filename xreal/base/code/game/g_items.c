@@ -745,7 +745,6 @@ void FinishSpawningItem(gentity_t * ent)
 {
 	trace_t         tr;
 	vec3_t          dest;
-	qboolean		suspended;
 
 	VectorSet(ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
 	VectorSet(ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);

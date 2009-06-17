@@ -889,19 +889,19 @@ typedef struct
 	qboolean		referenced;
 } skelTriangle_t;
 
-static int CompareBoneIndices(const void *a, const void *b)
+/*static int CompareBoneIndices(const void *a, const void *b)
 {
 	return *(int *)a - *(int *)b;
-}
+}*/
 
-static int CompareTrianglesByBoneReferences(const void *a, const void *b)
+/*static int CompareTrianglesByBoneReferences(const void *a, const void *b)
 {
-	int             i, j, k;
+	int             i, j;
 
 	skelTriangle_t *t1, *t2;
 	md5Vertex_t    *v1, *v2;
 	int				b1[MAX_BONES], b2[MAX_BONES];
-	int				s1, s2;
+	//int				s1, s2;
 
 	t1 = (skelTriangle_t *) *(void **)a;
 	t2 = (skelTriangle_t *) *(void **)b;
@@ -967,7 +967,7 @@ static int CompareTrianglesByBoneReferences(const void *a, const void *b)
 #endif
 
 	return 0;
-}
+}*/
 
 
 
@@ -1065,7 +1065,7 @@ static qboolean AddTriangleToVBOTriangleList(growList_t * vboTriangles, skelTria
 
 static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * vboTriangles, md5Model_t * md5, md5Surface_t * surf, int skinIndex, int numBoneReferences, int boneReferences[MAX_BONES])
 {
-	int				i, j, k;
+	int				j, k;
 
 	int             vertexesNum;
 	byte           *data;
@@ -1285,7 +1285,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 
 static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * vboTriangles, growList_t * vboVertexes, md5Model_t * md5, int skinIndex, const char *materialName, int numBoneReferences, int boneReferences[MAX_BONES])
 {
-	int				i, j, k;
+	int				j, k;
 
 	int             vertexesNum;
 	byte           *data;
@@ -1541,7 +1541,7 @@ R_LoadMD5
 */
 static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const char *modName)
 {
-	int             i, j, k, l;
+	int             i, j, k;
 	md5Model_t     *md5;
 	md5Bone_t      *bone;
 	md5Surface_t   *surf;
@@ -2239,7 +2239,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	axVertex_t     *vertex;
 	axVertex_t     *vertexes;
 
-	int				numSmoothGroups;
+	//int				numSmoothGroups;
 	int				numTriangles;
 	axTriangle_t   *triangle;
 	axTriangle_t   *triangles;
@@ -2262,7 +2262,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 
 	vec3_t          boneOrigin;
 	quat_t          boneQuat;
-	matrix_t        boneMat;
+	//matrix_t        boneMat;
 
 	int				materialIndex, oldMaterialIndex;
 

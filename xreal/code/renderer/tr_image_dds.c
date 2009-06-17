@@ -229,7 +229,7 @@ static void R_DecodeS3TCBlock(byte out[4][4][4], int bx, int by, int format, int
 	int             x, y;
 
 	int             blocksize;
-	const byte     *block_base, *color_base, *alpha_base;
+	const byte     *block_base, *color_base = NULL, *alpha_base = NULL;
 
 	uint16_t          c0, c1;
 	byte            rgba[4][4];
@@ -400,7 +400,7 @@ static void R_DecodeS3TCBlock(byte out[4][4][4], int bx, int by, int format, int
 	}
 }
 
-static void R_DecodeRGB565Block(byte out[4][4][4], int bx, int by, int format, int iw, int ih, const void *image_base)
+/*static void R_DecodeRGB565Block(byte out[4][4][4], int bx, int by, int format, int iw, int ih, const void *image_base)
 {
 	int             x, y;
 	const byte     *row;
@@ -427,7 +427,7 @@ static void R_DecodeRGB565Block(byte out[4][4][4], int bx, int by, int format, i
 
 		row += pitch;
 	}
-}
+}*/
 
 static void R_UploadEncodedImageDirect(GLenum target, int level, GLenum format, GLenum int_fmat, int width, int height,
 									   const void *data, void (*decoder) (byte out[4][4][4], int bx, int by, int format, int iw,

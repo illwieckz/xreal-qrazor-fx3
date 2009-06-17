@@ -101,7 +101,7 @@ void HSVtoRGB(float h, float s, float v, float rgb[3])
 R_ColorShiftLightingBytes
 ===============
 */
-static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
+/*static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
 {
 	int             shift, r, g, b;
 
@@ -129,14 +129,14 @@ static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
 	out[1] = g;
 	out[2] = b;
 	out[3] = in[3];
-}
+}*/
 
 /*
 ===============
 R_ColorShiftLightingFloats
 ===============
 */
-static void R_ColorShiftLightingFloats(const vec4_t in, vec4_t out)
+/*static void R_ColorShiftLightingFloats(const vec4_t in, vec4_t out)
 {
 	int             shift, r, g, b;
 
@@ -164,7 +164,7 @@ static void R_ColorShiftLightingFloats(const vec4_t in, vec4_t out)
 	out[1] = g * (1.0f / 255.0f);
 	out[2] = b * (1.0f / 255.0f);
 	out[3] = in[3];
-}
+}*/
 
 /*
 ===============
@@ -177,9 +177,9 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 	R_ColorShiftLightingFloats(in, out);
 #else
 	int             i;
-	float           scaledLuminance;
-	float           finalLuminance;
-	const vec3_t    LUMINANCE_VECTOR = { 0.2125f, 0.7154f, 0.0721f };
+	//float           scaledLuminance;
+	//float           finalLuminance;
+	//const vec3_t    LUMINANCE_VECTOR = { 0.2125f, 0.7154f, 0.0721f };
 	vec4_t          sample;
 
 
@@ -343,14 +343,14 @@ void LoadRGBEToFloats(const char *name, float **pic, int *width, int *height, qb
 	char           *token;
 	int             w, h, c;
 	qboolean        formatFound;
-	unsigned char   rgbe[4];
-	float           red;
-	float           green;
-	float           blue;
-	float           max;
-	float           inv, dif;
+	//unsigned char   rgbe[4];
+	//float           red;
+	//float           green;
+	//float           blue;
+	//float           max;
+	//float           inv, dif;
 	float           exposure = 1.6;
-	float           exposureGain = 1.0;
+	//float           exposureGain = 1.0;
 	const vec3_t    LUMINANCE_VECTOR = { 0.2125f, 0.7154f, 0.0721f };
 	float           luminance;
 	float           avgLuminance;
@@ -696,11 +696,11 @@ R_LoadLightmaps
 #define	LIGHTMAP_SIZE	128
 static void R_LoadLightmaps(lump_t * l, const char *bspName)
 {
-	byte           *buf, *buf_p;
+	//byte           *buf, *buf_p;
 	int             len;
 	image_t        *image;
-	static byte     data[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
-	int             i, j;
+	//static byte     data[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
+	int             i;
 	int             numLightmaps;
 
 	len = l->filelen;
@@ -953,7 +953,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			}
 		}
 	}
-#else defined(COMPAT_Q3A)
+#elif defined(COMPAT_Q3A)
 	else
 	{
 		int             i;
@@ -962,7 +962,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 		byte           *fatbuffer;
 		int             xoff, yoff, x, y;
-		float           scale = 0.9f;
+		//float           scale = 0.9f;
 
 		tr.fatLightmapSize = 2048;
 		tr.fatLightmapStep = 16;
@@ -1058,7 +1058,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 #endif
 }
 
-static float FatPackU(float input, int lightmapnum)
+/*static float FatPackU(float input, int lightmapnum)
 {
 	int             x = lightmapnum % tr.fatLightmapStep;
 
@@ -1071,7 +1071,7 @@ static float FatPackV(float input, int lightmapnum)
 	int             y = lightmapnum / ((float)tr.fatLightmapStep);
 
 	return (input / ((float)tr.fatLightmapStep)) + ((1.0 / ((float)tr.fatLightmapStep)) * (float)y);
-}
+}*/
 
 /*
 =================
@@ -2590,7 +2590,7 @@ static void CopyVert(const srfVert_t * in, srfVert_t * out)
 
 
 #define	EQUAL_EPSILON	0.001
-static qboolean CompareWorldVert(const srfVert_t * v1, const srfVert_t * v2)
+/*static qboolean CompareWorldVert(const srfVert_t * v1, const srfVert_t * v2)
 {
 	int             i;
 
@@ -2683,7 +2683,7 @@ static qboolean CompareShadowVert(const srfVert_t * v1, const srfVert_t * v2)
 	}
 
 	return qtrue;
-}
+}*/
 
 static qboolean CompareShadowVolumeVert(const srfVert_t * v1, const srfVert_t * v2)
 {
@@ -2699,7 +2699,7 @@ static qboolean CompareShadowVolumeVert(const srfVert_t * v1, const srfVert_t * 
 	return qtrue;
 }
 
-static qboolean CompareWorldVertSmoothNormal(const srfVert_t * v1, const srfVert_t * v2)
+/*static qboolean CompareWorldVertSmoothNormal(const srfVert_t * v1, const srfVert_t * v2)
 {
 	int             i;
 
@@ -2710,7 +2710,7 @@ static qboolean CompareWorldVertSmoothNormal(const srfVert_t * v1, const srfVert
 	}
 
 	return qtrue;
-}
+}*/
 
 /*
 remove duplicated / redundant vertices from a batch of vertices
@@ -2945,7 +2945,7 @@ static int OptimizeVertices(int numVerts, srfVert_t * verts, int numTriangles, s
 	}
 }
 
-static void OptimizeTriangles(int numVerts, srfVert_t * verts, int numTriangles, srfTriangle_t * triangles,
+/*static void OptimizeTriangles(int numVerts, srfVert_t * verts, int numTriangles, srfTriangle_t * triangles,
 							  qboolean(*compareVert) (const srfVert_t * v1, const srfVert_t * v2))
 {
 #if 1
@@ -2953,7 +2953,7 @@ static void OptimizeTriangles(int numVerts, srfVert_t * verts, int numTriangles,
 	int             i, j, k, l;
 	static int      redundantIndex[MAX_MAP_DRAW_VERTS];
 	static          qboolean(*compareFunction) (const srfVert_t * v1, const srfVert_t * v2) = NULL;
-	static int      minVertOld = 9999999, maxVertOld = 0;
+	//static int      minVertOld = 9999999, maxVertOld = 0;
 	int             minVert, maxVert;
 
 	if(numVerts >= MAX_MAP_DRAW_VERTS)
@@ -3055,7 +3055,7 @@ static void OptimizeTriangles(int numVerts, srfVert_t * verts, int numTriangles,
 
 	if(c_redundantVertexes)
 	{
-		//*numVerts -= c_redundantVertexes;
+		// *numVerts -= c_redundantVertexes;
 
 		//ri.Printf(PRINT_ALL, "removed %i redundant vertices\n", c_redundantVertexes);
 	}
@@ -3109,7 +3109,7 @@ static void BuildRedundantIndices(int numVerts, const srfVert_t * verts, int *re
 			}
 		}
 	}
-}
+}*/
 
 
 
@@ -4044,7 +4044,7 @@ static void R_CreateWorldVBO()
 //  int             numSurfaces;
 	bspSurface_t   *surface;
 
-	trRefLight_t   *light;
+//	trRefLight_t   *light;
 
 	int             startTime, endTime;
 
@@ -7567,12 +7567,12 @@ unsigned int VertexCoordGenerateHash(const vec3_t xyz)
 	xyz_epsilonspace[1] = (double)floor(xyz_epsilonspace[1]);
 	xyz_epsilonspace[2] = (double)floor(xyz_epsilonspace[2]);
 
-	hash += ~(*((unsigned int *)&xyz_epsilonspace[0]) << 15);
-	hash ^= (*((unsigned int *)&xyz_epsilonspace[0]) >> 10);
-	hash += (*((unsigned int *)&xyz_epsilonspace[1]) << 3);
-	hash ^= (*((unsigned int *)&xyz_epsilonspace[1]) >> 6);
-	hash += ~(*((unsigned int *)&xyz_epsilonspace[2]) << 11);
-	hash ^= (*((unsigned int *)&xyz_epsilonspace[2]) >> 16);
+	hash += ~({floatint_t __f; __f.f = xyz_epsilonspace[0]; __f.i << 15;});
+	hash ^= ({floatint_t __f; __f.f = xyz_epsilonspace[0]; __f.i >> 10;});
+	hash += ({floatint_t __f; __f.f = xyz_epsilonspace[1]; __f.i << 3;});
+	hash ^= ({floatint_t __f; __f.f = xyz_epsilonspace[1]; __f.i >> 6;});
+	hash += ~({floatint_t __f; __f.f = xyz_epsilonspace[2]; __f.i << 11;});
+	hash ^= ({floatint_t __f; __f.f = xyz_epsilonspace[2]; __f.i >> 16;});
 #endif
 
 	hash = (int)fabs(xyz[3]) / 8;
@@ -7733,12 +7733,12 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
 	GL_Bind(tr.autoCubeImage);
 }
 
-static void R_BuildCubeMaps(void)
+/*static void R_BuildCubeMaps(void)
 {
 #if 1
 	int             i, j, k;
 	int             ii, jj;
-	int             cl;
+	//int             cl;
 	refdef_t        rf;
 	qboolean        flipx;
 	qboolean        flipy;
@@ -7748,10 +7748,10 @@ static void R_BuildCubeMaps(void)
 	byte            temp[128 * 128 * 4];
 	byte           *dest;
 
-	bspCluster_t   *cluster;
+	//bspCluster_t   *cluster;
 
-	int             distance = 512;
-	qboolean        bad;
+	//int             distance = 512;
+	//qboolean        bad;
 
 //  srfSurfaceStatic_t *sv;
 	int				progress = 0;
@@ -8166,7 +8166,7 @@ static void R_BuildCubeMaps(void)
 			  (endTime - startTime) / 1000.0);
 
 #endif
-}
+}*/
 
 /*
 =================

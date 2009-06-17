@@ -928,7 +928,7 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 {
 	int             len, count;
 	vec4_t          newColor;
-	glyphInfo_t    *glyph;
+	const glyphInfo_t* glyph;
 	float           useScale;
 	vec4_t          drawColor;
 

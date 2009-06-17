@@ -161,7 +161,7 @@ ResampleSfxRaw
 resample / decimate to the current source rate
 ================
 */
-static int ResampleSfxRaw(short *sfx, int inrate, int inwidth, int samples, byte * data)
+/*static int ResampleSfxRaw(short *sfx, int inrate, int inwidth, int samples, byte * data)
 {
 	int             outcount;
 	int             srcsample;
@@ -191,7 +191,7 @@ static int ResampleSfxRaw(short *sfx, int inrate, int inwidth, int samples, byte
 		sfx[i] = sample;
 	}
 	return outcount;
-}
+}*/
 
 //=============================================================================
 

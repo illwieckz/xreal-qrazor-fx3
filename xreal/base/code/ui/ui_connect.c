@@ -231,7 +231,6 @@ void UI_DrawConnectScreen(qboolean overlay)
 	char           *s;
 	uiClientState_t cstate;
 	char            info[MAX_INFO_VALUE];
-	int             w;
 
 	Menu_Cache();
 

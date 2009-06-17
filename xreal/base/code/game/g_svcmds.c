@@ -495,10 +495,6 @@ ConsoleCommand
 qboolean ConsoleCommand(void)
 {
 	char            cmd[MAX_TOKEN_CHARS];
-	char            arg1[MAX_TOKEN_CHARS];
-	char            arg2[MAX_TOKEN_CHARS];
-
-//  char            arg3[MAX_TOKEN_CHARS];
 
 	trap_Argv(0, cmd, sizeof(cmd));
 

@@ -325,7 +325,6 @@ by the Calc_* functions
 */
 void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 {
-	int             i;
 	vec3_t          lightDir;
 	vec3_t          lightOrigin;
 	float           d;
@@ -933,7 +932,7 @@ R_AddEdgeToLightScissor
 static void R_AddEdgeToLightScissor(trRefLight_t * light, vec3_t local1, vec3_t local2)
 {
 	int             i;
-	vec3_t          intersect;
+	vec3_t          intersect = {0};
 	vec3_t          world1, world2;
 	qboolean        side1, side2;
 	cplane_t       *frust;

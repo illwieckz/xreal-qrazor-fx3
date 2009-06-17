@@ -896,7 +896,7 @@ void CG_NewClientInfo(int clientNum)
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
 		char            modelStr[MAX_QPATH];
-		char           *skin;
+		char           *skin = "";
 
 		if(cgs.gametype >= GT_TEAM)
 		{
@@ -1486,8 +1486,8 @@ static void CG_PlayerAngles(centity_t * cent, const vec3_t sourceAngles, vec3_t 
 {
 	float           dest;
 	static int      movementOffsets[8] = { 0, 22, 45, -22, 0, 22, -45, -22 };
-	vec3_t          velocity;
-	float           speed;
+	//vec3_t          velocity;
+	//float           speed;
 	int             dir, clientNum;
 	clientInfo_t   *ci;
 
@@ -1828,7 +1828,7 @@ void CG_DustTrail(centity_t * cent)
 CG_TrailItem
 ===============
 */
-static void CG_TrailItem(centity_t * cent, qhandle_t hModel, qhandle_t hSkin)
+/*static void CG_TrailItem(centity_t * cent, qhandle_t hModel, qhandle_t hSkin)
 {
 	refEntity_t     ent;
 	vec3_t          angles;
@@ -1848,7 +1848,7 @@ static void CG_TrailItem(centity_t * cent, qhandle_t hModel, qhandle_t hSkin)
 	ent.hModel = hModel;
 	ent.customSkin = hSkin;
 	trap_R_AddRefEntityToScene(&ent);
-}
+}*/
 
 
 /*
@@ -1863,7 +1863,6 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * body)
 	int             legsAnim, flagAnim, updateangles;
 	float           angle, d;
 	vec3_t          axis[3];
-	matrix_t		matrix;
 	int				boneIndex;
 
 	// show the flag model
@@ -2442,7 +2441,7 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 	{
 		refLight_t      light;
 		vec3_t          angles;
-		float			angle;
+		//float			angle;
 		vec3_t          projectionEnd;
 
 		vec3_t          ambientLight;
@@ -3071,9 +3070,6 @@ void CG_Player(centity_t * cent)
 	if(cent->currentState.eFlags & EF_KAMIKAZE)
 	{
 		refEntity_t     skull;
-		refEntity_t     powerup;
-		int             t;
-		float           c;
 		float           angle;
 		vec3_t          dir, angles;
 
@@ -3380,7 +3376,7 @@ void CG_DrawPlayerCollision(centity_t * cent, const vec3_t bodyOrigin, const mat
 	vec3_t          maxs;
 	float           extx, exty, extz;
 	vec3_t          corners[8];
-	matrix_t		rotation, transform;
+	matrix_t		transform;
 
 	if(!cg_drawPlayerCollision.integer)
 	{

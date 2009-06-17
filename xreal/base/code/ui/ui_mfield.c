@@ -377,8 +377,6 @@ void MenuField_Draw(menufield_s * f)
 	int             style;
 	qboolean        focus;
 	float          *color;
-	int             offset;
-	int             width;
 
 	x = f->generic.x;
 	y = f->generic.y;

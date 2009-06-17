@@ -224,7 +224,7 @@ void SavePNG(const char *name, const byte * pic, int width, int height, int numB
 	int             i;
 	int             row_stride;
 	byte           *buffer;
-	const byte     *row;
+	byte           *row;
 	png_bytep      *row_pointers;
 
 	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -279,7 +279,7 @@ void SavePNG(const char *name, const byte * pic, int width, int height, int numB
 	}
 
 	row_stride = width * numBytes;
-	row = pic + (height - 1) * row_stride;
+	row = (byte *)pic + (height - 1) * row_stride;
 
 	if(flip)
 	{

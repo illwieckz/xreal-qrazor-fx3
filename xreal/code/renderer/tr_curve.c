@@ -393,7 +393,7 @@ static int MakeMeshTriangles(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE
 	return numTriangles;
 }
 
-static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numTriangles,
+/*static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numTriangles,
 							  srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
 {
 	int             i, j;
@@ -503,7 +503,7 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 			VectorCopy(dv0->normal, dv1->normal);
 		}
 	}
-}
+}*/
 
 /*
 ============

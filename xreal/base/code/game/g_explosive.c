@@ -157,8 +157,6 @@ Fire entity
 */
 void SP_misc_fire(gentity_t * ent)
 {
-	char	*type;
-
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
 

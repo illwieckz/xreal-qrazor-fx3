@@ -913,6 +913,8 @@ voiceChatList_t *CG_VoiceChatListForClient(int clientNum)
 	}
 	// just return the first voice chat list
 	return &voiceChatLists[0];
+#else
+	return NULL;
 #endif
 }
 

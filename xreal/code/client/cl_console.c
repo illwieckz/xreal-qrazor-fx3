@@ -527,7 +527,6 @@ Draw the editline after a ] prompt
 */
 void Con_DrawInput(vec4_t color)
 {
-	int             y;
 	int             style;
 
 	if(cls.state != CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_CONSOLE))
@@ -673,20 +672,17 @@ void Con_DrawSolidConsole(float frac)
 	int             i, x, y;
 	int             rows;
 	short          *text;
-	char            buf[1024];
 	int             row;
 	int             lines;
 	int             currentColor;
 	vec4_t          color;
 	vec4_t          fontColor;
 	vec4_t          fontColorHighlight;
-	int             t, d;
 	char            displayTime[12];
 	char            displayDate[15];
 	qtime_t         tm;
 	qtime_t         dt;
 	float           alpha;
-	int             chr;
 	int             style;
 	int             rowOffset = 0;
 

@@ -751,7 +751,7 @@ void CG_FireEffect(vec3_t org, vec3_t mins, vec3_t maxs, float flameSize, int pa
 		p->endWidth = p->width / 4;
 
 		VectorCopy(org, p->org);
-		VectorRandom(p->org, mins, maxs);
+		VectorRandom(&p->org, mins, maxs);
 
 		p->vel[0] = crandom() * 25;
 		p->vel[1] = crandom() * 25;
@@ -805,7 +805,6 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 {
 	localEntity_t  *le;
 	refEntity_t	   *re;
-	int				i;
 
 	//Spawn debris ents
 	le = CG_AllocLocalEntity();
@@ -842,7 +841,7 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 	VectorCopy(origin, re->origin);
 	le->pos.trTime = cg.time;
 	//Randomly offset base within model bounds
-	VectorRandom(le->pos.trBase, mins, maxs);
+	VectorRandom(&le->pos.trBase, mins, maxs);
 
 	//Debug
 	//Com_Printf("...pos.trBase %f %f %f \n", le->pos.trBase[0], le->pos.trBase[1], le->pos.trBase[2]);
@@ -866,10 +865,9 @@ CG_ExplosiveDust
 Small particles and smoke
 ==================
 */
-CG_ExplosiveDust(vec3_t org, vec3_t mins, vec3_t maxs, int smokes, int dusts)
+void CG_ExplosiveDust(vec3_t org, vec3_t mins, vec3_t maxs, int smokes, int dusts)
 {
 	cparticle_t    *p;
-	vec3_t			debrisVel;
 	int i;
 
 	for(i=smokes; i > 0; i--)
@@ -904,7 +902,7 @@ CG_ExplosiveDust(vec3_t org, vec3_t mins, vec3_t maxs, int smokes, int dusts)
 		p->endWidth = p->width * 2;
 
 		VectorCopy(org, p->org);
-		VectorRandom(p->org, mins, maxs);
+		VectorRandom(&p->org, mins, maxs);
 
 		p->vel[0] = crandom() * 128;
 		p->vel[1] = crandom() * 128;
@@ -952,7 +950,7 @@ CG_ExplosiveDust(vec3_t org, vec3_t mins, vec3_t maxs, int smokes, int dusts)
 	}
 }
 
-CG_ExplosivePlaster(vec3_t org, vec3_t mins, vec3_t maxs, int plasters)
+void CG_ExplosivePlaster(vec3_t org, vec3_t mins, vec3_t maxs, int plasters)
 {
 	cparticle_t    *p;
 	int i;
@@ -1031,7 +1029,7 @@ void CG_ExplosiveSmoke(vec3_t org, vec3_t mins, vec3_t maxs, int smokes)
 		p->endWidth = p->width * 2;
 
 		VectorCopy(org, p->org);
-		VectorRandom(p->org, mins, maxs);
+		VectorRandom(&p->org, mins, maxs);
 
 		p->vel[0] = crandom() * 128;
 		p->vel[1] = crandom() * 128;
@@ -1068,8 +1066,6 @@ void CG_ExplosiveExplode(centity_t * cent)
 	vec3_t			mins, maxs;
 	int				i;
 	vec3_t			impactVel;
-	vec3_t			debrisAccel;
-	vec3_t			debrisVel;
 
 	// create an explosion
 	//le = CG_MakeExplosion(cent->lerpOrigin, cent->lerpOrigin, cgs.media.dishFlashModel, cgs.media.rocketExplosionShader, 600, qtrue);

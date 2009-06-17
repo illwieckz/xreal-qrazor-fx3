@@ -2871,7 +2871,7 @@ typedef struct
 	float           sawToothTable[FUNCTABLE_SIZE];
 	float           inverseSawToothTable[FUNCTABLE_SIZE];
 
-	int             occlusionQueryObjects[MAX_OCCLUSION_QUERIES];
+	unsigned int    occlusionQueryObjects[MAX_OCCLUSION_QUERIES];
 } trGlobals_t;
 
 extern const matrix_t quakeToOpenGLMatrix;

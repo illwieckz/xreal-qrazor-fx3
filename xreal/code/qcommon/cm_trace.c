@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // always use capsule vs. capsule collision and never capsule vs. bbox or vice versa
 //#define ALWAYS_CAPSULE_VS_CAPSULE
 
-#define CAPSULE_DEBUG
+//#define CAPSULE_DEBUG
 
 /*
 ===============================================================================
@@ -2604,7 +2604,7 @@ void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *poin
 	const cSurfaceCollide_t *pc;
 	cFacet_t       *facet;
 	winding_t      *w;
-	int             i, j, k, n;
+	int             i, j, k;
 	int             curplanenum, planenum, curinward, inward;
 	float           plane[4];
 

@@ -785,7 +785,7 @@ ClipVelocity
 Slide off of the impacting surface
 ==================
 */
-static void ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
+/*static void ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 {
 	float           backoff;
 	float           change;
@@ -807,7 +807,7 @@ static void ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 		change = normal[i] * backoff;
 		out[i] = in[i] - change;
 	}
-}
+}*/
 
 
 /*
@@ -1651,7 +1651,7 @@ void CG_ParticleBlood(vec3_t org, vec3_t dir, int count)
 {
 	int             i, j;
 	cparticle_t    *p;
-	float           d;
+	//float           d;
 	int             r;
 
 	if(!cg_blood.integer)
@@ -2356,7 +2356,7 @@ void CG_ParticleRocketFire(vec3_t start, vec3_t end)
 	float           len;
 	int             j;
 	cparticle_t    *p;
-	int             dec, cont;
+	int             dec;
 
 	VectorCopy(start, move);
 	VectorSubtract(end, start, vec);

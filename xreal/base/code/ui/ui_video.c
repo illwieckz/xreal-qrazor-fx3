@@ -1225,7 +1225,7 @@ GraphicsOptions_MenuInit
 */
 void GraphicsOptions_MenuInit(void)
 {
-	static const char *s_driver_names[] = {
+	/*static const char *s_driver_names[] = {
 		"Default",
 		"Voodoo",
 		NULL
@@ -1258,7 +1258,7 @@ void GraphicsOptions_MenuInit(void)
 		"16 bit",
 		"32 bit",
 		NULL
-	};
+	};*/
 
 	static const char *filter_names[] = {
 		"Bilinear",

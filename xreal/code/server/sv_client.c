@@ -959,7 +959,7 @@ void SV_WriteDownloadToClient(client_t * cl, msg_t * msg)
 			// cannot auto-download file
 			if(!(sv_allowDownload->integer & DLF_ENABLE) || (sv_allowDownload->integer & DLF_NO_UDP))
 			{
-				Com_Printf("clientDownload: %d : \"%s\" download disabled", cl - svs.clients, cl->downloadName);
+				Com_Printf("clientDownload: %d : \"%s\" download disabled", (int)(cl - svs.clients), cl->downloadName);
 				if(sv_pure->integer)
 				{
 					Com_sprintf(errorMessage, sizeof(errorMessage),

@@ -1273,7 +1273,7 @@ void LogExit(const char *string)
 {
 	int             i, numSorted;
 	gclient_t      *cl;
-#if 1
+#if 0
 	qboolean        won;
 #endif
 

@@ -124,10 +124,10 @@ typedef struct
 
 static playersettings_t s_playersettings;
 
-static int      gamecodetoui[] = { 4, 2, 3, 0, 5, 1, 6 };
-static int      uitogamecode[] = { 4, 6, 2, 3, 1, 5, 7 };
+//static int      gamecodetoui[] = { 4, 2, 3, 0, 5, 1, 6 };
+//static int      uitogamecode[] = { 4, 6, 2, 3, 1, 5, 7 };
 
-static const char *handicap_items[] = {
+/*static const char *handicap_items[] = {
 	"None",
 	"95",
 	"90",
@@ -149,7 +149,7 @@ static const char *handicap_items[] = {
 	"10",
 	"5",
 	0
-};
+};*/
 
 
 /*
@@ -157,7 +157,7 @@ static const char *handicap_items[] = {
 PlayerSettings_DrawEffects
 =================
 */
-static void PlayerSettings_DrawEffects(void *self)
+/*static void PlayerSettings_DrawEffects(void *self)
 {
 	menulist_s     *item;
 	qboolean        focus;
@@ -180,14 +180,14 @@ static void PlayerSettings_DrawEffects(void *self)
 	UI_DrawHandlePic(item->generic.x + 64, item->generic.y + PROP_HEIGHT + 8, 128, 8, s_playersettings.fxBasePic);
 	UI_DrawHandlePic(item->generic.x + 64 + item->curvalue * 16 + 8, item->generic.y + PROP_HEIGHT + 6, 16, 12,
 					 s_playersettings.fxPic[item->curvalue]);
-}
+}*/
 
 /*
 =================
 PlayerSettings_DrawSecondaryEffects
 =================
 */
-static void PlayerSettings_DrawSecondaryEffects(void *self)
+/*static void PlayerSettings_DrawSecondaryEffects(void *self)
 {
 	menulist_s     *item;
 
@@ -196,7 +196,7 @@ static void PlayerSettings_DrawSecondaryEffects(void *self)
 	UI_DrawHandlePic(item->generic.x + 64, item->generic.y + PROP_HEIGHT + 8, 128, 8, s_playersettings.fxBasePic);
 	UI_DrawHandlePic(item->generic.x + 64 + item->curvalue * 16 + 8, item->generic.y + PROP_HEIGHT + 6, 16, 12,
 					 s_playersettings.fxPic[item->curvalue]);
-}
+}*/
 
 /*
 =================
@@ -206,7 +206,6 @@ PlayerSettings_DrawPlayer
 static void PlayerSettings_DrawPlayer(void *self)
 {
 	menubitmap_s   *b;
-	vec3_t          viewangles;
 	char            buf[MAX_QPATH];
 	int             x, y, value, size;
 	vec4_t          color;
@@ -324,7 +323,6 @@ PlayerSettings_SetMenuItems
 static void PlayerSettings_SetMenuItems(void)
 {
 	vec3_t          viewangles;
-	int             c;
 	int             h;
 
 	// name
@@ -802,15 +800,15 @@ void PlayerSettings_Cache(void)
 	{
 
 		s_playersettings.crosshairDotShader[i] = trap_R_RegisterShaderNoMip(va("hud/crosshairs/dot%i", i + 1));
-		if(s_playersettings.crosshairDotShader[i] != NULL)
+		if(s_playersettings.crosshairDotShader[i])
 			numDot++;
 
 		s_playersettings.crosshairCircleShader[i] = trap_R_RegisterShaderNoMip(va("hud/crosshairs/circle%i", i + 1));
-		if(s_playersettings.crosshairCircleShader[i] != NULL)
+		if(s_playersettings.crosshairCircleShader[i])
 			numCircle++;
 
 		s_playersettings.crosshairCrossShader[i] = trap_R_RegisterShaderNoMip(va("hud/crosshairs/cross%i", i + 1));
-		if(s_playersettings.crosshairCrossShader[i] != NULL)
+		if(s_playersettings.crosshairCrossShader[i])
 			numCross++;
 
 	}

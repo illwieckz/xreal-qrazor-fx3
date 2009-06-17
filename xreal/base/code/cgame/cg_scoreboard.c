@@ -298,7 +298,7 @@ void CG_DrawScoreboardHeadlineNew(int pos[])
 void CG_DrawScoreboardUnderlineNew(void)
 {
 	const char     *s;
-	const char     *ts;
+	const char     *ts = "";
 	int             mins, seconds, tens;
 	int             msec;
 
@@ -503,7 +503,6 @@ void CG_DrawScoreboardStatNew(clientInfo_t * ci, score_t * score, int count, int
 
 qboolean CG_DrawScoreboardNew(void)
 {
-	int             x, y, w;
 	float           fade;
 	float          *fadeColor;
 	qtime_t         tm;

@@ -604,7 +604,7 @@ static void R_ModeList_f(void)
 						SCREEN SHOTS
 
 screenshots get written in fs_homepath + fs_gamedir
-.. base/screenshots/*.*
+.. base/screenshots\*.*
 
 three commands: "screenshot", "screenshotJPEG" and "screenshotPNG"
 
@@ -823,7 +823,7 @@ levelshots are specialized 128*128 thumbnails for
 the menu system, sampled down from full screen distorted images
 ====================
 */
-static void R_LevelShot(void)
+/*static void R_LevelShot(void)
 {
 	char            checkname[MAX_OSPATH];
 	byte           *buffer;
@@ -884,7 +884,7 @@ static void R_LevelShot(void)
 	ri.Hunk_FreeTempMemory(source);
 
 	ri.Printf(PRINT_ALL, "Wrote %s\n", checkname);
-}
+}*/
 
 static int QDECL MaterialNameCompare(const void *a, const void *b)
 {
@@ -1193,10 +1193,10 @@ GfxInfo_f
 */
 void GfxInfo_f(void)
 {
-	const char     *enablestrings[] = {
+	/*const char     *enablestrings[] = {
 		"disabled",
 		"enabled"
-	};
+	};*/
 	const char     *fsstrings[] = {
 		"windowed",
 		"fullscreen"

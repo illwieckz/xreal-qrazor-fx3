@@ -944,7 +944,7 @@ void G_HomingMissile(gentity_t * ent)
 	vec3_t          dir, blipdir;
 	vec_t           angle;
 	qboolean        chaff;
-	qboolean        ignorechaff = qfalse;
+	//qboolean        ignorechaff = qfalse;
 	const int		HOMING_THINK_TIME = 60;
 
 	// explode after 15 seconds without a hit
@@ -1493,10 +1493,10 @@ RailSphereDamage
 */
 static void RailSphereDamage(gentity_t * self)
 {
-	int             i;
+	//int             i;
 	float           t;
-	gentity_t      *ent;
-	vec3_t          newangles;
+	//gentity_t      *ent;
+	//vec3_t          newangles;
 	int				damage;
 
 	self->count += 100;

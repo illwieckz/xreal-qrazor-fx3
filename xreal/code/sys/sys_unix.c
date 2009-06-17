@@ -207,8 +207,9 @@ Sys_Cwd
 char           *Sys_Cwd(void)
 {
 	static char     cwd[MAX_OSPATH];
+	char *unused;
 
-	getcwd(cwd, sizeof(cwd) - 1);
+	unused = getcwd(cwd, sizeof(cwd) - 1);
 	cwd[MAX_OSPATH - 1] = 0;
 
 	return cwd;

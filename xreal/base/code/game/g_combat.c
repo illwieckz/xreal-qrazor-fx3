@@ -1049,7 +1049,7 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	}
 	else
 	{
-		VectorNormalize(dir);
+		VectorNormalize((float*)dir);
 	}
 
 	knockback = damage;
@@ -1261,6 +1261,7 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		}
 	}
 
+	return qfalse;
 }
 
 

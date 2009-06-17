@@ -493,7 +493,7 @@ void SP_target_relay(gentity_t * self)
 {
 	G_SpawnBoolean("red_only", "0", &self->red_only);
 	G_SpawnBoolean("blue_only", "0", &self->blue_only);
-	G_SpawnBoolean("random", "0", &self->random);
+	G_SpawnFloat("random", "0", &self->random);
 
 	self->use = target_relay_use;
 }

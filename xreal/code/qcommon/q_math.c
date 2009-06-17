@@ -464,6 +464,8 @@ qboolean PlanesGetIntersectionPoint(const vec4_t plane1, const vec4_t plane2, co
 	CrossProduct(n2, n3, n2n3);
 	CrossProduct(n3, n1, n3n1);
 
+	denom = DotProduct(n1, n2n3);
+
 	// check if the denominator is zero (which would mean that no intersection is to be found
 	if(denom == 0)
 	{
@@ -2124,7 +2126,7 @@ static float m3_det( matrix3x3_t mat )
   return( det );
 }
 
-static int m3_inverse( matrix3x3_t mr, matrix3x3_t ma )
+/*static int m3_inverse( matrix3x3_t mr, matrix3x3_t ma )
 {
   float det = m3_det( ma );
 
@@ -2147,7 +2149,7 @@ static int m3_inverse( matrix3x3_t mr, matrix3x3_t ma )
   mr[8] =    ma[0]*ma[4] - ma[1]*ma[3]   / det;
 
   return 0;
-}
+}*/
 
 static void m4_submat( matrix_t mr, matrix3x3_t mb, int i, int j )
 {

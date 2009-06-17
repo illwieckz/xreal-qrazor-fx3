@@ -42,9 +42,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define COAST_TIME				1000
 
 
-static int dp_realtime;
-
-
 /*
 ===============
 UI_DrawPlayer
@@ -61,7 +58,7 @@ void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int ti
 UI_RegisterClientSkin
 ==========================
 */
-static qboolean UI_RegisterClientSkin(playerInfo_t * pi, const char *modelName, const char *skinName)
+/*static qboolean UI_RegisterClientSkin(playerInfo_t * pi, const char *modelName, const char *skinName)
 {
 	char            filename[MAX_QPATH];
 
@@ -80,7 +77,7 @@ static qboolean UI_RegisterClientSkin(playerInfo_t * pi, const char *modelName, 
 	}
 
 	return qtrue;
-}
+}*/
 
 
 /*
@@ -92,7 +89,6 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 {
 	char            modelName[MAX_QPATH];
 	char            skinName[MAX_QPATH];
-	char            filename[MAX_QPATH];
 	char           *slash;
 
 	pi->torsoModel = 0;

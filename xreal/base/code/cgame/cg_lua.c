@@ -46,8 +46,8 @@ void CG_InitLua()
 	char           *dirptr;
 	int             i;
 	int             dirlen;
-	vec3_t          in;
-	float           out;
+	//vec3_t          in;
+	//float           out;
 
 	CG_Printf("------- CGame Lua Initialization -------\n");
 
@@ -170,7 +170,7 @@ void CG_RunLuaFunction(const char *func, const char *sig, ...)
 		{
 			case 'f':
 				// float argument
-				lua_pushnumber(L, va_arg(vl, float));
+				lua_pushnumber(L, va_arg(vl, double));
 
 				break;
 

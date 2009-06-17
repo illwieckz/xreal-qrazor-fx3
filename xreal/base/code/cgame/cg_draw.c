@@ -145,7 +145,7 @@ void CG_Text_Paint(float x, float y, float scale, const vec4_t color, const char
 {
 	int             len, count;
 	vec4_t          newColor;
-	glyphInfo_t    *glyph;
+	const glyphInfo_t *glyph;
 	float           useScale;
 
 	useScale = scale * font->glyphScale;
@@ -457,11 +457,7 @@ Used for both the status bar and the scoreboard
 */
 void CG_DrawHead(float x, float y, float w, float h, int clientNum, vec3_t headAngles)
 {
-	clipHandle_t    cm;
 	clientInfo_t   *ci;
-	float           len;
-	vec3_t          origin;
-	vec3_t          mins, maxs;
 
 	ci = &cgs.clientinfo[clientNum];
 
@@ -1068,7 +1064,6 @@ void CG_DrawStatusBarNew(void)
 	int             score;
 
 	char           *s;
-	int             w, h;
 	int             mins, seconds, tens;
 	int             msec;
 
@@ -1448,7 +1443,6 @@ void CG_DrawStatusBarNew(void)
 	if(cgs.gametype == GT_HARVESTER)
 	{
 #if 1
-		vec4_t          hcolor;
 		vec3_t          angles;
 		vec3_t          origin;
 		qhandle_t       model;
@@ -1811,7 +1805,6 @@ static float CG_DrawFPS(float y)
 	int             fps;
 	static int      previous;
 	int             t, frameTime;
-	vec4_t          basecolor;
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
@@ -1853,7 +1846,6 @@ CG_DrawTimer
 static float CG_DrawTimer(float y)
 {
 	char           *s;
-	int             w;
 	int             mins, seconds, tens;
 	int             msec;
 
@@ -2800,7 +2792,6 @@ static void CG_DrawLagometer(void)
 	int             color;
 	float           vscale;
 	qboolean		lag = qfalse;
-	int				dist;
 	vec4_t          basecolor;
 	vec4_t          fadecolor;
 
@@ -3096,7 +3087,7 @@ void CG_DrawCrosshairNew(void)
 
 	if(cg_crosshairDot.integer <= 0)	// no dot
 	{
-		dot = NULL;
+		dot = 0;
 	}
 	else
 	{
@@ -3105,7 +3096,7 @@ void CG_DrawCrosshairNew(void)
 
 	if(cg_crosshairCircle.integer <= 0)	// no circle
 	{
-		circle = NULL;
+		circle = 0;
 	}
 	else
 	{
@@ -3114,7 +3105,7 @@ void CG_DrawCrosshairNew(void)
 
 	if(cg_crosshairCross.integer <= 0)	// no cross
 	{
-		cross = NULL;
+		cross = 0;
 	}
 	else
 	{
@@ -3566,7 +3557,6 @@ CG_DrawWarmup
 */
 static void CG_DrawWarmup(void)
 {
-	int             w;
 	int             sec;
 	int             i;
 	float           scale;
@@ -3737,7 +3727,6 @@ int             highPeak = 0;
 static int debugSystem(int x, int y)
 {
 	char           *s;
-	int             w;
 	int             mins, seconds, tens;
 	int             msec;
 	static int      previousTimes[FPS_FRAMES];
@@ -3813,7 +3802,6 @@ static int debugSystem(int x, int y)
 
 static void CG_DrawDebug(void)
 {
-	char           *s;
 	int             x = 5;
 	int             y = 140;
 

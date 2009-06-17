@@ -387,10 +387,8 @@ void ACEMV_MoveToGoal(gentity_t * self)
 // Main movement code. (following node path)
 void ACEMV_Move(gentity_t * self)
 {
-	vec3_t          dist;
 	int             currentNodeType = -1;
 	int             nextNodeType = -1;
-	int             i;
 
 	// get current and next node back from nav code.
 	if(!ACEND_FollowPath(self))
@@ -577,8 +575,6 @@ void ACEMV_Wander(gentity_t * self)
 	// touched jumppad last Frame?
 	if(self->s.groundEntityNum == ENTITYNUM_NONE)
 	{
-		vec3_t          currentSpeed;
-
 		if(VectorLength(self->client->ps.velocity) > 120)
 		{
 			VectorNormalize2(self->client->ps.velocity, tmp);
@@ -700,10 +696,9 @@ void ACEMV_Attack(gentity_t * self)
 	float           c;
 	vec3_t          target, forward, right, up;
 	float           distance;
-	vec3_t          angles;
 	vec3_t          oldAimVec;
 	float           aimTremble[2] = { 0.11, 0.11 };
-	float           slowness = 0.35;	//lower is slower
+	//float           slowness = 0.35;	//lower is slower
 
 	// randomly choose a movement direction
 	c = random();

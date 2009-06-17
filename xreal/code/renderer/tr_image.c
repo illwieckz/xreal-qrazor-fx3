@@ -3040,7 +3040,7 @@ void R_CreateBuiltinImages(void)
 		tr.scratchImage[x] = R_CreateImage("_scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NONE, FT_LINEAR, WT_CLAMP);
 	}
 
-	out = data;
+	out = &data[0][0][0];
 	for(y = 0; y < 8; y++)
 	{
 		for(x = 0; x < 32; x++, out += 4)
@@ -3256,6 +3256,8 @@ void R_ShutdownImages(void)
 	Com_DestroyGrowList(&tr.lightmaps);
 	Com_DestroyGrowList(&tr.deluxemaps);
 	Com_DestroyGrowList(&tr.cubeProbes);
+
+	void FreeVertexHashTable(vertexHash_t ** hashTable);
 	FreeVertexHashTable(tr.cubeHashTable);
 }
 

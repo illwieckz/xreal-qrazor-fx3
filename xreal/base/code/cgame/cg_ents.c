@@ -117,6 +117,8 @@ qboolean CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t 
 	// had to cast away the const to avoid compiler problems...
 	AxisMultiply(entity->axis, lerped.axis, tempAxis);
 	AxisMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
+
+	return qtrue;
 }
 
 
@@ -988,7 +990,7 @@ static void CG_AI_Node(centity_t * cent)
 {
 	refEntity_t     ent;
 	vec3_t          origin, delta, dir, vec, up = { 0, 0, 1 };
-	float           c, len;
+	float           len;
 	int             i, node, digits[10], numdigits, negative;
 	int             numberSize = 8;
 

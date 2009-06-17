@@ -300,9 +300,7 @@ int SCR_Text_Height(const char *text, float scale, int limit, const fontInfo_t *
 void SCR_Text_PaintSingleChar(float x, float y, float scale, const vec4_t color, int ch, float adjust, int limit, int style,
 							  const fontInfo_t * font)
 {
-	int             len, count;
-	vec4_t          newColor;
-	glyphInfo_t    *glyph;
+	const glyphInfo_t *glyph;
 	float           useScale;
 	float           yadj;
 
@@ -363,7 +361,7 @@ void SCR_Text_Paint(float x, float y, float scale, const vec4_t color, const cha
 {
 	int             len, count;
 	vec4_t          newColor;
-	glyphInfo_t    *glyph;
+	const glyphInfo_t *glyph;
 	float           useScale;
 
 	useScale = scale * font->glyphScale;
@@ -423,7 +421,7 @@ void SCR_Text_Paint(float x, float y, float scale, const vec4_t color, const cha
 }
 
 
-void SCR_Text_PaintAligned(int x, int y, char *s, float scale, int style, const vec4_t color, const fontInfo_t * font)
+void SCR_Text_PaintAligned(int x, int y, const char *s, float scale, int style, const vec4_t color, const fontInfo_t * font)
 {
 	int             w, h;
 
@@ -460,7 +458,7 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void SCR_DrawStringExt(int x, int y, float size, const char *string, float *setColor, qboolean forceColor, qboolean noColorEscape)
+static void SCR_DrawStringExt(int x, int y, float size, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape)
 {
 	vec4_t          color;
 	const char     *s;

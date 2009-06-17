@@ -1429,11 +1429,12 @@ char           *Q_strrchr(const char *string, int c)
 qboolean Q_isanumber(const char *s)
 {
 	char           *p;
+	double         unused;
 
 	if(*s == '\0')
 		return qfalse;
 
-	(float)strtod(s, &p);
+	unused = strtod(s, &p);
 
 	return *p == '\0';
 }

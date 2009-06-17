@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 CG_MachineGunEjectBrass
 ==========================
 */
-static void CG_MachineGunEjectBrass(centity_t * cent)
+/*static void CG_MachineGunEjectBrass(centity_t * cent)
 {
 	localEntity_t  *le;
 	refEntity_t    *re;
@@ -110,7 +110,7 @@ static void CG_MachineGunEjectBrass(centity_t * cent)
 	le->leFlags = LEF_TUMBLE;
 	le->leBounceSoundType = LEBS_BRASS;
 	le->leMarkType = LEMT_NONE;
-}
+}*/
 
 /*
 ==========================
@@ -553,7 +553,7 @@ static void CG_NailTrail(centity_t * ent, const weaponInfo_t * wi)
 CG_PlasmaTrail
 ==========================
 */
-static void CG_PlasmaTrail(centity_t * cent, const weaponInfo_t * wi)
+/*static void CG_PlasmaTrail(centity_t * cent, const weaponInfo_t * wi)
 {
 	localEntity_t  *le;
 	refEntity_t    *re;
@@ -643,7 +643,7 @@ static void CG_PlasmaTrail(centity_t * cent, const weaponInfo_t * wi)
 	le->angles.trDelta[1] = 0.5;
 	le->angles.trDelta[2] = 0;
 
-}
+}*/
 
 /*
 ==========================
@@ -1480,7 +1480,7 @@ static void CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles)
 JUHOX: CG_CurvedLine
 ===============
 */
-static void CG_CurvedLine(const vec3_t start, const vec3_t end, const vec3_t startDir,
+/*static void CG_CurvedLine(const vec3_t start, const vec3_t end, const vec3_t startDir,
 						  qhandle_t shader, float segmentLen, float scrollSpeed)
 {
 	float           dist;
@@ -1517,7 +1517,7 @@ static void CG_CurvedLine(const vec3_t start, const vec3_t end, const vec3_t sta
 
 		VectorCopy(nextPos, currentPos);
 	}
-}
+}*/
 
 /*
 ===============
@@ -1619,8 +1619,6 @@ refEntity_t     beam;
 #else
 	trace_t         trace;
 	refEntity_t     beam;
-	vec3_t			randomAngles;
-	float			angle;
 	vec3_t          forward, right, up;
 	vec3_t          muzzlePoint, endPoint;
 	vec3_t			surfNormal;
@@ -2353,11 +2351,10 @@ CG_DrawWeaponSelectNew
 
 void CG_DrawWeaponSelectNew(void)
 {
-	int             i, n;
+	int             i;
 	int             bits;
 	int             count;
-	int             x, y, w;
-	char           *name;
+	int             x, y;
 	float          *color;
 	vec4_t          fadecolor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float           dist;

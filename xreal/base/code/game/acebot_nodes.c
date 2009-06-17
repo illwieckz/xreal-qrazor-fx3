@@ -120,7 +120,7 @@ int ACEND_FindClosestReachableNode(gentity_t * self, float range, int type)
 	int             node = INVALID;
 	vec3_t          v;
 	trace_t         tr;
-	float           rng;
+	//float           rng;
 	vec3_t          maxs, mins;
 
 	VectorCopy(self->r.mins, mins);
@@ -271,8 +271,8 @@ void ACEND_PathMap(gentity_t * self)
 	int             closestNode;
 	static float    lastUpdate = 0;	// start off low
 	vec3_t          v;
-	qboolean        isJumping;
-	int             i;
+	//qboolean        isJumping;
+	//int             i;
 
 #if 0
 	if(level.time < lastUpdate)
@@ -508,7 +508,7 @@ void ACEND_ShowPath(gentity_t * self, int goalNode)
 
 int ACEND_AddNode(gentity_t * self, int type)
 {
-	vec3_t          v, v1, v2;
+	vec3_t          v, v2;
 	const char     *entityName;
 
 	// block if we exceed maximum

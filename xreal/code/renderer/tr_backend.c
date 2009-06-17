@@ -6235,7 +6235,6 @@ static void RB_RenderDebugUtils()
 		int             iaCount, j;
 		trRefLight_t   *light;
 		vec3_t          forward, left, up;
-		vec4_t          tmp;
 		vec4_t          lightColor;
 		vec4_t          quadVerts[4];
 
@@ -7080,7 +7079,6 @@ static void RB_RenderDebugUtils()
 		cubemapProbe_t *cubeProbe;
 		int             j;
 		vec4_t          quadVerts[4];
-		vec4_t			plane;
 		vec3_t			mins = {-8, -8, -8};
 		vec3_t			maxs = { 8,  8,  8};
 		vec3_t			viewOrigin;

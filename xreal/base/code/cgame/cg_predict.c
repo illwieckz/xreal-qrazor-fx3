@@ -93,7 +93,7 @@ static void CG_ClipMoveToEntities(const vec3_t start, const vec3_t mins,
 								  const vec3_t maxs, const vec3_t end, int skipNumber,
 								  int mask, trace_t * tr, traceType_t collisionType)
 {
-	int             i, j, x, zd, zu;
+	int             i, x, zd, zu;
 	trace_t         trace;
 	entityState_t  *ent;
 	clipHandle_t    cmodel;

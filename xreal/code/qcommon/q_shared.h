@@ -554,10 +554,11 @@ static ID_INLINE float Q_fabs(float x)
  	asm("fabs %0, %1" : "=f" (abs_x) : "f" (x));
 	return abs_x;
 #else
-	int             tmp = *(int *)&x;
+	floatint_t      tmp;
 
-	tmp &= 0x7FFFFFFF;
-	return *(float *)&tmp;
+	tmp.f = x;
+	tmp.i &= 0x7FFFFFFF;
+	return tmp.f;
 #endif
 }
 

@@ -221,7 +221,7 @@ Main drawing function
 */
 static void ScrollingCredits_Draw(void)
 {
-	int             x = 320, y, n, ysize = 0, fadetime = 0;
+	int             x = 320, y, n;
 	float           textScale = 0.25f;
 	vec4_t          color;
 	float           textZoom;

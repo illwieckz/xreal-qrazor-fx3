@@ -159,9 +159,9 @@ static void Preferences_Event(void *ptr, int notification)
 Crosshair_Draw
 =================
 */
-static void Crosshair_Draw(void *self)
+/*static void Crosshair_Draw(void *self)
 {
-/*	menulist_s     *s;
+	menulist_s     *s;
 	float          *color;
 	int             x, y;
 	int             style;
@@ -204,13 +204,12 @@ static void Crosshair_Draw(void *self)
 	}
 	UI_DrawHandlePic(x + SMALLCHAR_WIDTH, y - 4, 24, 24, s_preferences.crosshairDotShader[s->curvalue-1]);
 
-*/
-}
+}*/
 
 
 static void Preferences_MenuInit(void)
 {
-	int             y, x;
+	int             y;
 
 	memset(&s_preferences, 0, sizeof(preferences_t));
 
@@ -388,8 +387,6 @@ Preferences_Cache
 */
 void Preferences_Cache(void)
 {
-	int             i;
-
 	//trap_R_RegisterShaderNoMip(ART_FRAMEL);
 	//trap_R_RegisterShaderNoMip(ART_FRAMER);
 
