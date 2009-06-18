@@ -32,7 +32,7 @@ textures/hipshot_sky/stormydays
 	sky
 	nolightmap
 
-	xmap_sun 1 1 0.7 2000 315 45
+	xmap_sun 1 1 0.7 500 315 45
 
 	{ 
 		stage skyboxMap
