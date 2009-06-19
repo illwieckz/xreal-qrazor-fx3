@@ -2,10 +2,6 @@ textures/odin/walls/rockwall1
 {
 	qer_editorImage	textures/odin/walls/rockwall1_d.png
 
-	xmap_shadeAngle	180
-	xmap_lightmapMergable
-	xmap_nonPlanar
-
 	diffuseMap	textures/odin/walls/rockwall1_d.png
 	bumpMap		heightMap(textures/odin/walls/rockwall1_local.png, addNormals(textures/odin/walls/rockwall1_h.png))
 	specularMap	textures/odin/walls/rockwall1_d.png
@@ -14,10 +10,6 @@ textures/odin/walls/rockwall1
 textures/odin/walls/rockwall2
 {
 	qer_editorImage	textures/odin/walls/rockwall2_d.png
-
-	xmap_shadeAngle	180
-	xmap_lightmapMergable
-	xmap_nonPlanar
 
 	diffuseMap	textures/odin/walls/rockwall2_d.png
 	bumpMap		textures/odin/walls/rockwall2_local.png
@@ -28,10 +20,6 @@ textures/odin/walls/rockwall3
 {
 	qer_editorImage	textures/odin/walls/rockwall3_d.png
 
-	xmap_shadeAngle	180
-	xmap_lightmapMergable
-	xmap_nonPlanar
-
 	diffuseMap	textures/odin/walls/rockwall3_d.png
 	bumpMap		displacemap(heightMap(textures/odin/walls/rockwall3_local.png, addNormals(textures/odin/walls/rockwall3_h.png)), invertColor(textures/odin/walls/rockwall3_disp.png))
 	specularMap	textures/odin/walls/rockwall3_s.png
@@ -40,10 +28,6 @@ textures/odin/walls/rockwall3
 textures/odin/walls/rockwall4
 {
 	qer_editorImage	textures/odin/walls/rockwall4_d.png
-
-	xmap_shadeAngle	180
-	xmap_lightmapMergable
-	xmap_nonPlanar
 
 	diffuseMap	textures/odin/walls/rockwall4_d.png
 	bumpMap		heightMap(textures/odin/walls/rockwall4_local.png, addNormals(textures/odin/walls/rockwall4_h.png))
