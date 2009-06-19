@@ -1,0 +1,90 @@
+textures/odin/walls/rockwall1
+{
+	qer_editorImage	textures/odin/walls/rockwall1_d.png
+
+	xmap_shadeAngle	180
+	xmap_lightmapMergable
+	xmap_nonPlanar
+
+	diffuseMap	textures/odin/walls/rockwall1_d.png
+	bumpMap		heightMap(textures/odin/walls/rockwall1_local.png, addNormals(textures/odin/walls/rockwall1_h.png))
+	specularMap	textures/odin/walls/rockwall1_d.png
+}
+
+textures/odin/walls/rockwall2
+{
+	qer_editorImage	textures/odin/walls/rockwall2_d.png
+
+	xmap_shadeAngle	180
+	xmap_lightmapMergable
+	xmap_nonPlanar
+
+	diffuseMap	textures/odin/walls/rockwall2_d.png
+	bumpMap		textures/odin/walls/rockwall2_local.png
+	specularMap	textures/odin/walls/rockwall2_d.png
+}
+
+textures/odin/walls/rockwall3
+{
+	qer_editorImage	textures/odin/walls/rockwall3_d.png
+
+	xmap_shadeAngle	180
+	xmap_lightmapMergable
+	xmap_nonPlanar
+
+	diffuseMap	textures/odin/walls/rockwall3_d.png
+	bumpMap		displacemap(heightMap(textures/odin/walls/rockwall3_local.png, addNormals(textures/odin/walls/rockwall3_h.png)), invertColor(textures/odin/walls/rockwall3_disp.png))
+	specularMap	textures/odin/walls/rockwall3_s.png
+}
+
+textures/odin/walls/rockwall4
+{
+	qer_editorImage	textures/odin/walls/rockwall4_d.png
+
+	parallax
+
+	xmap_shadeAngle	180
+	xmap_lightmapMergable
+	xmap_nonPlanar
+
+	{
+		stage		diffuseMap
+		map		textures/odin/walls/rockwall4_d.png
+		depthScale	-0.02
+	}
+
+	bumpMap		textures/odin/walls/rockwall4_local.png
+	specularMap	textures/odin/walls/rockwall4_s.png
+}
+
+textures/odin/walls/m_rustywall1.png
+{
+	qer_editorImage	textures/odin/walls/m_rustywall1.png
+	diffuseMap	textures/odin/walls/m_rustywall1.png
+	specularMap	textures/odin/walls/m_rustywall1_s.png
+	normalMap	textures/odin/walls/m_rustywall1_local.png
+}
+
+textures/odin/walls/m_rustywall2.png
+{
+	qer_editorImage	textures/odin/walls/m_rustywall2.png
+	diffuseMap	textures/odin/walls/m_rustywall2.png
+	specularMap	textures/odin/walls/m_rustywall2.png
+	bumpMap		textures/odin/walls/m_rustywall2.png
+}
+
+textures/odin/walls/m_rustywall3.png
+{
+	qer_editorImage	textures/odin/walls/m_rustywall3.png
+	diffuseMap	textures/odin/walls/m_rustywall3.png
+	specularMap	textures/odin/walls/m_rustywall3.png
+	bumpMap		textures/odin/walls/m_rustywall3.png
+}
+
+textures/odin/walls/m_rustywall4.png
+{
+	qer_editorImage	textures/odin/walls/m_rustywall4.png
+	diffuseMap	textures/odin/walls/m_rustywall4.png
+	specularMap	textures/odin/walls/m_rustywall4.png
+	bumpMap		textures/odin/walls/m_rustywall4.png
+}
