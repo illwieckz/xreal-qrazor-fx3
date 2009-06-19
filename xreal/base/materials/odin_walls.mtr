@@ -41,19 +41,12 @@ textures/odin/walls/rockwall4
 {
 	qer_editorImage	textures/odin/walls/rockwall4_d.png
 
-	parallax
-
 	xmap_shadeAngle	180
 	xmap_lightmapMergable
 	xmap_nonPlanar
 
-	{
-		stage		diffuseMap
-		map		textures/odin/walls/rockwall4_d.png
-		depthScale	-0.02
-	}
-
-	bumpMap		textures/odin/walls/rockwall4_local.png
+	diffuseMap	textures/odin/walls/rockwall4_d.png
+	bumpMap		heightMap(textures/odin/walls/rockwall4_local.png, addNormals(textures/odin/walls/rockwall4_h.png))
 	specularMap	textures/odin/walls/rockwall4_s.png
 }
 
