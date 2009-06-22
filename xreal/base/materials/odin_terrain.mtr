@@ -6,8 +6,10 @@ textures/odin/terrain/cobbleroad1
 	xmap_lightmapMergable
 	xmap_nonPlanar
 
+	parallax
+
 	diffuseMap	textures/odin/terrain/cobbleroad1_d.png
-	bumpMap		heightMap(textures/odin/terrain/cobbleroad1_local.png, addNormals(textures/odin/terrain/cobbleroad1_h.png))
+	normalMap	textures/odin/terrain/cobbleroad1_local.png
 	specularMap	textures/odin/terrain/cobbleroad1_s.png
 }
 

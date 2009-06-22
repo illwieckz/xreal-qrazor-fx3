@@ -29,8 +29,14 @@ textures/odin/walls/rockwall4
 {
 	qer_editorImage	textures/odin/walls/rockwall4_d.png
 
-	diffuseMap	textures/odin/walls/rockwall4_d.png
-	bumpMap		heightMap(textures/odin/walls/rockwall4_local.png, addNormals(textures/odin/walls/rockwall4_h.png))
+	parallax
+
+	{
+		stage		diffuseMap
+		map		textures/odin/walls/rockwall4_d.png
+		depthScale	-0.05
+	}
+	normalMap	textures/odin/walls/rockwall4_local.png
 	specularMap	textures/odin/walls/rockwall4_s.png
 }
 
