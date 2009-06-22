@@ -39,8 +39,9 @@ raedwulf_water
 raynorpat
 #reflex_base
 #reflex_castle
-#reflex_decals
+reflex_decals
 #reflex_dmc
+reflex_lights
 reflex_layout
 reflex_mapobject
 #reflex_sfx

@@ -1,0 +1,42 @@
+
+textures/reflex/skies/hallucion
+{
+	qer_editorimage	cubemaps/reflex/hallucion_bk
+	
+	xmap_sun 0.64 0.61 0.70 250 36 66
+
+	noimpact 
+	nolightmap
+      sky
+
+	{
+		stage skyboxMap
+		forceHighQuality
+		cubeMap	cubemaps/reflex/hallucion
+	}
+}
+
+textures/reflex/skies/nebula01
+{
+	qer_editorimage	textures/reflex/skies/nebula01
+	
+	xmap_sun 0.64 0.61 0.40 320 36 66
+
+	noimpact 
+	nolightmap
+      sky
+      skyparms - 1200 -
+
+	{
+		forceHighQuality
+		//blend      add
+		map    textures/reflex/skies/nebula01
+		scroll    time * 0.02, time* 0.01
+	}
+	{
+		forceHighQuality
+		blend      add
+		map    textures/reflex/skies/nebula01_add
+		scroll    time * 0.01, time* 0.02
+	}
+}

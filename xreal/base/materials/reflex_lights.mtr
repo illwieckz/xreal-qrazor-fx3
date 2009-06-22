@@ -1,0 +1,60 @@
+
+textures/reflex/lights/strim01_orange
+{
+    qer_editorimage  textures/reflex/lights/strim01
+    
+    xmap_surfaceLight 4000
+	xmap_lightRGB 0.94 0.57 0.13
+	xmap_lightImage textures/reflex/lights/strim01_glow
+      xmap_lightSubdivide 16
+	 
+    diffusemap       textures/reflex/lights/strim01
+    bumpmap          textures/reflex/lights/strim01_local
+    specularMap      textures/reflex/lights/strim01_spec
+
+	{
+		blend		add
+		map	      textures/reflex/lights/strim01_glow
+        color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
+	}
+}
+
+textures/reflex/lights/strim01_blue
+{
+    qer_editorimage  textures/reflex/lights/strim01
+    
+    xmap_surfaceLight 4000
+	xmap_lightRGB 0.40 0.52 0.70
+	xmap_lightImage textures/reflex/lights/strim01_glow
+      xmap_lightSubdivide 16
+	 
+    diffusemap       textures/reflex/lights/strim01
+    bumpmap          textures/reflex/lights/strim01_local
+    specularMap      textures/reflex/lights/strim01_spec
+
+	{
+		blend		add
+		map	      textures/reflex/lights/strim01_glow
+        color       0.40 * (jitter5 [time * 2]), 0.52 * (jitter5 [time * 2]), 0.70* (jitter5 [time * 2]), 1.0
+	}
+}
+
+textures/reflex/lights/light01_orange
+{
+    xmap_surfaceLight 6000
+    xmap_lightRGB 0.94 0.57 0.13
+    xmap_lightImage textures/reflex/lights/light01_glow
+        xmap_lightSubdivide 16
+
+    qer_editorimage  textures/reflex/lights/light01.tga
+    diffusemap       textures/reflex/lights/light01.tga
+    bumpmap          textures/reflex/lights/light01_local.tga
+    specularMap      textures/reflex/lights/light01_spec.tga
+
+	{
+		blend		add
+		map	      textures/reflex/lights/light01_glow
+            color       0.94, 0.57, 0.13, 255
+	}
+}
+
