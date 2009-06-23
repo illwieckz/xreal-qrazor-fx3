@@ -92,6 +92,7 @@ void SP_func_explosive(gentity_t * ent)
 		else if (!Q_stricmp(type,"smoke"))	ent->materialType = ENTMAT_SMOKE;
 		else if (!Q_stricmp(type,"gas"))	ent->materialType = ENTMAT_GAS;
 		else if (!Q_stricmp(type,"fire"))	ent->materialType = ENTMAT_FIRE;
+		else ent->materialType = ENTMAT_NONE;
 	} else {
 		ent->materialType = ENTMAT_NONE;
 	}

@@ -960,6 +960,7 @@ typedef struct
 	qhandle_t		debrisPlaster;
 
 	qhandle_t		fire;
+	qhandle_t		fireLight;
 	qhandle_t		flames[2];
 
 	// gib explosions
