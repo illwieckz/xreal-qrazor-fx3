@@ -1863,6 +1863,34 @@ ________________________________________________________________________________
 ============================================================================================================
 */
 
+entityDef func_explosive 
+{   
+	"editor_color"				"0 .5 .8"
+	
+	"editor_usage"				"Solid entity which will take damage, and be destroyed when it runs out of health. Features various debris effects (including the option of no debris)."
+
+    "editor_var type"		    "The type of debris. Type can be: none, wood, glass, metal, gibs, brick, rock, riles, plaster, fibers, sprite, smoke, gas, fire"
+	"editor_var health"		    "The health of the object. How much damage it can take before it explodes."
+	"editor_var mass3"  		"Mass of the object, mass3 determines the number of larger debris chunks."
+	"editor_var mass2"  		"Mass of the object, mass2 determines the number of medium debris chunks."
+	"editor_var mass1"			"Mass of the object, mass1 determines the number of smaller debris chunks."
+	"editor_var damage"			"Damage done be explosion. (Same as dmg)"
+	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+
+	"spawnclass"				"idSpawnableEntity"
+    "type"					    "none" 
+    "health"					"100"  
+    "mass3"					    "3"  
+    "mass2"						"6"  
+    "mass1"						"10"
+    "damage"					"4"
+    "notfree"					"0"  
+    "notteam"					"0"  
+    "notsingle"                 "0"    
+}
+
 entityDef func_bobbing 
 {   
 	"editor_color"				"0 .5 .8"
