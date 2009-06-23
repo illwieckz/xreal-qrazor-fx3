@@ -1,5 +1,5 @@
 // shader used on debris
-debrisbit
+models/debris/debrisbit
 {
 	cull none
 	{
@@ -8,10 +8,17 @@ debrisbit
 	}
 }
 
-plaster1
+models/debris/plaster1
 {
 	{
 		map particles/plaster/plaster00.png
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA 
+	}
+}
+
+models/debris/wood
+{
+	{
+		map models/debris/wood.png
 	}
 }

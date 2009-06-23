@@ -86,6 +86,32 @@ fire1
 		map particles/fire/fire0053.png
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
+    sort postProcess
+    {
+        stage heathazemap
+        map gfx/misc/raildisc_mono2_n.tga 
+        clamp
+        deformMagnitude 1
+        //centerScale 0.6 + (time + parm4) * 2.3 * (1 - parm0) , 0.6 + (time + parm4) * 2.3 * (1 - parm0)
+        blend GL_ONE, GL_ZERO
+        alphaTest 0.5
+        maskDepth
+    }
+}
+
+fire1/light
+{
+	lightFalloffImage	makeintensity(lights/squarelight1a.png)
+	{
+		stage attenuationMapXY
+		forceHighQuality
+		map	lights/round.png
+		red 	( firetable2 [Parm4 + (time * (Parm3)) ]) * Parm0
+		green 	( firetable2 [Parm4 + (time * (Parm3)) ]) * Parm1
+		blue 	( firetable2 [Parm4 + (time * (Parm3)) ]) * Parm2
+		rotate	firelightrot [ time * 2 ]
+		zeroClamp
+	}
 }
 
 flames0
