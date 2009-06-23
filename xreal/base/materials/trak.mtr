@@ -567,7 +567,6 @@ textures/trak/trak5/light1a_1k
 	normalMap		textures/trak/trak5/light1a_nm.png
 	specularMap		textures/trak/trak5/light1a.png
 	{
-		stage		glowMap
 		map		textures/trak/trak5/light1a.blend.png
 		rgb		0.1
 		blend		add
@@ -591,7 +590,6 @@ textures/trak/trak5/light1a_5k
 	normalMap		textures/trak/trak5/light1a_nm.png
 	specularMap		textures/trak/trak5/light1a.png
 	{
-		stage		glowMap
 		map		textures/trak/trak5/light1a.blend.png
 		rgb		0.5
 		blend		add
@@ -649,7 +647,6 @@ textures/trak/trak5/light2a_1k
 	normalMap		textures/trak/trak5/light2a_nm.png
 	specularMap		textures/trak/trak5/light2a.png
 	{
-		stage		glowMap
 		map		textures/trak/trak5/light2a.blend.png
 		rgb		0.1
 		blend		add
@@ -672,7 +669,6 @@ textures/trak/trak5/light2a_5k
 	normalMap		textures/trak/trak5/light2a_nm.png
 	specularMap		textures/trak/trak5/light2a.png
 	{
-		stage		glowMap
 		map		textures/trak/trak5/light2a.blend.png
 		rgb		0.5
 		blend		add
@@ -729,7 +725,6 @@ textures/trak/trak5/light3a_1k
 	normalMap		textures/trak/trak5/light3a_nm.png
 	specularMap		textures/trak/trak5/light3a.png
 	{
-		stage		glowMap
 		map		textures/trak/trak5/light3a.blend.png
 		rgb		0.1
 		blend		add
@@ -752,7 +747,6 @@ textures/trak/trak5/light3a_5k
 	normalMap		textures/trak/trak5/light3a_nm.png
 	specularMap		textures/trak/trak5/light3a.png
 	{
-		stage		glowMap
 		map		textures/trak/trak5/light3a.blend.png
 		rgb		0.5
 		blend		add
@@ -809,7 +803,6 @@ textures/trak/trak5/light3b_1k
 	normalMap		textures/trak/trak5/light3b_nm.png
 	specularMap		textures/trak/trak5/light3b.png
 	{
-		stage		glowMap
 		map		textures/trak/trak5/light3b.blend.png
 		rgb		0.1
 		blend		add
@@ -832,7 +825,6 @@ textures/trak/trak5/light3b_5k
 	normalMap		textures/trak/trak5/light3b_nm.png
 	specularMap		textures/trak/trak5/light3b.png
 	{
-		stage		glowMap
 		map		textures/trak/trak5/light3b.blend.png
 		rgb		0.5
 		blend		add
