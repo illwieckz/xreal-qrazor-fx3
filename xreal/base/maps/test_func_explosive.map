@@ -1,0 +1,2259 @@
+Version 2
+// entity 0
+{
+"classname" "worldspawn"
+"editor_drLastCameraPos" "1062.4 -264.198 740.11"
+"editor_drLastCameraAngle" "-35.1 19.1669 0"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -0 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/odin/terrain/cobbleroad1" 0 0 0
+( 0 1 0 -1024 ) ( ( 0.125 0 0 ) ( 0 0.125 56 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 -3072 ) ( ( 0.125 0 0 ) ( 0 0.125 56 ) ) "textures/common/caulk" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 -1024 ) ( ( 0.125 0 -0 ) ( 0 0.125 56 ) ) "textures/common/caulk" 0 0 0
+( -1 0 0 -512 ) ( ( 0.125 0 0 ) ( 0 0.125 56 ) ) "textures/common/caulk" 0 0 0
+}
+}
+// primitive 1
+{
+brushDef3
+{
+( 0 0 1 -1024 ) ( ( 0.125 0 0 ) ( 0 -0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 1 0 -1024 ) ( ( 0.125 0 0 ) ( 0 -0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 -3104 ) ( ( 0.125 0 0 ) ( 0 -0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.125 0 0 ) ( 0 -0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 -1024 ) ( ( 0.125 0 0 ) ( 0 -0.125 0 ) ) "textures/common/caulk" 0 0 0
+( -1 0 0 3072 ) ( ( 0.015625 0 0 ) ( 0 0.015625 12 ) ) "textures/trak/trak5/holes1a" 0 0 0
+}
+}
+// primitive 2
+{
+brushDef3
+{
+( 0 0 1 -1024 ) ( ( 0.125 0 0 ) ( 0 -0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 -3072 ) ( ( 0.125 0 0 ) ( 0 -0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 -1056 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/common/caulk" 0 0 0
+( -1 0 0 -512 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 1 0 1024 ) ( ( 0.015625 0 40 ) ( 0 0.015625 0 ) ) "textures/trak/trak5/holes1a" 0 0 0
+}
+}
+// primitive 3
+{
+brushDef3
+{
+( 0 0 1 -1024 ) ( ( 0.125 0 256 ) ( 0 -0.125 -8 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 -1024 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/common/caulk" 0 0 0
+( -1 0 0 -544 ) ( ( 0.125 0 0 ) ( 0 -0.125 56 ) ) "textures/common/caulk" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 1 0 -1024 ) ( ( 0.125 0 -192 ) ( 0 -0.125 56 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 512 ) ( ( 0.015625 0 0 ) ( 0 0.015625 12 ) ) "textures/trak/trak5/holes1a" 0 0 0
+}
+}
+// primitive 4
+{
+brushDef3
+{
+( 0 0 1 -1024 ) ( ( 0.125 0 -256 ) ( 0 -0.125 -8 ) ) "textures/common/caulk" 0 0 0
+( -1 0 0 -512 ) ( ( 0.125 0 0 ) ( 0 -0.125 56 ) ) "textures/common/caulk" 0 0 0
+( 0 1 0 -1056 ) ( ( 0.125 0 0 ) ( 0 -0.125 56 ) ) "textures/common/caulk" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.125 0 0 ) ( 0 -0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 -3072 ) ( ( 0.125 0 0 ) ( 0 -0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 1024 ) ( ( 0.015625 0 472 ) ( 0 0.015625 0 ) ) "textures/trak/trak5/holes1a" 0 0 0
+}
+}
+// primitive 5
+{
+brushDef3
+{
+( 0 0 -1 1024 ) ( ( 0.015625 0 496 ) ( 0 0.015625 508 ) ) "textures/trak/trak5/holes1a" 0 0 0
+( 0 1 0 -1024 ) ( ( 0.125 0 0 ) ( 0 -0.125 56 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 -3072 ) ( ( 0.125 0 0 ) ( 0 -0.125 56 ) ) "textures/common/caulk" 0 0 0
+( 0 0 1 -1056 ) ( ( 0.125 0 0 ) ( 0 -0.125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 -1024 ) ( ( 0.125 0 0 ) ( 0 -0.125 56 ) ) "textures/common/caulk" 0 0 0
+( -1 0 0 -512 ) ( ( 0.125 0 0 ) ( 0 -0.125 56 ) ) "textures/common/caulk" 0 0 0
+}
+}
+}
+// entity 1
+{
+"classname" "info_player_deathmatch"
+"name" "info_player_deathmatch_1"
+"origin" "-320 0 64"
+}
+// entity 2
+{
+"classname" "func_explosive"
+"name" "func_explosive_1"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_1"
+"origin" "-16 16 80"
+"type" "gibs"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.03125 0 1023 ) ( 0 0.03125 1020 ) ) "textures/power/hexflr1" 0 0 0
+( 0 1 0 -16 ) ( ( 0.03125 0 4 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+( 1 0 0 -16 ) ( ( 0.03125 0 1023 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.03125 0 1023 ) ( 0 0.03125 4 ) ) "textures/power/hexflr1" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.03125 0 1019 ) ( 0 0.03125 1.5 ) ) "textures/power/hexflr1" 0 0 0
+( -1 0 0 -16 ) ( ( 0.03125 0 2 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+}
+}
+}
+// entity 3
+{
+"classname" "func_explosive"
+"name" "func_explosive_2"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_2"
+"origin" "112 -16 80"
+"type" "gibs"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.03125 0 0 ) ( 0 0.03125 1016 ) ) "textures/power/hexflr1" 0 0 0
+( 0 1 0 -16 ) ( ( 0.03125 0 8 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+( 1 0 0 -16 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.03125 0 0 ) ( 0 0.03125 8 ) ) "textures/power/hexflr1" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.03125 0 1015 ) ( 0 0.03125 1.5 ) ) "textures/power/hexflr1" 0 0 0
+( -1 0 0 -16 ) ( ( 0.03125 0 1 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+}
+}
+}
+// entity 4
+{
+"classname" "func_explosive"
+"name" "func_explosive_3"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_3"
+"origin" "288 32 96"
+"type" "gibs"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.03125 0 1022 ) ( 0 0.03125 1010 ) ) "textures/power/hexflr1" 0 0 0
+( 0 1 0 -32 ) ( ( 0.03125 0 14 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+( 1 0 0 -32 ) ( ( 0.03125 0 1022 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.03125 0 1022 ) ( 0 0.03125 14 ) ) "textures/power/hexflr1" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.03125 0 1010 ) ( 0 0.03125 1.5 ) ) "textures/power/hexflr1" 0 0 0
+( -1 0 0 -32 ) ( ( 0.03125 0 2 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+}
+}
+}
+// entity 5
+{
+"classname" "func_explosive"
+"name" "func_explosive_4"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_4"
+"origin" "416 -32 96"
+"type" "gibs"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.03125 0 0 ) ( 0 0.03125 1006 ) ) "textures/power/hexflr1" 0 0 0
+( 0 1 0 -32 ) ( ( 0.03125 0 18 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+( 1 0 0 -32 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.03125 0 0 ) ( 0 0.03125 18 ) ) "textures/power/hexflr1" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.03125 0 1006 ) ( 0 0.03125 1.5 ) ) "textures/power/hexflr1" 0 0 0
+( -1 0 0 -32 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+}
+}
+}
+// entity 6
+{
+"classname" "func_explosive"
+"name" "func_explosive_5"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_5"
+"origin" "640 0 128"
+"type" "gibs"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 998 ) ) "textures/power/hexflr1" 0 0 0
+( 0 1 0 -64 ) ( ( 0.03125 0 23 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+( 1 0 0 -64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 3.5 ) ) "textures/power/hexflr1" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 23 ) ) "textures/power/hexflr1" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.03125 0 1000 ) ( 0 0.03125 1.5 ) ) "textures/power/hexflr1" 0 0 0
+( -1 0 0 -64 ) ( ( 0.03125 0 1 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+}
+}
+}
+// entity 7
+{
+"classname" "func_explosive"
+"name" "func_explosive_6"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_6"
+"origin" "896 0 128"
+"type" "gibs"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 990 ) ) "textures/power/hexflr1" 0 0 0
+( 0 1 0 -64 ) ( ( 0.03125 0 31 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+( 1 0 0 -64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 3.5 ) ) "textures/power/hexflr1" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 31 ) ) "textures/power/hexflr1" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.03125 0 992 ) ( 0 0.03125 1.5 ) ) "textures/power/hexflr1" 0 0 0
+( -1 0 0 -64 ) ( ( 0.03125 0 1 ) ( 0 0.03125 0.5 ) ) "textures/power/hexflr1" 0 0 0
+}
+}
+}
+// entity 8
+{
+"classname" "func_explosive"
+"name" "func_explosive_13"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_13"
+"origin" "416 224 96"
+"type" "metal"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 508 ) ( 0 0.015625 503 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 9 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 508 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 508 ) ( 0 0.015625 9 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 503 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 9
+{
+"classname" "func_explosive"
+"name" "func_explosive_7"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_7"
+"origin" "288 288 96"
+"type" "metal"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 507 ) ( 0 0.015625 505 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 7 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 507 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 507 ) ( 0 0.015625 7 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 505 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 10
+{
+"classname" "func_explosive"
+"name" "func_explosive_8"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_8"
+"origin" "112 240 80"
+"type" "metal"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 508 ) ( 0 0.015625 508 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 508 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 508 ) ( 0 0.015625 4 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 507.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 4.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 11
+{
+"classname" "func_explosive"
+"name" "func_explosive_9"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_9"
+"origin" "-16 272 80"
+"type" "metal"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 507.5 ) ( 0 0.015625 510 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 2 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 507.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 507.5 ) ( 0 0.015625 2 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 509.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 12
+{
+"classname" "func_explosive"
+"name" "func_explosive_10"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_10"
+"origin" "640 256 128"
+"type" "metal"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 499 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 11.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 11.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 500 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 4.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 13
+{
+"classname" "func_explosive"
+"name" "func_explosive_11"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_11"
+"origin" "896 256 128"
+"type" "metal"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 495 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 15.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 15.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 496 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 4.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 14
+{
+"classname" "func_explosive"
+"name" "func_explosive_19"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_19"
+"origin" "416 480 96"
+"type" "glass"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.125 0 4032 ) ( 0 0.125 4024 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 1 0 -32 ) ( ( 0.125 0 72 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+( 1 0 0 -32 ) ( ( 0.125 0 4032 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.125 0 4032 ) ( 0 0.125 72 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.125 0 4024 ) ( 0 0.125 6 ) ) "textures/reflex/special/glass01" 0 0 0
+( -1 0 0 -32 ) ( ( 0.125 0 64 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+}
+}
+}
+// entity 15
+{
+"classname" "func_explosive"
+"name" "func_explosive_12"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_12"
+"origin" "288 544 96"
+"type" "glass"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.125 0 4024 ) ( 0 0.125 4040 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 1 0 -32 ) ( ( 0.125 0 56 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+( 1 0 0 -32 ) ( ( 0.125 0 4024 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.125 0 4024 ) ( 0 0.125 56 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.125 0 4040 ) ( 0 0.125 6 ) ) "textures/reflex/special/glass01" 0 0 0
+( -1 0 0 -32 ) ( ( 0.125 0 72 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+}
+}
+}
+// entity 16
+{
+"classname" "func_explosive"
+"name" "func_explosive_14"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_14"
+"origin" "112 496 80"
+"type" "glass"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.125 0 4032 ) ( 0 0.125 4064 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 1 0 -16 ) ( ( 0.125 0 32 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+( 1 0 0 -16 ) ( ( 0.125 0 4032 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.125 0 4032 ) ( 0 0.125 32 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.125 0 4060 ) ( 0 0.125 6 ) ) "textures/reflex/special/glass01" 0 0 0
+( -1 0 0 -16 ) ( ( 0.125 0 68 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+}
+}
+}
+// entity 17
+{
+"classname" "func_explosive"
+"name" "func_explosive_15"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_15"
+"origin" "-16 528 80"
+"type" "glass"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.125 0 4028 ) ( 0 0.125 4080 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 1 0 -16 ) ( ( 0.125 0 16 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+( 1 0 0 -16 ) ( ( 0.125 0 4028 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.125 0 4028 ) ( 0 0.125 16 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.125 0 4076 ) ( 0 0.125 6 ) ) "textures/reflex/special/glass01" 0 0 0
+( -1 0 0 -16 ) ( ( 0.125 0 72 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+}
+}
+}
+// entity 18
+{
+"classname" "func_explosive"
+"name" "func_explosive_16"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_16"
+"origin" "640 512 128"
+"type" "glass"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.125 0 4032 ) ( 0 0.125 3992 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 1 0 -64 ) ( ( 0.125 0 92 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+( 1 0 0 -64 ) ( ( 0.125 0 4032 ) ( 0 0.125 14 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.125 0 4032 ) ( 0 0.125 92 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.125 0 4000 ) ( 0 0.125 6 ) ) "textures/reflex/special/glass01" 0 0 0
+( -1 0 0 -64 ) ( ( 0.125 0 68 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+}
+}
+}
+// entity 19
+{
+"classname" "func_explosive"
+"name" "func_explosive_17"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_17"
+"origin" "896 512 128"
+"type" "glass"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.125 0 4032 ) ( 0 0.125 3960 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 1 0 -64 ) ( ( 0.125 0 124 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+( 1 0 0 -64 ) ( ( 0.125 0 4032 ) ( 0 0.125 14 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.125 0 4032 ) ( 0 0.125 124 ) ) "textures/reflex/special/glass01" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.125 0 3968 ) ( 0 0.125 6 ) ) "textures/reflex/special/glass01" 0 0 0
+( -1 0 0 -64 ) ( ( 0.125 0 68 ) ( 0 0.125 2 ) ) "textures/reflex/special/glass01" 0 0 0
+}
+}
+}
+// entity 20
+{
+"classname" "func_explosive"
+"name" "func_explosive_25"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_25"
+"origin" "416 736 96"
+"type" "wood"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.125 0 4000 ) ( 0 0.125 4024 ) ) "models/debris/wood" 0 0 0
+( 0 1 0 -32 ) ( ( 0.125 0 72 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+( 1 0 0 -32 ) ( ( 0.125 0 4000 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.125 0 4000 ) ( 0 0.125 72 ) ) "models/debris/wood" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.125 0 4024 ) ( 0 0.125 6 ) ) "models/debris/wood" 0 0 0
+( -1 0 0 -32 ) ( ( 0.125 0 96 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+}
+}
+}
+// entity 21
+{
+"classname" "func_explosive"
+"name" "func_explosive_18"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_18"
+"origin" "288 800 96"
+"type" "wood"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.125 0 3992 ) ( 0 0.125 4040 ) ) "models/debris/wood" 0 0 0
+( 0 1 0 -32 ) ( ( 0.125 0 56 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+( 1 0 0 -32 ) ( ( 0.125 0 3992 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.125 0 3992 ) ( 0 0.125 56 ) ) "models/debris/wood" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.125 0 4040 ) ( 0 0.125 6 ) ) "models/debris/wood" 0 0 0
+( -1 0 0 -32 ) ( ( 0.125 0 104 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+}
+}
+}
+// entity 22
+{
+"classname" "func_explosive"
+"name" "func_explosive_20"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_20"
+"origin" "112 752 80"
+"type" "wood"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.125 0 4000 ) ( 0 0.125 4064 ) ) "models/debris/wood" 0 0 0
+( 0 1 0 -16 ) ( ( 0.125 0 32 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+( 1 0 0 -16 ) ( ( 0.125 0 4000 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.125 0 4000 ) ( 0 0.125 32 ) ) "models/debris/wood" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.125 0 4060 ) ( 0 0.125 6 ) ) "models/debris/wood" 0 0 0
+( -1 0 0 -16 ) ( ( 0.125 0 100 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+}
+}
+}
+// entity 23
+{
+"classname" "func_explosive"
+"name" "func_explosive_21"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_21"
+"origin" "-16 784 80"
+"type" "wood"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.125 0 3996 ) ( 0 0.125 4080 ) ) "models/debris/wood" 0 0 0
+( 0 1 0 -16 ) ( ( 0.125 0 16 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+( 1 0 0 -16 ) ( ( 0.125 0 3996 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.125 0 3996 ) ( 0 0.125 16 ) ) "models/debris/wood" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.125 0 4076 ) ( 0 0.125 6 ) ) "models/debris/wood" 0 0 0
+( -1 0 0 -16 ) ( ( 0.125 0 104 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+}
+}
+}
+// entity 24
+{
+"classname" "func_explosive"
+"name" "func_explosive_22"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_22"
+"origin" "640 768 128"
+"type" "wood"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.125 0 4000 ) ( 0 0.125 3992 ) ) "models/debris/wood" 0 0 0
+( 0 1 0 -64 ) ( ( 0.125 0 92 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+( 1 0 0 -64 ) ( ( 0.125 0 4000 ) ( 0 0.125 14 ) ) "models/debris/wood" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.125 0 4000 ) ( 0 0.125 92 ) ) "models/debris/wood" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.125 0 4000 ) ( 0 0.125 6 ) ) "models/debris/wood" 0 0 0
+( -1 0 0 -64 ) ( ( 0.125 0 100 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+}
+}
+}
+// entity 25
+{
+"classname" "func_explosive"
+"name" "func_explosive_23"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_23"
+"origin" "896 768 128"
+"type" "wood"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.125 0 4000 ) ( 0 0.125 3960 ) ) "models/debris/wood" 0 0 0
+( 0 1 0 -64 ) ( ( 0.125 0 124 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+( 1 0 0 -64 ) ( ( 0.125 0 4000 ) ( 0 0.125 14 ) ) "models/debris/wood" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.125 0 4000 ) ( 0 0.125 124 ) ) "models/debris/wood" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.125 0 3968 ) ( 0 0.125 6 ) ) "models/debris/wood" 0 0 0
+( -1 0 0 -64 ) ( ( 0.125 0 100 ) ( 0 0.125 2 ) ) "models/debris/wood" 0 0 0
+}
+}
+}
+// entity 26
+{
+"classname" "func_explosive"
+"name" "func_explosive_37"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_37"
+"origin" "416 -544 96"
+"type" "rock"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 8 ) ( 0 0.015625 503 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 9 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 8 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 8 ) ( 0 0.015625 9 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 503 ) ( 0 0.015625 0.75 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 504 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+}
+}
+}
+// entity 27
+{
+"classname" "func_explosive"
+"name" "func_explosive_30"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_30"
+"origin" "288 -480 96"
+"type" "rock"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 7 ) ( 0 0.015625 505 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 7 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 7 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 7 ) ( 0 0.015625 7 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 505 ) ( 0 0.015625 0.75 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 505 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+}
+}
+}
+// entity 28
+{
+"classname" "func_explosive"
+"name" "func_explosive_32"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_32"
+"origin" "112 -528 80"
+"type" "rock"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 8 ) ( 0 0.015625 508 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 8 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 8 ) ( 0 0.015625 4 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 507.5 ) ( 0 0.015625 0.75 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 504.5 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+}
+}
+}
+// entity 29
+{
+"classname" "func_explosive"
+"name" "func_explosive_33"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_33"
+"origin" "-16 -496 80"
+"type" "rock"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 7.5 ) ( 0 0.015625 510 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 2 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 7.5 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 7.5 ) ( 0 0.015625 2 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 509.5 ) ( 0 0.015625 0.75 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 505 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+}
+}
+}
+// entity 30
+{
+"classname" "func_explosive"
+"name" "func_explosive_34"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_34"
+"origin" "640 -512 128"
+"type" "rock"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 499 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 11.5 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 1.75 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 11.5 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 500 ) ( 0 0.015625 0.75 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 504.5 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+}
+}
+}
+// entity 31
+{
+"classname" "func_explosive"
+"name" "func_explosive_35"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_35"
+"origin" "896 -512 128"
+"type" "rock"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 495 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 15.5 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 1.75 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 15.5 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 496 ) ( 0 0.015625 0.75 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 504.5 ) ( 0 0.015625 0.25 ) ) "textures/fabz0r/stone/gaterock" 0 0 0
+}
+}
+}
+// entity 32
+{
+"classname" "func_explosive"
+"name" "func_explosive_43"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_43"
+"origin" "416 -800 96"
+"type" "tiles"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 12 ) ( 0 0.015625 503 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 9 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 12 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 12 ) ( 0 0.015625 9 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 503 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 500 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+}
+}
+}
+// entity 33
+{
+"classname" "func_explosive"
+"name" "func_explosive_36"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_36"
+"origin" "288 -736 96"
+"type" "tiles"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 11 ) ( 0 0.015625 505 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 7 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 11 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 11 ) ( 0 0.015625 7 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 505 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 501 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+}
+}
+}
+// entity 34
+{
+"classname" "func_explosive"
+"name" "func_explosive_38"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_38"
+"origin" "112 -784 80"
+"type" "tiles"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 12 ) ( 0 0.015625 508 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 12 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 12 ) ( 0 0.015625 4 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 507.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 500.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+}
+}
+}
+// entity 35
+{
+"classname" "func_explosive"
+"name" "func_explosive_39"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_39"
+"origin" "-16 -752 80"
+"type" "tiles"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 11.5 ) ( 0 0.015625 510 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 2 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 11.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 11.5 ) ( 0 0.015625 2 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 509.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 501 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+}
+}
+}
+// entity 36
+{
+"classname" "func_explosive"
+"name" "func_explosive_40"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_40"
+"origin" "640 -768 128"
+"type" "tiles"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 12 ) ( 0 0.015625 499 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 11.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 12 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 12 ) ( 0 0.015625 11.5 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 500 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 500.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+}
+}
+}
+// entity 37
+{
+"classname" "func_explosive"
+"name" "func_explosive_41"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_41"
+"origin" "896 -768 128"
+"type" "tiles"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 12 ) ( 0 0.015625 495 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 15.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 12 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 12 ) ( 0 0.015625 15.5 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 496 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor2a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 500.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor2a" 0 0 0
+}
+}
+}
+// entity 38
+{
+"classname" "func_explosive"
+"name" "func_explosive_85"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_85"
+"origin" "1648 -16 80"
+"type" "smoke"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 0 ) ( 0 0.015625 484 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 28 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 0 ) ( 0 0.015625 28 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 483.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 0.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 39
+{
+"classname" "func_explosive"
+"name" "func_explosive_42"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_42"
+"origin" "1520 16 80"
+"type" "smoke"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 511.5 ) ( 0 0.015625 486 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 26 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 511.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 511.5 ) ( 0 0.015625 26 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 485.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 1 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 40
+{
+"classname" "func_explosive"
+"name" "func_explosive_44"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_44"
+"origin" "1824 32 96"
+"type" "smoke"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 511 ) ( 0 0.015625 481 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 31 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 511 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 511 ) ( 0 0.015625 31 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 481 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 1 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 41
+{
+"classname" "func_explosive"
+"name" "func_explosive_45"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_45"
+"origin" "1952 -32 96"
+"type" "smoke"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 0 ) ( 0 0.015625 479 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 33 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 0 ) ( 0 0.015625 33 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 479 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 42
+{
+"classname" "func_explosive"
+"name" "func_explosive_46"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_46"
+"origin" "2176 0 128"
+"type" "smoke"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 475 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 35.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 35.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 476 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 0.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 43
+{
+"classname" "func_explosive"
+"name" "func_explosive_47"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_47"
+"origin" "2432 0 128"
+"type" "smoke"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 471 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 39.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 39.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 472 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 0.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 44
+{
+"classname" "func_explosive"
+"name" "func_explosive_48"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_48"
+"origin" "1952 224 96"
+"type" "sprite"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 508 ) ( 0 0.015625 479 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 33 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 508 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 508 ) ( 0 0.015625 33 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 479 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 45
+{
+"classname" "func_explosive"
+"name" "func_explosive_49"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_49"
+"origin" "1824 288 96"
+"type" "sprite"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 507 ) ( 0 0.015625 481 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 31 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 507 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 507 ) ( 0 0.015625 31 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 481 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 46
+{
+"classname" "func_explosive"
+"name" "func_explosive_50"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_50"
+"origin" "1648 240 80"
+"type" "sprite"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 508 ) ( 0 0.015625 484 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 28 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 508 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 508 ) ( 0 0.015625 28 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 483.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 4.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 47
+{
+"classname" "func_explosive"
+"name" "func_explosive_51"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_51"
+"origin" "1520 272 80"
+"type" "sprite"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 507.5 ) ( 0 0.015625 486 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 26 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 507.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 507.5 ) ( 0 0.015625 26 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 485.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 48
+{
+"classname" "func_explosive"
+"name" "func_explosive_52"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_52"
+"origin" "2176 256 128"
+"type" "sprite"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 475 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 35.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 35.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 476 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 4.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 49
+{
+"classname" "func_explosive"
+"name" "func_explosive_53"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_53"
+"origin" "2432 256 128"
+"type" "sprite"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 471 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 39.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 508 ) ( 0 0.015625 39.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 472 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 4.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 50
+{
+"classname" "func_explosive"
+"name" "func_explosive_54"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_54"
+"origin" "1952 480 96"
+"type" "fibers"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 504 ) ( 0 0.015625 479 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 33 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 504 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 504 ) ( 0 0.015625 33 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 479 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 8 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 51
+{
+"classname" "func_explosive"
+"name" "func_explosive_55"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_55"
+"origin" "1824 544 96"
+"type" "fibers"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 503 ) ( 0 0.015625 481 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 31 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 503 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 503 ) ( 0 0.015625 31 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 481 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 9 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 52
+{
+"classname" "func_explosive"
+"name" "func_explosive_56"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_56"
+"origin" "1648 496 80"
+"type" "fibers"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 504 ) ( 0 0.015625 484 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 28 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 504 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 504 ) ( 0 0.015625 28 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 483.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 8.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 53
+{
+"classname" "func_explosive"
+"name" "func_explosive_57"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_57"
+"origin" "1520 528 80"
+"type" "fibers"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 503.5 ) ( 0 0.015625 486 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 26 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 503.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 503.5 ) ( 0 0.015625 26 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 485.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 9 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 54
+{
+"classname" "func_explosive"
+"name" "func_explosive_58"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_58"
+"origin" "2176 512 128"
+"type" "fibers"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 504 ) ( 0 0.015625 475 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 35.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 504 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 504 ) ( 0 0.015625 35.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 476 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 8.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 55
+{
+"classname" "func_explosive"
+"name" "func_explosive_59"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_59"
+"origin" "2432 512 128"
+"type" "fibers"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 504 ) ( 0 0.015625 471 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 39.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 504 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 504 ) ( 0 0.015625 39.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 472 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 8.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 56
+{
+"classname" "func_explosive"
+"name" "func_explosive_60"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_60"
+"origin" "1952 736 96"
+"type" "plaster"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 4 ) ( 0 0.015625 7 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 1 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 4 ) ( 0 0.015625 1 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 7 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/base1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+}
+}
+}
+// entity 57
+{
+"classname" "func_explosive"
+"name" "func_explosive_61"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_61"
+"origin" "1824 800 96"
+"type" "plaster"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 3 ) ( 0 0.015625 1 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 7 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 3 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 3 ) ( 0 0.015625 7 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 1 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/base1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+}
+}
+}
+// entity 58
+{
+"classname" "func_explosive"
+"name" "func_explosive_62"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_62"
+"origin" "1648 752 80"
+"type" "plaster"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 4 ) ( 0 0.015625 4 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 4 ) ( 0 0.015625 4 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 3.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/base1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 4.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+}
+}
+}
+// entity 59
+{
+"classname" "func_explosive"
+"name" "func_explosive_63"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_63"
+"origin" "1520 784 80"
+"type" "plaster"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 3.5 ) ( 0 0.015625 6 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 2 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 3.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 3.5 ) ( 0 0.015625 2 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 5.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/base1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+}
+}
+}
+// entity 60
+{
+"classname" "func_explosive"
+"name" "func_explosive_64"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_64"
+"origin" "2176 768 128"
+"type" "plaster"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 3 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 3.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 3.5 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/base1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 4.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+}
+}
+}
+// entity 61
+{
+"classname" "func_explosive"
+"name" "func_explosive_65"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_65"
+"origin" "2432 768 128"
+"type" "plaster"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 7 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 7.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 7.5 ) ) "textures/trak/trak5/base1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/base1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 4.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/base1a" 0 0 0
+}
+}
+}
+// entity 62
+{
+"classname" "func_explosive"
+"name" "func_explosive_66"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_66"
+"origin" "1952 -288 96"
+"type" "gas"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 4 ) ( 0 0.015625 479 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 33 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 4 ) ( 0 0.015625 33 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 479 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 508 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 63
+{
+"classname" "func_explosive"
+"name" "func_explosive_67"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_67"
+"origin" "1824 -224 96"
+"type" "gas"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 3 ) ( 0 0.015625 481 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 31 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 3 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 3 ) ( 0 0.015625 31 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 481 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 509 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 64
+{
+"classname" "func_explosive"
+"name" "func_explosive_68"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_68"
+"origin" "1648 -272 80"
+"type" "gas"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 4 ) ( 0 0.015625 484 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 28 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 4 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 4 ) ( 0 0.015625 28 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 483.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 508.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 65
+{
+"classname" "func_explosive"
+"name" "func_explosive_69"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_69"
+"origin" "1520 -240 80"
+"type" "gas"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 3.5 ) ( 0 0.015625 486 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 26 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 3.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 3.5 ) ( 0 0.015625 26 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 485.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 509 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 66
+{
+"classname" "func_explosive"
+"name" "func_explosive_70"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_70"
+"origin" "2176 -256 128"
+"type" "gas"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 475 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 35.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 35.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 476 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 508.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 67
+{
+"classname" "func_explosive"
+"name" "func_explosive_71"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_71"
+"origin" "2432 -256 128"
+"type" "gas"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 471 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 39.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 4 ) ( 0 0.015625 39.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 472 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 508.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 68
+{
+"classname" "func_explosive"
+"name" "func_explosive_72"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_72"
+"origin" "1952 -544 96"
+"type" "fire"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 8 ) ( 0 0.015625 479 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 33 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 8 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 8 ) ( 0 0.015625 33 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 479 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 504 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 69
+{
+"classname" "func_explosive"
+"name" "func_explosive_73"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_73"
+"origin" "1824 -480 96"
+"type" "fire"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.015625 0 7 ) ( 0 0.015625 481 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -32 ) ( ( 0.015625 0 31 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -32 ) ( ( 0.015625 0 7 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.015625 0 7 ) ( 0 0.015625 31 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.015625 0 481 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -32 ) ( ( 0.015625 0 505 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 70
+{
+"classname" "func_explosive"
+"name" "func_explosive_74"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_74"
+"origin" "1648 -528 80"
+"type" "fire"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 8 ) ( 0 0.015625 484 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 28 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 8 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 8 ) ( 0 0.015625 28 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 483.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 504.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 71
+{
+"classname" "func_explosive"
+"name" "func_explosive_75"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_75"
+"origin" "1520 -496 80"
+"type" "fire"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.015625 0 7.5 ) ( 0 0.015625 486 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -16 ) ( ( 0.015625 0 26 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -16 ) ( ( 0.015625 0 7.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.015625 0 7.5 ) ( 0 0.015625 26 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.015625 0 485.5 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -16 ) ( ( 0.015625 0 505 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 72
+{
+"classname" "func_explosive"
+"name" "func_explosive_76"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_76"
+"origin" "2176 -512 128"
+"type" "fire"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 475 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 35.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 35.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 476 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 504.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 73
+{
+"classname" "func_explosive"
+"name" "func_explosive_77"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_77"
+"origin" "2432 -512 128"
+"type" "fire"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 471 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 1 0 -64 ) ( ( 0.015625 0 39.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 1 0 0 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 1.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 8 ) ( 0 0.015625 39.5 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.015625 0 472 ) ( 0 0.015625 0.75 ) ) "textures/trak/trak5/floor1a" 0 0 0
+( -1 0 0 -64 ) ( ( 0.015625 0 504.5 ) ( 0 0.015625 0.25 ) ) "textures/trak/trak5/floor1a" 0 0 0
+}
+}
+}
+// entity 74
+{
+"classname" "func_explosive"
+"name" "func_explosive_97"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "10"
+"mass3" "0"
+"model" "func_explosive_97"
+"origin" "288 -224 96"
+"type" "brick"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.0078125 0 1.5 ) ( 0 0.0078125 252.5 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 1 0 -32 ) ( ( 0.0078125 0 3.5 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 1 0 0 -32 ) ( ( 0.0078125 0 1.5 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.0078125 0 1.5 ) ( 0 0.0078125 3.5 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.0078125 0 252.5 ) ( 0 0.0078125 0.375 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( -1 0 0 -32 ) ( ( 0.0078125 0 254.5 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+}
+}
+}
+// entity 75
+{
+"classname" "func_explosive"
+"name" "func_explosive_90"
+"damage" "0"
+"health" "20"
+"mass1" "5"
+"mass2" "2"
+"mass3" "0"
+"model" "func_explosive_90"
+"origin" "112 -272 80"
+"type" "brick"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 254 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 1 0 -16 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 1 0 0 -16 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 2 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.0078125 0 253.75 ) ( 0 0.0078125 0.375 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( -1 0 0 -16 ) ( ( 0.0078125 0 254.25 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+}
+}
+}
+// entity 76
+{
+"classname" "func_explosive"
+"name" "func_explosive_92"
+"damage" "0"
+"health" "20"
+"mass1" "10"
+"mass2" "0"
+"mass3" "0"
+"model" "func_explosive_92"
+"origin" "-16 -240 80"
+"type" "brick"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -16 ) ( ( 0.0078125 0 1.75 ) ( 0 0.0078125 255 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 1 0 -16 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 1 0 0 -16 ) ( ( 0.0078125 0 1.75 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 0 -1 -16 ) ( ( 0.0078125 0 1.75 ) ( 0 0.0078125 1 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.0078125 0 254.75 ) ( 0 0.0078125 0.375 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( -1 0 0 -16 ) ( ( 0.0078125 0 254.5 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+}
+}
+}
+// entity 77
+{
+"classname" "func_explosive"
+"name" "func_explosive_93"
+"damage" "0"
+"health" "20"
+"mass1" "0"
+"mass2" "0"
+"mass3" "10"
+"model" "func_explosive_93"
+"origin" "640 -256 128"
+"type" "brick"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 249.5 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 1 0 -64 ) ( ( 0.0078125 0 5.75 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 1 0 0 -64 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 0.875 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 5.75 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.0078125 0 250 ) ( 0 0.0078125 0.375 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( -1 0 0 -64 ) ( ( 0.0078125 0 254.25 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+}
+}
+}
+// entity 78
+{
+"classname" "func_explosive"
+"name" "func_explosive_94"
+"damage" "0"
+"health" "20"
+"mass1" "12"
+"mass2" "8"
+"mass3" "6"
+"model" "func_explosive_94"
+"origin" "896 -256 128"
+"type" "brick"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 247.5 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 1 0 -64 ) ( ( 0.0078125 0 7.75 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 1 0 0 -64 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 0.875 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 7.75 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 -1 0 -64 ) ( ( 0.0078125 0 248 ) ( 0 0.0078125 0.375 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( -1 0 0 -64 ) ( ( 0.0078125 0 254.25 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+}
+}
+}
+// entity 79
+{
+"classname" "func_explosive"
+"name" "func_explosive_95"
+"damage" "0"
+"health" "20"
+"mass1" "9"
+"mass2" "6"
+"mass3" "1"
+"model" "func_explosive_95"
+"origin" "416 -288 96"
+"type" "brick"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -32 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 251.5 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 1 0 -32 ) ( ( 0.0078125 0 4.5 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 1 0 0 -32 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 0 -1 -32 ) ( ( 0.0078125 0 2 ) ( 0 0.0078125 4.5 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.0078125 0 251.5 ) ( 0 0.0078125 0.375 ) ) "textures/odin/walls/rockwall4" 0 0 0
+( -1 0 0 -32 ) ( ( 0.0078125 0 254 ) ( 0 0.0078125 0.125 ) ) "textures/odin/walls/rockwall4" 0 0 0
+}
+}
+}
+// entity 80
+{
+"classname" "light"
+"name" "light_1"
+"origin" "-256 768 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 81
+{
+"classname" "light"
+"name" "light_3"
+"origin" "256 768 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 82
+{
+"classname" "light"
+"name" "light_4"
+"origin" "768 768 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 83
+{
+"classname" "light"
+"name" "light_5"
+"origin" "1280 768 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 84
+{
+"classname" "light"
+"name" "light_6"
+"origin" "1792 768 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 85
+{
+"classname" "light"
+"name" "light_7"
+"origin" "2304 768 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 86
+{
+"classname" "light"
+"name" "light_8"
+"origin" "2816 768 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 87
+{
+"classname" "light"
+"name" "light_15"
+"origin" "-256 256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 88
+{
+"classname" "light"
+"name" "light_2"
+"origin" "256 256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 89
+{
+"classname" "light"
+"name" "light_9"
+"origin" "768 256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 90
+{
+"classname" "light"
+"name" "light_10"
+"origin" "1280 256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 91
+{
+"classname" "light"
+"name" "light_11"
+"origin" "1792 256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 92
+{
+"classname" "light"
+"name" "light_12"
+"origin" "2304 256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 93
+{
+"classname" "light"
+"name" "light_13"
+"origin" "2816 256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 94
+{
+"classname" "light"
+"name" "light_22"
+"origin" "-256 -256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 95
+{
+"classname" "light"
+"name" "light_14"
+"origin" "256 -256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 96
+{
+"classname" "light"
+"name" "light_16"
+"origin" "768 -256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 97
+{
+"classname" "light"
+"name" "light_17"
+"origin" "1792 -256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 98
+{
+"classname" "light"
+"name" "light_18"
+"origin" "1280 -256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 99
+{
+"classname" "light"
+"name" "light_19"
+"origin" "2816 -256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 100
+{
+"classname" "light"
+"name" "light_20"
+"origin" "2304 -256 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 101
+{
+"classname" "light"
+"name" "light_29"
+"origin" "-256 -704 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 102
+{
+"classname" "light"
+"name" "light_21"
+"origin" "256 -704 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 103
+{
+"classname" "light"
+"name" "light_23"
+"origin" "768 -704 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 104
+{
+"classname" "light"
+"name" "light_24"
+"origin" "2816 -704 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 105
+{
+"classname" "light"
+"name" "light_25"
+"origin" "1792 -704 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 106
+{
+"classname" "light"
+"name" "light_26"
+"origin" "1280 -704 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
+// entity 107
+{
+"classname" "light"
+"name" "light_27"
+"origin" "2304 -704 256"
+"light_center" "0 0 0"
+"light_radius" "320 320 320"
+}
