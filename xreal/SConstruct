@@ -106,6 +106,9 @@ SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
 SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
 SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)
+
+if env['java'] == 1:
+	env.Java('base/classes', 'base/classes')
 	
 if env['llvm'] == 1:
 	SConscript('SConscript_base_cgamellvm', build_dir='build/base/cgamellvm', duplicate=0)
