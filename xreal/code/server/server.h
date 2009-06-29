@@ -259,7 +259,9 @@ typedef struct
 
 extern serverStatic_t svs;		// persistant server info across maps
 extern server_t sv;				// cleared each map
+#if !defined(USE_JAVA)
 extern vm_t    *gvm;			// game virtual machine
+#endif
 
 #define	MAX_MASTER_SERVERS	5
 
@@ -387,6 +389,22 @@ void            SV_InitGameProgs(void);
 void            SV_ShutdownGameProgs(void);
 void            SV_RestartGameProgs(void);
 qboolean        SV_inPVS(const vec3_t p1, const vec3_t p2);
+
+
+#if defined(USE_JAVA)
+void			Java_G_InitGame(int levelTime, int randomSeed, qboolean restart);
+void			Java_G_ShutdownGame(qboolean restart);
+char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean isBot);
+void			Java_G_ClientBegin(int clientNum);
+void			Java_G_ClientUserInfoChanged(int clientNum);
+void			Java_G_ClientDisconnect(int clientNum);
+void			Java_G_ClientCommand(int clientNum);
+void			Java_G_ClientThink(int clientNum);
+void			Java_G_RunFrame(int time);
+void			Java_G_RunAIFrame(int time);
+qboolean		Java_G_ConsoleCommand(void);
+#endif
+
 
 //
 // sv_bot.c

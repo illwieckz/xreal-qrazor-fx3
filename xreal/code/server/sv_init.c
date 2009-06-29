@@ -487,7 +487,7 @@ void SV_SpawnServer(char *server, qboolean killBots)
 	// clear collision map data
 	CM_ClearMap();
 
-	// init client structures and svs.numSnapshotEntities 
+	// init client structures and svs.numSnapshotEntities
 	if(!Cvar_VariableValue("sv_running"))
 	{
 		SV_Startup();
@@ -541,7 +541,11 @@ void SV_SpawnServer(char *server, qboolean killBots)
 	sv.checksumFeed = (((int)rand() << 16) ^ rand()) ^ Com_Milliseconds();
 	FS_Restart(sv.checksumFeed);
 
+	//Com_DPrintf("SV_SpawnServer ..1()\n");
+
 	CM_LoadMap(va("maps/%s.bsp", server), qfalse, &checksum);
+
+	//Com_DPrintf("SV_SpawnServer ..2()\n");
 
 	// set serverinfo visible name
 	Cvar_Set("mapname", server);
@@ -571,7 +575,11 @@ void SV_SpawnServer(char *server, qboolean killBots)
 	// run a few frames to allow everything to settle
 	for(i = 0; i < 3; i++)
 	{
+#if defined(USE_JAVA)
+		Java_G_RunFrame(sv.time);
+#else
 		VM_Call(gvm, GAME_RUN_FRAME, sv.time);
+#endif
 		SV_BotFrame(sv.time);
 		sv.time += 100;
 		svs.time += 100;
@@ -602,7 +610,11 @@ void SV_SpawnServer(char *server, qboolean killBots)
 			}
 
 			// connect the client again
+#if defined(USE_JAVA)
+			denied = Java_G_ClientConnect(i, qfalse, isBot);
+#else
 			denied = VM_ExplicitArgPtr(gvm, VM_Call(gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot));	// firstTime = qfalse
+#endif
 			if(denied)
 			{
 				// this generally shouldn't happen, because the client
@@ -631,14 +643,23 @@ void SV_SpawnServer(char *server, qboolean killBots)
 					client->deltaMessage = -1;
 					client->nextSnapshotTime = svs.time;	// generate a snapshot immediately
 
+#if defined(USE_JAVA)
+					Java_G_ClientBegin(i);
+#else
 					VM_Call(gvm, GAME_CLIENT_BEGIN, i);
+#endif
 				}
 			}
 		}
 	}
 
 	// run another frame to allow things to look at all the players
+#if defined(USE_JAVA)
+	Java_G_RunFrame(sv.time);
+#else
 	VM_Call(gvm, GAME_RUN_FRAME, sv.time);
+#endif
+
 	SV_BotFrame(sv.time);
 	sv.time += 100;
 	svs.time += 100;

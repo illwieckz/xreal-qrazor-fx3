@@ -1,7 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -21,10 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#if !defined(USE_JAVA)
+#if defined(USE_JAVA)
 
-// sv_game.c -- interface to the game dll
+
 #include "server.h"
+#include "../qcommon/vm_java.h"
+
 
 
 void SV_GameError(const char *string)
@@ -328,6 +329,7 @@ SV_GameSystemCalls
 The module is making a system call
 ====================
 */
+/*
 intptr_t SV_GameSystemCalls(intptr_t * args)
 {
 	switch (args[0])
@@ -526,6 +528,79 @@ intptr_t SV_GameSystemCalls(intptr_t * args)
 	}
 	return -1;
 }
+*/
+
+
+// ====================================================================================
+
+
+
+// handle to Game class
+static jclass			class_Game;
+static jobject			object_Game;
+static jclass			interface_GameListener;
+static jmethodID		method_Game_ctor;
+static jmethodID		method_Game_initGame;
+
+void Game_javaRegister()
+{
+	Com_DPrintf("Game_javaRegister()\n");
+
+	// load the interface GameListener
+	interface_GameListener = (*javaEnv)->FindClass(javaEnv, "xreal/game/GameListener");
+	if(CheckException() || !interface_GameListener)
+	{
+		Com_Error(ERR_DROP, "Couldn't find class xreal.game.GameListener");
+	}
+
+	// load the class Game
+	class_Game = (*javaEnv)->FindClass(javaEnv, "xreal/game/Game");
+	if(CheckException() || !class_Game)
+	{
+		Com_Error(ERR_DROP, "Couldn't find class xreal.game.Game");
+	}
+
+	// check class Game against interface GameListener
+	if(!((*javaEnv)->IsAssignableFrom(javaEnv, class_Game, interface_GameListener)))
+	{
+		Com_Error(ERR_DROP, "The specified game class doesn't implement xreal.game.GameListener");
+	}
+
+	// remove old game if existing
+	(*javaEnv)->DeleteLocalRef(javaEnv, interface_GameListener);
+
+	// load game interface methods
+	method_Game_initGame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "initGame", "(IIZ)V");
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Problem getting handle for one or more of the game methods\n");
+	}
+
+	// load constructor
+	method_Game_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Game, "<init>", "()V");
+
+	object_Game = (*javaEnv)->NewObject(javaEnv, class_Game, method_Game_ctor);
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Couldn't create instance of game object");
+	}
+}
+
+
+void Game_javaDetach()
+{
+	Com_DPrintf("Game_javaDetach()\n");
+
+	if(javaEnv)
+	{
+		if(class_Game)
+		{
+			(*javaEnv)->DeleteLocalRef(javaEnv, class_Game);
+			(*javaEnv)->DeleteLocalRef(javaEnv, object_Game);
+		}
+	}
+}
+
 
 /*
 ===============
@@ -536,13 +611,80 @@ Called every time a map changes
 */
 void SV_ShutdownGameProgs(void)
 {
-	if(!gvm)
+	/*
+	if(!javaEnv)
 	{
+		Com_Printf("Can't stop Java VM, javaEnv pointer was null\n");
 		return;
 	}
-	VM_Call(gvm, GAME_SHUTDOWN, qfalse);
-	VM_Free(gvm);
-	gvm = NULL;
+	*/
+
+	Java_G_ShutdownGame(qfalse);
+
+	Game_javaDetach();
+}
+
+
+
+void Java_G_GameInit(int levelTime, int randomSeed, qboolean restart)
+{
+//	Entity_arrayInit();
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_initGame, levelTime, randomSeed, restart);
+
+	CheckException();
+}
+
+void Java_G_ShutdownGame(qboolean restart)
+{
+	// TODO
+}
+
+char* Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
+{
+	// TODO
+	return NULL;
+}
+
+void Java_G_ClientBegin(int clientNum)
+{
+	// TODO
+}
+
+void Java_G_ClientUserInfoChanged(int clientNum)
+{
+	// TODO
+}
+
+void Java_G_ClientDisconnect(int clientNum)
+{
+	// TODO
+}
+
+void Java_G_ClientCommand(int clientNum)
+{
+	// TODO
+}
+
+void Java_G_ClientThink(int clientNum)
+{
+	// TODO
+}
+
+void Java_G_RunFrame(int time)
+{
+	// TODO
+}
+
+void Java_G_RunAIFrame(int time)
+{
+	// TODO
+}
+
+qboolean Java_G_ConsoleCommand(void)
+{
+	// TODO
+	return qfalse;
 }
 
 /*
@@ -555,6 +697,8 @@ Called for both a full init and a restart
 static void SV_InitGameVM(qboolean restart)
 {
 	int             i;
+
+	Com_DPrintf("SV_InitGameVM(restart = %i)\n", restart);
 
 	// start the entity parsing at the beginning
 	sv.entityParsePoint = CM_EntityString();
@@ -570,7 +714,7 @@ static void SV_InitGameVM(qboolean restart)
 
 	// use the current msec count for a random seed
 	// init for this gamestate
-	VM_Call(gvm, GAME_INIT, sv.time, Com_Milliseconds(), restart);
+	Java_G_GameInit(sv.time, Com_Milliseconds(), restart);
 }
 
 
@@ -584,21 +728,18 @@ Called on a map_restart, but not on a normal map change
 */
 void SV_RestartGameProgs(void)
 {
-	if(!gvm)
+	Com_DPrintf("SV_RestartGameProgs()\n");
+
+	if(!javaEnv)
 	{
 		return;
 	}
-	VM_Call(gvm, GAME_SHUTDOWN, qtrue);
 
-	// do a restart instead of a free
-	gvm = VM_Restart(gvm);
-	if(!gvm)
-	{
-		Com_Error(ERR_FATAL, "VM_Restart on game failed");
-	}
-
+	Java_G_ShutdownGame(qtrue);
 	SV_InitGameVM(qtrue);
 }
+
+
 
 
 /*
@@ -610,17 +751,9 @@ Called on a normal map change, not on a map_restart
 */
 void SV_InitGameProgs(void)
 {
-#if defined(USE_LLVM)
-	// load the dll or bytecode
-	gvm = VM_Create("qagame", SV_GameSystemCalls, Cvar_VariableValue("vm_game"));
-#else
-	// load the dll
-	gvm = VM_Create("qagame", SV_GameSystemCalls, VMI_NATIVE);
-#endif
-	if(!gvm)
-	{
-		Com_Error(ERR_FATAL, "VM_Create on game failed");
-	}
+	Com_DPrintf("SV_InitGameProgs()\n");
+
+	Game_javaRegister();
 
 	SV_InitGameVM(qfalse);
 }
@@ -640,7 +773,7 @@ qboolean SV_GameCommand(void)
 		return qfalse;
 	}
 
-	return VM_Call(gvm, GAME_CONSOLE_COMMAND);
+	return Java_G_ConsoleCommand();
 }
 
-#endif // !defined(USE_JAVA
+#endif //defined(USE_JAVA

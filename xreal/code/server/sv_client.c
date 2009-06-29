@@ -351,7 +351,7 @@ void SV_DirectConnect(netadr_t from)
 	int             challenge;
 	char           *password;
 	int             startIndex;
-	intptr_t        denied;
+	char           *denied;
 	int             count;
 	char           *ip;
 
@@ -573,14 +573,16 @@ void SV_DirectConnect(netadr_t from)
 	Q_strncpyz(newcl->userinfo, userinfo, sizeof(newcl->userinfo));
 
 	// get the game a chance to reject this connection or modify the userinfo
-	denied = VM_Call(gvm, GAME_CLIENT_CONNECT, clientNum, qtrue, qfalse);	// firstTime = qtrue
+#if defined(USE_JAVA)
+	denied = Java_G_ClientConnect(clientNum, qtrue, qfalse);
+#else
+	// we can't just use VM_ArgPtr, because that is only valid inside a VM_Call
+	denied = VM_ExplicitArgPtr(gvm, VM_Call(gvm, GAME_CLIENT_CONNECT, clientNum, qtrue, qfalse));	// firstTime = qtrue
+#endif
 	if(denied)
 	{
-		// we can't just use VM_ArgPtr, because that is only valid inside a VM_Call
-		char           *str = VM_ExplicitArgPtr(gvm, denied);
-
-		NET_OutOfBandPrint(NS_SERVER, from, "print\n%s\n", str);
-		Com_DPrintf("Game rejected a connection: %s.\n", str);
+		NET_OutOfBandPrint(NS_SERVER, from, "print\n%s\n", denied);
+		Com_DPrintf("Game rejected a connection: %s.\n", denied);
 		return;
 	}
 
@@ -667,7 +669,11 @@ void SV_DropClient(client_t * drop, const char *reason)
 
 	// call the prog function for removing a client
 	// this will remove the body, among other things
+#if defined(USE_JAVA)
+	Java_G_ClientDisconnect(drop - svs.clients);
+#else
 	VM_Call(gvm, GAME_CLIENT_DISCONNECT, drop - svs.clients);
+#endif
 
 	// add the disconnect command
 	SV_SendServerCommand(drop, "disconnect \"%s\"", reason);
@@ -809,7 +815,11 @@ void SV_ClientEnterWorld(client_t * client, usercmd_t * cmd)
 	client->lastUsercmd = *cmd;
 
 	// call the game begin function
+#if defined(USE_JAVA)
+	Java_G_ClientBegin(client - svs.clients);
+#else
 	VM_Call(gvm, GAME_CLIENT_BEGIN, client - svs.clients);
+#endif
 }
 
 /*
@@ -935,7 +945,7 @@ void SV_BeginDownload_f(client_t * cl)
 SV_WriteDownloadToClient
 
 Check to see if the client wants a file, open it if needed and start pumping the client
-Fill up msg with data 
+Fill up msg with data
 ==================
 */
 void SV_WriteDownloadToClient(client_t * cl, msg_t * msg)
@@ -1213,7 +1223,7 @@ static void SV_VerifyPaks_f(client_t * cl)
 	const char     *pPaks, *pArg;
 	qboolean        bGood = qtrue;
 
-	// if we are pure, we "expect" the client to load certain things from 
+	// if we are pure, we "expect" the client to load certain things from
 	// certain pk3 files, namely we want the client to have loaded the
 	// ui and cgame that we think should be loaded based on the pure setting
 	//
@@ -1529,8 +1539,13 @@ static void SV_UpdateUserinfo_f(client_t * cl)
 	Q_strncpyz(cl->userinfo, Cmd_Argv(1), sizeof(cl->userinfo));
 
 	SV_UserinfoChanged(cl);
+
 	// call prog code to allow overrides
+#if defined(USE_JAVA)
+	Java_G_ClientUserInfoChanged(cl - svs.clients);
+#else
 	VM_Call(gvm, GAME_CLIENT_USERINFO_CHANGED, cl - svs.clients);
+#endif
 }
 
 
@@ -1631,7 +1646,11 @@ void SV_ExecuteClientCommand(client_t * cl, const char *s, qboolean clientOK)
 		if(!u->name && sv.state == SS_GAME)
 		{
 			Cmd_Args_Sanitize();
+#if defined(USE_JAVA)
+			Java_G_ClientCommand(cl - svs.clients);
+#else
 			VM_Call(gvm, GAME_CLIENT_COMMAND, cl - svs.clients);
+#endif
 		}
 	}
 	else if(!bProcessed)
@@ -1713,14 +1732,18 @@ void SV_ClientThink(client_t * cl, usercmd_t * cmd)
 		return;					// may have been kicked during the last usercmd
 	}
 
+#if defined(USE_JAVA)
+	Java_G_ClientThink(cl - svs.clients);
+#else
 	VM_Call(gvm, GAME_CLIENT_THINK, cl - svs.clients);
+#endif
 }
 
 /*
 ==================
 SV_UserMove
 
-The message usually contains all the movement commands 
+The message usually contains all the movement commands
 that were in the last three packets, so that the information
 in dropped packets can be recovered.
 
@@ -2008,7 +2031,7 @@ void SV_ExecuteClientMessage(client_t * cl, msg_t * msg)
 	}
 	// if this is a usercmd from a previous gamestate,
 	// ignore it or retransmit the current gamestate
-	// 
+	//
 	// if the client was downloading, let it stay at whatever serverId and
 	// gamestate it was at.  This allows it to keep downloading even when
 	// the gamestate changes.  After the download is finished, we'll

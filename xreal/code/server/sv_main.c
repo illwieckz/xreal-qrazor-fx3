@@ -29,7 +29,9 @@ cvar_t         *sv_voip;
 
 serverStatic_t  svs;			// persistant server info
 server_t        sv;				// local server
+#if !defined(USE_JAVA)
 vm_t           *gvm = NULL;		// game virtual machine
+#endif
 
 cvar_t         *sv_fps;			// time rate for running non-clients
 cvar_t         *sv_timeout;		// seconds without any message
@@ -182,7 +184,7 @@ void SV_AddServerCommand(client_t * client, const char *cmd)
 =================
 SV_SendServerCommand
 
-Sends a reliable command string to be interpreted by 
+Sends a reliable command string to be interpreted by
 the client game module: "cp", "print", "chat", etc
 A NULL client will broadcast to all clients
 =================
@@ -773,7 +775,7 @@ void SV_CalcPings(void)
 ==================
 SV_CheckTimeouts
 
-If a packet has not been received from a client for timeout->integer 
+If a packet has not been received from a client for timeout->integer
 seconds, drop the conneciton.  Server time is used instead of
 realtime to avoid dropping the local client while debugging.
 
@@ -989,7 +991,11 @@ void SV_Frame(int msec)
 		sv.time += frameMsec;
 
 		// let everything in the world think and move
+#if defined(USE_JAVA)
+		Java_G_RunFrame(sv.time);
+#else
 		VM_Call(gvm, GAME_RUN_FRAME, sv.time);
+#endif
 	}
 
 	if(com_speeds->integer)

@@ -307,7 +307,7 @@ static void SV_MapRestart_f(void)
 	// map_restart has happened
 	svs.snapFlagServerBit ^= SNAPFLAG_SERVERCOUNT;
 
-	// generate a new serverid  
+	// generate a new serverid
 	// TTimo - don't update restartedserverId there, otherwise we won't deal correctly with multiple map_restart
 	sv.serverId = com_frameTime;
 	Cvar_Set("sv_serverid", va("%i", sv.serverId));
@@ -323,7 +323,11 @@ static void SV_MapRestart_f(void)
 	// run a few frames to allow everything to settle
 	for(i = 0; i < 3; i++)
 	{
+#if defined(USE_JAVA)
+		Java_G_RunFrame(sv.time);
+#else
 		VM_Call(gvm, GAME_RUN_FRAME, sv.time);
+#endif
 		sv.time += 100;
 		svs.time += 100;
 	}
@@ -355,7 +359,11 @@ static void SV_MapRestart_f(void)
 		SV_AddServerCommand(client, "map_restart\n");
 
 		// connect the client again, without the firstTime flag
+#if defined(USE_JAVA)
+		denied = Java_G_ClientConnect(i, qfalse, isBot);
+#else
 		denied = VM_ExplicitArgPtr(gvm, VM_Call(gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot));
+#endif
 		if(denied)
 		{
 			// this generally shouldn't happen, because the client
@@ -371,7 +379,11 @@ static void SV_MapRestart_f(void)
 	}
 
 	// run another frame to allow things to look at all the players
+#if defined(USE_JAVA)
+	Java_G_RunFrame(sv.time);
+#else
 	VM_Call(gvm, GAME_RUN_FRAME, sv.time);
+#endif
 	sv.time += 100;
 	svs.time += 100;
 }

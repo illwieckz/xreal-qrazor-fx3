@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 
+#if defined(USE_JAVA)
+#include "vm_java.h"
+#endif
+
 #include <setjmp.h>
 #ifndef _WIN32
 #include <netinet/in.h>
@@ -319,6 +323,10 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	{
 		CL_Shutdown();
 		SV_Shutdown(va("Server fatal crashed: %s", com_errorMessage));
+
+#if defined(USE_JAVA)
+		JVM_Shutdown();
+#endif
 	}
 
 	Com_Shutdown();
@@ -1437,7 +1445,7 @@ void Com_Meminfo_f(void)
 
 		if(block->next == &mainzone->blocklist)
 		{
-			break;				// all blocks have been hit 
+			break;				// all blocks have been hit
 		}
 		if((byte *) block + block->size != (byte *) block->next)
 		{
@@ -1465,7 +1473,7 @@ void Com_Meminfo_f(void)
 
 		if(block->next == &smallzone->blocklist)
 		{
-			break;				// all blocks have been hit 
+			break;				// all blocks have been hit
 		}
 	}
 
@@ -1552,7 +1560,7 @@ void Com_TouchMemory(void)
 		}
 		if(block->next == &mainzone->blocklist)
 		{
-			break;				// all blocks have been hit 
+			break;				// all blocks have been hit
 		}
 	}
 
@@ -1710,7 +1718,7 @@ void Com_InitHunkMemory(void)
 
 	// make sure the file system has allocated and "not" freed any temp blocks
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different 
+	// by the file system without redunant routines in the file system utilizing different
 	// memory systems
 	if(FS_LoadStack() != 0)
 	{
@@ -1980,7 +1988,7 @@ void           *Hunk_AllocateTempMemory(int size)
 
 	// return a Z_Malloc'd block if the hunk has not been initialized
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different 
+	// by the file system without redunant routines in the file system utilizing different
 	// memory systems
 	if(s_hunkData == NULL)
 	{
@@ -2034,7 +2042,7 @@ void Hunk_FreeTempMemory(void *buf)
 
 	// free with Z_Free if the hunk has not been initialized
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different 
+	// by the file system without redunant routines in the file system utilizing different
 	// memory systems
 	if(s_hunkData == NULL)
 	{
@@ -3515,6 +3523,9 @@ void Com_Init(char *commandLine)
 	Sys_Init();
 	Netchan_Init(Com_Milliseconds() & 0xffff);	// pick a port value that should be nice and random
 	VM_Init();
+#if defined(USE_JAVA)
+	JVM_Init();
+#endif
 	SV_Init();
 
 	com_dedicated->modified = qfalse;

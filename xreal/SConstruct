@@ -14,6 +14,7 @@ opts.Add(EnumVariable('optimize', 'Set to >= 1 to build with general optimizatio
 opts.Add(EnumVariable('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
 #opts.Add(EnumVariable('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'core2duo')))
 opts.Add(BoolVariable('smp', 'Set to 1 to compile engine with symmetric multiprocessor support', 0))
+opts.Add(BoolVariable('java', 'Set to 1 to compile the engine and game with Java support', 0))
 opts.Add(BoolVariable('llvm', 'Set to 1 to compile the engine and game with LLVM support', 0))
 opts.Add(BoolVariable('compatq3a', 'Set to 1 to compile engine with Q3A compatibility support', 0))
 #opts.Add(BoolVariable('purevm', 'Set to 1 to compile the engine with strict checking for vm/*.qvm modules in paks', 0))
@@ -93,23 +94,23 @@ opts.Save('xreal.conf', env)
 # compile targets
 #
 Export('env')
-if env['dedicated'] == 1:
-	SConscript('SConscript_xrealded', build_dir='build/xrealded', duplicate=0)
-	SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
+#if env['dedicated'] == 1:
+SConscript('SConscript_xrealded', build_dir='build/xrealded', duplicate=0)
+#	SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 	
-	if env['llvm'] == 1:
-		SConscript('SConscript_base_gamellvm', build_dir='build/base/gamellvm', duplicate=0)
+#	if env['llvm'] == 1:
+#		SConscript('SConscript_base_gamellvm', build_dir='build/base/gamellvm', duplicate=0)
 	
-else:
-	SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
-	SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
-	SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
-	SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)
+#else:
+SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
+SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
+SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
+SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)
 	
-	if env['llvm'] == 1:
-		SConscript('SConscript_base_cgamellvm', build_dir='build/base/cgamellvm', duplicate=0)
-		SConscript('SConscript_base_gamellvm', build_dir='build/base/gamellvm', duplicate=0)
-		SConscript('SConscript_base_uillvm', build_dir='build/base/uillvm', duplicate=0)
+if env['llvm'] == 1:
+	SConscript('SConscript_base_cgamellvm', build_dir='build/base/cgamellvm', duplicate=0)
+	SConscript('SConscript_base_gamellvm', build_dir='build/base/gamellvm', duplicate=0)
+	SConscript('SConscript_base_uillvm', build_dir='build/base/uillvm', duplicate=0)
 		
 
 if env['radiant'] == 1:
