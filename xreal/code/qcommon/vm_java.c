@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #elif defined(MACOS_X)
 #define DEFAULT_JAVA_LIB "java.dylib"
 #else
-#define DEFAULT_JAVA_LIB "/usr/lib/jvm/java-6-openjdk/jre/lib/i386/server/libjvm.so" //"java.so" //
+#define DEFAULT_JAVA_LIB "/usr/lib/jvm/java-6-openjdk/jre/lib/i386/server/libjvm.so"	//"java.so" //
 #endif
 
 #include "q_shared.h"
@@ -40,11 +40,11 @@ static cvar_t  *jvm_javaLib;
 JNIEnv         *javaEnv;
 JavaVM         *javaVM;
 static void    *javaLib = NULL;
-qboolean		javaEnabled = qfalse;
-qboolean		javaVMIsOurs = qfalse;
+qboolean        javaEnabled = qfalse;
+qboolean        javaVMIsOurs = qfalse;
 
-jint            (*QJNI_CreateJavaVM)(JavaVM **p_vm, JNIEnv **p_env, void *vm_args);
-jint            (*QJNI_GetCreatedJavaVMs)(JavaVM **vmBuf, jsize bufLen, jsize *nVMs);
+jint(*QJNI_CreateJavaVM) (JavaVM ** p_vm, JNIEnv ** p_env, void *vm_args);
+jint(*QJNI_GetCreatedJavaVMs) (JavaVM ** vmBuf, jsize bufLen, jsize * nVMs);
 
 
 
@@ -103,7 +103,7 @@ static qboolean JVM_JNI_Init()
 			Com_Printf("JVM_JNI_Init() failed:\n\"%s\"\n", Sys_LibraryError());
 			return qfalse;
 		}
-#endif	/* _WIN32 */
+#endif							/* _WIN32 */
 	}
 
 	javaEnabled = qtrue;
@@ -165,9 +165,9 @@ void Misc_javaDetach()
  * Method:    print
  * Signature: (Ljava/lang/String;)V
  */
-static void JNICALL Java_xreal_Engine_print(JNIEnv *env, jclass cls, jstring js)
+static void JNICALL Java_xreal_Engine_print(JNIEnv * env, jclass cls, jstring js)
 {
-	char           string[MAXPRINTMSG];
+	char            string[MAXPRINTMSG];
 
 	if(js == NULL)
 		return;
@@ -179,8 +179,7 @@ static void JNICALL Java_xreal_Engine_print(JNIEnv *env, jclass cls, jstring js)
 
 // handle to Engine class
 static jclass   class_Engine;
-static JNINativeMethod Engine_methods[] =
-{
+static JNINativeMethod Engine_methods[] = {
 	{"print", "(Ljava/lang/String;)V", Java_xreal_Engine_print},
 };
 
@@ -225,7 +224,7 @@ void ConvertJavaString(char *dest, jstring jstr, int destsize)
 
 	if(destsize < 1)
 	{
-		Com_Error(ERR_FATAL,"ConvertJavaString: destsize < 1");
+		Com_Error(ERR_FATAL, "ConvertJavaString: destsize < 1");
 	}
 
 	// table for translating accented latin-1 characters to closest non-accented chars
@@ -239,13 +238,14 @@ void ConvertJavaString(char *dest, jstring jstr, int destsize)
 
 	jsize           jStrLen;
 	const jchar    *unicodeChars;
-//	char           *result;
+
+//  char           *result;
 	int             i;
 	char           *p;
 
 	jStrLen = Q_min((*javaEnv)->GetStringLength(javaEnv, jstr), destsize);
 
-	p = dest;// = q2java_gi.TagMalloc(jStrLen + 1, TAG_GAME);
+	p = dest;					// = q2java_gi.TagMalloc(jStrLen + 1, TAG_GAME);
 	unicodeChars = (*javaEnv)->GetStringChars(javaEnv, jstr, NULL);
 
 	for(i = 0; i < jStrLen; i++)
@@ -267,7 +267,7 @@ void ConvertJavaString(char *dest, jstring jstr, int destsize)
 	(*javaEnv)->ReleaseStringChars(javaEnv, jstr, unicodeChars);
 	*p = 0;
 
-//	return result;
+//  return result;
 }
 
 /**
@@ -303,7 +303,7 @@ void JVM_Shutdown(void)
 		return;
 	}
 
-//	Java_G_ShutdownGame(qfalse);
+//  Java_G_ShutdownGame(qfalse);
 
 	Engine_javaDetach();
 	Misc_javaDetach();
@@ -328,26 +328,27 @@ void JVM_Shutdown(void)
 
 void JVM_Init(void)
 {
-	JavaVM *jvm;
+	JavaVM         *jvm;
 	jsize           nVMs;		// number of VM's active
-	jint res;
-	jclass cls;
-	jmethodID mid;
-	jstring jstr;
-	jclass stringClass;
-	jobjectArray args;
-	int jdkVersion;
+	jint            res;
+	jclass          cls;
+	jmethodID       mid;
+	jstring         jstr;
+	jclass          stringClass;
+	jobjectArray    args;
+	int             jdkVersion;
 
-	JavaVMInitArgs vm_args;
-	JavaVMOption options[1];
+	JavaVMInitArgs  vm_args;
+	JavaVMOption    options[1];
 
-	char *ospath;
-	char mainClassPath[MAX_QPATH];
+	char           *ospath;
+	char            mainClassPath[MAX_QPATH];
 
 	jvm_javaLib = Cvar_Get("jvm_javaLib", DEFAULT_JAVA_LIB, CVAR_ARCHIVE);
 
 	//options[0].optionString = "-Djava.class.path=" FS_G;// USER_CLASSPATH;
-	Com_sprintf(mainClassPath, sizeof(mainClassPath), "-Djava.class.path=%s", FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "classes"));
+	Com_sprintf(mainClassPath, sizeof(mainClassPath), "-Djava.class.path=%s",
+				FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "classes"));
 	options[0].optionString = mainClassPath;
 
 	vm_args.version = JNI_VERSION_1_2;
@@ -360,7 +361,7 @@ void JVM_Init(void)
 		Com_Error(ERR_FATAL, "JNI initialization failed");
 	}
 
-	 // look for an existing VM
+	// look for an existing VM
 	if(QJNI_GetCreatedJavaVMs(&jvm, 1, &nVMs))
 	{
 		Com_Error(ERR_FATAL, "Search for existing VM's failed");
@@ -380,16 +381,16 @@ void JVM_Init(void)
 	}
 	else
 	{
-		 // Create the Java VM
-		 res = QJNI_CreateJavaVM(&jvm, (void**)&javaEnv, &vm_args);
-		 if (res < 0)
-		 {
-			 Com_Error(ERR_FATAL, "Can't create Java VM");
-		 }
+		// Create the Java VM
+		res = QJNI_CreateJavaVM(&jvm, (void **)&javaEnv, &vm_args);
+		if(res < 0)
+		{
+			Com_Error(ERR_FATAL, "Can't create Java VM");
+		}
 
-		 javaVM = jvm;
+		javaVM = jvm;
 
-		 Com_Printf("created new Java VM\n");
+		Com_Printf("created new Java VM\n");
 	}
 
 	if(!javaVM)
@@ -404,4 +405,4 @@ void JVM_Init(void)
 
 
 
-#endif //defined(USE_JAVA
+#endif							//defined(USE_JAVA

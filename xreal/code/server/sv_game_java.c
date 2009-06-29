@@ -536,11 +536,11 @@ intptr_t SV_GameSystemCalls(intptr_t * args)
 
 
 // handle to Game class
-static jclass			class_Game;
-static jobject			object_Game;
-static jclass			interface_GameListener;
-static jmethodID		method_Game_ctor;
-static jmethodID		method_Game_initGame;
+static jclass   class_Game;
+static jobject  object_Game;
+static jclass   interface_GameListener;
+static jmethodID method_Game_ctor;
+static jmethodID method_Game_initGame;
 
 void Game_javaRegister()
 {
@@ -612,12 +612,12 @@ Called every time a map changes
 void SV_ShutdownGameProgs(void)
 {
 	/*
-	if(!javaEnv)
-	{
-		Com_Printf("Can't stop Java VM, javaEnv pointer was null\n");
-		return;
-	}
-	*/
+	   if(!javaEnv)
+	   {
+	   Com_Printf("Can't stop Java VM, javaEnv pointer was null\n");
+	   return;
+	   }
+	 */
 
 	Java_G_ShutdownGame(qfalse);
 
@@ -628,7 +628,7 @@ void SV_ShutdownGameProgs(void)
 
 void Java_G_GameInit(int levelTime, int randomSeed, qboolean restart)
 {
-//	Entity_arrayInit();
+//  Entity_arrayInit();
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_initGame, levelTime, randomSeed, restart);
 
@@ -640,7 +640,7 @@ void Java_G_ShutdownGame(qboolean restart)
 	// TODO
 }
 
-char* Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
+char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 {
 	// TODO
 	return NULL;
@@ -776,4 +776,4 @@ qboolean SV_GameCommand(void)
 	return Java_G_ConsoleCommand();
 }
 
-#endif //defined(USE_JAVA
+#endif							//defined(USE_JAVA
