@@ -536,11 +536,21 @@ intptr_t SV_GameSystemCalls(intptr_t * args)
 
 
 // handle to Game class
-static jclass   class_Game;
-static jobject  object_Game;
+static jclass   class_Game = NULL;
+static jobject  object_Game = NULL;
 static jclass   interface_GameListener;
 static jmethodID method_Game_ctor;
 static jmethodID method_Game_initGame;
+static jmethodID method_Game_shutdownGame;
+static jmethodID method_Game_clientConnect;
+static jmethodID method_Game_clientBegin;
+static jmethodID method_Game_clientUserInfoChanged;
+static jmethodID method_Game_clientDisconnect;
+static jmethodID method_Game_clientCommand;
+static jmethodID method_Game_clientThink;
+static jmethodID method_Game_runFrame;
+static jmethodID method_Game_runAIFrame;
+static jmethodID method_Game_consoleCommand;
 
 void Game_javaRegister()
 {
@@ -571,6 +581,16 @@ void Game_javaRegister()
 
 	// load game interface methods
 	method_Game_initGame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "initGame", "(IIZ)V");
+	method_Game_shutdownGame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "shutdownGame", "(Z)V");
+	method_Game_clientConnect = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientConnect", "(IZZ)Ljava/lang/String;");
+	method_Game_clientBegin = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientBegin", "(I)V");
+	method_Game_clientUserInfoChanged = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientUserInfoChanged", "(I)V");
+	method_Game_clientDisconnect = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientDisconnect", "(I)V");
+	method_Game_clientCommand = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientCommand", "(I)V");
+	method_Game_clientThink = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientThink", "(I)V");
+	method_Game_runFrame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "runFrame", "(I)V");
+	method_Game_runAIFrame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "runAIFrame", "(I)V");
+	method_Game_consoleCommand = (*javaEnv)->GetMethodID(javaEnv, class_Game, "consoleCommand", "()Z");
 	if(CheckException())
 	{
 		Com_Error(ERR_DROP, "Problem getting handle for one or more of the game methods\n");
@@ -596,7 +616,13 @@ void Game_javaDetach()
 		if(class_Game)
 		{
 			(*javaEnv)->DeleteLocalRef(javaEnv, class_Game);
+			class_Game = NULL;
+		}
+
+		if(object_Game)
+		{
 			(*javaEnv)->DeleteLocalRef(javaEnv, object_Game);
+			object_Game = NULL;
 		}
 	}
 }
@@ -611,13 +637,11 @@ Called every time a map changes
 */
 void SV_ShutdownGameProgs(void)
 {
-	/*
-	   if(!javaEnv)
-	   {
-	   Com_Printf("Can't stop Java VM, javaEnv pointer was null\n");
-	   return;
-	   }
-	 */
+	if(!javaEnv)
+	{
+		Com_Printf("Can't stop Java VM, javaEnv pointer was null\n");
+		return;
+	}
 
 	Java_G_ShutdownGame(qfalse);
 
@@ -628,22 +652,54 @@ void SV_ShutdownGameProgs(void)
 
 void Java_G_GameInit(int levelTime, int randomSeed, qboolean restart)
 {
-//  Entity_arrayInit();
+#if 1
+	if(object_Game)
+	{
+		(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_initGame, levelTime, randomSeed, restart);
 
-	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_initGame, levelTime, randomSeed, restart);
-
-	CheckException();
+		CheckException();
+	}
+#endif
 }
 
 void Java_G_ShutdownGame(qboolean restart)
 {
-	// TODO
+#if 1
+	if(object_Game)
+	{
+		(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_shutdownGame, restart);
+
+		CheckException();
+	}
+#endif
 }
 
 char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 {
-	// TODO
+#if 1
+	static char	string[MAX_STRING_CHARS];
+	jobject 	result;
+
+	if(!object_Game)
+		return;
+
+	result = (*javaEnv)->CallObjectMethod(javaEnv, object_Game, method_Game_clientConnect, firstTime, isBot);
+
+	CheckException();
+
+	if(result == NULL)
+		return NULL;
+
+	ConvertJavaString(string, result, sizeof(string));
+
+	CheckException();
+
+	Com_Printf("Java_G_ClientConnect '%s'\n", string);
+
+	return string;
+#else
 	return NULL;
+#endif
 }
 
 void Java_G_ClientBegin(int clientNum)

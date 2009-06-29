@@ -297,6 +297,8 @@ qboolean CheckException_(char *filename, int linenum)
 
 void JVM_Shutdown(void)
 {
+	Com_Printf("------- JVM_Shutdown() -------\n");
+
 	if(!javaEnv)
 	{
 		Com_Printf("Can't stop Java VM, javaEnv pointer was null\n");
@@ -343,6 +345,8 @@ void JVM_Init(void)
 
 	char           *ospath;
 	char            mainClassPath[MAX_QPATH];
+
+	Com_Printf("------- JVM_Init() -------\n");
 
 	jvm_javaLib = Cvar_Get("jvm_javaLib", DEFAULT_JAVA_LIB, CVAR_ARCHIVE);
 
