@@ -1,8 +1,5 @@
 package xreal;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Vector;
 
 /**
  * CVARS (console variables)
@@ -86,27 +83,21 @@ public class CVar {
 
 	// private int modificationCount;
 	private String name;
-//	private float value;
-//	private int integer;
-//	private String string;
 
-//	private static ArrayList<CVar> list = new ArrayList<CVar>();
+	// private float value;
+	// private int integer;
+	// private String string;
+
+	// private static ArrayList<CVar> list = new ArrayList<CVar>();
 
 	/*
-	public static void updateVars() {
-		
-		Engine.print("CVar.updateVars()\n");
-		
-		//synchronized (list) 
-		{
-			for(CVar cv : list)
-			{
-				Engine.print("updating " + cv.toString());
-				cv.update();
-			}
-		}
-	}
-	*/
+	 * public static void updateVars() {
+	 * 
+	 * Engine.print("CVar.updateVars()\n");
+	 * 
+	 * //synchronized (list) { for(CVar cv : list) { Engine.print("updating " +
+	 * cv.toString()); cv.update(); } } }
+	 */
 
 	/**
 	 * Call Cvar_Get and return the pointer of the constructed cvar_t.
@@ -119,7 +110,9 @@ public class CVar {
 	private static native void set0(String name, String value);
 
 	private static native String getString0(int handle);
+
 	private static native float getValue0(int handle);
+
 	private static native int getInteger0(int handle);
 
 	/**
@@ -135,42 +128,39 @@ public class CVar {
 
 		handle = register0(name, value, flags);
 
-		//this.string = getString0(handle);
-		//this.value = Float.valueOf(this.string);
-		//this.integer = Integer.valueOf(this.string);
+		// this.string = getString0(handle);
+		// this.value = Float.valueOf(this.string);
+		// this.integer = Integer.valueOf(this.string);
 
-		//list.add(this);
+		// list.add(this);
 	}
 
 	/*
-	public synchronized void update() {
-		string = getString0(handle);
-		value = Float.valueOf(string);
-		integer = Integer.valueOf(string);
-	}
-	*/
+	 * public synchronized void update() { string = getString0(handle); value =
+	 * Float.valueOf(string); integer = Integer.valueOf(string); }
+	 */
 
-	public synchronized void set(String name, String value) {
+	public synchronized void set(String value) {
 		set0(name, value);
-		//update();
+		// update();
 	}
 
 	public synchronized float getValue() {
-		//return value;
+		// return value;
 		return getValue0(handle);
 	}
 
 	public synchronized int getInteger() {
-		//return integer;
+		// return integer;
 		return getInteger0(handle);
 	}
 
 	public synchronized String getString() {
-		//return string;
+		// return string;
 		return getString0(handle);
 	}
 
 	public String toString() {
-		return "CVar '" + name + "' = '" + getInteger() + "'";
+		return "CVar '" + name + "' = '" + getString() + "'";
 	}
 }

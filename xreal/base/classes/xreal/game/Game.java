@@ -69,6 +69,7 @@ public class Game implements GameListener {
 	public void runFrame(int time) {
 		//Engine.print("xreal.game.Game.runFrame(time = " + time + ")\n");
 		
+		//CVars.g_gametype.set("99");
 		//Engine.print(CVars.g_gametype.toString() + "\n");
 	}
 
