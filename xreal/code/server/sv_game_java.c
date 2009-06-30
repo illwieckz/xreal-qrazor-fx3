@@ -41,8 +41,6 @@ static sharedEntity_t	g_entities[MAX_GENTITIES];
 static playerState_t	g_clients[MAX_CLIENTS];
 
 
-// these functions must be used instead of pointer arithmetic, because
-// the game allocates gentities with private information after the server shared part
 int SV_NumForGentity(sharedEntity_t * ent)
 {
 	int             num;

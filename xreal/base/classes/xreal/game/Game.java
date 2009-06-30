@@ -68,12 +68,12 @@ public class Game implements GameListener {
 	@Override
 	public void runFrame(int time) {
 		//Engine.print("xreal.game.Game.runFrame(time = " + time + ")\n");
-
+		
+		//Engine.print(CVars.g_gametype.toString() + "\n");
 	}
 
 	@Override
 	public void shutdownGame(boolean restart) {
 		Engine.print("xreal.game.Game.shutdownGame(restart = " + restart + ")\n");
 	}
-
 }

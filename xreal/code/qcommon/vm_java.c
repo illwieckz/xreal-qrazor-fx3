@@ -35,6 +35,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "vm_java.h"
 #include "../sys/sys_loadlib.h"
 
+#include "java/xreal_Engine.h"
+#include "java/xreal_CVar.h"
+
 static cvar_t  *jvm_javaLib;
 
 JNIEnv         *javaEnv;
@@ -161,11 +164,134 @@ void Misc_javaDetach()
 // ====================================================================================
 
 /*
+ * Class:     xreal_CVar
+ * Method:    register0
+ * Signature: (Ljava/lang/String;Ljava/lang/String;I)I
+ */
+jint JNICALL Java_xreal_CVar_register0(JNIEnv * env, jclass cls, jstring jname, jstring jvalue, jint flags)
+{
+	//Cvar_Register(VMA(1), VMA(2), VMA(3), args[4]);
+
+	char           *varName;
+	char           *defaultValue;
+	cvar_t         *cv;
+
+	varName = (char *)((*env)->GetStringUTFChars(env, jname, 0));
+	defaultValue = (char *)((*env)->GetStringUTFChars(env, jvalue, 0));
+
+	cv = Cvar_Get(varName, defaultValue, flags);
+
+	(*env)->ReleaseStringUTFChars(env, jname, varName);
+	(*env)->ReleaseStringUTFChars(env, jvalue, defaultValue);
+
+	//CheckException();
+
+	return (jint) cv;
+}
+
+/*
+ * Class:     xreal_CVar
+ * Method:    set0
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ */
+void JNICALL Java_xreal_CVar_set0(JNIEnv * env, jclass cls, jstring jname, jstring jvalue)
+{
+	// Cvar_Set((const char *)VMA(1), (const char *)VMA(2));
+
+	char           *varName;
+	char           *value;
+
+	varName = (char *)((*env)->GetStringUTFChars(env, jname, 0));
+	value = (char *)((*env)->GetStringUTFChars(env, jvalue, 0));
+
+	Cvar_Set(varName, value);
+
+	(*env)->ReleaseStringUTFChars(env, jname, varName);
+	(*env)->ReleaseStringUTFChars(env, jvalue, value);
+
+	//CheckException();
+}
+
+/*
+ * Class:     xreal_CVar
+ * Method:    getString0
+ * Signature: (I)Ljava/lang/String;
+ */
+jstring JNICALL Java_xreal_CVar_getString0(JNIEnv * env, jclass cls, jint ptr)
+{
+	cvar_t         *cv = (cvar_t *) ptr;
+
+	return (*env)->NewStringUTF(env, cv->string);
+}
+
+/*
+ * Class:     xreal_CVar
+ * Method:    getValue0
+ * Signature: (I)F
+ */
+jfloat JNICALL Java_xreal_CVar_getValue0(JNIEnv * env, jclass cls, jint ptr)
+{
+	cvar_t         *cv = (cvar_t *) ptr;
+
+	return cv->value;
+}
+
+/*
+ * Class:     xreal_CVar
+ * Method:    getInteger0
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_CVar_getInteger0(JNIEnv * env, jclass cls, jint ptr)
+{
+	cvar_t         *cv = (cvar_t *) ptr;
+
+	return cv->integer;
+}
+
+
+
+// handle to CVar class
+static jclass   class_CVar;
+static JNINativeMethod CVar_methods[] = {
+	{"register0", "(Ljava/lang/String;Ljava/lang/String;I)I", Java_xreal_CVar_register0},
+	{"set0", "(Ljava/lang/String;Ljava/lang/String;)V", Java_xreal_CVar_set0},
+	{"getString0", "(I)Ljava/lang/String;", Java_xreal_CVar_getString0},
+	{"getValue0", "(I)F", Java_xreal_CVar_getValue0},
+	{"getInteger0", "(I)I", Java_xreal_CVar_getInteger0},
+};
+
+void CVar_javaRegister()
+{
+	class_CVar = (*javaEnv)->FindClass(javaEnv, "xreal/CVar");
+	if(CheckException() || !class_CVar)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.CVar");
+	}
+
+	(*javaEnv)->RegisterNatives(javaEnv, class_CVar, CVar_methods, sizeof(CVar_methods) / sizeof(CVar_methods[0]));
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't register native methods for xreal.CVar");
+	}
+}
+
+
+void CVar_javaDetach()
+{
+	if(class_CVar)
+		(*javaEnv)->UnregisterNatives(javaEnv, class_CVar);
+
+	(*javaEnv)->DeleteLocalRef(javaEnv, class_CVar);
+}
+
+// ====================================================================================
+
+/*
  * Class:     xreal_Engine
  * Method:    print
  * Signature: (Ljava/lang/String;)V
  */
-static void JNICALL Java_xreal_Engine_print(JNIEnv * env, jclass cls, jstring js)
+void JNICALL Java_xreal_Engine_print(JNIEnv * env, jclass cls, jstring js)
 {
 	char            string[MAXPRINTMSG];
 
@@ -177,10 +303,28 @@ static void JNICALL Java_xreal_Engine_print(JNIEnv * env, jclass cls, jstring js
 	Com_Printf("%s", string);
 }
 
+/*
+ * Class:     xreal_Engine
+ * Method:    error
+ * Signature: (Ljava/lang/String;)V
+ */
+void JNICALL Java_xreal_Engine_error(JNIEnv *env, jclass cls, jstring js)
+{
+	char            string[MAXPRINTMSG];
+
+	if(js == NULL)
+		return;
+
+	ConvertJavaString(string, js, sizeof(string));
+
+	Com_Error(ERR_DROP, "%s", string);
+}
+
 // handle to Engine class
 static jclass   class_Engine;
 static JNINativeMethod Engine_methods[] = {
 	{"print", "(Ljava/lang/String;)V", Java_xreal_Engine_print},
+	{"error", "(Ljava/lang/String;)V", Java_xreal_Engine_error},
 };
 
 void Engine_javaRegister()
@@ -307,6 +451,7 @@ void JVM_Shutdown(void)
 
 //  Java_G_ShutdownGame(qfalse);
 
+	CVar_javaDetach();
 	Engine_javaDetach();
 	Misc_javaDetach();
 
@@ -405,6 +550,7 @@ void JVM_Init(void)
 	// finally register the needed core modules
 	Misc_javaRegister();
 	Engine_javaRegister();
+	CVar_javaRegister();
 }
 
 
