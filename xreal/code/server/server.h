@@ -87,11 +87,15 @@ typedef struct
 
 	// the game virtual machine will update these on init and changes
 	sharedEntity_t *gentities;
+#if !defined(USE_JAVA)
 	int             gentitySize;
+#endif
 	int             num_entities;	// current number, <= MAX_GENTITIES
 
 	playerState_t  *gameClients;
+#if !defined(USE_JAVA)
 	int             gameClientSize;	// will be > sizeof(playerState_t) due to game private data
+#endif
 
 	int             restartTime;
 	int             time;

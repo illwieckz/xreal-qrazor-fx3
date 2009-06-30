@@ -10,46 +10,40 @@ public class Game implements GameListener {
 
 	@Override
 	public void clientBegin(int clientNum) {
-		// TODO Auto-generated method stub
-		Engine.print("xreal.game.Game.clientBegin()\n");
+		Engine.print("xreal.game.Game.clientBegin(clientNum = " + clientNum + ")\n");
 
 	}
 
 	@Override
 	public void clientCommand(int clientNum) {
-		// TODO Auto-generated method stub
-		Engine.print("xreal.game.Game.clientCommand()\n");
+		Engine.print("xreal.game.Game.clientCommand(clientNum = " + clientNum + ")\n");
 	}
 
 	@Override
 	public String clientConnect(int clientNum, boolean firstTime, boolean isBot) {
-		Engine.print("xreal.game.Game.clientConnect()\n");
+		Engine.print("xreal.game.Game.clientConnect(clientNum = " + clientNum + ", firstTime = " + firstTime + ", isBot = " + isBot + ")\n");
 		
-		return "Game.clientConnect() is not implemented yet.";	// deny message
-		//return null;
+		//return "Game.clientConnect() is not implemented yet.";	// deny message
+		return null;
 	}
 
 	@Override
 	public void clientDisconnect(int clientNum) {
-		// TODO Auto-generated method stub
-		Engine.print("xreal.game.Game.clientDisconnect()\n");
+		Engine.print("xreal.game.Game.clientDisconnect(clientNum = " + clientNum + ")\n");
 	}
 
 	@Override
 	public void clientThink(int clientNum) {
-		// TODO Auto-generated method stub
-		Engine.print("xreal.game.Game.clientThink()\n");
+		Engine.print("xreal.game.Game.clientThink(clientNum = " + clientNum + ")\n");
 	}
 
 	@Override
 	public void clientUserInfoChanged(int clientNum) {
-		// TODO Auto-generated method stub
-		Engine.print("xreal.game.Game.clientUserInfoChanged()\n");
+		Engine.print("xreal.game.Game.clientUserInfoChanged(clientNum = " + clientNum + ")\n");
 	}
 
 	@Override
 	public boolean consoleCommand() {
-		// TODO Auto-generated method stub
 		Engine.print("xreal.game.Game.consoleCommand()\n");
 		return false;
 	}
@@ -57,8 +51,9 @@ public class Game implements GameListener {
 	@Override
 	public void initGame(int levelTime, int randomSeed, boolean restart) {
 		
+		Engine.print("xreal.game.Game.initGame(levelTime = "+ levelTime + ", randomSeed = " + randomSeed + ", restart = " + restart + ")\n");
+		
 		Engine.print("------- Game Initialization -------\n");
-		Engine.print("Successfully called xreal.game.Game.initGame() from Java!\n");
 		//Engine.print("gamename: %s\n", GAMEVERSION);
 		//Engine.print("gamedate: %s\n", __DATE__);
 
@@ -66,22 +61,19 @@ public class Game implements GameListener {
 
 	@Override
 	public void runAIFrame(int time) {
-		// TODO Auto-generated method stub
-		Engine.print("xreal.game.Game.runAIFrame()\n");
+		//Engine.print("xreal.game.Game.runAIFrame(time = " + time + ")\n");
 
 	}
 
 	@Override
 	public void runFrame(int time) {
-		// TODO Auto-generated method stub
-		Engine.print("xreal.game.Game.runFrame()\n");
+		//Engine.print("xreal.game.Game.runFrame(time = " + time + ")\n");
 
 	}
 
 	@Override
 	public void shutdownGame(boolean restart) {
-		// TODO Auto-generated method stub
-		Engine.print("xreal.game.Game.shutdownGame()\n");
+		Engine.print("xreal.game.Game.shutdownGame(restart = " + restart + ")\n");
 	}
 
 }

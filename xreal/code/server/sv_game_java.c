@@ -27,16 +27,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/vm_java.h"
 
 
-
-void SV_GameError(const char *string)
+/*
+typedef struct gentity_s
 {
-	Com_Error(ERR_DROP, "%s", string);
-}
+	entityState_t   s;			// communicated by server to clients
+	entityShared_t  r;			// shared by both the server system and game
+	playerState_t  *ps;			// NULL if not a client
+} gentity_t;
+*/
 
-void SV_GamePrint(const char *string)
-{
-	Com_Printf("%s", string);
-}
+static int				g_numEntities;
+static sharedEntity_t	g_entities[MAX_GENTITIES];
+static playerState_t	g_clients[MAX_CLIENTS];
+
 
 // these functions must be used instead of pointer arithmetic, because
 // the game allocates gentities with private information after the server shared part
@@ -44,7 +47,8 @@ int SV_NumForGentity(sharedEntity_t * ent)
 {
 	int             num;
 
-	num = ((byte *) ent - (byte *) sv.gentities) / sv.gentitySize;
+//	num = ((byte *) ent - (byte *) sv.gentities) / sv.gentitySize;
+	num = ent - sv.gentities;
 
 	return num;
 }
@@ -53,7 +57,8 @@ sharedEntity_t *SV_GentityNum(int num)
 {
 	sharedEntity_t *ent;
 
-	ent = (sharedEntity_t *) ((byte *) sv.gentities + sv.gentitySize * (num));
+//	ent = (sharedEntity_t *) ((byte *) sv.gentities + sv.gentitySize * (num));
+	ent = &sv.gentities[num];	// &g_entities[num];
 
 	return ent;
 }
@@ -62,7 +67,8 @@ playerState_t  *SV_GameClientNum(int num)
 {
 	playerState_t  *ps;
 
-	ps = (playerState_t *) ((byte *) sv.gameClients + sv.gameClientSize * (num));
+//	ps = (playerState_t *) ((byte *) sv.gameClients + sv.gameClientSize * (num));
+	ps = &sv.gameClients[num]; // &g_clients[num];
 
 	return ps;
 }
@@ -73,6 +79,7 @@ svEntity_t     *SV_SvEntityForGentity(sharedEntity_t * gEnt)
 	{
 		Com_Error(ERR_DROP, "SV_SvEntityForGentity: bad gEnt");
 	}
+
 	return &sv.svEntities[gEnt->s.number];
 }
 
@@ -267,7 +274,6 @@ qboolean SV_EntityContact(vec3_t mins, vec3_t maxs, const sharedEntity_t * gEnt,
 /*
 ===============
 SV_GetServerinfo
-
 ===============
 */
 void SV_GetServerinfo(char *buffer, int bufferSize)
@@ -279,28 +285,12 @@ void SV_GetServerinfo(char *buffer, int bufferSize)
 	Q_strncpyz(buffer, Cvar_InfoString(CVAR_SERVERINFO), bufferSize);
 }
 
-/*
-===============
-SV_LocateGameData
 
-===============
-*/
-void SV_LocateGameData(sharedEntity_t * gEnts, int numGEntities, int sizeofGEntity_t,
-					   playerState_t * clients, int sizeofGameClient)
-{
-	sv.gentities = gEnts;
-	sv.gentitySize = sizeofGEntity_t;
-	sv.num_entities = numGEntities;
-
-	sv.gameClients = clients;
-	sv.gameClientSize = sizeofGameClient;
-}
 
 
 /*
 ===============
 SV_GetUsercmd
-
 ===============
 */
 void SV_GetUsercmd(int clientNum, usercmd_t * cmd)
@@ -653,24 +643,24 @@ void SV_ShutdownGameProgs(void)
 void Java_G_GameInit(int levelTime, int randomSeed, qboolean restart)
 {
 #if 1
-	if(object_Game)
-	{
-		(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_initGame, levelTime, randomSeed, restart);
+	if(!object_Game)
+		return;
 
-		CheckException();
-	}
+	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_initGame, levelTime, randomSeed, restart);
+
+	CheckException();
 #endif
 }
 
 void Java_G_ShutdownGame(qboolean restart)
 {
 #if 1
-	if(object_Game)
-	{
-		(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_shutdownGame, restart);
+	if(!object_Game)
+		return;
 
-		CheckException();
-	}
+	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_shutdownGame, restart);
+
+	CheckException();
 #endif
 }
 
@@ -681,7 +671,7 @@ char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean
 	jobject 	result;
 
 	if(!object_Game)
-		return;
+		return NULL;
 
 	result = (*javaEnv)->CallObjectMethod(javaEnv, object_Game, method_Game_clientConnect, firstTime, isBot);
 
@@ -694,7 +684,7 @@ char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean
 
 	CheckException();
 
-	Com_Printf("Java_G_ClientConnect '%s'\n", string);
+	//Com_Printf("Java_G_ClientConnect '%s'\n", string);
 
 	return string;
 #else
@@ -704,43 +694,86 @@ char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean
 
 void Java_G_ClientBegin(int clientNum)
 {
-	// TODO
+	if(!object_Game)
+		return;
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_clientBegin, clientNum);
+
+	CheckException();
 }
 
 void Java_G_ClientUserInfoChanged(int clientNum)
 {
-	// TODO
+	if(!object_Game)
+		return;
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_clientUserInfoChanged, clientNum);
+
+	CheckException();
 }
 
 void Java_G_ClientDisconnect(int clientNum)
 {
-	// TODO
+	if(!object_Game)
+		return;
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_clientDisconnect, clientNum);
+
+	CheckException();
 }
 
 void Java_G_ClientCommand(int clientNum)
 {
-	// TODO
+	if(!object_Game)
+			return;
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_clientCommand, clientNum);
+
+	CheckException();
 }
 
 void Java_G_ClientThink(int clientNum)
 {
-	// TODO
+	if(!object_Game)
+		return;
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_clientThink, clientNum);
+
+	CheckException();
 }
 
 void Java_G_RunFrame(int time)
 {
-	// TODO
+	if(!object_Game)
+		return;
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_runFrame, time);
+
+	CheckException();
 }
 
 void Java_G_RunAIFrame(int time)
 {
-	// TODO
+	if(!object_Game)
+		return;
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_runAIFrame, time);
+
+	CheckException();
 }
 
 qboolean Java_G_ConsoleCommand(void)
 {
-	// TODO
-	return qfalse;
+	jboolean result;
+
+	if(!object_Game)
+		return qfalse;
+
+	result = (*javaEnv)->CallBooleanMethod(javaEnv, object_Game, method_Game_consoleCommand);
+
+	CheckException();
+
+	return result;
 }
 
 /*
@@ -767,6 +800,29 @@ static void SV_InitGameVM(qboolean restart)
 	{
 		svs.clients[i].gentity = NULL;
 	}
+
+	// initialize all entities for this game
+	memset(g_entities, 0, MAX_GENTITIES * sizeof(g_entities[0]));
+	sv.gentities = g_entities;
+
+	// initialize all clients for this game
+//	level.maxclients = g_maxclients.integer;
+	memset(g_clients, 0, MAX_CLIENTS * sizeof(g_clients[0]));
+	sv.gameClients = g_clients;
+
+	// set client fields on player ents
+	/*
+	for(i = 0; i < sv_maxclients->integer; i++)
+	{
+		g_entities[i].ps = g_clients + i;
+	}
+	*/
+
+	// always leave room for the max number of clients,
+	// even if they aren't all used, so numbers inside that
+	// range are NEVER anything but clients
+	g_numEntities = MAX_CLIENTS;
+	sv.num_entities = g_numEntities;
 
 	// use the current msec count for a random seed
 	// init for this gamestate
