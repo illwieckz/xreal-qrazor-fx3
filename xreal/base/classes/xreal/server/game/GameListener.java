@@ -1,4 +1,4 @@
-package xreal.game;
+package xreal.server.game;
 
 /**
  * 

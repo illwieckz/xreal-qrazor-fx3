@@ -38,33 +38,69 @@ public class Engine {
 
 	public static final int MAX_CONFIGSTRINGS = 1024;
 	
+	/**
+	 * Print to the Quake console
+	 */
 	public synchronized native static void print(String s);
 
+	/**
+	 * Print to the Quake console and append a line wrap.
+	 */
 	public synchronized static void println(String s) {
 		print(s + "\n");
 	}
 
+	/**
+	 * Tell the engine that a really bad error happened and quit the game but not the engine.
+	 * 
+	 * This is equivalent to Com_Error(ERR_DROP, "%s", s)
+	 */
 	public synchronized native static void error(String s);
-
+	
+	/**
+	 * Return the current time using Sys_Milliseconds();
+	 */
 	public synchronized native static int milliseconds();
 
-	public synchronized native static int consoleArgc();
+	/**
+	 * Get the number of console tokens.
+	 */
+	public synchronized native static int getConsoleArgc();
 
-	public synchronized native static String consoleArgv(int n);
+	/**
+	 * Get a console token by number.
+	 */
+	public synchronized native static String getConsoleArgv(int n);
 
-	public synchronized native static String consoleArgs();
+	/**
+	 * Returns a single string containing argv(1) to argv(argc()-1).
+	 */
+	public synchronized native static String getConsoleArgs();
 
-	// public native static void sendConsoleCommand(int exec_when, String text);
-	// void trap_DropClient(int clientNum, const char *reason);
-	// void trap_SendServerCommand(int clientNum, const char *text);
-	public synchronized native static String getConfigstring(int num);
-
-	public synchronized native static void setConfigstring(int num,
-			String string);
-
-	public synchronized native static String getUserinfo(int num);
-
-	public synchronized native static String setUserinfo(int num, String buffer);
-
-	public synchronized native static String getServerinfo();
+	
+	/**
+	 *  Don't return until completed, a VM should NEVER use this,
+	 *  because some commands might cause the VM to be unloaded...
+	 */
+	public static final int EXEC_NOW = 0;
+	
+	/**
+	 * Insert at current position, but don't run yet.
+	 */
+	public static final int EXEC_INSERT = 1; 
+	
+	/**
+	 * Add to end of the command buffer. (normal case)
+	 */
+	public static final int EXEC_APPEND = 2;
+	
+	
+	/**
+	 * Send a console command to the Cmd_ module in the engine.
+	 * 
+	 * @param exec_when One of the EXEC_* flags.
+	 * @param text		The console command.
+	 */
+	public native static void sendConsoleCommand(int exec_when, String text);
+	
 }

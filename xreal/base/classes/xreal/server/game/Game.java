@@ -1,6 +1,9 @@
-package xreal.game;
+package xreal.server.game;
 
 import xreal.Engine;
+import xreal.common.Config;
+import xreal.common.ConfigStrings;
+import xreal.server.Server;
 
 public class Game implements GameListener {
 	
@@ -57,6 +60,20 @@ public class Game implements GameListener {
 		//Engine.print("gamename: %s\n", GAMEVERSION);
 		//Engine.print("gamedate: %s\n", __DATE__);
 
+		// make some data visible to connecting client
+		//Server.setConfigstring(ConfigStrings.GAME_VERSION, Config.GAME_VERSION);
+
+		/*
+		trap_SetConfigstring(CS_LEVEL_START_TIME, va("%i", level.startTime));
+
+		G_SpawnString("music", "", &s);
+		trap_SetConfigstring(CS_MUSIC, s);
+
+		G_SpawnString("message", "", &s);
+		trap_SetConfigstring(CS_MESSAGE, s);	// map specific message
+
+		trap_SetConfigstring(CS_MOTD, g_motd.string);	// message of the day
+		*/
 	}
 
 	@Override
@@ -70,6 +87,7 @@ public class Game implements GameListener {
 		//Engine.print("xreal.game.Game.runFrame(time = " + time + ")\n");
 		
 		//CVars.g_gametype.set("99");
+		//CVars.g_gametype = null;
 		//Engine.print(CVars.g_gametype.toString() + "\n");
 	}
 

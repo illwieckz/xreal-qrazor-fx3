@@ -25,19 +25,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 #include "../qcommon/vm_java.h"
+#include "java/xreal_server_Server.h"
+#include "java/xreal_server_game_GameEntity.h"
 
 
-/*
 typedef struct gentity_s
 {
 	entityState_t   s;			// communicated by server to clients
 	entityShared_t  r;			// shared by both the server system and game
 	playerState_t  *ps;			// NULL if not a client
+
+	qboolean        inUse;
+	qboolean        neverFree;	// if true, FreeEntity will only unlink
 } gentity_t;
-*/
+
 
 static int				g_numEntities;
-static sharedEntity_t	g_entities[MAX_GENTITIES];
+static gentity_t		g_entities[MAX_GENTITIES];
 static playerState_t	g_clients[MAX_CLIENTS];
 
 
@@ -45,8 +49,9 @@ int SV_NumForGentity(sharedEntity_t * ent)
 {
 	int             num;
 
-//	num = ((byte *) ent - (byte *) sv.gentities) / sv.gentitySize;
-	num = ent - sv.gentities;
+	num = ((byte *) ent - (byte *) g_entities) / sizeof(gentity_t);
+//	num = ent - sv.gentities;
+//	num = ent - g_entities;
 
 	return num;
 }
@@ -55,8 +60,8 @@ sharedEntity_t *SV_GentityNum(int num)
 {
 	sharedEntity_t *ent;
 
-//	ent = (sharedEntity_t *) ((byte *) sv.gentities + sv.gentitySize * (num));
-	ent = &sv.gentities[num];	// &g_entities[num];
+	ent = (sharedEntity_t *) ((byte *) g_entities + sizeof(gentity_t) * (num));
+//	ent = &sv.gentities[num];	// &g_entities[num];
 
 	return ent;
 }
@@ -66,7 +71,7 @@ playerState_t  *SV_GameClientNum(int num)
 	playerState_t  *ps;
 
 //	ps = (playerState_t *) ((byte *) sv.gameClients + sv.gameClientSize * (num));
-	ps = &sv.gameClients[num]; // &g_clients[num];
+	ps = &g_clients[num];
 
 	return ps;
 }
@@ -545,23 +550,23 @@ void Game_javaRegister()
 	Com_DPrintf("Game_javaRegister()\n");
 
 	// load the interface GameListener
-	interface_GameListener = (*javaEnv)->FindClass(javaEnv, "xreal/game/GameListener");
+	interface_GameListener = (*javaEnv)->FindClass(javaEnv, "xreal/server/game/GameListener");
 	if(CheckException() || !interface_GameListener)
 	{
-		Com_Error(ERR_DROP, "Couldn't find class xreal.game.GameListener");
+		Com_Error(ERR_DROP, "Couldn't find class xreal.server.game.GameListener");
 	}
 
 	// load the class Game
-	class_Game = (*javaEnv)->FindClass(javaEnv, "xreal/game/Game");
+	class_Game = (*javaEnv)->FindClass(javaEnv, "xreal/server/game/Game");
 	if(CheckException() || !class_Game)
 	{
-		Com_Error(ERR_DROP, "Couldn't find class xreal.game.Game");
+		Com_Error(ERR_DROP, "Couldn't find class xreal.server.game.Game");
 	}
 
 	// check class Game against interface GameListener
 	if(!((*javaEnv)->IsAssignableFrom(javaEnv, class_Game, interface_GameListener)))
 	{
-		Com_Error(ERR_DROP, "The specified game class doesn't implement xreal.game.GameListener");
+		Com_Error(ERR_DROP, "The specified game class doesn't implement xreal.server.game.GameListener");
 	}
 
 	// remove old game if existing
@@ -801,20 +806,16 @@ static void SV_InitGameVM(qboolean restart)
 
 	// initialize all entities for this game
 	memset(g_entities, 0, MAX_GENTITIES * sizeof(g_entities[0]));
-	sv.gentities = g_entities;
 
 	// initialize all clients for this game
 //	level.maxclients = g_maxclients.integer;
 	memset(g_clients, 0, MAX_CLIENTS * sizeof(g_clients[0]));
-	sv.gameClients = g_clients;
 
 	// set client fields on player ents
-	/*
 	for(i = 0; i < sv_maxclients->integer; i++)
 	{
 		g_entities[i].ps = g_clients + i;
 	}
-	*/
 
 	// always leave room for the max number of clients,
 	// even if they aren't all used, so numbers inside that

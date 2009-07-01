@@ -98,9 +98,14 @@ opts.Save('xreal.conf', env)
 if env['java'] == 1:
 	env.Java(target = 'base/classes', source = 'base/classes')
 	#env.Jar(target = 'base/game.jar', source = 'base/classes')
+	
 	classFileList = ['base/classes/xreal/Engine.class',
 					 'base/classes/xreal/CVar.class']
 	JavaH(target = 'code/qcommon/java', source = classFileList, JAVACLASSDIR = 'base/classes')
+	
+	classFileList = ['base/classes/xreal/server/Server.class',
+					 'base/classes/xreal/server/game/GameEntity.class']
+	JavaH(target = 'code/server/java', source = classFileList, JAVACLASSDIR = 'base/classes')
 
 
 Export('env')

@@ -86,14 +86,14 @@ typedef struct
 	char           *entityParsePoint;	// used during game VM init
 
 	// the game virtual machine will update these on init and changes
-	sharedEntity_t *gentities;
 #if !defined(USE_JAVA)
+	sharedEntity_t *gentities;
 	int             gentitySize;
 #endif
 	int             num_entities;	// current number, <= MAX_GENTITIES
 
-	playerState_t  *gameClients;
 #if !defined(USE_JAVA)
+	playerState_t  *gameClients;
 	int             gameClientSize;	// will be > sizeof(playerState_t) due to game private data
 #endif
 
