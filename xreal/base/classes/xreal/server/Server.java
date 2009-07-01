@@ -12,7 +12,7 @@ public class Server
 	 * 
 	 * Same as SV_GetConfigstring.
 	 */
-	public synchronized native static String getConfigstring(int num);
+	public synchronized native static String getConfigString(int index);
 
 	
 	/**
@@ -20,7 +20,7 @@ public class Server
 	 * 
 	 * Same as SV_SetConfigstring.
 	 */
-	public synchronized native static void setConfigstring(int num, String string);
+	public synchronized native static void setConfigString(int index, String string);
 
 	/*
 	public synchronized native static String getUserinfo(int num);

@@ -9,18 +9,18 @@ extern "C" {
 #endif
 /*
  * Class:     xreal_server_Server
- * Method:    getConfigstring
+ * Method:    getConfigString
  * Signature: (I)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_xreal_server_Server_getConfigstring
+JNIEXPORT jstring JNICALL Java_xreal_server_Server_getConfigString
   (JNIEnv *, jclass, jint);
 
 /*
  * Class:     xreal_server_Server
- * Method:    setConfigstring
+ * Method:    setConfigString
  * Signature: (ILjava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_xreal_server_Server_setConfigstring
+JNIEXPORT void JNICALL Java_xreal_server_Server_setConfigString
   (JNIEnv *, jclass, jint, jstring);
 
 #ifdef __cplusplus

@@ -288,9 +288,6 @@ void SV_GetServerinfo(char *buffer, int bufferSize)
 	Q_strncpyz(buffer, Cvar_InfoString(CVAR_SERVERINFO), bufferSize);
 }
 
-
-
-
 /*
 ===============
 SV_GetUsercmd
@@ -620,6 +617,87 @@ void Game_javaDetach()
 	}
 }
 
+// ====================================================================================
+
+
+/*
+ * Class:     xreal_server_Server
+ * Method:    getConfigstring
+ * Signature: (I)Ljava/lang/String;
+ */
+jstring JNICALL Java_xreal_server_Server_getConfigString(JNIEnv *env, jclass cls, jint index)
+{
+	if(index < 0 || index >= MAX_CONFIGSTRINGS)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_Server_getConfigString: bad index %i\n", index);
+	}
+
+	if(!sv.configstrings[index])
+	{
+		return NULL;
+	}
+
+	return (*env)->NewStringUTF(env, sv.configstrings[index]);
+}
+
+/*
+ * Class:     xreal_server_Server
+ * Method:    setConfigstring
+ * Signature: (ILjava/lang/String;)V
+ */
+void JNICALL Java_xreal_server_Server_setConfigString(JNIEnv *env, jclass cls, jint jindex, jstring jvalue)
+{
+	char           *value;
+
+	value = (char *)((*env)->GetStringUTFChars(env, jvalue, 0));
+
+	SV_SetConfigstring(jindex, value);
+
+	(*env)->ReleaseStringUTFChars(env, jvalue, value);
+
+	//CheckException();
+}
+
+// handle to Server class
+static jclass   class_Server;
+static JNINativeMethod Server_methods[] = {
+	{"getConfigString", "(I)Ljava/lang/String;", Java_xreal_server_Server_getConfigString},
+	{"setConfigString", "(ILjava/lang/String;)V", Java_xreal_server_Server_setConfigString},
+};
+
+void Server_javaRegister()
+{
+	Com_DPrintf("Server_javaRegister()\n");
+
+	class_Server = (*javaEnv)->FindClass(javaEnv, "xreal/server/Server");
+	if(CheckException() || !class_Server)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.server.Server");
+	}
+
+	(*javaEnv)->RegisterNatives(javaEnv, class_Server, Server_methods, sizeof(Server_methods) / sizeof(Server_methods[0]));
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't register native methods for xreal.server.Server");
+	}
+}
+
+
+void Server_javaDetach()
+{
+	Com_DPrintf("Server_javaDetach()\n");
+
+	if(javaEnv)
+	{
+		if(class_Server)
+		{
+			(*javaEnv)->UnregisterNatives(javaEnv, class_Server);
+			(*javaEnv)->DeleteLocalRef(javaEnv, class_Server);
+			class_Server = NULL;
+		}
+	}
+}
+
 
 /*
 ===============
@@ -639,6 +717,7 @@ void SV_ShutdownGameProgs(void)
 	Java_G_ShutdownGame(qfalse);
 
 	Game_javaDetach();
+	Server_javaDetach();
 }
 
 
@@ -865,6 +944,7 @@ void SV_InitGameProgs(void)
 	Com_DPrintf("SV_InitGameProgs()\n");
 
 	Game_javaRegister();
+	Server_javaRegister();
 
 	SV_InitGameVM(qfalse);
 }

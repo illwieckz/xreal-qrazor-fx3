@@ -18,5 +18,7 @@ public class CVars {
 	public static final CVar g_maxclients = new CVar("sv_maxclients", "8", CVar.SERVERINFO | CVar.LATCH | CVar.ARCHIVE);
 	public static final CVar g_maxGameClients = new CVar("g_maxGameClients", "0", CVar.SERVERINFO | CVar.LATCH | CVar.ARCHIVE);
 
+	public static final CVar g_motd = new CVar("g_motd", "", 0);
+
 	// change anytime vars
 }
