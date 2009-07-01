@@ -320,11 +320,61 @@ void JNICALL Java_xreal_Engine_error(JNIEnv *env, jclass cls, jstring js)
 	Com_Error(ERR_DROP, "%s", string);
 }
 
+/*
+ * Class:     xreal_Engine
+ * Method:    getConsoleArgc
+ * Signature: ()I
+ */
+jint JNICALL Java_xreal_Engine_getConsoleArgc(JNIEnv *env, jclass cls)
+{
+	return Cmd_Argc();
+}
+
+/*
+ * Class:     xreal_Engine
+ * Method:    getConsoleArgv
+ * Signature: (I)Ljava/lang/String;
+ */
+jstring JNICALL Java_xreal_Engine_getConsoleArgv(JNIEnv *env, jclass cls, jint arg)
+{
+	return (*env)->NewStringUTF(env, Cmd_Argv(arg));
+}
+
+/*
+ * Class:     xreal_Engine
+ * Method:    getConsoleArgs
+ * Signature: ()Ljava/lang/String;
+ */
+jstring JNICALL Java_xreal_Engine_getConsoleArgs(JNIEnv *env, jclass cls)
+{
+	return (*env)->NewStringUTF(env, Cmd_Args());
+}
+
+/*
+ * Class:     xreal_Engine
+ * Method:    sendConsoleCommand
+ * Signature: (ILjava/lang/String;)V
+ */
+void JNICALL Java_xreal_Engine_sendConsoleCommand(JNIEnv *env, jclass cls, jint jexec_when, jstring jtext)
+{
+	char           *text;
+
+	text = (char *)((*env)->GetStringUTFChars(env, jtext, 0));
+
+	Cbuf_ExecuteText(jexec_when, text);
+
+	(*env)->ReleaseStringUTFChars(env, jtext, text);
+}
+
 // handle to Engine class
 static jclass   class_Engine;
 static JNINativeMethod Engine_methods[] = {
 	{"print", "(Ljava/lang/String;)V", Java_xreal_Engine_print},
 	{"error", "(Ljava/lang/String;)V", Java_xreal_Engine_error},
+	{"getConsoleArgc", "()I", Java_xreal_Engine_getConsoleArgc},
+	{"getConsoleArgv", "(I)Ljava/lang/String;", Java_xreal_Engine_getConsoleArgv},
+	{"getConsoleArgs", "()Ljava/lang/String;", Java_xreal_Engine_getConsoleArgs},
+	{"sendConsoleCommand", "(ILjava/lang/String;)V", Java_xreal_Engine_sendConsoleCommand},
 };
 
 void Engine_javaRegister()
