@@ -321,218 +321,6 @@ void SV_GetUsercmd(int clientNum, usercmd_t * cmd)
 	*cmd = svs.clients[clientNum].lastUsercmd;
 }
 
-//==============================================
-
-
-
-/*
-====================
-SV_GameSystemCalls
-
-The module is making a system call
-====================
-*/
-/*
-intptr_t SV_GameSystemCalls(intptr_t * args)
-{
-	switch (args[0])
-	{
-		case G_PRINT:
-			Com_Printf("%s", (const char *)VMA(1));
-			return 0;
-		case G_ERROR:
-			Com_Error(ERR_DROP, "%s", (const char *)VMA(1));
-			return 0;
-		case G_MILLISECONDS:
-			return Sys_Milliseconds();
-		case G_CVAR_REGISTER:
-			Cvar_Register(VMA(1), VMA(2), VMA(3), args[4]);
-			return 0;
-		case G_CVAR_UPDATE:
-			Cvar_Update(VMA(1));
-			return 0;
-		case G_CVAR_SET:
-			Cvar_Set((const char *)VMA(1), (const char *)VMA(2));
-			return 0;
-		case G_CVAR_VARIABLE_INTEGER_VALUE:
-			return Cvar_VariableIntegerValue((const char *)VMA(1));
-		case G_CVAR_VARIABLE_STRING_BUFFER:
-			Cvar_VariableStringBuffer(VMA(1), VMA(2), args[3]);
-			return 0;
-		case G_ARGC:
-			return Cmd_Argc();
-		case G_ARGV:
-			Cmd_ArgvBuffer(args[1], VMA(2), args[3]);
-			return 0;
-		case G_SEND_CONSOLE_COMMAND:
-			Cbuf_ExecuteText(args[1], VMA(2));
-			return 0;
-
-		case G_FS_FOPEN_FILE:
-			return FS_FOpenFileByMode(VMA(1), VMA(2), args[3]);
-		case G_FS_READ:
-			FS_Read2(VMA(1), args[2], args[3]);
-			return 0;
-		case G_FS_WRITE:
-			FS_Write(VMA(1), args[2], args[3]);
-			return 0;
-		case G_FS_FCLOSE_FILE:
-			FS_FCloseFile(args[1]);
-			return 0;
-		case G_FS_GETFILELIST:
-			return FS_GetFileList(VMA(1), VMA(2), VMA(3), args[4]);
-		case G_FS_SEEK:
-			return FS_Seek(args[1], args[2], args[3]);
-
-		case G_LOCATE_GAME_DATA:
-			SV_LocateGameData(VMA(1), args[2], args[3], VMA(4), args[5]);
-			return 0;
-		case G_DROP_CLIENT:
-			SV_GameDropClient(args[1], VMA(2));
-			return 0;
-		case G_SEND_SERVER_COMMAND:
-			SV_GameSendServerCommand(args[1], VMA(2));
-			return 0;
-		case G_LINKENTITY:
-			SV_LinkEntity(VMA(1));
-			return 0;
-		case G_UNLINKENTITY:
-			SV_UnlinkEntity(VMA(1));
-			return 0;
-		case G_ENTITIES_IN_BOX:
-			return SV_AreaEntities(VMA(1), VMA(2), VMA(3), args[4]);
-		case G_ENTITY_CONTACT:
-			return SV_EntityContact(VMA(1), VMA(2), VMA(3), TT_AABB);
-		case G_ENTITY_CONTACTCAPSULE:
-			return SV_EntityContact(VMA(1), VMA(2), VMA(3), TT_CAPSULE);
-		case G_TRACE:
-			SV_Trace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], TT_AABB);
-			return 0;
-		case G_TRACECAPSULE:
-			SV_Trace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], TT_CAPSULE);
-			return 0;
-		case G_POINT_CONTENTS:
-			return SV_PointContents(VMA(1), args[2]);
-		case G_SET_BRUSH_MODEL:
-			SV_SetBrushModel(VMA(1), VMA(2));
-			return 0;
-		case G_IN_PVS:
-			return SV_inPVS(VMA(1), VMA(2));
-		case G_IN_PVS_IGNORE_PORTALS:
-			return SV_inPVSIgnorePortals(VMA(1), VMA(2));
-
-		case G_SET_CONFIGSTRING:
-			SV_SetConfigstring(args[1], VMA(2));
-			return 0;
-		case G_GET_CONFIGSTRING:
-			SV_GetConfigstring(args[1], VMA(2), args[3]);
-			return 0;
-		case G_SET_USERINFO:
-			SV_SetUserinfo(args[1], VMA(2));
-			return 0;
-		case G_GET_USERINFO:
-			SV_GetUserinfo(args[1], VMA(2), args[3]);
-			return 0;
-		case G_GET_SERVERINFO:
-			SV_GetServerinfo(VMA(1), args[2]);
-			return 0;
-		case G_ADJUST_AREA_PORTAL_STATE:
-			SV_AdjustAreaPortalState(VMA(1), args[2]);
-			return 0;
-		case G_AREAS_CONNECTED:
-			return CM_AreasConnected(args[1], args[2]);
-
-		case G_BOT_ALLOCATE_CLIENT:
-			return SV_BotAllocateClient();
-		case G_BOT_FREE_CLIENT:
-			SV_BotFreeClient(args[1]);
-			return 0;
-
-		case G_GET_USERCMD:
-			SV_GetUsercmd(args[1], VMA(2));
-			return 0;
-		case G_GET_ENTITY_TOKEN:
-		{
-			const char     *s;
-
-			s = Com_Parse(&sv.entityParsePoint);
-			Q_strncpyz(VMA(1), s, args[2]);
-			if(!sv.entityParsePoint && !s[0])
-			{
-				return qfalse;
-			}
-			else
-			{
-				return qtrue;
-			}
-		}
-
-		case G_REAL_TIME:
-			return Com_RealTime(VMA(1));
-
-			//====================================
-
-		case BOTLIB_GET_SNAPSHOT_ENTITY:
-			return SV_BotGetSnapshotEntity(args[1], args[2]);
-		case BOTLIB_GET_CONSOLE_MESSAGE:
-			return SV_BotGetConsoleMessage(args[1], VMA(2), args[3]);
-		case BOTLIB_USER_COMMAND:
-			SV_ClientThink(&svs.clients[args[1]], VMA(2));
-			return 0;
-		case BOTLIB_CLIENT_COMMAND:
-			SV_BotClientCommand(args[1], VMA(2));
-			return 0;
-
-		case TRAP_MEMSET:
-			Com_Memset(VMA(1), args[2], args[3]);
-			return 0;
-
-		case TRAP_MEMCPY:
-			Com_Memcpy(VMA(1), VMA(2), args[3]);
-			return 0;
-
-		case TRAP_STRNCPY:
-			strncpy(VMA(1), VMA(2), args[3]);
-			return args[1];
-
-		case TRAP_SIN:
-			return FloatAsInt(sin(VMF(1)));
-
-		case TRAP_COS:
-			return FloatAsInt(cos(VMF(1)));
-
-		case TRAP_ATAN2:
-			return FloatAsInt(atan2(VMF(1), VMF(2)));
-
-		case TRAP_SQRT:
-			return FloatAsInt(sqrt(VMF(1)));
-
-		case TRAP_MATRIXMULTIPLY:
-			MatrixMultiply(VMA(1), VMA(2), VMA(3));
-			return 0;
-
-		case TRAP_ANGLEVECTORS:
-			AngleVectors(VMA(1), VMA(2), VMA(3), VMA(4));
-			return 0;
-
-		case TRAP_PERPENDICULARVECTOR:
-			PerpendicularVector(VMA(1), VMA(2));
-			return 0;
-
-		case TRAP_FLOOR:
-			return FloatAsInt(floor(VMF(1)));
-
-		case TRAP_CEIL:
-			return FloatAsInt(ceil(VMF(1)));
-
-
-		default:
-			Com_Error(ERR_DROP, "Bad game system trap: %ld", (long int)args[0]);
-	}
-	return -1;
-}
-*/
-
 
 // ====================================================================================
 
@@ -981,9 +769,46 @@ void Java_G_ShutdownGame(qboolean restart)
 #endif
 }
 
+
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    getUserInfo0
+ * Signature: (I)Ljava/lang/String;
+ */
+jstring JNICALL Java_xreal_server_game_Player_getUserInfo0(JNIEnv *env, jclass cls, jint clientNum)
+{
+	if(clientNum < 0 || clientNum >= MAX_CONFIGSTRINGS)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_getUserInfo0: bad index %i\n", clientNum);
+	}
+
+	return (*env)->NewStringUTF(env, svs.clients[clientNum].userinfo);
+}
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    setUserInfo0
+ * Signature: (ILjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_xreal_server_game_Player_setUserInfo0(JNIEnv *env, jclass cls, jint clientNum, jstring juserinfo)
+{
+	char           *userinfo;
+
+	userinfo = (char *)((*env)->GetStringUTFChars(env, juserinfo, 0));
+
+	SV_SetUserinfo(clientNum, userinfo);
+
+	(*env)->ReleaseStringUTFChars(env, juserinfo, userinfo);
+}
+
+static JNINativeMethod Player_methods[] = {
+	{"getUserInfo0", "(I)Ljava/lang/String;", Java_xreal_server_game_Player_getUserInfo0},
+	{"setUserInfo0", "(ILjava/lang/String;)V", Java_xreal_server_game_Player_setUserInfo0},
+};
+
 char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 {
-#if 1
 	gclient_t	   *client;
 
 	jclass			class_Player;
@@ -992,9 +817,12 @@ char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean
 
 	static char		string[MAX_STRING_CHARS];
 	jobject 		result;
+	jthrowable      exception;
+
+	extern jmethodID method_Throwable_getMessage;
 
 	if(!object_Game)
-		return;
+		return "no Game class loaded yet!!!";
 
 	Com_Printf("Java_G_ClientBegin(%i)\n", clientNum);
 
@@ -1013,17 +841,21 @@ char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean
 		Com_Error(ERR_DROP, "The current Player class doesn't implement xreal.server.game.ClientListener");
 	}
 
-	// remove old game if existing
-//	(*javaEnv)->DeleteLocalRef(javaEnv, interface_GameListener);
+	// register the native methods
+	(*javaEnv)->RegisterNatives(javaEnv, class_Player, Player_methods, sizeof(Player_methods) / sizeof(Player_methods[0]));
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Couldn't register native methods for xreal.server.game.Player");
+	}
 
 	// load constructor
-	method_Player_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Player, "<init>", "(I)V");
+	method_Player_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Player, "<init>", "(IZZ)V");
 
-	client->method_Player_clientBegin = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientBegin", "(I)V");
-	client->method_Player_clientUserInfoChanged = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientUserInfoChanged", "(I)V");
-	client->method_Player_clientDisconnect = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientDisconnect", "(I)V");
-	client->method_Player_clientCommand = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientCommand", "(I)V");
-	client->method_Player_clientThink = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientThink", "(I)V");
+	client->method_Player_clientBegin = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientBegin", "()V");
+	client->method_Player_clientUserInfoChanged = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientUserInfoChanged", "(Ljava/lang/String;)V");
+	client->method_Player_clientDisconnect = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientDisconnect", "()V");
+	client->method_Player_clientCommand = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientCommand", "()V");
+	client->method_Player_clientThink = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientThink", "()V");
 
 	if(CheckException())
 	{
@@ -1031,32 +863,24 @@ char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean
 	}
 
 	// create new player object
-	client->object_Player = object_Player = (*javaEnv)->NewObject(javaEnv, class_Player, method_Player_ctor, clientNum);
-	if(CheckException())
+	client->object_Player = object_Player = (*javaEnv)->NewObject(javaEnv, class_Player, method_Player_ctor, clientNum, firstTime, isBot);
+	exception = (*javaEnv)->ExceptionOccurred(javaEnv);
+	if(exception)
 	{
-		Com_Error(ERR_DROP, "Couldn't create instance of Player object");
+		//Com_Error(ERR_DROP, "Couldn't create instance of Player object");
+
+		result = (*javaEnv)->CallObjectMethod(javaEnv, exception, method_Throwable_getMessage);
+
+		ConvertJavaString(string, result, sizeof(string));
+
+		(*javaEnv)->ExceptionClear(javaEnv);
+
+		//Com_Printf("Java_G_ClientConnect '%s'\n", string);
+
+		return string;
 	}
 
-	if(!object_Player)
-		return NULL;
-
-	result = (*javaEnv)->CallObjectMethod(javaEnv, object_Game, method_Game_clientConnect, object_Player, firstTime, isBot);
-
-	CheckException();
-
-	if(result == NULL)
-		return NULL;
-
-	ConvertJavaString(string, result, sizeof(string));
-
-	CheckException();
-
-	//Com_Printf("Java_G_ClientConnect '%s'\n", string);
-
-	return string;
-#else
 	return NULL;
-#endif
 }
 
 void Java_G_ClientBegin(int clientNum)
@@ -1070,7 +894,7 @@ void Java_G_ClientBegin(int clientNum)
 
 	client = &g_clients[clientNum];
 
-	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientBegin, clientNum);
+	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientBegin);
 
 	CheckException();
 }
@@ -1078,15 +902,17 @@ void Java_G_ClientBegin(int clientNum)
 void Java_G_ClientUserInfoChanged(int clientNum)
 {
 	gclient_t	   *client;
+	jstring			userinfo;
 
 	if(!object_Game)
 		return;
 
-	Com_Printf("Java_G_ClientUserInfoChanged(%i)\n", clientNum);
+	//Com_Printf("Java_G_ClientUserInfoChanged(%i)\n", clientNum);
 
 	client = &g_clients[clientNum];
+	userinfo = (*javaEnv)->NewStringUTF(javaEnv, svs.clients[clientNum].userinfo);
 
-	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientUserInfoChanged, clientNum);
+	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientUserInfoChanged, userinfo);
 
 	CheckException();
 }
@@ -1102,7 +928,7 @@ void Java_G_ClientDisconnect(int clientNum)
 
 	client = &g_clients[clientNum];
 
-	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientDisconnect, clientNum);
+	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientDisconnect);
 
 	CheckException();
 }
@@ -1118,7 +944,7 @@ void Java_G_ClientCommand(int clientNum)
 
 	client = &g_clients[clientNum];
 
-	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientCommand, clientNum);
+	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientCommand);
 
 	CheckException();
 }
@@ -1130,11 +956,11 @@ void Java_G_ClientThink(int clientNum)
 	if(!object_Game)
 		return;
 
-	Com_Printf("Java_G_ClientThink(%i)\n", clientNum);
+	//Com_Printf("Java_G_ClientThink(%i)\n", clientNum);
 
 	client = &g_clients[clientNum];
 
-	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientThink, clientNum);
+	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientThink);
 
 	CheckException();
 }

@@ -104,7 +104,8 @@ if env['java'] == 1:
 	JavaH(target = 'code/qcommon/java', source = classFileList, JAVACLASSDIR = 'base/classes')
 	
 	classFileList = ['base/classes/xreal/server/Server.class',
-					 'base/classes/xreal/server/game/GameEntity.class']
+					 'base/classes/xreal/server/game/GameEntity.class',
+					 'base/classes/xreal/server/game/Player.class']
 	JavaH(target = 'code/server/java', source = classFileList, JAVACLASSDIR = 'base/classes')
 
 

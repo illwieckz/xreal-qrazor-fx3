@@ -5,9 +5,9 @@ package xreal.server.game;
  */
 public interface ClientListener {
 	
-	public void			clientBegin(int clientNum);
-	public void			clientUserInfoChanged(int clientNum);
-	public void			clientDisconnect(int clientNum);
-	public void			clientCommand(int clientNum);
-	public void			clientThink(int clientNum);
+	public void			clientBegin();
+	public void			clientUserInfoChanged(String s);
+	public void			clientDisconnect();
+	public void			clientCommand();
+	public void			clientThink();
 }
