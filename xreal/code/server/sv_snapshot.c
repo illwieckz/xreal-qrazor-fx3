@@ -361,7 +361,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t * fra
 
 	c_fullsend = 0;
 
-	for(e = 0; e < sv.num_entities; e++)
+	for(e = 0; e < sv.numEntities; e++)
 	{
 		ent = SV_GentityNum(e);
 

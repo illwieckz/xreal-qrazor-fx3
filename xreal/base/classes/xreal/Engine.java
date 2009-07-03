@@ -20,7 +20,7 @@ public class Engine {
 	public static final int MAX_GENTITIES = (1 << GENTITYNUM_BITS);
 
 	// entitynums are communicated with GENTITY_BITS, so any reserved
-	// values that are going to be communcated over the net need to
+	// values that are going to be communicated over the net need to
 	// also be in this range
 	public static final int ENTITYNUM_NONE = (MAX_GENTITIES - 1);
 	public static final int ENTITYNUM_WORLD = (MAX_GENTITIES - 2);

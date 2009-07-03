@@ -1,5 +1,6 @@
 /*
 ===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
@@ -37,12 +38,16 @@ typedef struct gentity_s
 
 	qboolean        inUse;
 	qboolean        neverFree;	// if true, FreeEntity will only unlink
+
+	int				spawnTime;	// level.time when the object was spawned
+	int             freeTime;	// level.time when the object was freed
 } gentity_t;
 
 
-static int				g_numEntities;
 static gentity_t		g_entities[MAX_GENTITIES];
 static playerState_t	g_clients[MAX_CLIENTS];
+static int				g_levelStartTime; // for relaxing entity free policies
+static int				g_levelTime;
 
 
 int SV_NumForGentity(sharedEntity_t * ent)
@@ -304,13 +309,7 @@ void SV_GetUsercmd(int clientNum, usercmd_t * cmd)
 
 //==============================================
 
-static int FloatAsInt(float f)
-{
-	floatint_t      fi;
 
-	fi.f = f;
-	return fi.i;
-}
 
 /*
 ====================
@@ -699,6 +698,212 @@ void Server_javaDetach()
 }
 
 
+// ====================================================================================
+
+void G_InitGentity(gentity_t * e)
+{
+	e->inUse = qtrue;
+	e->spawnTime = g_levelTime;
+//	e->classname = "noclass";
+	e->s.number = e - g_entities;
+	e->r.ownerNum = ENTITYNUM_NONE;
+}
+
+
+/*
+=================
+G_EntitiesFree
+=================
+*/
+qboolean G_EntitiesFree(void)
+{
+	int             i;
+	gentity_t      *e;
+
+	e = &g_entities[MAX_CLIENTS];
+	for(i = MAX_CLIENTS; i < sv.numEntities; i++, e++)
+	{
+		if(e->inUse)
+		{
+			continue;
+		}
+
+		// slot available
+		return qtrue;
+	}
+	return qfalse;
+}
+
+
+/*
+=================
+G_FreeEntity
+
+Marks the entity as free
+=================
+*/
+void G_FreeEntity(gentity_t * ed)
+{
+
+}
+
+// ====================================================================================
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    allocateEntity
+ * Signature: (I)I
+ *
+ * Either finds a free entity, or allocates a new one.
+ *
+ * The slots from 0 to MAX_CLIENTS-1 are always reserved for clients, and will
+ * never be used by anything else.
+ *
+ * Try to avoid reusing an entity that was recently freed, because it
+ * can cause the client to think the entity morphed into something else
+ * instead of being removed and recreated, which can cause interpolated
+ * angles and bad trails.
+ *
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_allocateEntity0(JNIEnv *env, jclass cls, jint reservedIndex)
+{
+	int             i, force;
+	gentity_t      *e;
+
+	e = NULL;					// shut up warning
+	i = 0;						// shut up warning
+
+	if(reservedIndex >= 0)
+	{
+		if(reservedIndex > (MAX_CLIENTS - 1) && reservedIndex != ENTITYNUM_WORLD)
+		{
+			Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_allocateEntity0: bad reserved entity index chosen: %i", reservedIndex);
+		}
+
+		e = &g_entities[reservedIndex];
+
+		G_InitGentity(e);
+		return e->s.number;
+	}
+
+	for(force = 0; force < 2; force++)
+	{
+		// if we go through all entities and can't find one to free,
+		// override the normal minimum times before use
+		e = &g_entities[MAX_CLIENTS];
+
+		for(i = MAX_CLIENTS; i < sv.numEntities; i++, e++)
+		{
+			if(e->inUse)
+			{
+				continue;
+			}
+
+			// the first couple seconds of server time can involve a lot of
+			// freeing and allocating, so relax the replacement policy
+			if(!force && e->freeTime > g_levelStartTime + 2000 && g_levelTime - e->freeTime < 1000)
+			{
+				continue;
+			}
+
+			// reuse this slot
+			G_InitGentity(e);
+			return e->s.number;
+		}
+
+		if(i != MAX_GENTITIES)
+		{
+			break;
+		}
+	}
+
+	if(i == ENTITYNUM_MAX_NORMAL)
+	{
+		/*
+		for(i = 0; i < MAX_GENTITIES; i++)
+		{
+			G_Printf("%4i: %s\n", i, g_entities[i].classname);
+		}
+		*/
+
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_allocateEntity0: no free entities");
+	}
+
+	// open up a new slot
+	sv.numEntities++;
+
+	G_InitGentity(e);
+	return e->s.number;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    freeEntity0
+ * Signature: (I)Z
+ */
+jboolean JNICALL Java_xreal_server_game_GameEntity_freeEntity0(JNIEnv *env, jclass cls, jint index)
+{
+	//gentity_t *e = (gentity_t *) entityPtr;
+	gentity_t *e = &g_entities[index];
+
+	//trap_UnlinkEntity(e);		// unlink from world
+
+	if(e->neverFree)
+	{
+		return qfalse;
+	}
+
+	memset(e, 0, sizeof(*e));
+	//e->classname = "freed";
+	e->freeTime = g_levelTime;
+	e->inUse = qfalse;
+
+	return qtrue;
+}
+
+
+// handle to GameEntity class
+static jclass   class_GameEntity;
+static JNINativeMethod GameEntity_methods[] = {
+	{"allocateEntity0", "(I)I", Java_xreal_server_game_GameEntity_allocateEntity0},
+	{"freeEntity0", "(I)Z", Java_xreal_server_game_GameEntity_freeEntity0},
+};
+
+void GameEntity_javaRegister()
+{
+	Com_DPrintf("GameEntity_javaRegister()\n");
+
+	class_GameEntity = (*javaEnv)->FindClass(javaEnv, "xreal/server/game/GameEntity");
+	if(CheckException() || !class_GameEntity)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.server.game.GameEntity");
+	}
+
+	(*javaEnv)->RegisterNatives(javaEnv, class_GameEntity, GameEntity_methods, sizeof(GameEntity_methods) / sizeof(GameEntity_methods[0]));
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't register native methods for xreal.server.game.GameEntity");
+	}
+}
+
+
+void GameEntity_javaDetach()
+{
+	Com_DPrintf("GameEntity_javaDetach()\n");
+
+	if(javaEnv)
+	{
+		if(class_GameEntity)
+		{
+			(*javaEnv)->UnregisterNatives(javaEnv, class_GameEntity);
+			(*javaEnv)->DeleteLocalRef(javaEnv, class_GameEntity);
+			class_GameEntity = NULL;
+		}
+	}
+}
+
+// ====================================================================================
+
 /*
 ===============
 SV_ShutdownGameProgs
@@ -716,8 +921,9 @@ void SV_ShutdownGameProgs(void)
 
 	Java_G_ShutdownGame(qfalse);
 
-	Game_javaDetach();
 	Server_javaDetach();
+	Game_javaDetach();
+	GameEntity_javaDetach();
 }
 
 
@@ -727,6 +933,9 @@ void Java_G_GameInit(int levelTime, int randomSeed, qboolean restart)
 #if 1
 	if(!object_Game)
 		return;
+
+	g_levelStartTime = levelTime;
+	g_levelTime = levelTime;
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_initGame, levelTime, randomSeed, restart);
 
@@ -829,6 +1038,8 @@ void Java_G_RunFrame(int time)
 	if(!object_Game)
 		return;
 
+	g_levelTime = time;
+
 	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_runFrame, time);
 
 	CheckException();
@@ -899,8 +1110,7 @@ static void SV_InitGameVM(qboolean restart)
 	// always leave room for the max number of clients,
 	// even if they aren't all used, so numbers inside that
 	// range are NEVER anything but clients
-	g_numEntities = MAX_CLIENTS;
-	sv.num_entities = g_numEntities;
+	sv.numEntities = MAX_CLIENTS;
 
 	// use the current msec count for a random seed
 	// init for this gamestate
@@ -943,8 +1153,9 @@ void SV_InitGameProgs(void)
 {
 	Com_DPrintf("SV_InitGameProgs()\n");
 
-	Game_javaRegister();
 	Server_javaRegister();
+	Game_javaRegister();
+	GameEntity_javaRegister();
 
 	SV_InitGameVM(qfalse);
 }

@@ -69,6 +69,21 @@ public class Game implements GameListener {
 		
 		Engine.println("Game Version: " + Server.getConfigString(ConfigStrings.GAME_VERSION));
 		
+		/*
+		for(int i = 0; i < 30; i++)
+		{
+		
+			GameEntity e1 = new GameEntity();
+			Engine.println(e1.toString());
+			try {
+				e1.finalize();
+			} catch (Throwable e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		*/
+		
 		Engine.print("-----------------------------------\n");
 	}
 

@@ -90,7 +90,7 @@ typedef struct
 	sharedEntity_t *gentities;
 	int             gentitySize;
 #endif
-	int             num_entities;	// current number, <= MAX_GENTITIES
+	int             numEntities;	// current number, <= MAX_GENTITIES
 
 #if !defined(USE_JAVA)
 	playerState_t  *gameClients;
