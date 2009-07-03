@@ -30,11 +30,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "java/xreal_server_game_GameEntity.h"
 
 
+typedef struct gclient_s
+{
+	playerState_t   ps;
+
+	jobject         object_Player;
+
+	jstring         playerInfo;
+
+	jmethodID		method_Player_clientBegin;
+	jmethodID		method_Player_clientUserInfoChanged;
+	jmethodID		method_Player_clientDisconnect;
+	jmethodID		method_Player_clientCommand;
+	jmethodID		method_Player_clientThink;
+} gclient_t;
+
 typedef struct gentity_s
 {
 	entityState_t   s;			// communicated by server to clients
 	entityShared_t  r;			// shared by both the server system and game
-	playerState_t  *ps;			// NULL if not a client
+	gclient_t      *client;		// NULL if not a client
 
 	qboolean        inUse;
 	qboolean        neverFree;	// if true, FreeEntity will only unlink
@@ -43,9 +58,8 @@ typedef struct gentity_s
 	int             freeTime;	// level.time when the object was freed
 } gentity_t;
 
-
 static gentity_t		g_entities[MAX_GENTITIES];
-static playerState_t	g_clients[MAX_CLIENTS];
+static gclient_t		g_clients[MAX_CLIENTS];
 static int				g_levelStartTime; // for relaxing entity free policies
 static int				g_levelTime;
 
@@ -76,7 +90,7 @@ playerState_t  *SV_GameClientNum(int num)
 	playerState_t  *ps;
 
 //	ps = (playerState_t *) ((byte *) sv.gameClients + sv.gameClientSize * (num));
-	ps = &g_clients[num];
+	ps = (playerState_t *) &g_clients[num].ps;
 
 	return ps;
 }
@@ -532,11 +546,6 @@ static jmethodID method_Game_ctor;
 static jmethodID method_Game_initGame;
 static jmethodID method_Game_shutdownGame;
 static jmethodID method_Game_clientConnect;
-static jmethodID method_Game_clientBegin;
-static jmethodID method_Game_clientUserInfoChanged;
-static jmethodID method_Game_clientDisconnect;
-static jmethodID method_Game_clientCommand;
-static jmethodID method_Game_clientThink;
 static jmethodID method_Game_runFrame;
 static jmethodID method_Game_runAIFrame;
 static jmethodID method_Game_consoleCommand;
@@ -571,12 +580,7 @@ void Game_javaRegister()
 	// load game interface methods
 	method_Game_initGame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "initGame", "(IIZ)V");
 	method_Game_shutdownGame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "shutdownGame", "(Z)V");
-	method_Game_clientConnect = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientConnect", "(IZZ)Ljava/lang/String;");
-	method_Game_clientBegin = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientBegin", "(I)V");
-	method_Game_clientUserInfoChanged = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientUserInfoChanged", "(I)V");
-	method_Game_clientDisconnect = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientDisconnect", "(I)V");
-	method_Game_clientCommand = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientCommand", "(I)V");
-	method_Game_clientThink = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientThink", "(I)V");
+	method_Game_clientConnect = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientConnect", "(Lxreal/server/game/Player;ZZ)Ljava/lang/String;");
 	method_Game_runFrame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "runFrame", "(I)V");
 	method_Game_runAIFrame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "runAIFrame", "(I)V");
 	method_Game_consoleCommand = (*javaEnv)->GetMethodID(javaEnv, class_Game, "consoleCommand", "()Z");
@@ -735,17 +739,7 @@ qboolean G_EntitiesFree(void)
 }
 
 
-/*
-=================
-G_FreeEntity
 
-Marks the entity as free
-=================
-*/
-void G_FreeEntity(gentity_t * ed)
-{
-
-}
 
 // ====================================================================================
 
@@ -904,6 +898,37 @@ void GameEntity_javaDetach()
 
 // ====================================================================================
 
+
+static jclass   interface_ClientListener;
+
+void ClientListener_javaRegister()
+{
+	Com_DPrintf("ClientListener_javaRegister()\n");
+
+	interface_ClientListener = (*javaEnv)->FindClass(javaEnv, "xreal/server/game/ClientListener");
+	if(CheckException() || !interface_ClientListener)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.server.game.ClientListener");
+	}
+}
+
+
+void ClientListener_javaDetach()
+{
+	Com_DPrintf("ClientListener_javaDetach()\n");
+
+	if(javaEnv)
+	{
+		if(interface_ClientListener)
+		{
+			(*javaEnv)->DeleteLocalRef(javaEnv, interface_ClientListener);
+			interface_ClientListener = NULL;
+		}
+	}
+}
+
+// ====================================================================================
+
 /*
 ===============
 SV_ShutdownGameProgs
@@ -924,6 +949,7 @@ void SV_ShutdownGameProgs(void)
 	Server_javaDetach();
 	Game_javaDetach();
 	GameEntity_javaDetach();
+	ClientListener_javaDetach();
 }
 
 
@@ -958,13 +984,63 @@ void Java_G_ShutdownGame(qboolean restart)
 char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 {
 #if 1
-	static char	string[MAX_STRING_CHARS];
-	jobject 	result;
+	gclient_t	   *client;
+
+	jclass			class_Player;
+	jmethodID		method_Player_ctor;
+	jobject         object_Player;
+
+	static char		string[MAX_STRING_CHARS];
+	jobject 		result;
 
 	if(!object_Game)
+		return;
+
+	Com_Printf("Java_G_ClientBegin(%i)\n", clientNum);
+
+	client = &g_clients[clientNum];
+
+	// load the class Game
+	class_Player = (*javaEnv)->FindClass(javaEnv, "xreal/server/game/Player");
+	if(CheckException() || !class_Player)
+	{
+		Com_Error(ERR_DROP, "Couldn't find class xreal.server.game.Player");
+	}
+
+	// check class Game against interface GameListener
+	if(!((*javaEnv)->IsAssignableFrom(javaEnv, class_Player, interface_ClientListener)))
+	{
+		Com_Error(ERR_DROP, "The current Player class doesn't implement xreal.server.game.ClientListener");
+	}
+
+	// remove old game if existing
+//	(*javaEnv)->DeleteLocalRef(javaEnv, interface_GameListener);
+
+	// load constructor
+	method_Player_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Player, "<init>", "(I)V");
+
+	client->method_Player_clientBegin = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientBegin", "(I)V");
+	client->method_Player_clientUserInfoChanged = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientUserInfoChanged", "(I)V");
+	client->method_Player_clientDisconnect = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientDisconnect", "(I)V");
+	client->method_Player_clientCommand = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientCommand", "(I)V");
+	client->method_Player_clientThink = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientThink", "(I)V");
+
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Problem getting handle for one or more of the Player methods\n");
+	}
+
+	// create new player object
+	client->object_Player = object_Player = (*javaEnv)->NewObject(javaEnv, class_Player, method_Player_ctor, clientNum);
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Couldn't create instance of Player object");
+	}
+
+	if(!object_Player)
 		return NULL;
 
-	result = (*javaEnv)->CallObjectMethod(javaEnv, object_Game, method_Game_clientConnect, firstTime, isBot);
+	result = (*javaEnv)->CallObjectMethod(javaEnv, object_Game, method_Game_clientConnect, object_Player, firstTime, isBot);
 
 	CheckException();
 
@@ -985,50 +1061,80 @@ char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean
 
 void Java_G_ClientBegin(int clientNum)
 {
+	gclient_t	   *client;
+
 	if(!object_Game)
 		return;
 
-	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_clientBegin, clientNum);
+	Com_Printf("Java_G_ClientBegin(%i)\n", clientNum);
+
+	client = &g_clients[clientNum];
+
+	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientBegin, clientNum);
 
 	CheckException();
 }
 
 void Java_G_ClientUserInfoChanged(int clientNum)
 {
+	gclient_t	   *client;
+
 	if(!object_Game)
 		return;
 
-	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_clientUserInfoChanged, clientNum);
+	Com_Printf("Java_G_ClientUserInfoChanged(%i)\n", clientNum);
+
+	client = &g_clients[clientNum];
+
+	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientUserInfoChanged, clientNum);
 
 	CheckException();
 }
 
 void Java_G_ClientDisconnect(int clientNum)
 {
+	gclient_t	   *client;
+
 	if(!object_Game)
 		return;
 
-	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_clientDisconnect, clientNum);
+	Com_Printf("Java_G_ClientDisconnect(%i)\n", clientNum);
+
+	client = &g_clients[clientNum];
+
+	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientDisconnect, clientNum);
 
 	CheckException();
 }
 
 void Java_G_ClientCommand(int clientNum)
 {
-	if(!object_Game)
-			return;
+	gclient_t	   *client;
 
-	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_clientCommand, clientNum);
+	if(!object_Game)
+		return;
+
+	Com_Printf("Java_G_ClientCommand(%i)\n", clientNum);
+
+	client = &g_clients[clientNum];
+
+	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientCommand, clientNum);
 
 	CheckException();
 }
 
 void Java_G_ClientThink(int clientNum)
 {
+	gclient_t	   *client;
+
 	if(!object_Game)
 		return;
 
-	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_clientThink, clientNum);
+	Com_Printf("Java_G_ClientThink(%i)\n", clientNum);
+
+	client = &g_clients[clientNum];
+
+	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientThink, clientNum);
 
 	CheckException();
 }
@@ -1104,7 +1210,7 @@ static void SV_InitGameVM(qboolean restart)
 	// set client fields on player ents
 	for(i = 0; i < sv_maxclients->integer; i++)
 	{
-		g_entities[i].ps = g_clients + i;
+		g_entities[i].client = g_clients + i;
 	}
 
 	// always leave room for the max number of clients,
@@ -1156,6 +1262,7 @@ void SV_InitGameProgs(void)
 	Server_javaRegister();
 	Game_javaRegister();
 	GameEntity_javaRegister();
+	ClientListener_javaRegister();
 
 	SV_InitGameVM(qfalse);
 }

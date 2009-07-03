@@ -63,6 +63,13 @@ public class GameEntity {
 		Engine.println("GameEntity() allocated native entity using index: " + entityIndex);
 	}
 	
+	GameEntity(int reservedIndex)
+	{
+		entityIndex = allocateEntity0(reservedIndex);
+		
+		Engine.println("GameEntity() allocated native entity using index: " + entityIndex);
+	}
+	
 	/**
 	 * Called by the garbage collector.
 	 * 
@@ -93,6 +100,10 @@ public class GameEntity {
 		{
 			throw new GameException("Could not free entity");
 		}
+		
+		// avoid further access to the gentity_t object because it may be used by another GameEntity object
+		// this is a save dummy gentity_t not considered by the network
+		entityIndex = Engine.ENTITYNUM_NONE;
 	}
 	
 	public int getEntityIndex()

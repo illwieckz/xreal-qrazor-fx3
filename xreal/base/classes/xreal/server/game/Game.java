@@ -12,37 +12,11 @@ public class Game implements GameListener {
 	}
 
 	@Override
-	public void clientBegin(int clientNum) {
-		Engine.print("xreal.server.game.Game.clientBegin(clientNum = " + clientNum + ")\n");
-
-	}
-
-	@Override
-	public void clientCommand(int clientNum) {
-		Engine.print("xreal.server.game.Game.clientCommand(clientNum = " + clientNum + ")\n");
-	}
-
-	@Override
-	public String clientConnect(int clientNum, boolean firstTime, boolean isBot) {
-		Engine.print("xreal.server.game.Game.clientConnect(clientNum = " + clientNum + ", firstTime = " + firstTime + ", isBot = " + isBot + ")\n");
+	public String clientConnect(Player client, boolean firstTime, boolean isBot) {
+		Engine.print("xreal.server.game.Game.clientConnect(clientNum = " + client.getEntityIndex() + ", firstTime = " + firstTime + ", isBot = " + isBot + ")\n");
 		
 		//return "Game.clientConnect() is not implemented yet.";	// deny message
 		return null;
-	}
-
-	@Override
-	public void clientDisconnect(int clientNum) {
-		Engine.print("xreal.server.game.Game.clientDisconnect(clientNum = " + clientNum + ")\n");
-	}
-
-	@Override
-	public void clientThink(int clientNum) {
-		Engine.print("xreal.server.game.Game.clientThink(clientNum = " + clientNum + ")\n");
-	}
-
-	@Override
-	public void clientUserInfoChanged(int clientNum) {
-		Engine.print("xreal.server.game.Game.clientUserInfoChanged(clientNum = " + clientNum + ")\n");
 	}
 
 	@Override
@@ -69,20 +43,22 @@ public class Game implements GameListener {
 		
 		Engine.println("Game Version: " + Server.getConfigString(ConfigStrings.GAME_VERSION));
 		
-		/*
-		for(int i = 0; i < 30; i++)
-		{
 		
-			GameEntity e1 = new GameEntity();
-			Engine.println(e1.toString());
-			try {
-				e1.finalize();
-			} catch (Throwable e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		*/
+//		for(int i = 0; i < 30; i++)
+//		{
+//			GameEntity e1 = new GameEntity();
+//			
+//			/*
+//			Engine.println(e1.toString());
+//			try {
+//				e1.finalize();
+//			} catch (Throwable e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			*/
+//		}
+		
 		
 		Engine.print("-----------------------------------\n");
 	}
@@ -100,6 +76,10 @@ public class Game implements GameListener {
 		//CVars.g_gametype.set("99");
 		//CVars.g_gametype = null;
 		//Engine.print(CVars.g_gametype.toString() + "\n");
+		
+		//System.gc();
+		
+		//Engine.print("xreal.server.game.Game.runFrame(time2 = " + Engine.getTimeInMilliseconds() + ")\n");
 	}
 
 	@Override
