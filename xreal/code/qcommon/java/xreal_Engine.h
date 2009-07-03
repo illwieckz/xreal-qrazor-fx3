@@ -55,10 +55,10 @@ JNIEXPORT void JNICALL Java_xreal_Engine_error
 
 /*
  * Class:     xreal_Engine
- * Method:    milliseconds
+ * Method:    getTimeInMilliseconds
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_xreal_Engine_milliseconds
+JNIEXPORT jint JNICALL Java_xreal_Engine_getTimeInMilliseconds
   (JNIEnv *, jclass);
 
 /*

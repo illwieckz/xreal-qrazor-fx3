@@ -322,6 +322,17 @@ void JNICALL Java_xreal_Engine_error(JNIEnv *env, jclass cls, jstring js)
 
 /*
  * Class:     xreal_Engine
+ * Method:    getTimeInMilliseconds
+ * Signature: ()I
+ */
+jint JNICALL Java_xreal_Engine_getTimeInMilliseconds(JNIEnv *env, jclass cls)
+{
+	return Sys_Milliseconds();
+}
+
+
+/*
+ * Class:     xreal_Engine
  * Method:    getConsoleArgc
  * Signature: ()I
  */
@@ -371,6 +382,7 @@ static jclass   class_Engine;
 static JNINativeMethod Engine_methods[] = {
 	{"print", "(Ljava/lang/String;)V", Java_xreal_Engine_print},
 	{"error", "(Ljava/lang/String;)V", Java_xreal_Engine_error},
+	{"getTimeInMilliseconds", "()I", Java_xreal_Engine_getTimeInMilliseconds},
 	{"getConsoleArgc", "()I", Java_xreal_Engine_getConsoleArgc},
 	{"getConsoleArgv", "(I)Ljava/lang/String;", Java_xreal_Engine_getConsoleArgv},
 	{"getConsoleArgs", "()Ljava/lang/String;", Java_xreal_Engine_getConsoleArgs},
