@@ -60,7 +60,7 @@ public class Engine {
 	/**
 	 * Return the current time using Sys_Milliseconds();
 	 */
-	public synchronized native static int milliseconds();
+	public synchronized native static int getTimeInMilliseconds();
 
 	/**
 	 * Get the number of console tokens.
