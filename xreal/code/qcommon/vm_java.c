@@ -129,6 +129,7 @@ static qboolean JVM_JNI_Init()
 // handles to java.lang.Throwable class
 static jclass   class_Throwable;
 static jmethodID method_Throwable_printStackTrace;
+jmethodID method_Throwable_getMessage;
 
 /**
  * @brief Convert a Java string (which is Unicode) to reasonable 7-bit ASCII.
@@ -137,8 +138,6 @@ static jmethodID method_Throwable_printStackTrace;
  */
 void Misc_javaRegister()
 {
-	jmethodID       method_PlayerCmd_ctor;
-
 	class_Throwable = (*javaEnv)->FindClass(javaEnv, "java/lang/Throwable");
 	if(!class_Throwable)
 	{
@@ -149,6 +148,12 @@ void Misc_javaRegister()
 	if(!method_Throwable_printStackTrace)
 	{
 		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable.printStackTrace() method");
+	}
+
+	method_Throwable_getMessage = (*javaEnv)->GetMethodID(javaEnv, class_Throwable, "getMessage", "()Ljava/lang/String;");
+	if(!method_Throwable_getMessage)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable.getMessage() method");
 	}
 
 	// now that the java.lang.Class and java.lang.Throwable handles are obtained
