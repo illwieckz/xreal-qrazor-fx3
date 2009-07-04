@@ -291,6 +291,56 @@ void CVar_javaDetach()
 
 // ====================================================================================
 
+
+// handle to UserCommand class
+static jclass   class_UserCommand = NULL;
+static jmethodID method_UserCommand_ctor = NULL;
+
+void UserCommand_javaRegister()
+{
+	class_UserCommand = (*javaEnv)->FindClass(javaEnv, "xreal/UserCommand");
+	if(CheckException() || !class_UserCommand)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.UserCommand");
+	}
+
+	//UserCommand(int serverTime, int pitch, int yaw, int roll, int buttons, byte weapon, byte forwardmove, byte rightmove, byte upmove)
+	method_UserCommand_ctor = (*javaEnv)->GetMethodID(javaEnv, class_UserCommand, "<init>", "(IIIIIBBBB)V");
+}
+
+void UserCommand_javaDetach()
+{
+	if(class_UserCommand)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_UserCommand);
+		class_UserCommand = NULL;
+	}
+}
+
+jobject UserCommand_javaCreateObject(const usercmd_t * ucmd)
+{
+	jobject obj = NULL;
+
+	if(class_UserCommand)
+	{
+		// create new player object
+		obj = (*javaEnv)->NewObject(javaEnv, class_UserCommand, method_UserCommand_ctor,
+				ucmd->serverTime,
+				ucmd->angles[PITCH],
+				ucmd->angles[YAW],
+				ucmd->angles[ROLL],
+				ucmd->buttons,
+				ucmd->weapon,
+				ucmd->forwardmove,
+				ucmd->rightmove,
+				ucmd->upmove);
+	}
+
+	return obj;
+}
+
+// ====================================================================================
+
 /*
  * Class:     xreal_Engine
  * Method:    print
@@ -518,6 +568,7 @@ void JVM_Shutdown(void)
 
 //  Java_G_ShutdownGame(qfalse);
 
+	UserCommand_javaDetach();
 	CVar_javaDetach();
 	Engine_javaDetach();
 	Misc_javaDetach();
@@ -618,6 +669,7 @@ void JVM_Init(void)
 	Misc_javaRegister();
 	Engine_javaRegister();
 	CVar_javaRegister();
+	UserCommand_javaRegister();
 }
 
 

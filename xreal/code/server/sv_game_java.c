@@ -307,19 +307,6 @@ void SV_GetServerinfo(char *buffer, int bufferSize)
 	Q_strncpyz(buffer, Cvar_InfoString(CVAR_SERVERINFO), bufferSize);
 }
 
-/*
-===============
-SV_GetUsercmd
-===============
-*/
-void SV_GetUsercmd(int clientNum, usercmd_t * cmd)
-{
-	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
-	{
-		Com_Error(ERR_DROP, "SV_GetUsercmd: bad clientNum:%i", clientNum);
-	}
-	*cmd = svs.clients[clientNum].lastUsercmd;
-}
 
 
 // ====================================================================================
@@ -855,7 +842,7 @@ char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean
 	client->method_Player_clientUserInfoChanged = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientUserInfoChanged", "(Ljava/lang/String;)V");
 	client->method_Player_clientDisconnect = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientDisconnect", "()V");
 	client->method_Player_clientCommand = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientCommand", "()V");
-	client->method_Player_clientThink = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientThink", "()V");
+	client->method_Player_clientThink = (*javaEnv)->GetMethodID(javaEnv, class_Player, "clientThink", "(Lxreal/UserCommand;)V");
 
 	if(CheckException())
 	{
@@ -952,15 +939,22 @@ void Java_G_ClientCommand(int clientNum)
 void Java_G_ClientThink(int clientNum)
 {
 	gclient_t	   *client;
+	jobject			ucmd;
 
 	if(!object_Game)
 		return;
 
 	//Com_Printf("Java_G_ClientThink(%i)\n", clientNum);
 
-	client = &g_clients[clientNum];
+	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
+	{
+		Com_Error(ERR_DROP, "Java_G_ClientThink: bad clientNum: %i", clientNum);
+	}
 
-	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientThink);
+	client = &g_clients[clientNum];
+	ucmd = UserCommand_javaCreateObject(&svs.clients[clientNum].lastUsercmd);
+
+	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientThink, ucmd);
 
 	CheckException();
 }
