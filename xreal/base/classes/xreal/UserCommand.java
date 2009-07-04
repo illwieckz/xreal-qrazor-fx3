@@ -81,4 +81,19 @@ public class UserCommand {
 		this.rightmove = rightmove;
 		this.upmove = upmove;
 	}
+	
+	public String toString()
+	{
+		return 	"UserCommand = (" +
+				"server Time = " + serverTime +
+				", pitch = " + pitch +
+				", yaw = " + yaw +
+				", roll = " + roll +
+				", buttons = " + buttons +
+				", weapon = " + weapon +
+				", forwardmove = " + forwardmove +
+				", rightmove = " + rightmove +
+				", upmove = " + upmove +
+				")";
+	}
 }

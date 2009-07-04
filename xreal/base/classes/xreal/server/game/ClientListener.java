@@ -1,5 +1,7 @@
 package xreal.server.game;
 
+import xreal.UserCommand;
+
 /**
  * @author Robert Beckebans
  */
@@ -9,5 +11,5 @@ public interface ClientListener {
 	public void			clientUserInfoChanged(String s);
 	public void			clientDisconnect();
 	public void			clientCommand();
-	public void			clientThink();
+	public void			clientThink(UserCommand ucmd);
 }

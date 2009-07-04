@@ -21,4 +21,5 @@ public class CVars {
 	public static final CVar g_motd = new CVar("g_motd", "", 0);
 
 	// change anytime vars
+	public static final CVar g_synchronousClients = new CVar("g_synchronousClients", "0", CVar.SYSTEMINFO);
 }

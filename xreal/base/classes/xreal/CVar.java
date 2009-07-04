@@ -154,6 +154,10 @@ public class CVar {
 		// return integer;
 		return getInteger0(handle);
 	}
+	
+	public synchronized boolean getBoolean() {
+		return (getInteger0(handle) <= 0);
+	}
 
 	public synchronized String getString() {
 		// return string;

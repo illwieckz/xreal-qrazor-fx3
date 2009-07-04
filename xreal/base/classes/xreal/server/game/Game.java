@@ -7,6 +7,8 @@ import xreal.server.Server;
 
 public class Game implements GameListener {
 	
+	static private int levelTime;
+
 	private Game() {
 		
 	}
@@ -35,6 +37,8 @@ public class Game implements GameListener {
 		//Engine.print("gamedate: %s\n", __DATE__);
 
 		//Engine.sendConsoleCommand(Engine.EXEC_APPEND, "echo cool!");
+		
+		this.levelTime = levelTime;
 		
 		// make some data visible to connecting client
 		Server.setConfigString(ConfigStrings.GAME_VERSION, Config.GAME_VERSION);
@@ -73,6 +77,8 @@ public class Game implements GameListener {
 	public void runFrame(int time) {
 		//Engine.print("xreal.server.game.Game.runFrame(time = " + time + ")\n");
 		
+		this.levelTime = time;
+		
 		//CVars.g_gametype.set("99");
 		//CVars.g_gametype = null;
 		//Engine.print(CVars.g_gametype.toString() + "\n");
@@ -85,5 +91,9 @@ public class Game implements GameListener {
 	@Override
 	public void shutdownGame(boolean restart) {
 		Engine.print("xreal.server.game.Game.shutdownGame(restart = " + restart + ")\n");
+	}
+	
+	static public int getLevelTime() {
+		return levelTime;
 	}
 }
