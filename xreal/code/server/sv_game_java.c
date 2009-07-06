@@ -785,7 +785,7 @@ void Java_G_ShutdownGame(qboolean restart)
  */
 jstring JNICALL Java_xreal_server_game_Player_getUserInfo0(JNIEnv *env, jclass cls, jint clientNum)
 {
-	if(clientNum < 0 || clientNum >= MAX_CONFIGSTRINGS)
+	if(clientNum < 0 || clientNum >= MAX_CLIENTS)
 	{
 		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_getUserInfo0: bad index %i\n", clientNum);
 	}
@@ -809,9 +809,87 @@ JNIEXPORT void JNICALL Java_xreal_server_game_Player_setUserInfo0(JNIEnv *env, j
 	(*env)->ReleaseStringUTFChars(env, juserinfo, userinfo);
 }
 
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    setPlayerState_commandTime
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_Player_setPlayerState_1commandTime(JNIEnv *env, jclass cls, jint clientNum, jint time)
+{
+	gclient_t	   *client;
+
+	//Com_Printf("Java_xreal_server_game_Player_setPlayerState_1commandTime(clientNum = %i, time = %i)\n", clientNum, time);
+
+	if(clientNum < 0 || clientNum >= MAX_CLIENTS)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_setPlayerState_1commandTime: bad index %i\n", clientNum);
+	}
+	client = &g_clients[clientNum];
+
+	client->ps.commandTime = time;
+}
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    setPlayerState_pm_type
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_Player_setPlayerState_1pm_1type(JNIEnv *env, jclass cls, jint clientNum, jint type)
+{
+	gclient_t	   *client;
+
+	if(clientNum < 0 || clientNum >= MAX_CLIENTS)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_setPlayerState_1pm_1type: bad index %i\n", clientNum);
+	}
+	client = &g_clients[clientNum];
+
+	client->ps.pm_type = type;
+}
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    setPlayerState_pm_flags
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_Player_setPlayerState_1pm_1flags(JNIEnv *env, jclass cls, jint clientNum, jint flags)
+{
+	gclient_t	   *client;
+
+	if(clientNum < 0 || clientNum >= MAX_CLIENTS)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_setPlayerState_1pm_1flags: bad index %i\n", clientNum);
+	}
+	client = &g_clients[clientNum];
+
+	client->ps.pm_flags = flags;
+}
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    setPlayerState_pm_time
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_Player_setPlayerState_1pm_1time(JNIEnv *env, jclass cls, jint clientNum, jint time)
+{
+	gclient_t	   *client;
+
+	if(clientNum < 0 || clientNum >= MAX_CLIENTS)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_setPlayerState_1pm_1time: bad index %i\n", clientNum);
+	}
+	client = &g_clients[clientNum];
+
+	client->ps.pm_time = time;
+}
+
 static JNINativeMethod Player_methods[] = {
 	{"getUserInfo0", "(I)Ljava/lang/String;", Java_xreal_server_game_Player_getUserInfo0},
 	{"setUserInfo0", "(ILjava/lang/String;)V", Java_xreal_server_game_Player_setUserInfo0},
+	{"setPlayerState_commandTime", "(II)V", Java_xreal_server_game_Player_setPlayerState_1commandTime},
+	{"setPlayerState_pm_type", "(II)V", Java_xreal_server_game_Player_setPlayerState_1pm_1type},
+	{"setPlayerState_pm_flags", "(II)V", Java_xreal_server_game_Player_setPlayerState_1pm_1flags},
+	{"setPlayerState_pm_time", "(II)V", Java_xreal_server_game_Player_setPlayerState_1pm_1time},
 };
 
 char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
