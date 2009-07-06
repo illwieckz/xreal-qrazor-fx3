@@ -19,6 +19,64 @@ public class GameEntity {
 	 */
 	private static GameEntity[] entities;
 	
+	/*
+	enum EntityStateField
+	{
+		number,
+		
+		eType,
+		eFlags,
+		
+		pos_trType,
+		pos_trTime,
+		pos_trDuration,
+		pos_trAcceleration,
+		pos_trBase,
+		pos_trDelta,
+		
+		apos_trType,
+		apos_trTime,
+		apos_trDuration,
+		apos_trAcceleration,
+		apos_trBase,
+		apos_trDelta,
+		
+		time,
+		time2,
+		
+		origin,
+		origin2,
+		
+		angles,
+		angles2,
+		
+		otherEntityNum,
+		otherEntityNum2,
+		
+		groundEntityNum,
+
+		constantLight,
+		loopSound,
+		
+		modelindex,
+		modelindex2,
+		clientNum,
+		frame,
+
+		solid,
+
+		event,
+		eventParm,
+
+		powerups,
+		weapon,
+		legsAnim,
+		torsoAnim,
+
+		generic1
+	}
+	*/
+	
 	/**
 	 * Similar to Q3A's G_Spawn()
 	 * 

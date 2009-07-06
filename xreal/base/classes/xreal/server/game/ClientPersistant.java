@@ -3,26 +3,6 @@ package xreal.server.game;
 import xreal.UserCommand;
 
 
-enum ClientConnected
-{
-	DISCONNECTED,
-	CONNECTING,
-	CONNECTED
-}
-
-enum SpectatorState
-{
-	NOT,
-	FREE,
-	FOLLOW,
-	SCOREBOARD
-}
-
-enum PlayerTeamState
-{
-	BEGIN,					// Beginning a team game, spawn at base
-	ACTIVE					// Now actively playing
-}
 
 /**
  * Client data that stays across multiple respawns, but is cleared
@@ -32,18 +12,58 @@ enum PlayerTeamState
  */
 public class ClientPersistant {
 	
-	ClientConnected 	connected;
-	UserCommand       	cmd;			// we would lose angles if not persistant
-	boolean        		localClient;	// true if "ip" info key is "localhost"
-	boolean        		initialSpawn;	// the first spawn should be at a cool location
-	boolean     	   	predictItemPickup;	// based on cg_predictItems userinfo
-	boolean 	       	pmoveFixed;	//
-	String            	netname;
-	int             	maxHealth;	// for handicapping
-	int             	enterTime;	// level.time the client entered the game
-	PlayerTeamState 	teamState;	// status in teamplay games
-	int             	voteCount;	// to prevent people from constantly calling votes
-	int             	teamVoteCount;	// to prevent people from constantly calling votes
-	boolean         	teamInfo;	// send team overlay updates?
+	public ClientConnectionState 	connected;
+	
+	/**
+	 * we would lose angles if not persistant
+	 */
+	public UserCommand      	cmd;
+	
+	/**
+	 * true if "ip" info key is "localhost"
+	 */
+	public boolean        		localClient;
+	
+	/**
+	 * the first spawn should be at a cool location
+	 */
+	public boolean        		initialSpawn;
+	
+	/**
+	 * based on cg_predictItems userinfo
+	 */
+	public boolean     	   		predictItemPickup; 
+	public boolean 	       		pmoveFixed;
+	public String           	netname;
+	
+	/**
+	 * for handicapping
+	 */
+	public int             		maxHealth;
+	
+	/**
+	 * level.time the client entered the game
+	 */
+	public int             		enterTime;
+	
+	/**
+	 * status in teamplay games
+	 */
+	public PlayerTeamState 		teamState;
+	
+	/**
+	 * to prevent people from constantly calling votes
+	 */
+	public int             		voteCount;
+	
+	/**
+	 * to prevent people from constantly calling votes
+	 */
+	public int             		teamVoteCount;
+	
+	/**
+	 * send team overlay updates?
+	 */
+	public boolean         		teamInfo;
 }
 

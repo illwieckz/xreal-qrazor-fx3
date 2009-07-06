@@ -22,6 +22,14 @@ public class Server
 	 */
 	public synchronized native static void setConfigString(int index, String string);
 
+
+	/**
+	 * Send a command to all clients which will be interpreted by the client game module
+	 * 
+	 * @param string
+	 */
+	public synchronized native static void broadcastServerCommand(String command);
+
 	/*
 	public synchronized native static String getUserinfo(int num);
 

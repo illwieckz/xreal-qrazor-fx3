@@ -22,4 +22,5 @@ public class CVars {
 
 	// change anytime vars
 	public static final CVar g_synchronousClients = new CVar("g_synchronousClients", "0", CVar.SYSTEMINFO);
+	public static final CVar g_password = new CVar("g_password", "", CVar.USERINFO);
 }
