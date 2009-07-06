@@ -12,7 +12,7 @@ import xreal.UserCommand;
  */
 public class ClientPersistant {
 	
-	public ClientConnectionState 	connected;
+	public ClientConnectionState 	connected = ClientConnectionState.DISCONNECTED;
 	
 	/**
 	 * we would lose angles if not persistant

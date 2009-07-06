@@ -3,11 +3,12 @@ package xreal.server.game;
 import xreal.Engine;
 import xreal.common.Config;
 import xreal.common.ConfigStrings;
+import xreal.common.GameType;
 import xreal.server.Server;
 
 public class Game implements GameListener {
 	
-	static private int levelTime;
+	static private int levelTime = 0;
 
 	private Game() {
 		
@@ -33,6 +34,7 @@ public class Game implements GameListener {
 		Engine.print("xreal.server.game.Game.initGame(levelTime = "+ levelTime + ", randomSeed = " + randomSeed + ", restart = " + restart + ")\n");
 		
 		Engine.print("------- Game Initialization -------\n");
+		
 		//Engine.println("gamename: "Config.GAME_VERSION);
 		//Engine.print("gamedate: %s\n", __DATE__);
 
@@ -46,6 +48,7 @@ public class Game implements GameListener {
 		Server.setConfigString(ConfigStrings.MOTD, CVars.g_motd.getString());
 		
 		Engine.println("Game Version: " + Server.getConfigString(ConfigStrings.GAME_VERSION));
+		Engine.println("Game Type: " + GameType.values()[CVars.g_gametype.getInteger()]);
 		
 		
 //		for(int i = 0; i < 30; i++)

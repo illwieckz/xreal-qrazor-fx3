@@ -3,13 +3,17 @@
  */
 package xreal.server.game;
 
+import java.text.Format;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import xreal.ConsoleColorStrings;
 import xreal.Engine;
 import xreal.UserCommand;
+import xreal.UserInfo;
 import xreal.common.ConfigStrings;
+import xreal.common.GameType;
 import xreal.common.Team;
 import xreal.server.Server;
 
@@ -20,7 +24,7 @@ import xreal.server.Server;
  */
 public class Player extends GameEntity implements ClientListener {
 	
-	protected Hashtable<String, String> _userInfo = new Hashtable<String, String>();
+	UserInfo _userInfo = new UserInfo();
 	
 	private ClientPersistant	_pers = new ClientPersistant();
 	private ClientSession		_sess = new ClientSession();
@@ -32,6 +36,8 @@ public class Player extends GameEntity implements ClientListener {
 	Player(int clientNum, boolean firstTime, boolean isBot) throws GameException
 	{
 		super(clientNum);
+		
+		_sess.sessionTeam = Team.SPECTATOR;
 		
 		String userinfo = getUserInfo0(clientNum);
 		if(userinfo.length() == 0)
@@ -45,7 +51,7 @@ public class Player extends GameEntity implements ClientListener {
 		// check to see if they are on the banned IP list
 		String ip = _userInfo.get("ip");
 		/*
-		if(G_FilterPacket(value))
+		if(G_FilterPacket(ip))
 		{
 			throw new GameException("You are banned from this server.");
 		}
@@ -67,6 +73,7 @@ public class Player extends GameEntity implements ClientListener {
 		}
 
 		_pers.connected = ClientConnectionState.CONNECTING;
+		
 
 		// read or initialize the session data
 		/*
@@ -118,7 +125,7 @@ public class Player extends GameEntity implements ClientListener {
 	}
 
 	/**
-	 * Called from ClientConnect when the player first connects and
+	 * Called from Player() when the player first connects and
 	 * directly by the server system when the player updates a userinfo variable.
 	 * 
 	 * The game can override any of the settings and call Player.setUserinfo
@@ -131,73 +138,107 @@ public class Player extends GameEntity implements ClientListener {
 	@Override
 	public void clientUserInfoChanged(String userinfo) {
 		Engine.print("xreal.server.game.Player.clientUserInfoChanged(clientNum = " + getEntityIndex() + ")\n");
-		
-		if(userinfo == null)
+
+		if (userinfo == null)
 			return;
 
-		StringTokenizer st = new StringTokenizer(userinfo, "\\");
-		while (st.hasMoreTokens())
-		{
-			String key = st.nextToken();
-			if (st.hasMoreTokens()) 
-			{
-				String val = st.nextToken();
-				String oldVal = (String) _userInfo.get(key);
-				
-				if ((oldVal == null) || (!val.equals(oldVal))) 
-				{
-					_userInfo.put(key, val);
-					
-					userInfoVariableChanged(key, oldVal, val);
-				}
-			}
-		}
-		
-		Engine.println("Player.userinfo = " + _userInfo.toString());
+		// fill and update the user info hash table
+		_userInfo.read(userinfo);
 
-		/*
-		Com_sprintf(userinfo, sizeof(userinfo),
-				"n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-				client->pers.netname, team, model, "", redTeam, blueTeam, c1, c2, client->pers.maxHealth,
-				client->sess.wins, client->sess.losses, teamTask, teamLeader);
-				*/
-		
-		Server.setConfigString(ConfigStrings.PLAYERS + getEntityIndex(), userinfo);
-	}
-	
-	private void userInfoVariableChanged(String key, String oldValue, String value) {
-		
+		//Engine.println("Player.userinfo = " + _userInfo.toString());
+
 		// check for local client
-		if (key.equals("ip")) {
-			if (value.equals("localhost"))
-				_pers.localClient = true;
+		String ip = _userInfo.get("ip");
+		if (ip.equals("localhost")) {
+			_pers.localClient = true;
 		}
 
 		// set name
-		if (key.equals("name"))
-		{
-			String oldname = _pers.netname;
-			
-			// TODO _pers.netname = ClientCleanName(value);
-			_pers.netname = value;
-		
+		String oldname = _pers.netname;
+		String name = _userInfo.get("name");
 
-		if(_sess.sessionTeam == Team.SPECTATOR)
-		{
-			if(_sess.spectatorState == SpectatorState.SCOREBOARD)
-			{
+		// TODO _pers.netname = ClientCleanName(name);
+		_pers.netname = name;
+
+		if (_sess.sessionTeam == Team.SPECTATOR) {
+			if (_sess.spectatorState == SpectatorState.SCOREBOARD) {
 				_pers.netname = "scoreboard";
 			}
 		}
 
-		if(_pers.connected == ClientConnectionState.CONNECTED)
-		{
-			if(!_pers.netname.equals(oldname))
-			{
-				//trap_SendServerCommand(-1, va("print \"%s" + ConsoleColorStrings.BLUE + " renamed to %s\n\"", oldname, _pers.netname));
-				Server.broadcastServerCommand("print \"" + oldname + ConsoleColorStrings.BLUE + " renamed to " + _pers.netname + "\n\"");
+		if (_pers.connected == ClientConnectionState.CONNECTED) {
+			if (!_pers.netname.equals(oldname)) {
+				Server.broadcastServerCommand("print \"" + oldname + ConsoleColorStrings.WHITE + " renamed to " + _pers.netname + "\n\"");
 			}
 		}
+		
+		// set model
+		String model = _userInfo.get("model");
+
+		// bots set their team a few frames later
+		Team team = _sess.sessionTeam;
+		
+		GameType gt = GameType.values()[CVars.g_gametype.getInteger()];
+		if((gt == GameType.TEAM || gt == GameType.CTF || gt == GameType.ONEFLAG || gt == GameType.OBELISK || gt == GameType.HARVESTER) /* && g_entities[clientNum].r.svFlags & SVF_BOT */)
+		{
+			/*
+			s = Info_ValueForKey(userinfo, "team");
+			if(!Q_stricmp(s, "red") || !Q_stricmp(s, "r"))
+			{
+				team = TEAM_RED;
+			}
+			else if(!Q_stricmp(s, "blue") || !Q_stricmp(s, "b"))
+			{
+				team = TEAM_BLUE;
+			}
+			else
+			{
+				// pick the team with the least number of players
+				team = PickTeam(clientNum);
+			}
+			*/
 		}
+		
+		// team task (0 = none, 1 = offence, 2 = defence)
+		String teamTask = _userInfo.get("teamtask");
+		
+		
+		// team Leader (1 = leader, 0 is normal player)
+		boolean teamLeader = _sess.teamLeader;
+		
+
+		// colors
+		String c1 = _userInfo.get("color1");
+		String c2 = _userInfo.get("color2");
+
+		/*
+		 * Com_sprintf(userinfo, sizeof(userinfo),
+		 * "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d"
+		 * , client->pers.netname, team, model, "", redTeam, blueTeam, c1, c2,
+		 * client->pers.maxHealth, client->sess.wins, client->sess.losses,
+		 * teamTask, teamLeader);
+		 */
+		
+		// build new user info CG_NewClientInfo
+		
+		UserInfo uinfo = new UserInfo();
+		uinfo.put("n", _pers.netname);
+		uinfo.put("t",  team.toString());
+		uinfo.put("model", model);
+		uinfo.put("hmodel", "");
+		uinfo.put("g_redteam", "");
+		uinfo.put("g_redteam", "");
+		uinfo.put("c1", c1);
+		uinfo.put("c2", c2);
+		uinfo.put("hc", _pers.maxHealth);
+		uinfo.put("w", _sess.wins);
+		uinfo.put("l", _sess.losses);
+		uinfo.put("tt", teamTask);
+		uinfo.put("tl", teamLeader);
+		
+		//Engine.println("CS_PLAYERS userinfo = '" + uinfo.toString() + "'");
+		
+		Server.setConfigString(ConfigStrings.PLAYERS + getEntityIndex(), uinfo.toString());
+		
 	}
 }

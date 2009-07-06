@@ -12,10 +12,25 @@ import xreal.common.Team;
  */
 public class ClientSession {
 	
-	public Team            sessionTeam;
-	public int             spectatorTime;	// for determining next-in-line to play
-	public SpectatorState  spectatorState;
-	public int             spectatorClient;	// for chasecam and follow mode
-	public int             wins, losses;	// tournament stats
-	public boolean         teamLeader;	// true when this client is a team leader
+	public Team            sessionTeam = Team.FREE;
+	
+	/**
+	 * for determining next-in-line to play
+	 */
+	public int             spectatorTime;
+	
+	public SpectatorState  spectatorState = SpectatorState.NOT;
+	
+	/**
+	 * for chasecam and follow mode
+	 */
+	public int             spectatorClient;
+	
+	
+	public int             wins, losses;
+	
+	/**
+	 * true when this client is a team leader
+	 */
+	public boolean         teamLeader;
 }
