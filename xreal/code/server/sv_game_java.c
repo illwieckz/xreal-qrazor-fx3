@@ -436,11 +436,31 @@ void JNICALL Java_xreal_server_Server_setConfigString(JNIEnv *env, jclass cls, j
 	//CheckException();
 }
 
+/*
+ * Class:     xreal_server_Server
+ * Method:    broadcastServerCommand
+ * Signature: (Ljava/lang/String;)V
+ */
+void JNICALL Java_xreal_server_Server_broadcastServerCommand(JNIEnv *env, jclass cls, jstring jcommand)
+{
+	char           *command;
+
+	command = (char *)((*env)->GetStringUTFChars(env, jcommand, 0));
+
+	SV_SendServerCommand(NULL, command);
+
+	(*env)->ReleaseStringUTFChars(env, jcommand, command);
+
+	//CheckException();
+}
+
+
 // handle to Server class
 static jclass   class_Server;
 static JNINativeMethod Server_methods[] = {
 	{"getConfigString", "(I)Ljava/lang/String;", Java_xreal_server_Server_getConfigString},
 	{"setConfigString", "(ILjava/lang/String;)V", Java_xreal_server_Server_setConfigString},
+	{"broadcastServerCommand", "(Ljava/lang/String;)V", Java_xreal_server_Server_broadcastServerCommand},
 };
 
 void Server_javaRegister()

@@ -23,6 +23,14 @@ JNIEXPORT jstring JNICALL Java_xreal_server_Server_getConfigString
 JNIEXPORT void JNICALL Java_xreal_server_Server_setConfigString
   (JNIEnv *, jclass, jint, jstring);
 
+/*
+ * Class:     xreal_server_Server
+ * Method:    broadcastServerCommand
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_xreal_server_Server_broadcastServerCommand
+  (JNIEnv *, jclass, jstring);
+
 #ifdef __cplusplus
 }
 #endif
