@@ -1,12 +1,4 @@
-/**
- * 
- */
 package xreal.server.game;
-
-import java.text.Format;
-import java.util.Hashtable;
-import java.util.Locale;
-import java.util.StringTokenizer;
 
 import xreal.ConsoleColorStrings;
 import xreal.Engine;
@@ -14,6 +6,7 @@ import xreal.UserCommand;
 import xreal.UserInfo;
 import xreal.common.ConfigStrings;
 import xreal.common.GameType;
+import xreal.common.PlayerMovementType;
 import xreal.common.Team;
 import xreal.server.Server;
 
@@ -22,7 +15,7 @@ import xreal.server.Server;
  * 
  * @author Robert Beckebans
  */
-public class Player extends GameEntity implements ClientListener {
+public class Player extends GameEntity implements ClientListener, PlayerStateAccess {
 	
 	UserInfo _userInfo = new UserInfo();
 	
@@ -32,6 +25,12 @@ public class Player extends GameEntity implements ClientListener {
 	
 	private static native String	getUserInfo0(int clientNum);
 	private static native void 		setUserInfo0(int clientNum, String s);
+	
+	
+	
+	
+	// --------------------------------------------------------------------------------------------
+	
 	
 	Player(int clientNum, boolean firstTime, boolean isBot) throws GameException
 	{
@@ -110,9 +109,9 @@ public class Player extends GameEntity implements ClientListener {
 
 	@Override
 	public void clientThink(UserCommand ucmd) {
-		Engine.print("xreal.server.game.Player.clientThink(clientNum = " + getEntityIndex() + ")\n");
+		//Engine.print("xreal.server.game.Player.clientThink(clientNum = " + getEntityIndex() + ")\n");
 		
-		Engine.println(ucmd.toString());
+		//Engine.println(ucmd.toString());
 		
 		// mark the time we got info, so we can display the
 		// phone jack if they don't get any for a while
@@ -121,6 +120,11 @@ public class Player extends GameEntity implements ClientListener {
 		if(CVars.g_synchronousClients.getBoolean())
 		{
 			//ClientThink_real(ent);
+			
+			// shut up client about outdated player states
+			setPlayerState_commandTime(ucmd.serverTime);
+			
+			setPlayerState_pm_type(PlayerMovementType.SPECTATOR);
 		}
 	}
 
@@ -241,4 +245,36 @@ public class Player extends GameEntity implements ClientListener {
 		Server.setConfigString(ConfigStrings.PLAYERS + getEntityIndex(), uinfo.toString());
 		
 	}
+	
+	// ------------------- playerState_t:: fields in gclient_t::ps --------------------------------
+	
+	private static native void setPlayerState_commandTime(int clientNum, int time);
+
+	private static native void setPlayerState_pm_type(int clientNum, int type);
+
+	private static native void setPlayerState_pm_flags(int clientNum, int flags);
+
+	private static native void setPlayerState_pm_time(int clientNum, int time);
+
+	public void setPlayerState_commandTime(int time) {
+		setPlayerState_commandTime(getEntityIndex(), time);
+	}
+
+	@Override
+	public void setPlayerState_pm_flags(int flags) {
+		setPlayerState_pm_flags(getEntityIndex(), flags);
+
+	}
+
+	@Override
+	public void setPlayerState_pm_time(int time) {
+		setPlayerState_pm_time(getEntityIndex(), time);
+	}
+
+	@Override
+	public void setPlayerState_pm_type(PlayerMovementType type) {
+		setPlayerState_pm_type(getEntityIndex(), type.ordinal());
+	}
+	
+	// --------------------------------------------------------------------------------------------
 }
