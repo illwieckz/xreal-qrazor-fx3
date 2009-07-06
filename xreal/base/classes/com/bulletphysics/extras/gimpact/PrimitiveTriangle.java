@@ -27,12 +27,13 @@
 
 package com.bulletphysics.extras.gimpact;
 
-import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
+
+import com.bulletphysics.linearmath.Transform;
 
 /**
  *
@@ -67,10 +68,10 @@ public class PrimitiveTriangle {
 	}
 	
 	public void buildTriPlane() {
-		Vector3f tmp1 = Stack.alloc(Vector3f.class);
-		Vector3f tmp2 = Stack.alloc(Vector3f.class);
+		Vector3f tmp1 = new Vector3f();
+		Vector3f tmp2 = new Vector3f();
 
-		Vector3f normal = Stack.alloc(Vector3f.class);
+		Vector3f normal = new Vector3f();
 		tmp1.sub(vertices[1], vertices[0]);
 		tmp2.sub(vertices[2], vertices[0]);
 		normal.cross(tmp1, tmp2);
@@ -115,7 +116,7 @@ public class PrimitiveTriangle {
 		Vector3f e0 = vertices[edge_index];
 		Vector3f e1 = vertices[(edge_index + 1) % 3];
 
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 		tmp.set(this.plane.x, this.plane.y, this.plane.z);
 
 		GeometryOperations.edge_plane(e0, e1, tmp, plane);
@@ -137,7 +138,7 @@ public class PrimitiveTriangle {
 		// edge 0
 		List<Vector3f> temp_points = tmpVecList1;
 
-		Vector4f edgeplane = Stack.alloc(Vector4f.class);
+		Vector4f edgeplane = new Vector4f();
 
 		get_edge_plane(0, edgeplane);
 
@@ -176,7 +177,7 @@ public class PrimitiveTriangle {
 		//create planes
 		// plane v vs U points
 
-		TriangleContact contacts1 = Stack.alloc(TriangleContact.class);
+		TriangleContact contacts1 = new TriangleContact();
 
 		contacts1.separating_normal.set(plane);
 
@@ -197,7 +198,7 @@ public class PrimitiveTriangle {
 		contacts1.separating_normal.z *= -1.f;
 
 		// Clip tri1 by tri2 edges
-		TriangleContact contacts2 = Stack.alloc(TriangleContact.class);
+		TriangleContact contacts2 = new TriangleContact();
 		contacts2.separating_normal.set(other.plane);
 
 		clipped_count = other.clip_triangle(this, clipped_points);

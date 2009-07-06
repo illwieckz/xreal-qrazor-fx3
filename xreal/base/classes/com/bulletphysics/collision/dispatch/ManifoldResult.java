@@ -23,14 +23,14 @@
 
 package com.bulletphysics.collision.dispatch;
 
+import javax.vecmath.Vector3f;
+
 import com.bulletphysics.BulletGlobals;
-import com.bulletphysics.util.ObjectPool;
 import com.bulletphysics.collision.narrowphase.DiscreteCollisionDetectorInterface;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
-import javax.vecmath.Vector3f;
+import com.bulletphysics.util.ObjectPool;
 
 /**
  * ManifoldResult is helper class to manage contact results.
@@ -93,11 +93,11 @@ public class ManifoldResult implements DiscreteCollisionDetectorInterface.Result
 
 		boolean isSwapped = manifoldPtr.getBody0() != body0;
 
-		Vector3f pointA = Stack.alloc(Vector3f.class);
+		Vector3f pointA = new Vector3f();
 		pointA.scaleAdd(depth, normalOnBInWorld, pointInWorld);
 
-		Vector3f localA = Stack.alloc(Vector3f.class);
-		Vector3f localB = Stack.alloc(Vector3f.class);
+		Vector3f localA = new Vector3f();
+		Vector3f localB = new Vector3f();
 
 		if (isSwapped) {
 			rootTransB.invXform(pointA, localA);

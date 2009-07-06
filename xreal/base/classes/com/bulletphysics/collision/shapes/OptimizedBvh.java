@@ -25,11 +25,12 @@ package com.bulletphysics.collision.shapes;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.vecmath.Vector3f;
+
 import com.bulletphysics.linearmath.AabbUtil2;
 import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
-import javax.vecmath.Vector3f;
 
 // JAVA NOTE: OptimizedBvh still from 2.66, update it for 2.70b1
 
@@ -124,11 +125,11 @@ public class OptimizedBvh {
 	
 	public void setQuantizationValues(Vector3f aabbMin, Vector3f aabbMax, float quantizationMargin) {
 		// enlarge the AABB to avoid division by zero when initializing the quantization values
-		Vector3f clampValue = Stack.alloc(Vector3f.class);
+		Vector3f clampValue = new Vector3f();
 		clampValue.set(quantizationMargin,quantizationMargin,quantizationMargin);
 		bvhAabbMin.sub(aabbMin, clampValue);
 		bvhAabbMax.add(aabbMax, clampValue);
-		Vector3f aabbSize = Stack.alloc(Vector3f.class);
+		Vector3f aabbSize = new Vector3f();
 		aabbSize.sub(bvhAabbMax, bvhAabbMin);
 		bvhQuantization.set(65535f, 65535f, 65535f);
 		VectorUtil.div(bvhQuantization, bvhQuantization, aabbSize);
@@ -240,7 +241,7 @@ public class OptimizedBvh {
 			assert (triangleIndex >= 0);
 
 			int nodeId = triangleNodes.add();
-			Vector3f aabbMin = Stack.alloc(Vector3f.class), aabbMax = Stack.alloc(Vector3f.class);
+			Vector3f aabbMin = new Vector3f(), aabbMax = new Vector3f();
 			aabbMin.set(1e30f, 1e30f, 1e30f);
 			aabbMax.set(-1e30f, -1e30f, -1e30f);
 			VectorUtil.setMin(aabbMin, triangle[0]);
@@ -296,9 +297,9 @@ public class OptimizedBvh {
 		else {
 			NodeTriangleCallback callback = new NodeTriangleCallback(leafNodes);
 
-			Vector3f aabbMin = Stack.alloc(Vector3f.class);
+			Vector3f aabbMin = new Vector3f();
 			aabbMin.set(-1e30f, -1e30f, -1e30f);
-			Vector3f aabbMax = Stack.alloc(Vector3f.class);
+			Vector3f aabbMax = new Vector3f();
 			aabbMax.set(1e30f, 1e30f, 1e30f);
 
 			triangles.internalProcessAllTriangles(callback, aabbMin, aabbMax);
@@ -336,7 +337,7 @@ public class OptimizedBvh {
 	public void refit(StridingMeshInterface meshInterface) {
 		if (useQuantization) {
 			// calculate new aabb
-			Vector3f aabbMin = Stack.alloc(Vector3f.class), aabbMax = Stack.alloc(Vector3f.class);
+			Vector3f aabbMin = new Vector3f(), aabbMax = new Vector3f();
 			meshInterface.calculateAabbBruteForce(aabbMin, aabbMax);
 
 			setQuantizationValues(aabbMin, aabbMax);
@@ -401,9 +402,9 @@ public class OptimizedBvh {
 
 		int curNodeSubPart = -1;
 
-		Vector3f[] triangleVerts/*[3]*/ = new Vector3f[] { Stack.alloc(Vector3f.class), Stack.alloc(Vector3f.class), Stack.alloc(Vector3f.class) };
-		Vector3f aabbMin = Stack.alloc(Vector3f.class), aabbMax = Stack.alloc(Vector3f.class);
-		Vector3f meshScaling = meshInterface.getScaling(Stack.alloc(Vector3f.class));
+		Vector3f[] triangleVerts/*[3]*/ = new Vector3f[] { new Vector3f(), new Vector3f(), new Vector3f() };
+		Vector3f aabbMin = new Vector3f(), aabbMax = new Vector3f();
+		Vector3f meshScaling = meshInterface.getScaling(new Vector3f());
 
 		VertexData data = null;
 
@@ -500,10 +501,10 @@ public class OptimizedBvh {
 
 		int internalNodeIndex = curNodeIndex;
 
-		Vector3f tmp1 = Stack.alloc(Vector3f.class);
+		Vector3f tmp1 = new Vector3f();
 		tmp1.set(-1e30f, -1e30f, -1e30f);
 		setInternalNodeAabbMax(curNodeIndex, tmp1);
-		Vector3f tmp2 = Stack.alloc(Vector3f.class);
+		Vector3f tmp2 = new Vector3f();
 		tmp2.set(1e30f, 1e30f, 1e30f);
 		setInternalNodeAabbMin(curNodeIndex, tmp2);
 
@@ -607,9 +608,9 @@ public class OptimizedBvh {
 		int numIndices = endIndex - startIndex;
 		float splitValue;
 
-		Vector3f means = Stack.alloc(Vector3f.class);
+		Vector3f means = new Vector3f();
 		means.set(0f, 0f, 0f);
-		Vector3f center = Stack.alloc(Vector3f.class);
+		Vector3f center = new Vector3f();
 		for (i = startIndex; i < endIndex; i++) {
 			center.add(getAabbMax(i), getAabbMin(i));
 			center.scale(0.5f);
@@ -657,13 +658,13 @@ public class OptimizedBvh {
 	protected int calcSplittingAxis(int startIndex, int endIndex) {
 		int i;
 
-		Vector3f means = Stack.alloc(Vector3f.class);
+		Vector3f means = new Vector3f();
 		means.set(0f, 0f, 0f);
-		Vector3f variance = Stack.alloc(Vector3f.class);
+		Vector3f variance = new Vector3f();
 		variance.set(0f, 0f, 0f);
 		int numIndices = endIndex - startIndex;
 
-		Vector3f center = Stack.alloc(Vector3f.class);
+		Vector3f center = new Vector3f();
 		for (i = startIndex; i < endIndex; i++) {
 			center.add(getAabbMax(i), getAabbMin(i));
 			center.scale(0.5f);
@@ -671,7 +672,7 @@ public class OptimizedBvh {
 		}
 		means.scale(1f / (float) numIndices);
 
-		Vector3f diff2 = Stack.alloc(Vector3f.class);
+		Vector3f diff2 = new Vector3f();
 		for (i = startIndex; i < endIndex; i++) {
 			center.add(getAabbMax(i), getAabbMin(i));
 			center.scale(0.5f);
@@ -799,8 +800,8 @@ public class OptimizedBvh {
 		}
 		else {
 			/* Otherwise fallback to AABB overlap test */
-			Vector3f aabbMin = Stack.alloc(raySource);
-			Vector3f aabbMax = Stack.alloc(raySource);
+			Vector3f aabbMin = new Vector3f(raySource);
+			Vector3f aabbMax = new Vector3f(raySource);
 			VectorUtil.setMin(aabbMin, rayTarget);
 			VectorUtil.setMax(aabbMax, rayTarget);
 			reportAabbOverlappingNodex(nodeCallback, aabbMin, aabbMax);
@@ -816,8 +817,8 @@ public class OptimizedBvh {
 		else {
 			/* Slow path:
 			Construct the bounding box for the entire box cast and send that down the tree */
-			Vector3f qaabbMin = Stack.alloc(raySource);
-			Vector3f qaabbMax = Stack.alloc(raySource);
+			Vector3f qaabbMin = new Vector3f(raySource);
+			Vector3f qaabbMax = new Vector3f(raySource);
 			VectorUtil.setMin(qaabbMin, rayTarget);
 			VectorUtil.setMax(qaabbMax, rayTarget);
 			qaabbMin.add(aabbMin);
@@ -829,11 +830,11 @@ public class OptimizedBvh {
 	public long quantizeWithClamp(Vector3f point) {
 		assert (useQuantization);
 
-		Vector3f clampedPoint = Stack.alloc(point);
+		Vector3f clampedPoint = new Vector3f(point);
 		VectorUtil.setMax(clampedPoint, bvhAabbMin);
 		VectorUtil.setMin(clampedPoint, bvhAabbMax);
 
-		Vector3f v = Stack.alloc(Vector3f.class);
+		Vector3f v = new Vector3f();
 		v.sub(clampedPoint, bvhAabbMin);
 		VectorUtil.mul(v, v, bvhQuantization);
 

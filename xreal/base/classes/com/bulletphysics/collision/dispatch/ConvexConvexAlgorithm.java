@@ -23,24 +23,25 @@
 
 package com.bulletphysics.collision.dispatch;
 
-import com.bulletphysics.util.ObjectPool;
+import java.util.List;
+
+import javax.vecmath.Vector3f;
+
 import com.bulletphysics.collision.broadphase.CollisionAlgorithm;
 import com.bulletphysics.collision.broadphase.CollisionAlgorithmConstructionInfo;
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
 import com.bulletphysics.collision.narrowphase.ConvexCast;
 import com.bulletphysics.collision.narrowphase.ConvexPenetrationDepthSolver;
-import com.bulletphysics.collision.narrowphase.DiscreteCollisionDetectorInterface.ClosestPointInput;
 import com.bulletphysics.collision.narrowphase.GjkConvexCast;
 import com.bulletphysics.collision.narrowphase.GjkPairDetector;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.collision.narrowphase.SimplexSolverInterface;
 import com.bulletphysics.collision.narrowphase.VoronoiSimplexSolver;
+import com.bulletphysics.collision.narrowphase.DiscreteCollisionDetectorInterface.ClosestPointInput;
 import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
-import java.util.List;
-import javax.vecmath.Vector3f;
+import com.bulletphysics.util.ObjectPool;
 
 /**
  * ConvexConvexAlgorithm collision algorithm implements time of impact, convex
@@ -138,10 +139,10 @@ public class ConvexConvexAlgorithm extends CollisionAlgorithm {
 	
 	@Override
 	public float calculateTimeOfImpact(CollisionObject col0, CollisionObject col1, DispatcherInfo dispatchInfo, ManifoldResult resultOut) {
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 		
-		Transform tmpTrans1 = Stack.alloc(Transform.class);
-		Transform tmpTrans2 = Stack.alloc(Transform.class);
+		Transform tmpTrans1 = new Transform();
+		Transform tmpTrans2 = new Transform();
 
 		// Rather then checking ALL pairs, only calculate TOI when motion exceeds threshold
 
@@ -164,8 +165,8 @@ public class ConvexConvexAlgorithm extends CollisionAlgorithm {
 			return 1f;
 		}
 		
-		Transform tmpTrans3 = Stack.alloc(Transform.class);
-		Transform tmpTrans4 = Stack.alloc(Transform.class);
+		Transform tmpTrans3 = new Transform();
+		Transform tmpTrans4 = new Transform();
 
 		// An adhoc way of testing the Continuous Collision Detection algorithms
 		// One object is approximated as a sphere, to simplify things

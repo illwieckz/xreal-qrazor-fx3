@@ -23,10 +23,10 @@
 
 package com.bulletphysics.dynamics.vehicle;
 
+import javax.vecmath.Vector3f;
+
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
-import javax.vecmath.Vector3f;
 
 /**
  * WheelInfo contains information per wheel about friction and suspension.
@@ -98,9 +98,9 @@ public class WheelInfo {
 	public void updateWheel(RigidBody chassis, RaycastInfo raycastInfo) {
 		if (raycastInfo.isInContact) {
 			float project = raycastInfo.contactNormalWS.dot(raycastInfo.wheelDirectionWS);
-			Vector3f chassis_velocity_at_contactPoint = Stack.alloc(Vector3f.class);
-			Vector3f relpos = Stack.alloc(Vector3f.class);
-			relpos.sub(raycastInfo.contactPointWS, chassis.getCenterOfMassPosition(Stack.alloc(Vector3f.class)));
+			Vector3f chassis_velocity_at_contactPoint = new Vector3f();
+			Vector3f relpos = new Vector3f();
+			relpos.sub(raycastInfo.contactPointWS, chassis.getCenterOfMassPosition(new Vector3f()));
 			chassis.getVelocityInLocalPoint(relpos, chassis_velocity_at_contactPoint);
 			float projVel = raycastInfo.contactNormalWS.dot(chassis_velocity_at_contactPoint);
 			if (project >= -0.1f) {

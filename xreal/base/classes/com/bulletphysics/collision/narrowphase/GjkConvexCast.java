@@ -23,13 +23,13 @@
 
 package com.bulletphysics.collision.narrowphase;
 
-import com.bulletphysics.util.ObjectPool;
+import javax.vecmath.Vector3f;
+
 import com.bulletphysics.collision.narrowphase.DiscreteCollisionDetectorInterface.ClosestPointInput;
 import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
-import javax.vecmath.Vector3f;
+import com.bulletphysics.util.ObjectPool;
 
 /**
  * GjkConvexCast performs a raycast on a convex object using support mapping.
@@ -64,24 +64,24 @@ public class GjkConvexCast implements ConvexCast {
 
 		// compute linear velocity for this interval, to interpolate
 		// assume no rotation/angular velocity, assert here?
-		Vector3f linVelA = Stack.alloc(Vector3f.class);
-		Vector3f linVelB = Stack.alloc(Vector3f.class);
+		Vector3f linVelA = new Vector3f();
+		Vector3f linVelB = new Vector3f();
 
 		linVelA.sub(toA.origin, fromA.origin);
 		linVelB.sub(toB.origin, fromB.origin);
 
 		float radius = 0.001f;
 		float lambda = 0f;
-		Vector3f v = Stack.alloc(Vector3f.class);
+		Vector3f v = new Vector3f();
 		v.set(1f, 0f, 0f);
 
 		int maxIter = MAX_ITERATIONS;
 
-		Vector3f n = Stack.alloc(Vector3f.class);
+		Vector3f n = new Vector3f();
 		n.set(0f, 0f, 0f);
 		boolean hasResult = false;
-		Vector3f c = Stack.alloc(Vector3f.class);
-		Vector3f r = Stack.alloc(Vector3f.class);
+		Vector3f c = new Vector3f();
+		Vector3f r = new Vector3f();
 		r.sub(linVelA, linVelB);
 
 		float lastLambda = lambda;
@@ -90,7 +90,7 @@ public class GjkConvexCast implements ConvexCast {
 		int numIter = 0;
 		// first solution, using GJK
 
-		Transform identityTrans = Stack.alloc(Transform.class);
+		Transform identityTrans = new Transform();
 		identityTrans.setIdentity();
 
 		//result.drawCoordSystem(sphereTr);

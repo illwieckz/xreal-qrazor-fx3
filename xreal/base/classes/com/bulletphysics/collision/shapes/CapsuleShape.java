@@ -23,14 +23,14 @@
 
 package com.bulletphysics.collision.shapes;
 
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Vector3f;
+
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
-import javax.vecmath.Matrix3f;
-import javax.vecmath.Vector3f;
 
 /**
  * CapsuleShape represents a capsule around the Y axis.<p>
@@ -62,7 +62,7 @@ public class CapsuleShape extends ConvexInternalShape {
 
 		float maxDot = -1e30f;
 
-		Vector3f vec = Stack.alloc(vec0);
+		Vector3f vec = new Vector3f(vec0);
 		float lenSqr = vec.lengthSquared();
 		if (lenSqr < 0.0001f) {
 			vec.set(1f, 0f, 0f);
@@ -72,14 +72,14 @@ public class CapsuleShape extends ConvexInternalShape {
 			vec.scale(rlen);
 		}
 
-		Vector3f vtx = Stack.alloc(Vector3f.class);
+		Vector3f vtx = new Vector3f();
 		float newDot;
 
 		float radius = getRadius();
 
-		Vector3f tmp1 = Stack.alloc(Vector3f.class);
-		Vector3f tmp2 = Stack.alloc(Vector3f.class);
-		Vector3f pos = Stack.alloc(Vector3f.class);
+		Vector3f tmp1 = new Vector3f();
+		Vector3f tmp2 = new Vector3f();
+		Vector3f pos = new Vector3f();
 
 		{
 			pos.set(0f, 0f, 0f);
@@ -125,12 +125,12 @@ public class CapsuleShape extends ConvexInternalShape {
 	public void calculateLocalInertia(float mass, Vector3f inertia) {
 		// as an approximation, take the inertia of the box that bounds the spheres
 
-		Transform ident = Stack.alloc(Transform.class);
+		Transform ident = new Transform();
 		ident.setIdentity();
 
 		float radius = getRadius();
 
-		Vector3f halfExtents = Stack.alloc(Vector3f.class);
+		Vector3f halfExtents = new Vector3f();
 		halfExtents.set(radius, radius, radius);
 		VectorUtil.setCoord(halfExtents, getUpAxis(), radius + getHalfHeight());
 
@@ -156,18 +156,18 @@ public class CapsuleShape extends ConvexInternalShape {
 	
 	@Override
 	public void getAabb(Transform t, Vector3f aabbMin, Vector3f aabbMax) {
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 
-		Vector3f halfExtents = Stack.alloc(Vector3f.class);
+		Vector3f halfExtents = new Vector3f();
 		halfExtents.set(getRadius(), getRadius(), getRadius());
 		VectorUtil.setCoord(halfExtents, upAxis, getRadius() + getHalfHeight());
 
-		Matrix3f abs_b = Stack.alloc(Matrix3f.class);
+		Matrix3f abs_b = new Matrix3f();
 		abs_b.set(t.basis);
 		MatrixUtil.absolute(abs_b);
 
 		Vector3f center = t.origin;
-		Vector3f extent = Stack.alloc(Vector3f.class);
+		Vector3f extent = new Vector3f();
 
 		abs_b.getRow(0, tmp);
 		extent.x = tmp.dot(halfExtents);

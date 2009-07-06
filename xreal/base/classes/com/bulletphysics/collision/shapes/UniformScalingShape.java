@@ -23,10 +23,10 @@
 
 package com.bulletphysics.collision.shapes;
 
+import javax.vecmath.Vector3f;
+
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
-import javax.vecmath.Vector3f;
 
 /**
  * Applies uniform scaling to other {@link ConvexShape}.
@@ -76,11 +76,11 @@ public class UniformScalingShape extends ConvexShape {
 	@Override
 	public void getAabbSlow(Transform t, Vector3f aabbMin, Vector3f aabbMax) {
 		childConvexShape.getAabbSlow(t, aabbMin, aabbMax);
-		Vector3f aabbCenter = Stack.alloc(Vector3f.class);
+		Vector3f aabbCenter = new Vector3f();
 		aabbCenter.add(aabbMax, aabbMin);
 		aabbCenter.scale(0.5f);
 
-		Vector3f scaledAabbHalfExtends = Stack.alloc(Vector3f.class);
+		Vector3f scaledAabbHalfExtends = new Vector3f();
 		scaledAabbHalfExtends.sub(aabbMax, aabbMin);
 		scaledAabbHalfExtends.scale(0.5f * uniformScalingFactor);
 
@@ -122,11 +122,11 @@ public class UniformScalingShape extends ConvexShape {
 	@Override
 	public void getAabb(Transform t, Vector3f aabbMin, Vector3f aabbMax) {
 		childConvexShape.getAabb(t, aabbMin, aabbMax);
-		Vector3f aabbCenter = Stack.alloc(Vector3f.class);
+		Vector3f aabbCenter = new Vector3f();
 		aabbCenter.add(aabbMax, aabbMin);
 		aabbCenter.scale(0.5f);
 
-		Vector3f scaledAabbHalfExtends = Stack.alloc(Vector3f.class);
+		Vector3f scaledAabbHalfExtends = new Vector3f();
 		scaledAabbHalfExtends.sub(aabbMax, aabbMin);
 		scaledAabbHalfExtends.scale(0.5f * uniformScalingFactor);
 

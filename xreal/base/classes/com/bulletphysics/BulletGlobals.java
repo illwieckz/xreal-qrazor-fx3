@@ -23,9 +23,10 @@
 
 package com.bulletphysics;
 
+import java.util.Stack;
+
 import com.bulletphysics.util.ArrayPool;
 import com.bulletphysics.util.ObjectPool;
-import cz.advel.stack.Stack;
 
 /**
  * Bullet global settings and constants.
@@ -122,7 +123,7 @@ public class BulletGlobals {
 	 */
 	public static void cleanCurrentThread() {
 		threadLocal.remove();
-		Stack.libraryCleanCurrentThread();
+		//Stack.libraryCleanCurrentThread();
 		ObjectPool.cleanCurrentThread();
 		ArrayPool.cleanCurrentThread();
 	}

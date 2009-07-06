@@ -27,12 +27,12 @@
 
 package com.bulletphysics.extras.gimpact;
 
+import javax.vecmath.Vector3f;
+
 import com.bulletphysics.collision.shapes.StridingMeshInterface;
 import com.bulletphysics.collision.shapes.VertexData;
 import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
-import javax.vecmath.Vector3f;
 
 /**
  *
@@ -124,7 +124,7 @@ class TrimeshPrimitiveManager extends PrimitiveManagerBase {
 	
 	@Override
 	public void get_primitive_box(int prim_index, AABB primbox) {
-		PrimitiveTriangle triangle = Stack.alloc(PrimitiveTriangle.class);
+		PrimitiveTriangle triangle = new PrimitiveTriangle();
 		get_primitive_triangle(prim_index, triangle);
 		primbox.calc_from_triangle_margin(
 				triangle.vertices[0],

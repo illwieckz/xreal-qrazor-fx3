@@ -24,6 +24,9 @@
 package com.bulletphysics.dynamics;
 
 import java.util.List;
+
+import javax.vecmath.Vector3f;
+
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.Dispatcher;
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
@@ -34,8 +37,6 @@ import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.ContactSolverInfo;
 import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
-import javax.vecmath.Vector3f;
 
 /**
  * SimpleDynamicsWorld serves as unit-test and to verify more complicated and
@@ -57,7 +58,7 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
 	}
 
 	protected void predictUnconstraintMotion(float timeStep) {
-		Transform tmpTrans = Stack.alloc(Transform.class);
+		Transform tmpTrans = new Transform();
 		
 		for (int i = 0; i < collisionObjects.size(); i++) {
 			CollisionObject colObj = collisionObjects.get(i);
@@ -76,7 +77,7 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
 	}
 	
 	protected void integrateTransforms(float timeStep) {
-		Transform predictedTrans = Stack.alloc(Transform.class);
+		Transform predictedTrans = new Transform();
 		for (int i = 0; i < collisionObjects.size(); i++) {
 			CollisionObject colObj = collisionObjects.get(i);
 			RigidBody body = RigidBody.upcast(colObj);
@@ -177,9 +178,9 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
 
 	@Override
 	public void updateAabbs() {
-		Transform tmpTrans = Stack.alloc(Transform.class);
-		Transform predictedTrans = Stack.alloc(Transform.class);
-		Vector3f minAabb = Stack.alloc(Vector3f.class), maxAabb = Stack.alloc(Vector3f.class);
+		Transform tmpTrans = new Transform();
+		Transform predictedTrans = new Transform();
+		Vector3f minAabb = new Vector3f(), maxAabb = new Vector3f();
 
 		for (int i = 0; i < collisionObjects.size(); i++) {
 			CollisionObject colObj = collisionObjects.get(i);
@@ -195,7 +196,7 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
 	}
 
 	public void synchronizeMotionStates() {
-		Transform tmpTrans = Stack.alloc(Transform.class);
+		Transform tmpTrans = new Transform();
 		
 		// todo: iterate over awake simulation islands!
 		for (int i = 0; i < collisionObjects.size(); i++) {

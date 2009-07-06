@@ -23,7 +23,6 @@
 
 package com.bulletphysics.linearmath;
 
-import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
@@ -48,12 +47,12 @@ public class AabbUtil2 {
 	}
 	
 	public static boolean rayAabb(Vector3f rayFrom, Vector3f rayTo, Vector3f aabbMin, Vector3f aabbMax, float[] param, Vector3f normal) {
-		Vector3f aabbHalfExtent = Stack.alloc(Vector3f.class);
-		Vector3f aabbCenter = Stack.alloc(Vector3f.class);
-		Vector3f source = Stack.alloc(Vector3f.class);
-		Vector3f target = Stack.alloc(Vector3f.class);
-		Vector3f r = Stack.alloc(Vector3f.class);
-		Vector3f hitNormal = Stack.alloc(Vector3f.class);
+		Vector3f aabbHalfExtent = new Vector3f();
+		Vector3f aabbCenter = new Vector3f();
+		Vector3f source = new Vector3f();
+		Vector3f target = new Vector3f();
+		Vector3f r = new Vector3f();
+		Vector3f hitNormal = new Vector3f();
 
 		aabbHalfExtent.sub(aabbMax, aabbMin);
 		aabbHalfExtent.scale(0.5f);
