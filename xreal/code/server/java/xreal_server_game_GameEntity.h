@@ -23,14 +23,6 @@ JNIEXPORT jint JNICALL Java_xreal_server_game_GameEntity_allocateEntity0
 JNIEXPORT jboolean JNICALL Java_xreal_server_game_GameEntity_freeEntity0
   (JNIEnv *, jclass, jint);
 
-/*
- * Class:     xreal_server_game_GameEntity
- * Method:    getEntityIndex
- * Signature: (I)I
- */
-JNIEXPORT jint JNICALL Java_xreal_server_game_GameEntity_getEntityIndex
-  (JNIEnv *, jclass, jint);
-
 #ifdef __cplusplus
 }
 #endif
