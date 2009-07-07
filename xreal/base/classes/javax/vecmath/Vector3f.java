@@ -178,6 +178,7 @@ public class Vector3f extends Tuple3f implements java.io.Serializable {
      */
     public final void normalize()
     {
+    	/* original code
         float norm;
 
         norm = (float)
@@ -185,6 +186,19 @@ public class Vector3f extends Tuple3f implements java.io.Serializable {
         this.x *= norm;
         this.y *= norm;
         this.z *= norm;
+        */
+    	
+    	// Robert Beckebans: changed this function to not divide by zero which causes very bad NaN problems.
+    	float len = length();
+    	
+    	if(len > 0)
+    	{
+    		float ilen = 1 / len;
+    		
+    		this.x *= ilen;
+    		this.y *= ilen;
+    		this.z *= ilen;
+    	}
     }
 
 
