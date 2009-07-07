@@ -127,9 +127,25 @@ static qboolean JVM_JNI_Init()
 
 
 // handles to java.lang.Throwable class
-static jclass   class_Throwable;
-static jmethodID method_Throwable_printStackTrace;
-jmethodID method_Throwable_getMessage;
+static jclass   class_Throwable = NULL;
+static jmethodID method_Throwable_printStackTrace = NULL;
+jmethodID method_Throwable_getMessage = NULL;
+
+// handles to the javax.vecmath.Tuple3f class
+static jclass   class_Tuple3f = NULL;
+static jmethodID method_Tuple3f_ctor = NULL;
+
+// handles to the javax.vecmath.Point3f class
+static jclass   class_Point3f = NULL;
+static jmethodID method_Point3f_ctor = NULL;
+
+// handles to the javax.vecmath.Vector3f class
+static jclass   class_Vector3f = NULL;
+static jmethodID method_Vector3f_ctor = NULL;
+
+// handles to the xreal.Angle3f class
+static jclass   class_Angle3f = NULL;
+static jmethodID method_Angle3f_ctor = NULL;
 
 /**
  * @brief Convert a Java string (which is Unicode) to reasonable 7-bit ASCII.
@@ -158,11 +174,104 @@ void Misc_javaRegister()
 
 	// now that the java.lang.Class and java.lang.Throwable handles are obtained
 	// we can start checking for exceptions
+
+	class_Tuple3f = (*javaEnv)->FindClass(javaEnv, "javax/vecmath/Tuple3f");
+	if(CheckException() || !class_Tuple3f)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Tuple3f");
+	}
+
+	method_Tuple3f_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Tuple3f, "<init>", "(FFF)V");
+	if(CheckException() || !method_Tuple3f_ctor)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Tuple3f constructor method");
+	}
+
+	class_Point3f = (*javaEnv)->FindClass(javaEnv, "javax/vecmath/Point3f");
+	if(CheckException() || !class_Point3f)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Point3f");
+	}
+
+	method_Point3f_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Point3f, "<init>", "(FFF)V");
+	if(CheckException() || !method_Point3f_ctor)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Point3f constructor method");
+	}
+
+	class_Vector3f = (*javaEnv)->FindClass(javaEnv, "javax/vecmath/Vector3f");
+	if(CheckException() || !class_Vector3f)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Vector3f");
+	}
+
+	method_Vector3f_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Vector3f, "<init>", "(FFF)V");
+	if(CheckException() || !method_Vector3f_ctor)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Vector3f constructor method");
+	}
+
+	class_Angle3f = (*javaEnv)->FindClass(javaEnv, "xreal/Angle3f");
+	if(CheckException() || !class_Angle3f)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.Angle3f");
+	}
+
+	method_Angle3f_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Angle3f, "<init>", "(FFF)V");
+	if(CheckException() || !method_Angle3f_ctor)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.Angle3f constructor method");
+	}
 }
 
 void Misc_javaDetach()
 {
-	(*javaEnv)->DeleteLocalRef(javaEnv, class_Throwable);
+	if(class_Throwable)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Throwable);
+		class_Throwable = NULL;
+	}
+
+	if(class_Tuple3f)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Tuple3f);
+		class_Tuple3f = NULL;
+	}
+
+	if(class_Point3f)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Point3f);
+		class_Point3f = NULL;
+	}
+
+	if(class_Vector3f)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Vector3f);
+		class_Vector3f = NULL;
+	}
+
+	if(class_Angle3f)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Angle3f);
+		class_Angle3f = NULL;
+	}
+}
+
+jobject Java_NewVector3f(const vec3_t v)
+{
+	jobject obj = NULL;
+
+	if(!v)
+		return NULL;
+
+	if(class_Vector3f)
+	{
+		//Com_Printf("Java_NewVector3f(%i, %i, %i)\n", (int)v[0], (int)v[1], (int)v[2]);
+
+		obj = (*javaEnv)->NewObject(javaEnv, class_Vector3f, method_Vector3f_ctor, v[0], v[1], v[2]);
+	}
+
+	return obj;
 }
 
 
@@ -317,7 +426,7 @@ void UserCommand_javaDetach()
 	}
 }
 
-jobject UserCommand_javaCreateObject(const usercmd_t * ucmd)
+jobject Java_NewUserCommand(const usercmd_t * ucmd)
 {
 	jobject obj = NULL;
 
@@ -566,7 +675,7 @@ void JVM_Shutdown(void)
 		return;
 	}
 
-//  Java_G_ShutdownGame(qfalse);
+	CheckException();
 
 	UserCommand_javaDetach();
 	CVar_javaDetach();

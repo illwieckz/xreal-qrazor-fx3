@@ -42,7 +42,9 @@ void			ConvertJavaString(char *dest, jstring jstr, int destsize);
 #define CheckException() CheckException_(__FILE__, __LINE__)
 qboolean		CheckException_(char *filename, int linenum);
 
-jobject			UserCommand_javaCreateObject(const usercmd_t * ucmd);
+jobject			Java_NewVector3f(const vec3_t v);
+
+jobject			Java_NewUserCommand(const usercmd_t * ucmd);
 
 #endif
 
