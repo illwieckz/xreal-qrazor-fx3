@@ -219,6 +219,8 @@ public interface PlayerStateAccess {
 	public int getPlayerState_damageEvent();
 
 	public void setPlayerState_damageEvent(int damageEvent);
+	
+	public Vector3f getPlayerState_deltaAngles();
 
 	public int getPlayerState_damageYaw();
 

@@ -9,6 +9,8 @@ import xreal.UserCommand;
 import xreal.UserInfo;
 import xreal.common.ConfigStrings;
 import xreal.common.GameType;
+import xreal.common.PlayerController;
+import xreal.common.PlayerMove;
 import xreal.common.PlayerMovementType;
 import xreal.common.Team;
 import xreal.server.Server;
@@ -24,13 +26,11 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	private ClientPersistant	_pers = new ClientPersistant();
 	private ClientSession		_sess = new ClientSession();
+	private PlayerController	_playerController = new PlayerController();
 	private int					_lastCmdTime; 
 	
 	private static native String	getUserInfo0(int clientNum);
 	private static native void 		setUserInfo0(int clientNum, String s);
-	
-	
-	
 	
 	// --------------------------------------------------------------------------------------------
 	
@@ -120,7 +120,8 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		// phone jack if they don't get any for a while
 		_lastCmdTime = Game.getLevelTime();
 		
-		if(CVars.g_synchronousClients.getBoolean())
+		/*
+		//if(!CVars.g_synchronousClients.getBoolean())
 		{
 			//ClientThink_real(ent);
 			
@@ -129,6 +130,55 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 			
 			setPlayerState_pm_type(PlayerMovementType.SPECTATOR);
 		}
+		*/
+		
+		// spectators don't do much
+		if(_sess.sessionTeam == Team.SPECTATOR)
+		{
+			if(_sess.spectatorState == SpectatorState.SCOREBOARD)
+			{
+				return;
+			}
+			
+			spectatorThink(ucmd);
+			return;
+		}
+		
+		// TODO more movement
+	}
+	
+	private void spectatorThink(UserCommand ucmd) {
+		
+		//Engine.println("spectatorThink()");
+		
+		PlayerMove pm = new PlayerMove(this, ucmd, 0, 0, 0, 0, true, false, 0);
+		
+		//if(_sess.spectatorState != SpectatorState.FOLLOW)
+		{
+			setPlayerState_pm_type(PlayerMovementType.SPECTATOR);
+			
+			setPlayerState_speed(400);	// faster than normal
+
+			// perform a pmove
+			_playerController.movePlayer(pm);
+
+			// save results of pmove
+			//VectorCopy(client->ps.origin, ent->s.origin);
+
+			//G_TouchTriggers(ent);
+			//trap_UnlinkEntity(ent);
+		}
+
+		//client->oldbuttons = client->buttons;
+		//client->buttons = ucmd->buttons;
+
+		// attack button cycles through spectators
+		/*
+		if((client->buttons & BUTTON_ATTACK) && !(client->oldbuttons & BUTTON_ATTACK))
+		{
+			Cmd_FollowCycle_f(ent, 1);
+		}
+		*/
 	}
 
 	/**
@@ -279,11 +329,11 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 
 	private synchronized static native Vector3f getPlayerState_origin(int clientNum);
 
-	private synchronized static native void setPlayerState_origin(int clientNum, Vector3f origin);
+	private synchronized static native void setPlayerState_origin(int clientNum, float x, float y, float z);
 
 	private synchronized static native Vector3f getPlayerState_velocity(int clientNum);
 
-	private synchronized static native void setPlayerState_velocity(int clientNum, Vector3f velocity);
+	private synchronized static native void setPlayerState_velocity(int clientNum, float x, float y, float z);
 
 	private synchronized static native int getPlayerState_weaponTime(int clientNum);
 
@@ -296,6 +346,10 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	private synchronized static native int getPlayerState_speed(int clientNum);
 
 	private synchronized static native void setPlayerState_speed(int clientNum, int speed);
+	
+	private synchronized static native Vector3f getPlayerState_deltaAngles(int clientNum);
+	
+	private synchronized static native void setPlayerState_deltaAngles(int clientNum, int pitch, int yaw, int roll);
 
 	private synchronized static native int getPlayerState_deltaPitch(int clientNum);
 
@@ -370,8 +424,6 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	private synchronized static native void setPlayerState_weaponState(int clientNum, int weaponState);
 
 	private synchronized static native Vector3f getPlayerState_viewAngles(int clientNum);
-
-	private synchronized static native void setPlayerState_viewAngles(int clientNum, Vector3f viewAngles);
 	
 	private synchronized static native void setPlayerState_viewAngles(int clientNum, float pitch, float yaw, float roll);
 
@@ -423,8 +475,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	}
 	@Override
 	public int getPlayerState_commandTime() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getPlayerState_commandTime(getEntityIndex());
 	}
 	@Override
 	public int getPlayerState_damageCount() {
@@ -446,21 +497,27 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+	@Override
+	public Vector3f getPlayerState_deltaAngles() {
+		return getPlayerState_deltaAngles(getEntityIndex());
+	}
+	
 	@Override
 	public int getPlayerState_deltaPitch() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getPlayerState_deltaPitch(getEntityIndex());
 	}
+	
 	@Override
 	public int getPlayerState_deltaRoll() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getPlayerState_deltaRoll(getEntityIndex());
 	}
+	
 	@Override
 	public int getPlayerState_deltaYaw() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getPlayerState_deltaYaw(getEntityIndex());
 	}
+	
 	@Override
 	public int getPlayerState_eFlags() {
 		// TODO Auto-generated method stub
@@ -531,35 +588,36 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
 	@Override
 	public Vector3f getPlayerState_origin() {
-		// TODO Auto-generated method stub
-		return null;
+		return getPlayerState_origin(getEntityIndex());
 	}
+	
 	@Override
 	public int getPlayerState_ping() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
 	@Override
 	public int getPlayerState_pm_flags() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getPlayerState_pm_flags(getEntityIndex());
 	}
+	
 	@Override
 	public int getPlayerState_pm_time() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getPlayerState_pm_time(getEntityIndex());
 	}
+	
 	@Override
 	public PlayerMovementType getPlayerState_pm_type() {
-		// TODO Auto-generated method stub
-		return null;
+		return PlayerMovementType.values()[getPlayerState_pm_type(getEntityIndex())];
 	}
+	
 	@Override
 	public int getPlayerState_speed() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getPlayerState_speed(getEntityIndex());
 	}
 	@Override
 	public int getPlayerState_torsoAnim() {
@@ -571,15 +629,15 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
 	@Override
 	public Vector3f getPlayerState_velocity() {
-		// TODO Auto-generated method stub
-		return null;
+		return getPlayerState_velocity(getEntityIndex());
 	}
+	
 	@Override
 	public Vector3f getPlayerState_viewAngles() {
-		// TODO Auto-generated method stub
-		return null;
+		return getPlayerState_viewAngles(getEntityIndex());
 	}
 	@Override
 	public int getPlayerState_viewHeight() {
@@ -637,21 +695,22 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		// TODO Auto-generated method stub
 		
 	}
+	
 	@Override
 	public void setPlayerState_deltaPitch(int deltaPitch) {
-		// TODO Auto-generated method stub
-		
+		 setPlayerState_deltaPitch(getEntityIndex(), deltaPitch);
 	}
+	
 	@Override
 	public void setPlayerState_deltaRoll(int deltaRoll) {
-		// TODO Auto-generated method stub
-		
+		setPlayerState_deltaRoll(getEntityIndex(), deltaRoll);
 	}
+	
 	@Override
 	public void setPlayerState_deltaYaw(int deltaYaw) {
-		// TODO Auto-generated method stub
-		
+		setPlayerState_deltaYaw(getEntityIndex(), deltaYaw);	
 	}
+	
 	@Override
 	public void setPlayerState_eFlags(int flags) {
 		// TODO Auto-generated method stub
@@ -722,11 +781,12 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		// TODO Auto-generated method stub
 		
 	}
+	
 	@Override
 	public void setPlayerState_origin(Vector3f origin) {
-		// TODO Auto-generated method stub
-		
+		setPlayerState_origin(getEntityIndex(), origin.x, origin.y, origin.z);	
 	}
+	
 	@Override
 	public void setPlayerState_ping(int ping) {
 		// TODO Auto-generated method stub
@@ -750,9 +810,9 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	@Override
 	public void setPlayerState_speed(int speed) {
-		// TODO Auto-generated method stub
-		
+		setPlayerState_speed(getEntityIndex(), speed);	
 	}
+	
 	@Override
 	public void setPlayerState_torsoAnim(int torsoAnim) {
 		// TODO Auto-generated method stub
@@ -763,21 +823,22 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		// TODO Auto-generated method stub
 		
 	}
+	
 	@Override
 	public void setPlayerState_velocity(Vector3f velocity) {
-		// TODO Auto-generated method stub
-		
+		setPlayerState_velocity(getEntityIndex(), velocity.x, velocity.y, velocity.z);	
 	}
+	
 	@Override
 	public void setPlayerState_viewAngles(Vector3f viewAngles) {
-		// TODO Auto-generated method stub
-		
+		setPlayerState_viewAngles(getEntityIndex(), viewAngles.x, viewAngles.y, viewAngles.z);	
 	}
+	
 	@Override
 	public void setPlayerState_viewAngles(float pitch, float yaw, float roll) {
-		// TODO Auto-generated method stub
-		
+		setPlayerState_viewAngles(getEntityIndex(), pitch, yaw, roll);
 	}
+	
 	@Override
 	public void setPlayerState_viewHeight(int viewHeight) {
 		// TODO Auto-generated method stub

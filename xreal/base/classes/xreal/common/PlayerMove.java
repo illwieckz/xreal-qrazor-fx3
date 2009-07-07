@@ -6,7 +6,21 @@ import xreal.PlayerStateAccess;
 import xreal.UserCommand;
 
 public class PlayerMove {
-
+	
+	public PlayerMove(PlayerStateAccess ps, UserCommand cmd, int tracemask, int debugLevel, int airControl, int fastWeaponSwitches, boolean noFootsteps,
+			boolean gauntletHit, int framecount) {
+		super();
+		this.ps = ps;
+		this.cmd = new UserCommand(cmd);
+		this.tracemask = tracemask;
+		this.debugLevel = debugLevel;
+		this.airControl = airControl;
+		this.fastWeaponSwitches = fastWeaponSwitches;
+		this.noFootsteps = noFootsteps;
+		this.gauntletHit = gauntletHit;
+		this.framecount = framecount;
+	}
+	
 	// state (in / out)
 	public PlayerStateAccess ps;
 

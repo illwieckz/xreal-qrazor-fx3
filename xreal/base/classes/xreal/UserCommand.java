@@ -67,7 +67,7 @@ public class UserCommand {
 
 	public byte forwardmove, rightmove, upmove;
 
-	UserCommand(int serverTime, int pitch, int yaw, int roll, int buttons, byte weapon, byte forwardmove, byte rightmove, byte upmove) {
+	public UserCommand(int serverTime, int pitch, int yaw, int roll, int buttons, byte weapon, byte forwardmove, byte rightmove, byte upmove) {
 		this.serverTime = serverTime;
 
 		this.pitch = pitch;
@@ -82,13 +82,29 @@ public class UserCommand {
 		this.upmove = upmove;
 	}
 	
+	public UserCommand(UserCommand cmd)
+	{
+		this.serverTime = cmd.serverTime;
+
+		this.pitch = cmd.pitch;
+		this.yaw = cmd.yaw;
+		this.roll = cmd.roll;
+
+		this.buttons = cmd.buttons;
+		this.weapon = cmd.weapon;
+
+		this.forwardmove = cmd.forwardmove;
+		this.rightmove = cmd.rightmove;
+		this.upmove = cmd.upmove;
+	}
+	
 	public String toString()
 	{
 		return 	"UserCommand = (" +
 				"server Time = " + serverTime +
-				", pitch = " + pitch +
-				", yaw = " + yaw +
-				", roll = " + roll +
+				", pitch = " + Angle3f.short2float(pitch) +
+				", yaw = " + Angle3f.short2float(yaw) +
+				", roll = " + Angle3f.short2float(roll) +
 				", buttons = " + buttons +
 				", weapon = " + weapon +
 				", forwardmove = " + forwardmove +
