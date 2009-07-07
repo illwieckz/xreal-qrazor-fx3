@@ -96,16 +96,14 @@ public class GameEntity {
 	 * 
 	 * @return The index of the native gentity_t in the C server::g_entities[] array.
 	 */
-	private static native int allocateEntity0(int reservedIndex);
+	private synchronized static native int allocateEntity0(int reservedIndex);
 	
 	/**
 	 * Marks the entity as free.
 	 * 
 	 * @param pointer The index the native gentity_t
 	 */
-	private static native boolean freeEntity0(int index);
-	
-	public static native int getEntityIndex(int index);
+	private synchronized static native boolean freeEntity0(int index);
 	
 	/**
 	 * Index of the native gentity_t in the C server::g_entities[] array.
