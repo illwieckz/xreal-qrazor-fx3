@@ -206,9 +206,9 @@ public interface PlayerStateAccess {
 
 	public void setPlayerState_weaponState(int weaponState);
 
-	public Vector3f getPlayerState_viewAngles();
+	public Angle3f getPlayerState_viewAngles();
 
-	public void setPlayerState_viewAngles(Vector3f viewAngles);
+	public void setPlayerState_viewAngles(Angle3f viewAngles);
 	
 	public void setPlayerState_viewAngles(float pitch, float yaw, float roll);
 

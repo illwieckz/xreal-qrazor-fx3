@@ -2,6 +2,7 @@ package xreal.server.game;
 
 import javax.vecmath.Vector3f;
 
+import xreal.Angle3f;
 import xreal.ConsoleColorStrings;
 import xreal.Engine;
 import xreal.PlayerStateAccess;
@@ -155,8 +156,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		//if(_sess.spectatorState != SpectatorState.FOLLOW)
 		{
-			setPlayerState_pm_type(PlayerMovementType.SPECTATOR);
-			
+			setPlayerState_pm_type(PlayerMovementType.NOCLIP);
 			setPlayerState_speed(400);	// faster than normal
 
 			// perform a pmove
@@ -423,7 +423,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 
 	private synchronized static native void setPlayerState_weaponState(int clientNum, int weaponState);
 
-	private synchronized static native Vector3f getPlayerState_viewAngles(int clientNum);
+	private synchronized static native Angle3f getPlayerState_viewAngles(int clientNum);
 	
 	private synchronized static native void setPlayerState_viewAngles(int clientNum, float pitch, float yaw, float roll);
 
@@ -636,7 +636,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	}
 	
 	@Override
-	public Vector3f getPlayerState_viewAngles() {
+	public Angle3f getPlayerState_viewAngles() {
 		return getPlayerState_viewAngles(getEntityIndex());
 	}
 	@Override
@@ -830,7 +830,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	}
 	
 	@Override
-	public void setPlayerState_viewAngles(Vector3f viewAngles) {
+	public void setPlayerState_viewAngles(Angle3f viewAngles) {
 		setPlayerState_viewAngles(getEntityIndex(), viewAngles.x, viewAngles.y, viewAngles.z);	
 	}
 	

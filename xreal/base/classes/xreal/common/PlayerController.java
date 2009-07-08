@@ -253,7 +253,7 @@ public class PlayerController {
 		{
 			case SPECTATOR:
 				updateViewAngles(pm.ps, pm.cmd);
-				viewAngles = new Angle3f(pm.ps.getPlayerState_viewAngles());
+				viewAngles = pm.ps.getPlayerState_viewAngles();
 				viewAngles.getVectors(pml.forward, pml.right, pml.up);
 				moveWithoutClipping();	// FIXME moveWithClipping
 				//PM_CheckDuck();
@@ -263,7 +263,7 @@ public class PlayerController {
 				
 			case NOCLIP:
 				updateViewAngles(pm.ps, pm.cmd);
-				viewAngles = new Angle3f(pm.ps.getPlayerState_viewAngles());
+				viewAngles = pm.ps.getPlayerState_viewAngles();
 				viewAngles.getVectors(pml.forward, pml.right, pml.up);
 				moveWithoutClipping();
 				//PM_DropTimers();
@@ -387,17 +387,11 @@ public class PlayerController {
 		if(Float.isNaN(currentspeed))
 			throw new RuntimeException("currentspeed is NaN");
 		
-		if(Float.isNaN(addspeed))
-			throw new RuntimeException("addspeed is NaN");
-		
 		float accelspeed = accel * pml.frametime * wishspeed;
 		if(accelspeed > addspeed)
 		{
 			accelspeed = addspeed;
 		}
-		
-		if(Float.isNaN(accelspeed))
-			throw new RuntimeException("addspeed is NaN");
 
 		Vector3f newVelocity = new Vector3f(wishdir);
 		newVelocity.scale(accelspeed);
@@ -440,7 +434,7 @@ public class PlayerController {
 		Vector3f curvel = pm.ps.getPlayerState_velocity();
 		Vector3f curpos = pm.ps.getPlayerState_origin();
 		
-		Engine.println("moveWithoutClipping(): old velocity = " + curvel + ", old origin = " + curpos);
+		//Engine.println("moveWithoutClipping(): old velocity = " + curvel + ", old origin = " + curpos);
 		
 		speed = curvel.length();
 		if(speed < 1)
@@ -503,8 +497,12 @@ public class PlayerController {
 			if(Float.isNaN(newVelocity.x) || Float.isNaN(newVelocity.y) || Float.isNaN(newVelocity.z))
 				throw new RuntimeException("newVelocity member(s) became NaN");
 			
+			pm.ps.setPlayerState_velocity(newVelocity);
+			
+			newVelocity.scale(pml.frametime);
+			
 			Vector3f origin = pm.ps.getPlayerState_origin();
-			origin.scaleAdd(pml.frametime, newVelocity);
+			origin.add(newVelocity);
 			pm.ps.setPlayerState_origin(origin);
 			
 			//Vector3f vel = pm.ps.getPlayerState_velocity();
@@ -517,7 +515,7 @@ public class PlayerController {
 			//pm.ps.setPlayerState_velocity(wishvel);
 			//pm.ps.setPlayerState_origin(org);
 			
-			Engine.println("moveWithoutClipping(): new velocity = " + newVelocity + ", new origin = " + origin);
+			//Engine.println("moveWithoutClipping(): new velocity = " + newVelocity + ", new origin = " + origin);
 		}
 	}
 }
