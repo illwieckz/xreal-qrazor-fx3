@@ -31,12 +31,8 @@ textures/odin/walls/rockwall4
 
 	parallax
 
-	{
-		stage		diffuseMap
-		map		textures/odin/walls/rockwall4_d.png
-		depthScale	-0.05
-	}
-	normalMap	textures/odin/walls/rockwall4_local.png
+	diffuseMap	textures/odin/walls/rockwall4_d.png
+	bumpMap		textures/odin/walls/rockwall4_local.png
 	specularMap	textures/odin/walls/rockwall4_s.png
 }
 
