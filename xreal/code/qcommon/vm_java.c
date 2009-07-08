@@ -430,7 +430,7 @@ void UserCommand_javaRegister()
 	}
 
 	//UserCommand(int serverTime, int pitch, int yaw, int roll, int buttons, byte weapon, byte forwardmove, byte rightmove, byte upmove)
-	method_UserCommand_ctor = (*javaEnv)->GetMethodID(javaEnv, class_UserCommand, "<init>", "(IIIIIBBBB)V");
+	method_UserCommand_ctor = (*javaEnv)->GetMethodID(javaEnv, class_UserCommand, "<init>", "(ISSSIBBBB)V");
 }
 
 void UserCommand_javaDetach()

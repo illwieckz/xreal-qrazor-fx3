@@ -226,50 +226,50 @@ JNIEXPORT void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaAngles
 /*
  * Class:     xreal_server_game_Player
  * Method:    getPlayerState_deltaPitch
- * Signature: (I)I
+ * Signature: (I)S
  */
-JNIEXPORT jint JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaPitch
+JNIEXPORT jshort JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaPitch
   (JNIEnv *, jclass, jint);
 
 /*
  * Class:     xreal_server_game_Player
  * Method:    setPlayerState_deltaPitch
- * Signature: (II)V
+ * Signature: (IS)V
  */
 JNIEXPORT void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaPitch
-  (JNIEnv *, jclass, jint, jint);
+  (JNIEnv *, jclass, jint, jshort);
 
 /*
  * Class:     xreal_server_game_Player
  * Method:    getPlayerState_deltaYaw
- * Signature: (I)I
+ * Signature: (I)S
  */
-JNIEXPORT jint JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaYaw
+JNIEXPORT jshort JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaYaw
   (JNIEnv *, jclass, jint);
 
 /*
  * Class:     xreal_server_game_Player
  * Method:    setPlayerState_deltaYaw
- * Signature: (II)V
+ * Signature: (IS)V
  */
 JNIEXPORT void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaYaw
-  (JNIEnv *, jclass, jint, jint);
+  (JNIEnv *, jclass, jint, jshort);
 
 /*
  * Class:     xreal_server_game_Player
  * Method:    getPlayerState_deltaRoll
- * Signature: (I)I
+ * Signature: (I)S
  */
-JNIEXPORT jint JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaRoll
+JNIEXPORT jshort JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaRoll
   (JNIEnv *, jclass, jint);
 
 /*
  * Class:     xreal_server_game_Player
  * Method:    setPlayerState_deltaRoll
- * Signature: (II)V
+ * Signature: (IS)V
  */
 JNIEXPORT void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaRoll
-  (JNIEnv *, jclass, jint, jint);
+  (JNIEnv *, jclass, jint, jshort);
 
 /*
  * Class:     xreal_server_game_Player

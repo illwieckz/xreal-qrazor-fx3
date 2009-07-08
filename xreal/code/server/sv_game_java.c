@@ -1129,7 +1129,7 @@ void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaAngles(JNIEnv *e
 /*
  * Class:     xreal_server_game_Player
  * Method:    getPlayerState_deltaPitch
- * Signature: (I)I
+ * Signature: (I)S
  */
 jint JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaPitch(JNIEnv *env, jclass cls, jint clientNum)
 {
@@ -1147,9 +1147,9 @@ jint JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaPitch(JNIEnv *en
 /*
  * Class:     xreal_server_game_Player
  * Method:    setPlayerState_deltaPitch
- * Signature: (II)V
+ * Signature: (IS)V
  */
-void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaPitch(JNIEnv *env, jclass cls, jint clientNum, jint angle)
+void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaPitch(JNIEnv *env, jclass cls, jint clientNum, jshort angle)
 {
 	gclient_t	   *client;
 
@@ -1165,7 +1165,7 @@ void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaPitch(JNIEnv *en
 /*
  * Class:     xreal_server_game_Player
  * Method:    getPlayerState_deltaYaw
- * Signature: (I)I
+ * Signature: (I)S
  */
 jint JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaYaw(JNIEnv *env, jclass cls, jint clientNum)
 {
@@ -1183,9 +1183,9 @@ jint JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaYaw(JNIEnv *env,
 /*
  * Class:     xreal_server_game_Player
  * Method:    setPlayerState_deltaYaw
- * Signature: (II)V
+ * Signature: (IS)V
  */
-void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaYaw(JNIEnv *env, jclass cls, jint clientNum, jint angle)
+void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaYaw(JNIEnv *env, jclass cls, jint clientNum, jshort angle)
 {
 	gclient_t	   *client;
 
@@ -1201,7 +1201,7 @@ void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaYaw(JNIEnv *env,
 /*
  * Class:     xreal_server_game_Player
  * Method:    getPlayerState_deltaRoll
- * Signature: (I)I
+ * Signature: (I)S
  */
 jint JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaRoll(JNIEnv *env, jclass cls, jint clientNum)
 {
@@ -1219,9 +1219,9 @@ jint JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaRoll(JNIEnv *env
 /*
  * Class:     xreal_server_game_Player
  * Method:    setPlayerState_deltaRoll
- * Signature: (II)V
+ * Signature: (IS)V
  */
-void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaRoll(JNIEnv *env, jclass cls, jint clientNum, jint angle)
+void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaRoll(JNIEnv *env, jclass cls, jint clientNum, jshort angle)
 {
 	gclient_t	   *client;
 
@@ -1262,16 +1262,22 @@ jobject JNICALL Java_xreal_server_game_Player_getPlayerState_1viewAngles(JNIEnv 
 void JNICALL Java_xreal_server_game_Player_setPlayerState_1viewAngles(JNIEnv *env, jclass cls, jint clientNum, jfloat pitch, jfloat yaw, jfloat roll)
 {
 	gclient_t	   *client;
+	gentity_t      *ent;
 
 	if(clientNum < 0 || clientNum >= MAX_CLIENTS)
 	{
 		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_setPlayerState_1viewAngles: bad index %i\n", clientNum);
 	}
 	client = &g_clients[clientNum];
+	ent = &g_entities[clientNum];
 
 	client->ps.viewangles[PITCH] = pitch;
 	client->ps.viewangles[YAW] = yaw;
 	client->ps.viewangles[ROLL] = roll;
+
+	ent->s.angles[PITCH] = pitch;
+	ent->s.angles[YAW] = yaw;
+	ent->s.angles[ROLL] = roll;
 }
 
 
@@ -1303,14 +1309,14 @@ static JNINativeMethod Player_methods[] = {
 	{"getPlayerState_deltaAngles", "(I)Ljavax/vecmath/Vector3f;", Java_xreal_server_game_Player_getPlayerState_1deltaAngles},
 	{"setPlayerState_deltaAngles", "(IIII)V", Java_xreal_server_game_Player_setPlayerState_1deltaAngles},
 
-	{"getPlayerState_deltaPitch", "(I)I", Java_xreal_server_game_Player_getPlayerState_1deltaPitch},
-	{"setPlayerState_deltaPitch", "(II)V", Java_xreal_server_game_Player_setPlayerState_1deltaPitch},
+	{"getPlayerState_deltaPitch", "(I)S", Java_xreal_server_game_Player_getPlayerState_1deltaPitch},
+	{"setPlayerState_deltaPitch", "(IS)V", Java_xreal_server_game_Player_setPlayerState_1deltaPitch},
 
-	{"getPlayerState_deltaYaw", "(I)I", Java_xreal_server_game_Player_getPlayerState_1deltaYaw},
-	{"setPlayerState_deltaYaw", "(II)V", Java_xreal_server_game_Player_setPlayerState_1deltaYaw},
+	{"getPlayerState_deltaYaw", "(I)S", Java_xreal_server_game_Player_getPlayerState_1deltaYaw},
+	{"setPlayerState_deltaYaw", "(IS)V", Java_xreal_server_game_Player_setPlayerState_1deltaYaw},
 
-	{"getPlayerState_deltaRoll", "(I)I", Java_xreal_server_game_Player_getPlayerState_1deltaRoll},
-	{"setPlayerState_deltaRoll", "(II)V", Java_xreal_server_game_Player_setPlayerState_1deltaRoll},
+	{"getPlayerState_deltaRoll", "(I)S", Java_xreal_server_game_Player_getPlayerState_1deltaRoll},
+	{"setPlayerState_deltaRoll", "(IS)V", Java_xreal_server_game_Player_setPlayerState_1deltaRoll},
 
 	{"getPlayerState_viewAngles", "(I)Lxreal/Angle3f;", Java_xreal_server_game_Player_getPlayerState_1viewAngles},
 	{"setPlayerState_viewAngles", "(IFFF)V", Java_xreal_server_game_Player_setPlayerState_1viewAngles},
