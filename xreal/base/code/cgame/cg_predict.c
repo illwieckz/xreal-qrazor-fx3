@@ -290,6 +290,8 @@ static void CG_InterpolatePlayerState(qboolean grabAngles)
 	playerState_t  *out;
 	snapshot_t     *prev, *next;
 
+	//CG_Printf("CG_InterpolatePlayerState(grabAngles = %d)\n", grabAngles);
+
 	out = &cg.predictedPlayerState;
 	prev = cg.snap;
 	next = cg.nextSnap;
@@ -338,6 +340,11 @@ static void CG_InterpolatePlayerState(qboolean grabAngles)
 		out->velocity[i] = prev->ps.velocity[i] + f * (next->ps.velocity[i] - prev->ps.velocity[i]);
 	}
 
+#if 0 //defined(USE_JAVA)
+	CG_Printf("client origin:      (%i %i %i)\n", (int)out->origin[0], (int)out->origin[1], (int)out->origin[2]);
+	CG_Printf("client velocity:    (%i %i %i)\n", (int)out->velocity[0], (int)out->velocity[1], (int)out->velocity[2]);
+	CG_Printf("client view angles: (%i %i %i)\n", (int)out->viewangles[0], (int)out->viewangles[1], (int)out->viewangles[2]);
+#endif
 }
 
 /*
@@ -552,7 +559,11 @@ void CG_PredictPlayerState(void)
 	// non-predicting local movement will grab the latest angles
 	if(cg_nopredict.integer || cg_synchronousClients.integer)
 	{
+#if defined(USE_JAVA)
+		CG_InterpolatePlayerState(qfalse);
+#else
 		CG_InterpolatePlayerState(qtrue);
+#endif
 		return;
 	}
 

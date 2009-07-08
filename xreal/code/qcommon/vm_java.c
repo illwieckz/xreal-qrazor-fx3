@@ -274,6 +274,18 @@ jobject Java_NewVector3f(const vec3_t v)
 	return obj;
 }
 
+jobject Java_NewAngle3f(float pitch, float yaw, float roll)
+{
+	jobject obj = NULL;
+
+	if(class_Angle3f)
+	{
+		obj = (*javaEnv)->NewObject(javaEnv, class_Angle3f, method_Angle3f_ctor, pitch, yaw, roll);
+	}
+
+	return obj;
+}
+
 
 // ====================================================================================
 

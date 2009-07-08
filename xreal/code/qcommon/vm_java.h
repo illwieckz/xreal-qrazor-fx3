@@ -43,6 +43,7 @@ void			ConvertJavaString(char *dest, jstring jstr, int destsize);
 qboolean		CheckException_(char *filename, int linenum);
 
 jobject			Java_NewVector3f(const vec3_t v);
+jobject			Java_NewAngle3f(float pitch, float yaw, float roll);
 
 jobject			Java_NewUserCommand(const usercmd_t * ucmd);
 

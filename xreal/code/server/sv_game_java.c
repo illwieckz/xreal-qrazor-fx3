@@ -1237,7 +1237,7 @@ void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaRoll(JNIEnv *env
 /*
  * Class:     xreal_server_game_Player
  * Method:    getPlayerState_viewAngles
- * Signature: (I)Ljavax/vecmath/Vector3f;
+ * Signature: (I)Lxreal/Angle3f;
  */
 jobject JNICALL Java_xreal_server_game_Player_getPlayerState_1viewAngles(JNIEnv *env, jclass cls, jint clientNum)
 {
@@ -1251,7 +1251,7 @@ jobject JNICALL Java_xreal_server_game_Player_getPlayerState_1viewAngles(JNIEnv 
 	}
 	client = &g_clients[clientNum];
 
-	return Java_NewVector3f(client->ps.viewangles);
+	return Java_NewAngle3f(client->ps.viewangles[PITCH], client->ps.viewangles[YAW], client->ps.viewangles[ROLL]);
 }
 
 /*
@@ -1312,7 +1312,7 @@ static JNINativeMethod Player_methods[] = {
 	{"getPlayerState_deltaRoll", "(I)I", Java_xreal_server_game_Player_getPlayerState_1deltaRoll},
 	{"setPlayerState_deltaRoll", "(II)V", Java_xreal_server_game_Player_setPlayerState_1deltaRoll},
 
-	{"getPlayerState_viewAngles", "(I)Ljavax/vecmath/Vector3f;", Java_xreal_server_game_Player_getPlayerState_1viewAngles},
+	{"getPlayerState_viewAngles", "(I)Lxreal/Angle3f;", Java_xreal_server_game_Player_getPlayerState_1viewAngles},
 	{"setPlayerState_viewAngles", "(IFFF)V", Java_xreal_server_game_Player_setPlayerState_1viewAngles},
 };
 
