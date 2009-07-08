@@ -248,6 +248,9 @@ public class PlayerController {
 				break;
 		}
 		
+		//Engine.println("view angles:  " + pm.ps.getPlayerState_viewAngles());
+		//Engine.println("delta angles: " + pm.ps.getPlayerState_deltaAngles());
+		
 		Angle3f viewAngles;
 		switch(pm_type)
 		{
@@ -275,7 +278,7 @@ public class PlayerController {
 				// no movement at all
 				return;
 		}
-
+		
 		// TODO regular movement
 	}
 	
@@ -304,21 +307,27 @@ public class PlayerController {
 		*/
 
 		// don't let the player look up or down more than 90 degrees
-		int tmp = cmd.pitch + ps.getPlayerState_deltaPitch();
+		short tmp = (short) (cmd.pitch + ps.getPlayerState_deltaPitch());
 		if(tmp > 16000)
 		{
-			ps.setPlayerState_deltaPitch(16000 - cmd.pitch);
+			ps.setPlayerState_deltaPitch((short) (16000 - cmd.pitch));
 			tmp = 16000;
 		}
 		else if(tmp < -16000)
 		{
-			ps.setPlayerState_deltaPitch(-16000 - cmd.pitch);
+			ps.setPlayerState_deltaPitch((short) (-16000 - cmd.pitch));
 			tmp = -16000;
 		}
 		
-		float pitch = Angle3f.short2float(tmp);
-		float yaw = Angle3f.short2float(cmd.yaw + ps.getPlayerState_deltaYaw());
-		float roll = Angle3f.short2float(cmd.roll + ps.getPlayerState_deltaRoll());
+		float pitch = Angle3f.toFloat(tmp);
+		float yaw = Angle3f.toFloat((short) (cmd.yaw + ps.getPlayerState_deltaYaw()));
+		float roll = Angle3f.toFloat((short) (cmd.roll + ps.getPlayerState_deltaRoll()));
+		
+		/*	
+		pitch = Angle3f.normalize180(pitch);
+		yaw = Angle3f.normalize180(yaw);
+		roll = Angle3f.normalize180(roll);
+		*/
 		
 		ps.setPlayerState_viewAngles(pitch, yaw, roll);
 	}

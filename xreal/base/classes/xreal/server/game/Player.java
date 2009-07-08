@@ -98,6 +98,15 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		_pers.enterTime = Game.getLevelTime();
 		
 		//_pers.teamState.state = Team.BEGIN;
+		
+		// the client has cleared the client side viewangles upon
+		// connecting to the server, which is different than the
+		// state when the game is saved, so we need to compensate
+		// with deltaangles
+		Angle3f viewAngles = getPlayerState_viewAngles();
+		setPlayerState_deltaPitch(Angle3f.toShort(viewAngles.x));
+		setPlayerState_deltaYaw(Angle3f.toShort(viewAngles.y));
+		setPlayerState_deltaRoll(Angle3f.toShort(viewAngles.z));
 
 	}
 
@@ -157,7 +166,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		//if(_sess.spectatorState != SpectatorState.FOLLOW)
 		{
 			setPlayerState_pm_type(PlayerMovementType.NOCLIP);
-			setPlayerState_speed(400);	// faster than normal
+			setPlayerState_speed(700);	// faster than normal
 
 			// perform a pmove
 			_playerController.movePlayer(pm);
@@ -351,17 +360,17 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	private synchronized static native void setPlayerState_deltaAngles(int clientNum, int pitch, int yaw, int roll);
 
-	private synchronized static native int getPlayerState_deltaPitch(int clientNum);
+	private synchronized static native short getPlayerState_deltaPitch(int clientNum);
 
-	private synchronized static native void setPlayerState_deltaPitch(int clientNum, int deltaPitch);
+	private synchronized static native void setPlayerState_deltaPitch(int clientNum, short deltaPitch);
 
-	private synchronized static native int getPlayerState_deltaYaw(int clientNum);
+	private synchronized static native short getPlayerState_deltaYaw(int clientNum);
 
-	private synchronized static native void setPlayerState_deltaYaw(int clientNum, int deltaYaw);
+	private synchronized static native void setPlayerState_deltaYaw(int clientNum, short deltaYaw);
 
-	private synchronized static native int getPlayerState_deltaRoll(int clientNum);
+	private synchronized static native short getPlayerState_deltaRoll(int clientNum);
 
-	private synchronized static native void setPlayerState_deltaRoll(int clientNum, int deltaRoll);
+	private synchronized static native void setPlayerState_deltaRoll(int clientNum, short deltaRoll);
 
 	private synchronized static native int getPlayerState_groundEntityNum(int clientNum);
 
@@ -504,17 +513,17 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	}
 	
 	@Override
-	public int getPlayerState_deltaPitch() {
+	public short getPlayerState_deltaPitch() {
 		return getPlayerState_deltaPitch(getEntityIndex());
 	}
 	
 	@Override
-	public int getPlayerState_deltaRoll() {
+	public short getPlayerState_deltaRoll() {
 		return getPlayerState_deltaRoll(getEntityIndex());
 	}
 	
 	@Override
-	public int getPlayerState_deltaYaw() {
+	public short getPlayerState_deltaYaw() {
 		return getPlayerState_deltaYaw(getEntityIndex());
 	}
 	
@@ -697,17 +706,17 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	}
 	
 	@Override
-	public void setPlayerState_deltaPitch(int deltaPitch) {
+	public void setPlayerState_deltaPitch(short deltaPitch) {
 		 setPlayerState_deltaPitch(getEntityIndex(), deltaPitch);
 	}
 	
 	@Override
-	public void setPlayerState_deltaRoll(int deltaRoll) {
+	public void setPlayerState_deltaRoll(short deltaRoll) {
 		setPlayerState_deltaRoll(getEntityIndex(), deltaRoll);
 	}
 	
 	@Override
-	public void setPlayerState_deltaYaw(int deltaYaw) {
+	public void setPlayerState_deltaYaw(short deltaYaw) {
 		setPlayerState_deltaYaw(getEntityIndex(), deltaYaw);	
 	}
 	

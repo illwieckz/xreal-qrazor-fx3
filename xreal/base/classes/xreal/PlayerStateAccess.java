@@ -134,17 +134,17 @@ public interface PlayerStateAccess {
 
 	public void setPlayerState_speed(int speed);
 
-	public int getPlayerState_deltaPitch();
+	public short getPlayerState_deltaPitch();
 
-	public void setPlayerState_deltaPitch(int deltaPitch);
+	public void setPlayerState_deltaPitch(short deltaPitch);
 
-	public int getPlayerState_deltaYaw();
+	public short getPlayerState_deltaYaw();
 
-	public void setPlayerState_deltaYaw(int deltaYaw);
+	public void setPlayerState_deltaYaw(short deltaYaw);
 
-	public int getPlayerState_deltaRoll();
+	public short getPlayerState_deltaRoll();
 
-	public void setPlayerState_deltaRoll(int deltaRoll);
+	public void setPlayerState_deltaRoll(short deltaRoll);
 
 	public int getPlayerState_groundEntityNum();
 

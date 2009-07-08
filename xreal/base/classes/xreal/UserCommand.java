@@ -58,16 +58,16 @@ public class UserCommand {
 
 	public int serverTime;
 
-	public int pitch;
-	public int yaw;
-	public int roll;
+	public short pitch;
+	public short yaw;
+	public short roll;
 
 	public int buttons;
 	public byte weapon;
 
 	public byte forwardmove, rightmove, upmove;
 
-	public UserCommand(int serverTime, int pitch, int yaw, int roll, int buttons, byte weapon, byte forwardmove, byte rightmove, byte upmove) {
+	public UserCommand(int serverTime, short pitch, short yaw, short roll, int buttons, byte weapon, byte forwardmove, byte rightmove, byte upmove) {
 		this.serverTime = serverTime;
 
 		this.pitch = pitch;
@@ -102,9 +102,9 @@ public class UserCommand {
 	{
 		return 	"UserCommand = (" +
 				"server Time = " + serverTime +
-				", pitch = " + Angle3f.short2float(pitch) +
-				", yaw = " + Angle3f.short2float(yaw) +
-				", roll = " + Angle3f.short2float(roll) +
+				", pitch = " + pitch +
+				", yaw = " + yaw +
+				", roll = " + roll +
 				", buttons = " + buttons +
 				", weapon = " + weapon +
 				", forwardmove = " + forwardmove +

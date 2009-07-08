@@ -150,20 +150,65 @@ public class Angle3f extends Tuple3f {
 		convert(v.x, v.y, v.z);
 	}
 	
-	//#define	ANGLE2SHORT(x)	((int)((x)*65536/360) & 65535)
-	//#define	SHORT2ANGLE(x)	((x)*(360.0/65536))
-	
 	/**
 	 * Convert a float angle to the short format used by UserCommand and PlayerState.
 	 */
-	public static int float2Short(float x) {
-		return ((int)((x) * 65536 / 360 ) & 65535);
+	public static short toShort(float x) {
+		return (short) ((int)((x)*65536/360) & 65535);
 	}
 	
 	/**
 	 * Convert a short angle to a float.
 	 */
-	public static float short2float(int x) {
+	public static float toFloat(short x) {
 		return (x * (360.0f / 65536));
+	}
+	
+	/**
+	 * Returns angle normalized to the range [0 <= angle < 360]
+	 */
+	public static float normalize360(float angle)
+	{
+		return (float) ((360.0 / 65536) * ((int)(angle * (65536 / 360.0)) & 65535));
+	}
+	
+	/**
+	 * Returns angle normalized to the range [-180 < angle <= 180]
+	 */
+	public static float normalize180(float angle)
+	{
+		angle = normalize360(angle);
+
+		if(angle > 180.0)
+		{
+			angle -= 360.0;
+		}
+
+		if(angle < -180.0)
+		{
+			angle += 360.0;
+		}
+		
+		return angle;
+	}
+	
+	/**
+	 * Normalize all angles of this Angle3f to the range [0 <= angle < 360]
+	 */
+	public void normalize360()
+	{
+		x = normalize360(x);
+		y = normalize360(y);
+		z = normalize360(z);
+	}
+	
+	/**
+	 * Normalize all angles of this Angle3f to the range [-180 < angle <= 180]
+	 */
+	public void normalize180()
+	{
+		x = normalize180(x);
+		y = normalize180(y);
+		z = normalize180(z);
 	}
 }
