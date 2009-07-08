@@ -1366,10 +1366,11 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 	srfGridMesh_t  *grid;
 	int             i, j;
 	int             width, height, numPoints;
-	srfVert_t       points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
+	static srfVert_t       points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
 	vec3_t          bounds[2];
 	vec3_t          tmpVec;
-	static surfaceType_t skipData = SF_SKIP;int             realLightmapNum;
+	static surfaceType_t skipData = SF_SKIP;
+	int             realLightmapNum;
 
 	// get lightmap
 	realLightmapNum = LittleLong(ds->lightmapNum);

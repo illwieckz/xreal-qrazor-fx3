@@ -267,7 +267,7 @@ static void MakeMeshTangentVectors(int width, int height, srfVert_t ctrl[MAX_GRI
 {
 	int             i, j;
 	srfVert_t      *dv[3];
-	srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
+	static srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
 	srfTriangle_t  *tri;
 
 	// FIXME: use more elegant way
@@ -347,7 +347,7 @@ static int MakeMeshTriangles(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE
 	int             numTriangles;
 	int             w, h;
 	srfVert_t      *dv;
-	srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
+	static srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
 
 	h = height - 1;
 	w = width - 1;
@@ -690,7 +690,7 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 	float           len, maxLen;
 	int             dir;
 	int             t;
-	srfVert_t       ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
+	static srfVert_t       ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
 	float           errorTable[2][MAX_GRID_SIZE];
 	int             numTriangles;
 	static srfTriangle_t triangles[SHADER_MAX_TRIANGLES];
@@ -879,7 +879,7 @@ srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, ve
 {
 	int             i, j;
 	int             width, height, oldwidth;
-	srfVert_t       ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
+	static srfVert_t       ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
 	float           errorTable[2][MAX_GRID_SIZE];
 	float           lodRadius;
 	vec3_t          lodOrigin;
@@ -950,7 +950,7 @@ srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_
 {
 	int             i, j;
 	int             width, height, oldheight;
-	srfVert_t       ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
+	static srfVert_t       ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE];
 	float           errorTable[2][MAX_GRID_SIZE];
 	float           lodRadius;
 	vec3_t          lodOrigin;
