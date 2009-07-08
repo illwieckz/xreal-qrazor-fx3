@@ -498,7 +498,7 @@ JNIEXPORT void JNICALL Java_xreal_server_game_Player_setPlayerState_1weaponState
 /*
  * Class:     xreal_server_game_Player
  * Method:    getPlayerState_viewAngles
- * Signature: (I)Ljavax/vecmath/Vector3f;
+ * Signature: (I)Lxreal/Angle3f;
  */
 JNIEXPORT jobject JNICALL Java_xreal_server_game_Player_getPlayerState_1viewAngles
   (JNIEnv *, jclass, jint);
