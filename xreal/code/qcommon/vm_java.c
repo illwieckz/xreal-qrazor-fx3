@@ -27,7 +27,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #elif defined(MACOS_X)
 #define DEFAULT_JAVA_LIB "java.dylib"
 #else
+#ifdef __x86_64__
+#define DEFAULT_JAVA_LIB "/usr/lib/jvm/java-6-openjdk/jre/lib/amd64/server/libjvm.so"
+#else
 #define DEFAULT_JAVA_LIB "/usr/lib/jvm/java-6-openjdk/jre/lib/i386/server/libjvm.so"	//"java.so" //
+#endif
 #endif
 
 #include "q_shared.h"
