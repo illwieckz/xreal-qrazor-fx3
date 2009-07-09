@@ -8,6 +8,7 @@ import xreal.EntityStateAccess;
 import xreal.Trajectory;
 import xreal.TrajectoryType;
 import xreal.common.EntityType;
+import xreal.common.WeaponType;
 
 /**
  * Represents, uses and writes to a native gentity_t
@@ -53,6 +54,23 @@ public class GameEntity implements EntityStateAccess {
 	 * @param pointer The index the native gentity_t
 	 */
 	private synchronized static native boolean freeEntity0(int index);
+	
+	
+	/**
+	 * Link the entity into the first world sector node that the ent's box crosses.
+	 * This is required to calculate the visibility between entities using the BSP's PVS.
+	 * The snapshot of entities build for this entity will only contain entities that are visible to this one.
+	 * 
+	 * @param pointer The index the native gentity_t
+	 */
+	private synchronized static native void linkEntity0(int index);
+	
+	/**
+	 * Unlink the entity.
+	 * 
+	 * @param pointer The index the native gentity_t
+	 */
+	private synchronized static native void unlinkEntity0(int index);
 	
 	
 	// ------------------- entityState_t:: fields in gentity_t::s ---------------------------------
@@ -177,59 +195,58 @@ public class GameEntity implements EntityStateAccess {
 	 */
 	private int entityIndex;
 	
-	GameEntity()
-	{
+	GameEntity() {
 		entityIndex = allocateEntity0(-1);
-		
+
 		Engine.println("GameEntity() allocated native entity using index: " + entityIndex);
 	}
-	
-	GameEntity(int reservedIndex)
-	{
+
+	GameEntity(int reservedIndex) {
 		entityIndex = allocateEntity0(reservedIndex);
-		
+
 		Engine.println("GameEntity() allocated native entity using index: " + entityIndex);
 	}
-	
+
 	/**
 	 * Called by the garbage collector.
 	 * 
 	 * Mark the entity as free in the server::g_entities[] slot.
 	 */
-	protected void finalize() throws Throwable
-	{
+	protected void finalize() throws Throwable {
 		Engine.println("GameEntity.finalize()");
-		
-		try
-		{
+
+		try {
 			freeEntity();
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			Engine.println("GameEntity.finalize() failed");
 			throw e;
-		}
-		finally
-		{
+		} finally {
+			unlink();
 			super.finalize();
 		}
 	}
-	
-	protected void freeEntity() throws GameException
-	{
-		if(!freeEntity0(entityIndex))
-		{
+
+	protected void freeEntity() throws GameException {
+		if (!freeEntity0(entityIndex)) {
 			throw new GameException("Could not free entity with native entity index: " + entityIndex);
 		}
-		
-		// avoid further access to the gentity_t object because it may be used by another GameEntity object
+
+		// avoid further access to the gentity_t object because it may be used
+		// by another GameEntity object
 		// this is a save dummy gentity_t not considered by the network
 		entityIndex = Engine.ENTITYNUM_NONE;
 	}
 	
+	protected void link() {
+		linkEntity0(entityIndex);
+	}
+	
+	protected void unlink() {
+		unlinkEntity0(entityIndex);
+	}
+	
 	@Override
-	public int getEntityState_number()
-	{
+	public int getEntityState_number() {
 		return entityIndex;
 	}
 	
@@ -492,14 +509,12 @@ public class GameEntity implements EntityStateAccess {
 		setEntityState_powerups(entityIndex, powerups);
 	}
 
-	@Override
-	public int getEntityState_weapon() {
-		return getEntityState_weapon(entityIndex);
+	public WeaponType getEntityState_weapon() {
+		return WeaponType.values()[getEntityState_weapon(entityIndex)];
 	}
 
-	@Override
-	public void setEntityState_weapon(int weapon) {
-		setEntityState_weapon(entityIndex, weapon);
+	public void setEntityState_weapon(WeaponType weapon) {
+		setEntityState_weapon(entityIndex, weapon.ordinal());
 	}
 
 	@Override

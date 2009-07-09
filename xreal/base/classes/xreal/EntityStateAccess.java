@@ -106,9 +106,9 @@ public interface EntityStateAccess {
 
 	public void setEntityState_powerups(int powerups);
 
-	public int getEntityState_weapon();
+//	public int getEntityState_weapon();
 
-	public void setEntityState_weapon(int weapon);
+//	public void setEntityState_weapon(int weapon);
 
 	public int getEntityState_legsAnim();
 

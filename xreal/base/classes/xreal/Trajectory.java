@@ -8,6 +8,11 @@ import javax.vecmath.Vector3f;
  */
 public class Trajectory {
 	
+	public Trajectory() {
+		this.trBase = new Vector3f();
+		this.trDelta = new Vector3f();
+	}
+	
 	public Trajectory(TrajectoryType trType, int trTime, int trDuration, float trAcceleration, Vector3f trBase, Vector3f trDelta) {
 		super();
 		
@@ -43,10 +48,10 @@ public class Trajectory {
 	 */
 	public float           trAcceleration;
 	
-	public Vector3f        trBase = new Vector3f();
+	public Vector3f        trBase;
 	
 	/**
 	 * velocity, etc
 	 */
-	public Vector3f        trDelta = new Vector3f();
+	public Vector3f        trDelta;
 }

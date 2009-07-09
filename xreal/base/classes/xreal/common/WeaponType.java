@@ -1,0 +1,14 @@
+package xreal.common;
+
+public enum WeaponType {
+	NONE,
+	GAUNTLET,
+	MACHINEGUN,
+	SHOTGUN,
+	FLAK_CANNON,
+	ROCKET_LAUNCHER,
+	LIGHTNING,
+	RAILGUN,
+	PLASMAGUN,
+	BFG,
+}
