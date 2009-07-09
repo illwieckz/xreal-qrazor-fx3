@@ -97,7 +97,7 @@ public class EntityState {
 	 * determines weapon and flash model, etc
 	 */
 	public int weapon;
-	
+
 	/**
 	 * mask off ANIM_TOGGLEBIT
 	 */
