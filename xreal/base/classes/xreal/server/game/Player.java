@@ -30,8 +30,17 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	private PlayerController	_playerController = new PlayerController();
 	private int					_lastCmdTime; 
 	
-	private static native String	getUserInfo0(int clientNum);
-	private static native void 		setUserInfo0(int clientNum, String s);
+	// --------------------------------------------------------------------------------------------
+	
+	/**
+	 * Send a command to the client which will be interpreted by the client game module
+	 * 
+	 * @param string
+	 */
+	public synchronized native static void sendClientCommand(int clientNum, String command);
+	
+	private static native String	getUserInfo(int clientNum);
+	private static native void 		setUserInfo(int clientNum, String s);
 	
 	// --------------------------------------------------------------------------------------------
 	
@@ -42,7 +51,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		_sess.sessionTeam = Team.SPECTATOR;
 		
-		String userinfo = getUserInfo0(clientNum);
+		String userinfo = getUserInfo(clientNum);
 		if(userinfo.length() == 0)
 			userinfo = "\\name\\badinfo";
 		
@@ -92,7 +101,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 
 	@Override
 	public void clientBegin() {
-		Engine.print("xreal.server.game.Player.clientBegin(clientNum = " + getEntityIndex() + ")\n");
+		Engine.print("xreal.server.game.Player.clientBegin(clientNum = " + getEntityState_number() + ")\n");
 		
 		_pers.connected = ClientConnectionState.CONNECTED;
 		_pers.enterTime = Game.getLevelTime();
@@ -112,12 +121,28 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 
 	@Override
 	public void clientCommand() {
-		Engine.print("xreal.server.game.Player.clientCommand(clientNum = " + getEntityIndex() + ")\n");
+		//Engine.print("xreal.server.game.Player.clientCommand(clientNum = " + getEntityIndex() + ")\n");
+		
+		String cmd = Engine.getConsoleArgv(0);
+		
+		if (cmd.equals("say")) {
+			Server.broadcastClientCommand("chat \"" + _pers.netname + ": " + ConsoleColorStrings.GREEN + Engine.concatConsoleArgs(1) + "\n\"");
+
+		} else if (cmd.equals("shootrocket")) {
+
+			Vector3f forward = new Vector3f();
+			getPlayerState_viewAngles().getVectors(forward, null, null);
+			
+			GameEntity ent = new Rocket(getPlayerState_origin(), forward);
+			
+		} else {
+			sendClientCommand(getEntityState_number(), "print \"unknown cmd " + cmd + "\n\"");
+		}
 	}
 	
 	@Override
 	public void clientDisconnect() {
-		Engine.print("xreal.server.game.Player.clientDisconnect(clientNum = " + getEntityIndex() + ")\n");
+		Engine.print("xreal.server.game.Player.clientDisconnect(clientNum = " + getEntityState_number() + ")\n");
 	}
 
 	@Override
@@ -203,7 +228,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	 */
 	@Override
 	public void clientUserInfoChanged(String userinfo) {
-		Engine.print("xreal.server.game.Player.clientUserInfoChanged(clientNum = " + getEntityIndex() + ")\n");
+		Engine.print("xreal.server.game.Player.clientUserInfoChanged(clientNum = " + getEntityState_number() + ")\n");
 
 		if (userinfo == null)
 			return;
@@ -234,7 +259,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 
 		if (_pers.connected == ClientConnectionState.CONNECTED) {
 			if (!_pers.netname.equals(oldname)) {
-				Server.broadcastServerCommand("print \"" + oldname + ConsoleColorStrings.WHITE + " renamed to " + _pers.netname + "\n\"");
+				Server.broadcastClientCommand("print \"" + oldname + ConsoleColorStrings.WHITE + " renamed to " + _pers.netname + "\n\"");
 			}
 		}
 		
@@ -304,7 +329,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		//Engine.println("CS_PLAYERS userinfo = '" + uinfo.toString() + "'");
 		
-		Server.setConfigString(ConfigStrings.PLAYERS + getEntityIndex(), uinfo.toString());
+		Server.setConfigString(ConfigStrings.PLAYERS + getEntityState_number(), uinfo.toString());
 		
 	}
 	
@@ -484,7 +509,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	}
 	@Override
 	public int getPlayerState_commandTime() {
-		return getPlayerState_commandTime(getEntityIndex());
+		return getPlayerState_commandTime(getEntityState_number());
 	}
 	@Override
 	public int getPlayerState_damageCount() {
@@ -509,22 +534,22 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	@Override
 	public Vector3f getPlayerState_deltaAngles() {
-		return getPlayerState_deltaAngles(getEntityIndex());
+		return getPlayerState_deltaAngles(getEntityState_number());
 	}
 	
 	@Override
 	public short getPlayerState_deltaPitch() {
-		return getPlayerState_deltaPitch(getEntityIndex());
+		return getPlayerState_deltaPitch(getEntityState_number());
 	}
 	
 	@Override
 	public short getPlayerState_deltaRoll() {
-		return getPlayerState_deltaRoll(getEntityIndex());
+		return getPlayerState_deltaRoll(getEntityState_number());
 	}
 	
 	@Override
 	public short getPlayerState_deltaYaw() {
-		return getPlayerState_deltaYaw(getEntityIndex());
+		return getPlayerState_deltaYaw(getEntityState_number());
 	}
 	
 	@Override
@@ -600,7 +625,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	@Override
 	public Vector3f getPlayerState_origin() {
-		return getPlayerState_origin(getEntityIndex());
+		return getPlayerState_origin(getEntityState_number());
 	}
 	
 	@Override
@@ -611,22 +636,22 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	@Override
 	public int getPlayerState_pm_flags() {
-		return getPlayerState_pm_flags(getEntityIndex());
+		return getPlayerState_pm_flags(getEntityState_number());
 	}
 	
 	@Override
 	public int getPlayerState_pm_time() {
-		return getPlayerState_pm_time(getEntityIndex());
+		return getPlayerState_pm_time(getEntityState_number());
 	}
 	
 	@Override
 	public PlayerMovementType getPlayerState_pm_type() {
-		return PlayerMovementType.values()[getPlayerState_pm_type(getEntityIndex())];
+		return PlayerMovementType.values()[getPlayerState_pm_type(getEntityState_number())];
 	}
 	
 	@Override
 	public int getPlayerState_speed() {
-		return getPlayerState_speed(getEntityIndex());
+		return getPlayerState_speed(getEntityState_number());
 	}
 	@Override
 	public int getPlayerState_torsoAnim() {
@@ -641,12 +666,12 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	@Override
 	public Vector3f getPlayerState_velocity() {
-		return getPlayerState_velocity(getEntityIndex());
+		return getPlayerState_velocity(getEntityState_number());
 	}
 	
 	@Override
 	public Angle3f getPlayerState_viewAngles() {
-		return getPlayerState_viewAngles(getEntityIndex());
+		return getPlayerState_viewAngles(getEntityState_number());
 	}
 	@Override
 	public int getPlayerState_viewHeight() {
@@ -681,7 +706,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	@Override
 	public void setPlayerState_commandTime(int time) {
-		setPlayerState_commandTime(getEntityIndex(), time);
+		setPlayerState_commandTime(getEntityState_number(), time);
 	}
 	
 	@Override
@@ -707,17 +732,17 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	@Override
 	public void setPlayerState_deltaPitch(short deltaPitch) {
-		 setPlayerState_deltaPitch(getEntityIndex(), deltaPitch);
+		 setPlayerState_deltaPitch(getEntityState_number(), deltaPitch);
 	}
 	
 	@Override
 	public void setPlayerState_deltaRoll(short deltaRoll) {
-		setPlayerState_deltaRoll(getEntityIndex(), deltaRoll);
+		setPlayerState_deltaRoll(getEntityState_number(), deltaRoll);
 	}
 	
 	@Override
 	public void setPlayerState_deltaYaw(short deltaYaw) {
-		setPlayerState_deltaYaw(getEntityIndex(), deltaYaw);	
+		setPlayerState_deltaYaw(getEntityState_number(), deltaYaw);	
 	}
 	
 	@Override
@@ -793,7 +818,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	@Override
 	public void setPlayerState_origin(Vector3f origin) {
-		setPlayerState_origin(getEntityIndex(), origin.x, origin.y, origin.z);	
+		setPlayerState_origin(getEntityState_number(), origin.x, origin.y, origin.z);	
 	}
 	
 	@Override
@@ -804,22 +829,22 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	@Override
 	public void setPlayerState_pm_flags(int flags) {
-		setPlayerState_pm_flags(getEntityIndex(), flags);
+		setPlayerState_pm_flags(getEntityState_number(), flags);
 	}
 
 	@Override
 	public void setPlayerState_pm_time(int time) {
-		setPlayerState_pm_time(getEntityIndex(), time);
+		setPlayerState_pm_time(getEntityState_number(), time);
 	}
 
 	@Override
 	public void setPlayerState_pm_type(PlayerMovementType type) {
-		setPlayerState_pm_type(getEntityIndex(), type.ordinal());
+		setPlayerState_pm_type(getEntityState_number(), type.ordinal());
 	}
 	
 	@Override
 	public void setPlayerState_speed(int speed) {
-		setPlayerState_speed(getEntityIndex(), speed);	
+		setPlayerState_speed(getEntityState_number(), speed);	
 	}
 	
 	@Override
@@ -835,17 +860,17 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	@Override
 	public void setPlayerState_velocity(Vector3f velocity) {
-		setPlayerState_velocity(getEntityIndex(), velocity.x, velocity.y, velocity.z);	
+		setPlayerState_velocity(getEntityState_number(), velocity.x, velocity.y, velocity.z);	
 	}
 	
 	@Override
 	public void setPlayerState_viewAngles(Angle3f viewAngles) {
-		setPlayerState_viewAngles(getEntityIndex(), viewAngles.x, viewAngles.y, viewAngles.z);	
+		setPlayerState_viewAngles(getEntityState_number(), viewAngles.x, viewAngles.y, viewAngles.z);	
 	}
 	
 	@Override
 	public void setPlayerState_viewAngles(float pitch, float yaw, float roll) {
-		setPlayerState_viewAngles(getEntityIndex(), pitch, yaw, roll);
+		setPlayerState_viewAngles(getEntityState_number(), pitch, yaw, roll);
 	}
 	
 	@Override

@@ -27,4 +27,5 @@ public class CVars {
 	public static final CVar g_synchronousClients = new CVar("g_synchronousClients", "1", CVar.SYSTEMINFO);
 	
 	public static final CVar g_password = new CVar("g_password", "", CVar.USERINFO);
+	public static final CVar g_dedicated = new CVar("dedicated", "0", 0);
 }

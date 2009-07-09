@@ -1,13 +1,17 @@
 package xreal.server.game;
 
+import javax.vecmath.Vector3f;
+
 import xreal.Engine;
+import xreal.EntityStateAccess;
+import xreal.common.EntityType;
 
 /**
  * Represents, uses and writes to a native gentity_t
  * 
  * @author Robert Beckebans
  */
-public class GameEntity {
+public class GameEntity implements EntityStateAccess {
 
 	/**
 	 * Set by the server.
@@ -18,64 +22,6 @@ public class GameEntity {
 	 * Set by the server.
 	 */
 	private static GameEntity[] entities;
-	
-	/*
-	enum EntityStateField
-	{
-		number,
-		
-		eType,
-		eFlags,
-		
-		pos_trType,
-		pos_trTime,
-		pos_trDuration,
-		pos_trAcceleration,
-		pos_trBase,
-		pos_trDelta,
-		
-		apos_trType,
-		apos_trTime,
-		apos_trDuration,
-		apos_trAcceleration,
-		apos_trBase,
-		apos_trDelta,
-		
-		time,
-		time2,
-		
-		origin,
-		origin2,
-		
-		angles,
-		angles2,
-		
-		otherEntityNum,
-		otherEntityNum2,
-		
-		groundEntityNum,
-
-		constantLight,
-		loopSound,
-		
-		modelindex,
-		modelindex2,
-		clientNum,
-		frame,
-
-		solid,
-
-		event,
-		eventParm,
-
-		powerups,
-		weapon,
-		legsAnim,
-		torsoAnim,
-
-		generic1
-	}
-	*/
 	
 	/**
 	 * Similar to Q3A's G_Spawn()
@@ -104,6 +50,22 @@ public class GameEntity {
 	 * @param pointer The index the native gentity_t
 	 */
 	private synchronized static native boolean freeEntity0(int index);
+	
+	
+	// ------------------- entityState_t:: fields in gentity_t::s ---------------------------------
+	
+	private synchronized static native int getEntityState_eType(int index);
+	
+	private synchronized static native void setEntityState_eType(int index, int type);
+	
+	private synchronized static native Vector3f getEntityState_origin(int index);
+	
+	private synchronized static native void setEntityState_origin(int index, float x, float y, float z);
+	
+	// --------------------------------------------------------------------------------------------
+	
+	
+	
 	
 	/**
 	 * Index of the native gentity_t in the C server::g_entities[] array.
@@ -154,7 +116,7 @@ public class GameEntity {
 	{
 		if(!freeEntity0(entityIndex))
 		{
-			throw new GameException("Could not free entity");
+			throw new GameException("Could not free entity with native entity index: " + entityIndex);
 		}
 		
 		// avoid further access to the gentity_t object because it may be used by another GameEntity object
@@ -162,8 +124,42 @@ public class GameEntity {
 		entityIndex = Engine.ENTITYNUM_NONE;
 	}
 	
-	public int getEntityIndex()
+	@Override
+	public int getEntityState_number()
 	{
 		return entityIndex;
+	}
+	
+	@Override
+	public int getEntityState_eType() {
+		return getEntityState_eType(entityIndex);
+	}
+	
+	public EntityType getEntityType() {
+		return EntityType.values()[getEntityState_eType()];
+	}
+	
+	@Override
+	public void setEntityState_eType(int type) {
+		setEntityState_eType(entityIndex, type);	
+	}
+	
+	public void setEntityState_eType(EntityType type) {
+		setEntityState_eType(entityIndex, type.ordinal());	
+	}
+
+	@Override
+	public Vector3f getEntityState_origin() {
+		return getEntityState_origin(entityIndex);
+	}
+
+	@Override
+	public void setEntityState_origin(Vector3f origin) {
+		setEntityState_origin(entityIndex, origin.x, origin.y, origin.z);
+	}
+
+	@Override
+	public void setEntityState_origin(float x, float y, float z) {
+		setEntityState_origin(entityIndex, x, y, z);
 	}
 }

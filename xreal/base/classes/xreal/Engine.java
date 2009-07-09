@@ -76,6 +76,23 @@ public class Engine {
 	 * Returns a single string containing argv(1) to argv(argc()-1).
 	 */
 	public synchronized native static String getConsoleArgs();
+	
+	public synchronized static String concatConsoleArgs(int start) {
+		String line = "";
+
+		int c = Engine.getConsoleArgc();
+		for (int i = start; i < c; i++) {
+			String arg = Engine.getConsoleArgv(i);
+
+			line += arg;
+
+			if (i != c - 1) {
+				line += ' ';
+			}
+		}
+
+		return line;
+	}
 
 	
 	/**

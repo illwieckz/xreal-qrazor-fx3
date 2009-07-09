@@ -1,5 +1,26 @@
 package xreal.server.game;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.vecmath.Vector3f;
+
+import com.bulletphysics.collision.broadphase.AxisSweep3;
+import com.bulletphysics.collision.broadphase.BroadphaseInterface;
+import com.bulletphysics.collision.dispatch.CollisionDispatcher;
+import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.StaticPlaneShape;
+import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
+import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
+import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
+import com.bulletphysics.linearmath.DefaultMotionState;
+import com.bulletphysics.linearmath.Transform;
+
 import xreal.Engine;
 import xreal.common.Config;
 import xreal.common.ConfigStrings;
@@ -9,6 +30,19 @@ import xreal.server.Server;
 public class Game implements GameListener {
 	
 	static private int levelTime = 0;
+	
+	// keep the collision shapes, for deletion/cleanup
+	private List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
+	private BroadphaseInterface overlappingPairCache;
+	private CollisionDispatcher dispatcher;
+	private ConstraintSolver solver;
+	private DefaultCollisionConfiguration collisionConfiguration;
+	
+	// 
+	private DynamicsWorld dynamicsWorld = null;
+	
+	// maximum number of objects (and allow user to shoot additional boxes)
+	private static final int MAX_PROXIES = 1024;
 
 	private Game() {
 		
@@ -16,7 +50,7 @@ public class Game implements GameListener {
 
 	@Override
 	public String clientConnect(Player client, boolean firstTime, boolean isBot) {
-		Engine.print("xreal.server.game.Game.clientConnect(clientNum = " + client.getEntityIndex() + ", firstTime = " + firstTime + ", isBot = " + isBot + ")\n");
+		Engine.print("xreal.server.game.Game.clientConnect(clientNum = " + client.getEntityState_number() + ", firstTime = " + firstTime + ", isBot = " + isBot + ")\n");
 		
 		//return "Game.clientConnect() is not implemented yet.";	// deny message
 		return null;
@@ -24,7 +58,25 @@ public class Game implements GameListener {
 
 	@Override
 	public boolean consoleCommand() {
-		Engine.print("xreal.server.game.Game.consoleCommand()\n");
+		//Engine.print("xreal.server.game.Game.consoleCommand()\n");
+		
+		String cmd = Engine.getConsoleArgv(0);
+		
+		if(CVars.g_dedicated.getBoolean())
+		{
+			if(cmd.equals("say"))
+			{
+				String args = Engine.concatConsoleArgs(1);
+				
+				Server.broadcastClientCommand("print \"server: " + args + "\"");
+				return true;
+			}
+			
+			// everything else will also be printed as a say command
+			Server.broadcastClientCommand("print \"server: " + Engine.concatConsoleArgs(0) + "\"");
+			return true;
+		}
+		
 		return false;
 	}
 
@@ -50,6 +102,7 @@ public class Game implements GameListener {
 		Engine.println("Game Version: " + Server.getConfigString(ConfigStrings.GAME_VERSION));
 		Engine.println("Game Type: " + GameType.values()[CVars.g_gametype.getInteger()]);
 		
+		initPhysics();
 		
 //		for(int i = 0; i < 30; i++)
 //		{
@@ -82,6 +135,8 @@ public class Game implements GameListener {
 		
 		this.levelTime = time;
 		
+		runPhysics();
+		
 		//CVars.g_gametype.set("99");
 		//CVars.g_gametype = null;
 		//Engine.print(CVars.g_gametype.toString() + "\n");
@@ -98,5 +153,93 @@ public class Game implements GameListener {
 	
 	static public int getLevelTime() {
 		return levelTime;
+	}
+	
+	private void initPhysics() {
+
+		Engine.println("Game.initPhysics()");
+		
+		// collision configuration contains default setup for memory, collision
+		// setup
+		collisionConfiguration = new DefaultCollisionConfiguration();
+
+		// use the default collision dispatcher. For parallel processing you can
+		// use a diffent dispatcher (see Extras/BulletMultiThreaded)
+		dispatcher = new CollisionDispatcher(collisionConfiguration);
+
+		// the maximum size of the collision world. Make sure objects stay
+		// within these boundaries
+		// TODO: AxisSweep3
+		// Don't make the world AABB size too large, it will harm simulation
+		// quality and performance
+		Vector3f worldAabbMin = new Vector3f(-10000, -10000, -10000);
+		Vector3f worldAabbMax = new Vector3f(10000, 10000, 10000);
+		overlappingPairCache = new AxisSweep3(worldAabbMin, worldAabbMax, MAX_PROXIES);
+		// overlappingPairCache = new SimpleBroadphase(MAX_PROXIES);
+
+		// the default constraint solver. For parallel processing you can use a
+		// different solver (see Extras/BulletMultiThreaded)
+		SequentialImpulseConstraintSolver sol = new SequentialImpulseConstraintSolver();
+		solver = sol;
+
+		// TODO: needed for SimpleDynamicsWorld
+		// sol.setSolverMode(sol.getSolverMode() &
+		// ~SolverMode.SOLVER_CACHE_FRIENDLY.getMask());
+
+		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+		// dynamicsWorld = new SimpleDynamicsWorld(dispatcher,
+		// overlappingPairCache, solver, collisionConfiguration);
+
+		dynamicsWorld.setGravity(new Vector3f(0f, 0f, -10f));
+
+		// create a few basic rigid bodies
+		// CollisionShape groundShape = new BoxShape(new Vector3f(50f, 50f,
+		// 50f));
+		CollisionShape groundShape = new StaticPlaneShape(new Vector3f(0, 0, 1), 50);
+
+		collisionShapes.add(groundShape);
+
+		Transform groundTransform = new Transform();
+		groundTransform.setIdentity();
+		groundTransform.origin.set(0, -56, 0);
+		
+		{
+			float mass = 0f;
+
+			// rigidbody is dynamic if and only if mass is non zero, otherwise static
+			boolean isDynamic = (mass != 0f);
+
+			Vector3f localInertia = new Vector3f(0, 0, 0);
+			if (isDynamic) {
+				groundShape.calculateLocalInertia(mass, localInertia);
+			}
+
+			// using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+			DefaultMotionState myMotionState = new DefaultMotionState(groundTransform);
+			RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(mass, myMotionState, groundShape, localInertia);
+			RigidBody body = new RigidBody(rbInfo);
+			//body.
+
+			// add the body to the dynamics world
+			dynamicsWorld.addRigidBody(body);
+		}
+	}
+	
+	private void runPhysics() {
+		dynamicsWorld.stepSimulation(1.f / 60.f, 10);
+
+		// print positions of all objects
+		for (int j = dynamicsWorld.getNumCollisionObjects() - 1; j >= 0; j--) {
+			
+			CollisionObject obj = dynamicsWorld.getCollisionObjectArray().get(j);
+			RigidBody body = RigidBody.upcast(obj);
+			
+			if (body != null && body.getMotionState() != null) {
+				Transform trans = new Transform();
+				body.getMotionState().getWorldTransform(trans);
+				
+				//Engine.println("world pos = " + trans.origin);
+			}
+		}
 	}
 }
