@@ -365,7 +365,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t * fra
 	{
 		ent = SV_GentityNum(e);
 
-#if !defined(USE_JAVA)
+#if 1 //!defined(USE_JAVA)
 		// never send entities that aren't linked in
 		if(!ent->r.linked)
 		{

@@ -25,6 +25,22 @@ JNIEXPORT jboolean JNICALL Java_xreal_server_game_GameEntity_freeEntity0
 
 /*
  * Class:     xreal_server_game_GameEntity
+ * Method:    linkEntity0
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_xreal_server_game_GameEntity_linkEntity0
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    unlinkEntity0
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_xreal_server_game_GameEntity_unlinkEntity0
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_server_game_GameEntity
  * Method:    getEntityState_eType
  * Signature: (I)I
  */

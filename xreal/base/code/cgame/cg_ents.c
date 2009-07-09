@@ -560,6 +560,8 @@ static void CG_Projectile(centity_t * cent)
 	entityState_t  *s1;
 	const weaponInfo_t *weapon;
 
+	//CG_Printf("CG_Projectile(entity = %i, weapon = %i)\n", cent->currentState.number, cent->currentState.weapon);
+
 //  int col;
 
 	s1 = &cent->currentState;
@@ -571,6 +573,9 @@ static void CG_Projectile(centity_t * cent)
 
 	// calculate the axis
 	VectorCopy(s1->angles, cent->lerpAngles);
+
+	//CG_Printf("CG_Projectile(lerpOrigin = [%i %i %i])\n", (int)cent->lerpOrigin[0], (int)cent->lerpOrigin[1], (int)cent->lerpOrigin[2]);
+	//CG_Printf("CG_Projectile(pos.trDelta = [%i %i %i])\n", (int)s1->pos.trDelta[0], (int)s1->pos.trDelta[1], (int)s1->pos.trDelta[2]);
 
 	// add trails
 	if(weapon->projectileTrailFunc)
@@ -641,6 +646,14 @@ static void CG_Projectile(centity_t * cent)
 	}
 #endif
 
+#if defined(USE_JAVA)
+	{
+		vec3_t angles;
+
+		VectorToAngles(s1->pos.trDelta, angles);
+		AnglesToAxis(angles, ent.axis);
+	}
+#else
 	// convert direction of travel into axis
 	if(VectorNormalize2(s1->pos.trDelta, ent.axis[0]) == 0)
 	{
@@ -665,6 +678,7 @@ static void CG_Projectile(centity_t * cent)
 			RotateAroundDirection(ent.axis, s1->time);
 		}
 	}
+#endif
 
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);

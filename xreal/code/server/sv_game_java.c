@@ -483,6 +483,9 @@ void G_InitGentity(gentity_t * e)
 //	e->classname = "noclass";
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
+
+	// FIXME: this is required as long we don't link entities in the server code
+	//e->r.svFlags |= SVF_BROADCAST;
 }
 
 
@@ -620,11 +623,49 @@ jboolean JNICALL Java_xreal_server_game_GameEntity_freeEntity0(JNIEnv *env, jcla
 	}
 
 	memset(e, 0, sizeof(*e));
+
 	//e->classname = "freed";
 	e->freeTime = g_levelTime;
 	e->inUse = qfalse;
+	e->s.number = index;
 
 	return qtrue;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    linkEntity0
+ * Signature: (I)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_linkEntity0(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_linkEntity0: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	SV_LinkEntity((sharedEntity_t *) ent);
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    unlinkEntity0
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_xreal_server_game_GameEntity_unlinkEntity0(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_unlinkEntity0: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	SV_UnlinkEntity((sharedEntity_t *) ent);
 }
 
 /*
@@ -1635,6 +1676,9 @@ static JNINativeMethod GameEntity_methods[] = {
 	{"allocateEntity0", "(I)I", Java_xreal_server_game_GameEntity_allocateEntity0},
 	{"freeEntity0", "(I)Z", Java_xreal_server_game_GameEntity_freeEntity0},
 
+	{"linkEntity0", "(I)V", Java_xreal_server_game_GameEntity_linkEntity0},
+	{"unlinkEntity0", "(I)V", Java_xreal_server_game_GameEntity_unlinkEntity0},
+
 	{"getEntityState_eType", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1eType},
 	{"setEntityState_eType", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1eType},
 
@@ -2545,7 +2589,7 @@ void Java_G_ClientCommand(int clientNum)
 	if(!object_Game)
 		return;
 
-	Com_Printf("Java_G_ClientCommand(%i)\n", clientNum);
+	//Com_Printf("Java_G_ClientCommand(%i)\n", clientNum);
 
 	client = &g_clients[clientNum];
 

@@ -276,8 +276,13 @@ void SV_LinkEntity(sharedEntity_t * gEnt)
 	}
 
 	// get the position
+#if defined(USE_JAVA)
+	origin = gEnt->s.origin;
+	angles = gEnt->s.angles;
+#else
 	origin = gEnt->r.currentOrigin;
 	angles = gEnt->r.currentAngles;
+#endif
 
 	// set the abs box
 	if(gEnt->r.bmodel && (angles[0] || angles[1] || angles[2]))
