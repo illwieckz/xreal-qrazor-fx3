@@ -23,6 +23,38 @@ JNIEXPORT jint JNICALL Java_xreal_server_game_GameEntity_allocateEntity0
 JNIEXPORT jboolean JNICALL Java_xreal_server_game_GameEntity_freeEntity0
   (JNIEnv *, jclass, jint);
 
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_eType
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1eType
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_eType
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1eType
+  (JNIEnv *, jclass, jint, jint);
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_origin
+ * Signature: (I)Ljavax/vecmath/Vector3f;
+ */
+JNIEXPORT jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1origin
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_origin
+ * Signature: (IFFF)V
+ */
+JNIEXPORT void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1origin
+  (JNIEnv *, jclass, jint, jfloat, jfloat, jfloat);
+
 #ifdef __cplusplus
 }
 #endif

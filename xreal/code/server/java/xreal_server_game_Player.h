@@ -9,18 +9,26 @@ extern "C" {
 #endif
 /*
  * Class:     xreal_server_game_Player
- * Method:    getUserInfo0
+ * Method:    sendClientCommand
+ * Signature: (ILjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_xreal_server_game_Player_sendClientCommand
+  (JNIEnv *, jclass, jint, jstring);
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    getUserInfo
  * Signature: (I)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_xreal_server_game_Player_getUserInfo0
+JNIEXPORT jstring JNICALL Java_xreal_server_game_Player_getUserInfo
   (JNIEnv *, jclass, jint);
 
 /*
  * Class:     xreal_server_game_Player
- * Method:    setUserInfo0
+ * Method:    setUserInfo
  * Signature: (ILjava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_xreal_server_game_Player_setUserInfo0
+JNIEXPORT void JNICALL Java_xreal_server_game_Player_setUserInfo
   (JNIEnv *, jclass, jint, jstring);
 
 /*
