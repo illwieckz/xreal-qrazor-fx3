@@ -151,6 +151,10 @@ static jmethodID method_Vector3f_ctor = NULL;
 static jclass   class_Angle3f = NULL;
 static jmethodID method_Angle3f_ctor = NULL;
 
+// handles to the xreal.Trajectory class
+static jclass   class_Trajectory = NULL;
+static jmethodID method_Trajectory_ctor = NULL;
+
 /**
  * @brief Convert a Java string (which is Unicode) to reasonable 7-bit ASCII.
  *
@@ -226,6 +230,21 @@ void Misc_javaRegister()
 	{
 		Com_Error(ERR_FATAL, "Couldn't find xreal.Angle3f constructor method");
 	}
+
+	class_Trajectory = (*javaEnv)->FindClass(javaEnv, "xreal/Trajectory");
+	if(CheckException() || !class_Trajectory)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.Trajectory");
+	}
+
+	// int trType, int trTime, int trDuration, float trAcceleration,
+	//float trBaseX, float trBaseY, float trBaseZ,
+	//float trDeltaX, float trDeltaY, float trDeltaZ)
+	method_Trajectory_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Trajectory, "<init>", "(IIIFFFFFFF)V");
+	if(CheckException() || !method_Trajectory_ctor)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.Trajectory constructor method");
+	}
 }
 
 void Misc_javaDetach()
@@ -259,6 +278,12 @@ void Misc_javaDetach()
 		(*javaEnv)->DeleteLocalRef(javaEnv, class_Angle3f);
 		class_Angle3f = NULL;
 	}
+
+	if(class_Trajectory)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Trajectory);
+		class_Trajectory = NULL;
+	}
 }
 
 jobject Java_NewVector3f(const vec3_t v)
@@ -285,6 +310,20 @@ jobject Java_NewAngle3f(float pitch, float yaw, float roll)
 	if(class_Angle3f)
 	{
 		obj = (*javaEnv)->NewObject(javaEnv, class_Angle3f, method_Angle3f_ctor, pitch, yaw, roll);
+	}
+
+	return obj;
+}
+
+jobject Java_NewTrajectory(const trajectory_t * t)
+{
+	jobject obj = NULL;
+
+	if(class_Trajectory)
+	{
+		obj = (*javaEnv)->NewObject(javaEnv, class_Trajectory, method_Trajectory_ctor, t->trType, t->trTime, t->trDuration, t->trAcceleration,
+				t->trBase[0], t->trBase[1], t->trBase[2],
+				t->trDelta[0], t->trDelta[1], t->trDelta[2]);
 	}
 
 	return obj;

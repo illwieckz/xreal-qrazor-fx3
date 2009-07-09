@@ -665,6 +665,209 @@ void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1eType(JNIEnv *env
 
 /*
  * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_eFlags
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1eFlags(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1eFlags: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.eFlags;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_eFlags
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1eFlags(JNIEnv *env, jclass cls, jint index, jint flags)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1eFlags: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.eFlags = flags;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_pos
+ * Signature: (I)Lxreal/Trajectory;
+ */
+jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1pos(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1pos: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return Java_NewTrajectory(&ent->s.pos);
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_pos
+ * Signature: (IIIIFFFFFFF)V
+ */
+//int index, int trType, int trTime, int trDuration, float trAcceleration, float trBaseX, float trBaseY, float trBaseZ, float trDeltaX, float trDeltaY, float trDeltaZ);
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1pos(JNIEnv *env, jclass cls, jint index, jint trType, jint trTime, jint trDuration, jfloat trAcceleration, jfloat trBaseX, jfloat trBaseY, jfloat trBaseZ, jfloat trDeltaX, jfloat trDeltaY, jfloat trDeltaZ)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1pos: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.pos.trType = trType;
+	ent->s.pos.trTime = trTime;
+	ent->s.pos.trDuration = trDuration;
+	ent->s.pos.trAcceleration = trAcceleration;
+
+	ent->s.pos.trBase[0] = trBaseX;
+	ent->s.pos.trBase[1] = trBaseY;
+	ent->s.pos.trBase[2] = trBaseZ;
+
+	ent->s.pos.trDelta[0] = trDeltaX;
+	ent->s.pos.trDelta[1] = trDeltaY;
+	ent->s.pos.trDelta[2] = trDeltaZ;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_apos
+ * Signature: (I)Lxreal/Trajectory;
+ */
+jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1apos(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1apos: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return Java_NewTrajectory(&ent->s.apos);
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_apos
+ * Signature: (IIIIFFFFFFF)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1apos(JNIEnv *env, jclass cls, jint index, jint trType, jint trTime, jint trDuration, jfloat trAcceleration, jfloat trBaseX, jfloat trBaseY, jfloat trBaseZ, jfloat trDeltaX, jfloat trDeltaY, jfloat trDeltaZ)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1apos: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.apos.trType = trType;
+	ent->s.apos.trTime = trTime;
+	ent->s.apos.trDuration = trDuration;
+	ent->s.apos.trAcceleration = trAcceleration;
+
+	ent->s.apos.trBase[0] = trBaseX;
+	ent->s.apos.trBase[1] = trBaseY;
+	ent->s.apos.trBase[2] = trBaseZ;
+
+	ent->s.apos.trDelta[0] = trDeltaX;
+	ent->s.apos.trDelta[1] = trDeltaY;
+	ent->s.apos.trDelta[2] = trDeltaZ;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_time
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1time(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1time: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.time;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_time
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1time(JNIEnv *env, jclass cls, jint index, jint time)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1time: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.time = time;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_time2
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1time2(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1time2: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.time2;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_time2
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1time2(JNIEnv *env, jclass cls, jint index, jint time2)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1time2: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.time2 = time2;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
  * Method:    getEntityState_origin
  * Signature: (I)Ljavax/vecmath/Vector3f;
  */
@@ -700,6 +903,730 @@ void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1origin(JNIEnv *en
 	VectorSet(ent->s.origin, x, y, z);
 }
 
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_origin2
+ * Signature: (I)Ljavax/vecmath/Vector3f;
+ */
+jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1origin2(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1origin2: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return Java_NewVector3f(ent->s.origin2);
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_origin2
+ * Signature: (IFFF)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1origin2(JNIEnv *env, jclass cls, jint index, jfloat x, jfloat y, jfloat z)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1origin2: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	VectorSet(ent->s.origin2, x, y, z);
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_angles
+ * Signature: (I)Lxreal/Angle3f;
+ */
+jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1angles(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1angles: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return Java_NewAngle3f(ent->s.angles[PITCH], ent->s.angles[YAW], ent->s.angles[ROLL]);
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_angles
+ * Signature: (IFFF)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1angles(JNIEnv *env, jclass cls, jint index, jfloat pitch, jfloat yaw, jfloat roll)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1angles: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.angles[PITCH] = pitch;
+	ent->s.angles[YAW] = yaw;
+	ent->s.angles[ROLL] = roll;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_angles2
+ * Signature: (I)Lxreal/Angle3f;
+ */
+jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1angles2(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1angles2: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return Java_NewAngle3f(ent->s.angles2[PITCH], ent->s.angles2[YAW], ent->s.angles2[ROLL]);
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_angles2
+ * Signature: (IFFF)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1angles2(JNIEnv *env, jclass cls, jint index, jfloat pitch, jfloat yaw, jfloat roll)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1angles2: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.angles2[PITCH] = pitch;
+	ent->s.angles2[YAW] = yaw;
+	ent->s.angles2[ROLL] = roll;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_otherEntityNum
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1otherEntityNum(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1otherEntityNum: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.otherEntityNum;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_otherEntityNum
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1otherEntityNum(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1otherEntityNum: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.otherEntityNum = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_otherEntityNum2
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1otherEntityNum2(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1otherEntityNum2: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.otherEntityNum2;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_otherEntityNum2
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1otherEntityNum2(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1otherEntityNum2: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.otherEntityNum2 = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_groundEntityNum
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1groundEntityNum(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1groundEntityNum: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.groundEntityNum;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_groundEntityNum
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1groundEntityNum(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1groundEntityNum: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.groundEntityNum = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_constantLight
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1constantLight(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1constantLight: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.constantLight;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_constantLight
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1constantLight(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1constantLight: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.constantLight = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_loopSound
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1loopSound(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1loopSound: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.loopSound;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_loopSound
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1loopSound(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1loopSound: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.loopSound = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_modelindex
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1modelindex(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1modelindex: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.modelindex;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_modelindex
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1modelindex(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1modelindex: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.modelindex = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_modelindex2
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1modelindex2(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1modelindex2: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.modelindex2;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_modelindex2
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1modelindex2(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1modelindex2: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.modelindex2 = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_clientNum
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1clientNum(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1clientNum: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.clientNum;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_clientNum
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1clientNum(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1clientNum: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.clientNum = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_frame
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1frame(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1frame: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.frame;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_frame
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1frame(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1frame: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.frame = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_solid
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1solid(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1solid: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.solid;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_solid
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1solid(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1solid: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.solid = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_event
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1event(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1event: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.event;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_event
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1event(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1event: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.event = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_eventParm
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1eventParm(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1eventParm: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.eventParm;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_eventParm
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1eventParm(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1eventParm: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.eventParm = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_powerups
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1powerups(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1powerups: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.powerups;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_powerups
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1powerups(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1powerups: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.powerups = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_weapon
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1weapon(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1weapon: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.weapon;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_weapon
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1weapon(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1weapon: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.weapon = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_legsAnim
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1legsAnim(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1legsAnim: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.legsAnim;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_legsAnim
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1legsAnim(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1legsAnim: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.legsAnim = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_torsoAnim
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1torsoAnim(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1torsoAnim: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.torsoAnim;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_torsoAnim
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1torsoAnim(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1torsoAnim: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.torsoAnim = value;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    getEntityState_generic1
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_GameEntity_getEntityState_1generic1(JNIEnv *env, jclass cls, jint index)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_getEntityState_1generic1: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	return ent->s.generic1;
+}
+
+/*
+ * Class:     xreal_server_game_GameEntity
+ * Method:    setEntityState_generic1
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1generic1(JNIEnv *env, jclass cls, jint index, jint value)
+{
+	gentity_t	   *ent;
+
+	if(index < 0 || index >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_GameEntity_setEntityState_1generic1: bad index %i\n", index);
+	}
+	ent = &g_entities[index];
+
+	ent->s.generic1 = value;
+}
+
 
 
 // handle to GameEntity class
@@ -711,8 +1638,83 @@ static JNINativeMethod GameEntity_methods[] = {
 	{"getEntityState_eType", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1eType},
 	{"setEntityState_eType", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1eType},
 
+	{"getEntityState_eFlags", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1eFlags},
+	{"setEntityState_eFlags", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1eFlags},
+
+	{"getEntityState_pos", "(I)Lxreal/Trajectory;", Java_xreal_server_game_GameEntity_getEntityState_1pos},
+	{"setEntityState_pos", "(IIIIFFFFFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1pos},
+
+	{"getEntityState_apos", "(I)Lxreal/Trajectory;", Java_xreal_server_game_GameEntity_getEntityState_1apos},
+	{"setEntityState_apos", "(IIIIFFFFFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1apos},
+
+	{"getEntityState_time", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1time},
+	{"setEntityState_time", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1time},
+
+	{"getEntityState_time2", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1time2},
+	{"setEntityState_time2", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1time2},
+
 	{"getEntityState_origin", "(I)Ljavax/vecmath/Vector3f;", Java_xreal_server_game_GameEntity_getEntityState_1origin},
 	{"setEntityState_origin", "(IFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1origin},
+
+	{"getEntityState_origin2", "(I)Ljavax/vecmath/Vector3f;", Java_xreal_server_game_GameEntity_getEntityState_1origin2},
+	{"setEntityState_origin2", "(IFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1origin2},
+
+	{"getEntityState_angles", "(I)Lxreal/Angle3f;", Java_xreal_server_game_GameEntity_getEntityState_1angles},
+	{"setEntityState_angles", "(IFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1angles},
+
+	{"getEntityState_angles2", "(I)Lxreal/Angle3f;", Java_xreal_server_game_GameEntity_getEntityState_1angles2},
+	{"setEntityState_angles2", "(IFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1angles2},
+
+	{"getEntityState_otherEntityNum", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1otherEntityNum},
+	{"setEntityState_otherEntityNum", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1otherEntityNum},
+
+	{"getEntityState_otherEntityNum2", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1otherEntityNum2},
+	{"setEntityState_otherEntityNum2", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1otherEntityNum2},
+
+	{"getEntityState_groundEntityNum", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1groundEntityNum},
+	{"setEntityState_groundEntityNum", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1groundEntityNum},
+
+	{"getEntityState_constantLight", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1constantLight},
+	{"setEntityState_constantLight", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1constantLight},
+
+	{"getEntityState_loopSound", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1loopSound},
+	{"setEntityState_loopSound", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1loopSound},
+
+	{"getEntityState_modelindex", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1modelindex},
+	{"setEntityState_modelindex", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1modelindex},
+
+	{"getEntityState_modelindex2", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1modelindex2},
+	{"setEntityState_modelindex2", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1modelindex2},
+
+	{"getEntityState_clientNum", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1clientNum},
+	{"setEntityState_clientNum", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1clientNum},
+
+	{"getEntityState_frame", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1frame},
+	{"setEntityState_frame", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1frame},
+
+	{"getEntityState_solid", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1solid},
+	{"setEntityState_solid", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1solid},
+
+	{"getEntityState_event", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1event},
+	{"setEntityState_event", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1event},
+
+	{"getEntityState_eventParm", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1eventParm},
+	{"setEntityState_eventParm", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1eventParm},
+
+	{"getEntityState_powerups", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1powerups},
+	{"setEntityState_powerups", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1powerups},
+
+	{"getEntityState_weapon", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1weapon},
+	{"setEntityState_weapon", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1weapon},
+
+	{"getEntityState_legsAnim", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1legsAnim},
+	{"setEntityState_legsAnim", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1legsAnim},
+
+	{"getEntityState_torsoAnim", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1torsoAnim},
+	{"setEntityState_torsoAnim", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1torsoAnim},
+
+	{"getEntityState_generic1", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1generic1},
+	{"setEntityState_generic1", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1generic1},
 };
 
 void GameEntity_javaRegister()
@@ -1155,7 +2157,7 @@ jint JNICALL Java_xreal_server_game_Player_getPlayerState_1speed(JNIEnv *env, jc
  * Method:    setPlayerState_speed
  * Signature: (II)V
  */
-JNIEXPORT void JNICALL Java_xreal_server_game_Player_setPlayerState_1speed(JNIEnv *env, jclass cls, jint clientNum, jint speed)
+void JNICALL Java_xreal_server_game_Player_setPlayerState_1speed(JNIEnv *env, jclass cls, jint clientNum, jint speed)
 {
 	gclient_t	   *client;
 
