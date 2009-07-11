@@ -2,13 +2,18 @@ package xreal.server.game;
 
 import javax.vecmath.Vector3f;
 
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.dynamics.RigidBody;
+
 import xreal.Angle3f;
 import xreal.Engine;
 import xreal.EntityStateAccess;
 import xreal.Trajectory;
 import xreal.TrajectoryType;
+import xreal.common.ConfigStrings;
 import xreal.common.EntityType;
 import xreal.common.WeaponType;
+import xreal.server.Server;
 
 /**
  * Represents, uses and writes to a native gentity_t
@@ -20,12 +25,15 @@ public class GameEntity implements EntityStateAccess {
 	/**
 	 * Set by the server.
 	 */
-	private static int numEntities;
+	//private static int numEntities;
 	
 	/**
 	 * Set by the server.
 	 */
-	private static GameEntity[] entities;
+	//private static GameEntity[] entities;
+	
+	protected CollisionShape collisionShape;
+	protected RigidBody rigidBody;
 	
 	/**
 	 * Similar to Q3A's G_Spawn()
@@ -195,16 +203,28 @@ public class GameEntity implements EntityStateAccess {
 	 */
 	private int entityIndex;
 	
+	private Thread ownThread;
+	
 	GameEntity() {
 		entityIndex = allocateEntity0(-1);
 
 		Engine.println("GameEntity() allocated native entity using index: " + entityIndex);
+		
+		//ownThread = this;
+		
+		Game.getEntities().add(this);
+		
+		//Engine.println("GameEntity() using index: " + Game.getEntities().size());
 	}
 
 	GameEntity(int reservedIndex) {
 		entityIndex = allocateEntity0(reservedIndex);
 
 		Engine.println("GameEntity() allocated native entity using index: " + entityIndex);
+		
+		//ownThread = this;
+		
+		Game.getEntities().add(this);
 	}
 
 	/**
@@ -235,14 +255,59 @@ public class GameEntity implements EntityStateAccess {
 		// by another GameEntity object
 		// this is a save dummy gentity_t not considered by the network
 		entityIndex = Engine.ENTITYNUM_NONE;
+		
+		if(rigidBody != null) {
+			rigidBody.setUserPointer(null);
+			Game.getDynamicsWorld().removeRigidBody(rigidBody);
+		}
+		
+		if(collisionShape != null) {
+			Game.getCollisionShapes().remove(collisionShape);
+		}
+		
+		if (ownThread != null) {
+			Thread.currentThread().interrupt();
+		}
 	}
 	
+	/*
+	@Override
+	public void run() {
+
+		Thread thisThread = Thread.currentThread();
+
+		while (ownThread == thisThread) {
+			try {
+				Thread.sleep((int) (Math.random() * 10000));
+			} catch (InterruptedException e) {
+				System.out.println("Interrupted Exception caught");
+			}
+
+			Engine.println("GameEntity.run() in thread = " + Thread.currentThread().getId());
+		}
+	}
+	*/
+	
+	/**
+	 * Link the entity into the first world sector node that the ent's box crosses using the entity's entityState_t::origin.
+	 * 
+	 * This is required to calculate the visibility between entities using the BSP's PVS.
+	 * The snapshot of entities build for this entity the player is using will only contain entities that are visible to it.
+	 */
 	protected void link() {
 		linkEntity0(entityIndex);
 	}
 	
+	/**
+	 * Unlink the entity.
+	 * 
+	 * This will cause that this entity won't be included in any snapshot set for any client.
+	 */
 	protected void unlink() {
 		unlinkEntity0(entityIndex);
+	}
+	
+	public void updateEntityStateByPhysics() {
 	}
 	
 	@Override
@@ -438,6 +503,12 @@ public class GameEntity implements EntityStateAccess {
 	public void setEntityState_modelindex(int modelindex) {
 		setEntityState_modelindex(entityIndex, modelindex);
 	}
+	
+	public void setEntityState_modelindex(String modelName) {
+		int modelIndex = findConfigstringIndex(modelName, ConfigStrings.MODELS, Engine.MAX_MODELS, true);
+
+		setEntityState_modelindex(entityIndex, modelIndex);
+	}
 
 	@Override
 	public int getEntityState_modelindex2() {
@@ -447,6 +518,12 @@ public class GameEntity implements EntityStateAccess {
 	@Override
 	public void setEntityState_modelindex2(int modelindex2) {
 		setEntityState_modelindex2(entityIndex, modelindex2);
+	}
+	
+	public void setEntityState_modelindex2(String modelName) {
+		int modelIndex = findConfigstringIndex(modelName, ConfigStrings.MODELS, Engine.MAX_MODELS, true);
+
+		setEntityState_modelindex2(entityIndex, modelIndex);
 	}
 
 	@Override
@@ -545,5 +622,44 @@ public class GameEntity implements EntityStateAccess {
 	@Override
 	public void setEntityState_generic1(int generic1) {
 		setEntityState_generic1(entityIndex, generic1);
+	}
+	
+	private int findConfigstringIndex(String name, int start, int max, boolean create)
+	{
+		int             i;
+
+		if(name == null|| name.isEmpty())
+		{
+			return 0;
+		}
+
+		for(i = 1; i < max; i++)
+		{
+			String s = Server.getConfigString(start + i);
+			if(s == null || s.isEmpty())
+			{
+				break;
+			}
+			
+			if(s.equals(name))
+			{
+				return i;
+			}
+		}
+
+		if(!create)
+		{
+			return 0;
+		}
+
+		if(i == max)
+		{
+			//Engine.error("G_FindConfigstringIndex: overflow");
+			throw new GameException("config string overflow");
+		}
+
+		Server.setConfigString(start + i, name);
+
+		return i;
 	}
 }

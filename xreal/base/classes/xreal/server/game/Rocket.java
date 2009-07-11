@@ -2,6 +2,7 @@ package xreal.server.game;
 
 import javax.vecmath.Vector3f;
 
+import xreal.Engine;
 import xreal.Trajectory;
 import xreal.TrajectoryType;
 import xreal.common.EntityType;
@@ -11,9 +12,13 @@ public class Rocket extends GameEntity {
 	
 	Rocket(Vector3f start, final Vector3f dir)
 	{
+		Engine.println("Rocket(start = " + start + ", dir = " + dir);
+		
 		setEntityState_origin(start);
-		setEntityState_eType(EntityType.PROJECTILE);
-		setEntityState_weapon(WeaponType.PLASMAGUN);
+		setEntityState_eType(EntityType.GENERAL);
+		setEntityState_modelindex("models/meshes/ppodium.md5mesh");
+		
+		//setEntityState_weapon(WeaponType.ROCKET_LAUNCHER);
 		
 		Trajectory pos = new Trajectory();
 		
@@ -29,7 +34,7 @@ public class Rocket extends GameEntity {
 		*/
 		{
 			pos.trType = TrajectoryType.LINEAR;
-			pos.trDelta.scale(300, dir);
+			pos.trDelta.scale(3, dir);
 			//VectorScale(dir, g_rocketVelocity.value, bolt->s.pos.trDelta);
 		}
 

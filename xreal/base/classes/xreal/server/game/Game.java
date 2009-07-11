@@ -1,7 +1,10 @@
 package xreal.server.game;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.vecmath.Vector3f;
 
@@ -31,15 +34,18 @@ public class Game implements GameListener {
 	
 	static private int levelTime = 0;
 	
+	static private Set<GameEntity> entities;
+	static private Set<Player> players;
+	
 	// keep the collision shapes, for deletion/cleanup
-	private List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
-	private BroadphaseInterface overlappingPairCache;
-	private CollisionDispatcher dispatcher;
-	private ConstraintSolver solver;
-	private DefaultCollisionConfiguration collisionConfiguration;
+	static private List<CollisionShape> collisionShapes;
+	static private BroadphaseInterface overlappingPairCache;
+	static private CollisionDispatcher dispatcher;
+	static private ConstraintSolver solver;
+	static private DefaultCollisionConfiguration collisionConfiguration;
 	
 	// 
-	private DynamicsWorld dynamicsWorld = null;
+	private static DynamicsWorld dynamicsWorld = null;
 	
 	// maximum number of objects (and allow user to shoot additional boxes)
 	private static final int MAX_PROXIES = 1024;
@@ -81,18 +87,23 @@ public class Game implements GameListener {
 	}
 
 	@Override
-	public void initGame(int levelTime, int randomSeed, boolean restart) {
+	public void initGame(int _levelTime, int randomSeed, boolean restart) {
 		
 		Engine.print("xreal.server.game.Game.initGame(levelTime = "+ levelTime + ", randomSeed = " + randomSeed + ", restart = " + restart + ")\n");
 		
+		//crashTest();
+		
 		Engine.print("------- Game Initialization -------\n");
+		
+		entities = new LinkedHashSet<GameEntity>();
+		players = new LinkedHashSet<Player>();
 		
 		//Engine.println("gamename: "Config.GAME_VERSION);
 		//Engine.print("gamedate: %s\n", __DATE__);
 
 		//Engine.sendConsoleCommand(Engine.EXEC_APPEND, "echo cool!");
 		
-		this.levelTime = levelTime;
+		levelTime = _levelTime;
 		
 		// make some data visible to connecting client
 		Server.setConfigString(ConfigStrings.GAME_VERSION, Config.GAME_VERSION);
@@ -133,7 +144,7 @@ public class Game implements GameListener {
 	public void runFrame(int time) {
 		//Engine.print("xreal.server.game.Game.runFrame(time = " + time + ")\n");
 		
-		this.levelTime = time;
+		levelTime = time;
 		
 		runPhysics();
 		
@@ -141,7 +152,7 @@ public class Game implements GameListener {
 		//CVars.g_gametype = null;
 		//Engine.print(CVars.g_gametype.toString() + "\n");
 		
-		//System.gc();
+		System.gc();
 		
 		//Engine.print("xreal.server.game.Game.runFrame(time2 = " + Engine.getTimeInMilliseconds() + ")\n");
 	}
@@ -158,6 +169,8 @@ public class Game implements GameListener {
 	private void initPhysics() {
 
 		Engine.println("Game.initPhysics()");
+		
+		collisionShapes = new ArrayList<CollisionShape>();
 		
 		// collision configuration contains default setup for memory, collision
 		// setup
@@ -190,12 +203,12 @@ public class Game implements GameListener {
 		// dynamicsWorld = new SimpleDynamicsWorld(dispatcher,
 		// overlappingPairCache, solver, collisionConfiguration);
 
-		dynamicsWorld.setGravity(new Vector3f(0f, 0f, -10f));
+		dynamicsWorld.setGravity(new Vector3f(CVars.g_gravityX.getValue(), CVars.g_gravityY.getValue(), CVars.g_gravityZ.getValue()));
 
 		// create a few basic rigid bodies
 		// CollisionShape groundShape = new BoxShape(new Vector3f(50f, 50f,
 		// 50f));
-		CollisionShape groundShape = new StaticPlaneShape(new Vector3f(0, 0, 1), 50);
+		CollisionShape groundShape = new StaticPlaneShape(new Vector3f(0, 0, 1), 0);
 
 		collisionShapes.add(groundShape);
 
@@ -227,6 +240,8 @@ public class Game implements GameListener {
 	
 	private void runPhysics() {
 		dynamicsWorld.stepSimulation(1.f / 60.f, 10);
+		
+		//Engine.println("Game.runPhysics(): collision objects = " + dynamicsWorld.getNumCollisionObjects());
 
 		// print positions of all objects
 		for (int j = dynamicsWorld.getNumCollisionObjects() - 1; j >= 0; j--) {
@@ -238,8 +253,47 @@ public class Game implements GameListener {
 				Transform trans = new Transform();
 				body.getMotionState().getWorldTransform(trans);
 				
-				//Engine.println("world pos = " + trans.origin);
+				
+				GameEntity ent = (GameEntity) body.getUserPointer();
+				if (ent != null) {
+					ent.updateEntityStateByPhysics();
+				}
 			}
 		}
+	}
+	
+	private void crashTest() {
+		
+		//try
+		{
+			GameEntity ent = null;
+		
+			//ent.updateEntityStateByPhysics();
+		
+			Vector3f v1 = null;
+			Vector3f v2 = new Vector3f(v1);
+		}
+		/*
+		catch(Exception e)
+		{
+			Engine.println("exception in Game.crashTest(): " + e.getMessage());
+		}
+		*/
+	}
+	
+	public static Set<GameEntity> getEntities() {
+		return entities;
+	}
+	
+	public static Set<Player> getPlayers() {
+		return players;
+	}
+	
+	static public List<CollisionShape> getCollisionShapes() {
+		return collisionShapes;
+	}
+
+	static public DynamicsWorld getDynamicsWorld() {
+		return dynamicsWorld;
 	}
 }

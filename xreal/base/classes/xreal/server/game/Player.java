@@ -96,7 +96,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		G_ReadSessionData(client);
 		*/
 		
-		//throw new GameException("Connection refused");
+		Game.getPlayers().add(this);
 	}
 
 	@Override
@@ -128,12 +128,13 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		if (cmd.equals("say")) {
 			Server.broadcastClientCommand("chat \"" + _pers.netname + ": " + ConsoleColorStrings.GREEN + Engine.concatConsoleArgs(1) + "\n\"");
 
-		} else if (cmd.equals("shootrocket")) {
+		} else if (cmd.equals("shootbox")) {
 
 			Vector3f forward = new Vector3f();
 			getPlayerState_viewAngles().getVectors(forward, null, null);
 			
-			GameEntity ent = new Rocket(getPlayerState_origin(), forward);
+			GameEntity ent = new TestBox(getPlayerState_origin(), forward);
+			//ent.start();
 			
 		} else {
 			sendClientCommand(getEntityState_number(), "print \"unknown cmd " + cmd + "\n\"");
