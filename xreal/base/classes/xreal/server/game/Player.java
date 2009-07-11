@@ -136,6 +136,26 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 			GameEntity ent = new TestBox(getPlayerState_origin(), forward);
 			//ent.start();
 			
+		} else if (cmd.equals("shootboxes")) {
+
+			
+			Vector3f forward = new Vector3f();
+			Vector3f right = new Vector3f();
+			Vector3f up = new Vector3f();
+			
+			getPlayerState_viewAngles().getVectors(forward, right, up);
+			
+			Vector3f origin = getPlayerState_origin();
+			Vector3f newOrigin = new Vector3f();
+			
+			for(int i = -48; i < 48; i += 12)
+			{
+				newOrigin.scaleAdd(i, right, origin);
+				GameEntity ent = new TestBox(newOrigin, forward);
+			}
+			
+			//ent.start();
+			
 		} else {
 			sendClientCommand(getEntityState_number(), "print \"unknown cmd " + cmd + "\n\"");
 		}

@@ -90,7 +90,7 @@ public class TestBox extends GameEntity {
 			
 			Trajectory pos = new Trajectory();
 		
-			pos.trType = TrajectoryType.STATIONARY;
+			pos.trType = TrajectoryType.LINEAR;
 			pos.trTime = Game.getLevelTime();
 			pos.trBase = trans.origin;
 			rigidBody.getLinearVelocity(pos.trDelta);

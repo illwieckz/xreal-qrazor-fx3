@@ -33,6 +33,7 @@ import xreal.server.Server;
 public class Game implements GameListener {
 	
 	static private int levelTime = 0;
+	static private int deltaTime = 0;
 	
 	static private Set<GameEntity> entities;
 	static private Set<Player> players;
@@ -104,6 +105,7 @@ public class Game implements GameListener {
 		//Engine.sendConsoleCommand(Engine.EXEC_APPEND, "echo cool!");
 		
 		levelTime = _levelTime;
+		deltaTime = 0;
 		
 		// make some data visible to connecting client
 		Server.setConfigString(ConfigStrings.GAME_VERSION, Config.GAME_VERSION);
@@ -144,6 +146,7 @@ public class Game implements GameListener {
 	public void runFrame(int time) {
 		//Engine.print("xreal.server.game.Game.runFrame(time = " + time + ")\n");
 		
+		deltaTime = time - levelTime;
 		levelTime = time;
 		
 		runPhysics();
@@ -239,7 +242,7 @@ public class Game implements GameListener {
 	}
 	
 	private void runPhysics() {
-		dynamicsWorld.stepSimulation(1.f / 60.f, 10);
+		dynamicsWorld.stepSimulation(deltaTime * 0.001f, 10);
 		
 		//Engine.println("Game.runPhysics(): collision objects = " + dynamicsWorld.getNumCollisionObjects());
 
