@@ -555,10 +555,12 @@ int main(int argc, char **argv)
 
 	CON_Init();
 
+#if !defined(USE_JAVA)
 	signal(SIGILL, Sys_SigHandler);
 	signal(SIGFPE, Sys_SigHandler);
 	signal(SIGSEGV, Sys_SigHandler);
 	signal(SIGTERM, Sys_SigHandler);
+#endif
 
 	while(1)
 	{

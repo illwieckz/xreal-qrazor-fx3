@@ -302,12 +302,6 @@ xreal_env.Append(CCFLAGS='-DUSE_OPENAL')
 if env['arch'] != 'darwin-ppc' and env['arch'] != 'darwin-i386':
         xreal_env.Append(LIBS=['openal'])
 
-#if env['java'] == 1:
-#	xreal_env.Append(CCFLAGS='-DUSE_JAVA')
-#	xreal_env.Append(CCFLAGS='-I/usr/lib/jvm/default-java/include')
-#	xreal_src += ['code/qcommon/vm_java.c']
-#	xreal_src += ['code/server/sv_game_java.c']
-
 if env['llvm'] == 1:
 	xreal_env.Append(CCFLAGS='-DUSE_LLVM')
 	xreal_env.ParseConfig('llvm-config --cflags --libs')

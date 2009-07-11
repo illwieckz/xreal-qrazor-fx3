@@ -529,9 +529,11 @@ Unix specific initialisation
 */
 void Sys_PlatformInit(void)
 {
+#if !defined(USE_JAVA)
 	signal(SIGHUP, Sys_SigHandler);
 	signal(SIGQUIT, Sys_SigHandler);
 	signal(SIGTRAP, Sys_SigHandler);
 	signal(SIGIOT, Sys_SigHandler);
 	signal(SIGBUS, Sys_SigHandler);
+#endif
 }
