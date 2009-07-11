@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "java/xreal_CVar.h"
 
 static cvar_t  *jvm_javaLib;
+static cvar_t  *jvm_useJITCompiler;
 
 JNIEnv         *javaEnv;
 JavaVM         *javaVM;
@@ -753,6 +754,13 @@ void JVM_Shutdown(void)
 
 		JVM_JNI_Shutdown();
 	}
+	else
+	{
+		if((*javaVM)->DetachCurrentThread(javaVM))
+		{
+			Com_Printf("Couldn't detach from existing VM\n");
+		}
+	}
 }
 
 void JVM_Init(void)
@@ -760,31 +768,41 @@ void JVM_Init(void)
 	JavaVM         *jvm;
 	jsize           nVMs;		// number of VM's active
 	jint            res;
-	jclass          cls;
-	jmethodID       mid;
-	jstring         jstr;
-	jclass          stringClass;
-	jobjectArray    args;
-	int             jdkVersion;
-
 	JavaVMInitArgs  vm_args;
-	JavaVMOption    options[1];
+	JavaVMOption    options[3];
 
-	char           *ospath;
 	char            mainClassPath[MAX_QPATH];
 
 	Com_Printf("------- JVM_Init() -------\n");
 
 	jvm_javaLib = Cvar_Get("jvm_javaLib", DEFAULT_JAVA_LIB, CVAR_ARCHIVE);
+	jvm_useJITCompiler = Cvar_Get("jvm_useJITCompiler", "1", CVAR_INIT);
 
-	//options[0].optionString = "-Djava.class.path=" FS_G;// USER_CLASSPATH;
+	if(!jvm_useJITCompiler->integer)
+	{
+		Com_Printf("Disabling Java JIT support\n");
+		options[0].optionString = "-Djava.compiler=NONE";
+	}
+	else
+	{
+		options[0].optionString = "-Djava.compiler=YES";
+	}
+
 	Com_sprintf(mainClassPath, sizeof(mainClassPath), "-Djava.class.path=%s",
 				FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "classes"));
-	options[0].optionString = mainClassPath;
+	options[1].optionString = mainClassPath;
 
-	vm_args.version = JNI_VERSION_1_2;
+	options[2].optionString = "-XX:ErrorFile=./hs_err_pid<pid>.log";
+	//options[3].optionString = "-Xdebug";
+	//options[4].optionString = "-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=n";
+
+	//options[2].optionString = strdup("-verbose:jni");
+	//
+
+
+	vm_args.version = JNI_VERSION_1_6;
 	vm_args.options = options;
-	vm_args.nOptions = 1;
+	vm_args.nOptions = 3;
 	vm_args.ignoreUnrecognized = JNI_TRUE;
 
 	if(!JVM_JNI_Init())
@@ -792,11 +810,15 @@ void JVM_Init(void)
 		Com_Error(ERR_FATAL, "JNI initialization failed");
 	}
 
+	Com_Printf("Searching for existing Java VM's ...");
+
 	// look for an existing VM
 	if(QJNI_GetCreatedJavaVMs(&jvm, 1, &nVMs))
 	{
 		Com_Error(ERR_FATAL, "Search for existing VM's failed");
 	}
+
+	Com_Printf("found %i\n", nVMs);
 
 	if(nVMs)
 	{
@@ -812,6 +834,8 @@ void JVM_Init(void)
 	}
 	else
 	{
+		Com_Printf("Creating new Java VM...");
+
 		// Create the Java VM
 		res = QJNI_CreateJavaVM(&jvm, (void **)&javaEnv, &vm_args);
 		if(res < 0)
@@ -821,7 +845,7 @@ void JVM_Init(void)
 
 		javaVM = jvm;
 
-		Com_Printf("created new Java VM\n");
+		Com_Printf("done\n");
 	}
 
 	if(!javaVM)

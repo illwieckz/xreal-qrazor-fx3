@@ -1858,7 +1858,6 @@ void SV_ShutdownGameProgs(void)
 
 void Java_G_GameInit(int levelTime, int randomSeed, qboolean restart)
 {
-#if 1
 	if(!object_Game)
 		return;
 
@@ -1867,20 +1866,23 @@ void Java_G_GameInit(int levelTime, int randomSeed, qboolean restart)
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_initGame, levelTime, randomSeed, restart);
 
-	CheckException();
-#endif
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_G_GameInit(levelTime = %i, randomSeed = %i, restart = %i)", levelTime, randomSeed, restart);
+	}
 }
 
 void Java_G_ShutdownGame(qboolean restart)
 {
-#if 1
 	if(!object_Game)
 		return;
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_shutdownGame, restart);
 
-	CheckException();
-#endif
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_G_ShutdownGame(restart = %i)", restart);
+	}
 }
 
 
@@ -2545,7 +2547,10 @@ void Java_G_ClientBegin(int clientNum)
 
 	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientBegin);
 
-	CheckException();
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_G_ClientBegin(clientNum = %i)", clientNum);
+	}
 }
 
 void Java_G_ClientUserInfoChanged(int clientNum)
@@ -2563,7 +2568,10 @@ void Java_G_ClientUserInfoChanged(int clientNum)
 
 	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientUserInfoChanged, userinfo);
 
-	CheckException();
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_G_ClientUserInfoChanged(clientNum = %i)", clientNum);
+	}
 }
 
 void Java_G_ClientDisconnect(int clientNum)
@@ -2579,7 +2587,10 @@ void Java_G_ClientDisconnect(int clientNum)
 
 	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientDisconnect);
 
-	CheckException();
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_G_ClientDisconnect(clientNum = %i)", clientNum);
+	}
 }
 
 void Java_G_ClientCommand(int clientNum)
@@ -2595,7 +2606,10 @@ void Java_G_ClientCommand(int clientNum)
 
 	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientCommand);
 
-	CheckException();
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_G_ClientCommand(clientNum = %i)", clientNum);
+	}
 }
 
 void Java_G_ClientThink(int clientNum)
@@ -2618,7 +2632,10 @@ void Java_G_ClientThink(int clientNum)
 
 	(*javaEnv)->CallVoidMethod(javaEnv, client->object_Player, client->method_Player_clientThink, ucmd);
 
-	CheckException();
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_G_ClientThink(clientNum = %i)", clientNum);
+	}
 }
 
 void Java_G_RunFrame(int time)
@@ -2630,7 +2647,10 @@ void Java_G_RunFrame(int time)
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_runFrame, time);
 
-	CheckException();
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_G_RunFrame(time = %i)", time);
+	}
 }
 
 void Java_G_RunAIFrame(int time)
@@ -2640,7 +2660,10 @@ void Java_G_RunAIFrame(int time)
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_Game, method_Game_runAIFrame, time);
 
-	CheckException();
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_G_RunAIFrame(time = %i)", time);
+	}
 }
 
 qboolean Java_G_ConsoleCommand(void)
@@ -2652,7 +2675,10 @@ qboolean Java_G_ConsoleCommand(void)
 
 	result = (*javaEnv)->CallBooleanMethod(javaEnv, object_Game, method_Game_consoleCommand);
 
-	CheckException();
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_G_ConsoleCommand()");
+	}
 
 	return result;
 }
