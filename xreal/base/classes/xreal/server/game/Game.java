@@ -152,7 +152,7 @@ public class Game implements GameListener {
 		//CVars.g_gametype = null;
 		//Engine.print(CVars.g_gametype.toString() + "\n");
 		
-		System.gc();
+		//System.gc();
 		
 		//Engine.print("xreal.server.game.Game.runFrame(time2 = " + Engine.getTimeInMilliseconds() + ")\n");
 	}
