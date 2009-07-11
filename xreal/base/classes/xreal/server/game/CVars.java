@@ -32,5 +32,5 @@ public class CVars {
 	public static final CVar g_speed = new CVar("g_speed", "400", 0);
 	public static final CVar g_gravityX = new CVar("g_gravityX", "0", CVar.SYSTEMINFO);
 	public static final CVar g_gravityY = new CVar("g_gravityY", "0", CVar.SYSTEMINFO);
-	public static final CVar g_gravityZ = new CVar("g_gravityZ", "-800", CVar.SYSTEMINFO);
+	public static final CVar g_gravityZ = new CVar("g_gravityZ", "-200", CVar.SYSTEMINFO);
 }

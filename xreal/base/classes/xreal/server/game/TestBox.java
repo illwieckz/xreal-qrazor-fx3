@@ -38,12 +38,12 @@ public class TestBox extends GameEntity {
 		
 		//new Thread(this).start();
 		
-		initPhysics(start);
+		initPhysics(start, dir);
 	}
 	
-	private void initPhysics(final Vector3f start) {
+	private void initPhysics(final Vector3f start, final Vector3f dir) {
 		
-		collisionShape = new BoxShape(new Vector3f(16, 16, 24));
+		collisionShape = new BoxShape(new Vector3f(8, 8, 12));
 		// colShape = new SphereShape(1f);
 		
 		Game.getCollisionShapes().add(collisionShape);
@@ -51,7 +51,7 @@ public class TestBox extends GameEntity {
 		Transform startTransform = new Transform();
 		startTransform.setIdentity();
 
-		float mass = 1f;
+		float mass = 10.0f;
 
 		// rigidbody is dynamic if and only if mass is non zero, otherwise static
 		boolean isDynamic = (mass != 0f);
@@ -69,6 +69,10 @@ public class TestBox extends GameEntity {
 		RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(mass, myMotionState, collisionShape, localInertia);
 		rigidBody = new RigidBody(rbInfo);
 		rigidBody.setUserPointer(this);
+		
+		Vector3f vel = new Vector3f(dir);
+		vel.scale(150);
+		rigidBody.setLinearVelocity(vel);
 
 		Game.getDynamicsWorld().addRigidBody(rigidBody);
 	}
@@ -94,7 +98,14 @@ public class TestBox extends GameEntity {
 			
 			setEntityState_pos(pos);
 			
-			link();
+			Trajectory apos = new Trajectory();
+			apos.trType = TrajectoryType.STATIONARY;
+			apos.trTime = Game.getLevelTime();
+			//apos.trBase = trans.basis:
+			rigidBody.getAngularVelocity(apos.trBase);
+			
+			setEntityState_apos(apos);
+			//link();
 		}
 	}
 }
