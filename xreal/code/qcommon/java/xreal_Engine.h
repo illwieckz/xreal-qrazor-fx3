@@ -93,6 +93,14 @@ JNIEXPORT jstring JNICALL Java_xreal_Engine_getConsoleArgs
 JNIEXPORT void JNICALL Java_xreal_Engine_sendConsoleCommand
   (JNIEnv *, jclass, jint, jstring);
 
+/*
+ * Class:     xreal_Engine
+ * Method:    readFile
+ * Signature: (Ljava/lang/String;)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_xreal_Engine_readFile
+  (JNIEnv *, jclass, jstring);
+
 #ifdef __cplusplus
 }
 #endif

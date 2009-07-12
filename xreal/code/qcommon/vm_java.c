@@ -597,6 +597,38 @@ void JNICALL Java_xreal_Engine_sendConsoleCommand(JNIEnv *env, jclass cls, jint 
 	(*env)->ReleaseStringUTFChars(env, jtext, text);
 }
 
+/*
+ * Class:     xreal_Engine
+ * Method:    readFile
+ * Signature: (Ljava/lang/String;)[B
+ */
+jbyteArray JNICALL Java_xreal_Engine_readFile(JNIEnv *env, jclass cls, jstring jfilename)
+{
+	char           *filename;
+	jbyteArray		array;
+	int				length;
+	byte           *buf;
+
+	filename = (char *)((*env)->GetStringUTFChars(env, jfilename, 0));
+
+	length = FS_ReadFile(filename, (void **)&buf);
+	if(!buf)
+	{
+		return NULL;
+	}
+
+	//Com_Printf("Java_xreal_Engine_readFile: file '%s' has length = %i\n", filename, length);
+
+	array = (*env)->NewByteArray(env, length);
+	(*env)->SetByteArrayRegion(env, array, 0, length, buf);
+
+	(*env)->ReleaseStringUTFChars(env, jfilename, filename);
+
+	FS_FreeFile(buf);
+
+	return array;
+}
+
 // handle to Engine class
 static jclass   class_Engine;
 static JNINativeMethod Engine_methods[] = {
@@ -607,6 +639,7 @@ static JNINativeMethod Engine_methods[] = {
 	{"getConsoleArgv", "(I)Ljava/lang/String;", Java_xreal_Engine_getConsoleArgv},
 	{"getConsoleArgs", "()Ljava/lang/String;", Java_xreal_Engine_getConsoleArgs},
 	{"sendConsoleCommand", "(ILjava/lang/String;)V", Java_xreal_Engine_sendConsoleCommand},
+	{"readFile", "(Ljava/lang/String;)[B", Java_xreal_Engine_readFile},
 };
 
 void Engine_javaRegister()
@@ -769,7 +802,7 @@ void JVM_Init(void)
 	jsize           nVMs;		// number of VM's active
 	jint            res;
 	JavaVMInitArgs  vm_args;
-	JavaVMOption    options[3];
+	JavaVMOption    options[2];
 
 	char            mainClassPath[MAX_QPATH];
 
@@ -792,7 +825,7 @@ void JVM_Init(void)
 				FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "classes"));
 	options[1].optionString = mainClassPath;
 
-	options[2].optionString = "-XX:ErrorFile=./hs_err_pid<pid>.log";
+	//options[2].optionString = "-XX:ErrorFile=./hs_err_pid<pid>.log";
 	//options[3].optionString = "-Xdebug";
 	//options[4].optionString = "-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=n";
 
@@ -802,7 +835,7 @@ void JVM_Init(void)
 
 	vm_args.version = JNI_VERSION_1_6;
 	vm_args.options = options;
-	vm_args.nOptions = 3;
+	vm_args.nOptions = 2;
 	vm_args.ignoreUnrecognized = JNI_TRUE;
 
 	if(!JVM_JNI_Init())
