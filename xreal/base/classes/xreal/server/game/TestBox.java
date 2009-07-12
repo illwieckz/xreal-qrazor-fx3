@@ -51,7 +51,7 @@ public class TestBox extends GameEntity {
 		Transform startTransform = new Transform();
 		startTransform.setIdentity();
 
-		float mass = 10.0f;
+		float mass = 100.0f;
 
 		// rigidbody is dynamic if and only if mass is non zero, otherwise static
 		boolean isDynamic = (mass != 0f);

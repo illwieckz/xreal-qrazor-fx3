@@ -24,6 +24,7 @@ import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSo
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.Transform;
 
+import xreal.CollisionBspReader;
 import xreal.Engine;
 import xreal.common.Config;
 import xreal.common.ConfigStrings;
@@ -190,7 +191,7 @@ public class Game implements GameListener {
 		// quality and performance
 		Vector3f worldAabbMin = new Vector3f(-10000, -10000, -10000);
 		Vector3f worldAabbMax = new Vector3f(10000, 10000, 10000);
-		overlappingPairCache = new AxisSweep3(worldAabbMin, worldAabbMax, MAX_PROXIES);
+		overlappingPairCache = new AxisSweep3(worldAabbMin, worldAabbMax);//, MAX_PROXIES);
 		// overlappingPairCache = new SimpleBroadphase(MAX_PROXIES);
 
 		// the default constraint solver. For parallel processing you can use a
@@ -211,6 +212,7 @@ public class Game implements GameListener {
 		// create a few basic rigid bodies
 		// CollisionShape groundShape = new BoxShape(new Vector3f(50f, 50f,
 		// 50f));
+		/*
 		CollisionShape groundShape = new StaticPlaneShape(new Vector3f(0, 0, 1), 0);
 
 		collisionShapes.add(groundShape);
@@ -239,12 +241,25 @@ public class Game implements GameListener {
 			// add the body to the dynamics world
 			dynamicsWorld.addRigidBody(body);
 		}
+		*/
+		
+		initCollisionWorld();
+	}
+	
+	private void initCollisionWorld() {
+		Engine.println("Game.initCollisionWorld()");
+		
+		CollisionBspReader bsp = new CollisionBspReader("maps/" + CVars.g_mapname.getString() + ".bsp");
+		
+		bsp.addWorldBrushesToSimulation(collisionShapes, dynamicsWorld);
 	}
 	
 	private void runPhysics() {
 		dynamicsWorld.stepSimulation(deltaTime * 0.001f, 10);
 		
 		//Engine.println("Game.runPhysics(): collision objects = " + dynamicsWorld.getNumCollisionObjects());
+		
+		dynamicsWorld.setGravity(new Vector3f(CVars.g_gravityX.getValue(), CVars.g_gravityY.getValue(), CVars.g_gravityZ.getValue()));
 
 		// print positions of all objects
 		for (int j = dynamicsWorld.getNumCollisionObjects() - 1; j >= 0; j--) {

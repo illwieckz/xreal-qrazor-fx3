@@ -120,4 +120,15 @@ public class Engine {
 	 */
 	public native static void sendConsoleCommand(int exec_when, String text);
 	
+	/**
+	 * Read an entire file into an array of bytes at once.
+	 * 
+	 * @param filename The filename is relative to the quake search path.
+	 * 					e.g.:
+	 * 					models/mymodel/yo.md5mesh
+	 * 					maps/mymap.bsp
+	 * 
+	 * @return The byte array.
+	 */
+	public native static byte[] readFile(String filename);
 }

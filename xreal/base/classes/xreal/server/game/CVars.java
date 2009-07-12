@@ -11,7 +11,7 @@ public class CVars {
 //	{NULL, "gamename", GAMEVERSION, CVar.SERVERINFO | CVar.ROM, 0, qfalse},
 //	{NULL, "gamedate", __DATE__, CVar.ROM, 0, qfalse},
 	public static final CVar g_restarted = new CVar("g_restarted", "0", CVar.ROM);
-//	{NULL, "sv_mapname", "", CVar.SERVERINFO | CVar.ROM, 0, qfalse},
+	public static final CVar g_mapname = new CVar("mapname", "", CVar.SERVERINFO | CVar.ROM);
 
 	// latched vars
 	public static final CVar g_gametype = new CVar("g_gametype", "0", CVar.SERVERINFO | CVar.USERINFO | CVar.LATCH);
@@ -32,5 +32,7 @@ public class CVars {
 	public static final CVar g_speed = new CVar("g_speed", "400", 0);
 	public static final CVar g_gravityX = new CVar("g_gravityX", "0", CVar.SYSTEMINFO);
 	public static final CVar g_gravityY = new CVar("g_gravityY", "0", CVar.SYSTEMINFO);
-	public static final CVar g_gravityZ = new CVar("g_gravityZ", "-200", CVar.SYSTEMINFO);
+	
+	// 313.92 = 9.81 * 32 SI gravity in Quake units
+	public static final CVar g_gravityZ = new CVar("g_gravityZ", "-313", CVar.SYSTEMINFO);
 }
