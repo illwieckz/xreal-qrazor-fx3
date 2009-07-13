@@ -1,5 +1,6 @@
 package xreal.server.game;
 
+import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
 import com.bulletphysics.collision.shapes.BoxShape;
@@ -10,6 +11,7 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.Transform;
 import com.sun.org.apache.xml.internal.utils.StopParseException;
 
+import xreal.Angle3f;
 import xreal.Engine;
 import xreal.Trajectory;
 import xreal.TrajectoryType;
@@ -90,7 +92,7 @@ public class TestBox extends GameEntity {
 			
 			Trajectory pos = new Trajectory();
 		
-			pos.trType = TrajectoryType.LINEAR;
+			pos.trType = rigidBody.isActive() ? TrajectoryType.LINEAR : TrajectoryType.STATIONARY;
 			pos.trTime = Game.getLevelTime();
 			pos.trBase = trans.origin;
 			rigidBody.getLinearVelocity(pos.trDelta);
@@ -102,7 +104,13 @@ public class TestBox extends GameEntity {
 			apos.trType = TrajectoryType.STATIONARY;
 			apos.trTime = Game.getLevelTime();
 			//apos.trBase = trans.basis:
-			rigidBody.getAngularVelocity(apos.trBase);
+			
+			Quat4f quat = new Quat4f();
+			trans.getRotation(quat);
+			
+			Angle3f angles = new Angle3f(quat);
+			apos.trBase.set(angles);
+			//rigidBody.getAngularVelocity(apos.trBase);
 			
 			setEntityState_apos(apos);
 			//link();

@@ -88,10 +88,24 @@ public class CollisionBspReader {
 		int             shaderNum;	// the shader that determined the contents
 		int             contents;
 		List<BrushSide>	sides;
-	};
+		
+		boolean			checked;
+	}
 	private Brush brushes[];
 	
-	
+	class Leaf
+	{
+		int             cluster;
+		int             area;
+
+		int             firstLeafBrush;
+		int             numLeafBrushes;
+
+		int             firstLeafSurface;
+		int             numLeafSurfaces;
+	} 
+	private Leaf leafs[];
+	private int leafbrushes[];
 	
 	
 	public CollisionBspReader(String filename)
@@ -145,6 +159,8 @@ public class CollisionBspReader {
 			}
 			
 			loadShaders(header.lumps[LumpType.SHADERS.ordinal()], byteArray);
+			loadLeafs(header.lumps[LumpType.LEAFS.ordinal()], byteArray);
+			loadLeafBrushes(header.lumps[LumpType.LEAFBRUSHES.ordinal()], byteArray);
 			loadPlanes(header.lumps[LumpType.PLANES.ordinal()], byteArray);
 			loadBrushSides(header.lumps[LumpType.BRUSHSIDES.ordinal()], byteArray);
 			loadBrushes(header.lumps[LumpType.BRUSHES.ordinal()], byteArray);
@@ -196,8 +212,8 @@ public class CollisionBspReader {
 			reader.read(name);
 			
 			//shader.name = new String(name);
-			shader.contentFlags = reader.readInt();
 			shader.surfaceFlags = reader.readInt();
+			shader.contentFlags = reader.readInt();
 			
 			//Engine.println("contentFlags = " + shader.contentFlags + ", surfaceFlags = " + shader.surfaceFlags);
 		}
@@ -325,51 +341,159 @@ public class CollisionBspReader {
 			{
 				throw new RuntimeException("bad shaderNum: " + shaderNum);
 			}
+			b.contents = shaders[shaderNum].contentFlags;
 			
 			b.sides = new ArrayList<BrushSide>();
 			for(int j = 0; j < numSides; j++) {
-				b.sides.add(brushSides[firstSide + j]);
+				
+				BrushSide s = brushSides[firstSide + j];
+				b.sides.add(s);
+				
+				//b.contents |= shaders[s.shaderNum].contentFlags;
 			}
+		}
+	}
+	
+	void loadLeafs(Lump l, byte buf[]) throws IOException
+	{
+		/*
+		typedef struct
+		{
+			int             cluster;	// -1 = opaque cluster (do I still store these?)
+			int             area;
+		
+			int             mins[3];	// for frustum culling
+			int             maxs[3];
+		
+			int             firstLeafSurface;
+			int             numLeafSurfaces;
+		
+			int             firstLeafBrush;
+			int             numLeafBrushes;
+		} dleaf_t;
+		*/
+		
+		int dleaf_t_size = (4 + 4 + 3 * 4 + 3 * 4 + 4 + 4 + 4 + 4);
+		if(l.filelen % dleaf_t_size != 0)
+		{
+			throw new RuntimeException("funny lump size");
+		}
+		int count = l.filelen / dleaf_t_size;
+		
+		if(count < 1)
+		{
+			throw new RuntimeException("Map with no leafs");
+		}
+		
+		ByteArrayReader reader = new ByteArrayReader(buf, l.fileofs, l.filelen);
+		Engine.println("CollisionBspReader: loading " + count + " leafs...");
+		
+		leafs = new Leaf[count];
+		for(int i = 0; i < count; i++) {
+			
+			Leaf leaf = leafs[i] = new Leaf();
+			
+			leaf.cluster = reader.readInt();
+			leaf.area = reader.readInt();
+			
+			for(int j = 0; j < 6; j++) {
+				reader.readInt();
+			}
+			
+			leaf.firstLeafSurface = reader.readInt();
+			leaf.numLeafSurfaces = reader.readInt();
+			
+			leaf.firstLeafBrush = reader.readInt();
+			leaf.numLeafBrushes = reader.readInt();
+		}
+	}
+	
+	void loadLeafBrushes(Lump l, byte buf[]) throws IOException
+	{
+		int dleafbrush_t_size = (4);
+		if(l.filelen % dleafbrush_t_size != 0)
+		{
+			throw new RuntimeException("funny lump size");
+		}
+		int count = l.filelen / dleafbrush_t_size;
+		
+		if(count < 1)
+		{
+			throw new RuntimeException("Map with no leaf brushes");
+		}
+		
+		ByteArrayReader reader = new ByteArrayReader(buf, l.fileofs, l.filelen);
+		Engine.println("CollisionBspReader: loading " + count + " leafbrushes...");
+		
+		leafbrushes = new int[count];
+		for(int i = 0; i < count; i++) {
+			leafbrushes[i] = reader.readInt();
 		}
 	}
 	
 	
 	public void addWorldBrushesToSimulation(List<CollisionShape> collisionShapes, DynamicsWorld dynamicsWorld) {
-		//Engine.println("CollisionBspReader.addWorldBrushesToSimulation()");
-		
-		for(int i = 0; i < brushes.length; i++) {
-			
-			Brush b = brushes[i];
-			
-			List<Vector4f> planeEquations = new ArrayList<Vector4f>();
-			
-			for(BrushSide s : b.sides) {
-				planeEquations.add(s.plane);
-			}
-			
-			List<Vector3f> points = new ArrayList<Vector3f>();
-			GeometryUtil.getVerticesFromPlaneEquations(planeEquations, points);
-			
-			//Engine.println("created " + points.size() + " points for brush " + i);
-			
-			CollisionShape shape = new ConvexHullShape(points);
-			
-			collisionShapes.add(shape);
-			
-			// using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-			DefaultMotionState myMotionState = new DefaultMotionState();
-			RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0, myMotionState, shape);
-			RigidBody body = new RigidBody(rbInfo);
+		// Engine.println("CollisionBspReader.addWorldBrushesToSimulation()");
 
-			// add the body to the dynamics world
-			dynamicsWorld.addRigidBody(body);
-			
-			/*
-			CollisionObject co = new CollisionObject();
-			co.setCollisionShape(shape);
-			co.setCollisionFlags(CollisionFlags.STATIC_OBJECT);
-			dynamicsWorld.addCollisionObject(co);
-			*/
+		for (int i = 0; i < leafs.length; i++) {
+
+			Leaf leaf = leafs[i];
+
+			for (int j = 0; j < leaf.numLeafBrushes; j++) {
+				
+				int brushnum = leafbrushes[leaf.firstLeafBrush + j];
+
+				Brush b = brushes[brushnum];
+				
+				if (b.checked) {
+					continue;
+				} else {
+					b.checked = true;
+				}
+				
+				if(b.sides.size() == 0) {
+					// don't care about invalid brushes
+					continue;
+				}
+				
+				if((b.contents & ContentFlags.SOLID) == 0) {
+					// don't care about non-solid brushes
+					continue;
+				}
+
+				List<Vector4f> planeEquations = new ArrayList<Vector4f>();
+
+				for (BrushSide s : b.sides) {
+					planeEquations.add(s.plane);
+				}
+
+				List<Vector3f> points = new ArrayList<Vector3f>();
+				GeometryUtil.getVerticesFromPlaneEquations(planeEquations, points);
+
+				// Engine.println("created " + points.size() + " points for brush " + i);
+
+				CollisionShape shape = new ConvexHullShape(points);
+
+				collisionShapes.add(shape);
+
+				// using motionstate is recommended, it provides interpolation
+				// capabilities, and only synchronizes 'active' objects
+				DefaultMotionState myMotionState = new DefaultMotionState();
+				RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0, myMotionState, shape);
+				RigidBody body = new RigidBody(rbInfo);
+
+				// add the body to the dynamics world
+				dynamicsWorld.addRigidBody(body);
+
+				/*
+				 * CollisionObject co = new CollisionObject();
+				 * co.setCollisionShape(shape);
+				 * co.setCollisionFlags(CollisionFlags.STATIC_OBJECT);
+				 * dynamicsWorld.addCollisionObject(co);
+				 */
+
+			}
+
 		}
 	}
 }

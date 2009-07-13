@@ -244,6 +244,8 @@ public class Game implements GameListener {
 		*/
 		
 		initCollisionWorld();
+		
+		//System.gc();
 	}
 	
 	private void initCollisionWorld() {
@@ -268,9 +270,8 @@ public class Game implements GameListener {
 			RigidBody body = RigidBody.upcast(obj);
 			
 			if (body != null && body.getMotionState() != null) {
-				Transform trans = new Transform();
-				body.getMotionState().getWorldTransform(trans);
-				
+				//Transform trans = new Transform();
+				//body.getMotionState().getWorldTransform(trans);
 				
 				GameEntity ent = (GameEntity) body.getUserPointer();
 				if (ent != null) {

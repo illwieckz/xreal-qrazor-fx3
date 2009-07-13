@@ -59,6 +59,11 @@ public class Angle3f extends Tuple3f {
 	public Angle3f(Angle3f a) {
 		super(a);
 	}
+	
+	public Angle3f(Quat4f q) {
+		super();
+		set(q);
+	}
 
 	/**
 	 * Convert from vector to angle format.
@@ -149,6 +154,27 @@ public class Angle3f extends Tuple3f {
 	public void set(Vector3f v) {
 		convert(v.x, v.y, v.z);
 	}
+	
+	//#define DEG2RAD( a ) ( ( (a) * M_PI ) / 180.0F )
+	//#define RAD2DEG( a ) ( ( (a) * 180.0f ) / M_PI )
+	
+	/**
+	 * 
+	 */
+	public void set(Quat4f q) {
+		Quat4f q2 = new Quat4f();
+		q2.x = q.x * q.x;
+
+		q2.x = q.x * q.x;
+		q2.y = q.y * q.y;
+		q2.z = q.z * q.z;
+		q2.w = q.w * q.w;
+
+		this.x = (float) ((Math.asin(-2 * (q.z * q.x - q.w * q.y))) * 180.0f / Math.PI);
+		this.y = (float) ((Math.atan2(2 * (q.z * q.w + q.x * q.y), (q2.z - q2.w - q2.x + q2.y))) * 180.0f / Math.PI);
+		this.z = (float) ((Math.atan2(2 * (q.w * q.x + q.z * q.y), (-q2.z - q2.w + q2.x + q2.y))) * 180.0f / Math.PI);	
+	}
+	
 	
 	/**
 	 * Convert a float angle to the short format used by UserCommand and PlayerState.
