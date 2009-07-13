@@ -650,8 +650,9 @@ static void CG_Projectile(centity_t * cent)
 	{
 		vec3_t angles;
 
-		VectorToAngles(s1->pos.trDelta, angles);
-		AnglesToAxis(angles, ent.axis);
+		//VectorToAngles(s1->pos.trDelta, angles);
+		//AnglesToAxis(angles, ent.axis);
+		AnglesToAxis(cent->lerpAngles, ent.axis);
 	}
 #else
 	// convert direction of travel into axis
@@ -1110,6 +1111,191 @@ static void CG_AI_Link(centity_t * cent)
 }
 
 /*
+==================
+CG_Physics_Box
+==================
+*/
+#define ACTIVE_TAG 1
+#define ISLAND_SLEEPING 2
+#define WANTS_DEACTIVATION 3
+#define DISABLE_DEACTIVATION 4
+#define DISABLE_SIMULATION 5
+
+static void CG_Physics_Box(centity_t * cent)
+{
+	polyVert_t      verts[4];
+	int             i;
+	vec3_t          mins;
+	vec3_t          maxs;
+	float           extx, exty, extz;
+	vec3_t          corners[8];
+	matrix_t		rotation;
+	matrix_t		transform;
+
+	{
+		int             x, zd, zu;
+
+		// otherwise grab the encoded bounding box
+		x = (cent->currentState.solid & 255);
+		zd = ((cent->currentState.solid >> 8) & 255);
+		zu = ((cent->currentState.solid >> 16) & 255) - 32;
+
+		mins[0] = mins[1] = -x;
+		maxs[0] = maxs[1] = x;
+		mins[2] = -zd;
+		maxs[2] = zu;
+	}
+
+	// get the extents (size)
+	extx = maxs[0] - mins[0];
+	exty = maxs[1] - mins[1];
+	extz = maxs[2] - mins[2];
+
+	// set the polygon's texture coordinates
+	verts[0].st[0] = 0;
+	verts[0].st[1] = 0;
+	verts[1].st[0] = 0;
+	verts[1].st[1] = 1;
+	verts[2].st[0] = 1;
+	verts[2].st[1] = 1;
+	verts[3].st[0] = 1;
+	verts[3].st[1] = 0;
+
+	// set the polygon's vertex colors
+
+	switch (cent->currentState.generic1)
+	{
+		case ACTIVE_TAG:
+			for(i = 0; i < 4; i++)
+			{
+				verts[i].modulate[0] = 255;
+				verts[i].modulate[1] = 255;
+				verts[i].modulate[2] = 255;
+				verts[i].modulate[3] = 255;
+			}
+			break;
+
+		case ISLAND_SLEEPING:
+			for(i = 0; i < 4; i++)
+			{
+				verts[i].modulate[0] = 0;
+				verts[i].modulate[1] = 255;
+				verts[i].modulate[2] = 0;
+				verts[i].modulate[3] = 255;
+			}
+			break;
+
+		case WANTS_DEACTIVATION:
+			for(i = 0; i < 4; i++)
+			{
+				verts[i].modulate[0] = 0;
+				verts[i].modulate[1] = 255;
+				verts[i].modulate[2] = 255;
+				verts[i].modulate[3] = 255;
+			}
+			break;
+
+		case DISABLE_DEACTIVATION:
+			for(i = 0; i < 4; i++)
+			{
+				verts[i].modulate[0] = 255;
+				verts[i].modulate[1] = 0;
+				verts[i].modulate[2] = 0;
+				verts[i].modulate[3] = 255;
+			}
+			break;
+
+		case DISABLE_SIMULATION:
+			for(i = 0; i < 4; i++)
+			{
+				verts[i].modulate[0] = 255;
+				verts[i].modulate[1] = 255;
+				verts[i].modulate[2] = 0;
+				verts[i].modulate[3] = 255;
+			}
+			break;
+
+		default:
+			for(i = 0; i < 4; i++)
+			{
+				verts[i].modulate[0] = 255;
+				verts[i].modulate[1] = 0;
+				verts[i].modulate[2] = 0;
+				verts[i].modulate[3] = 255;
+			}
+			break;
+	}
+
+	MatrixFromAngles(rotation, cent->lerpAngles[PITCH], cent->lerpAngles[YAW], cent->lerpAngles[ROLL]);
+	MatrixSetupTransformFromRotation(transform, rotation, cent->lerpOrigin);
+
+	//VectorAdd(cent->lerpOrigin, maxs, corners[3]);
+	VectorCopy(maxs, corners[3]);
+
+	VectorCopy(corners[3], corners[2]);
+	corners[2][0] -= extx;
+
+	VectorCopy(corners[2], corners[1]);
+	corners[1][1] -= exty;
+
+	VectorCopy(corners[1], corners[0]);
+	corners[0][0] += extx;
+
+	for(i = 0; i < 4; i++)
+	{
+		VectorCopy(corners[i], corners[i + 4]);
+		corners[i + 4][2] -= extz;
+	}
+
+	for(i = 0; i < 8; i++)
+	{
+		MatrixTransformPoint2(transform, corners[i]);
+	}
+
+	// top
+	VectorCopy(corners[0], verts[0].xyz);
+	VectorCopy(corners[1], verts[1].xyz);
+	VectorCopy(corners[2], verts[2].xyz);
+	VectorCopy(corners[3], verts[3].xyz);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB, 4, verts);
+
+	// bottom
+	VectorCopy(corners[7], verts[0].xyz);
+	VectorCopy(corners[6], verts[1].xyz);
+	VectorCopy(corners[5], verts[2].xyz);
+	VectorCopy(corners[4], verts[3].xyz);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB, 4, verts);
+
+	// top side
+	VectorCopy(corners[3], verts[0].xyz);
+	VectorCopy(corners[2], verts[1].xyz);
+	VectorCopy(corners[6], verts[2].xyz);
+	VectorCopy(corners[7], verts[3].xyz);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB_twoSided, 4, verts);
+
+	// left side
+	VectorCopy(corners[2], verts[0].xyz);
+	VectorCopy(corners[1], verts[1].xyz);
+	VectorCopy(corners[5], verts[2].xyz);
+	VectorCopy(corners[6], verts[3].xyz);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB_twoSided, 4, verts);
+
+	// right side
+	VectorCopy(corners[0], verts[0].xyz);
+	VectorCopy(corners[3], verts[1].xyz);
+	VectorCopy(corners[7], verts[2].xyz);
+	VectorCopy(corners[4], verts[3].xyz);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB_twoSided, 4, verts);
+
+	// bottom side
+	VectorCopy(corners[1], verts[0].xyz);
+	VectorCopy(corners[0], verts[1].xyz);
+	VectorCopy(corners[4], verts[2].xyz);
+	VectorCopy(corners[5], verts[3].xyz);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB_twoSided, 4, verts);
+}
+
+/*
 ===============
 JUHOX: CG_DrawLineSegment
 ===============
@@ -1498,6 +1684,9 @@ static void CG_AddCEntity(centity_t * cent)
 			break;
 		case ET_FIRE:
 			CG_Fire(cent);
+			break;
+		case ET_PHYSICS_BOX:
+			CG_Physics_Box(cent);
 			break;
 	}
 }

@@ -779,6 +779,7 @@ typedef enum
 	ET_AI_LINK,
 	ET_EXPLOSIVE,
 	ET_FIRE,
+	ET_PHYSICS_BOX,				// JBullet visualization tool
 
 	ET_EVENTS					// any of the EV_* events can be added freestanding
 		// by setting eType to ET_EVENTS + eventNum
