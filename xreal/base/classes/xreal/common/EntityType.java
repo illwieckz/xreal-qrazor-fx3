@@ -36,6 +36,11 @@ public enum EntityType {
 	FIRE,
 	
 	/**
+	 * JBullet visualization tool
+	 */
+	PHYSICS_BOX,
+	
+	/**
 	 * Any of the EV_* events can be added free standing by setting eType to ET_EVENTS + eventNum.
 	 * This avoids having to set eFlags and eventNum.
 	 */

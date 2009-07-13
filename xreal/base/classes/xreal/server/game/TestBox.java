@@ -24,8 +24,8 @@ public class TestBox extends GameEntity {
 		//Engine.println("TestBox(start = " + start + ", dir = " + dir);
 		
 		setEntityState_origin(start);
-		setEntityState_eType(EntityType.GENERAL);
-		setEntityState_modelindex("models/powerups/ammo/rocketam.md3");
+		setEntityState_eType(EntityType.PHYSICS_BOX);
+		//setEntityState_modelindex("models/powerups/ammo/rocketam.md3");
 		
 		Trajectory pos = new Trajectory();
 	
@@ -45,7 +45,12 @@ public class TestBox extends GameEntity {
 	
 	private void initPhysics(final Vector3f start, final Vector3f dir) {
 		
-		collisionShape = new BoxShape(new Vector3f(8, 8, 12));
+		Vector3f maxs = new Vector3f(8, 8, 8);
+		Vector3f mins = new Vector3f(8, 8, 8);
+		
+		encodeBoundsToSolid(mins, maxs);
+		
+		collisionShape = new BoxShape(maxs);
 		// colShape = new SphereShape(1f);
 		
 		Game.getCollisionShapes().add(collisionShape);
@@ -100,20 +105,49 @@ public class TestBox extends GameEntity {
 			
 			setEntityState_pos(pos);
 			
-			Trajectory apos = new Trajectory();
-			apos.trType = TrajectoryType.STATIONARY;
-			apos.trTime = Game.getLevelTime();
-			//apos.trBase = trans.basis:
-			
-			Quat4f quat = new Quat4f();
-			trans.getRotation(quat);
-			
-			Angle3f angles = new Angle3f(quat);
-			apos.trBase.set(angles);
-			//rigidBody.getAngularVelocity(apos.trBase);
-			
-			setEntityState_apos(apos);
+			if (rigidBody.isActive()) {
+				Trajectory apos = new Trajectory();
+				apos.trType = TrajectoryType.STATIONARY;
+				apos.trTime = Game.getLevelTime();
+				// apos.trBase = trans.basis:
+
+				Quat4f quat = new Quat4f();
+				trans.getRotation(quat);
+
+				Angle3f angles = new Angle3f(quat);
+				apos.trBase.set(angles);
+				// rigidBody.getAngularVelocity(apos.trBase);
+
+				setEntityState_apos(apos);
+			}
 			//link();
+			
+			setEntityState_generic1(rigidBody.getActivationState());
 		}
+	}
+	
+	public void encodeBoundsToSolid(Vector3f mins, Vector3f maxs) {
+		// assume that x/y are equal and symetric
+		int i = (int) maxs.x;
+		if(i < 1)
+			i = 1;
+		if(i > 255)
+			i = 255;
+	
+		// z is not symetric
+		int j = (int) mins.z;
+		if(j < 1)
+			j = 1;
+		if(j > 255)
+			j = 255;
+	
+		// and z maxs can be negative...
+		int k = (int) (maxs.z + 32);
+		if(k < 1)
+			k = 1;
+		if(k > 255)
+			k = 255;
+	
+		setEntityState_solid((k << 16) | (j << 8) | i);
 	}
 }
