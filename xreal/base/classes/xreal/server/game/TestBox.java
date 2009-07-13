@@ -46,9 +46,9 @@ public class TestBox extends GameEntity {
 	private void initPhysics(final Vector3f start, final Vector3f dir) {
 		
 		Vector3f maxs = new Vector3f(8, 8, 8);
-		Vector3f mins = new Vector3f(8, 8, 8);
+		Vector3f mins = new Vector3f(-8, -8, -8);
 		
-		encodeBoundsToSolid(mins, maxs);
+		setEntityState_solid(mins, maxs);
 		
 		collisionShape = new BoxShape(maxs);
 		// colShape = new SphereShape(1f);
@@ -93,6 +93,7 @@ public class TestBox extends GameEntity {
 			Transform trans = new Transform();
 			rigidBody.getMotionState().getWorldTransform(trans);
 			
+			//trans.origin.snap();
 			setEntityState_origin(trans.origin);
 			
 			Trajectory pos = new Trajectory();
@@ -120,34 +121,10 @@ public class TestBox extends GameEntity {
 
 				setEntityState_apos(apos);
 			}
+			
 			//link();
 			
 			setEntityState_generic1(rigidBody.getActivationState());
 		}
-	}
-	
-	public void encodeBoundsToSolid(Vector3f mins, Vector3f maxs) {
-		// assume that x/y are equal and symetric
-		int i = (int) maxs.x;
-		if(i < 1)
-			i = 1;
-		if(i > 255)
-			i = 255;
-	
-		// z is not symetric
-		int j = (int) mins.z;
-		if(j < 1)
-			j = 1;
-		if(j > 255)
-			j = 255;
-	
-		// and z maxs can be negative...
-		int k = (int) (maxs.z + 32);
-		if(k < 1)
-			k = 1;
-		if(k > 255)
-			k = 255;
-	
-		setEntityState_solid((k << 16) | (j << 8) | i);
 	}
 }

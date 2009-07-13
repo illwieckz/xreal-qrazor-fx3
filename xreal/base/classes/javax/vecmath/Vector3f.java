@@ -200,6 +200,18 @@ public class Vector3f extends Tuple3f implements java.io.Serializable {
     		this.z *= ilen;
     	}
     }
+    
+    /**
+     * Round this vector to int values for saving networking
+     * 
+     * @author Robert Beckebans
+     */
+    public void snap() 
+    {
+    	this.x = Math.round(this.x);
+    	this.y = Math.round(this.y);
+    	this.z = Math.round(this.z);
+    }
 
 
   /** 
@@ -214,6 +226,8 @@ public class Vector3f extends Tuple3f implements java.io.Serializable {
       if( vDot < -1.0) vDot = -1.0;
       if( vDot >  1.0) vDot =  1.0;
       return((float) (Math.acos( vDot )));
-   } 
+   }
+   
+   
 
 }

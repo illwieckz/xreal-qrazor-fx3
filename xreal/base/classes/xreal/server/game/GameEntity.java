@@ -555,6 +555,34 @@ public class GameEntity implements EntityStateAccess {
 	public void setEntityState_solid(int solid) {
 		setEntityState_solid(entityIndex, solid);
 	}
+	
+	/**
+	 * Encode the size
+	 */
+	public void setEntityState_solid(Vector3f mins, Vector3f maxs) {
+		// assume that x/y are equal and symetric
+		int i = (int) maxs.x;
+		if(i < 1)
+			i = 1;
+		if(i > 255)
+			i = 255;
+	
+		// z is not symetric
+		int j = (int) -mins.z;
+		if(j < 1)
+			j = 1;
+		if(j > 255)
+			j = 255;
+	
+		// and z maxs can be negative...
+		int k = (int) (maxs.z + 32);
+		if(k < 1)
+			k = 1;
+		if(k > 255)
+			k = 255;
+	
+		setEntityState_solid((k << 16) | (j << 8) | i);
+	}
 
 	@Override
 	public int getEntityState_event() {
