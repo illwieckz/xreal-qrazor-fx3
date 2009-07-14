@@ -8,7 +8,6 @@ textures/trak/trak5/base1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/base1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/base1a_nm.png
 }
@@ -20,7 +19,6 @@ textures/trak/trak5/base1b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/base1b.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/base1b_nm.png
 }
@@ -32,7 +30,6 @@ textures/trak/trak5/base1c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/base1c.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/base1c_nm.png
 }
@@ -46,7 +43,6 @@ textures/trak/trak5/basictrim1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/basictrim1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/basictrim1a_nm.png
 	specularMap		textures/trak/trak5/basictrim1a.png
@@ -61,7 +57,6 @@ textures/trak/trak5/basictrim1b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/basictrim1b.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/basictrim1b_nm.png
 	specularMap		textures/trak/trak5/basictrim1b.png
@@ -76,7 +71,6 @@ textures/trak/trak5/button1
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/button1.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/button1_nm.png
 	specularMap		textures/trak/trak5/button1.png
@@ -91,7 +85,6 @@ textures/trak/trak5/ceil1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/ceil1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/ceil1a_nm.png
 	specularMap		textures/trak/trak5/ceil1a.png
@@ -106,7 +99,6 @@ textures/trak/trak5/comp1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/comp1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/comp1a_nm.png
 	specularMap		textures/trak/trak5/comp1a.png
@@ -122,7 +114,6 @@ textures/trak/trak5/comp1b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/comp1b.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/comp1b_nm.png
 	specularMap		textures/trak/trak5/comp1b.png
@@ -138,7 +129,6 @@ textures/trak/trak5/comp1c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/comp1c.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/comp1c_nm.png
 	specularMap		textures/trak/trak5/comp1c.png
@@ -154,7 +144,6 @@ textures/trak/trak5/comp1d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/comp1d.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/comp1d_nm.png
 	specularMap		textures/trak/trak5/comp1d.png
@@ -170,7 +159,6 @@ textures/trak/trak5/comp1e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/comp1e.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/comp1e_nm.png
 	specularMap		textures/trak/trak5/comp1e.png
@@ -186,7 +174,6 @@ textures/trak/trak5/crate1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/crate1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/crate1a_nm.png
 	specularMap		textures/trak/trak5/crate1a.png
@@ -201,7 +188,6 @@ textures/trak/trak5/crate1b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/crate1b.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/crate1b_nm.png
 	specularMap		textures/trak/trak5/crate1b.png
@@ -216,7 +202,6 @@ textures/trak/trak5/crate1c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/crate1c.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/crate1c_nm.png
 	specularMap		textures/trak/trak5/crate1c.png
@@ -231,7 +216,6 @@ textures/trak/trak5/crate1d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/crate1d.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/crate1d_nm.png
 	specularMap		textures/trak/trak5/crate1d.png
@@ -246,7 +230,6 @@ textures/trak/trak5/crate1e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/crate1e.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/crate1e_nm.png
 	specularMap		textures/trak/trak5/crate1e.png
@@ -289,7 +272,6 @@ textures/trak/trak5/floor1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/floor1a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/floor1a.png
 	normalMap		textures/trak/trak5/floor1a_nm.png
@@ -304,7 +286,6 @@ textures/trak/trak5/floor2a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/floor2a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/floor2a.png
 	normalMap		textures/trak/trak5/floor2a_nm.png
@@ -319,7 +300,6 @@ textures/trak/trak5/floor2b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/floor2b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/floor2b.png
 	normalMap		textures/trak/trak5/floor2b_nm.png
@@ -334,7 +314,6 @@ textures/trak/trak5/floor2c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/floor2c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/floor2c.png
 	normalMap		textures/trak/trak5/floor2c_nm.png
@@ -349,7 +328,6 @@ textures/trak/trak5/floor2d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/floor2d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/floor2d.png
 	normalMap		textures/trak/trak5/floor2d_nm.png
@@ -364,7 +342,6 @@ textures/trak/trak5/floor2e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/floor2e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/floor2e.png
 	normalMap		textures/trak/trak5/floor2e_nm.png
@@ -379,7 +356,6 @@ textures/trak/trak5/floor2f
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/floor2f.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/floor2f.png
 	normalMap		textures/trak/trak5/floor2f_nm.png
@@ -423,7 +399,6 @@ textures/trak/trak5/grate1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/grate1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/grate1a_nm.png
 	specularMap		textures/trak/trak5/grate1a.png
@@ -438,7 +413,6 @@ textures/trak/trak5/grate2a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/grate2a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/grate2a_nm.png
 	specularMap		textures/trak/trak5/grate2a.png
@@ -453,7 +427,6 @@ textures/trak/trak5/graypanel1
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/graypanel1.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/graypanel1_nm.png
 	specularMap		textures/trak/trak5/graypanel1.png
@@ -468,7 +441,6 @@ textures/trak/trak5/graypanel2
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/graypanel2.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/graypanel2_nm.png
 	specularMap		textures/trak/trak5/graypanel2.png
@@ -483,7 +455,6 @@ textures/trak/trak5/graypanel3
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/graypanel3.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/graypanel3_nm.png
 	specularMap		textures/trak/trak5/graypanel3.png
@@ -498,7 +469,6 @@ textures/trak/trak5/hex1
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/hex1.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/hex1.png
 	normalMap		textures/trak/trak5/hex1_nm.png
@@ -513,7 +483,6 @@ textures/trak/trak5/holes1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/holes1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/holes1a_nm.png
 	specularMap		textures/trak/trak5/holes1a.png
@@ -528,7 +497,6 @@ textures/trak/trak5/holes1b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/holes1b.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/holes1b_nm.png
 	specularMap		textures/trak/trak5/holes1b.png
@@ -543,7 +511,6 @@ textures/trak/trak5/light1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light1a_nm.png
 	specularMap		textures/trak/trak5/light1a.png
@@ -562,7 +529,6 @@ textures/trak/trak5/light1a_1k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light1a_nm.png
 	specularMap		textures/trak/trak5/light1a.png
@@ -585,7 +551,6 @@ textures/trak/trak5/light1a_5k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light1a_nm.png
 	specularMap		textures/trak/trak5/light1a.png
@@ -608,7 +573,6 @@ textures/trak/trak5/light1a_10k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light1a_nm.png
 	specularMap		textures/trak/trak5/light1a.png
@@ -624,7 +588,6 @@ textures/trak/trak5/light2a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light2a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light2a_nm.png
 	specularMap		textures/trak/trak5/light2a.png
@@ -642,7 +605,6 @@ textures/trak/trak5/light2a_1k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light2a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light2a_nm.png
 	specularMap		textures/trak/trak5/light2a.png
@@ -664,7 +626,6 @@ textures/trak/trak5/light2a_5k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light2a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light2a_nm.png
 	specularMap		textures/trak/trak5/light2a.png
@@ -686,7 +647,6 @@ textures/trak/trak5/light2a_10k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light2a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light2a_nm.png
 	specularMap		textures/trak/trak5/light2a.png
@@ -702,7 +662,6 @@ textures/trak/trak5/light3a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light3a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light3a_nm.png
 	specularMap		textures/trak/trak5/light3a.png
@@ -720,7 +679,6 @@ textures/trak/trak5/light3a_1k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light3a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light3a_nm.png
 	specularMap		textures/trak/trak5/light3a.png
@@ -742,7 +700,6 @@ textures/trak/trak5/light3a_5k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light3a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light3a_nm.png
 	specularMap		textures/trak/trak5/light3a.png
@@ -764,7 +721,6 @@ textures/trak/trak5/light3a_10k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light3a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light3a_nm.png
 	specularMap		textures/trak/trak5/light3a.png
@@ -780,7 +736,6 @@ textures/trak/trak5/light3b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light3b.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light3b_nm.png
 	specularMap		textures/trak/trak5/light3b.png
@@ -798,7 +753,6 @@ textures/trak/trak5/light3b_1k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light3b.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light3b_nm.png
 	specularMap		textures/trak/trak5/light3b.png
@@ -820,7 +774,6 @@ textures/trak/trak5/light3b_5k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light3b.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light3b_nm.png
 	specularMap		textures/trak/trak5/light3b.png
@@ -842,7 +795,6 @@ textures/trak/trak5/light3b_10k
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/light3b.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/light3b_nm.png
 	specularMap		textures/trak/trak5/light3b.png
@@ -858,7 +810,6 @@ textures/trak/trak5/panel1
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/panel1.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/panel1_nm.png
 	specularMap		textures/trak/trak5/panel1.png
@@ -873,7 +824,6 @@ textures/trak/trak5/panel1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/panel1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/panel1a_nm.png
 	specularMap		textures/trak/trak5/panel1a.png
@@ -888,7 +838,6 @@ textures/trak/trak5/panel2a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/panel2a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/panel2a_nm.png
 	specularMap		textures/trak/trak5/panel2a.png
@@ -904,7 +853,6 @@ textures/trak/trak5/pipe1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/pipe1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/pipe1a_nm.png
 	specularMap		textures/trak/trak5/pipe1a.png
@@ -920,7 +868,6 @@ textures/trak/trak5/pipe1b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/pipe1b.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/pipe1b_nm.png
 	specularMap		textures/trak/trak5/pipe1b.png
@@ -936,7 +883,6 @@ textures/trak/trak5/pipe1c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/pipe1c.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/pipe1c_nm.png
 	specularMap		textures/trak/trak5/pipe1c.png
@@ -952,7 +898,6 @@ textures/trak/trak5/pipe1d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/pipe1d.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/pipe1d_nm.png
 	specularMap		textures/trak/trak5/pipe1d.png
@@ -967,7 +912,6 @@ textures/trak/trak5/pipez1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/pipez1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/pipez1a_nm.png
 	specularMap		textures/trak/trak5/pipez1a.png
@@ -982,7 +926,6 @@ textures/trak/trak5/pits1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/pits1a.png
-		depthScale	-0.05
 	}
 	normalMap		textures/trak/trak5/pits1a_nm.png
 	specularMap		textures/trak/trak5/pits1a.png
@@ -997,7 +940,6 @@ textures/trak/trak5/ribs1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/ribs1a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/ribs1a.png
 	normalMap		textures/trak/trak5/ribs1a_nm.png
@@ -1012,7 +954,6 @@ textures/trak/trak5/stair1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/stair1a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/stair1a.png
 	normalMap		textures/trak/trak5/stair1a_nm.png
@@ -1027,7 +968,6 @@ textures/trak/trak5/thingy1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/thingy1a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/thingy1a.png
 	normalMap		textures/trak/trak5/thingy1a_nm.png
@@ -1042,7 +982,6 @@ textures/trak/trak5/tile1
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile1.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile1.png
 	normalMap		textures/trak/trak5/tile1_nm.png
@@ -1059,7 +998,6 @@ textures/trak/trak5/tile1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile1a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile1a.png
 	normalMap		textures/trak/trak5/tile1a_nm.png
@@ -1075,7 +1013,6 @@ textures/trak/trak5/tile1b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile1b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile1b.png
 	normalMap		textures/trak/trak5/tile1b_nm.png
@@ -1090,7 +1027,6 @@ textures/trak/trak5/tile1c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile1c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile1c.png
 	normalMap		textures/trak/trak5/tile1c_nm.png
@@ -1105,7 +1041,6 @@ textures/trak/trak5/tile1d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile1d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile1d.png
 	normalMap		textures/trak/trak5/tile1d_nm.png
@@ -1120,7 +1055,6 @@ textures/trak/trak5/tile1e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile1e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile1e.png
 	normalMap		textures/trak/trak5/tile1e_nm.png
@@ -1135,7 +1069,6 @@ textures/trak/trak5/tile2a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile2a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile2a.png
 	normalMap		textures/trak/trak5/tile2a_nm.png
@@ -1150,7 +1083,6 @@ textures/trak/trak5/tile2b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile2b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile2b.png
 	normalMap		textures/trak/trak5/tile2b_nm.png
@@ -1165,7 +1097,6 @@ textures/trak/trak5/tile2c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile2c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile2c.png
 	normalMap		textures/trak/trak5/tile2c_nm.png
@@ -1180,7 +1111,6 @@ textures/trak/trak5/tile2d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile2d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile2d.png
 	normalMap		textures/trak/trak5/tile2d_nm.png
@@ -1195,7 +1125,6 @@ textures/trak/trak5/tile3a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile3a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile3a.png
 	normalMap		textures/trak/trak5/tile3a_nm.png
@@ -1210,7 +1139,6 @@ textures/trak/trak5/tile3b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile3b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile3b.png
 	normalMap		textures/trak/trak5/tile3b_nm.png
@@ -1225,7 +1153,6 @@ textures/trak/trak5/tile3c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile3c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile3c.png
 	normalMap		textures/trak/trak5/tile3c_nm.png
@@ -1240,7 +1167,6 @@ textures/trak/trak5/tile3d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile3d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile3d.png
 	normalMap		textures/trak/trak5/tile3d_nm.png
@@ -1255,7 +1181,6 @@ textures/trak/trak5/tile3e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile3e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile3e.png
 	normalMap		textures/trak/trak5/tile3e_nm.png
@@ -1270,7 +1195,6 @@ textures/trak/trak5/tile4a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile4a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile4a.png
 	normalMap		textures/trak/trak5/tile4a_nm.png
@@ -1285,7 +1209,6 @@ textures/trak/trak5/tile4b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile4b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile4b.png
 	normalMap		textures/trak/trak5/tile4b_nm.png
@@ -1300,7 +1223,6 @@ textures/trak/trak5/tile4c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile4c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile4c.png
 	normalMap		textures/trak/trak5/tile4c_nm.png
@@ -1315,7 +1237,6 @@ textures/trak/trak5/tile4d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile4d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile4d.png
 	normalMap		textures/trak/trak5/tile4d_nm.png
@@ -1330,7 +1251,6 @@ textures/trak/trak5/tile4e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile4e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile4e.png
 	normalMap		textures/trak/trak5/tile4e_nm.png
@@ -1345,7 +1265,6 @@ textures/trak/trak5/tile5a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile5a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile5a.png
 	normalMap		textures/trak/trak5/tile5a_nm.png
@@ -1360,7 +1279,6 @@ textures/trak/trak5/tile5b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile5b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile5b.png
 	normalMap		textures/trak/trak5/tile5b_nm.png
@@ -1375,7 +1293,6 @@ textures/trak/trak5/tile5c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile5c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile5c.png
 	normalMap		textures/trak/trak5/tile5c_nm.png
@@ -1390,7 +1307,6 @@ textures/trak/trak5/tile5d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile5d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile5d.png
 	normalMap		textures/trak/trak5/tile5d_nm.png
@@ -1405,7 +1321,6 @@ textures/trak/trak5/tile5e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/tile5e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/tile5e.png
 	normalMap		textures/trak/trak5/tile5e_nm.png
@@ -1420,7 +1335,6 @@ textures/trak/trak5/trim1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim1a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim1a.png
 	normalMap		textures/trak/trak5/trim1a_nm.png
@@ -1435,7 +1349,6 @@ textures/trak/trak5/trim1b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim1b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim1b.png
 	normalMap		textures/trak/trak5/trim1b_nm.png
@@ -1450,7 +1363,6 @@ textures/trak/trak5/trim1ca
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim1ca.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim1ca.png
 	normalMap		textures/trak/trak5/trim1ca_nm.png
@@ -1465,7 +1377,6 @@ textures/trak/trak5/trim1cb
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim1cb.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim1cb.png
 	normalMap		textures/trak/trak5/trim1cb_nm.png
@@ -1480,7 +1391,6 @@ textures/trak/trak5/trim2a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim2a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim2a.png
 	normalMap		textures/trak/trak5/trim2a_nm.png
@@ -1495,7 +1405,6 @@ textures/trak/trak5/trim2b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim2b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim2b.png
 	normalMap		textures/trak/trak5/trim2b_nm.png
@@ -1510,7 +1419,6 @@ textures/trak/trak5/trim3a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim3a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim3a.png
 	normalMap		textures/trak/trak5/trim3a_nm.png
@@ -1525,7 +1433,6 @@ textures/trak/trak5/trim3b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim3b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim3b.png
 	normalMap		textures/trak/trak5/trim3b_nm.png
@@ -1540,7 +1447,6 @@ textures/trak/trak5/trim3c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim3c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim3c.png
 	normalMap		textures/trak/trak5/trim3c_nm.png
@@ -1555,7 +1461,6 @@ textures/trak/trak5/trim3d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim3d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim3d.png
 	normalMap		textures/trak/trak5/trim3d_nm.png
@@ -1570,7 +1475,6 @@ textures/trak/trak5/trim3e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim3e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim3e.png
 	normalMap		textures/trak/trak5/trim3e_nm.png
@@ -1585,7 +1489,6 @@ textures/trak/trak5/trim4a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim4a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim4a.png
 	normalMap		textures/trak/trak5/trim4a_nm.png
@@ -1600,7 +1503,6 @@ textures/trak/trak5/trim4b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim4b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim4b.png
 	normalMap		textures/trak/trak5/trim4b_nm.png
@@ -1615,7 +1517,6 @@ textures/trak/trak5/trim4c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim4c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim4c.png
 	normalMap		textures/trak/trak5/trim4c_nm.png
@@ -1630,7 +1531,6 @@ textures/trak/trak5/trim4d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim4d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim4d.png
 	normalMap		textures/trak/trak5/trim4d_nm.png
@@ -1645,7 +1545,6 @@ textures/trak/trak5/trim4e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim4e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim4e.png
 	normalMap		textures/trak/trak5/trim4e_nm.png
@@ -1660,7 +1559,6 @@ textures/trak/trak5/trim5a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim5a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim5a.png
 	normalMap		textures/trak/trak5/trim5a_nm.png
@@ -1675,7 +1573,6 @@ textures/trak/trak5/trim5b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim5b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim5b.png
 	normalMap		textures/trak/trak5/trim5b_nm.png
@@ -1690,7 +1587,6 @@ textures/trak/trak5/trim5c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim5c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim5c.png
 	normalMap		textures/trak/trak5/trim5c_nm.png
@@ -1705,7 +1601,6 @@ textures/trak/trak5/trim5d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim5d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim5d.png
 	normalMap		textures/trak/trak5/trim5d_nm.png
@@ -1720,7 +1615,6 @@ textures/trak/trak5/trim5e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim5e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim5e.png
 	normalMap		textures/trak/trak5/trim5e_nm.png
@@ -1735,7 +1629,6 @@ textures/trak/trak5/trim6a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim6a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim6a.png
 	normalMap		textures/trak/trak5/trim6a_nm.png
@@ -1750,7 +1643,6 @@ textures/trak/trak5/trim6b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim6b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim6b.png
 	normalMap		textures/trak/trak5/trim6b_nm.png
@@ -1765,7 +1657,6 @@ textures/trak/trak5/trim6c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim6c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim6c.png
 	normalMap		textures/trak/trak5/trim6c_nm.png
@@ -1780,7 +1671,6 @@ textures/trak/trak5/trim6d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim6d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim6d.png
 	normalMap		textures/trak/trak5/trim6d_nm.png
@@ -1795,7 +1685,6 @@ textures/trak/trak5/trim6e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim6e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim6e.png
 	normalMap		textures/trak/trak5/trim6e_nm.png
@@ -1810,7 +1699,6 @@ textures/trak/trak5/trim7a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim7a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim7a.png
 	normalMap		textures/trak/trak5/trim7a_nm.png
@@ -1825,7 +1713,6 @@ textures/trak/trak5/trim7b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim7b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim7b.png
 	normalMap		textures/trak/trak5/trim7b_nm.png
@@ -1840,7 +1727,6 @@ textures/trak/trak5/trim7c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim7c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim7c.png
 	normalMap		textures/trak/trak5/trim7c_nm.png
@@ -1855,7 +1741,6 @@ textures/trak/trak5/trim7d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim7d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim7d.png
 	normalMap		textures/trak/trak5/trim7d_nm.png
@@ -1870,7 +1755,6 @@ textures/trak/trak5/trim7e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim7e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim7e.png
 	normalMap		textures/trak/trak5/trim7e_nm.png
@@ -1885,7 +1769,6 @@ textures/trak/trak5/trim8a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim8a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim8a.png
 	normalMap		textures/trak/trak5/trim8a_nm.png
@@ -1900,7 +1783,6 @@ textures/trak/trak5/trim8b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim8b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim8b.png
 	normalMap		textures/trak/trak5/trim8b_nm.png
@@ -1915,7 +1797,6 @@ textures/trak/trak5/trim8c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim8c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim8c.png
 	normalMap		textures/trak/trak5/trim8c_nm.png
@@ -1930,7 +1811,6 @@ textures/trak/trak5/trim8d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim8d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim8d.png
 	normalMap		textures/trak/trak5/trim8d_nm.png
@@ -1945,7 +1825,6 @@ textures/trak/trak5/trim8e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim8e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim8e.png
 	normalMap		textures/trak/trak5/trim8e_nm.png
@@ -1960,7 +1839,6 @@ textures/trak/trak5/trim9a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim9a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim9a.png
 	normalMap		textures/trak/trak5/trim9a_nm.png
@@ -1975,7 +1853,6 @@ textures/trak/trak5/trim9b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim9b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim9b.png
 	normalMap		textures/trak/trak5/trim9b_nm.png
@@ -1990,7 +1867,6 @@ textures/trak/trak5/trim9c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim9c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim9c.png
 	normalMap		textures/trak/trak5/trim9c_nm.png
@@ -2005,7 +1881,6 @@ textures/trak/trak5/trim9d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim9d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim9d.png
 	normalMap		textures/trak/trak5/trim9d_nm.png
@@ -2020,7 +1895,6 @@ textures/trak/trak5/trim9e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trim9e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trim9e.png
 	normalMap		textures/trak/trak5/trim9e_nm.png
@@ -2035,7 +1909,6 @@ textures/trak/trak5/trisec1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trisec1a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trisec1a.png
 	normalMap		textures/trak/trak5/trisec1a_nm.png
@@ -2050,7 +1923,6 @@ textures/trak/trak5/trisec1b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trisec1b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trisec1b.png
 	normalMap		textures/trak/trak5/trisec1b_nm.png
@@ -2065,7 +1937,6 @@ textures/trak/trak5/trisec1c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trisec1c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trisec1c.png
 	normalMap		textures/trak/trak5/trisec1c_nm.png
@@ -2080,7 +1951,6 @@ textures/trak/trak5/trisec1d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/trisec1d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/trisec1d.png
 	normalMap		textures/trak/trak5/trisec1d_nm.png
@@ -2095,7 +1965,6 @@ textures/trak/trak5/vert1
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/vert1.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/vert1.png
 	normalMap		textures/trak/trak5/vert1_nm.png
@@ -2110,7 +1979,6 @@ textures/trak/trak5/vertpanel1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/vertpanel1a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/vertpanel1a.png
 	normalMap		textures/trak/trak5/vertpanel1a_nm.png
@@ -2125,7 +1993,6 @@ textures/trak/trak5/vertpanel1b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/vertpanel1b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/vertpanel1b.png
 	normalMap		textures/trak/trak5/vertpanel1b_nm.png
@@ -2140,7 +2007,6 @@ textures/trak/trak5/vertpanel1c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/vertpanel1c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/vertpanel1c.png
 	normalMap		textures/trak/trak5/vertpanel1c_nm.png
@@ -2155,7 +2021,6 @@ textures/trak/trak5/vertpanel1d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/vertpanel1d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/vertpanel1d.png
 	normalMap		textures/trak/trak5/vertpanel1d_nm.png
@@ -2170,7 +2035,6 @@ textures/trak/trak5/vertpanel1e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/vertpanel1e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/vertpanel1e.png
 	normalMap		textures/trak/trak5/vertpanel1e_nm.png
@@ -2185,7 +2049,6 @@ textures/trak/trak5/vertpanel2a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/vertpanel2a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/vertpanel2a.png
 	normalMap		textures/trak/trak5/vertpanel2a_nm.png
@@ -2200,7 +2063,6 @@ textures/trak/trak5/vertpanel2b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/vertpanel2b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/vertpanel2b.png
 	normalMap		textures/trak/trak5/vertpanel2b_nm.png
@@ -2215,7 +2077,6 @@ textures/trak/trak5/vertpanel2c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/vertpanel2c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/vertpanel2c.png
 	normalMap		textures/trak/trak5/vertpanel2c_nm.png
@@ -2230,7 +2091,6 @@ textures/trak/trak5/vertpanel2d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/vertpanel2d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/vertpanel2d.png
 	normalMap		textures/trak/trak5/vertpanel2d_nm.png
@@ -2245,7 +2105,6 @@ textures/trak/trak5/vertpanel2e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/vertpanel2e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/vertpanel2e.png
 	normalMap		textures/trak/trak5/vertpanel2e_nm.png
@@ -2260,7 +2119,6 @@ textures/trak/trak5/wall1
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall1.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall1.png
 	normalMap		textures/trak/trak5/wall1_nm.png
@@ -2275,7 +2133,6 @@ textures/trak/trak5/wall1a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall1a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall1a.png
 	normalMap		textures/trak/trak5/wall1a_nm.png
@@ -2290,7 +2147,6 @@ textures/trak/trak5/wall1b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall1b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall1b.png
 	normalMap		textures/trak/trak5/wall1b_nm.png
@@ -2305,7 +2161,6 @@ textures/trak/trak5/wall1c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall1c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall1c.png
 	normalMap		textures/trak/trak5/wall1c_nm.png
@@ -2320,7 +2175,6 @@ textures/trak/trak5/wall1d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall1d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall1d.png
 	normalMap		textures/trak/trak5/wall1d_nm.png
@@ -2334,7 +2188,6 @@ textures/trak/trak5/wall1e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall1e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall1e.png
 	normalMap		textures/trak/trak5/wall1e_nm.png
@@ -2349,7 +2202,6 @@ textures/trak/trak5/wall2a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall2a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall2a.png
 	normalMap		textures/trak/trak5/wall2a_nm.png
@@ -2364,7 +2216,6 @@ textures/trak/trak5/wall2b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall2b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall2b.png
 	normalMap		textures/trak/trak5/wall2b_nm.png
@@ -2379,7 +2230,6 @@ textures/trak/trak5/wall2c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall2c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall2c.png
 	normalMap		textures/trak/trak5/wall2c_nm.png
@@ -2394,7 +2244,6 @@ textures/trak/trak5/wall2d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall2d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall2d.png
 	normalMap		textures/trak/trak5/wall2d_nm.png
@@ -2409,7 +2258,6 @@ textures/trak/trak5/wall2e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall2e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall2e.png
 	normalMap		textures/trak/trak5/wall2e_nm.png
@@ -2424,7 +2272,6 @@ textures/trak/trak5/wall3a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall3a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall3a.png
 	normalMap		textures/trak/trak5/wall3a_nm.png
@@ -2439,7 +2286,6 @@ textures/trak/trak5/wall3b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall3b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall3b.png
 	normalMap		textures/trak/trak5/wall3b_nm.png
@@ -2454,7 +2300,6 @@ textures/trak/trak5/wall3c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall3c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall3c.png
 	normalMap		textures/trak/trak5/wall3c_nm.png
@@ -2469,7 +2314,6 @@ textures/trak/trak5/wall3d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall3d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall3d.png
 	normalMap		textures/trak/trak5/wall3d_nm.png
@@ -2484,7 +2328,6 @@ textures/trak/trak5/wall3e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall3e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall3e.png
 	normalMap		textures/trak/trak5/wall3e_nm.png
@@ -2499,7 +2342,6 @@ textures/trak/trak5/wall4a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall4a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall4a.png
 	normalMap		textures/trak/trak5/wall4a_nm.png
@@ -2514,7 +2356,6 @@ textures/trak/trak5/wall4b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall4b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall4b.png
 	normalMap		textures/trak/trak5/wall4b_nm.png
@@ -2529,7 +2370,6 @@ textures/trak/trak5/wall4c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall4c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall4c.png
 	normalMap		textures/trak/trak5/wall4c_nm.png
@@ -2544,7 +2384,6 @@ textures/trak/trak5/wall4d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall4d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall4d.png
 	normalMap		textures/trak/trak5/wall4d_nm.png
@@ -2559,7 +2398,6 @@ textures/trak/trak5/wall4e
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall4e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall4e.png
 	normalMap		textures/trak/trak5/wall4e_nm.png
@@ -2574,7 +2412,6 @@ textures/trak/trak5/wall5a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall5a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall5a.png
 	normalMap		textures/trak/trak5/wall5a_nm.png
@@ -2589,7 +2426,6 @@ textures/trak/trak5/wall5b
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall5b.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall5b.png
 	normalMap		textures/trak/trak5/wall5b_nm.png
@@ -2604,7 +2440,6 @@ textures/trak/trak5/wall5c
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall5c.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall5c.png
 	normalMap		textures/trak/trak5/wall5c_nm.png
@@ -2619,7 +2454,6 @@ textures/trak/trak5/wall5d
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall5d.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall5d.png
 	normalMap		textures/trak/trak5/wall5d_nm.png
@@ -2634,7 +2468,6 @@ textures/trak/trak5/wall5e
 	{
 	 	stage		diffuseMap
 		map		textures/trak/trak5/wall5e.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall5e.png
 	normalMap		textures/trak/trak5/wall5e_nm.png
@@ -2648,7 +2481,6 @@ textures/trak/trak5/wall6a
 	{
 	 	stage		diffuseMap
 		map		textures/trak/trak5/wall6a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall6a.png
 	normalMap		textures/trak/trak5/wall6a_nm.png
@@ -2662,7 +2494,6 @@ textures/trak/trak5/wall7a
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/wall7a.png
-		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak5/wall7a.png
 	normalMap		textures/trak/trak5/wall7a_nm.png
