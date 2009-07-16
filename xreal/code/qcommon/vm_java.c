@@ -825,15 +825,16 @@ void JVM_Init(void)
 				FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "classes"));
 	options[1].optionString = mainClassPath;
 
-	//options[2].optionString = "-XX:ErrorFile=./hs_err_pid<pid>.log";
-	//options[3].optionString = "-Xdebug";
-	//options[4].optionString = "-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=n";
+	//options[2].optionString = "-Xdebug";
+	//options[3].optionString = "-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y";
 
+
+	//options[2].optionString = "-XX:ErrorFile=./hs_err_pid<pid>.log";
 	//options[2].optionString = strdup("-verbose:jni");
 	//
 
 
-	vm_args.version = JNI_VERSION_1_6;
+	vm_args.version = JNI_VERSION_1_2;
 	vm_args.options = options;
 	vm_args.nOptions = 2;
 	vm_args.ignoreUnrecognized = JNI_TRUE;
