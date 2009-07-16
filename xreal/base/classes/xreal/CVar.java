@@ -156,7 +156,7 @@ public class CVar {
 	}
 	
 	public synchronized boolean getBoolean() {
-		return (getInteger0(handle) <= 0);
+		return (getInteger0(handle) > 0);
 	}
 
 	public synchronized String getString() {

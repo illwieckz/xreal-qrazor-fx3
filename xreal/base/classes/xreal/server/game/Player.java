@@ -125,6 +125,8 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		String cmd = Engine.getConsoleArgv(0);
 		
+		Engine.print("xreal.server.game.Player.clientCommand(clientNum = " + getEntityState_number() + ", command '" + cmd + "')\n");
+		
 		if (cmd.equals("say")) {
 			Server.broadcastClientCommand("chat \"" + _pers.netname + ": " + ConsoleColorStrings.GREEN + Engine.concatConsoleArgs(1) + "\n\"");
 
