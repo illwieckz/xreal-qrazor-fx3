@@ -1,6 +1,8 @@
 package xreal;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +11,10 @@ import javax.vecmath.Vector4f;
 
 import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.shapes.BvhTriangleMeshShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.ConvexHullShape;
+import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
@@ -105,7 +109,35 @@ public class CollisionBspReader {
 		int             numLeafSurfaces;
 	} 
 	private Leaf leafs[];
-	private int leafbrushes[];
+	private int leafBrushes[];
+	private int leafSurfaces[];
+	
+	
+	enum SurfaceType
+	{
+		BAD,
+		PLANAR,
+		PATCH,
+		TRIANGLE_SOUP,
+		FLARE,
+		FOLIAGE
+	}
+
+	class Surface
+	{
+		SurfaceType     type;
+
+		int             checkcount;	// to avoid repeated testings
+		int             surfaceFlags;
+		int             contents;
+		
+		//int				numVerts;
+		//int				numIndices;
+		
+		List<Vector3f>	vertices;
+		List<Integer>	indices;
+	}
+	private Surface surfaces[];
 	
 	
 	public CollisionBspReader(String filename)
@@ -161,9 +193,13 @@ public class CollisionBspReader {
 			loadShaders(header.lumps[LumpType.SHADERS.ordinal()], byteArray);
 			loadLeafs(header.lumps[LumpType.LEAFS.ordinal()], byteArray);
 			loadLeafBrushes(header.lumps[LumpType.LEAFBRUSHES.ordinal()], byteArray);
+			loadLeafSurfaces(header.lumps[LumpType.LEAFSURFACES.ordinal()], byteArray);
 			loadPlanes(header.lumps[LumpType.PLANES.ordinal()], byteArray);
 			loadBrushSides(header.lumps[LumpType.BRUSHSIDES.ordinal()], byteArray);
 			loadBrushes(header.lumps[LumpType.BRUSHES.ordinal()], byteArray);
+			loadSurfaces(header.lumps[LumpType.SURFACES.ordinal()], header.lumps[LumpType.DRAWVERTS.ordinal()], header.lumps[LumpType.DRAWINDEXES.ordinal()], byteArray);
+			
+			//CMod_LoadSurfaces(&header.lumps[LUMP_SURFACES], &header.lumps[LUMP_DRAWVERTS], &header.lumps[LUMP_DRAWINDEXES]);
 			
 			reader.close();
 			
@@ -423,40 +459,234 @@ public class CollisionBspReader {
 		}
 		
 		ByteArrayReader reader = new ByteArrayReader(buf, l.fileofs, l.filelen);
-		Engine.println("CollisionBspReader: loading " + count + " leafbrushes...");
+		Engine.println("CollisionBspReader: loading " + count + " leaf brushes...");
 		
-		leafbrushes = new int[count];
+		leafBrushes = new int[count];
 		for(int i = 0; i < count; i++) {
-			leafbrushes[i] = reader.readInt();
+			leafBrushes[i] = reader.readInt();
+		}
+	}
+	
+	void loadLeafSurfaces(Lump l, byte buf[]) throws IOException
+	{
+		int dleafsurface_t_size = (4);
+		if(l.filelen % dleafsurface_t_size != 0)
+		{
+			throw new RuntimeException("funny lump size");
+		}
+		int count = l.filelen / dleafsurface_t_size;
+		/*
+		if(count < 1)
+		{
+			throw new RuntimeException("Map with no leaf surfaces");
+		}
+		*/
+		
+		ByteArrayReader reader = new ByteArrayReader(buf, l.fileofs, l.filelen);
+		Engine.println("CollisionBspReader: loading " + count + " leaf surfaces...");
+		
+		leafSurfaces = new int[count];
+		for(int i = 0; i < count; i++) {
+			leafSurfaces[i] = reader.readInt();
+		}
+	}
+	
+	void loadSurfaces(Lump surfsLump, Lump vertsLump, Lump indexesLump, byte buf[]) throws IOException
+	{
+		/*
+		typedef struct
+		{
+			int             shaderNum;
+			int             fogNum;
+			int             surfaceType;
+		
+			int             firstVert;
+			int             numVerts;
+		
+			int             firstIndex;
+			int             numIndexes;
+		
+			int             lightmapNum;
+			int             lightmapX, lightmapY;
+			int             lightmapWidth, lightmapHeight;
+		
+			float           lightmapOrigin[3];
+			float           lightmapVecs[3][3];	// for patches, [0] and [1] are lodbounds
+		
+			int             patchWidth;
+			int             patchHeight;
+		} dsurface_t;
+		
+		typedef struct
+		{
+			float           xyz[3];
+			float           st[2];
+			float           lightmap[2];
+			float           normal[3];
+			float			paintColor[4];
+			float           lightColor[4];
+			float			lightDirection[3];
+		} drawVert_t;
+		*/
+		
+		final int MAX_PATCH_SIZE = 64;
+		final int MAX_PATCH_VERTS = (MAX_PATCH_SIZE * MAX_PATCH_SIZE);
+		
+		//drawVert_t     *dv, *dv_p;
+		//dsurface_t     *in;
+		//int             count;
+		//int             i, j;
+		//cSurface_t     *surface;
+		//int             numVertexes;
+		//static vec3_t   vertexes[SHADER_MAX_VERTEXES];
+		//int             width, height;
+		//int             shaderNum;
+		//int             numIndexes;
+		//static int      indexes[SHADER_MAX_INDEXES];
+		//int            *index;
+		//int            *index_p;
+		
+		
+		int dsurface_t_size = (12 * 4 + 3 * 4 + 3 * 3 * 4 + 2 * 4);
+		if(surfsLump.filelen % dsurface_t_size != 0)
+		{
+			throw new RuntimeException("funny lump size");
+		}
+		int count = surfsLump.filelen / dsurface_t_size;
+		
+		ByteArrayReader surfReader = new ByteArrayReader(buf, surfsLump.fileofs, surfsLump.filelen);
+		Engine.println("CollisionBspReader: loading " + count + " surfaces...");
+		
+		
+		int drawVert_t_size = (3 * 4 + 2 * 4 + 2 * 4 + 3 * 4 + 4 * 4 + 4 * 4 + 3 * 4);
+		if(vertsLump.filelen % drawVert_t_size != 0)
+		{
+			throw new RuntimeException("funny lump size");
+		}
+		
+		int index_t_size = 4;
+		if(indexesLump.filelen % index_t_size != 0)
+		{
+			throw new RuntimeException("funny lump size");
+		}
+
+		// scan through all the surfaces, but only load patches,
+		// not planar faces
+		surfaces = new Surface[count];	
+		for(int i = 0; i < count; i++)
+		{
+			int shaderNum = surfReader.readInt();
+			int fogNum = surfReader.readInt();
+			SurfaceType surfaceType = SurfaceType.values()[surfReader.readInt()];
+			
+			int firstVert = surfReader.readInt();
+			int numVerts = surfReader.readInt();
+		
+			int firstIndex = surfReader.readInt();
+			int numIndexes = surfReader.readInt();
+		
+			int lightmapNum = surfReader.readInt();
+			int lightmapX = surfReader.readInt();
+			int lightmapY = surfReader.readInt();
+			int lightmapWidth = surfReader.readInt();
+			int lightmapHeight = surfReader.readInt(); 
+		
+			for(int j = 0; j < (3 + 3 * 3); j++)
+				surfReader.readFloat();
+		
+			int patchWidth = surfReader.readInt();
+			int patchHeight = surfReader.readInt();
+			
+			if(numVerts == 0 || numIndexes == 0)
+				continue;
+			
+			switch (surfaceType)
+			{
+				case TRIANGLE_SOUP:
+					//Engine.println("loading triangle surface: vertices = " + numVerts + ", indices = " + numIndexes);
+					
+					Surface surface = surfaces[i] = new Surface();
+					surface.type = surfaceType;
+					surface.contents = shaders[shaderNum].contentFlags;
+					surface.surfaceFlags = shaders[shaderNum].surfaceFlags;
+
+					//surface.numVerts = numVerts;
+					//surface.vertices = ByteBuffer.allocateDirect(numVerts * 3 * 4).order(ByteOrder.nativeOrder());
+					
+					ByteArrayReader drawVertReader = new ByteArrayReader(buf, vertsLump.fileofs + (firstVert * drawVert_t_size), vertsLump.filelen);
+					
+					surface.vertices = new ArrayList<Vector3f>();
+					for(int j = 0; j < numVerts; j++)
+					{
+						Vector3f vertex = new Vector3f();
+						
+						vertex.x = drawVertReader.readFloat();
+						vertex.y = drawVertReader.readFloat();
+						vertex.z = drawVertReader.readFloat();
+						
+						surface.vertices.add(vertex);
+						
+						// skip the rest of the current drawVert_t
+						for(int k = 0; k < (2 + 2 + 3 + 4 + 4 + 3); k++)
+							drawVertReader.readFloat();
+					}
+					
+					//surface.numIndices = numIndexes;
+					//surface.indices = ByteBuffer.allocateDirect(numIndexes * 4).order(ByteOrder.nativeOrder());
+					
+					ByteArrayReader indexReader = new ByteArrayReader(buf, indexesLump.fileofs + (firstIndex * index_t_size), indexesLump.filelen);
+					
+					surface.indices = new ArrayList<Integer>();
+					for(int j = 0; j < numIndexes; j++)
+					{
+						int index = indexReader.readInt();
+						if(index < 0 || index >= numVerts)
+						{
+							throw new RuntimeException("bad index in trisoup surface");
+						}
+						
+						surface.indices.add(new Integer(index));
+					}
+					//surface.indices.flip();
+					
+					//Engine.println("" + surface.indices);
+					break;
+			}
 		}
 	}
 	
 	
 	public void addWorldBrushesToSimulation(List<CollisionShape> collisionShapes, DynamicsWorld dynamicsWorld) {
 		// Engine.println("CollisionBspReader.addWorldBrushesToSimulation()");
+		
+		int totalVerts = 0;
+		int	totalIndices = 0;
+		
+		int	checkcount = 1;
 
+		// add brushes from all BSP leafs
 		for (int i = 0; i < leafs.length; i++) {
 
 			Leaf leaf = leafs[i];
 
 			for (int j = 0; j < leaf.numLeafBrushes; j++) {
-				
-				int brushnum = leafbrushes[leaf.firstLeafBrush + j];
+
+				int brushnum = leafBrushes[leaf.firstLeafBrush + j];
 
 				Brush b = brushes[brushnum];
-				
+
 				if (b.checked) {
 					continue;
 				} else {
 					b.checked = true;
 				}
-				
-				if(b.sides.size() == 0) {
+
+				if (b.sides.size() == 0) {
 					// don't care about invalid brushes
 					continue;
 				}
-				
-				if((b.contents & ContentFlags.SOLID) == 0) {
+
+				if ((b.contents & ContentFlags.SOLID) == 0) {
 					// don't care about non-solid brushes
 					continue;
 				}
@@ -470,7 +700,8 @@ public class CollisionBspReader {
 				List<Vector3f> points = new ArrayList<Vector3f>();
 				GeometryUtil.getVerticesFromPlaneEquations(planeEquations, points);
 
-				// Engine.println("created " + points.size() + " points for brush " + i);
+				// Engine.println("created " + points.size() +
+				// " points for brush " + i);
 
 				CollisionShape shape = new ConvexHullShape(points);
 
@@ -491,9 +722,123 @@ public class CollisionBspReader {
 				 * co.setCollisionFlags(CollisionFlags.STATIC_OBJECT);
 				 * dynamicsWorld.addCollisionObject(co);
 				 */
-
 			}
+			
+			
+			for (int j = 0; j < leaf.numLeafSurfaces; j++) {
 
+				int surfaceNum = leafSurfaces[leaf.firstLeafSurface + j];
+
+				Surface surface = surfaces[surfaceNum];
+				
+				if(surface != null)
+				{
+					if (surface.checkcount == checkcount) {
+						continue;
+					} else {
+						surface.checkcount = checkcount;
+					}
+					
+					totalVerts += surface.vertices.size();
+					totalIndices += surface.indices.size();
+				}
+			}
+			
 		}
+		
+		if(totalVerts == 0 || totalIndices == 0)
+			return;
+		
+		ByteBuffer vertices = ByteBuffer.allocateDirect(totalVerts * 3 * 4).order(ByteOrder.nativeOrder());
+		ByteBuffer indices = ByteBuffer.allocateDirect(totalIndices * 4).order(ByteOrder.nativeOrder());
+		
+		checkcount++;
+		int numIndexes = 0;
+		
+		final int vertStride = 3 * 4;
+		final int indexStride = 3 * 4;
+		
+		for (int i = 0; i < leafs.length; i++) {
+
+			Leaf leaf = leafs[i];
+
+			for (int j = 0; j < leaf.numLeafSurfaces; j++) {
+
+				int surfaceNum = leafSurfaces[leaf.firstLeafSurface + j];
+
+				Surface surface = surfaces[surfaceNum];
+
+				if (surface != null) {
+					
+					if (surface.checkcount == checkcount) {
+						continue;
+					} else {
+						surface.checkcount = checkcount;
+					}
+					
+					//Engine.println("building BvhTriangleMeshShape: vertices = " + surface.vertices.size() + ", indices = " + surface.indices.size());
+					
+					//vertices = ByteBuffer.allocateDirect(surface.vertices.size() * 3 * 4).order(ByteOrder.nativeOrder());
+					//indices = ByteBuffer.allocateDirect(surface.indices.size() * 4).order(ByteOrder.nativeOrder());
+
+					for (Vector3f vertex : surface.vertices) {
+						vertices.putFloat(vertex.x);
+						vertices.putFloat(vertex.y);
+						vertices.putFloat(vertex.z);
+					}
+
+					for (Integer index : surface.indices) {
+						int newIndex = numIndexes + index.intValue();
+						
+						if(newIndex < 0 || newIndex >= totalVerts)
+						{
+							throw new RuntimeException("bad index in trisoup surface: index = " + newIndex + ", totalVerts = " + totalVerts);
+						}
+						
+						indices.putInt(newIndex);
+					}
+					numIndexes += surface.vertices.size();
+					
+					/*
+					TriangleIndexVertexArray indexVertexArrays = new TriangleIndexVertexArray(surface.indices.size() / 3, indices, indexStride,
+							surface.vertices.size(), vertices, vertStride);
+					
+					BvhTriangleMeshShape trimeshShape = new BvhTriangleMeshShape(indexVertexArrays, true);
+					collisionShapes.add(trimeshShape);
+
+					// using motionstate is recommended, it provides
+					// interpolation
+					// capabilities, and only synchronizes 'active' objects
+					DefaultMotionState myMotionState = new DefaultMotionState();
+					RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0, myMotionState, trimeshShape);
+					RigidBody body = new RigidBody(rbInfo);
+
+					// add the body to the dynamics world
+					dynamicsWorld.addRigidBody(body);
+					*/
+				}
+			}
+		}
+		
+		
+		Engine.println("building BvhTriangleMeshShape for world: vertices = " + totalVerts + ", indices = " + totalIndices);
+		//indices.flip();
+		
+		TriangleIndexVertexArray indexVertexArrays = new TriangleIndexVertexArray(totalIndices / 3, indices, indexStride,
+				totalVerts, vertices, vertStride);
+		
+		BvhTriangleMeshShape trimeshShape = new BvhTriangleMeshShape(indexVertexArrays, true);
+		collisionShapes.add(trimeshShape);
+
+		// using motionstate is recommended, it provides
+		// interpolation
+		// capabilities, and only synchronizes 'active' objects
+		DefaultMotionState myMotionState = new DefaultMotionState();
+		RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0, myMotionState, trimeshShape);
+		RigidBody body = new RigidBody(rbInfo);
+
+		// add the body to the dynamics world
+		dynamicsWorld.addRigidBody(body);
+		
 	}
 }
