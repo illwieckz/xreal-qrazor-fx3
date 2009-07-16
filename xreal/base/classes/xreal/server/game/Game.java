@@ -74,14 +74,12 @@ public class Game implements GameListener {
 		{
 			if(cmd.equals("say"))
 			{
-				String args = Engine.concatConsoleArgs(1);
-				
-				Server.broadcastClientCommand("print \"server: " + args + "\"");
+				Server.broadcastClientCommand("print \"server: " + Engine.concatConsoleArgs(1)  + "\n\"");
 				return true;
 			}
 			
 			// everything else will also be printed as a say command
-			Server.broadcastClientCommand("print \"server: " + Engine.concatConsoleArgs(0) + "\"");
+			Server.broadcastClientCommand("print \"server: " + Engine.concatConsoleArgs(0) + "\n\"");
 			return true;
 		}
 		
