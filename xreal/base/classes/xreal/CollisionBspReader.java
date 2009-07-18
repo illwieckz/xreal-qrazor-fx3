@@ -34,10 +34,6 @@ public class CollisionBspReader {
 	static final String BSP_IDENT_STRING = "XBSP";
 	static final int BSP_VERSION = 48;
 
-	static final int MAX_PATCH_SIZE = 64;
-	static final int MAX_PATCH_VERTS = (MAX_PATCH_SIZE * MAX_PATCH_SIZE);
-	static final int MAX_GRID_SIZE = 65;
-
 	enum LumpType {
 		ENTITIES, SHADERS, PLANES, NODES, LEAFS, LEAFSURFACES, LEAFBRUSHES, MODELS, BRUSHES, BRUSHSIDES, DRAWVERTS, DRAWINDEXES, FOGS, SURFACES, LIGHTMAPS, LIGHTGRID, VISIBILITY
 	}
@@ -155,15 +151,10 @@ public class CollisionBspReader {
 
 			for (int i = 0; i < LumpType.values().length; i++) {
 
-				Lump l = new Lump();
+				Lump l = header.lumps[i] = new Lump();
 
 				l.fileofs = reader.readInt();
 				l.filelen = reader.readInt();
-
-				// Engine.println(LumpType.values()[i] + ": ofs = " + l.fileofs
-				// + ", len = " + l.filelen);
-
-				header.lumps[i] = l;
 			}
 
 			loadShaders(header.lumps[LumpType.SHADERS.ordinal()], byteArray);
@@ -175,9 +166,6 @@ public class CollisionBspReader {
 			loadBrushes(header.lumps[LumpType.BRUSHES.ordinal()], byteArray);
 			loadSurfaces(header.lumps[LumpType.SURFACES.ordinal()], header.lumps[LumpType.DRAWVERTS.ordinal()], header.lumps[LumpType.DRAWINDEXES.ordinal()],
 					byteArray);
-
-			// CMod_LoadSurfaces(&header.lumps[LUMP_SURFACES],
-			// &header.lumps[LUMP_DRAWVERTS], &header.lumps[LUMP_DRAWINDEXES]);
 
 			reader.close();
 
@@ -446,23 +434,6 @@ public class CollisionBspReader {
 		 * lightDirection[3]; } drawVert_t;
 		 */
 
-		final int MAX_PATCH_SIZE = 64;
-		final int MAX_PATCH_VERTS = (MAX_PATCH_SIZE * MAX_PATCH_SIZE);
-
-		// drawVert_t *dv, *dv_p;
-		// dsurface_t *in;
-		// int count;
-		// int i, j;
-		// cSurface_t *surface;
-		// int numVertexes;
-		// static vec3_t vertexes[SHADER_MAX_VERTEXES];
-		// int width, height;
-		// int shaderNum;
-		// int numIndexes;
-		// static int indexes[SHADER_MAX_INDEXES];
-		// int *index;
-		// int *index_p;
-
 		int dsurface_t_size = (12 * 4 + 3 * 4 + 3 * 3 * 4 + 2 * 4);
 		if (surfsLump.filelen % dsurface_t_size != 0) {
 			throw new RuntimeException("funny lump size");
@@ -486,6 +457,11 @@ public class CollisionBspReader {
 		// not planar faces
 		surfaces = new Surface[count];
 		for (int i = 0; i < count; i++) {
+			
+			Surface surface = null;
+			ByteArrayReader drawVertReader = null;
+			ByteArrayReader indexReader = null;
+			
 			int shaderNum = surfReader.readInt();
 			int fogNum = surfReader.readInt();
 			SurfaceType surfaceType = SurfaceType.values()[surfReader.readInt()];
@@ -509,11 +485,11 @@ public class CollisionBspReader {
 			int patchHeight = surfReader.readInt();
 
 			switch (surfaceType) {
-			case TRIANGLE_SOUP: {
+			case TRIANGLE_SOUP:
 				// Engine.println("loading triangle surface: vertices = " +
 				// numVerts + ", indices = " + numIndexes);
 
-				Surface surface = surfaces[i] = new Surface();
+				surface = surfaces[i] = new Surface();
 				surface.type = surfaceType;
 				surface.contentFlags = shaders[shaderNum].contentFlags;
 				surface.surfaceFlags = shaders[shaderNum].surfaceFlags;
@@ -522,7 +498,7 @@ public class CollisionBspReader {
 				// surface.vertices = ByteBuffer.allocateDirect(numVerts * 3 *
 				// 4).order(ByteOrder.nativeOrder());
 
-				ByteArrayReader drawVertReader = new ByteArrayReader(buf, vertsLump.fileofs + (firstVert * drawVert_t_size), vertsLump.filelen);
+				drawVertReader = new ByteArrayReader(buf, vertsLump.fileofs + (firstVert * drawVert_t_size), vertsLump.filelen);
 
 				surface.vertices = new ArrayList<Vector3f>();
 				for (int j = 0; j < numVerts; j++) {
@@ -543,7 +519,7 @@ public class CollisionBspReader {
 				// surface.indices = ByteBuffer.allocateDirect(numIndexes *
 				// 4).order(ByteOrder.nativeOrder());
 
-				ByteArrayReader indexReader = new ByteArrayReader(buf, indexesLump.fileofs + (firstIndex * index_t_size), indexesLump.filelen);
+				indexReader = new ByteArrayReader(buf, indexesLump.fileofs + (firstIndex * index_t_size), indexesLump.filelen);
 
 				surface.indices = new ArrayList<Integer>();
 				for (int j = 0; j < numIndexes; j++) {
@@ -558,12 +534,11 @@ public class CollisionBspReader {
 
 				// Engine.println("" + surface.indices);
 				break;
-			}
 
-			case PATCH: {
+			case PATCH:
 				// Engine.println("loading patch surface");
 
-				if (patchWidth < 0 || patchWidth > MAX_PATCH_SIZE || patchHeight < 0 || patchHeight > MAX_PATCH_SIZE)
+				if (patchWidth < 0 || patchWidth > PatchSurface.MAX_PATCH_SIZE || patchHeight < 0 || patchHeight > PatchSurface.MAX_PATCH_SIZE)
 					throw new RuntimeException("ParseMesh: bad size");
 
 				numVerts = patchWidth * patchHeight;
@@ -572,7 +547,7 @@ public class CollisionBspReader {
 				// surface.vertices = ByteBuffer.allocateDirect(numVerts * 3 *
 				// 4).order(ByteOrder.nativeOrder());
 
-				ByteArrayReader drawVertReader = new ByteArrayReader(buf, vertsLump.fileofs + (firstVert * drawVert_t_size), vertsLump.filelen);
+				drawVertReader = new ByteArrayReader(buf, vertsLump.fileofs + (firstVert * drawVert_t_size), vertsLump.filelen);
 
 				Vector3f points[] = new Vector3f[numVerts];
 				for (int j = 0; j < numVerts; j++) {
@@ -587,18 +562,21 @@ public class CollisionBspReader {
 						drawVertReader.readFloat();
 				}
 
-				Surface surface = surfaces[i] = new PatchSurface(patchWidth, patchHeight, points);
+				surface = surfaces[i] = new PatchSurface(patchWidth, patchHeight, points);
 				surface.type = surfaceType;
 				surface.contentFlags = shaders[shaderNum].contentFlags;
 				surface.surfaceFlags = shaders[shaderNum].surfaceFlags;
 				break;
-			}
 			}
 		}
 	}
 
 	class PatchSurface extends Surface {
 
+		static final int MAX_PATCH_SIZE = 64;
+		static final int MAX_PATCH_VERTS = (MAX_PATCH_SIZE * MAX_PATCH_SIZE);
+		static final int MAX_GRID_SIZE = 65;
+		
 		PatchSurface(int width, int height, Vector3f points[]) {
 			int i, j, k;
 			Vector3f prev = new Vector3f();
