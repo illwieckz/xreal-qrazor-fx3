@@ -23,19 +23,6 @@ import xreal.server.Server;
 public class GameEntity implements EntityStateAccess {
 
 	/**
-	 * Set by the server.
-	 */
-	//private static int numEntities;
-	
-	/**
-	 * Set by the server.
-	 */
-	//private static GameEntity[] entities;
-	
-	protected CollisionShape collisionShape;
-	protected RigidBody rigidBody;
-	
-	/**
 	 * Similar to Q3A's G_Spawn()
 	 * 
 	 * Either finds a free entity, or allocates a new one.
@@ -194,6 +181,20 @@ public class GameEntity implements EntityStateAccess {
 	// --------------------------------------------------------------------------------------------
 	
 	
+	/**
+	 * Collision shape used by JBullet physics.
+	 */
+	protected CollisionShape collisionShape;
+	
+	/**
+	 * Collision shape used by JBullet physics.
+	 */
+	protected RigidBody rigidBody;
+	
+	/**
+	 * Specifies when the think() method should be called next time.
+	 */
+	protected int nextThinkTime;
 	
 	
 	/**
@@ -305,6 +306,58 @@ public class GameEntity implements EntityStateAccess {
 	 */
 	protected void unlink() {
 		unlinkEntity0(entityIndex);
+	}
+	
+	/**
+	 * Runs thinking code for this frame if necessary.
+	 */
+	public void runThink()
+	{
+		float           thinktime;
+
+		thinktime = this.nextThinkTime;
+		if(thinktime <= 0)
+		{
+			return;
+		}
+		
+		if(thinktime > Game.getLevelTime())
+		{
+			return;
+		}
+
+		this.nextThinkTime = 0;
+		
+		think();
+	}
+	
+
+	public void think() {
+	}
+	
+	/**
+	 * movers call this when hitting endpoint
+	 */
+	public void reached() {
+	}
+	
+	public void blocked(GameEntity other) {
+	}
+	
+	/**
+	 * TODO use JBullet feedback
+	 */
+	public void touch(GameEntity other /*, trace_t * trace*/) {
+	}
+	
+	
+	public void use(GameEntity other, GameEntity activator) {
+	}
+	
+	public void pain(GameEntity attacker, int damage) {
+	}
+	
+	public void die(GameEntity inflictor, GameEntity attacker, int damage, int mod) {
 	}
 	
 	public void updateEntityStateByPhysics() {

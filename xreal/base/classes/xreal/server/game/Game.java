@@ -150,6 +150,120 @@ public class Game implements GameListener {
 		
 		runPhysics();
 		
+		// go through all allocated objects
+		int start = Engine.getTimeInMilliseconds();
+		
+		for(GameEntity ent : entities)
+		{
+			/*
+			if(!ent.inuse)
+			{
+				continue;
+			}
+			*/
+
+			/*
+			// clear events that are too old
+			if(level.time - ent->eventTime > EVENT_VALID_MSEC)
+			{
+				if(ent->s.event)
+				{
+					ent->s.event = 0;	// &= EV_EVENT_BITS;
+					if(ent->client)
+					{
+						ent->client->ps.externalEvent = 0;
+						// predicted events should never be set to zero
+						//ent->client->ps.events[0] = 0;
+						//ent->client->ps.events[1] = 0;
+					}
+				}
+				if(ent->freeAfterEvent)
+				{
+					// tempEntities or dropped items completely go away after their event
+					G_FreeEntity(ent);
+					continue;
+				}
+				else if(ent->unlinkAfterEvent)
+				{
+					// items that will respawn will hide themselves after their pickup event
+					ent->unlinkAfterEvent = qfalse;
+					trap_UnlinkEntity(ent);
+				}
+			}
+
+			// temporary entities don't think
+			if(ent->freeAfterEvent)
+			{
+				continue;
+			}
+
+			if(!ent->r.linked && ent->neverFree)
+			{
+				continue;
+			}
+			*/
+
+			/*
+			if(ent->s.eType == ET_PROJECTILE || ent->s.eType == ET_PROJECTILE2)
+			{
+				G_RunMissile(ent);
+				continue;
+			}
+
+			if(ent->s.eType == ET_ITEM || ent->physicsObject)
+			{
+				G_RunItem(ent);
+				continue;
+			}
+
+			if(ent->s.eType == ET_MOVER)
+			{
+				G_RunMover(ent);
+				continue;
+			}
+
+			if(i < MAX_CLIENTS)
+			{
+				G_RunClient(ent);
+				continue;
+			}
+			*/
+
+			ent.runThink();
+		}
+		int end = Engine.getTimeInMilliseconds();
+
+		/*
+		start = Engine.getTimeInMilliseconds();
+
+		// perform final fixups on the players
+		ent = &g_entities[0];
+		for(i = 0; i < level.maxclients; i++, ent++)
+		{
+			if(ent->inuse)
+			{
+				ClientEndFrame(ent);
+			}
+		}
+		end = Engine.getTimeInMilliseconds();
+		*/
+
+		// see if it is time to do a tournament restart
+		//checkTournament();
+
+		// see if it is time to end the level
+		//checkExitRules();
+
+		// update to team status?
+		//checkTeamStatus();
+
+		// cancel vote if timed out
+		//checkVote();
+
+		// check team votes
+		//checkTeamVote(TEAM_RED);
+		//checkTeamVote(TEAM_BLUE);
+		
 		//CVars.g_gametype.set("99");
 		//CVars.g_gametype = null;
 		//Engine.print(CVars.g_gametype.toString() + "\n");
