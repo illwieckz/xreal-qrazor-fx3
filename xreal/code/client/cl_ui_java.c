@@ -659,16 +659,6 @@ int LAN_GetServerStatus(char *serverAddress, char *serverStatus, int maxLen)
 
 /*
 ====================
-CL_GetGlConfig
-====================
-*/
-static void CL_GetGlconfig(glConfig_t * config)
-{
-	*config = cls.glconfig;
-}
-
-/*
-====================
 CL_GetClipboardData
 ====================
 */
@@ -797,10 +787,33 @@ jstring JNICALL Java_xreal_client_Client_getConfigString(JNIEnv *env, jclass cls
 	return (*env)->NewStringUTF(env, buf);
 }
 
+/*
+ * Class:     xreal_client_Client
+ * Method:    getKeyCatchers
+ * Signature: ()I
+ */
+jint JNICALL Java_xreal_client_Client_getKeyCatchers(JNIEnv *env, jclass cls)
+{
+	return Key_GetCatcher();
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    setKeyCatchers
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_xreal_client_Client_setKeyCatchers(JNIEnv *env, jclass cls, jint catchers)
+{
+	// Don't allow the modules to close the console
+	Key_SetCatcher(catchers | (Key_GetCatcher() & KEYCATCH_CONSOLE));
+}
+
 // handle to Client class
 static jclass   class_Client = NULL;
 static JNINativeMethod Client_methods[] = {
 	{"getConfigString", "(I)Ljava/lang/String;", Java_xreal_client_Client_getConfigString},
+	{"getKeyCatchers", "()I", Java_xreal_client_Client_getKeyCatchers},
+	{"setKeyCatchers", "(I)I", Java_xreal_client_Client_setKeyCatchers},
 };
 
 void Client_javaRegister()
@@ -1093,9 +1106,9 @@ void UserInterface_javaRegister()
 	}
 
 	// load constructor
-	method_UserInterface_ctor = (*javaEnv)->GetMethodID(javaEnv, class_UserInterface, "<init>", "()V");
+	method_UserInterface_ctor = (*javaEnv)->GetMethodID(javaEnv, class_UserInterface, "<init>", "(IIF)V");
 
-	object_UserInterface = (*javaEnv)->NewObject(javaEnv, class_UserInterface, method_UserInterface_ctor);
+	object_UserInterface = (*javaEnv)->NewObject(javaEnv, class_UserInterface, method_UserInterface_ctor, cls.glconfig.vidWidth, cls.glconfig.vidHeight, cls.glconfig.windowAspect);
 	if(CheckException())
 	{
 		Com_Error(ERR_DROP, "Couldn't create instance of the class UserInterface");
@@ -1129,7 +1142,7 @@ void Java_UI_Init(void)
 	if(!object_UserInterface)
 		return;
 
-	Com_Printf("Java_UI_Init\n");
+	//Com_Printf("Java_UI_Init\n");
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_UserInterface, method_UserInterface_initUserInterface);
 
@@ -1144,7 +1157,7 @@ void Java_UI_Shutdown(void)
 	if(!object_UserInterface)
 		return;
 
-	Com_Printf("Java_UI_Shutdown\n");
+	//Com_Printf("Java_UI_Shutdown\n");
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_UserInterface, method_UserInterface_shutdownUserInterface);
 
@@ -1159,7 +1172,7 @@ void Java_UI_KeyEvent(int key, qboolean down)
 	if(!object_UserInterface)
 		return;
 
-	Com_Printf("Java_UI_KeyEvent(key = %i, down = %i)\n", key, down);
+	//Com_Printf("Java_UI_KeyEvent(key = %i, down = %i)\n", key, down);
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_UserInterface, method_UserInterface_keyEvent, key, down);
 
@@ -1174,7 +1187,7 @@ void Java_UI_MouseEvent(int dx, int dy)
 	if(!object_UserInterface)
 		return;
 
-	Com_Printf("Java_UI_MouseEvent(dx = %i, dy = %i)\n", dx, dy);
+	//Com_Printf("Java_UI_MouseEvent(dx = %i, dy = %i)\n", dx, dy);
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_UserInterface, method_UserInterface_mouseEvent, dx, dy);
 
@@ -1189,7 +1202,7 @@ void Java_UI_Refresh(int time)
 	if(!object_UserInterface)
 		return;
 
-	Com_Printf("Java_UI_Refresh(time = %i)\n", time);
+	//Com_Printf("Java_UI_Refresh(time = %i)\n", time);
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_UserInterface, method_UserInterface_refresh, time);
 
@@ -1238,7 +1251,7 @@ void Java_UI_DrawConnectScreen(qboolean overlay)
 	if(!object_UserInterface)
 		return;
 
-	Com_Printf("Java_UI_DrawConnectScreen(overlay = %i)\n", overlay);
+	//Com_Printf("Java_UI_DrawConnectScreen(overlay = %i)\n", overlay);
 
 	(*javaEnv)->CallVoidMethod(javaEnv, object_UserInterface, method_UserInterface_drawConnectScreen, overlay);
 
