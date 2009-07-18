@@ -15,6 +15,22 @@ extern "C" {
 JNIEXPORT jstring JNICALL Java_xreal_client_Client_getConfigString
   (JNIEnv *, jclass, jint);
 
+/*
+ * Class:     xreal_client_Client
+ * Method:    getKeyCatchers
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_xreal_client_Client_getKeyCatchers
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    setKeyCatchers
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_xreal_client_Client_setKeyCatchers
+  (JNIEnv *, jclass, jint);
+
 #ifdef __cplusplus
 }
 #endif
