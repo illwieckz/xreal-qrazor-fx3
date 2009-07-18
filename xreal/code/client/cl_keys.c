@@ -384,7 +384,7 @@ void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, q
 	else
 	{
 		color[0] = color[1] = color[2] = color[3] = 1.0;
-		
+
 		// draw big string with drop shadow
 		SCR_Text_Paint(x, y, 0.25f, color, str, 0, 0, style, &cls.consoleFont);
 	}
@@ -999,7 +999,7 @@ char           *Key_GetBinding(int keynum)
 	return keys[keynum].binding;
 }
 
-/* 
+/*
 ===================
 Key_GetKey
 ===================
@@ -1370,18 +1370,30 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 		{
 			if(cls.state == CA_ACTIVE && !clc.demoplaying)
 			{
+#if defined(USE_JAVA)
+				Java_UI_SetActiveMenu(UIMENU_INGAME);
+#else
 				VM_Call(uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME);
+#endif
 			}
 			else if(cls.state != CA_DISCONNECTED)
 			{
 				CL_Disconnect_f();
 				S_StopAllSounds();
+#if defined(USE_JAVA)
+				Java_UI_SetActiveMenu(UIMENU_MAIN);
+#else
 				VM_Call(uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN);
+#endif
 			}
 			return;
 		}
 
+#if defined(USE_JAVA)
+		Java_UI_KeyEvent(key, down);
+#else
 		VM_Call(uivm, UI_KEY_EVENT, key, down);
+#endif
 		return;
 	}
 
@@ -1400,13 +1412,23 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 			CL_AddKeyUpCommands(key, kb, time);
 		}
 
-		if(Key_GetCatcher() & KEYCATCH_UI && uivm)
+		if(Key_GetCatcher() & KEYCATCH_UI)
 		{
-			VM_Call(uivm, UI_KEY_EVENT, key, down);
+#if defined(USE_JAVA)
+			Java_UI_KeyEvent(key, down);
+#else
+			if(uivm)
+			{
+				VM_Call(uivm, UI_KEY_EVENT, key, down);
+			}
+#endif
 		}
-		else if(Key_GetCatcher() & KEYCATCH_CGAME && cgvm)
+		else if(Key_GetCatcher() & KEYCATCH_CGAME)
 		{
-			VM_Call(cgvm, CG_KEY_EVENT, key, down);
+			if(cgvm)
+			{
+				VM_Call(cgvm, CG_KEY_EVENT, key, down);
+			}
 		}
 
 		return;
@@ -1420,10 +1442,14 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 	}
 	else if(Key_GetCatcher() & KEYCATCH_UI)
 	{
+#if defined(USE_JAVA)
+		Java_UI_KeyEvent(key, down);
+#else
 		if(uivm)
 		{
 			VM_Call(uivm, UI_KEY_EVENT, key, down);
 		}
+#endif
 	}
 	else if(Key_GetCatcher() & KEYCATCH_CGAME)
 	{
@@ -1521,7 +1547,11 @@ void CL_CharEvent(int key)
 	}
 	else if(Key_GetCatcher() & KEYCATCH_UI)
 	{
+#if defined(USE_JAVA)
+		Java_UI_KeyEvent(key | K_CHAR_FLAG, qtrue);
+#else
 		VM_Call(uivm, UI_KEY_EVENT, key | K_CHAR_FLAG, qtrue);
+#endif
 	}
 	else if(Key_GetCatcher() & KEYCATCH_MESSAGE)
 	{

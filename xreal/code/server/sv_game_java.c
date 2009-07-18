@@ -338,7 +338,7 @@ void Game_javaRegister()
 	method_Game_consoleCommand = (*javaEnv)->GetMethodID(javaEnv, class_Game, "consoleCommand", "()Z");
 	if(CheckException())
 	{
-		Com_Error(ERR_DROP, "Problem getting handle for one or more of the game methods\n");
+		Com_Error(ERR_DROP, "Problem getting handle for one or more of the Game methods\n");
 	}
 
 	// load constructor
@@ -347,7 +347,7 @@ void Game_javaRegister()
 	object_Game = (*javaEnv)->NewObject(javaEnv, class_Game, method_Game_ctor);
 	if(CheckException())
 	{
-		Com_Error(ERR_DROP, "Couldn't create instance of game object");
+		Com_Error(ERR_DROP, "Couldn't create instance of the class Game");
 	}
 }
 
@@ -1838,7 +1838,7 @@ void SV_ShutdownGameProgs(void)
 {
 	if(!javaEnv)
 	{
-		Com_Printf("Can't stop Java VM, javaEnv pointer was null\n");
+		Com_Printf("Can't stop Java game module, javaEnv pointer was null\n");
 		return;
 	}
 

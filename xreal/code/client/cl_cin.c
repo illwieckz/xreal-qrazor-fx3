@@ -1767,10 +1767,14 @@ int CIN_PlayCinematic(const char *arg, int x, int y, int w, int h, int systemBit
 		if(cinTable[currentHandle].alterGameState)
 		{
 			// close the menu
+#if defined(USE_JAVA)
+			Java_UI_SetActiveMenu(UIMENU_NONE);
+#else
 			if(uivm)
 			{
 				VM_Call(uivm, UI_SET_ACTIVE_MENU, UIMENU_NONE);
 			}
+#endif
 		}
 		else
 		{
@@ -1811,10 +1815,14 @@ int CIN_PlayCinematic(const char *arg, int x, int y, int w, int h, int systemBit
 	if(cinTable[currentHandle].alterGameState)
 	{
 		// close the menu
+#if defined(USE_JAVA)
+		Java_UI_SetActiveMenu(UIMENU_NONE);
+#else
 		if(uivm)
 		{
 			VM_Call(uivm, UI_SET_ACTIVE_MENU, UIMENU_NONE);
 		}
+#endif
 	}
 	else
 	{

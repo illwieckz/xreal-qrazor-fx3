@@ -590,7 +590,11 @@ void CL_MouseEvent(int dx, int dy, int time)
 {
 	if(Key_GetCatcher() & KEYCATCH_UI)
 	{
+#if defined(USE_JAVA)
+		Java_UI_MouseEvent(dx, dy);
+#else
 		VM_Call(uivm, UI_MOUSE_EVENT, dx, dy);
+#endif
 	}
 	else if(Key_GetCatcher() & KEYCATCH_CGAME)
 	{
@@ -808,7 +812,7 @@ void CL_CmdButtons(usercmd_t * cmd)
 	// figure button bits
 	// send a button bit even if the key was pressed and released in
 	// less than a frame
-	//  
+	//
 	for(i = 0; i < 15; i++)
 	{
 		if(in_buttons[i].active || in_buttons[i].wasPressed)

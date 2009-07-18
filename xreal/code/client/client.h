@@ -89,7 +89,7 @@ typedef struct
 
 // the parseEntities array must be large enough to hold PACKET_BACKUP frames of
 // entities, so that when a delta compressed message arives from the server
-// it can be un-deltad from the original 
+// it can be un-deltad from the original
 #define	MAX_PARSE_ENTITIES	2048
 
 extern int      g_console_field_width;
@@ -362,7 +362,9 @@ extern clientStatic_t cls;
 //=============================================================================
 
 extern vm_t    *cgvm;			// interface to cgame dll or vm
+#if !defined(USE_JAVA)
 extern vm_t    *uivm;			// interface to ui dll or vm
+#endif
 extern refexport_t re;			// interface to refresh .dll
 
 
@@ -647,6 +649,18 @@ int             Key_GetCatcher(void);
 void            Key_SetCatcher(int catcher);
 void            LAN_LoadCachedServers(void);
 void            LAN_SaveServersToCache(void);
+
+#if defined(USE_JAVA)
+void			Java_UI_Init(void);
+void			Java_UI_Shutdown(void);
+void			Java_UI_KeyEvent(int key, qboolean down);
+void			Java_UI_MouseEvent(int dx, int dy);
+void			Java_UI_Refresh(int time);
+qboolean		Java_UI_IsFullscreen(void);
+void			Java_UI_SetActiveMenu(uiMenuCommand_t menu);
+void			Java_UI_DrawConnectScreen(qboolean overlay);
+qboolean		Java_UI_ConsoleCommand(int realTime);
+#endif
 
 
 //

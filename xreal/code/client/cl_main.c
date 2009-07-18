@@ -1372,10 +1372,17 @@ void CL_Disconnect(qboolean showMainMenu)
 		clc.demofile = 0;
 	}
 
+#if defined(USE_JAVA)
+	if(showMainMenu)
+	{
+		Java_UI_SetActiveMenu(UIMENU_NONE);
+	}
+#else
 	if(uivm && showMainMenu)
 	{
 		VM_Call(uivm, UI_SET_ACTIVE_MENU, UIMENU_NONE);
 	}
+#endif
 
 	SCR_StopCinematic();
 	S_ClearSoundBuffer();
@@ -2881,11 +2888,19 @@ void CL_Frame(int msec)
 	}
 	else
 #endif
-	if(cls.state == CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_UI) && !com_sv_running->integer && uivm)
+
+	if(cls.state == CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_UI) && !com_sv_running->integer)
 	{
-		// if disconnected, bring up the menu
-		S_StopAllSounds();
-		VM_Call(uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN);
+#if defined(USE_JAVA)
+		Java_UI_SetActiveMenu(UIMENU_MAIN);
+#else
+		if(uivm)
+		{
+			// if disconnected, bring up the menu
+			S_StopAllSounds();
+			VM_Call(uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN);
+		}
+#endif
 	}
 
 	// if recording an avi, lock to a fixed fps
