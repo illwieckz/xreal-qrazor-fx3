@@ -78,6 +78,20 @@ public class Color {
 			alpha = 1;
 	}
 
+	/*
+	@Override
+	public boolean equals(Object obj) {
+		Color c = (Color) obj;
+		
+		return (this.red == c.red && this.green == c.green && this.blue == c.blue && this.alpha == c.alpha);
+	}
+	*/
+
+	@Override
+	public String toString() {
+		return "(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
+	}
+
 	public static final Color Black = new Color(0, 0, 0, 1);
 	public static final Color Red = new Color(1, 0, 0, 1);
 	public static final Color Green = new Color(0, 1, 0, 1);

@@ -9,9 +9,9 @@ public interface UserInterfaceListener {
 
 	public void shutdownUserInterface();
 
-	public void keyEvent(int key, boolean down);
+	public void keyEvent(int time, int key, boolean down);
 
-	public void mouseEvent(int dx, int dy);
+	public void mouseEvent(int time, int dx, int dy);
 
 	public void refresh(int time);
 

@@ -4,24 +4,32 @@ import xreal.Engine;
 import xreal.client.Client;
 import xreal.client.KeyCatchers;
 import xreal.client.renderer.Renderer;
+import xreal.client.ui.event.MouseEvent;
 
 /**
  * 
  * @author Robert Beckebans
  */
-public class UserInterface implements UserInterfaceListener {
+public class UserInterface extends Container implements UserInterfaceListener {
+	
+	// all drawing is done to a 640*480 virtual screen size
+	// and will be automatically scaled to the real resolution
+	public static final int SCREEN_WIDTH = 640;
+	public static final int SCREEN_HEIGHT = 480;
 
 	private int vidWidth;
 	private int vidHeight;
 	private float windowAspect;
 
-	private float screenScale;
-	private float screenXBias;
-	private float screenYBias;
-	private float screenXScale;
-	private float screenYScale;
+	private static float screenScale;
+	private static float screenXBias;
+	private static float screenYBias;
+	private static float screenXScale;
+	private static float screenYScale;
 
 	private int backgroundMaterial;
+	
+	private Cursor cursor = new Cursor();
 
 	public UserInterface(int vidWidth, int vidHeight, float windowAspect) {
 		super();
@@ -51,6 +59,8 @@ public class UserInterface implements UserInterfaceListener {
 			// no wide screen
 			screenXBias = screenYBias = 0;
 		}
+		
+		children.add(cursor);
 	}
 
 	@Override
@@ -88,24 +98,28 @@ public class UserInterface implements UserInterfaceListener {
 	}
 
 	@Override
-	public void keyEvent(int key, boolean down) {
-		//Engine.println("UserInterface.keyEvent(key = " + key + ", down = " + down + ")");
+	public void keyEvent(int time, int key, boolean down) {
+		Engine.println("UserInterface.keyEvent(time = " + time + ", key = " + key + ", down = " + down + ")");
 
 		// TODO
 	}
 
 	@Override
-	public void mouseEvent(int dx, int dy) {
-		//Engine.println("UserInterface.mouseEvent(dx = " + dx + ", dy = " + dy + ")");
-
-		// TODO
+	public void mouseEvent(int time, int dx, int dy) {
+		//Engine.println("UserInterface.mouseEvent(time = " + time + ", dx = " + dx + ", dy = " + dy + ")");
+		
+		fireEvent(new MouseEvent(this, time, 0, dx, dy));
 	}
 
 	@Override
 	public void refresh(int time) {
 		// Engine.println("UserInterface.refresh(time = " + time + ")");
-
-		// TODO
+		
+		render();
+	}
+	
+	@Override
+	public void render() {
 		
 		// render background
 		Rectangle rect = new Rectangle(0, 0, 640, 480);
@@ -113,6 +127,8 @@ public class UserInterface implements UserInterfaceListener {
 		
 		Renderer.setColor(1, 1, 1, 1);
 		Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, 0, 0, 1, 1, backgroundMaterial);
+		
+		super.render();
 	}
 
 	@Override
@@ -133,7 +149,7 @@ public class UserInterface implements UserInterfaceListener {
 	/**
 	 * Adjusted for resolution and screen aspect ratio
 	 */
-	void adjustFrom640(Rectangle r) {
+	static void adjustFrom640(Rectangle r) {
 		r.x *= screenXScale;
 		r.y *= screenYScale;
 		r.width *= screenXScale;
