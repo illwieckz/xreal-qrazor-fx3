@@ -1,0 +1,23 @@
+
+
+cursors/Azenis/Wait
+{
+	nopicmip
+	nomipmaps
+
+	{
+		map gfx/2d/cursors/Azenis/Wait.png
+		blend blend
+	}
+}
+
+cursors/Ecliz/Wait
+{
+	nopicmip
+	nomipmaps
+
+	{
+		map gfx/2d/cursors/Ecliz/Wait.png
+		blend blend
+	}
+}
