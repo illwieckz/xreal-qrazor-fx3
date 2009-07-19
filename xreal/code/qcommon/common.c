@@ -3182,6 +3182,8 @@ static void Com_GenerateMediaTXT_f(void)
 		   Q_stristr(entry->mediaName, ".c") == NULL &&
 		   Q_stristr(entry->mediaName, ".h") == NULL &&
 		   Q_stristr(entry->mediaName, ".sh") == NULL &&
+		   Q_stristr(entry->mediaName, ".java") == NULL &&
+		   Q_stristr(entry->mediaName, ".class") == NULL &&
 		   Q_stristr(entry->mediaName, ".mtr") == NULL)
 #endif
 		{
