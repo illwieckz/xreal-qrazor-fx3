@@ -1091,8 +1091,8 @@ void UserInterface_javaRegister()
 	// load game interface methods
 	method_UserInterface_initUserInterface = (*javaEnv)->GetMethodID(javaEnv, class_UserInterface, "initUserInterface", "()V");
 	method_UserInterface_shutdownUserInterface = (*javaEnv)->GetMethodID(javaEnv, class_UserInterface, "shutdownUserInterface", "()V");
-	method_UserInterface_keyEvent = (*javaEnv)->GetMethodID(javaEnv, class_UserInterface, "keyEvent", "(IZ)V");
-	method_UserInterface_mouseEvent = (*javaEnv)->GetMethodID(javaEnv, class_UserInterface, "mouseEvent", "(II)V");
+	method_UserInterface_keyEvent = (*javaEnv)->GetMethodID(javaEnv, class_UserInterface, "keyEvent", "(IIZ)V");
+	method_UserInterface_mouseEvent = (*javaEnv)->GetMethodID(javaEnv, class_UserInterface, "mouseEvent", "(III)V");
 	method_UserInterface_refresh = (*javaEnv)->GetMethodID(javaEnv, class_UserInterface, "refresh", "(I)V");
 	method_UserInterface_isFullscreen = (*javaEnv)->GetMethodID(javaEnv, class_UserInterface, "isFullscreen", "()Z");
 	method_UserInterface_setActiveMenu = (*javaEnv)->GetMethodID(javaEnv, class_UserInterface, "setActiveMenu", "(I)V");
@@ -1174,7 +1174,7 @@ void Java_UI_KeyEvent(int key, qboolean down)
 
 	//Com_Printf("Java_UI_KeyEvent(key = %i, down = %i)\n", key, down);
 
-	(*javaEnv)->CallVoidMethod(javaEnv, object_UserInterface, method_UserInterface_keyEvent, key, down);
+	(*javaEnv)->CallVoidMethod(javaEnv, object_UserInterface, method_UserInterface_keyEvent, cls.realtime, key, down);
 
 	if(CheckException())
 	{
@@ -1189,7 +1189,7 @@ void Java_UI_MouseEvent(int dx, int dy)
 
 	//Com_Printf("Java_UI_MouseEvent(dx = %i, dy = %i)\n", dx, dy);
 
-	(*javaEnv)->CallVoidMethod(javaEnv, object_UserInterface, method_UserInterface_mouseEvent, dx, dy);
+	(*javaEnv)->CallVoidMethod(javaEnv, object_UserInterface, method_UserInterface_mouseEvent, cls.realtime, dx, dy);
 
 	if(CheckException())
 	{
