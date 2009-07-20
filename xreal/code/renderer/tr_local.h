@@ -3660,7 +3660,7 @@ RENDERER BACK END COMMAND QUEUE
 =============================================================
 */
 
-#define	MAX_RENDER_COMMANDS	0x40000
+#define	MAX_RENDER_COMMANDS	(0x40000 * 8) // Tr3B: was 0x40000
 
 typedef struct
 {
