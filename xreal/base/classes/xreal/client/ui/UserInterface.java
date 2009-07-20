@@ -3,7 +3,9 @@ package xreal.client.ui;
 import xreal.Engine;
 import xreal.client.Client;
 import xreal.client.KeyCatchers;
+import xreal.client.KeyCode;
 import xreal.client.renderer.Renderer;
+import xreal.client.ui.event.KeyEvent;
 import xreal.client.ui.event.MouseEvent;
 
 /**
@@ -102,6 +104,12 @@ public class UserInterface extends Container implements UserInterfaceListener {
 		Engine.println("UserInterface.keyEvent(time = " + time + ", key = " + key + ", down = " + down + ")");
 
 		// TODO
+		KeyCode keyCode = KeyCode.findKeyCode(key);
+		Engine.println("KeyCode = " + keyCode + ", text = '" + (keyCode != null ? keyCode.getText() : "") + "'");
+		
+		if(keyCode != null) {
+			fireEvent(new KeyEvent(this, time, keyCode, down));
+		}
 	}
 
 	@Override

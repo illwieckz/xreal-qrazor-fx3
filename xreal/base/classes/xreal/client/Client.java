@@ -22,5 +22,31 @@ public class Client {
 	/**
 	 * Set all current key catchers. Be careful when using this method.
 	 */
-	public synchronized native static int setKeyCatchers(int catchers);
+	public synchronized native static void setKeyCatchers(int catchers);
+	
+	private synchronized native static String getKeyBinding(int keynum);
+	
+	/**
+	 * Returns the text that was associated to this key with the console command "bind <button> <binding>" 
+	 */
+	public static String getKeyBinding(KeyCode key) {
+		return getKeyBinding(key.getCode());
+	}
+	
+	private synchronized native static void setKeyBinding(int keynum, String binding);
+	
+	public static void setKeyBinding(KeyCode key, String binding) {
+		setKeyBinding(key.getCode(), binding);
+	}
+	
+	private synchronized native static boolean isKeyDown(int keynum);
+	
+	public static boolean isKeyDown(KeyCode key) {
+		return isKeyDown(key.getCode());
+	}
+	
+	/**
+	 * Issue all remaining key events and reset each key state.
+	 */
+	public synchronized native static void clearKeyStates();
 }

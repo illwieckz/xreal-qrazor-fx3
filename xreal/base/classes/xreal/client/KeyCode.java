@@ -343,7 +343,7 @@ public enum KeyCode
 		this.code = code;
 	}
 	
-	static public KeyCode getKeyCode(int code) {
+	static public KeyCode findKeyCode(int code) {
 		
 		// the char events are just distinguished by or'ing in K_CHAR_FLAG 1024 (ugly)
 		code &= ~1024;
@@ -355,6 +355,30 @@ public enum KeyCode
 		
 		return null;
 	}
+	
+	/**
+	 * Returns a String describing the keyCode, such as "HOME", "F1" or "A".
+	 */
+	public String getText() {
+		return name;
+	}
+	
+	/**
+	 * Returns the integer keyCode associated with the key in this event.
+	 */
+	public int getCode() {
+		return code;
+	}
+	
+	public boolean isDown() {
+		return Client.isKeyDown(this);
+	}
+	
+	/*
+	public char getKeyChar() {
+		return (char) code;
+	}
+	*/
 	
 	/*
 	@Override
