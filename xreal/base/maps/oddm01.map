@@ -6,6 +6,7 @@ Version 2
 "message" "'Spires' By Odin"
 "editor_drLastCameraPos" "-281.465 88.5691 191.031"
 "editor_drLastCameraAngle" "-38.4 198 0"
+"xmap_lightopts" "-fast -filter -super 2 -samplesize 1 -lightmapsize 1024 -pointscale 1 -skyscale 1 -areascale 1 -bounce 1"
 // primitive 0
 {
 brushDef3
