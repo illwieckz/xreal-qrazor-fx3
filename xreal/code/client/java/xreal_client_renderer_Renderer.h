@@ -25,6 +25,14 @@ JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_drawStretchPic
 
 /*
  * Class:     xreal_client_renderer_Renderer
+ * Method:    registerFont
+ * Signature: (Ljava/lang/String;I)Lxreal/client/renderer/Font;
+ */
+JNIEXPORT jobject JNICALL Java_xreal_client_renderer_Renderer_registerFont
+  (JNIEnv *, jclass, jstring, jint);
+
+/*
+ * Class:     xreal_client_renderer_Renderer
  * Method:    registerMaterial
  * Signature: (Ljava/lang/String;)I
  */

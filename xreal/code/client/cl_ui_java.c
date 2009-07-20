@@ -833,6 +833,134 @@ void Client_javaDetach()
 
 // ====================================================================================
 
+
+static jclass class_Glyph = NULL;
+static jmethodID method_Glyph_ctor = NULL;
+
+static jclass   class_Font = NULL;
+static jmethodID method_Font_ctor = NULL;
+
+void Font_javaRegister()
+{
+	class_Glyph = (*javaEnv)->FindClass(javaEnv, "xreal/client/renderer/Glyph");
+	if(CheckException() || !class_Glyph)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.renderer.Glyph");
+	}
+
+	/*
+		public Glyph(int height, int top, int bottom, int pitch, int skip, int imageWidth, int imageHeight, float s, float t, float s2, float t2, int glyph,
+				String materialName) {
+	 */
+
+	method_Glyph_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Glyph, "<init>", "(IIIIIIIFFFFILjava/lang/String;)V");
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.renderer.Glyph");
+	}
+
+
+	class_Font = (*javaEnv)->FindClass(javaEnv, "xreal/client/renderer/Font");
+	if(CheckException() || !class_Font)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.renderer.Font");
+	}
+
+	// public Font(Glyph[] glyphs, float glyphScale, String name)
+	method_Font_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Font, "<init>", "([Lxreal/client/renderer/Glyph;FLjava/lang/String;)V");
+
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.renderer.Font");
+	}
+}
+
+void Font_javaDetach()
+{
+	if(class_Glyph)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Glyph);
+		class_Glyph = NULL;
+	}
+
+	if(class_Font)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Font);
+		class_Font = NULL;
+	}
+}
+
+jobject Java_NewGlyph(const glyphInfo_t * glyph)
+{
+	jobject obj = NULL;
+
+	if(class_Glyph)
+	{
+		jstring name = (*javaEnv)->NewStringUTF(javaEnv, glyph->shaderName);
+
+		/*
+		public Glyph(int height, int top, int bottom, int pitch, int skip, int imageWidth, int imageHeight, float s, float t, float s2, float t2, int glyph,
+					String materialName) {
+		*/
+		obj = (*javaEnv)->NewObject(javaEnv, class_Glyph, method_Glyph_ctor,
+				glyph->height,
+				glyph->top,
+				glyph->bottom,
+				glyph->pitch,
+				glyph->xSkip,
+				glyph->imageWidth,
+				glyph->imageHeight,
+				glyph->s,
+				glyph->t,
+				glyph->s2,
+				glyph->t2,
+				glyph->glyph,
+				name);
+	}
+
+	return obj;
+}
+
+jobject Java_NewFont(const fontInfo_t * font)
+{
+	jobject obj = NULL;
+
+	if(class_Glyph && class_Font)
+	{
+		int i;
+		jobjectArray glyphsArray;
+		jstring name;
+
+		glyphsArray = (*javaEnv)->NewObjectArray(javaEnv, GLYPHS_PER_FONT, class_Glyph, NULL);
+
+		for(i = 0; i < GLYPHS_PER_FONT; i++) {
+			jobject glyph = Java_NewGlyph(&font->glyphs[i]);
+
+			(*javaEnv)->SetObjectArrayElement(javaEnv, glyphsArray, i, glyph);
+		}
+
+		name = (*javaEnv)->NewStringUTF(javaEnv, font->name);
+
+		/*
+		public Font(Glyph[] glyphs, float glyphScale, String name) {
+		*/
+		obj = (*javaEnv)->NewObject(javaEnv, class_Font, method_Font_ctor,
+				glyphsArray,
+				font->glyphScale,
+				name);
+
+		(*javaEnv)->DeleteLocalRef(javaEnv, glyphsArray);
+
+		CheckException();
+	}
+
+	return obj;
+}
+
+// ====================================================================================
+
+
+
 /*
  * Class:     xreal_client_renderer_Renderer
  * Method:    setColor
@@ -859,6 +987,25 @@ void JNICALL Java_xreal_client_renderer_Renderer_setColor(JNIEnv *env, jclass cl
 void JNICALL Java_xreal_client_renderer_Renderer_drawStretchPic(JNIEnv *env, jclass cls, jfloat x, jfloat y, jfloat w, jfloat h, jfloat s1, jfloat t1, jfloat s2, jfloat t2, jint hMaterial)
 {
 	re.DrawStretchPic(x, y, w, h, s1, t1, s2, t2, hMaterial);
+}
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    registerFont
+ * Signature: (Ljava/lang/String;I)Lxreal/client/renderer/Font;
+ */
+jobject JNICALL Java_xreal_client_renderer_Renderer_registerFont(JNIEnv *env, jclass cls, jstring jname, jint pointSize)
+{
+	fontInfo_t      font;
+	char           *name;
+
+	name = (char *)((*env)->GetStringUTFChars(env, jname, 0));
+
+	re.RegisterFont(name, pointSize, &font);
+
+	(*env)->ReleaseStringUTFChars(env, jname, name);
+
+	return Java_NewFont(&font);
 }
 
 /*
@@ -980,6 +1127,7 @@ static jclass   class_Renderer = NULL;
 static JNINativeMethod Renderer_methods[] = {
 	{"setColor", "(FFFF)V", Java_xreal_client_renderer_Renderer_setColor},
 	{"drawStretchPic", "(FFFFFFFFI)V", Java_xreal_client_renderer_Renderer_drawStretchPic},
+	{"registerFont", "(Ljava/lang/String;I)Lxreal/client/renderer/Font;", Java_xreal_client_renderer_Renderer_registerFont},
 	{"registerMaterial", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerMaterial},
 	{"registerMaterialNoMip", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerMaterialNoMip},
 	{"registerMaterialLightAttenuation", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerMaterialLightAttenuation},
@@ -1289,6 +1437,7 @@ void CL_ShutdownUI(void)
 
 	Client_javaDetach();
 	Renderer_javaDetach();
+	Font_javaDetach();
 	UserInterface_javaDetach();
 }
 
@@ -1301,6 +1450,7 @@ void CL_InitUI(void)
 {
 	Client_javaRegister();
 	Renderer_javaRegister();
+	Font_javaRegister();
 	UserInterface_javaRegister();
 
 	// init for this gamestate
