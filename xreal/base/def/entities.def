@@ -42,19 +42,22 @@ entityDef worldspawn
 	"editor_var _receiveshadows" 	"Shadow Receiver Level: Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. > 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities."
 	
 	"spawnclass"					"idWorldspawn"
-	"message"						""
-	"music"							""
-	"ambientColor"                  "0 0 0"
-	"fogColor"                      "0 0 0"
+	"message"					""
+	"music"						""
+	"ambientColor"					"0 0 0"
+	"fogColor"					"0 0 0"
 	"fogDensity"					"0"
-	"gravity"						"800"
+	"gravity"					"800"
 	"perPolyCollision"				"0"
-	"gridsize"						"0"
+	"gridsize"					"0"
 	"_blocksize"					"0"
 	"_lightmapscale"				"1.0"
 	"_floodlight"					"240 240 255 1024 512"
 	"_castshadows"					"0"
 	"_receiveshadows"				"1"
+	"xmap_bspopts"					""
+	"xmap_visopts"					""
+	"xmap_lightopts"				"-fast -filter -lightmapsize 1024"
 }
 
 
