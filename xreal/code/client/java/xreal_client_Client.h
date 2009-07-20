@@ -26,10 +26,42 @@ JNIEXPORT jint JNICALL Java_xreal_client_Client_getKeyCatchers
 /*
  * Class:     xreal_client_Client
  * Method:    setKeyCatchers
- * Signature: (I)I
+ * Signature: (I)V
  */
-JNIEXPORT jint JNICALL Java_xreal_client_Client_setKeyCatchers
+JNIEXPORT void JNICALL Java_xreal_client_Client_setKeyCatchers
   (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getKeyBinding
+ * Signature: (I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_xreal_client_Client_getKeyBinding
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    setKeyBinding
+ * Signature: (ILjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_setKeyBinding
+  (JNIEnv *, jclass, jint, jstring);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    isKeyDown
+ * Signature: (I)Z
+ */
+JNIEXPORT jboolean JNICALL Java_xreal_client_Client_isKeyDown
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    clearKeyStates
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_clearKeyStates
+  (JNIEnv *, jclass);
 
 #ifdef __cplusplus
 }

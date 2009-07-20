@@ -679,85 +679,8 @@ static void CL_GetClipboardData(char *buf, int buflen)
 	Z_Free(cbd);
 }
 
-/*
-====================
-Key_KeynumToStringBuf
-====================
-*/
-static void Key_KeynumToStringBuf(int keynum, char *buf, int buflen)
-{
-	Q_strncpyz(buf, Key_KeynumToString(keynum), buflen);
-}
-
-/*
-====================
-Key_GetBindingBuf
-====================
-*/
-static void Key_GetBindingBuf(int keynum, char *buf, int buflen)
-{
-	char           *value;
-
-	value = Key_GetBinding(keynum);
-	if(value)
-	{
-		Q_strncpyz(buf, value, buflen);
-	}
-	else
-	{
-		*buf = 0;
-	}
-}
-
-/*
-====================
-CLUI_GetCDKey
-====================
-*/
-#ifndef STANDALONE
-static void CLUI_GetCDKey(char *buf, int buflen)
-{
-	cvar_t         *fs;
-
-	fs = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);
-	if(UI_usesUniqueCDKey() && fs && fs->string[0] != 0)
-	{
-		Com_Memcpy(buf, &cl_cdkey[16], 16);
-		buf[16] = 0;
-	}
-	else
-	{
-		Com_Memcpy(buf, cl_cdkey, 16);
-		buf[16] = 0;
-	}
-}
 
 
-/*
-====================
-CLUI_SetCDKey
-====================
-*/
-static void CLUI_SetCDKey(char *buf)
-{
-	cvar_t         *fs;
-
-	fs = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);
-	if(UI_usesUniqueCDKey() && fs && fs->string[0] != 0)
-	{
-		Com_Memcpy(&cl_cdkey[16], buf, 16);
-		cl_cdkey[32] = 0;
-		// set the flag so the fle will be written at the next opportunity
-		cvar_modifiedFlags |= CVAR_ARCHIVE;
-	}
-	else
-	{
-		Com_Memcpy(cl_cdkey, buf, 16);
-		// set the flag so the fle will be written at the next opportunity
-		cvar_modifiedFlags |= CVAR_ARCHIVE;
-	}
-}
-#endif
 
 
 
@@ -800,12 +723,66 @@ jint JNICALL Java_xreal_client_Client_getKeyCatchers(JNIEnv *env, jclass cls)
 /*
  * Class:     xreal_client_Client
  * Method:    setKeyCatchers
- * Signature: (I)I
+ * Signature: (I)V
  */
-JNIEXPORT jint JNICALL Java_xreal_client_Client_setKeyCatchers(JNIEnv *env, jclass cls, jint catchers)
+void JNICALL Java_xreal_client_Client_setKeyCatchers(JNIEnv *env, jclass cls, jint catchers)
 {
 	// Don't allow the modules to close the console
 	Key_SetCatcher(catchers | (Key_GetCatcher() & KEYCATCH_CONSOLE));
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getKeyBinding
+ * Signature: (I)Ljava/lang/String;
+ */
+jstring JNICALL Java_xreal_client_Client_getKeyBinding(JNIEnv *env, jclass cls, jint keynum)
+{
+	char           *value;
+
+	value = Key_GetBinding(keynum);
+	if(value && *value)
+	{
+		return (*env)->NewStringUTF(env, value);
+	}
+
+	return NULL;
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    setKeyBinding
+ * Signature: (ILjava/lang/String;)V
+ */
+void JNICALL Java_xreal_client_Client_setKeyBinding(JNIEnv *env, jclass cls, jint keynum, jstring jbinding)
+{
+	char           *binding;
+
+	binding = (char *)((*env)->GetStringUTFChars(env, jbinding, 0));
+
+	Key_SetBinding(keynum, binding);
+
+	(*env)->ReleaseStringUTFChars(env, jbinding, binding);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    isKeyDown
+ * Signature: (I)Z
+ */
+jboolean JNICALL Java_xreal_client_Client_isKeyDown(JNIEnv *env, jclass cls, jint keynum)
+{
+	return Key_IsDown(keynum);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    clearKeyStates
+ * Signature: ()V
+ */
+void JNICALL Java_xreal_client_Client_clearKeyStates(JNIEnv *env, jclass cls)
+{
+	Key_ClearStates();
 }
 
 // handle to Client class
@@ -813,7 +790,11 @@ static jclass   class_Client = NULL;
 static JNINativeMethod Client_methods[] = {
 	{"getConfigString", "(I)Ljava/lang/String;", Java_xreal_client_Client_getConfigString},
 	{"getKeyCatchers", "()I", Java_xreal_client_Client_getKeyCatchers},
-	{"setKeyCatchers", "(I)I", Java_xreal_client_Client_setKeyCatchers},
+	{"setKeyCatchers", "(I)V", Java_xreal_client_Client_setKeyCatchers},
+	{"getKeyBinding", "(I)Ljava/lang/String;", Java_xreal_client_Client_getKeyBinding},
+	{"setKeyBinding", "(ILjava/lang/String;)V", Java_xreal_client_Client_setKeyBinding},
+	{"isKeyDown", "(I)Z", Java_xreal_client_Client_isKeyDown},
+	{"clearKeyStates", "()V", Java_xreal_client_Client_clearKeyStates},
 };
 
 void Client_javaRegister()
