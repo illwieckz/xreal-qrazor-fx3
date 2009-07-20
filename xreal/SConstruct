@@ -101,16 +101,16 @@ if env['java'] == 1:
 	
 	classFileList = ['base/classes/xreal/Engine.class',
 					 'base/classes/xreal/CVar.class']
-	JavaH(target = 'code/qcommon/java', source = classFileList, JAVACLASSDIR = 'base/classes')
+	env.JavaH(target = 'code/qcommon/java', source = classFileList, JAVACLASSDIR = 'base/classes')
 	
 	classFileList = ['base/classes/xreal/server/Server.class',
 					 'base/classes/xreal/server/game/GameEntity.class',
 					 'base/classes/xreal/server/game/Player.class']
-	JavaH(target = 'code/server/java', source = classFileList, JAVACLASSDIR = 'base/classes')
+	env.JavaH(target = 'code/server/java', source = classFileList, JAVACLASSDIR = 'base/classes')
 	
 	classFileList = ['base/classes/xreal/client/Client.class',
 					 'base/classes/xreal/client/renderer/Renderer.class']
-	JavaH(target = 'code/client/java', source = classFileList, JAVACLASSDIR = 'base/classes')
+	env.JavaH(target = 'code/client/java', source = classFileList, JAVACLASSDIR = 'base/classes')
 
 
 Export('env')
