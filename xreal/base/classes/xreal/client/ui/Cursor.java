@@ -19,8 +19,8 @@ public class Cursor extends Component implements MouseMotionListener {
 		
 		bounds.x = 0;
 		bounds.y = 0;
-		bounds.width = 32;
-		bounds.height = 32;
+		bounds.width = 24;
+		bounds.height = 24;
 		
 		UserInterface.adjustFrom640(bounds);
 	}
@@ -54,8 +54,8 @@ public class Cursor extends Component implements MouseMotionListener {
 		
 		bounds.x = x;
 		bounds.y = y;
-		bounds.width = 32;
-		bounds.height = 32;
+		bounds.width = 24;
+		bounds.height = 24;
 		
 		UserInterface.adjustFrom640(bounds);
 	}

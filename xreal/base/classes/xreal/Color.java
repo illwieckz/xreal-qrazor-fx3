@@ -26,6 +26,33 @@ public class Color {
 		this.blue = blue;
 		this.alpha = 1;
 	}
+	
+	public void set(float red, float green, float blue, float alpha) {
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+		this.alpha = alpha;
+	}
+	
+	public void set(float red, float green, float blue) {
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+		this.alpha = 1;
+	}
+	
+	public void set(Color color) {
+		this.red = color.red;
+		this.green = color.green;
+		this.blue = color.blue;
+		this.alpha = color.alpha;
+	}
+	
+	public void setRGB(Color color) {
+		this.red = color.red;
+		this.green = color.green;
+		this.blue = color.blue;
+	}
 
 	float normalize() {
 		float max;
@@ -51,7 +78,7 @@ public class Color {
 		return max;
 	}
 
-	void clamp() {
+	void clampLDR() {
 
 		if (red < 0)
 			red = 0;
@@ -76,6 +103,21 @@ public class Color {
 
 		if (alpha > 1)
 			alpha = 1;
+	}
+	
+	void clampHDR() {
+
+		if (red < 0)
+			red = 0;
+
+		if (green < 0)
+			green = 0;
+
+		if (blue < 0)
+			blue = 0;
+
+		if (alpha < 0)
+			alpha = 0;
 	}
 
 	/*

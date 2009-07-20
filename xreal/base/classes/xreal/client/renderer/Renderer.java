@@ -1,5 +1,7 @@
 package xreal.client.renderer;
 
+import xreal.Color;
+
 //import xreal.client.renderer.Font;
 
 /**
@@ -13,8 +15,34 @@ public abstract class Renderer {
 	 */
 	public static native void setColor(float red, float green, float blue, float alpha);
 	
+	public static void setColor(Color color) {
+		setColor(color.red, color.green, color.blue, color.alpha);
+	}
+	
+	/**
+	 * Draw a single quad on the screen.
+	 * @param x Vertical position of the upper left corner.
+	 * @param y Horizontal position of the upper left corner.
+	 * @param w Width
+	 * @param h Height
+	 * @param s1
+	 * @param t1
+	 * @param s2
+	 * @param t2
+	 * @param hShader The material.
+	 */
 	public static native void drawStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, int hShader);
 	
+	
+	/**
+	 * Loads a TrueType font and returns its glyphs.
+	 * 
+	 * @param fontName The font name in fonts/ including the .ttf suffix.
+	 * 
+	 * @param pointSize We also need to adjust the scale based on point size relative to 48 points as the ui scaling is based on a 48 point font.
+	 * 					The renderer will do: glyphScale *= 48.0f / pointSize;
+	 * @return
+	 */
 	public static native Font registerFont(String fontName, int pointSize);
 	
 	/**

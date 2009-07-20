@@ -1,5 +1,7 @@
 package xreal.client.ui;
 
+import xreal.Color;
+import xreal.ConsoleColorStrings;
 import xreal.Engine;
 import xreal.client.Client;
 import xreal.client.KeyCatchers;
@@ -144,6 +146,19 @@ public class UserInterface extends Container implements UserInterfaceListener {
 		Renderer.setColor(1, 1, 1, 1);
 		Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, 0, 0, 1, 1, backgroundMaterial);
 		
+		String message = ConsoleColorStrings.YELLOW + "Java " + ConsoleColorStrings.WHITE + "is sooo easy " + ConsoleColorStrings.RED + "!";
+		
+		/*
+		rect = textFont.getStringBounds(message, 0.5f, 0);
+		rect.x = SCREEN_WIDTH / 2;
+		rect.y = SCREEN_HEIGHT / 2;
+		adjustFrom640(rect);
+		*/
+		
+		Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, 0, 0, 1, 1, backgroundMaterial);
+		
+		textFont.paintText(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.5f, Color.White, message, 0, 0, Font.CENTER);
+		
 		super.render();
 	}
 
@@ -165,7 +180,7 @@ public class UserInterface extends Container implements UserInterfaceListener {
 	/**
 	 * Adjusted for resolution and screen aspect ratio
 	 */
-	static void adjustFrom640(Rectangle r) {
+	public static void adjustFrom640(Rectangle r) {
 		r.x *= screenXScale;
 		r.y *= screenYScale;
 		r.width *= screenXScale;
