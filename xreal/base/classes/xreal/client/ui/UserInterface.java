@@ -4,6 +4,7 @@ import xreal.Engine;
 import xreal.client.Client;
 import xreal.client.KeyCatchers;
 import xreal.client.KeyCode;
+import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
 import xreal.client.ui.event.KeyEvent;
 import xreal.client.ui.event.MouseEvent;
@@ -31,7 +32,8 @@ public class UserInterface extends Container implements UserInterfaceListener {
 
 	private int backgroundMaterial;
 	
-	private Cursor cursor = new Cursor();
+	private Cursor cursor;
+	private Font textFont;
 
 	public UserInterface(int vidWidth, int vidHeight, float windowAspect) {
 		super();
@@ -62,7 +64,13 @@ public class UserInterface extends Container implements UserInterfaceListener {
 			screenXBias = screenYBias = 0;
 		}
 		
+		
+		backgroundMaterial = Renderer.registerMaterialNoMip("menuback");
+		
+		cursor = new Cursor();
 		children.add(cursor);
+		
+		textFont = Renderer.registerFont("fonts/Vera.ttf", 48);
 	}
 
 	@Override
@@ -86,8 +94,8 @@ public class UserInterface extends Container implements UserInterfaceListener {
 	public void initUserInterface() {
 		Engine.println("UserInterface.initUserInterface()");
 
-		// TODO
-		backgroundMaterial = Renderer.registerMaterialNoMip("menuback");
+		// TODO ?
+		
 	}
 
 	@Override

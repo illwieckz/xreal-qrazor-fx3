@@ -1,5 +1,7 @@
 package xreal.client.renderer;
 
+//import xreal.client.renderer.Font;
+
 /**
  * 
  * @author Robert Beckebans
@@ -12,6 +14,8 @@ public abstract class Renderer {
 	public static native void setColor(float red, float green, float blue, float alpha);
 	
 	public static native void drawStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, int hShader);
+	
+	public static native Font registerFont(String fontName, int pointSize);
 	
 	/**
 	 * Loads a material for 2D or 3D rendering if it's not already loaded.
