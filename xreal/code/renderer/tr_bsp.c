@@ -101,7 +101,8 @@ void HSVtoRGB(float h, float s, float v, float rgb[3])
 R_ColorShiftLightingBytes
 ===============
 */
-/*static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
+#if defined(COMPAT_Q3A)
+static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
 {
 	int             shift, r, g, b;
 
@@ -129,14 +130,16 @@ R_ColorShiftLightingBytes
 	out[1] = g;
 	out[2] = b;
 	out[3] = in[3];
-}*/
+}
+#endif
 
 /*
 ===============
 R_ColorShiftLightingFloats
 ===============
 */
-/*static void R_ColorShiftLightingFloats(const vec4_t in, vec4_t out)
+#if defined(COMPAT_Q3A)
+static void R_ColorShiftLightingFloats(const vec4_t in, vec4_t out)
 {
 	int             shift, r, g, b;
 
@@ -164,7 +167,8 @@ R_ColorShiftLightingFloats
 	out[1] = g * (1.0f / 255.0f);
 	out[2] = b * (1.0f / 255.0f);
 	out[3] = in[3];
-}*/
+}
+#endif
 
 /*
 ===============
@@ -696,10 +700,8 @@ R_LoadLightmaps
 #define	LIGHTMAP_SIZE	128
 static void R_LoadLightmaps(lump_t * l, const char *bspName)
 {
-	//byte           *buf, *buf_p;
 	int             len;
 	image_t        *image;
-	//static byte     data[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
 	int             i;
 	int             numLightmaps;
 
@@ -901,6 +903,8 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 #if 0 //defined(COMPAT_Q3A)
 	else
 	{
+		static byte     data[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
+
 		buf = fileBase + l->fileofs;
 
 		// we are about to upload textures
@@ -957,6 +961,8 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 	else
 	{
 		int             i;
+		byte           *buf, *buf_p;
+
 		//int       BIGSIZE=2048;
 		//int       BIGNUM=16;
 
@@ -1058,7 +1064,8 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 #endif
 }
 
-/*static float FatPackU(float input, int lightmapnum)
+#if defined(COMPAT_Q3A)
+static float FatPackU(float input, int lightmapnum)
 {
 	int             x = lightmapnum % tr.fatLightmapStep;
 
@@ -1071,7 +1078,8 @@ static float FatPackV(float input, int lightmapnum)
 	int             y = lightmapnum / ((float)tr.fatLightmapStep);
 
 	return (input / ((float)tr.fatLightmapStep)) + ((1.0 / ((float)tr.fatLightmapStep)) * (float)y);
-}*/
+}
+#endif
 
 /*
 =================
