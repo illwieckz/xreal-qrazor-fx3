@@ -10,10 +10,11 @@ public class Container extends Component {
 	protected Set<Component> children = new LinkedHashSet<Component>();
 
 	protected void fireEvent(Event e) {
+		
+		processEvent(e);
 
 		for (Component l : children) {
-			if (l.consumeEvent(e))
-				break;
+			l.processEvent(e);
 		}
 	}
 

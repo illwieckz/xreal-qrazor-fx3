@@ -1,5 +1,8 @@
 package xreal.client.ui;
 
+import java.util.Stack;
+
+import xreal.CVars;
 import xreal.Color;
 import xreal.ConsoleColorStrings;
 import xreal.Engine;
@@ -10,17 +13,26 @@ import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
 import xreal.client.ui.event.KeyEvent;
 import xreal.client.ui.event.MouseEvent;
+import xreal.client.ui.menu.MenuFrame;
 
 /**
- * 
  * @author Robert Beckebans
  */
-public class UserInterface extends Container implements UserInterfaceListener {
+public class UserInterface implements UserInterfaceListener {
 	
 	// all drawing is done to a 640*480 virtual screen size
 	// and will be automatically scaled to the real resolution
 	public static final int SCREEN_WIDTH = 640;
 	public static final int SCREEN_HEIGHT = 480;
+	
+	private enum MenuCommand
+	{
+		NONE,
+		MAIN,
+		INGAME,
+		TEAM,
+		POSTGAME
+	}
 
 	private int vidWidth;
 	private int vidHeight;
@@ -31,11 +43,20 @@ public class UserInterface extends Container implements UserInterfaceListener {
 	private static float screenYBias;
 	private static float screenXScale;
 	private static float screenYScale;
+	
+	private static int realTime;
+	private static int frameTime;
+	
+	static Stack<MenuFrame> menuStack;
+	
+	MenuFrame mainMenu;
 
 	private int backgroundMaterial;
 	
-	private Cursor cursor;
-	private Font textFont;
+	private static Cursor cursor;
+	public static Cursor getCursor() {
+		return cursor;
+	}
 
 	public UserInterface(int vidWidth, int vidHeight, float windowAspect) {
 		super();
@@ -69,10 +90,10 @@ public class UserInterface extends Container implements UserInterfaceListener {
 		
 		backgroundMaterial = Renderer.registerMaterialNoMip("menuback");
 		
+		menuStack = new Stack<MenuFrame>();
 		cursor = new Cursor();
-		children.add(cursor);
 		
-		textFont = Renderer.registerFont("fonts/Vera.ttf", 48);
+		mainMenu = new MainMenu();
 	}
 
 	@Override
@@ -113,12 +134,16 @@ public class UserInterface extends Container implements UserInterfaceListener {
 	public void keyEvent(int time, int key, boolean down) {
 		Engine.println("UserInterface.keyEvent(time = " + time + ", key = " + key + ", down = " + down + ")");
 
-		// TODO
-		KeyCode keyCode = KeyCode.findKeyCode(key);
-		Engine.println("KeyCode = " + keyCode + ", text = '" + (keyCode != null ? keyCode.getText() : "") + "'");
+		if(!menuStack.isEmpty())
+		{
+			MenuFrame activeMenu = menuStack.peek();
+			
+			KeyCode keyCode = KeyCode.findKeyCode(key);
+			Engine.println("KeyCode = " + keyCode + ", text = '" + (keyCode != null ? keyCode.getText() : "") + "'");
 		
-		if(keyCode != null) {
-			fireEvent(new KeyEvent(this, time, keyCode, down));
+			if(keyCode != null) {
+				activeMenu.fireEvent(new KeyEvent(activeMenu, time, keyCode, down));
+			}
 		}
 	}
 
@@ -126,48 +151,124 @@ public class UserInterface extends Container implements UserInterfaceListener {
 	public void mouseEvent(int time, int dx, int dy) {
 		//Engine.println("UserInterface.mouseEvent(time = " + time + ", dx = " + dx + ", dy = " + dy + ")");
 		
-		fireEvent(new MouseEvent(this, time, 0, dx, dy));
+		if(!menuStack.isEmpty())
+		{
+			MenuFrame activeMenu = menuStack.peek();
+			
+			activeMenu.fireEvent(new MouseEvent(activeMenu, time, 0, dx, dy));
+		}
 	}
 
 	@Override
 	public void refresh(int time) {
 		// Engine.println("UserInterface.refresh(time = " + time + ")");
 		
-		render();
+		this.frameTime = time - realTime;
+		this.realTime = time;
+		
+		if(!menuStack.isEmpty())
+		{
+			MenuFrame activeMenu = menuStack.peek();
+			
+			//if(activeMenu.isFullscreen())
+			{
+//	          // draw the background
+//	          if(uis.activemenu->showlogo)
+//	          {
+	//FIXME: non 4:3 resolutions are causeing black bars
+				
+				// render background
+				Rectangle rect = new Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+				adjustFrom640(rect);
+				Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, 0, 0, 1, 1, backgroundMaterial);
+//	          }
+//	          else
+//	          {
+//	              UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackNoLogoShader);
+//	          }
+			}
+
+			activeMenu.render();
+
+			/*
+			if(uis.firstdraw)
+			{
+				UI_MouseEvent(0, 0);
+				uis.firstdraw = qfalse;
+			}
+			*/
+		}
 	}
 	
-	@Override
-	public void render() {
+	public static void pushMenu(MenuFrame menu)
+	{
+		// avoid stacking menus invoked by hotkeys
+		if(menuStack.search(menu) == -1) {
+			menuStack.push(menu);
+		}
 		
-		// render background
-		Rectangle rect = new Rectangle(0, 0, 640, 480);
-		adjustFrom640(rect);
+		//Engine.println("pushMenu stack size = " + stack.size());
+
+		// default cursor position
+		//menu->cursor = 0;
+		//menu->cursor_prev = 0;
+
+		//m_entersound = qtrue;
+
+		Client.setKeyCatchers(KeyCatchers.UI);
+	}
+	
+	public static void popMenu()
+	{
+		//trap_S_StartLocalSound(menu_out_sound, CHAN_LOCAL_SOUND);
+
+		menuStack.pop();
+		forceMenuOff();
+	}
+	
+	private static void forceMenuOff()
+	{
+		while(!menuStack.isEmpty()) {
+			menuStack.pop();
+		}
+
+		Client.setKeyCatchers(Client.getKeyCatchers() & ~KeyCatchers.UI);
+		Client.clearKeyStates();
 		
-		Renderer.setColor(1, 1, 1, 1);
-		Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, 0, 0, 1, 1, backgroundMaterial);
+		CVars.cl_paused.set("0");
+	}
+	
+	private void activateMainMenu() {
+		CVars.sv_killserver.set("1");
 		
-		String message = ConsoleColorStrings.YELLOW + "Java " + ConsoleColorStrings.WHITE + "is sooo easy " + ConsoleColorStrings.RED + "!";
+		pushMenu(mainMenu);
+	}
+	
+	private void activateInGameMenu() {
+		Engine.println("UserInterface.activateInGameMenu() TODO");
 		
-		/*
-		rect = textFont.getStringBounds(message, 0.5f, 0);
-		rect.x = SCREEN_WIDTH / 2;
-		rect.y = SCREEN_HEIGHT / 2;
-		adjustFrom640(rect);
-		*/
-		
-		Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, 0, 0, 1, 1, backgroundMaterial);
-		
-		textFont.paintText(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.5f, Color.White, message, 0, 0, Font.CENTER);
-		
-		super.render();
+		//Cvars.cl_paused.set("1")
 	}
 
 	@Override
 	public void setActiveMenu(int menu) {
-		// Engine.println("UserInterface.setActiveMenu(menu = " + menu + ")");
+		//Engine.println("UserInterface.setActiveMenu(menu = " + menu + ")");
 
-		// TODO
-		Client.setKeyCatchers(KeyCatchers.UI);
+		MenuCommand cmd = MenuCommand.values()[menu];
+		switch (cmd)
+		{
+			case NONE:
+				forceMenuOff();
+				return;
+				
+			case MAIN:
+				activateMainMenu();
+				return;
+				
+			case INGAME:
+				activateInGameMenu();
+				return;
+		}
 	}
 
 	@Override
@@ -194,5 +295,12 @@ public class UserInterface extends Container implements UserInterfaceListener {
 		 *h *= uis.screenScale;
 		 */
 	}
-
+	
+	public static int getRealTime() {
+		return realTime;
+	}
+	
+	public static int getFrameTime() {
+		return frameTime;
+	}
 }

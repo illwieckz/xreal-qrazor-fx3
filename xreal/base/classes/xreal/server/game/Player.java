@@ -3,6 +3,7 @@ package xreal.server.game;
 import javax.vecmath.Vector3f;
 
 import xreal.Angle3f;
+import xreal.CVars;
 import xreal.ConsoleColorStrings;
 import xreal.Engine;
 import xreal.PlayerStateAccess;
@@ -929,7 +930,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	@Override
 	public boolean hasPlayerState_pm_flags(int pm_flags) {
-		return (getPlayerState_pm_flags() & pm_flags) > 0;
+		return (getPlayerState_pm_flags() & pm_flags) != 0;
 	}
 	
 	// --------------------------------------------------------------------------------------------

@@ -1,12 +1,10 @@
-package xreal.server.game;
+package xreal;
 
-import xreal.CVar;
 
-public class CVars {
+public abstract class CVars {
 	
-	// don't override the cheat state set by the system
-	public static final CVar g_cheats = new CVar("sv_cheats", "", 0);
-
+	public static final CVar cl_paused = new CVar("cl_paused", "0", CVar.ROM);
+	
 	// noset vars
 //	{NULL, "gamename", GAMEVERSION, CVar.SERVERINFO | CVar.ROM, 0, qfalse},
 //	{NULL, "gamedate", __DATE__, CVar.ROM, 0, qfalse},
@@ -35,4 +33,9 @@ public class CVars {
 	
 	// FIXME: should be 313.92 = 9.81 * 32 SI gravity in Quake units
 	public static final CVar g_gravityZ = new CVar("g_gravityZ", "-200", CVar.SYSTEMINFO);
+	
+	// don't override the cheat state set by the system
+	public static final CVar sv_cheats = new CVar("sv_cheats", "", 0);
+	public static final CVar sv_killserver = new CVar("sv_killserver", "", 0);
+
 }

@@ -2,8 +2,6 @@ package xreal.client.renderer;
 
 import xreal.Color;
 
-//import xreal.client.renderer.Font;
-
 /**
  * 
  * @author Robert Beckebans

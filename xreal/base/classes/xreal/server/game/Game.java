@@ -24,6 +24,7 @@ import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSo
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.Transform;
 
+import xreal.CVars;
 import xreal.CollisionBspReader;
 import xreal.Engine;
 import xreal.common.Config;

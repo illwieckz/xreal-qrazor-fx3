@@ -18,6 +18,14 @@ public class Color {
 		this.blue = blue;
 		this.alpha = alpha;
 	}
+	
+	public Color(Color c) {
+		super();
+		this.red = c.red;
+		this.green = c.green;
+		this.blue = c.blue;
+		this.alpha = c.alpha;
+	}
 
 	public Color(float red, float green, float blue) {
 		super();

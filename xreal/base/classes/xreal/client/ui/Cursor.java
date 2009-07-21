@@ -21,8 +21,6 @@ public class Cursor extends Component implements MouseMotionListener {
 		bounds.y = 0;
 		bounds.width = 24;
 		bounds.height = 24;
-		
-		UserInterface.adjustFrom640(bounds);
 	}
 	
 	public void render() {
@@ -31,8 +29,11 @@ public class Cursor extends Component implements MouseMotionListener {
 		frame--;
 		frame %= 10;
 		
+		Rectangle rect = new Rectangle(bounds);
+		UserInterface.adjustFrom640(rect);
+		
 		Renderer.setColor(1, 1, 1, 1);
-		Renderer.drawStretchPic(bounds.x, bounds.y, bounds.width, bounds.height, (frame * 0.1f) + 0.02f, 0, ((frame + 1) * 0.1f) + 0.02f, 1, material);
+		Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, (frame * 0.1f) + 0.02f, 0, ((frame + 1) * 0.1f) + 0.02f, 1, material);
 	}
 
 	@Override
@@ -56,18 +57,14 @@ public class Cursor extends Component implements MouseMotionListener {
 		bounds.y = y;
 		bounds.width = 24;
 		bounds.height = 24;
-		
-		UserInterface.adjustFrom640(bounds);
 	}
 
 	@Override
-	public boolean consumeEvent(Event e) {
+	public void processEvent(Event e) {
 		if (e instanceof MouseEvent) {
 			mouseMoved((MouseEvent) e);
-			
-			return true;
 		}
 		
-		return super.consumeEvent(e);
+		super.processEvent(e);
 	}
 }
