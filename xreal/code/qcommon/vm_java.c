@@ -20,10 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include "q_shared.h"
+
 #if defined(USE_JAVA)
 
 #ifdef WIN32
-#define DEFAULT_JAVA_LIB "jvm.dll"
+#define DEFAULT_JAVA_LIB "jre/bin/server/jvm.dll"
 #elif defined(MACOS_X)
 #define DEFAULT_JAVA_LIB "java.dylib"
 #else
@@ -34,7 +36,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
-#include "q_shared.h"
 #include "qcommon.h"
 #include "vm_java.h"
 #include "../sys/sys_loadlib.h"
@@ -44,6 +45,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static cvar_t  *jvm_javaLib;
 static cvar_t  *jvm_useJITCompiler;
+static cvar_t  *jvm_useJAR;
 
 JNIEnv         *javaEnv;
 JavaVM         *javaVM;
@@ -51,10 +53,12 @@ static void    *javaLib = NULL;
 qboolean        javaEnabled = qfalse;
 qboolean        javaVMIsOurs = qfalse;
 
-jint(*QJNI_CreateJavaVM) (JavaVM ** p_vm, JNIEnv ** p_env, void *vm_args);
-jint(*QJNI_GetCreatedJavaVMs) (JavaVM ** vmBuf, jsize bufLen, jsize * nVMs);
+#define USE_JAVA_DLOPEN 1
 
+#if defined(USE_JAVA_DLOPEN)
 
+static jint (JNICALL *QJNI_CreateJavaVM) (JavaVM ** p_vm, void ** p_env, void *vm_args);
+static jint (JNICALL *QJNI_GetCreatedJavaVMs) (JavaVM ** vmBuf, jsize bufLen, jsize * nVMs);
 
 static void    *GPA(char *str)
 {
@@ -127,6 +131,8 @@ static qboolean JVM_JNI_Init()
 
 	return qtrue;
 }
+
+#endif
 
 // ====================================================================================
 
@@ -676,15 +682,12 @@ void Engine_javaDetach()
  */
 void ConvertJavaString(char *dest, jstring jstr, int destsize)
 {
-	if(!jstr)
-	{
-		Com_Error(ERR_FATAL, "ConvertJavaString: NULL src");
-	}
+	jsize           jStrLen;
+	const jchar    *unicodeChars;
 
-	if(destsize < 1)
-	{
-		Com_Error(ERR_FATAL, "ConvertJavaString: destsize < 1");
-	}
+//  char           *result;
+	int             i;
+	char           *p;
 
 	// table for translating accented latin-1 characters to closest non-accented chars
 	// Icelandic thorn and eth are difficult, so I just used an asterisk
@@ -695,12 +698,17 @@ void ConvertJavaString(char *dest, jstring jstr, int destsize)
 	// this translation table starts at decimal 192 (capital A, grave accent: �)
 	static char    *translateTable = "AAAAAA*CEEEEIIIIDNOOOOOxOUUUUY*saaaaaa*ceeeeiiii*nooooo/ouuuuy*y";
 
-	jsize           jStrLen;
-	const jchar    *unicodeChars;
+	if(!jstr)
+	{
+		Com_Error(ERR_FATAL, "ConvertJavaString: NULL src");
+	}
 
-//  char           *result;
-	int             i;
-	char           *p;
+	if(destsize < 1)
+	{
+		Com_Error(ERR_FATAL, "ConvertJavaString: destsize < 1");
+	}
+
+	
 
 	jStrLen = Q_min((*javaEnv)->GetStringLength(javaEnv, jstr), destsize);
 
@@ -785,7 +793,9 @@ void JVM_Shutdown(void)
 			Com_Printf("Java VM Destroyed\n");
 		}
 
+#if defined(USE_JAVA_DLOPEN)
 		JVM_JNI_Shutdown();
+#endif
 	}
 	else
 	{
@@ -796,20 +806,26 @@ void JVM_Shutdown(void)
 	}
 }
 
+
+
 void JVM_Init(void)
 {
-	JavaVM         *jvm;
-	jsize           nVMs;		// number of VM's active
-	jint            res;
+	jint            nVMs = 0;		// number of VM's active
 	JavaVMInitArgs  vm_args;
 	JavaVMOption    options[2];
 
-	char            mainClassPath[MAX_QPATH];
+	char classPath[MAX_QPATH];
+
+	//memset(&vm_args, 0, sizeof(vm_args));
+	//memset(options, 0, sizeof(options));
+
+	memset(classPath, 0, sizeof(classPath));
 
 	Com_Printf("------- JVM_Init() -------\n");
 
 	jvm_javaLib = Cvar_Get("jvm_javaLib", DEFAULT_JAVA_LIB, CVAR_ARCHIVE);
 	jvm_useJITCompiler = Cvar_Get("jvm_useJITCompiler", "1", CVAR_INIT);
+	jvm_useJAR = Cvar_Get("jvm_useJAR", "1", CVAR_ARCHIVE);
 
 	if(!jvm_useJITCompiler->integer)
 	{
@@ -821,9 +837,21 @@ void JVM_Init(void)
 		options[0].optionString = "-Djava.compiler=YES";
 	}
 
-	Com_sprintf(mainClassPath, sizeof(mainClassPath), "-Djava.class.path=%s",
-				FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "classes"));
-	options[1].optionString = mainClassPath;
+	// TODO support sv_pure
+	if(jvm_useJAR->integer)
+	{
+		Com_sprintf(classPath, sizeof(classPath), "-Djava.class.path=%s",
+					FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "game.jar"));
+	}
+	else
+	{
+		Com_sprintf(classPath, sizeof(classPath), "-Djava.class.path=%s",
+					FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "classes"));
+	}
+
+	options[1].optionString = classPath;
+
+	Com_Printf("Set main class path to '%s'\n", classPath);
 
 	//options[2].optionString = "-Xdebug";
 	//options[3].optionString = "-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y";
@@ -834,50 +862,66 @@ void JVM_Init(void)
 	//
 
 
-	vm_args.version = JNI_VERSION_1_2;
+	vm_args.version = JNI_VERSION_1_4; 
 	vm_args.options = options;
 	vm_args.nOptions = 2;
 	vm_args.ignoreUnrecognized = JNI_TRUE;
 
+#if defined(USE_JAVA_DLOPEN)
 	if(!JVM_JNI_Init())
 	{
 		Com_Error(ERR_FATAL, "JNI initialization failed");
 	}
+#endif
 
 	Com_Printf("Searching for existing Java VM's ...");
 
 	// look for an existing VM
-	if(QJNI_GetCreatedJavaVMs(&jvm, 1, &nVMs))
+#if defined(USE_JAVA_DLOPEN)
+	if(QJNI_GetCreatedJavaVMs(&javaVM, 1, &nVMs) != JNI_OK)
+#else
+	if(JNI_GetCreatedJavaVMs(&javaVM, 1, &nVMs) != JNI_OK)
+#endif
 	{
 		Com_Error(ERR_FATAL, "Search for existing VM's failed");
 	}
 
 	Com_Printf("found %i\n", nVMs);
 
-	if(nVMs)
+#if 1
+	if(nVMs > 0)
 	{
-		if((*jvm)->AttachCurrentThread(jvm, (void **)&javaEnv, NULL))
+		Com_Printf("Attaching to existing Java VM...");
+
+		if((*javaVM)->AttachCurrentThread(javaVM, (void **)&javaEnv, NULL))
 		{
 			Com_Error(ERR_FATAL, "Couldn't attach to existing VM");
 		}
 
 		javaVMIsOurs = qfalse;
-		javaVM = jvm;
+		//javaVM = jvm;
 
-		Com_Printf("attached to existing Java VM\n");
+		Com_Printf("done\n");
 	}
 	else
+#endif
 	{
+		int res;
+
 		Com_Printf("Creating new Java VM...");
 
 		// Create the Java VM
-		res = QJNI_CreateJavaVM(&jvm, (void **)&javaEnv, &vm_args);
-		if(res < 0)
+#if defined(USE_JAVA_DLOPEN)
+		res = QJNI_CreateJavaVM(&javaVM, (void **)&javaEnv, &vm_args);
+#else
+		res = JNI_CreateJavaVM(&javaVM, (void **)&javaEnv, &vm_args);
+#endif
+		if(res != JNI_OK )
 		{
-			Com_Error(ERR_FATAL, "Can't create Java VM");
+			Com_Error(ERR_FATAL, "Can't create Java VM, JNI returned %i", res);
 		}
 
-		javaVM = jvm;
+		//javaVM = jvm;
 
 		Com_Printf("done\n");
 	}

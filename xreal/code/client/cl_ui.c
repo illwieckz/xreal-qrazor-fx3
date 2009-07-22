@@ -21,9 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#if !defined(USE_JAVA)
-
 #include "client.h"
+
+#if !defined(USE_JAVA)
 
 vm_t           *uivm;
 

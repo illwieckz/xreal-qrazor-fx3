@@ -21,9 +21,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include "client.h"
+
 #if defined(USE_JAVA)
 
-#include "client.h"
 #include "../qcommon/vm_java.h"
 //#include "java/xreal_client_Client.h"
 

@@ -21,10 +21,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include "server.h"
+
 #if defined(USE_JAVA)
 
-
-#include "server.h"
 #include "../qcommon/vm_java.h"
 #include "java/xreal_server_Server.h"
 #include "java/xreal_server_game_GameEntity.h"

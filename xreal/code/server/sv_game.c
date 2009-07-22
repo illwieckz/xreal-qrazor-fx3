@@ -21,11 +21,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#if !defined(USE_JAVA)
-
 // sv_game.c -- interface to the game dll
 #include "server.h"
 
+#if !defined(USE_JAVA)
 
 void SV_GameError(const char *string)
 {

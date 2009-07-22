@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include;.\theora\include"
+				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include;.\theora\include;..\jdk\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;STANDALONE;USE_CODEC_VORBIS;USE_VOIP;HAVE_CONFIG_H;USE_CIN_THEORA"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
@@ -78,11 +78,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib jvm.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".\freetype\objs\"
+				AdditionalLibraryDirectories=".\freetype\objs\;..\jdk\lib"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/xreal.pdb"
@@ -154,8 +154,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
+				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include;.\theora\include"
+				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include;.\theora\include;..\jdk\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;STANDALONE;SIMD_SSE;USE_CODEC_VORBIS;USE_VOIP;HAVE_CONFIG_H;USE_CIN_THEORA"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -169,6 +170,7 @@
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -183,17 +185,17 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib jvm.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".\freetype\objs\"
+				AdditionalLibraryDirectories=".\freetype\objs\;..\jdk\lib"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Release/xreal.pdb"
+				ProgramDatabaseFile="$(OutDir)/xreal.pdb"
 				GenerateMapFile="true"
-				MapFileName=".\Release/xreal.map"
+				MapFileName="$(OutDir)/xreal.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
 				RandomizedBaseAddress="1"
@@ -491,6 +493,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\client\cl_ui_java.c"
+				>
 			</File>
 			<File
 				RelativePath="qcommon\cm_load.c"
@@ -1086,6 +1092,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\server\sv_game_java.c"
+				>
+			</File>
+			<File
 				RelativePath="server\sv_init.c"
 				>
 				<FileConfiguration
@@ -1355,6 +1365,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\qcommon\vm_java.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1484,6 +1498,38 @@
 				RelativePath="qcommon\vm_local.h"
 				>
 			</File>
+			<Filter
+				Name="java"
+				>
+				<File
+					RelativePath=".\client\java\xreal_client_Client.h"
+					>
+				</File>
+				<File
+					RelativePath=".\client\java\xreal_client_renderer_Renderer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\qcommon\java\xreal_CVar.h"
+					>
+				</File>
+				<File
+					RelativePath=".\qcommon\java\xreal_Engine.h"
+					>
+				</File>
+				<File
+					RelativePath=".\server\java\xreal_server_game_GameEntity.h"
+					>
+				</File>
+				<File
+					RelativePath=".\server\java\xreal_server_game_Player.h"
+					>
+				</File>
+				<File
+					RelativePath=".\server\java\xreal_server_Server.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -2700,6 +2746,46 @@
 						</File>
 						<File
 							RelativePath=".\theora\lib\dec\x86\x86state.c"
+							>
+						</File>
+					</Filter>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="jdk"
+				>
+				<Filter
+					Name="Header Files"
+					>
+					<File
+						RelativePath="..\jdk\include\classfile_constants.h"
+						>
+					</File>
+					<File
+						RelativePath="..\jdk\include\jawt.h"
+						>
+					</File>
+					<File
+						RelativePath="..\jdk\include\jdwpTransport.h"
+						>
+					</File>
+					<File
+						RelativePath="..\jdk\include\jni.h"
+						>
+					</File>
+					<File
+						RelativePath="..\jdk\include\jvmti.h"
+						>
+					</File>
+					<Filter
+						Name="win32"
+						>
+						<File
+							RelativePath="..\jdk\include\win32\jawt_md.h"
+							>
+						</File>
+						<File
+							RelativePath="..\jdk\include\win32\jni_md.h"
 							>
 						</File>
 					</Filter>
