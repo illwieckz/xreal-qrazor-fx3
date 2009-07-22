@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #if defined(USE_JAVA)
 
 #ifdef WIN32
-#define DEFAULT_JAVA_LIB "jre/bin/server/jvm.dll"
+#define DEFAULT_JAVA_LIB "jre/bin/client/jvm.dll"
 #elif defined(MACOS_X)
 #define DEFAULT_JAVA_LIB "java.dylib"
 #else
