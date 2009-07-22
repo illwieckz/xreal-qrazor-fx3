@@ -785,16 +785,191 @@ void JNICALL Java_xreal_client_Client_clearKeyStates(JNIEnv *env, jclass cls)
 	Key_ClearStates();
 }
 
+/*
+ * Class:     xreal_client_Client
+ * Method:    registerSound
+ * Signature: (Ljava/lang/String;)I
+ */
+jint JNICALL Java_xreal_client_Client_registerSound(JNIEnv *env, jclass cls, jstring jname)
+{
+	char           *name;
+	sfxHandle_t		handle;
+
+	name = (char *)((*env)->GetStringUTFChars(env, jname, 0));
+
+	handle = S_RegisterSound(name);
+
+	(*env)->ReleaseStringUTFChars(env, jname, name);
+
+	return handle;
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    startSound
+ * Signature: (FFFIII)V
+ */
+// void startSound(float posX, float posY, float posZ, int entityNum, int entityChannel, int sfxHandle);
+void JNICALL Java_xreal_client_Client_startSound(JNIEnv *env, jclass cls, jfloat posX, jfloat posY, jfloat posZ, jint entityNum, jint entityChannel, jint sfxHandle)
+{
+	vec3_t position;
+
+	VectorSet(position, posX, posY, posZ);
+
+	S_StartSound(position, entityNum, entityChannel, sfxHandle);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    startLocalSound
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_client_Client_startLocalSound(JNIEnv *env, jclass cls, jint sfxHandle, jint channelNum)
+{
+	S_StartLocalSound(sfxHandle, channelNum);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    addLoopingSound
+ * Signature: (IFFFFFFI)V
+ */
+// void addLoopingSound(int entityNum, float posX, float posY, float posZ, float velX, float velY, float velZ, int sfxHandle);
+void JNICALL Java_xreal_client_Client_addLoopingSound(JNIEnv *env, jclass cls, jint entityNum, jfloat posX, jfloat posY, jfloat posZ, jfloat velX, jfloat velY, jfloat velZ, jint sfxHandle)
+{
+	vec3_t position;
+	vec3_t velocity;
+
+	VectorSet(position, posX, posY, posZ);
+	VectorSet(velocity, velX, velY, velZ);
+
+	S_AddLoopingSound(entityNum, position, velocity, sfxHandle);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    addRealLoopingSound
+ * Signature: (IFFFFFFI)V
+ */
+// void addRealLoopingSound(int entityNum, float posX, float posY, float posZ, float velX, float velY, float velZ, int sfxHandle);
+void JNICALL Java_xreal_client_Client_addRealLoopingSound(JNIEnv *env, jclass cls, jint entityNum, jfloat posX, jfloat posY, jfloat posZ, jfloat velX, jfloat velY, jfloat velZ, jint sfxHandle)
+{
+	vec3_t position;
+	vec3_t velocity;
+
+	VectorSet(position, posX, posY, posZ);
+	VectorSet(velocity, velX, velY, velZ);
+
+	S_AddRealLoopingSound(entityNum, position, velocity, sfxHandle);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    updateEntitySoundPosition
+ * Signature: (IFFF)V
+ */
+// void updateEntitySoundPosition(int entityNum, float posX, float posY, float posZ);
+void JNICALL Java_xreal_client_Client_updateEntitySoundPosition(JNIEnv *env, jclass cls, jint entityNum, jfloat posX, jfloat posY, jfloat posZ)
+{
+	vec3_t position;
+
+	VectorSet(position, posX, posY, posZ);
+
+	S_UpdateEntityPosition(entityNum, position);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    stopLoopingSound
+ * Signature: (I)V
+ */
+void JNICALL Java_xreal_client_Client_stopLoopingSound(JNIEnv *env, jclass cls, jint entityNum)
+{
+	S_StopLoopingSound(entityNum);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    clearLoopingSounds
+ * Signature: (Z)V
+ */
+void JNICALL Java_xreal_client_Client_clearLoopingSounds(JNIEnv *env, jclass cls, jboolean killall)
+{
+	S_ClearLoopingSounds(killall);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    respatialize
+ * Signature: (IFFFFFFFZ)V
+ */
+// void respatialize(int entityNum, float posX, float posY, float posZ, float quatX, float quatY, float quatZ, float quatW, boolean inWater);
+void JNICALL Java_xreal_client_Client_respatialize(JNIEnv *env, jclass cls, jint entityNum, jfloat posX, jfloat posY, jfloat posZ, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW, jboolean inWater)
+{
+	vec3_t position;
+	quat_t quat;
+	axis_t axis;
+
+	VectorSet(position, posX, posY, posZ);
+	QuatSet(quat, quatX, quatY, quatZ, quatZ);
+
+	QuatToAxis(quat, axis);
+
+	S_Respatialize(entityNum, position, axis, inWater);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    startBackgroundTrack
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ */
+void JNICALL Java_xreal_client_Client_startBackgroundTrack(JNIEnv *env, jclass cls, jstring jintro, jstring jloop)
+{
+	char           *intro;
+	char           *loop;
+
+	intro = (char *)((*env)->GetStringUTFChars(env, jintro, 0));
+	loop = (char *)((*env)->GetStringUTFChars(env, jloop, 0));
+
+	S_StartBackgroundTrack(intro, loop);
+
+	(*env)->ReleaseStringUTFChars(env, jintro, intro);
+	(*env)->ReleaseStringUTFChars(env, jloop, loop);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    stopBackgroundTrack
+ * Signature: ()V
+ */
+void JNICALL Java_xreal_client_Client_stopBackgroundTrack(JNIEnv *env, jclass cls)
+{
+	S_StopBackgroundTrack();
+}
+
 // handle to Client class
 static jclass   class_Client = NULL;
 static JNINativeMethod Client_methods[] = {
 	{"getConfigString", "(I)Ljava/lang/String;", Java_xreal_client_Client_getConfigString},
+
 	{"getKeyCatchers", "()I", Java_xreal_client_Client_getKeyCatchers},
 	{"setKeyCatchers", "(I)V", Java_xreal_client_Client_setKeyCatchers},
 	{"getKeyBinding", "(I)Ljava/lang/String;", Java_xreal_client_Client_getKeyBinding},
 	{"setKeyBinding", "(ILjava/lang/String;)V", Java_xreal_client_Client_setKeyBinding},
 	{"isKeyDown", "(I)Z", Java_xreal_client_Client_isKeyDown},
 	{"clearKeyStates", "()V", Java_xreal_client_Client_clearKeyStates},
+
+	{"registerSound", "(Ljava/lang/String;)I", Java_xreal_client_Client_registerSound},
+	{"startSound", "(FFFIII)V", Java_xreal_client_Client_startSound},
+	{"startLocalSound", "(II)V", Java_xreal_client_Client_startLocalSound},
+	{"addLoopingSound", "(IFFFFFFI)V", Java_xreal_client_Client_addLoopingSound},
+	{"addRealLoopingSound", "(IFFFFFFI)V", Java_xreal_client_Client_addRealLoopingSound},
+	{"updateEntitySoundPosition", "(IFFF)V", Java_xreal_client_Client_updateEntitySoundPosition},
+	{"stopLoopingSound", "(I)V", Java_xreal_client_Client_stopLoopingSound},
+	{"clearLoopingSounds", "(Z)V", Java_xreal_client_Client_clearLoopingSounds},
+	{"respatialize", "(IFFFFFFFZ)V", Java_xreal_client_Client_respatialize},
+	{"startBackgroundTrack", "(Ljava/lang/String;Ljava/lang/String;)V", Java_xreal_client_Client_startBackgroundTrack},
+	{"stopBackgroundTrack", "()V", Java_xreal_client_Client_stopBackgroundTrack},
 };
 
 void Client_javaRegister()

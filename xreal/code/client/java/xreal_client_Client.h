@@ -63,6 +63,94 @@ JNIEXPORT jboolean JNICALL Java_xreal_client_Client_isKeyDown
 JNIEXPORT void JNICALL Java_xreal_client_Client_clearKeyStates
   (JNIEnv *, jclass);
 
+/*
+ * Class:     xreal_client_Client
+ * Method:    registerSound
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_xreal_client_Client_registerSound
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    startSound
+ * Signature: (FFFIII)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_startSound
+  (JNIEnv *, jclass, jfloat, jfloat, jfloat, jint, jint, jint);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    startLocalSound
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_startLocalSound
+  (JNIEnv *, jclass, jint, jint);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    addLoopingSound
+ * Signature: (IFFFFFFI)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_addLoopingSound
+  (JNIEnv *, jclass, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jint);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    addRealLoopingSound
+ * Signature: (IFFFFFFI)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_addRealLoopingSound
+  (JNIEnv *, jclass, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jint);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    updateEntitySoundPosition
+ * Signature: (IFFF)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_updateEntitySoundPosition
+  (JNIEnv *, jclass, jint, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    stopLoopingSound
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_stopLoopingSound
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    clearLoopingSounds
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_clearLoopingSounds
+  (JNIEnv *, jclass, jboolean);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    respatialize
+ * Signature: (IFFFFFFFZ)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_respatialize
+  (JNIEnv *, jclass, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jboolean);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    startBackgroundTrack
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_startBackgroundTrack
+  (JNIEnv *, jclass, jstring, jstring);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    stopBackgroundTrack
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_Client_stopBackgroundTrack
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif
