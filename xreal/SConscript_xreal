@@ -283,7 +283,8 @@ if env['optimize'] != '0':
 	
 if env['java'] == 1:
 	xreal_env.Append(CCFLAGS='-DUSE_JAVA')
-	xreal_env.Append(CCFLAGS='-I/usr/lib/jvm/default-java/include')
+	#xreal_env.Append(CCFLAGS='-I/usr/lib/jvm/default-java/include')
+	xreal_env.Append(CCFLAGS='-Icode/jni')
 	xreal_src += ['code/qcommon/vm_java.c']
 	xreal_src += ['code/server/sv_game_java.c']
 	xreal_src += ['code/client/cl_ui_java.c']
