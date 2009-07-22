@@ -1,9 +1,14 @@
 package xreal.client.ui;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import xreal.Engine;
 import xreal.client.ui.border.Border;
 import xreal.client.ui.event.Event;
 import xreal.client.ui.event.EventListener;
+import xreal.client.ui.event.KeyListener;
+import xreal.client.ui.event.MouseMotionListener;
 
 /**
  * 
@@ -37,6 +42,49 @@ public class Component implements EventListener {
 	
 	protected Rectangle bounds = new Rectangle(0, 0, 0, 0);
 	protected Border border;
+	
+	private boolean focusable = true;
+	
+	private Set<KeyListener> keyListeners = new LinkedHashSet<KeyListener>();
+	private Set<MouseMotionListener> mouseMotionListeners = new LinkedHashSet<MouseMotionListener>();
+	
+	public void addKeyListener(KeyListener l) {
+		if(l != null) {
+			keyListeners.add(l);
+		}
+	}
+	
+	public void removeKeyListener(KeyListener l) {
+		if(l != null) {
+			keyListeners.remove(l);
+		}
+	}
+	
+	public KeyListener[] getKeyListeners() {
+		KeyListener listeners[] = new KeyListener[keyListeners.size()];
+		
+		keyListeners.toArray(listeners);
+		return listeners;
+	}
+	
+	public void addMouseMotionListener(MouseMotionListener l) {
+		if(l != null) {
+			mouseMotionListeners.add(l);
+		}
+	}
+	
+	public void removeMouseMotionListener(MouseMotionListener l) {
+		if(l != null) {
+			mouseMotionListeners.remove(l);
+		}
+	}
+	
+	public MouseMotionListener[] getMouseMotionListeners() {
+		MouseMotionListener listeners[] = new MouseMotionListener[mouseMotionListeners.size()];
+		
+		mouseMotionListeners.toArray(listeners);
+		return listeners;
+	}
 	
 	@Override
 	public void processEvent(Event e) {
@@ -119,5 +167,13 @@ public class Component implements EventListener {
 	
 	public boolean hasFlags(int flags) {
 		return (this.flags & flags) != 0;
+	}
+
+	public void setFocusable(boolean focusable) {
+		this.focusable = focusable;
+	}
+
+	public boolean isFocusable() {
+		return focusable;
 	}
 }

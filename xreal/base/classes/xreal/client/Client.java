@@ -80,10 +80,14 @@ public class Client {
 	 * @param entityChannel
 	 * @param sfxHandle
 	 */
-	public synchronized native static void startSound(float posX, float posY, float posZ, int entityNum, int entityChannel, int sfxHandle);
+	private synchronized native static void startSound(float posX, float posY, float posZ, int entityNum, int entityChannel, int sfxHandle);
 	
-	public static void startSound(Vector3f pos, int entityNum, int entityChannel, int sfxHandle) {
-		startSound(pos.x, pos.y, pos.z, entityNum, entityChannel, sfxHandle);
+	public static void startSound(float posX, float posY, float posZ, int entityNum, SoundChannel entityChannel, int sfxHandle) {
+		startSound(posX, posY, posZ, entityNum, entityChannel, sfxHandle);
+	}
+	
+	public static void startSound(Vector3f pos, int entityNum, SoundChannel entityChannel, int sfxHandle) {
+		startSound(pos.x, pos.y, pos.z, entityNum, entityChannel.ordinal(), sfxHandle);
 	}
 	
 	/**
@@ -92,7 +96,11 @@ public class Client {
 	 * @param sfx
 	 * @param channelNum
 	 */
-	public synchronized native static void startLocalSound(int sfxHandle, int channelNum);
+	private synchronized native static void startLocalSound(int sfxHandle, int channelNum);
+	
+	public static void startLocalSound(int sfxHandle, SoundChannel channel) {
+		startLocalSound(sfxHandle, channel.ordinal());
+	}
 	
 	public synchronized native static void addLoopingSound(int entityNum, float posX, float posY, float posZ, float velX, float velY, float velZ, int sfxHandle);
 	

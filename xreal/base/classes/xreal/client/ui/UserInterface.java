@@ -117,8 +117,7 @@ public class UserInterface implements UserInterfaceListener {
 	public void initUserInterface() {
 		Engine.println("UserInterface.initUserInterface()");
 
-		// TODO ?
-		
+		Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
 	}
 
 	@Override
@@ -132,14 +131,14 @@ public class UserInterface implements UserInterfaceListener {
 
 	@Override
 	public void keyEvent(int time, int key, boolean down) {
-		Engine.println("UserInterface.keyEvent(time = " + time + ", key = " + key + ", down = " + down + ")");
+		//Engine.println("UserInterface.keyEvent(time = " + time + ", key = " + key + ", down = " + down + ")");
 
 		if(!menuStack.isEmpty())
 		{
 			MenuFrame activeMenu = menuStack.peek();
 			
 			KeyCode keyCode = KeyCode.findKeyCode(key);
-			Engine.println("KeyCode = " + keyCode + ", text = '" + (keyCode != null ? keyCode.getText() : "") + "'");
+			//Engine.println("KeyCode = " + keyCode + ", text = '" + (keyCode != null ? keyCode.getText() : "") + "'");
 		
 			if(keyCode != null) {
 				activeMenu.fireEvent(new KeyEvent(activeMenu, time, keyCode, down));

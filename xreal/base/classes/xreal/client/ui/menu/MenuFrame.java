@@ -1,6 +1,9 @@
 package xreal.client.ui.menu;
 
 import xreal.Engine;
+import xreal.client.Client;
+import xreal.client.KeyCode;
+import xreal.client.SoundChannel;
 import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
 import xreal.client.ui.Component;
@@ -9,15 +12,22 @@ import xreal.client.ui.Cursor;
 import xreal.client.ui.Rectangle;
 import xreal.client.ui.UserInterface;
 import xreal.client.ui.event.Event;
+import xreal.client.ui.event.KeyEvent;
+import xreal.client.ui.event.KeyListener;
 import xreal.client.ui.event.MouseEvent;
 import xreal.client.ui.event.MouseMotionListener;
 
-public abstract class MenuFrame extends Container implements MouseMotionListener {
+public class MenuFrame extends Container implements MouseMotionListener, KeyListener {
 	
 	protected Font fontVera;
 	protected Font fontVeraSe;
 	protected Font fontVeraBold;
 	protected Font fontVeraSerifBold;
+	
+	protected int soundIn;
+	protected int soundMove;
+	protected int soundOut;
+	protected int soundBuzz;
 	
 	protected boolean wrapAround;
 	protected boolean fullscreen;
@@ -33,6 +43,11 @@ public abstract class MenuFrame extends Container implements MouseMotionListener
 		fontVeraSe = Renderer.registerFont("fonts/VeraSe.ttf", 48);
 		fontVeraBold = Renderer.registerFont("fonts/VeraBd.ttf", 48);
 		fontVeraSerifBold = Renderer.registerFont("fonts/VeraSeBd.ttf", 48);
+		
+		soundIn = Client.registerSound("sound/misc/menu1.wav");
+		soundMove = Client.registerSound("sound/misc/menu2.wav");
+		soundOut = Client.registerSound("sound/misc/menu3.wav");
+		soundBuzz = Client.registerSound("sound/misc/menu4.wav");
 	}
 	
 	@Override
@@ -42,18 +57,18 @@ public abstract class MenuFrame extends Container implements MouseMotionListener
 		Cursor cursor = UserInterface.getCursor();
 		
 		// region test the active menu items
-		for(Component m : children)
+		for(Component c : children)
 		{
-			if(m instanceof Cursor)
+			if(c instanceof Cursor)
 				continue;
 			
-			if(m.hasFlags(Component.QMF_GRAYED | Component.QMF_INACTIVE))
+			if(c.hasFlags(Component.QMF_GRAYED | Component.QMF_INACTIVE))
 				continue;
 
-			if(!m.contains(cursor.getX(), cursor.getY()))
+			if(!c.contains(cursor.getX(), cursor.getY()))
 			{
 				// cursor out of item bounds
-				m.delFlags(QMF_HASMOUSEFOCUS);
+				c.delFlags(QMF_HASMOUSEFOCUS);
 				continue;
 			}
 
@@ -62,39 +77,71 @@ public abstract class MenuFrame extends Container implements MouseMotionListener
 			{
 				//Menu_SetCursor(uis.activemenu, i);
 				
-				if(!m.hasFlags(Component.QMF_GRAYED | Component.QMF_INACTIVE))
+				if(!c.hasFlags(Component.QMF_GRAYED | Component.QMF_INACTIVE))
 				{
-					Engine.println("item has focus at x = " + cursor.getX() + ", y = " + cursor.getY() + ", component bounds = " + m.getBounds());
+					//Engine.println("item has focus at x = " + cursor.getX() + ", y = " + cursor.getY() + ", component bounds = " + c.getBounds());
 					
 					//m->cursor_prev = m->cursor;
 					//m->cursor = cursor;
 
 					//Menu_CursorMoved(m);
 					
-					m.addFlags(QMF_HASMOUSEFOCUS);
+					c.addFlags(QMF_HASMOUSEFOCUS);
 				}
 				
 				//((menucommon_s *) (uis.activemenu->items[uis.activemenu->cursor_prev]))->flags &= ~QMF_HASMOUSEFOCUS;
 
-				/*
-				if(!(((menucommon_s *) (uis.activemenu->items[uis.activemenu->cursor]))->flags & QMF_SILENT))
+				
+				if(!c.hasFlags(QMF_SILENT))
 				{
-					trap_S_StartLocalSound(menu_move_sound, CHAN_LOCAL_SOUND);
+					Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
 				}
-				*/
 			}
 
 			//((menucommon_s *) (uis.activemenu->items[uis.activemenu->cursor]))->flags |= QMF_HASMOUSEFOCUS;
-			//return;
+			return;
 		}
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent e) {
+		//Engine.println("MenuFrame.keyPressed()");
+		
+		//KeyCode key = e.getKey();
+		/*
+		for(Component c : children)
+		{
+			if(c instanceof Cursor)
+				continue;
+			
+			if(c.hasFlags(Component.QMF_GRAYED | Component.QMF_INACTIVE))
+				continue;
+			
+			if(!c.hasFlags(Component.QMF_HASMOUSEFOCUS))
+				continue;
+
+			c.processEvent(e);
+		}
+		*/
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		//Engine.println("MenuFrame.keyReleased()");
 	}
 
 	@Override
 	public void processEvent(Event e) {
 		if (e instanceof MouseEvent) {
 			mouseMoved((MouseEvent) e);
+		} else if (e instanceof KeyEvent) {
+			if(((KeyEvent) e).isDown()) {
+				keyPressed((KeyEvent) e);
+			} else {
+				keyReleased((KeyEvent) e);
+			}
 		}
-		
+
 		super.processEvent(e);
 	}
 }

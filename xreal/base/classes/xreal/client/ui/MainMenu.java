@@ -2,8 +2,10 @@ package xreal.client.ui;
 
 import xreal.Color;
 import xreal.ConsoleColorStrings;
+import xreal.Engine;
 import xreal.client.renderer.Font;
 import xreal.client.ui.border.LineBorder;
+import xreal.client.ui.event.KeyEvent;
 import xreal.client.ui.menu.MenuFrame;
 
 public class MainMenu extends MenuFrame {
@@ -21,7 +23,14 @@ public class MainMenu extends MenuFrame {
 		showlogo = true;
 		
 		int y = 134;
-		singlePlayer = new Button("SINGLEPLAYER", 27, Font.DROPSHADOW);
+		singlePlayer = new Button("SINGLEPLAYER", 27, Font.DROPSHADOW) {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				Engine.println("clicked single player button");
+				
+				//super.keyPressed(e);
+			}
+		};
 		singlePlayer.setXCenter(UserInterface.SCREEN_WIDTH / 2);
 		singlePlayer.setYCenter(y);
 		//singlePlayer.setCenter(0, 0);

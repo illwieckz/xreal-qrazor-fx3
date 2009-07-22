@@ -5,7 +5,7 @@ import xreal.Engine;
 import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
 
-public class Button extends Component {
+public class Button extends AbstractButton {
 
 	private Color color = Color.White;
 
