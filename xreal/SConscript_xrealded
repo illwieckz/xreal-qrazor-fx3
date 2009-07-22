@@ -68,8 +68,7 @@ xrealded_env.Append(CCFLAGS='-Icode/speex/include')
 
 if env['java'] == 1:
 	xrealded_env.Append(CCFLAGS='-DUSE_JAVA')
-	#xrealded_env.Append(CCFLAGS='-I/usr/lib/jvm/default-java/include')
-	xrealded_env.Append(CCFLAGS='-Icode/jni')
+	xrealded_env.Append(CCFLAGS='-Ijdk/include')
 	xrealded_src += ['code/qcommon/vm_java.c']
 	xrealded_src += ['code/server/sv_game_java.c']
 
