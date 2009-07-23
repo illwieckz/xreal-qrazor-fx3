@@ -46,6 +46,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static cvar_t  *jvm_javaLib;
 static cvar_t  *jvm_useJITCompiler;
 static cvar_t  *jvm_useJAR;
+static cvar_t  *jvm_remoteDebugging;
+static cvar_t  *jvm_verboseJNI;
+static cvar_t  *jvm_policyFile;
 
 JNIEnv         *javaEnv;
 JavaVM         *javaVM;
@@ -708,7 +711,7 @@ void ConvertJavaString(char *dest, jstring jstr, int destsize)
 		Com_Error(ERR_FATAL, "ConvertJavaString: destsize < 1");
 	}
 
-	
+
 
 	jStrLen = Q_min((*javaEnv)->GetStringLength(javaEnv, jstr), destsize);
 
@@ -808,33 +811,52 @@ void JVM_Shutdown(void)
 
 
 
+static JavaVMOption* AllocOption(growList_t * growOptions)
+{
+	JavaVMOption   *option;
+
+	option = Com_Allocate(sizeof(*option));
+	Com_Memset(option, 0, sizeof(*option));
+
+	Com_AddToGrowList(growOptions, option);
+
+	return option;
+}
+
 void JVM_Init(void)
 {
+	int				i;
 	jint            nVMs = 0;		// number of VM's active
 	JavaVMInitArgs  vm_args;
-	JavaVMOption    options[2];
 
-	char classPath[MAX_QPATH];
+	growList_t      growOptions;
+	JavaVMOption   *option;
+	JavaVMOption   *options;
 
-	//memset(&vm_args, 0, sizeof(vm_args));
-	//memset(options, 0, sizeof(options));
+	char            classPath[MAX_QPATH];
+	char            policyPath[MAX_OSPATH];
 
-	memset(classPath, 0, sizeof(classPath));
+	Com_InitGrowList(&growOptions, 5);
 
 	Com_Printf("------- JVM_Init() -------\n");
 
 	jvm_javaLib = Cvar_Get("jvm_javaLib", DEFAULT_JAVA_LIB, CVAR_ARCHIVE);
 	jvm_useJITCompiler = Cvar_Get("jvm_useJITCompiler", "1", CVAR_INIT);
 	jvm_useJAR = Cvar_Get("jvm_useJAR", "1", CVAR_ARCHIVE);
+	jvm_remoteDebugging = Cvar_Get("jvm_remoteDebugging", "0", CVAR_ARCHIVE);
+	jvm_verboseJNI = Cvar_Get("jvm_verboseJNI", "0", CVAR_ARCHIVE);
+	jvm_policyFile = Cvar_Get("jvm_policyFile", "", CVAR_ARCHIVE);
+
+	option = AllocOption(&growOptions);
 
 	if(!jvm_useJITCompiler->integer)
 	{
 		Com_Printf("Disabling Java JIT support\n");
-		options[0].optionString = "-Djava.compiler=NONE";
+		option->optionString = "-Djava.compiler=NONE";
 	}
 	else
 	{
-		options[0].optionString = "-Djava.compiler=YES";
+		option->optionString = "-Djava.compiler=YES";
 	}
 
 	// TODO support sv_pure
@@ -849,22 +871,55 @@ void JVM_Init(void)
 					FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "classes"));
 	}
 
-	options[1].optionString = classPath;
+	option = AllocOption(&growOptions);
+	option->optionString = classPath;
 
 	Com_Printf("Set main class path to '%s'\n", classPath);
 
-	//options[2].optionString = "-Xdebug";
-	//options[3].optionString = "-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y";
+	if(jvm_remoteDebugging->integer)
+	{
+		Com_Printf("Enabling remote debugging\n");
+
+		option = AllocOption(&growOptions);
+		option->optionString = "-Xdebug";
+
+		option = AllocOption(&growOptions);
+		option->optionString = "-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y";
+	}
+
+	if(jvm_verboseJNI->integer)
+	{
+		Com_Printf("Enabling verbose JNI prints\n");
+
+		option = AllocOption(&growOptions);
+		option->optionString = "-verbose:jni";
+	}
+
+	if(Q_stricmp(jvm_policyFile->string, "") != 0)
+	{
+		option = AllocOption(&growOptions);
+		option->optionString = "-Djava.security.manager";
+
+		Com_sprintf(policyPath, sizeof(policyPath), "-Djava.security.policy=file:%s", FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), jvm_policyFile->string));
+
+		option = AllocOption(&growOptions);
+		option->optionString = policyPath;
+
+		Com_Printf("Enabling '%s'\n", policyPath);
+	}
 
 
-	//options[2].optionString = "-XX:ErrorFile=./hs_err_pid<pid>.log";
-	//options[2].optionString = strdup("-verbose:jni");
-	//
 
+	// convert growlist to array
+	options = Com_Allocate(growOptions.currentElements * sizeof(JavaVMOption));
+	for(i = 0; i < growOptions.currentElements; i++)
+	{
+		options[i] = *(JavaVMOption*) Com_GrowListElement(&growOptions, i);
+	}
 
-	vm_args.version = JNI_VERSION_1_4; 
+	vm_args.version = JNI_VERSION_1_4;
 	vm_args.options = options;
-	vm_args.nOptions = 2;
+	vm_args.nOptions = growOptions.currentElements;
 	vm_args.ignoreUnrecognized = JNI_TRUE;
 
 #if defined(USE_JAVA_DLOPEN)
@@ -936,6 +991,17 @@ void JVM_Init(void)
 	Engine_javaRegister();
 	CVar_javaRegister();
 	UserCommand_javaRegister();
+
+
+	// clean up allocated objects
+	for(i = 0; i < growOptions.currentElements; i++)
+	{
+		option = Com_GrowListElement(&growOptions, i);
+		Com_Dealloc(option);
+	}
+	Com_DestroyGrowList(&growOptions);
+
+	Com_Dealloc(options);
 }
 
 
