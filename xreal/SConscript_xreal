@@ -303,10 +303,7 @@ xreal_env.Append(CCFLAGS='-DUSE_OPENAL')
 if env['arch'] != 'darwin-ppc' and env['arch'] != 'darwin-i386':
         xreal_env.Append(LIBS=['openal'])
 
-if env['llvm'] == 1:
-	xreal_env.Append(CCFLAGS='-DUSE_LLVM')
-	xreal_env.ParseConfig('llvm-config --cflags --libs')
-	xreal_src += ['code/qcommon/vm_llvm.cpp']
+
 
 if env['arch'] == 'linux-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')

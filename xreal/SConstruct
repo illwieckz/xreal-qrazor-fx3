@@ -15,13 +15,11 @@ opts.Add(EnumVariable('simd', 'Choose special CPU register optimizations', 'none
 #opts.Add(EnumVariable('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'core2duo')))
 opts.Add(BoolVariable('smp', 'Set to 1 to compile engine with symmetric multiprocessor support', 0))
 opts.Add(BoolVariable('java', 'Set to 1 to compile the engine and game with Java support', 0))
-opts.Add(BoolVariable('llvm', 'Set to 1 to compile the engine and game with LLVM support', 0))
 opts.Add(BoolVariable('compatq3a', 'Set to 1 to compile engine with Q3A compatibility support', 0))
 #opts.Add(BoolVariable('purevm', 'Set to 1 to compile the engine with strict checking for vm/*.qvm modules in paks', 0))
 opts.Add(BoolVariable('radiant', 'Set to 1 to compile the XreaLRadiant level editor', 0))
 opts.Add(BoolVariable('xmap', 'Set to 1 to compile the XMap(2) map compilers', 0))
 #opts.Add(BoolVariable('vectorize', 'Set to 1 to compile the engine with auto-vectorization support', 0))
-#opts.Add(BoolVariable('xppm', 'Set to 1 to compile the game with alternative XreaL-PPM support', 0))
 opts.Add(EnumVariable('curl', 'Choose http-download redirection support for the engine', 'compile', allowed_values=('none', 'compile', 'dlopen')))
 #opts.Add(BoolVariable('openal', 'Set to 1 to compile the engine with OpenAL support', 0))
 opts.Add(BoolVariable('dedicated', 'Set to 1 to only compile the dedicated server', 0))
@@ -98,13 +96,7 @@ Export('env')
 # export the Java -> C interfaces first because the engine requires them
 if env['java'] == 1:
 	env.Java(target = 'base/classes', source = 'base/classes')
-	#env.Jar(target = 'base/game.jar', source = ['base/classes/com', 'base/classes/javax', 'base/classes/xreal'])
-	try:
-		os.remove('base/game.jar')
-	except os.error, value:
-		pass #print('exception: ', value)
-	
-	SConscript('base/classes/SConscript_game_jar.py')
+	env.Jar(target = 'base/game.jar', source = ['base/classes/com', 'base/classes/javax', 'base/classes/xreal'], JARCHDIR = 'base/classes')
 	
 	classFileList = ['base/classes/xreal/Engine.class',
 					 'base/classes/xreal/CVar.class']
@@ -121,24 +113,18 @@ if env['java'] == 1:
 
 
 
-#if env['dedicated'] == 1:
-SConscript('SConscript_xrealded', build_dir='build/xrealded', duplicate=0)
-#	SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
-	
-#	if env['llvm'] == 1:
-#		SConscript('SConscript_base_gamellvm', build_dir='build/base/gamellvm', duplicate=0)
-	
-#else:
-SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
-SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
-SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
-SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)
-	
-if env['llvm'] == 1:
-	SConscript('SConscript_base_cgamellvm', build_dir='build/base/cgamellvm', duplicate=0)
-	SConscript('SConscript_base_gamellvm', build_dir='build/base/gamellvm', duplicate=0)
-	SConscript('SConscript_base_uillvm', build_dir='build/base/uillvm', duplicate=0)
-		
+if env['dedicated'] == 1:
+	SConscript('SConscript_xrealded', build_dir='build/xrealded', duplicate=0)
+	if env['java'] == 0:
+		SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
+else:
+	SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
+	SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
+
+	if env['java'] == 0:
+		SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
+		SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)
+
 
 if env['radiant'] == 1:
 	SConscript('SConscript_xrealradiant', build_dir='build/xrealradiant', duplicate=0)
@@ -155,4 +141,7 @@ if env['tremulous'] == 1:
 	SConscript('SConscript_tremulous_cgame', build_dir='build/tremulous/cgame', duplicate=0)
 	SConscript('SConscript_tremulous_game', build_dir='build/tremulous/game', duplicate=0)
 	SConscript('SConscript_tremulous_ui', build_dir='build/tremulous/ui', duplicate=0)
+
+
+
 
