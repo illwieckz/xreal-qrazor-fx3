@@ -35,11 +35,27 @@ public class LineBorder extends Border {
 		this.roundedCorners = roundedCorners;
 	}
 
+	public void paintBorder(float x, float y, float width, float height) {
+		
+		Renderer.setColor(lineColor);
+		
+		Rectangle rect = new Rectangle(x, y, width, height);
+		UserInterface.adjustFrom640(rect);
+
+		Renderer.drawStretchPic(rect.x, rect.y, rect.width, 1, 0, 0, 0, 0, whiteMaterial);
+		Renderer.drawStretchPic(rect.x, rect.y, 1, rect.height, 0, 0, 0, 0, whiteMaterial);
+		Renderer.drawStretchPic(rect.x, rect.y + rect.height - 1, rect.width, 1, 0, 0, 0, 0, whiteMaterial);
+		Renderer.drawStretchPic(rect.x + rect.width - 1, rect.y, 1, rect.height, 0, 0, 0, 0, whiteMaterial);
+
+		Renderer.setColor(Color.White);
+	}
+	
 	public void paintBorder(Component c, float x, float y, float width, float height) {
 		
 		Renderer.setColor(lineColor);
 		
-		Rectangle rect = new Rectangle(c.getBounds());
+		Rectangle rect = new Rectangle(x, y, width, height);
+		rect.setLocation(c.getX(), c.getY());
 		UserInterface.adjustFrom640(rect);
 
 		Renderer.drawStretchPic(rect.x, rect.y, rect.width, 1, 0, 0, 0, 0, whiteMaterial);

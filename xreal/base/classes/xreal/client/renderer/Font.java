@@ -180,7 +180,7 @@ public class Font {
 
 					glyph = glyphs[chNumber];
 					
-					float           yadj = useScale * (glyph.top / 2);
+					float           yadj = useScale * glyph.top; // * (glyph.top / 2);
 
 					
 					if((style & DROPSHADOW) != 0)	// || style == ITEM_TEXTSTYLE_SHADOWEDMORE)

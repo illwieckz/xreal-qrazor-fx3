@@ -1,6 +1,21 @@
 package xreal.client.ui;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.Stack;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.Port;
 
 import xreal.CVars;
 import xreal.Color;
@@ -116,8 +131,32 @@ public class UserInterface implements UserInterfaceListener {
 	@Override
 	public void initUserInterface() {
 		Engine.println("UserInterface.initUserInterface()");
+		
+		//Engine.println("" + Mixer.getMixerInfo());
+		
+		
 
-		Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
+		/*
+		try {
+      	  Mixer mixer = AudioSystem.getMixer(null);
+      	  Port lineIn = (Port)mixer.getLine(Port.Info.SPEAKER);
+      	  lineIn.open();
+      	  //FloatControl volCtrl = (FloatControl) lineIn.getControl(FloatControl.Type.VOLUME);
+      	  //volCtrl.setValue(1.0f);
+      	  
+      	  
+
+
+      	  // Assuming getControl call succeeds, 
+      	  // we now have our LINE_IN VOLUME control.
+      	} catch (Exception e) {
+      	  //System.out.println("Failed trying to find LINE_OUT"
+      	   // + " VOLUME control: exception = " + e);
+      		Engine.println("could not play sound: " + e);
+      	}
+      	*/
+
+		//Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
 	}
 
 	@Override

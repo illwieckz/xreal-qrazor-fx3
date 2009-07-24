@@ -94,7 +94,7 @@ public class MenuFrame extends Container implements MouseMotionListener, KeyList
 				
 				if(!c.hasFlags(QMF_SILENT))
 				{
-					Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
+					//Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
 				}
 			}
 

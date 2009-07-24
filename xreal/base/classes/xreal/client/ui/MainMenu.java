@@ -1,14 +1,30 @@
 package xreal.client.ui;
 
+import java.io.File;
+import java.io.IOException;
+/*
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
+import javax.sound.sampled.LineUnavailableException;
+*/
+
 import xreal.Color;
 import xreal.ConsoleColorStrings;
 import xreal.Engine;
+import xreal.client.Client;
+import xreal.client.SoundChannel;
 import xreal.client.renderer.Font;
+import xreal.client.ui.border.Border;
 import xreal.client.ui.border.LineBorder;
 import xreal.client.ui.event.KeyEvent;
 import xreal.client.ui.menu.MenuFrame;
 
-public class MainMenu extends MenuFrame {
+public class MainMenu extends MenuFrame/* implements LineListener*/ {
 
 	private static final int MAIN_MENU_VERTICAL_SPACING = 34;
 	
@@ -22,13 +38,17 @@ public class MainMenu extends MenuFrame {
 		wrapAround = true;
 		showlogo = true;
 		
+		/*
 		int y = 134;
 		singlePlayer = new Button("SINGLEPLAYER", 27, Font.DROPSHADOW) {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				Engine.println("clicked single player button");
 				
+				Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
 				//super.keyPressed(e);
+				
+				//playSound();
 			}
 		};
 		singlePlayer.setXCenter(UserInterface.SCREEN_WIDTH / 2);
@@ -37,6 +57,7 @@ public class MainMenu extends MenuFrame {
 		singlePlayer.setBorder(new LineBorder(Color.Red));
 		
 		children.add(singlePlayer);
+		*/
 
 		/*
 		y = 134;
@@ -156,9 +177,17 @@ public class MainMenu extends MenuFrame {
 	@Override
 	public void render() {
 		
-		String message = ConsoleColorStrings.YELLOW + "Java " + ConsoleColorStrings.WHITE + "is sooo easy " + ConsoleColorStrings.RED + "!";
+		String message = "Use the console with Shift + Escape";
 		
-		fontVera.paintText(UserInterface.SCREEN_WIDTH / 2, UserInterface.SCREEN_HEIGHT / 2, 24, Color.White, message, 0, 0, Font.CENTER);
+		fontVera.paintText(UserInterface.SCREEN_WIDTH / 2, UserInterface.SCREEN_HEIGHT / 2, 16, Color.White, message, 0, 0, Font.CENTER);
+		
+		/*
+		Rectangle rect = fontVera.getTextBounds(message, 16, 0);
+		rect.setCenter(UserInterface.SCREEN_WIDTH / 2, UserInterface.SCREEN_HEIGHT / 2);
+		
+		Border border = new LineBorder(Color.Red);
+		border.paintBorder(rect.x,rect.y,rect.width,rect.height);
+		*/
 		
 		/*
 		rect = textFont.getStringBounds(message, 0.5f, 0);
@@ -185,4 +214,60 @@ public class MainMenu extends MenuFrame {
 		
 		super.render();
 	}
+	
+	/*
+	private void playSound() {
+		Clip clip = null;
+		File clipFile = new File("base/sound/misc/menu1.wav");
+		
+		//byte byteArray[] = Engine.readFile("sound/misc/menu1.wav");
+		//File clipFile = new ByteArrayInputStream(byteArray);
+		
+		AudioInputStream audioInputStream = null;
+		try
+		{
+			audioInputStream = AudioSystem.getAudioInputStream(clipFile);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		if (audioInputStream != null)
+		{
+			AudioFormat	format = audioInputStream.getFormat();
+			DataLine.Info	info = new DataLine.Info(Clip.class, format);
+			try
+			{
+				clip = (Clip) AudioSystem.getLine(info);
+				clip.addLineListener((LineListener) this);
+				clip.open(audioInputStream);
+				
+				clip.loop(1);
+				//clip.
+				//clip.start();
+			}
+			catch (LineUnavailableException e)
+			{
+				e.printStackTrace();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			
+			
+		}
+		else
+		{
+			Engine.println("ClipPlayer.<init>(): can't get data from file " + clipFile.getName());
+		}
+	}
+
+	@Override
+	public void update(LineEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+	*/
 }
