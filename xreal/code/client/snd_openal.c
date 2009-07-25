@@ -654,6 +654,9 @@ static void S_AL_SrcSetup(srcHandle_t src, sfxHandle_t sfx, alSrcPriority_t prio
 	ALuint          buffer;
 	src_t          *curSource;
 
+	//Com_Printf("S_AL_SrcSetup(src = %i, sfx = %i, priority = %i, entity = %i, channel = %i, local = %i)\n",
+	//		src, sfx, priority, entity, channel, local);
+
 	// Mark the SFX as used, and grab the raw AL buffer
 	S_AL_BufferUse(sfx);
 	buffer = S_AL_BufferGet(sfx);
@@ -702,13 +705,17 @@ S_AL_SrcKill
 */
 static void S_AL_SrcKill(srcHandle_t src)
 {
+	//Com_Printf("S_AL_SrcKill(src = %i)\n", src);
+
 	// I'm not touching it. Unlock it first.
 	if(srcList[src].isLocked)
 		return;
 
 	// Stop it if it's playing
 	if(srcList[src].isActive)
+	{
 		qalSourceStop(srcList[src].alSource);
+	}
 
 	// Remove the entity association
 	if((srcList[src].isLooping) && (srcList[src].entity != -1))
@@ -1173,7 +1180,11 @@ static void S_AL_SrcUpdate(void)
 				}
 			}
 			else
+			{
+				//Com_Printf("S_AL_SrcUpdate: killing loop src = %i\n", i);
+
 				S_AL_SrcKill(i);
+			}
 
 			continue;
 		}
@@ -1182,6 +1193,8 @@ static void S_AL_SrcUpdate(void)
 		qalGetSourcei(curSource->alSource, AL_SOURCE_STATE, &state);
 		if(state == AL_STOPPED)
 		{
+			//Com_Printf("S_AL_SrcUpdate: stopped src = %i\n", i);
+
 			S_AL_SrcKill(i);
 			continue;
 		}
@@ -1645,7 +1658,7 @@ static void S_AL_MusicUpdate(void)
 	qalGetSourcei(musicSource, AL_BUFFERS_QUEUED, &numBuffers);
 	if(state == AL_STOPPED && numBuffers)
 	{
-		Com_DPrintf(S_COLOR_YELLOW "Restarted OpenAL music\n");
+		Com_Printf(S_COLOR_YELLOW "Restarted OpenAL music\n");
 		qalSourcePlay(musicSource);
 	}
 
@@ -1992,6 +2005,8 @@ qboolean S_AL_Init(soundInterface_t * si)
 
 		if(!founddev)
 		{
+			Com_Printf("Reset s_alDevice because '%s' could not be found\n", s_alDevice->string);
+
 			Cvar_ForceReset("s_alDevice");
 			founddev = 1;
 		}

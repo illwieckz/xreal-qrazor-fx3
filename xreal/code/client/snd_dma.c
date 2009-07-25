@@ -224,7 +224,7 @@ void S_ChannelSetup(void)
 
 	*(channel_t **) q = NULL;
 	freelist = p + MAX_CHANNELS - 1;
-	Com_DPrintf("Channel memory manager started\n");
+	//Com_DPrintf("Channel memory manager started\n");
 }
 
 
@@ -1178,7 +1178,7 @@ void S_Base_Respatialize(int entityNum, const vec3_t head, vec3_t axis[3], int i
 	VectorCopy(axis[1], listener_axis[1]);
 	VectorCopy(axis[2], listener_axis[2]);
 
-	// update spatialization for dynamic sounds 
+	// update spatialization for dynamic sounds
 	ch = s_channels;
 	for(i = 0; i < MAX_CHANNELS; i++, ch++)
 	{
