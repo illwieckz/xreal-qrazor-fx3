@@ -6,8 +6,10 @@
 #include "iradiant.h"
 #include "icommandsystem.h"
 #include "iselection.h"
+#include "ientity.h"
+#include "iundo.h"
+
 #include "gtkutil/menu/PopupMenu.h"
-#include "gtkutil/event/SingleIdleCallback.h"
 #include "gtkutil/PanedPosition.h"
 
 #include <gtk/gtkliststore.h>
@@ -28,12 +30,13 @@ namespace {
 
 	// Data structure to store the type (vector3, text etc) and the options
 	// string for a single property.
-	struct PropertyParms {
+	struct PropertyParms
+	{
 		std::string type;
 		std::string options;
 	};
 
-	// Map of property names to PropertyParms
+	// Map of property names to PropertyParms, mapped like this: regex => parms
 	typedef std::map<std::string, PropertyParms> PropertyParmMap;
 
 }
@@ -48,8 +51,9 @@ typedef boost::shared_ptr<EntityInspector> EntityInspectorPtr;
  */
 class EntityInspector :
  	public SelectionSystem::Observer,
- 	public gtkutil::SingleIdleCallback,
-	public RadiantEventListener
+	public RadiantEventListener,
+    public Entity::Observer,
+	public UndoSystem::Observer
 {
 	// Currently selected entity, this pointer is only non-NULL if the
 	// current entity selection includes exactly 1 entity.
@@ -65,11 +69,16 @@ class EntityInspector :
 	GtkWidget* _showInheritedCheckbox;
 	GtkWidget* _showHelpColumnCheckbox;
 
-    // Key list store and view
-    GtkListStore* _listStore;
-    GtkWidget* _treeView;
+    // View and model for the keyvalue list
+    GtkListStore* _kvStore;
+    GtkWidget* _keyValueTreeView;
 
 	GtkTreeViewColumn* _helpColumn;
+
+    // Cache of GtkTreeIters pointing to keyvalue rows, so we can quickly find
+    // existing keys to change their values
+    typedef std::map<std::string, GtkTreeIter> TreeIterMap;
+    TreeIterMap _keyValueIterMap;
 
 	// Key and value edit boxes. These remain available even for multiple entity
     // selections.
@@ -85,12 +94,6 @@ class EntityInspector :
 	// Currently displayed PropertyEditor
 	PropertyEditorPtr _currentPropertyEditor;
 
-    // Whether to show inherited properties or not
-    bool _showInherited;
-
-    // The last selected key
-    std::string _lastKey;
-
 	// The clipboard for spawnargs
 	struct ClipBoard
 	{
@@ -102,11 +105,13 @@ class EntityInspector :
 		}
 	} _clipBoard;
 
+	PropertyParmMap _propertyTypes;
+
 private:
 
     // Utility functions to construct the Gtk components
 
-    GtkWidget* createDialogPane(); // bottom widget pane
+    GtkWidget* createPropertyEditorPane(); // bottom widget pane
     GtkWidget* createTreeViewPane(); // tree view for selecting attributes
     void createContextMenu();
 
@@ -139,30 +144,37 @@ private:
 
     static std::string  cleanInputString( const std::string& );
 
-    // Routines to populate the TreeStore with the keyvals attached to the
-    // currently-selected object.
-    void refreshTreeModel();
-    void appendClassProperties();
+    // Add and remove inherited properties from the entity class
+    void addClassProperties();
+    void removeClassProperties();
 
 	// Update the GTK components when a new selection is made in the tree view
     void treeSelectionChanged();
 
     // Update our selected entity pointer from the selection system
-    void updateSelectedEntity();
+    void getEntityFromSelectionSystem();
+
+    // Change the selected entity pointer, setting up the observer
+    void changeSelectedEntity(Entity* newEntity);
 
     // Set the keyval on all selected entities from the key and value textboxes
 	void setPropertyFromEntries();
 
-	// Applies the given key/value pair to the selection (works with multiple selected entities)
-	void applyKeyValueToSelection(const std::string& key, const std::string& value);
+    // Applies the given key/value pair to the selection (works with multiple
+    // selected entities)
+    void applyKeyValueToSelection(const std::string& key,
+                                  const std::string& value);
 
-	// Static map of property names to PropertyParms objects
-	const PropertyParmMap& getPropertyMap();
+	// Initialise the property lookup tables
+	void loadPropertyMap();
+
+	// Returns property type and option for the given entity key
+	PropertyParms getPropertyParmsForKey(const std::string& key);
+
+    // Update tree view contents and property editor
+    void updateGUIElements();
 
 protected:
-
-	// GTK idle callback, used for refreshing display
-	void onGtkIdle();
 
 	// Constructor
     EntityInspector();
@@ -178,15 +190,22 @@ public:
     // Get the Gtk Widget for display in the main application
     GtkWidget* getWidget();
 
-	// Callback used by the EntityCreator when a key value changes on an entity
-    static void keyValueChanged();
-
 	/** greebo: Gets called by the RadiantSelectionSystem upon selection change.
 	 */
 	void selectionChanged(const scene::INodePtr& node, bool isComponent);
 
 	// RadiantEventListener implementation, gets called right before shutdown
-	virtual void onRadiantShutdown();
+	void onRadiantShutdown();
+
+	// Gets called after an undo operation
+	void postUndo();
+	// Gets called after a redo operation
+	void postRedo();
+
+    /* Entity::Observer implementation */
+    void onKeyInsert(const std::string& key, EntityKeyValue& value);
+    void onKeyChange(const std::string& key, const std::string& value);
+    void onKeyErase(const std::string& key, EntityKeyValue& value);
 
 	// greebo: Tells the inspector to reload the window settings from the registry.
 	void restoreSettings();

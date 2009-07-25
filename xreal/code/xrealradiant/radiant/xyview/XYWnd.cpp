@@ -19,7 +19,6 @@
 #include "select.h"
 #include "entity.h"
 #include "renderer.h"
-#include "windowobservers.h"
 #include "camera/GlobalCamera.h"
 #include "camera/CameraSettings.h"
 #include "ui/ortho/OrthoContextMenu.h"
@@ -82,15 +81,14 @@ XYWnd::XYWnd(int id) :
 
 	m_entityCreate = false;
 
-	GlobalWindowObservers_add(m_window_observer);
-	GlobalWindowObservers_connectWidget(m_gl_widget);
-
 	m_window_observer->setRectangleDrawCallback(MemberCaller1<XYWnd, Rectangle, &XYWnd::updateXORRectangle>(*this));
 	m_window_observer->setView(m_view);
-	
+		
 	gtk_widget_ref(m_gl_widget);
 
-	gtk_widget_set_events(m_gl_widget, GDK_DESTROY | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK);
+	gtk_widget_set_events(m_gl_widget, GDK_DESTROY | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | 
+		GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK | GDK_KEY_PRESS_MASK);
+
 	GTK_WIDGET_SET_FLAGS(m_gl_widget, GTK_CAN_FOCUS);
 	gtk_widget_set_size_request(m_gl_widget, XYWND_MINSIZE_X, XYWND_MINSIZE_Y);
 
@@ -118,6 +116,9 @@ XYWnd::XYWnd(int id) :
 	// greebo: Connect <self> as CameraObserver to the CamWindow. This way this class gets notified on camera change
 	GlobalCamera().addCameraObserver(this);
 
+	// Let the window observer connect its handlers to the GL widget first (before the event manager)
+	m_window_observer->addObservedWidget(m_gl_widget);
+
 	GlobalEventManager().connect(GTK_OBJECT(m_gl_widget));
 }
 
@@ -138,7 +139,10 @@ void XYWnd::destroyXYView() {
 	// greebo: Remove <self> as CameraObserver from the CamWindow.
 	GlobalCamera().removeCameraObserver(this);
 	
-	if (m_gl_widget != NULL) {
+	if (m_gl_widget != NULL)
+	{
+		m_window_observer->removeObservedWidget(m_gl_widget);
+
 		GlobalEventManager().disconnect(GTK_OBJECT(m_gl_widget));
 		
 		g_signal_handler_disconnect(G_OBJECT(m_gl_widget), m_sizeHandler);
@@ -151,10 +155,8 @@ void XYWnd::destroyXYView() {
 	}
 
 	// This deletes the RadiantWindowObserver from the heap
-	if (m_window_observer != NULL) {
-		// greebo: Unregister the allocated window observer from the global list, before destroying it
-		GlobalWindowObservers_remove(m_window_observer);
-			
+	if (m_window_observer != NULL)
+	{
 		m_window_observer->release();
 		m_window_observer = NULL;
 	}
@@ -183,14 +185,21 @@ int XYWnd::getHeight() const {
 	return _height;
 }
 
-void XYWnd::setParent(GtkWindow* parent) {
+void XYWnd::setParent(GtkWindow* parent)
+{
+	if (_parent != NULL && parent != _parent)
+	{
+		// Parent change, disconnect first
+		m_window_observer->removeObservedWidget(GTK_WIDGET(_parent));
+	}
+
 	_parent = parent;
 	
 	// Connect the position observer to the new parent
 	_windowPosition.connect(_parent);
 	_windowPosition.applyPosition();
 	
-	m_window_observer->setObservedWidget(GTK_WIDGET(_parent));
+	m_window_observer->addObservedWidget(GTK_WIDGET(_parent));
 }
 
 GtkWindow* XYWnd::getParent() const {
@@ -480,8 +489,10 @@ void XYWnd::NewBrushDrag(int x, int y) {
 
 	int nDim = (m_viewType == XY) ? 2 : (m_viewType == YZ) ? 0 : 1;
 
-	mins[nDim] = float_snapped(Select_getWorkZone().d_work_min[nDim], GlobalGrid().getGridSize());
-	maxs[nDim] = float_snapped(Select_getWorkZone().d_work_max[nDim], GlobalGrid().getGridSize());
+	const selection::WorkZone& wz = GlobalSelectionSystem().getWorkZone();
+
+	mins[nDim] = float_snapped(wz.min[nDim], GlobalGrid().getGridSize());
+	maxs[nDim] = float_snapped(wz.max[nDim], GlobalGrid().getGridSize());
 
 	if (maxs[nDim] <= mins[nDim])
 		maxs[nDim] = mins[nDim] + GlobalGrid().getGridSize();
@@ -977,14 +988,17 @@ void XYWnd::drawGrid() {
 	if (GlobalXYWnd().showWorkzone()) {
 		glColor3dv( ColourSchemes().getColour("workzone") );
 		glBegin( GL_LINES );
-		glVertex2f( xb, Select_getWorkZone().d_work_min[nDim2] );
-		glVertex2f( xe, Select_getWorkZone().d_work_min[nDim2] );
-		glVertex2f( xb, Select_getWorkZone().d_work_max[nDim2] );
-		glVertex2f( xe, Select_getWorkZone().d_work_max[nDim2] );
-		glVertex2f( Select_getWorkZone().d_work_min[nDim1], yb );
-		glVertex2f( Select_getWorkZone().d_work_min[nDim1], ye );
-		glVertex2f( Select_getWorkZone().d_work_max[nDim1], yb );
-		glVertex2f( Select_getWorkZone().d_work_max[nDim1], ye );
+
+		const selection::WorkZone& wz = GlobalSelectionSystem().getWorkZone();
+
+		glVertex2f( xb, wz.min[nDim2] );
+		glVertex2f( xe, wz.min[nDim2] );
+		glVertex2f( xb, wz.max[nDim2] );
+		glVertex2f( xe, wz.max[nDim2] );
+		glVertex2f( wz.min[nDim1], yb );
+		glVertex2f( wz.min[nDim1], ye );
+		glVertex2f( wz.max[nDim1], yb );
+		glVertex2f( wz.max[nDim1], ye );
 		glEnd();
 	}
 }
@@ -1104,7 +1118,7 @@ void XYWnd::drawCameraIcon(const Vector3& origin, const Vector3& angles)
 
 // can be greatly simplified but per usual i am in a hurry 
 // which is not an excuse, just a fact
-void XYWnd::drawSizeInfo(int nDim1, int nDim2, Vector3& vMinBounds, Vector3& vMaxBounds)
+void XYWnd::drawSizeInfo(int nDim1, int nDim2, const Vector3& vMinBounds, const Vector3& vMaxBounds)
 {
   if (vMinBounds == vMaxBounds) {
     return;
@@ -1409,10 +1423,11 @@ void XYWnd::draw() {
 
 
 	// greebo: Check, if the brush/patch size info should be displayed (if there are any items selected)
-	if (GlobalXYWnd().showSizeInfo() && GlobalSelectionSystem().countSelected() != 0) {
-		Vector3 min, max;
-		Select_GetBounds(min, max);
-		drawSizeInfo(nDim1, nDim2, min, max);
+	if (GlobalXYWnd().showSizeInfo() && GlobalSelectionSystem().countSelected() != 0)
+	{
+		const selection::WorkZone& wz = GlobalSelectionSystem().getWorkZone();
+
+		drawSizeInfo(nDim1, nDim2, wz.min, wz.max);
 	}
 
 	if (GlobalXYWnd().showCrossHairs()) {
@@ -1505,8 +1520,10 @@ void XYWnd::mouseToPoint(int x, int y, Vector3& point) {
 	snapToGrid(point);
 
 	int nDim = (getViewType() == XY) ? 2 : (getViewType() == YZ) ? 0 : 1;
-	float fWorkMid = float_mid(Select_getWorkZone().d_work_min[nDim], Select_getWorkZone().d_work_max[nDim]);
-	point[nDim] = float_snapped(fWorkMid, GlobalGrid().getGridSize());
+
+	const selection::WorkZone& wz = GlobalSelectionSystem().getWorkZone();
+
+	point[nDim] = float_snapped(wz.bounds.getOrigin()[nDim], GlobalGrid().getGridSize());
 }
 
 void XYWnd::onEntityCreate(const std::string& item) {

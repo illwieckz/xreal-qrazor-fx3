@@ -38,7 +38,7 @@ private:
 	Layers m_layers;
 
     // Editorimage texture
-	shaders::MapExpressionPtr _editorTex;
+	NamedBindablePtr _editorTex;
 
 	// Map expressions
 	shaders::MapExpressionPtr _lightFalloff;
@@ -153,10 +153,17 @@ public:
 		_blockContents = blockContents;
 	}
 
-	const shaders::MapExpressionPtr& getTexture() {
-		if (!_parsed) parseDefinition();
-		return _editorTex;
+	const std::string& getBlockContents() const
+	{
+		return _blockContents;
 	}
+
+    /**
+     * \brief
+     * Return the named bindable corresponding to the editor preview texture
+     * (qer_editorimage).
+     */
+	NamedBindablePtr getEditorTexture();
 
 	const shaders::MapExpressionPtr& getLightFalloff() {
 		if (!_parsed) parseDefinition();

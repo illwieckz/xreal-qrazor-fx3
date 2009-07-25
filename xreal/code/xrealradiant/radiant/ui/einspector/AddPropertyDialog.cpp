@@ -4,13 +4,14 @@
 #include "gtkutil/RightAlignment.h"
 #include "gtkutil/TreeModel.h"
 #include "gtkutil/ScrolledFrame.h"
+#include "gtkutil/MultiMonitor.h"
 #include "gtkutil/IconTextColumn.h"
 
 #include "iradiant.h"
 #include "iuimanager.h"
 #include "igroupdialog.h"
-#include "iregistry.h"
 #include "ieclass.h"
+#include "igame.h"
 #include "ientity.h"
 
 #include <gtk/gtk.h>
@@ -34,7 +35,7 @@ namespace {
 	
 	// CONSTANTS
 	const char* ADDPROPERTY_TITLE = "Add property";
-	const std::string PROPERTIES_XPATH = "game/entityInspector//property";
+	const char* PROPERTIES_XPATH = "/entityInspector//property";
 	const char* FOLDER_ICON = "folder16.png";
 	
 	const char* CUSTOM_PROPERTY_TEXT = "Custom properties defined for this "
@@ -49,17 +50,21 @@ AddPropertyDialog::AddPropertyDialog(Entity* entity)
   _entity(entity)
 {
 	// Window properties
-	GtkWidget* groupdialog = GlobalGroupDialog().getDialogWindow();
+	GtkWindow* parent = GTK_WINDOW(GlobalGroupDialog().getDialogWindow());
+
+	if (!GTK_IS_WINDOW(parent) || !GTK_WIDGET_VISIBLE(parent))
+	{
+		parent = GlobalRadiant().getMainWindow();
+	}
 	
-	gtk_window_set_transient_for(GTK_WINDOW(_widget), GTK_WINDOW(groupdialog));
+	gtk_window_set_transient_for(GTK_WINDOW(_widget), parent);
 	gtk_window_set_modal(GTK_WINDOW(_widget), TRUE);
 	gtk_window_set_title(GTK_WINDOW(_widget), ADDPROPERTY_TITLE);
     gtk_window_set_position(GTK_WINDOW(_widget), GTK_WIN_POS_CENTER_ON_PARENT);
     
     // Set size of dialog
-    gint w, h;
-	gtk_window_get_size(GTK_WINDOW(groupdialog), &w, &h);
-	gtk_window_set_default_size(GTK_WINDOW(_widget), w, h);
+	GdkRectangle rect = gtkutil::MultiMonitor::getMonitorForWindow(parent);
+    gtk_window_set_default_size(GTK_WINDOW(_widget), rect.width/3, rect.height/3);
     
     // Signals
     g_signal_connect(G_OBJECT(_widget), "delete-event", 
@@ -204,8 +209,8 @@ public:
 } // namespace
 
 // Populate tree view
-void AddPropertyDialog::populateTreeView() {
-
+void AddPropertyDialog::populateTreeView() 
+{
 	/* DEF-DEFINED PROPERTIES */
 
 	// First add a top-level category named after the entity class, and populate
@@ -229,7 +234,8 @@ void AddPropertyDialog::populateTreeView() {
 	/* REGISTRY (GAME FILE) DEFINED PROPERTIES */
 
 	// Ask the XML registry for the list of properties
-	xml::NodeList propNodes = GlobalRegistry().findXPath(PROPERTIES_XPATH);
+    game::IGamePtr currentGame = GlobalGameManager().currentGame();
+    xml::NodeList propNodes = currentGame->getLocalXPath(PROPERTIES_XPATH);
 	
 	// Cache of property categories to GtkTreeIters, to allow properties
 	// to be parented to top-level categories
@@ -273,7 +279,7 @@ void AddPropertyDialog::populateTreeView() {
 		}
 		
 		// Obtain information from the XML node and add it to the treeview
-		std::string name = iter->getAttributeValue("name");
+		std::string name = iter->getAttributeValue("match");
 		std::string type = iter->getAttributeValue("type");
 		std::string description = iter->getContent();
 		

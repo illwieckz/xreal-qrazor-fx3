@@ -25,15 +25,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /// \file
 /// \brief View-frustum data types and related operations.
 
-#include "generic/enumeration.h"
 #include "math/matrix.h"
 #include "math/Plane3.h"
 #include "math/aabb.h"
 #include "math/line.h"
 
+#include "VolumeIntersectionValue.h"
+
 inline Matrix4 matrix4_frustum(float left, float right, float bottom, float top, float nearval, float farval)
 {
-  return Matrix4(
+  return Matrix4::byColumns(
     static_cast<float>( (2*nearval) / (right-left) ),
     0,
     0,
@@ -363,7 +364,10 @@ inline std::size_t matrix4_clip_line(const Matrix4& self, const Vector3& p0, con
 
 
 
-
+/**
+ * \brief
+ * Object representing a frustum, defined by six planes.
+ */
 struct Frustum
 {
   Plane3 right, left, bottom, top, back, front;
@@ -380,30 +384,46 @@ struct Frustum
     : right(_right), left(_left), bottom(_bottom), top(_top), back(_back), front(_front)
   {
   }
+
+    /**
+     * \brief
+     * Normalise all planes in the frustum.
+     */
+    void normalisePlanes();
+
+    /**
+     * \brief
+     * Get the projection matrix corresponding to the planes of this frustum.
+     */
+    Matrix4 getProjectionMatrix() const;
+
+    /**
+     * \brief
+     * Return a copy of this frustum transformed by the given matrix.
+     */
+    Frustum getTransformedBy(const Matrix4& transform) const;
+
+    /**
+     * \brief
+     * Test the intersection of this frustum with an AABB.
+     */
+    VolumeIntersectionValue testIntersection(const AABB& aabb) const;
 };
 
-inline Frustum frustum_transformed(const Frustum& frustum, const Matrix4& matrix)
+/**
+ * \brief
+ * Operator insertion for Frustum.
+ */
+inline std::ostream& operator<< (std::ostream& os, const Frustum& frustum)
 {
-  return Frustum(
-    matrix.transform(frustum.right),
-    matrix.transform(frustum.left),
-    matrix.transform(frustum.bottom),
-    matrix.transform(frustum.top),
-    matrix.transform(frustum.back),
-    matrix.transform(frustum.front)
-  );
-}
-
-inline Frustum frustum_inverse_transformed(const Frustum& frustum, const Matrix4& matrix)
-{
-  return Frustum(
-    matrix.inverseTransform(frustum.right),
-    matrix.inverseTransform(frustum.left),
-    matrix.inverseTransform(frustum.bottom),
-    matrix.inverseTransform(frustum.top),
-    matrix.inverseTransform(frustum.back),
-    matrix.inverseTransform(frustum.front)
-  );
+    os << "Frustum { "
+       << "left = " << frustum.left << ", "
+       << "right = " << frustum.right << ", "
+       << "top = " << frustum.top << ", "
+       << "bottom = " << frustum.bottom << ", "
+       << "front = " << frustum.front << ", "
+       << "back = " << frustum.back << " }";
+    return os;
 }
 
 inline bool viewproj_test_point(const Matrix4& viewproj, const Vector3& point)
@@ -432,77 +452,6 @@ inline Frustum frustum_from_viewproj(const Matrix4& viewproj)
     Plane3(viewproj[ 3] - viewproj[ 2], viewproj[ 7] - viewproj[ 6], viewproj[11] - viewproj[10], viewproj[15] - viewproj[14]).getNormalised(),
     Plane3(viewproj[ 3] + viewproj[ 2], viewproj[ 7] + viewproj[ 6], viewproj[11] + viewproj[10], viewproj[15] + viewproj[14]).getNormalised()
   );
-}
-
-struct VolumeIntersection
-{
-  enum Value
-  {
-    OUTSIDE,
-    INSIDE,
-    PARTIAL
-  };
-};
-
-typedef EnumeratedValue<VolumeIntersection> VolumeIntersectionValue;
-
-const VolumeIntersectionValue c_volumeOutside(VolumeIntersectionValue::OUTSIDE);
-const VolumeIntersectionValue c_volumeInside(VolumeIntersectionValue::INSIDE);
-const VolumeIntersectionValue c_volumePartial(VolumeIntersectionValue::PARTIAL);
-
-inline VolumeIntersectionValue frustum_test_aabb(const Frustum& frustum, const AABB& aabb)
-{
-  VolumeIntersectionValue result = c_volumeInside;
-
-  switch(aabb_classify_plane(aabb, frustum.right))
-  {
-  case 2:
-    return c_volumeOutside;
-  case 1:
-    result = c_volumePartial;
-  }
-
-  switch(aabb_classify_plane(aabb, frustum.left))
-  {
-  case 2:
-    return c_volumeOutside;
-  case 1:
-    result = c_volumePartial;
-  }
-
-  switch(aabb_classify_plane(aabb, frustum.bottom))
-  {
-  case 2:
-    return c_volumeOutside;
-  case 1:
-    result = c_volumePartial;
-  }
-
-  switch(aabb_classify_plane(aabb, frustum.top))
-  {
-  case 2:
-    return c_volumeOutside;
-  case 1:
-    result = c_volumePartial;
-  }
-
-  switch(aabb_classify_plane(aabb, frustum.back))
-  {
-  case 2:
-    return c_volumeOutside;
-  case 1:
-    result = c_volumePartial;
-  }
-
-  switch(aabb_classify_plane(aabb, frustum.front))
-  {
-  case 2:
-    return c_volumeOutside;
-  case 1:
-    result = c_volumePartial;
-  }
-
-  return result;
 }
 
 inline double plane_distance_to_point(const Plane3& plane, const Vector3& point)
@@ -535,8 +484,8 @@ inline VolumeIntersectionValue frustum_intersects_transformed_aabb(const Frustum
     || plane_contains_oriented_aabb(frustum.top, aabb_world, localToWorld)
     || plane_contains_oriented_aabb(frustum.back, aabb_world, localToWorld)
     || plane_contains_oriented_aabb(frustum.front, aabb_world, localToWorld))
-    return c_volumeOutside;
-  return c_volumeInside;
+    return VOLUME_OUTSIDE;
+  return VOLUME_INSIDE;
 }
 
 inline bool plane3_test_point(const Plane3& plane, const Vector3& point)

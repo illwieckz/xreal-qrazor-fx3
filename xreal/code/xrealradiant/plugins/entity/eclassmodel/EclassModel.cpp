@@ -47,8 +47,9 @@ EclassModel::EclassModel(const EclassModel& other,
 	construct();
 }
 
-void EclassModel::construct() {
-	default_rotation(m_rotation);
+void EclassModel::construct()
+{
+	m_rotation.setIdentity();
 
 	m_keyObservers.insert("name", NamedEntity::IdentifierChangedCaller(m_named));
 	m_keyObservers.insert("angle", RotationKey::AngleChangedCaller(m_rotationKey));
@@ -59,14 +60,14 @@ void EclassModel::construct() {
 
 EclassModel::~EclassModel() {
 	m_model.modelChanged("");
-	m_entity.detach(m_keyObservers);
+	m_entity.detachObserver(&m_keyObservers);
 }
 
 void EclassModel::updateTransform() {
 	m_transform.localToParent() = Matrix4::getIdentity();
 	m_transform.localToParent().translateBy(m_origin);
 
-	m_transform.localToParent().multiplyBy(rotation_toMatrix(m_rotation));
+	m_transform.localToParent().multiplyBy(m_rotation.getMatrix4());
 	m_transformChanged();
 }
 
@@ -81,14 +82,14 @@ void EclassModel::angleChanged() {
 }
 
 void EclassModel::rotationChanged() {
-	rotation_assign(m_rotation, m_rotationKey.m_rotation);
+	m_rotation = m_rotationKey.m_rotation;
 	updateTransform();
 }
 
 void EclassModel::instanceAttach(const scene::Path& path) {
 	if(++m_instanceCounter.m_count == 1) {
 		m_entity.instanceAttach(path_find_mapfile(path.begin(), path.end()));
-		m_entity.attach(m_keyObservers);
+		m_entity.attachObserver(&m_keyObservers);
 		m_model.modelChanged(m_entity.getKeyValue("model"));
 		_owner.skinChanged(m_entity.getKeyValue("skin"));
 	}
@@ -97,17 +98,17 @@ void EclassModel::instanceAttach(const scene::Path& path) {
 void EclassModel::instanceDetach(const scene::Path& path) {
 	if (--m_instanceCounter.m_count == 0) {
 		m_model.modelChanged("");
-		m_entity.detach(m_keyObservers);
+		m_entity.detachObserver(&m_keyObservers);
 		m_entity.instanceDetach(path_find_mapfile(path.begin(), path.end()));
 	}
 }
 
 void EclassModel::addKeyObserver(const std::string& key, const KeyObserver& observer) {
-	m_entity.detach(m_keyObservers); // detach first
+	m_entity.detachObserver(&m_keyObservers); // detach first
 
 	m_keyObservers.insert(key, observer);
 
-	m_entity.attach(m_keyObservers); // attach again
+	m_entity.attachObserver(&m_keyObservers); // attach again
 }
 
 void EclassModel::removeKeyObserver(const std::string& key, const KeyObserver& observer) {
@@ -164,7 +165,7 @@ void EclassModel::translate(const Vector3& translation) {
 }
 
 void EclassModel::rotate(const Quaternion& rotation) {
-	rotation_rotate(m_rotation, rotation);
+	m_rotation.rotate(rotation);
 }
 
 void EclassModel::snapto(float snap) {
@@ -174,13 +175,13 @@ void EclassModel::snapto(float snap) {
 
 void EclassModel::revertTransform() {
 	m_origin = m_originKey.m_origin;
-	rotation_assign(m_rotation, m_rotationKey.m_rotation);
+	m_rotation = m_rotationKey.m_rotation;
 }
 
 void EclassModel::freezeTransform() {
 	m_originKey.m_origin = m_origin;
 	m_originKey.write(&m_entity);
-	rotation_assign(m_rotationKey.m_rotation, m_rotation);
+	m_rotationKey.m_rotation = m_rotation;
 	m_rotationKey.write(&m_entity, true);
 }
 

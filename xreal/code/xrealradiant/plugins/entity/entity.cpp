@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ieclass.h"
 #include "ieventmanager.h"
 #include "ifilter.h"
-#include "selectable.h"
+#include "iselectable.h"
 #include "inamespace.h"
 
 #include "scenelib.h"
@@ -38,15 +38,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "target/RenderableTargetInstances.h"
 #include "EntitySettings.h"
 
-// Initialise the static variables of the entitylibraries (we're in a module here)
-EntityCreator::KeyValueChangedFunc entity::Doom3Entity::_keyValueChangedNotify = 0;
-EntityCreator::KeyValueChangedFunc entity::KeyValue::_keyValueChangedNotify = 0;
-
-namespace entity {
+namespace entity 
+{
 
 /* greebo: Constructs the entity environment
  */
-void constructStatic() {
+void constructStatic() 
+{
 	LightShader::m_defaultShader = GlobalRegistry().get("game/defaults/lightShader");
 
 	// Construct Doom3Group stuff
@@ -59,6 +57,7 @@ void constructStatic() {
 
 	GlobalEventManager().addRegistryToggle("ToggleShowAllLightRadii", RKEY_SHOW_ALL_LIGHT_RADII);
 	GlobalEventManager().addRegistryToggle("ToggleShowAllSpeakerRadii", RKEY_SHOW_ALL_SPEAKER_RADII);
+	GlobalEventManager().addRegistryToggle("ToggleDragResizeEntitiesSymmetrically", RKEY_DRAG_RESIZE_SYMMETRICALLY);
 }
 
 void destroyStatic() {

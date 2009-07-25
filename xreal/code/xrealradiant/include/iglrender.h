@@ -58,7 +58,7 @@ public:
   	 * Unbind this program from OpenGL.
   	 */
 	virtual void disable() = 0;
-	
+
 	/**
 	 * \brief
      * Apply render parameters used by this program to OpenGL.

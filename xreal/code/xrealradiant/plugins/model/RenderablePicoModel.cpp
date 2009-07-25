@@ -1,7 +1,7 @@
 #include "RenderablePicoModel.h"
 #include "RenderablePicoSurface.h"
 
-#include "selectable.h"
+#include "iselectable.h"
 #include "texturelib.h"
 #include "ishaders.h"
 #include "ifilter.h"
@@ -114,7 +114,8 @@ int RenderablePicoModel::getPolyCount() const {
 }
 	
 // Apply the given skin to this model
-void RenderablePicoModel::applySkin(const ModelSkin& skin) {
+void RenderablePicoModel::applySkin(const ModelSkin& skin)
+{
 	// Apply the skin to each surface
 	for (SurfaceList::iterator i = _surfVec.begin();
 		 i != _surfVec.end();
@@ -122,6 +123,9 @@ void RenderablePicoModel::applySkin(const ModelSkin& skin) {
 	{
 		(*i)->applySkin(skin);
 	}
+
+	// greebo: Update the active material list after applying this skin
+	updateMaterialList();
 }
 
 // Update the list of active materials
@@ -136,11 +140,11 @@ void RenderablePicoModel::updateMaterialList() const {
 }
 
 // Return the list of active skins for this model
-const std::vector<std::string>& RenderablePicoModel::getActiveMaterials() const {
+const MaterialList& RenderablePicoModel::getActiveMaterials() const {
 	// If the material list is empty, populate it
 	if (_materialList.empty()) {
 		updateMaterialList();
-	}	
+	}
 	// Return the list
 	return _materialList;
 }
@@ -169,7 +173,7 @@ void RenderablePicoModel::testSelect(Selector& selector,
 	{
 		// Check volume intersection
 		if ((*i)->intersectVolume(test.getVolume(), localToWorld) 
-				!= c_volumeOutside)
+				!= VOLUME_OUTSIDE)
 		{
 			// Volume intersection passed, delegate the selection test
         	(*i)->testSelect(selector, test, localToWorld);

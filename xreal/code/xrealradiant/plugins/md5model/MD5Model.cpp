@@ -49,7 +49,7 @@ const AABB& MD5Model::localAABB() const {
 
 void MD5Model::testSelect(Selector& selector, SelectionTest& test, const Matrix4& localToWorld) {
 	for (SurfaceList::iterator i = _surfaces.begin(); i != _surfaces.end(); ++i) {
-		if ((*i)->intersectVolume(test.getVolume(), localToWorld) != c_volumeOutside) {
+		if ((*i)->intersectVolume(test.getVolume(), localToWorld) != VOLUME_OUTSIDE) {
 			(*i)->testSelect(selector, test, localToWorld);
 		}
 	}
@@ -102,7 +102,7 @@ void MD5Model::updateMaterialList() {
 	}
 }
 
-const std::vector<std::string>& MD5Model::getActiveMaterials() const {
+const model::MaterialList& MD5Model::getActiveMaterials() const {
 	return _surfaceNames;
 }
 

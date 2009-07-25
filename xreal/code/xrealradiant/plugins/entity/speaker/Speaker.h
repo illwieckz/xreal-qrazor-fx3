@@ -11,7 +11,6 @@
 #include "generic/callback.h"
 
 #include "../origin.h"
-#include "../angle.h"
 #include "../namedentity.h"
 #include "../keyobservers.h"
 #include "../Doom3Entity.h"
@@ -34,14 +33,20 @@ class Speaker :
 
 	OriginKey m_originKey;
 	Vector3 m_origin;
-	AngleKey m_angleKey;
-	float m_angle;
 
 	NamedEntity m_named;
-	//NamespaceManager m_nameKeys;
 
-	RenderSpeakerRadii m_speakerRadii;
-	SoundRadii m_stdVal;
+	// The current speaker radii (min / max)
+	SoundRadii _radii;
+	// The "working set" which is used during resize operations
+	SoundRadii _radiiTransformed;
+
+	// The default radii as defined on the currently active sound shader
+	SoundRadii _defaultRadii;
+
+    // Renderable speaker radii
+	RenderableSpeakerRadii _renderableRadii;
+
 	bool m_useSpeakerRadii;
 	bool m_minIsSet;
 	bool m_maxIsSet;
@@ -50,7 +55,6 @@ class Speaker :
 
 	// the AABB that determines the rendering area
 	AABB m_aabb_border;
-	Ray m_ray;
 
 	RenderableSolidAABB m_aabb_solid;
 	RenderableWireframeAABB m_aabb_wire;
@@ -90,8 +94,15 @@ public:
 
 	VolumeIntersectionValue intersectVolume(const VolumeTest& volume, const Matrix4& localToWorld) const;
 
-	void renderSolid(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
-	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
+    // Render functions (invoked by SpeakerNode)
+	void renderSolid(RenderableCollector& collector,
+                     const VolumeTest& volume,
+                     const Matrix4& localToWorld,
+                     bool isSelected) const;
+	void renderWireframe(RenderableCollector& collector,
+                         const VolumeTest& volume,
+                         const Matrix4& localToWorld,
+                         bool isSelected) const;
 
 	void testSelect(Selector& selector, SelectionTest& test, const Matrix4& localToWorld);
 
@@ -104,6 +115,10 @@ public:
 	void freezeTransform();
 	void transformChanged();
 	typedef MemberCaller<Speaker, &Speaker::transformChanged> TransformChangedCaller;
+
+	// greebo: Modifies the speaker radii according to the passed bounding box
+	// this is called during drag-resize operations
+	void setRadiusFromAABB(const AABB& aabb);
 
 public:
 
@@ -126,9 +141,6 @@ public:
 
 	void sMaxChanged(const std::string& value);
 	typedef MemberCaller1<Speaker, const std::string&, &Speaker::sMaxChanged> sMaxChangedCaller;
-
-	void angleChanged();
-	typedef MemberCaller<Speaker, &Speaker::angleChanged> AngleChangedCaller;
 };
 
 } // namespace entity

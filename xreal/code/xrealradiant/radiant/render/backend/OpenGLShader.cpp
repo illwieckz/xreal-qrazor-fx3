@@ -11,7 +11,7 @@
 #include "texturelib.h"
 
 void OpenGLShader::destroy() {
-	// Clear the shaderptr, so that the shared_ptr reference count is decreased
+	// Clear the shaderptr, so that the shared_ptr reference count is decreased 
     _iShader = MaterialPtr();
 
     for(Passes::iterator i = _shaderPasses.begin(); i != _shaderPasses.end(); ++i)
@@ -21,8 +21,8 @@ void OpenGLShader::destroy() {
     _shaderPasses.clear();
 }
 
-void OpenGLShader::addRenderable(const OpenGLRenderable& renderable,
-					   			 const Matrix4& modelview,
+void OpenGLShader::addRenderable(const OpenGLRenderable& renderable, 
+					   			 const Matrix4& modelview, 
 					   			 const LightList* lights)
 {
 	// Iterate over the list of OpenGLStateBuckets, bumpmap and non-bumpmap
@@ -46,7 +46,7 @@ void OpenGLShader::addRenderable(const OpenGLRenderable& renderable,
 
 void OpenGLShader::incrementUsed() {
     if(++m_used == 1 && _iShader != 0)
-    {
+    { 
       _iShader->SetInUse(true);
     }
 }
@@ -58,10 +58,8 @@ void OpenGLShader::decrementUsed() {
     }
 }
 
-void OpenGLShader::realise(const std::string& name)
+void OpenGLShader::realise(const std::string& name) 
 {
-    std::cout << "OpenGLShader::realise(" << name << ")" << std::endl;
-
     // Construct the shader passes based on the name
     construct(name);
 
@@ -73,10 +71,10 @@ void OpenGLShader::realise(const std::string& name)
 			_iShader->SetInUse(true);
 		}
     }
-
+    
     for(Passes::iterator i = _shaderPasses.begin(); i != _shaderPasses.end(); ++i) {
     	render::getOpenGLRenderSystem().insertSortedState(
-			OpenGLStates::value_type(OpenGLStateReference((*i)->state()),
+			OpenGLStates::value_type(OpenGLStateReference((*i)->state()), 
 									 *i));
     }
 
@@ -123,12 +121,12 @@ void OpenGLShader::appendInteractionLayer(const DBSTriplet& triplet)
     {
         // Create depth-buffer fill pass
         OpenGLState& state = appendDefaultPass();
-        state.renderFlags = RENDER_FILL
-                        | RENDER_CULLFACE
-                        | RENDER_TEXTURE_2D
-                        | RENDER_DEPTHTEST
-                        | RENDER_DEPTHWRITE
-                        | RENDER_COLOURWRITE
+        state.renderFlags = RENDER_FILL 
+                        | RENDER_CULLFACE 
+                        | RENDER_TEXTURE_2D 
+                        | RENDER_DEPTHTEST 
+                        | RENDER_DEPTHWRITE 
+                        | RENDER_COLOURWRITE 
                         | RENDER_PROGRAM;
 
         state.m_colour[0] = 0;
@@ -136,10 +134,10 @@ void OpenGLShader::appendInteractionLayer(const DBSTriplet& triplet)
         state.m_colour[2] = 0;
         state.m_colour[3] = 1;
         state.m_sort = OpenGLState::eSortOpaque;
-
+        
         state.m_program = render::GLProgramFactory::getProgram("depthFill").get();
     }
-
+    
     // Add the DBS pass
     OpenGLState& dbsPass = appendDefaultPass();
 
@@ -175,7 +173,7 @@ void OpenGLShader::appendInteractionLayer(const DBSTriplet& triplet)
             ShaderLayer::SPECULAR
         )->getGLTexNum();
     }
-
+    
     // Set render flags
     dbsPass.renderFlags = RENDER_BLEND
                         | RENDER_FILL
@@ -186,12 +184,15 @@ void OpenGLShader::appendInteractionLayer(const DBSTriplet& triplet)
                         | RENDER_SMOOTH
                         | RENDER_BUMP
                         | RENDER_PROGRAM;
-
+    
     dbsPass.m_program = render::GLProgramFactory::getProgram("bumpMap").get();
 
     // Set layer vertex colour mode
-    ShaderLayer::VertexColourMode vcolMode =
-            triplet.diffuse->getVertexColourMode();
+    ShaderLayer::VertexColourMode vcolMode = ShaderLayer::VERTEX_COLOUR_NONE;
+    if (triplet.diffuse)
+    {
+        vcolMode = triplet.diffuse->getVertexColourMode();
+    }
     if (vcolMode != ShaderLayer::VERTEX_COLOUR_NONE)
     {
         // Vertex colours allowed
@@ -289,51 +290,34 @@ void OpenGLShader::constructEditorPreviewPassFromMaterial()
         state.renderFlags |= RENDER_CULLFACE;
     }
 
-	if((_iShader->getFlags() & QER_ALPHATEST) != 0)
-	{
-		state.renderFlags |= RENDER_ALPHATEST;
-		Material::EAlphaFunc alphafunc;
-		_iShader->getAlphaFunc(&alphafunc, &state.m_alpharef);
-		switch(alphafunc)
-		{
-		case Material::eAlways:
-		  state.m_alphafunc = GL_ALWAYS;
-		case Material::eEqual:
-		  state.m_alphafunc = GL_EQUAL;
-		case Material::eLess:
-		  state.m_alphafunc = GL_LESS;
-		case Material::eGreater:
-		  state.m_alphafunc = GL_GREATER;
-		case Material::eLEqual:
-		  state.m_alphafunc = GL_LEQUAL;
-		case Material::eGEqual:
-		  state.m_alphafunc = GL_GEQUAL;
-		}
-	}
+  if((_iShader->getFlags() & QER_ALPHATEST) != 0)
+  {
+    state.renderFlags |= RENDER_ALPHATEST;
+    Material::EAlphaFunc alphafunc;
+    _iShader->getAlphaFunc(&alphafunc, &state.m_alpharef);
+    switch(alphafunc)
+    {
+    case Material::eAlways:
+      state.m_alphafunc = GL_ALWAYS;
+    case Material::eEqual:
+      state.m_alphafunc = GL_EQUAL;
+    case Material::eLess:
+      state.m_alphafunc = GL_LESS;
+    case Material::eGreater:
+      state.m_alphafunc = GL_GREATER;
+    case Material::eLEqual:
+      state.m_alphafunc = GL_LEQUAL;
+    case Material::eGEqual:
+      state.m_alphafunc = GL_GEQUAL;
+    }
+  }
 
-	if((_iShader->getFlags() & QER_TRANS) != 0)
-	{
-		state.renderFlags |= RENDER_BLEND;
-		state.m_colour[3] = _iShader->getTrans();
-		state.m_sort = OpenGLState::eSortTranslucent;
-		//BlendFunc blendFunc = _iShader->getBlendFunc();
-		//state.m_blend_src = convertBlendFactor(blendFunc.m_src);
-		//state.m_blend_dst = convertBlendFactor(blendFunc.m_dst);
-		/*
-		if(state.m_blend_src == GL_SRC_ALPHA || state.m_blend_dst == GL_SRC_ALPHA)
-		{
-		  state.renderFlags |= RENDER_DEPTHWRITE;
-		}
-		*/
-	}
-	else
-	{
-		state.m_colour = Vector4(1, 1, 1, 1);
+    // Set the GL color to white
+    state.m_colour = Vector4(1, 1, 1, 1);
 
-		// Opaque blending, write to depth buffer
-		state.renderFlags |= RENDER_DEPTHWRITE;
-		state.m_sort = OpenGLState::eSortFullbright;
-	}
+    // Opaque blending, write to depth buffer
+    state.renderFlags |= RENDER_DEPTHWRITE;
+    state.m_sort = OpenGLState::eSortFullbright;
 }
 
 // Append a blend (non-interaction) layer
@@ -386,7 +370,7 @@ void OpenGLShader::constructNormalShader(const std::string& name)
 
     // Determine whether we can render this shader in lighting/bump-map mode,
     // and construct the appropriate shader passes
-    if (canUseLightingMode())
+    if (canUseLightingMode()) 
     {
         // Full lighting, DBS and blend modes
         constructLightingPassesFromMaterial();
@@ -403,7 +387,7 @@ void OpenGLShader::construct(const std::string& name)
 {
 	// Retrieve the highlight colour from the colourschemes (once)
 	static Vector3 highLightColour = ColourSchemes().getColour("selected_brush_camera");
-
+	
     // Check the first character of the name to see if this is a special built-in
     // shader
     switch(name[0])

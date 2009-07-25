@@ -14,6 +14,14 @@
 namespace shaders
 {
 
+NamedBindablePtr ShaderTemplate::getEditorTexture()
+{
+    if (!_parsed) 
+        parseDefinition();
+
+    return _editorTex;
+}
+
 /*  Searches a token for known shaderflags (e.g. "translucent") and sets the flags
  *  in the member variable m_nFlags
  * 
@@ -97,7 +105,7 @@ void ShaderTemplate::parseBlendShortcuts(parser::DefTokeniser& tokeniser,
         m_layers.push_back(layer);
 
         // If there is no editor texture set, use the diffusemap texture instead
-        if (_editorTex)
+        if (!_editorTex)
         {
             _editorTex = difMapExp;
         }
@@ -235,8 +243,17 @@ void ShaderTemplate::parseColourModulation(parser::DefTokeniser& tokeniser,
 bool ShaderTemplate::saveLayer()
 {
     // Append layer to list of all layers
-    if (_currentLayer->getBindableTexture()) {
+    if (_currentLayer->getBindableTexture()) 
+    {
         m_layers.push_back(_currentLayer);
+    }
+
+    // If the layer we just saved was a diffusemap layer, and there is no
+    // editorimage, use the diffusemap as editor image
+    if (_currentLayer->getType() == ShaderLayer::DIFFUSE
+        && !_editorTex)
+    {
+        _editorTex = _currentLayer->getBindableTexture();
     }
     
     // Clear the currentLayer structure for possible future layers

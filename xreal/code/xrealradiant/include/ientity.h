@@ -40,7 +40,7 @@ class EntityKeyValue :
 public:
 	/** greebo: Retrieves the actual value of this key
 	 */
-	virtual std::string get() const = 0;
+	virtual const std::string& get() const = 0;
 	
 	/** greebo: Sets the value of this key
 	 */
@@ -75,27 +75,37 @@ public:
 	// A container with key => value pairs
 	typedef std::vector< std::pair<std::string, std::string> > KeyValuePairs;
 
-	/** greebo: An Entity::Observer gets notified about key insertions and removals
-	 * 			as well as (optionally) about Entity destruction.
-	 */
+    /**
+     * \brief
+     * Abstract base class for entity observers.
+     *
+     * An entity observer receives notifications when keyvalues are inserted or
+     * deleted on the entity it is observing.
+     */
 	class Observer
 	{
 	public:
-		/** greebo: This gets called when a new spawnarg is added to the entity
-		 * 			key/value list to give the Observer an opportunity to react.
-		 */
-		virtual void onKeyInsert(const std::string& key, EntityKeyValue& value) = 0;
+
+        /**
+         * \brief
+         * Notification that a new key value has been inserted on the entity.
+         */
+		virtual void onKeyInsert(const std::string& key, EntityKeyValue& value)
+        { }
 		
-		/** greebo: This is called when a spawnarg is removed from the observed entity.
-		 */
-		virtual void onKeyErase(const std::string& key, EntityKeyValue& value) = 0;
-		
-		/** greebo: Gets called when the entity is destroyed (i.e. all keyvalues are about
-		 * 			to be removed from the list). 
-		 */
-		virtual void onDestruct() {
-			// Empty default implementation
-		}
+        /**
+         * \brief
+         * Notification that a key value has changed on the entity.
+         */
+        virtual void onKeyChange(const std::string& key, const std::string& val)
+        { }
+
+        /**
+         * \brief
+         * Notification that a key value has been removed from the entity.
+         */
+		virtual void onKeyErase(const std::string& key, EntityKeyValue& value)
+        { }
 	};
 
 	/**
@@ -211,8 +221,18 @@ public:
 	virtual bool isModel() const = 0;
 	
   virtual bool isContainer() const = 0;
-  virtual void attach(Observer& observer) = 0;
-  virtual void detach(Observer& observer) = 0;
+
+    /**
+     * \brief
+     * Attach an Entity::Observer to this Entity.
+     */
+    virtual void attachObserver(Observer* observer) = 0;
+
+    /**
+     * \brief
+     * Detach an Entity::Observer from this Entity.
+     */
+    virtual void detachObserver(Observer* observer) = 0;
 };
 
 class IEntityNode
@@ -270,17 +290,27 @@ public:
 
 const std::string MODULE_ENTITYCREATOR("Doom3EntityCreator");
 
+/**
+ * \brief
+ * Interface for the entity creator module.
+ */
 class EntityCreator :
 	public RegisterableModule
 {
 public:
-  virtual scene::INodePtr createEntity(const IEntityClassConstPtr& eclass) = 0;
 
-  typedef void (*KeyValueChangedFunc)();
-  virtual void setKeyValueChangedFunc(KeyValueChangedFunc func) = 0;
+    /**
+     * \brief
+     * Create an entity node with the given entity class.
+     */
+    virtual scene::INodePtr createEntity(const IEntityClassConstPtr& eclass) = 0;
 
-	// Connects the two given entities (source will point to target)
-	virtual void connectEntities(const scene::INodePtr& source, const scene::INodePtr& target) = 0;
+    /**
+     * \brief
+     * Connect the two given entity nodes using the "target" system.
+     */
+	virtual void connectEntities(const scene::INodePtr& source,
+                                 const scene::INodePtr& target) = 0;
 };
 
 inline EntityCreator& GlobalEntityCreator() {

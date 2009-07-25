@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define INCLUDED_STRINGIO_H
 
 #include <stdlib.h>
-#include <cstdio>
 #include <cctype>
 
 #include "math/Vector3.h"

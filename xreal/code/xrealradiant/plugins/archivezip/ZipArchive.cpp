@@ -2,7 +2,6 @@
 
 #include "iarchive.h"
 #include "archivelib.h"
-#include "container/array.h"
 
 #include "pkzip.h"
 #include "zlibstream.h"
@@ -89,8 +88,8 @@ ArchiveTextFilePtr ZipArchive::openTextFile(const std::string& name) {
 	return ArchiveTextFilePtr();
 }
 
-bool ZipArchive::containsFile(const char* name) {
-	ZipFileSystem::iterator i = m_filesystem.find(std::string(name));
+bool ZipArchive::containsFile(const std::string& name) {
+	ZipFileSystem::iterator i = m_filesystem.find(name);
 	return i != m_filesystem.end() && !i->second.is_directory();
 }
 
@@ -138,26 +137,30 @@ bool ZipArchive::read_record() {
 
 	unsigned int position = istream_read_int32_le(m_istream);
 
-	Array<char> filename(namelength+1);
+	// greebo: Read the filename directly into a newly constructed std::string.
+
+	// I'm not entirely happy about this brute-force casting, but I wanted to 
+	// avoid reading the filename into a temporary char[] array 
+	// only to let its contents end up being copied by the std::string anyway.
+	// Alternative: use a static boost::shared_array here, resized to fit?
+
+	std::string path(namelength, '\0');
 
 	m_istream.read(
-		reinterpret_cast<FileInputStream::byte_type*>(filename.data()),
+		reinterpret_cast<FileInputStream::byte_type*>(const_cast<char*>(path.data())),
 		namelength);
-
-	filename[namelength] = '\0';
 
 	m_istream.seek(extras + comment, FileInputStream::cur);
 
-	std::string path(filename.data());
-	if (path_is_directory(filename.data())) {
+	if (path_is_directory(path.c_str())) {
 		m_filesystem[path] = 0;
 	} 
 	else {
 		ZipFileSystem::entry_type& file = m_filesystem[path];
 		if (!file.is_directory()) {
 			globalOutputStream() << "Warning: zip archive "
-				<< m_name.c_str() << " contains duplicated file: "
-				<< filename.data() << "\n";
+				<< m_name << " contains duplicated file: "
+				<< path << std::endl;
 		} 
 		else {
 			file = new ZipRecord(position, 

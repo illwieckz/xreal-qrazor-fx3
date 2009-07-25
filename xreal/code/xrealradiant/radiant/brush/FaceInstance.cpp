@@ -153,8 +153,7 @@ void FaceInstance::submitRenderables(RenderableCollector& collector,
 }
 
 void FaceInstance::testSelect(SelectionTest& test, SelectionIntersection& best) {
-	ShaderPtr glShader = getFace().getShader().getGLShader();
-	if (glShader && glShader->getMaterial()->isVisible()) {
+	if (getFace().getShader().getGLShader()->getMaterial()->isVisible()) {
 		m_face->testSelect(test, best);
 	}
 }
@@ -395,13 +394,15 @@ void FaceInstance::connectivityChanged() {
 	m_selectableEdges.setSelected(false);
 }
 
-void FaceInstance::addLight(const Matrix4& localToWorld, const RendererLight& light) {
+void FaceInstance::addLight(const Matrix4& localToWorld, const RendererLight& light) 
+{
 	const Plane3& facePlane = getFace().plane3();
-	const Vector3& origin = light.aabb().origin;
 	
 	Plane3 tmp(localToWorld.transform(Plane3(facePlane.normal(), -facePlane.dist())));
 	
-	if (!plane3_test_point(tmp, origin)	|| !plane3_test_point(tmp, origin + light.offset())) {
+	if (!plane3_test_point(tmp, light.worldOrigin())	
+        || !plane3_test_point(tmp, light.getLightOrigin())) 
+    {
 		m_lights.addLight(light);
 	}
 }

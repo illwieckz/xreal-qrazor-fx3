@@ -7,6 +7,7 @@
 #include "gtkutil/RightAlignment.h"
 #include "gtkutil/IconTextColumn.h"
 #include "gtkutil/TreeModel.h"
+#include "gtkutil/MultiMonitor.h"
 #include "gtkutil/VFSTreePopulator.h"
 
 #include <gtk/gtk.h>

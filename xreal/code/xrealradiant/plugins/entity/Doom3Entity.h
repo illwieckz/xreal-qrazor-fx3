@@ -24,8 +24,6 @@ namespace entity {
 class Doom3Entity :
 	public Entity
 {
-	static EntityCreator::KeyValueChangedFunc _keyValueChangedNotify;
-
 	IEntityClassConstPtr _eclass;
 
 	typedef boost::shared_ptr<KeyValue> KeyValuePtr;
@@ -54,15 +52,12 @@ public:
 	// Copy constructor
 	Doom3Entity(const Doom3Entity& other);
 	
-	~Doom3Entity();
-
-	static void setKeyValueChangedFunc(EntityCreator::KeyValueChangedFunc func);
-
 	void importState(const KeyValues& keyValues);
 	typedef MemberCaller1<Doom3Entity, const KeyValues&, &Doom3Entity::importState> UndoImportCaller;
 
-	void attach(Observer& observer);
-	void detach(Observer& observer);
+    /* Entity implementation */
+	void attachObserver(Observer* observer);
+	void detachObserver(Observer* observer);
 
 	void instanceAttach(MapFile* map);
 	void instanceDetach(MapFile* map);
@@ -94,10 +89,11 @@ public:
 	bool isModel() const;
 
 private:
+
+    // Notification functions
 	void notifyInsert(const std::string& key, KeyValue& value);
+    void notifyChange(const std::string& k, const std::string& v);
 	void notifyErase(const std::string& key, KeyValue& value);
-	void forEachKeyValue_notifyInsert();
-	void forEachKeyValue_notifyErase();
 
 	void insert(const std::string& key, const KeyValuePtr& keyValue);
 

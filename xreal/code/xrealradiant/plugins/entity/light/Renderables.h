@@ -26,11 +26,11 @@ public:
 
 class RenderLightProjection : public OpenGLRenderable {
 	const Vector3& _origin;
-	const Matrix4& _projection;
+	const Vector3& _start;
 	const Frustum& _frustum;
 public:
-	RenderLightProjection(const Vector3& origin, const Matrix4& projection, const Frustum& frustum);
-
+	RenderLightProjection(const Vector3& origin, const Vector3& start, const Frustum& frustum);
+	
 	// greebo: Renders the light cone of a projected light (may also be a frustum, when light_start / light_end are set)
 	void render(const RenderInfo& info) const;
 }; // class RenderLightProjection

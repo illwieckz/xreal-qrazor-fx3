@@ -9,7 +9,6 @@
 #include "editable.h"
 #include "nameable.h"
 #include "iundo.h"
-#include "container/container.h"
 #include "irender.h"
 #include "mapfile.h"
 
@@ -57,7 +56,7 @@ public:
 	};
 
 private:
-	typedef UniqueSet<Observer*> Observers;
+	typedef std::set<Observer*> Observers;
 	Observers m_observers;
 
 	scene::Node* m_node;
@@ -220,19 +219,19 @@ public:
 
 	// Const and non-const iterators
 	PatchControlIter begin() {
-		return m_ctrl.data();
+		return m_ctrl.begin();
 	}
 	
 	PatchControlConstIter begin() const {
-		return m_ctrl.data();
+		return m_ctrl.begin();
 	}
 	
 	PatchControlIter end() {
-		return m_ctrl.data() + m_ctrl.size();
+		return m_ctrl.end();
 	}
 	
 	PatchControlConstIter end() const {
-		return m_ctrl.data() + m_ctrl.size();
+		return m_ctrl.end();
 	}
 
 	PatchTesselation& getTesselation();
@@ -310,12 +309,12 @@ public:
 	void pasteTextureProjected(const Face* face);
 	
 	// This returns the PatchControl pointer that is closest to the given <point>
-	PatchControl* getClosestPatchControlToPoint(const Vector3& point);
-	PatchControl* getClosestPatchControlToFace(const Face* face);
-	PatchControl* getClosestPatchControlToPatch(const Patch& patch);
+	PatchControlIter getClosestPatchControlToPoint(const Vector3& point);
+	PatchControlIter getClosestPatchControlToFace(const Face* face);
+	PatchControlIter getClosestPatchControlToPatch(const Patch& patch);
 	
 	// Returns the w,h coordinates within the PatchControlArray of the given <control>
-	Vector2 getPatchControlArrayIndices(const PatchControl* control);
+	Vector2 getPatchControlArrayIndices(const PatchControlIter& control);
 	
 	/* This takes the texture from the given brush face and applies it to this patch.
 	 * It determines the closest control vertex of this patch to the brush and 
@@ -403,7 +402,10 @@ private:
 
 	void AccumulateBBox();
   
-	void TesselateSubMatrixFixed(ArbitraryMeshVertex* vertices, std::size_t strideX, std::size_t strideY, unsigned int nFlagsX, unsigned int nFlagsY, PatchControl* subMatrix[3][3]);
+	void TesselateSubMatrixFixed(ArbitraryMeshVertex* vertices, 
+								 std::size_t strideX, std::size_t strideY, 
+								 unsigned int nFlagsX, unsigned int nFlagsY, 
+								 PatchControlIter subMatrix[3][3]);
 
 	// uses binary trees representing bezier curves to recursively tesselate a bezier sub-patch
 	void TesselateSubMatrix( const BezierCurveTree *BX, const BezierCurveTree *BY,

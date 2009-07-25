@@ -111,6 +111,7 @@ public:
     TexturePtr getDefaultInteractionTexture(ShaderLayer::Type t);
 
 public:
+
 	/** Load the shader definitions from the MTR files 
 	 * (doesn't load any textures yet).	*/
 	void loadMaterialFiles();

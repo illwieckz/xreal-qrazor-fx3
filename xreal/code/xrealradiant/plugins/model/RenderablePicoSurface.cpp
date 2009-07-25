@@ -2,7 +2,7 @@
 
 #include "modelskin.h"
 #include "math/frustum.h"
-#include "selectable.h"
+#include "iselectable.h"
 #include "irenderable.h"
 
 #include <boost/algorithm/string/replace.hpp>
@@ -24,7 +24,8 @@ RenderablePicoSurface::RenderablePicoSurface(picoSurface_t* surf,
 	// bitmap path should be used.
     picoShader_t* shader = PicoGetSurfaceShader(surf);
     if (shader != 0) {
-		if (fExt == "lwo") {
+		if (fExt == "lwo") 
+        {
 	    	_originalShaderName = PicoGetShaderName(shader);
 		}
 		else if (fExt == "ase") {
@@ -70,7 +71,6 @@ RenderablePicoSurface::RenderablePicoSurface(picoSurface_t* surf,
     _nIndices = PicoGetSurfaceNumIndexes(surf);
     _vertices.resize(nVerts);
     _indices.resize(_nIndices);
-
     
     // Stream in the vertex data from the raw struct, expanding the local AABB 
     // to include each vertex.

@@ -182,7 +182,7 @@ void OpenGLShaderPass::setUpCubeMapAndTexGen(OpenGLState& current,
         current.cubeMapMode = _state.cubeMapMode;
 
         // Apply axis transformation (swap Y and Z coordinates)
-        Matrix4 transform(
+        Matrix4 transform = Matrix4::byRows(
             1, 0, 0, 0,
             0, 0, 1, 0,
             0, 1, 0, 0,
@@ -450,8 +450,9 @@ void OpenGLShaderPass::applyState(OpenGLState& current,
 
 inline 
 std::ostream& operator<< (std::ostream& os, const RendererLight& light) {
-	os << "RendererLight { aabb = " << light.aabb()
-	   << ", offset = " << light.offset() << ", colour = " << light.colour()
+	os << "RendererLight { origin = " << light.worldOrigin()
+	   << ", lightOrigin = " << light.getLightOrigin() 
+       << ", colour = " << light.colour()
 	   << " }";
 	return os;
 }
@@ -509,6 +510,66 @@ void OpenGLShaderPass::render(OpenGLState& current,
 	}
 }
 
+// Setup lighting
+void OpenGLShaderPass::setUpLightingCalculation(OpenGLState& current,
+                                                const RendererLight* light,
+                                                const Vector3& viewer,
+                                                const Matrix4& objTransform)
+{
+    assert(light);
+
+    // Get the light shader and examine its first (and only valid) layer
+    MaterialPtr lightShader = light->getShader()->getMaterial();
+
+    if (lightShader->firstLayer() != 0) 
+    {
+        // Calculate viewer location in object space
+        Matrix4 inverseObjTransform = objTransform.getInverse();
+        Vector3 osViewer = matrix4_transformed_point(
+                inverseObjTransform, viewer
+        );
+
+        // Get the XY and Z falloff texture numbers.
+        GLuint attenuation_xy = 
+            lightShader->firstLayer()->getTexture()->getGLTexNum();
+        GLuint attenuation_z = 
+            lightShader->lightFalloffImage()->getGLTexNum();
+
+        // Bind the falloff textures
+        assert(current.renderFlags & RENDER_TEXTURE_2D);
+
+        setTextureState(
+            current.texture3, attenuation_xy, GL_TEXTURE3, GL_TEXTURE_2D
+        );
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        setTextureState(
+            current.texture4, attenuation_z, GL_TEXTURE4, GL_TEXTURE_2D
+        );
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        // Get the world-space to light-space transformation matrix
+        Matrix4 world2light = light->getLightTextureTransformation();
+
+        // Set the ambient factor - 1.0 for an ambient light, 0.0 for normal light
+        float ambient = 0.0;
+        if (lightShader->isAmbientLight())
+            ambient = 1.0;
+
+        // Bind the GL program parameters
+        current.m_program->applyRenderParams(
+            osViewer,
+            objTransform,
+            light->getLightOrigin(),
+            light->colour(),
+            world2light,
+            ambient
+        );
+    }
+}
+
 // Flush renderables
 void OpenGLShaderPass::renderAllContained(OpenGLState& current,
                                           const Vector3& viewer)
@@ -546,85 +607,12 @@ void OpenGLShaderPass::renderAllContained(OpenGLState& current,
       		}
     	}
 
-        // Calculate viewer location in object space
-        Matrix4 inverseObjTransform = transform->getInverse();
-        Vector3 osViewer = matrix4_transformed_point(
-                inverseObjTransform, viewer
-        );
-
 		// If we are using a lighting program and this renderable is lit, set
 		// up the lighting calculation
 		const RendererLight* light = i->light;
-
 		if (current.m_program != 0 && light != NULL) 
         {
-			// Get the light shader and examine its first (and only valid) layer
-			MaterialPtr lightShader = light->getShader()->getMaterial();
-      
-			if (lightShader->firstLayer() != 0) 
-            {
-				// Get the XY and Z falloff texture numbers.
-	        	GLuint attenuation_xy = 
-	        		lightShader->firstLayer()->getTexture()->getGLTexNum();
-                GLuint attenuation_z = 
-                	lightShader->lightFalloffImage()->getGLTexNum();
-
-                // Bind the falloff textures
-                assert(current.renderFlags & RENDER_TEXTURE_2D);
-
-                setTextureState(
-                    current.texture3, attenuation_xy, GL_TEXTURE3, GL_TEXTURE_2D
-                );
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-                setTextureState(
-                    current.texture4, attenuation_z, GL_TEXTURE4, GL_TEXTURE_2D
-                );
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-                // Calculate the world-space to light-space transformation
-                // matrix
-                AABB lightBounds(light->aabb());
-
-                Matrix4 world2light(Matrix4::getIdentity());
-
-                if (light->isProjected()) 
-                {
-                  world2light = light->projection();
-                  world2light.multiplyBy(light->rotation().getTransposed());
-                  
-                  // greebo: old code: world2light.translateBy(-lightBounds.origin); // world->lightBounds
-                  world2light.translateBy(-(light->offset()));
-                }
-                else 
-                {
-                  world2light.translateBy(Vector3(0.5f, 0.5f, 0.5f));
-                  world2light.scaleBy(Vector3(0.5f, 0.5f, 0.5f));
-                  world2light.scaleBy(Vector3(1.0f / lightBounds.extents.x(), 1.0f / lightBounds.extents.y(), 1.0f / lightBounds.extents.z()));
-                  world2light.multiplyBy(light->rotation().getTransposed());
-                  world2light.translateBy(-lightBounds.origin); // world->lightBounds
-                }
-
-                // Set the ambient factor - 1.0 for an ambient light, 0.0 for normal light
-                float ambient = 0.0;
-                if (lightShader->isAmbientLight())
-                    ambient = 1.0;
-
-                // Bind the GL program parameters
-                Vector3 lightOrigin = (light->isProjected() 
-                                       ? light->worldOrigin()
-                                       : lightBounds.origin + light->offset());
-                current.m_program->applyRenderParams(
-                    osViewer,
-                    *i->transform,
-                    lightOrigin,
-                    light->colour(),
-                    world2light,
-                    ambient
-                );
-            }
+            setUpLightingCalculation(current, light, viewer, *transform);
         }
 
         // Render the renderable

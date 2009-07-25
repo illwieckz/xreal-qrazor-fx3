@@ -43,7 +43,7 @@ TexturePtr CShader::getEditorImage()
     {
         // Pass the call to the GLTextureManager to realise this image 
         _editorTexture = GetTextureManager().getBinding(
-            _template->getTexture()
+            _template->getEditorTexture()
         );
         if (!_editorTexture)
         {
@@ -143,6 +143,11 @@ Material::ECull CShader::getCull() {
 // get shader file name (ie the file where this one is defined)
 const char* CShader::getShaderFileName() const {
 	return _fileName.c_str();
+}
+
+std::string CShader::getDefinition()
+{
+	return _template->getBlockContents();
 }
 
 // -----------------------------------------

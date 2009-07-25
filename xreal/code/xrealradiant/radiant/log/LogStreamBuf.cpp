@@ -1,7 +1,6 @@
 #include "LogStreamBuf.h"
 
 #include <stdexcept>
-#include <cstdio>
 #include "LogWriter.h"
 
 namespace applog {

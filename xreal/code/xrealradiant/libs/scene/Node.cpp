@@ -173,7 +173,7 @@ void Node::traverse(NodeVisitor& visitor) {
 // greebo: This gets called as soon as a scene::Node gets inserted into
 // the oberved Traversable. This triggers an instantiation call and ensures
 // that each inserted node is also instantiated.
-void Node::onTraversableInsert(INodePtr child) {
+void Node::onTraversableInsert(const INodePtr& child) {
 	if (!_instantiated) return;
 
 	Path parentPath = getPath();
@@ -186,7 +186,7 @@ void Node::onTraversableInsert(INodePtr child) {
 	child->boundsChanged();
 }
 
-void Node::onTraversableErase(INodePtr child) {
+void Node::onTraversableErase(const INodePtr& child) {
 	if (!_instantiated) return;
 
 	Path childPath = getPath();
@@ -328,7 +328,12 @@ void Node::boundsChanged() {
 		parent->boundsChanged();
 	}
 
-	GlobalSceneGraph().boundsChanged();
+	if (_isRoot)
+	{
+		// greebo: It's enough if only root nodes call the global scenegraph
+		// as nodes are passing their calls up to their parents anyway
+		GlobalSceneGraph().boundsChanged();
+	}
 }
 
 const Matrix4& Node::localToWorld() const {

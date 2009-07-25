@@ -22,13 +22,11 @@ class KeyValue :
 	std::string _value;
 	std::string _emptyValue;
 	ObservedUndoableObject<std::string> _undo;
-	static EntityCreator::KeyValueChangedFunc _keyValueChangedNotify;
+
 public:
 	KeyValue(const std::string& value, const std::string& empty);
 	
 	~KeyValue();
-
-	static void setKeyValueChangedFunc(EntityCreator::KeyValueChangedFunc func);
 
 	void instanceAttach(MapFile* map);
 	void instanceDetach(MapFile* map);
@@ -40,7 +38,7 @@ public:
 	typedef MemberCaller1<EntityKeyValue, const KeyObserver&, &EntityKeyValue::detach> DetachCaller;
 	
 	// Accessor method, retrieve the actual value
-	std::string get() const;
+	const std::string& get() const;
 	
 	void assign(const std::string& other);
 	typedef MemberCaller1<EntityKeyValue, const std::string&, &EntityKeyValue::assign> AssignCaller;

@@ -14,10 +14,6 @@ KeyValue::~KeyValue() {
 	//ASSERT_MESSAGE(_observers.empty(), "KeyValue::~KeyValue: observers still attached");
 }
 
-void KeyValue::setKeyValueChangedFunc(EntityCreator::KeyValueChangedFunc func) {
-	_keyValueChangedNotify = func;
-}
-
 void KeyValue::instanceAttach(MapFile* map) {
 	_undo.instanceAttach(map);
 }
@@ -43,7 +39,7 @@ void KeyValue::detach(const KeyObserver& observer) {
 	}
 }
 
-std::string KeyValue::get() const {
+const std::string& KeyValue::get() const {
 	// Return the <empty> string if the actual value is ""
 	return (_value.empty()) ? _emptyValue : _value;
 }
@@ -56,9 +52,8 @@ void KeyValue::assign(const std::string& other) {
 	}
 }
 
-void KeyValue::notify() {
-	_keyValueChangedNotify();
-
+void KeyValue::notify() 
+{
 	// Store the name locally, to avoid string-copy operations in the loop below
 	std::string value = get();
 

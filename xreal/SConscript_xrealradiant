@@ -32,6 +32,7 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/namespace/Namespace.cpp',
 'code/xrealradiant/radiant/namespace/NamespaceFactory.cpp',
 'code/xrealradiant/radiant/render/backend/glprogram/ARBBumpProgram.cpp',
+'code/xrealradiant/radiant/render/backend/glprogram/ARBDepthFillProgram.cpp',
 'code/xrealradiant/radiant/render/backend/OpenGLShader.cpp',
 'code/xrealradiant/radiant/render/backend/GLProgramFactory.cpp',
 'code/xrealradiant/radiant/render/backend/OpenGLShaderPass.cpp',
@@ -76,22 +77,23 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/ui/einspector/ComboBoxPropertyEditor.cpp',
 'code/xrealradiant/radiant/ui/einspector/AddPropertyDialog.cpp',
 'code/xrealradiant/radiant/ui/einspector/FloatPropertyEditor.cpp',
-'code/xrealradiant/radiant/ui/einspector/PropertyEditor.cpp',
 'code/xrealradiant/radiant/ui/einspector/BooleanPropertyEditor.cpp',
 'code/xrealradiant/radiant/ui/einspector/LightTextureChooser.cpp',
 'code/xrealradiant/radiant/ui/einspector/SoundPropertyEditor.cpp',
 'code/xrealradiant/radiant/ui/einspector/PropertyEditorFactory.cpp',
 'code/xrealradiant/radiant/ui/einspector/ClassnamePropertyEditor.cpp',
 'code/xrealradiant/radiant/ui/einspector/ModelPropertyEditor.cpp',
-'code/xrealradiant/radiant/ui/einspector/SoundChooser.cpp',
+'code/xrealradiant/radiant/ui/einspector/AnglePropertyEditor.cpp',
 'code/xrealradiant/radiant/ui/common/CommandEntry.cpp',
 'code/xrealradiant/radiant/ui/common/MapPreview.cpp',
 'code/xrealradiant/radiant/ui/common/ModelPreview.cpp',
 'code/xrealradiant/radiant/ui/common/TexturePreviewCombo.cpp',
 'code/xrealradiant/radiant/ui/common/ShaderSelector.cpp',
 'code/xrealradiant/radiant/ui/common/ShaderChooser.cpp',
+'code/xrealradiant/radiant/ui/common/SoundChooser.cpp',
 'code/xrealradiant/radiant/ui/common/SoundShaderPreview.cpp',
 'code/xrealradiant/radiant/ui/common/RenderableAABB.cpp',
+'code/xrealradiant/radiant/ui/common/ShaderDefinitionView.cpp',
 'code/xrealradiant/radiant/ui/menu/FiltersMenu.cpp',
 'code/xrealradiant/radiant/ui/prefdialog/PrefPage.cpp',
 'code/xrealradiant/radiant/ui/prefdialog/PrefDialog.cpp',
@@ -185,7 +187,6 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/log/StringLogDevice.cpp',
 'code/xrealradiant/radiant/log/LogStreamBuf.cpp',
 'code/xrealradiant/radiant/log/LogFile.cpp',
-'code/xrealradiant/radiant/windowobservers.cpp',
 'code/xrealradiant/radiant/referencecache/ModelCache.cpp',
 'code/xrealradiant/radiant/referencecache/NullModel.cpp',
 'code/xrealradiant/radiant/referencecache/NullModelNode.cpp'
@@ -223,7 +224,9 @@ gtkutil_src = [
 'code/xrealradiant/libs/gtkutil/clipboard.cpp',
 'code/xrealradiant/libs/gtkutil/filechooser.cpp',
 'code/xrealradiant/libs/gtkutil/pointer.cpp',
-'code/xrealradiant/libs/gtkutil/SerialisableWidgets.cpp'
+'code/xrealradiant/libs/gtkutil/SerialisableWidgets.cpp',
+'code/xrealradiant/libs/gtkutil/ConsoleView.cpp',
+'code/xrealradiant/libs/gtkutil/SourceView.cpp'
 ]
 
 math_src = [
@@ -232,7 +235,8 @@ math_src = [
 'code/xrealradiant/libs/math/pi.cpp',
 'code/xrealradiant/libs/math/aabb.cpp',
 'code/xrealradiant/libs/math/quaternion.cpp',
-'code/xrealradiant/libs/math/curve.cpp'
+'code/xrealradiant/libs/math/curve.cpp',
+'code/xrealradiant/libs/math/frustum.cpp'
 ]
 
 xmlutil_src = [
@@ -470,6 +474,8 @@ xrealradiant_env.Append(CCFLAGS='-Icode/xrealradiant/include')
 xrealradiant_env.Append(CCFLAGS='-Icode/xrealradiant/libs')
 xrealradiant_env.Append(LIBS=['GLEW'])
 xrealradiant_env.Append(LIBS=['boost_filesystem'])
+xrealradiant_env.Append(LIBS=['boost_regex'])
+xrealradiant_env.ParseConfig('pkg-config gtksourceview-2.0 --cflags --libs')
 xrealradiant_env.Append(LIBPATH=['.'])
 
 module_env = env.Clone()
@@ -492,6 +498,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] =
 	gtkutil_env = module_env.Clone()
 	gtkutil_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	gtkutil_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
+	gtkutil_env.ParseConfig('pkg-config gtksourceview-2.0 --cflags --libs')
 	gtkutil_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	gtkutil_env.StaticLibrary('gtkutil', gtkutil_src)
 	
@@ -645,6 +652,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] =
 	
 	vfsq3_env = module_env.Clone()
 	vfsq3_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
+	vfsq3_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	vfsq3_env.SharedLibrary('vfsq3', vfsq3_src)
 	vfsq3_env.InstallAs('#xrealradiant/modules/vfsq3.so', 'libvfsq3.so')
 	
