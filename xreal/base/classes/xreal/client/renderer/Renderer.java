@@ -1,5 +1,8 @@
 package xreal.client.renderer;
 
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
+
 import xreal.Color;
 
 /**
@@ -11,7 +14,7 @@ public abstract class Renderer {
 	/**
 	 * Set the current renderer back end color.
 	 */
-	public static native void setColor(float red, float green, float blue, float alpha);
+	public synchronized static native void setColor(float red, float green, float blue, float alpha);
 	
 	public static void setColor(Color color) {
 		setColor(color.red, color.green, color.blue, color.alpha);
@@ -29,7 +32,7 @@ public abstract class Renderer {
 	 * @param t2
 	 * @param hShader The material.
 	 */
-	public static native void drawStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, int hShader);
+	public synchronized static native void drawStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, int hShader);
 	
 	
 	/**
@@ -41,7 +44,7 @@ public abstract class Renderer {
 	 * 					The renderer will do: glyphScale *= 48.0f / pointSize;
 	 * @return
 	 */
-	public static native Font registerFont(String fontName, int pointSize);
+	public synchronized static native Font registerFont(String fontName, int pointSize);
 	
 	/**
 	 * Loads a material for 2D or 3D rendering if it's not already loaded.
@@ -50,7 +53,7 @@ public abstract class Renderer {
 	 * 
 	 * @return The qhandle_t index if found, _default material if not.
 	 */
-	public static native int registerMaterial(String name);
+	public synchronized static native int registerMaterial(String name);
 	
 	/**
 	 * Loads a material for 2D rendering if it's not already loaded.
@@ -59,7 +62,7 @@ public abstract class Renderer {
 	 * 
 	 * @return The qhandle_t index if found, _default material if not.
 	 */
-	public static native int registerMaterialNoMip(String name);
+	public synchronized static native int registerMaterialNoMip(String name);
 	
 	/**
 	 * Loads a material for real time lighting if it's not already loaded.
@@ -69,7 +72,7 @@ public abstract class Renderer {
 	 * 
 	 * @return The qhandle_t index if found, _default material if not.
 	 */
-	public static native int registerMaterialLightAttenuation(String name);
+	public synchronized static native int registerMaterialLightAttenuation(String name);
 	
 	
 	/**
@@ -81,7 +84,7 @@ public abstract class Renderer {
 	 * 
 	 * @return Returns rgb axis if not found.
 	 */
-	public static native int registerModel(String name, boolean forceStatic);
+	public synchronized static native int registerModel(String name, boolean forceStatic);
 	
 	/**
 	 * Loads a skeletal animation if it's not already loaded.
@@ -91,7 +94,7 @@ public abstract class Renderer {
 	 * @return Returns empty animation if not found,
 	 * which can't be used for any further skeletal animation settings in combination with any skeletal model.
 	 */
-	public static native int registerAnimation(String name);
+	public synchronized static native int registerAnimation(String name);
 	
 	/**
 	 * Loads a skin if it's not already loaded.
@@ -100,23 +103,125 @@ public abstract class Renderer {
 	 * 
 	 * @return Returns default skin if not found, which will just point to the first material entry of the model
 	 */
-	public static native int registerSkin(String name);
+	public synchronized static native int registerSkin(String name);
 	
-	/*
-	void            trap_R_LoadWorldMap(const char *mapname);
-
-	// all media should be registered during level startup to prevent
-	// hitches during gameplay
-	qhandle_t       trap_R_RegisterModel(const char *name, qboolean forceStatic);	// returns rgb axis if not found
-	qhandle_t       trap_R_RegisterAnimation(const char *name);
-	qhandle_t       trap_R_RegisterSkin(const char *name);	// returns all white if not found
-	qhandle_t       trap_R_RegisterShader(const char *name);	// returns all white if not found
-	qhandle_t       trap_R_RegisterShaderNoMip(const char *name);	// returns all white if not found
-	qhandle_t       trap_R_RegisterShaderLightAttenuation(const char *name);
-
+	
+	public synchronized static native void loadWorldBsp(String name);
+	
+	
 	// a scene is built up by calls to R_ClearScene and the various R_Add functions.
 	// Nothing is drawn until R_RenderScene is called.
-	void            trap_R_ClearScene(void);
+	
+	public synchronized static native void clearScene();
+	
+	private synchronized static native void addRefEntityToScene(int reType, int renderfx, int hModel,
+																float posX, float posY, float posZ,
+																float quatX, float quatY, float quatZ, float quatW,
+																float scaleX, float scaleY, float scaleZ,
+																float lightPosX, float lightPosY, float lightPosZ,
+																float shadowPlane,
+																int frame,
+																float oldPosX, float oldPosY, float oldPosZ,
+																int oldFrame,
+																float lerp,
+																int skinNum, int customSkin, int customMaterial,
+																float materialRed, float materialGreen, float materialBlue, float materialAlpha,
+																float materialTexCoordU, float materialTexCoordV,
+																float materialTime,
+																float radius, float rotation,
+																int noShadowID);
+	
+	private synchronized static native void setRefEntityBone(int boneIndex, String name, int parentIndex,
+															float posX, float posY, float posZ,
+															float quatX, float quatY, float quatZ, float quatW);
+	
+	private synchronized static native void setRefSkeleton(	int type, 
+															float minX, float minY, float minZ,
+															float maxX, float maxY, float maxZ,
+															float scaleX, float scaleY, float scaleZ);
+	
+	private static void setRefSkeleton(RefSkeleton skel) {
+		
+		setRefSkeleton(skel.getType().ordinal(),
+				skel.mins.x, skel.mins.y, skel.mins.z,
+				skel.maxs.x, skel.maxs.y, skel.maxs.z,
+				skel.scale.x, skel.scale.y, skel.scale.z);
+		
+		RefBone bones[] = skel.getBones();
+		
+		for(int i = 0; i < bones.length; i++) {
+			RefBone b = bones[i];
+			
+			setRefEntityBone(i,
+							b.name, b.parentIndex,
+							b.origin.x, b.origin.y, b.origin.z,
+							b.rotation.x, b.rotation.y, b.rotation.z, b.rotation.w);
+		}
+	}
+	
+	public static void addRefEntityToScene(RefEntity ent) {
+		
+		if(ent.skeleton != null) {
+			setRefSkeleton(ent.skeleton);
+		}
+		
+		addRefEntityToScene(ent.reType.ordinal(),
+							ent.renderFX, 
+							ent.hModel,
+							
+							ent.origin.x,
+							ent.origin.y,
+							ent.origin.z,
+							
+							ent.quat.x,
+							ent.quat.y,
+							ent.quat.z,
+							ent.quat.w,
+							
+							ent.scale.x,
+							ent.scale.y,
+							ent.scale.z,
+							
+							ent.lightingOrigin.x,
+							ent.lightingOrigin.y,
+							ent.lightingOrigin.z,
+							
+							ent.shadowPlane,
+							
+							ent.frame,
+							
+							ent.oldOrigin.x,
+							ent.oldOrigin.y,
+							ent.oldOrigin.z,
+							
+							ent.oldFrame,
+							ent.lerp,
+							
+							ent.skinNum, ent.customSkin, ent.customMaterial,
+							
+							ent.materialRGBA.red, ent.materialRGBA.green, ent.materialRGBA.blue, ent.materialRGBA.alpha,
+							ent.materialTexCoordU, ent.materialTexCoordV,
+							ent.materialTime,
+							
+							ent.radius, ent.rotation,
+							ent.noShadowID);
+	}
+	
+	public synchronized static native RefSkeleton buildSkeleton(int hAnim, int startFrame, int endFrame, float frac, boolean clearOrigin);
+	
+	private synchronized static native void renderScene(int viewPortX, int viewPortY, int viewPortWidth, int viewPortHeight,
+														float fovX, float fovY,
+														float posX, float posY, float posZ,
+														float quatX, float quatY, float quatZ, float quatW,
+														int time,
+														int flags);
+	
+	public static void renderScene(Camera c) {
+		renderScene(c.x, c.y, c.width, c.height, c.fovX, c.fovY, c.position.x, c.position.y, c.position.z, c.quat.x, c.quat.y, c.quat.z, c.quat.w, c.time, c.rdflags);
+	}
+	
+	/*
+	
 	void            trap_R_AddRefEntityToScene(const refEntity_t * ent);
 	void            trap_R_AddRefLightToScene(const refLight_t * light);
 
