@@ -28,8 +28,7 @@ uniform sampler2D	u_attenuationmap_z;
 uniform vec3		u_view_origin;
 uniform vec3		u_light_origin;
 uniform vec3		u_light_color;
-uniform float		u_bump_scale;
-uniform float		u_specular_exponent;
+uniform float		u_light_scale;
 
 varying vec3		var_vertex;
 varying vec4		var_tex_diffuse_bump;
@@ -50,23 +49,34 @@ void	main()
 	
 	// compute normal in tangent space from bumpmap
 	vec3 N = 2.0 * (texture2D(u_bumpmap, var_tex_diffuse_bump.pq).xyz - 0.5);
-	N.z *= u_bump_scale;
 	N = normalize(N);
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_diffusemap, var_tex_diffuse_bump.st);
-	diffuse.rgb *= u_light_color * clamp(dot(N, L), 0.0, 1.0);
+	diffuse.rgb *= u_light_color * u_light_scale * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
-	vec3 specular = texture2D(u_specularmap, var_tex_specular).rgb * u_light_color * pow(clamp(dot(N, H), 0.0, 1.0), u_specular_exponent);
+    float specIntensity = clamp(dot(N, H), 0.0, 1.0);
+    specIntensity = pow(specIntensity, 32.0);
+	vec3 specular = texture2D(u_specularmap, var_tex_specular.xy).rgb 
+                    * u_light_color 
+                    * specIntensity;
 	
 	// compute attenuation
-	vec3 attenuation_xy	= texture2DProj(u_attenuationmap_xy, vec3(var_tex_atten_xy_z.x, var_tex_atten_xy_z.y, var_tex_atten_xy_z.w)).rgb;
-	vec3 attenuation_z	= texture2D(u_attenuationmap_z, vec2(var_tex_atten_xy_z.z, 0)).rgb;
+    vec3 attenuation_xy = vec3(0.0, 0.0, 0.0);
+    if (var_tex_atten_xy_z.w > 0.0)
+        attenuation_xy	= texture2DProj(
+            u_attenuationmap_xy,
+            var_tex_atten_xy_z.xyw
+        ).rgb;
+
+	vec3 attenuation_z	= texture2D(
+        u_attenuationmap_z, vec2(var_tex_atten_xy_z.z, 0.5)
+    ).rgb;
 					
 	// compute final color
-	gl_FragColor.rgba = diffuse;
-	gl_FragColor.rgb += specular;
+    gl_FragColor = diffuse * gl_Color;
+    gl_FragColor.rgb += specular;
 	gl_FragColor.rgb *= attenuation_xy;
 	gl_FragColor.rgb *= attenuation_z;
 }
