@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef __x86_64__
 #define DEFAULT_JAVA_LIB "/usr/lib/jvm/java-6-openjdk/jre/lib/amd64/server/libjvm.so"
 #else
-#define DEFAULT_JAVA_LIB "/usr/lib/jvm/java-6-openjdk/jre/lib/i386/server/libjvm.so"	//"java.so" //
+#define DEFAULT_JAVA_LIB "/usr/lib/jvm/java-6-openjdk/jre/lib/i386/client/libjvm.so"
 #endif
 #endif
 
@@ -47,7 +47,10 @@ static cvar_t  *jvm_javaLib;
 static cvar_t  *jvm_useJITCompiler;
 static cvar_t  *jvm_useJAR;
 static cvar_t  *jvm_remoteDebugging;
+static cvar_t  *jvm_profiling;
 static cvar_t  *jvm_verboseJNI;
+static cvar_t  *jvm_verboseClass;
+static cvar_t  *jvm_verboseGC;
 static cvar_t  *jvm_policyFile;
 
 JNIEnv         *javaEnv;
@@ -840,12 +843,15 @@ void JVM_Init(void)
 
 	Com_Printf("------- JVM_Init() -------\n");
 
-	jvm_javaLib = Cvar_Get("jvm_javaLib", DEFAULT_JAVA_LIB, CVAR_ARCHIVE);
+	jvm_javaLib = Cvar_Get("jvm_javaLib", DEFAULT_JAVA_LIB, CVAR_ARCHIVE | CVAR_LATCH);
 	jvm_useJITCompiler = Cvar_Get("jvm_useJITCompiler", "1", CVAR_INIT);
-	jvm_useJAR = Cvar_Get("jvm_useJAR", "1", CVAR_ARCHIVE);
-	jvm_remoteDebugging = Cvar_Get("jvm_remoteDebugging", "0", CVAR_ARCHIVE);
-	jvm_verboseJNI = Cvar_Get("jvm_verboseJNI", "0", CVAR_ARCHIVE);
-	jvm_policyFile = Cvar_Get("jvm_policyFile", "", CVAR_ARCHIVE);
+	jvm_useJAR = Cvar_Get("jvm_useJAR", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	jvm_remoteDebugging = Cvar_Get("jvm_remoteDebugging", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	jvm_profiling = Cvar_Get("jvm_profiling", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	jvm_verboseJNI = Cvar_Get("jvm_verboseJNI", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	jvm_verboseClass = Cvar_Get("jvm_verboseClass", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	jvm_verboseGC = Cvar_Get("jvm_verboseGC", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	jvm_policyFile = Cvar_Get("jvm_policyFile", "", CVAR_ARCHIVE | CVAR_LATCH);
 
 	option = AllocOption(&growOptions);
 
@@ -895,11 +901,33 @@ void JVM_Init(void)
 		option->optionString = "-verbose:jni";
 	}
 
-	if(Q_stricmp(jvm_policyFile->string, "") != 0)
+	if(jvm_verboseClass->integer)
 	{
+		Com_Printf("Enabling displaying information about each class loaded.\n");
+
+		option = AllocOption(&growOptions);
+		option->optionString = "-verbose:class";
+	}
+
+	if(jvm_verboseGC->integer)
+	{
+		Com_Printf("Enabling reports on each garbage collection event.\n");
+
+		option = AllocOption(&growOptions);
+		option->optionString = "-verbose:gc";
+	}
+
+#if 1
+	{
+		Com_Printf("Enabling security manager\n");
+
 		option = AllocOption(&growOptions);
 		option->optionString = "-Djava.security.manager";
+	}
+#endif
 
+	if(Q_stricmp(jvm_policyFile->string, "") != 0)
+	{
 		Com_sprintf(policyPath, sizeof(policyPath), "-Djava.security.policy=file:%s", FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), jvm_policyFile->string));
 
 		option = AllocOption(&growOptions);
