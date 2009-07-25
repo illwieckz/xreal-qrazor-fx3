@@ -2,21 +2,12 @@ package xreal.client.ui;
 
 import java.io.File;
 import java.io.IOException;
-/*
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
-import javax.sound.sampled.LineUnavailableException;
-*/
 
 import xreal.Color;
 import xreal.ConsoleColorStrings;
 import xreal.Engine;
 import xreal.client.Client;
+import xreal.client.KeyCode;
 import xreal.client.SoundChannel;
 import xreal.client.renderer.Font;
 import xreal.client.ui.border.Border;
@@ -24,7 +15,7 @@ import xreal.client.ui.border.LineBorder;
 import xreal.client.ui.event.KeyEvent;
 import xreal.client.ui.menu.MenuFrame;
 
-public class MainMenu extends MenuFrame/* implements LineListener*/ {
+public class MainMenu extends MenuFrame {
 
 	private static final int MAIN_MENU_VERTICAL_SPACING = 34;
 	
@@ -47,8 +38,6 @@ public class MainMenu extends MenuFrame/* implements LineListener*/ {
 				
 				Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
 				//super.keyPressed(e);
-				
-				//playSound();
 			}
 		};
 		singlePlayer.setXCenter(UserInterface.SCREEN_WIDTH / 2);
@@ -215,59 +204,29 @@ public class MainMenu extends MenuFrame/* implements LineListener*/ {
 		super.render();
 	}
 	
-	/*
-	private void playSound() {
-		Clip clip = null;
-		File clipFile = new File("base/sound/misc/menu1.wav");
-		
-		//byte byteArray[] = Engine.readFile("sound/misc/menu1.wav");
-		//File clipFile = new ByteArrayInputStream(byteArray);
-		
-		AudioInputStream audioInputStream = null;
-		try
-		{
-			audioInputStream = AudioSystem.getAudioInputStream(clipFile);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		
-		if (audioInputStream != null)
-		{
-			AudioFormat	format = audioInputStream.getFormat();
-			DataLine.Info	info = new DataLine.Info(Clip.class, format);
-			try
-			{
-				clip = (Clip) AudioSystem.getLine(info);
-				clip.addLineListener((LineListener) this);
-				clip.open(audioInputStream);
-				
-				clip.loop(1);
-				//clip.
-				//clip.start();
-			}
-			catch (LineUnavailableException e)
-			{
-				e.printStackTrace();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			
-			
-		}
-		else
-		{
-			Engine.println("ClipPlayer.<init>(): can't get data from file " + clipFile.getName());
-		}
-	}
-
 	@Override
-	public void update(LineEvent event) {
-		// TODO Auto-generated method stub
+	public void keyPressed(KeyEvent e) {
+		KeyCode key = e.getKey();
 		
+		if(!e.isDown())
+			return;
+		
+		//Engine.println("MainMenu.keyPressed(event = " + e + ")");
+		
+		switch(key)
+		{
+			case CHAR_b:
+				Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
+				break;
+		
+			case CHAR_m:
+				Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
+				break;
+		}
+		
+		//Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
+		//super.keyPressed(e);
+		
+		//
 	}
-	*/
 }

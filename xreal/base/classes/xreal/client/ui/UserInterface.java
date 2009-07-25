@@ -131,39 +131,18 @@ public class UserInterface implements UserInterfaceListener {
 	@Override
 	public void initUserInterface() {
 		Engine.println("UserInterface.initUserInterface()");
-		
-		//Engine.println("" + Mixer.getMixerInfo());
-		
-		
-
-		/*
-		try {
-      	  Mixer mixer = AudioSystem.getMixer(null);
-      	  Port lineIn = (Port)mixer.getLine(Port.Info.SPEAKER);
-      	  lineIn.open();
-      	  //FloatControl volCtrl = (FloatControl) lineIn.getControl(FloatControl.Type.VOLUME);
-      	  //volCtrl.setValue(1.0f);
-      	  
-      	  
-
-
-      	  // Assuming getControl call succeeds, 
-      	  // we now have our LINE_IN VOLUME control.
-      	} catch (Exception e) {
-      	  //System.out.println("Failed trying to find LINE_OUT"
-      	   // + " VOLUME control: exception = " + e);
-      		Engine.println("could not play sound: " + e);
-      	}
-      	*/
-
-		//Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
 	}
 
 	@Override
 	public boolean isFullscreen() {
 		// Engine.println("UserInterface.isFullscreen()");
 
-		// TODO
+		if(!menuStack.isEmpty() && (Client.getKeyCatchers() & KeyCatchers.UI) != 0)
+		{
+			MenuFrame activeMenu = menuStack.peek();
+			
+			return activeMenu.isFullscreen();	
+		}
 
 		return false;
 	}
@@ -274,12 +253,16 @@ public class UserInterface implements UserInterfaceListener {
 		Client.clearKeyStates();
 		
 		CVars.cl_paused.set("0");
+		
+		Client.stopBackgroundTrack();
 	}
 	
 	private void activateMainMenu() {
 		CVars.sv_killserver.set("1");
 		
 		pushMenu(mainMenu);
+		
+		Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
 	}
 	
 	private void activateInGameMenu() {

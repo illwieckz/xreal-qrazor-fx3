@@ -31,6 +31,10 @@ public class MenuFrame extends Container implements MouseMotionListener, KeyList
 	
 	protected boolean wrapAround;
 	protected boolean fullscreen;
+	public boolean isFullscreen() {
+		return fullscreen;
+	}
+
 	protected boolean showlogo;
 	
 	protected MenuFrame() {
@@ -105,7 +109,7 @@ public class MenuFrame extends Container implements MouseMotionListener, KeyList
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
-		//Engine.println("MenuFrame.keyPressed()");
+		Engine.println("MenuFrame.keyPressed()");
 		
 		//KeyCode key = e.getKey();
 		/*
@@ -142,6 +146,6 @@ public class MenuFrame extends Container implements MouseMotionListener, KeyList
 			}
 		}
 
-		super.processEvent(e);
+		//super.processEvent(e);
 	}
 }

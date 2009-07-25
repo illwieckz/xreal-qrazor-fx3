@@ -35,4 +35,9 @@ public class KeyEvent extends InputEvent {
 	public boolean isDown() {
 		return down;
 	}
+	
+	@Override
+	public String toString() {
+		return "[code = '" + key.getCode() + "', text = '" + key.getText() + "', down = '" + down + "'";
+	}
 }
