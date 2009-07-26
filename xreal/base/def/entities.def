@@ -2677,7 +2677,7 @@ entityDef target_fx
 	"editor_color"				"1 .5 .25" 	
 	"editor_mins"				"-8 -8 -8"
 	"editor_maxs"				"8 8 8"
-	"editor_showangle"			"1"
+	"editor_rotatable"			"1"
 	
 	"editor_usage"				"Lua scriptable XreaL special effect of any kind. Can be used for particle emitters, lightning bolts or whatever."
 	
