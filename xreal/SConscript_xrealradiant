@@ -477,6 +477,7 @@ xrealradiant_env.Append(LIBS=['boost_filesystem'])
 xrealradiant_env.Append(LIBS=['boost_regex'])
 xrealradiant_env.ParseConfig('pkg-config gtksourceview-2.0 --cflags --libs')
 xrealradiant_env.Append(LIBPATH=['.'])
+xrealradiant_env.Append(CCFLAGS='-DRADIANT_USE_GLSL')
 
 module_env = env.Clone()
 #module_env.Append(CXXFLAGS='-Wno-non-virtual-dtor -fno-exceptions -fno-rtti')
