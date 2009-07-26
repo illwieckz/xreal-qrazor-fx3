@@ -5523,7 +5523,7 @@ void RB_RenderRotoscope(void)
 {
 	matrix_t        ortho;
 
-	GLimp_LogComment("--- RB_RenderRotoscope ---\n");
+	GLimp_LogComment("--- RB_CameraPostFX ---\n");
 
 	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || !r_rotoscope->integer || backEnd.viewParms.isPortal)
 		return;
@@ -5549,6 +5549,67 @@ void RB_RenderRotoscope(void)
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+
+	// draw viewport
+	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+
+	// go back to 3D
+	GL_PopMatrix();
+
+	GL_CheckErrors();
+}
+
+void RB_CameraPostFX(void)
+{
+	matrix_t        ortho;
+
+	GLimp_LogComment("--- RB_CameraPostFX ---\n");
+
+	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || !r_cameraPostFX->integer || backEnd.viewParms.isPortal)
+		return;
+
+	// set 2D virtual screen size
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
+
+	GL_State(GLS_DEPTHTEST_DISABLE);
+	GL_Cull(CT_TWO_SIDED);
+
+	// enable shader, set arrays
+	GL_BindProgram(&tr.cameraEffectsShader);
+
+	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.cameraEffectsShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	//qglUniform1fARB(tr.cameraEffectsShader.u_BlurMagnitude, r_bloomBlur->value);
+
+	// bind u_CurrentMap
+	GL_SelectTexture(0);
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+					   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	{
+		GL_Bind(tr.deferredRenderFBOImage);
+	}
+	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	{
+		GL_Bind(tr.deferredRenderFBOImage);
+	}
+	else
+	{
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	}
+
+	// bind u_GrainMap
+	GL_SelectTexture(1);
+	GL_Bind(tr.grainImage);
+
+	// bind u_VignetteMap
+	GL_SelectTexture(2);
+	GL_Bind(tr.vignetteImage);
 
 	// draw viewport
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -7373,6 +7434,8 @@ static void RB_RenderView(void)
 		// copy offscreen rendered scene to the current OpenGL context
 		RB_RenderDeferredShadingResultToFrameBuffer();
 
+		RB_CameraPostFX();
+
 		if(backEnd.viewParms.isPortal)
 		{
 			if(glConfig.framebufferBlitAvailable)
@@ -7589,6 +7652,9 @@ static void RB_RenderView(void)
 
 		// render rotoscope post process effect
 		RB_RenderRotoscope();
+
+		// render chromatric aberration
+		RB_CameraPostFX();
 
 #if 0
 		// add the sun flare

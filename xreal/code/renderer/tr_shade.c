@@ -791,42 +791,45 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// directional light mapping aka deluxe mapping
-	GLSL_InitGPUShader(&tr.deluxeMappingShader,
-					   "deluxeMapping",
-					   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL, qtrue);
+	if(r_normalMapping->integer)
+	{
+		GLSL_InitGPUShader(&tr.deluxeMappingShader,
+						   "deluxeMapping",
+						   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL, qtrue);
 
-	tr.deluxeMappingShader.u_DiffuseMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DiffuseMap");
-	tr.deluxeMappingShader.u_NormalMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_NormalMap");
-	tr.deluxeMappingShader.u_SpecularMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_SpecularMap");
-	tr.deluxeMappingShader.u_LightMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_LightMap");
-	tr.deluxeMappingShader.u_DeluxeMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DeluxeMap");
-	tr.deluxeMappingShader.u_DiffuseTextureMatrix =
-		qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DiffuseTextureMatrix");
-	tr.deluxeMappingShader.u_NormalTextureMatrix =
-		qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_NormalTextureMatrix");
-	tr.deluxeMappingShader.u_SpecularTextureMatrix =
-		qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_SpecularTextureMatrix");
-	tr.deluxeMappingShader.u_AlphaTest = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_AlphaTest");
-	tr.deluxeMappingShader.u_ViewOrigin = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ViewOrigin");
-	tr.deluxeMappingShader.u_ParallaxMapping = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ParallaxMapping");
-	tr.deluxeMappingShader.u_DepthScale = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DepthScale");
-	tr.deluxeMappingShader.u_PortalClipping = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_PortalClipping");
-	tr.deluxeMappingShader.u_PortalPlane = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_PortalPlane");
-	tr.deluxeMappingShader.u_ModelMatrix = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelMatrix");
-	tr.deluxeMappingShader.u_ModelViewProjectionMatrix =
-		qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelViewProjectionMatrix");
+		tr.deluxeMappingShader.u_DiffuseMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DiffuseMap");
+		tr.deluxeMappingShader.u_NormalMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_NormalMap");
+		tr.deluxeMappingShader.u_SpecularMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_SpecularMap");
+		tr.deluxeMappingShader.u_LightMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_LightMap");
+		tr.deluxeMappingShader.u_DeluxeMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DeluxeMap");
+		tr.deluxeMappingShader.u_DiffuseTextureMatrix =
+			qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DiffuseTextureMatrix");
+		tr.deluxeMappingShader.u_NormalTextureMatrix =
+			qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_NormalTextureMatrix");
+		tr.deluxeMappingShader.u_SpecularTextureMatrix =
+			qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_SpecularTextureMatrix");
+		tr.deluxeMappingShader.u_AlphaTest = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_AlphaTest");
+		tr.deluxeMappingShader.u_ViewOrigin = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ViewOrigin");
+		tr.deluxeMappingShader.u_ParallaxMapping = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ParallaxMapping");
+		tr.deluxeMappingShader.u_DepthScale = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DepthScale");
+		tr.deluxeMappingShader.u_PortalClipping = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_PortalClipping");
+		tr.deluxeMappingShader.u_PortalPlane = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_PortalPlane");
+		tr.deluxeMappingShader.u_ModelMatrix = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelMatrix");
+		tr.deluxeMappingShader.u_ModelViewProjectionMatrix =
+			qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelViewProjectionMatrix");
 
-	qglUseProgramObjectARB(tr.deluxeMappingShader.program);
-	qglUniform1iARB(tr.deluxeMappingShader.u_DiffuseMap, 0);
-	qglUniform1iARB(tr.deluxeMappingShader.u_NormalMap, 1);
-	qglUniform1iARB(tr.deluxeMappingShader.u_SpecularMap, 2);
-	qglUniform1iARB(tr.deluxeMappingShader.u_LightMap, 3);
-	qglUniform1iARB(tr.deluxeMappingShader.u_DeluxeMap, 4);
-	qglUseProgramObjectARB(0);
+		qglUseProgramObjectARB(tr.deluxeMappingShader.program);
+		qglUniform1iARB(tr.deluxeMappingShader.u_DiffuseMap, 0);
+		qglUniform1iARB(tr.deluxeMappingShader.u_NormalMap, 1);
+		qglUniform1iARB(tr.deluxeMappingShader.u_SpecularMap, 2);
+		qglUniform1iARB(tr.deluxeMappingShader.u_LightMap, 3);
+		qglUniform1iARB(tr.deluxeMappingShader.u_DeluxeMap, 4);
+		qglUseProgramObjectARB(0);
 
-	GLSL_ValidateProgram(tr.deluxeMappingShader.program);
-	GLSL_ShowProgramUniforms(tr.deluxeMappingShader.program);
-	GL_CheckErrors();
+		GLSL_ValidateProgram(tr.deluxeMappingShader.program);
+		GLSL_ShowProgramUniforms(tr.deluxeMappingShader.program);
+		GL_CheckErrors();
+	}
 
 	// geometric-buffer fill rendering with diffuse + bump + specular
 	if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
@@ -1549,8 +1552,7 @@ void GLSL_InitGPUShaders(void)
 
 	tr.rotoscopeShader.u_ColorMap = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_ColorMap");
 	tr.rotoscopeShader.u_BlurMagnitude = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_BlurMagnitude");
-	tr.rotoscopeShader.u_ModelViewProjectionMatrix =
-		qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_ModelViewProjectionMatrix");
+	tr.rotoscopeShader.u_ModelViewProjectionMatrix = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_ModelViewProjectionMatrix");
 
 	qglUseProgramObjectARB(tr.rotoscopeShader.program);
 	qglUniform1iARB(tr.rotoscopeShader.u_ColorMap, 0);
@@ -1558,6 +1560,25 @@ void GLSL_InitGPUShaders(void)
 
 	GLSL_ValidateProgram(tr.rotoscopeShader.program);
 	GLSL_ShowProgramUniforms(tr.rotoscopeShader.program);
+	GL_CheckErrors();
+
+	// camera post process effect
+	GLSL_InitGPUShader(&tr.cameraEffectsShader, "cameraEffects", ATTR_POSITION | ATTR_TEXCOORD, qtrue);
+
+	tr.cameraEffectsShader.u_CurrentMap = qglGetUniformLocationARB(tr.cameraEffectsShader.program, "u_CurrentMap");
+	tr.cameraEffectsShader.u_GrainMap = qglGetUniformLocationARB(tr.cameraEffectsShader.program, "u_GrainMap");
+	tr.cameraEffectsShader.u_VignetteMap = qglGetUniformLocationARB(tr.cameraEffectsShader.program, "u_VignetteMap");
+	//tr.cameraEffectsShader.u_BlurMagnitude = qglGetUniformLocationARB(tr.cameraEffectsShader.program, "u_BlurMagnitude");
+	tr.cameraEffectsShader.u_ModelViewProjectionMatrix = qglGetUniformLocationARB(tr.cameraEffectsShader.program, "u_ModelViewProjectionMatrix");
+
+	qglUseProgramObjectARB(tr.cameraEffectsShader.program);
+	qglUniform1iARB(tr.cameraEffectsShader.u_CurrentMap, 0);
+	qglUniform1iARB(tr.cameraEffectsShader.u_GrainMap, 1);
+	qglUniform1iARB(tr.cameraEffectsShader.u_VignetteMap, 2);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.cameraEffectsShader.program);
+	GLSL_ShowProgramUniforms(tr.cameraEffectsShader.program);
 	GL_CheckErrors();
 
 	// screen post process effect
@@ -1903,6 +1924,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.rotoscopeShader.program);
 		tr.rotoscopeShader.program = 0;
+	}
+
+	if(tr.cameraEffectsShader.program)
+	{
+		qglDeleteObjectARB(tr.cameraEffectsShader.program);
+		tr.cameraEffectsShader.program = 0;
 	}
 
 	if(tr.screenShader.program)

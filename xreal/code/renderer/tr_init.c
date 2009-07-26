@@ -250,6 +250,7 @@ cvar_t         *r_bloom;
 cvar_t         *r_bloomBlur;
 cvar_t         *r_bloomPasses;
 cvar_t         *r_rotoscope;
+cvar_t         *r_cameraPostFX;
 
 // GL_ARB_multitexture
 void            (APIENTRY * qglActiveTextureARB) (GLenum texture);
@@ -1452,6 +1453,7 @@ void R_Register(void)
 	r_bloomBlur = ri.Cvar_Get("r_bloomBlur", "7.0", CVAR_CHEAT);
 	r_bloomPasses = ri.Cvar_Get("r_bloomPasses", "1", CVAR_CHEAT);
 	r_rotoscope = ri.Cvar_Get("r_rotoscope", "0", CVAR_ARCHIVE);
+	r_cameraPostFX = ri.Cvar_Get("r_cameraPostFX", "0", CVAR_ARCHIVE);
 
 	// temporary variables that can change at any time
 	r_showImages = ri.Cvar_Get("r_showImages", "0", CVAR_TEMP);

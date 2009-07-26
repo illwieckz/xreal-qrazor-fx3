@@ -1008,6 +1008,9 @@ typedef struct shaderProgram_s
 	GLint           u_AttenuationMapZ;
 	GLint           u_ShadowMap;
 
+	GLint           u_GrainMap;
+	GLint           u_VignetteMap;
+
 	GLint           u_ColorTextureMatrix;
 	matrix_t		t_ColorTextureMatrix;
 
@@ -2693,6 +2696,8 @@ typedef struct
 
 	// external images
 	image_t        *charsetImage;
+	image_t        *grainImage;
+	image_t        *vignetteImage;
 
 	// framebuffer objects
 	FBO_t          *geometricRenderFBO;		// is the G-Buffer for deferred shading
@@ -2801,6 +2806,7 @@ typedef struct
 	shaderProgram_t blurXShader;
 	shaderProgram_t blurYShader;
 	shaderProgram_t rotoscopeShader;
+	shaderProgram_t cameraEffectsShader;
 	shaderProgram_t screenShader;
 	shaderProgram_t portalShader;
 	shaderProgram_t liquidShader;
@@ -3114,6 +3120,7 @@ extern cvar_t  *r_bloom;
 extern cvar_t  *r_bloomBlur;
 extern cvar_t  *r_bloomPasses;
 extern cvar_t  *r_rotoscope;
+extern cvar_t  *r_cameraPostFX;
 
 //====================================================================
 

@@ -3195,6 +3195,8 @@ R_InitImages
 void R_InitImages(void)
 {
 	const char *charsetImage = "gfx/2d/charset-bezerk-plain-rc2.png";
+	const char *grainImage = "gfx/2d/camera/grain.png";
+	const char *vignetteImage = "gfx/2d/camera/vignette.png";
 
 	ri.Printf(PRINT_ALL, "------- R_InitImages -------\n");
 
@@ -3213,6 +3215,18 @@ void R_InitImages(void)
 	if(!tr.charsetImage)
 	{
 		ri.Error(ERR_FATAL, "R_InitImages: could not load '%s'", charsetImage);
+	}
+
+	tr.grainImage = R_FindImageFile(grainImage, IF_NOCOMPRESSION | IF_NOPICMIP, FT_DEFAULT, WT_REPEAT);
+	if(!tr.grainImage)
+	{
+		ri.Error(ERR_FATAL, "R_InitImages: could not load '%s'", grainImage);
+	}
+
+	tr.vignetteImage = R_FindImageFile(vignetteImage, IF_NOCOMPRESSION | IF_NOPICMIP, FT_DEFAULT, WT_CLAMP);
+	if(!tr.vignetteImage)
+	{
+		ri.Error(ERR_FATAL, "R_InitImages: could not load '%s'", vignetteImage);
 	}
 }
 
