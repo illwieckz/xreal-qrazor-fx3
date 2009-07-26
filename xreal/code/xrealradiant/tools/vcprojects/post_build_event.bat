@@ -30,5 +30,6 @@ copy ..\..\w32deps\gtk2\bin\libpangoft2-1.0-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libpangowin32-1.0-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libgdkglext-win32-1.0-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libgtkglext-win32-1.0-0.dll ..\..\..\..\xrealradiant
+copy ..\..\w32deps\gtksourceview-2.0\bin\libgtksourceview.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\libpng12-0.dll ..\..\..\..\xrealradiant
 copy ..\..\w32deps\gtk2\bin\zlib1.dll ..\..\..\..\xrealradiant

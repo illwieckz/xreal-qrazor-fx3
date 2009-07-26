@@ -288,6 +288,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\include\iselectable.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\iselection.h"
 			>
 		</File>
@@ -348,10 +352,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\selectable.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\include\ShaderLayer.h"
 			>
 		</File>
@@ -369,6 +369,10 @@
 		</File>
 		<File
 			RelativePath="..\..\include\version.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\VolumeIntersectionValue.h"
 			>
 		</File>
 		<File
