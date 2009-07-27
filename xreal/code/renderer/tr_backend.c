@@ -7047,8 +7047,8 @@ static void RB_RenderDebugUtils()
 
 		// set uniforms
 		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
-		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
-		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
+		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_CUSTOM_RGB);
+		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_CUSTOM);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
@@ -7077,11 +7077,11 @@ static void RB_RenderDebugUtils()
 			{
 				if(!ia->occlusionQuerySamples)
 				{
-					qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
+					GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
 				}
 				else
 				{
-					qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
+					GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
 				}
 
 				VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
@@ -7094,11 +7094,11 @@ static void RB_RenderDebugUtils()
 			{
 				if(ia->noDepthBoundsTest)
 				{
-					qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
+					GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
 				}
 				else
 				{
-					qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
+					GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
 				}
 
 				VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
@@ -7109,7 +7109,7 @@ static void RB_RenderDebugUtils()
 			}
 			else
 			{
-				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+				GLSL_SetUniform_Color(&tr.genericSingleShader, colorWhite);
 
 				VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
 				VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
