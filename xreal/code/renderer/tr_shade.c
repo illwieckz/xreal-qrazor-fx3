@@ -1759,225 +1759,225 @@ void GLSL_ShutdownGPUShaders(void)
 	if(tr.genericSingleShader.program)
 	{
 		qglDeleteObjectARB(tr.genericSingleShader.program);
-		tr.genericSingleShader.program = 0;
+		Com_Memset(&tr.genericSingleShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.vertexLightingShader_DBS_entity.program)
 	{
 		qglDeleteObjectARB(tr.vertexLightingShader_DBS_entity.program);
-		tr.vertexLightingShader_DBS_entity.program = 0;
+		Com_Memset(&tr.vertexLightingShader_DBS_entity, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.vertexLightingShader_DBS_world.program)
 	{
 		qglDeleteObjectARB(tr.vertexLightingShader_DBS_world.program);
-		tr.vertexLightingShader_DBS_world.program = 0;
+		Com_Memset(&tr.vertexLightingShader_DBS_world, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.lightMappingShader.program)
 	{
 		qglDeleteObjectARB(tr.lightMappingShader.program);
-		tr.lightMappingShader.program = 0;
+		Com_Memset(&tr.lightMappingShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.deluxeMappingShader.program)
 	{
 		qglDeleteObjectARB(tr.deluxeMappingShader.program);
-		tr.deluxeMappingShader.program = 0;
+		Com_Memset(&tr.deluxeMappingShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.geometricFillShader_DBS.program)
 	{
 		qglDeleteObjectARB(tr.geometricFillShader_DBS.program);
-		tr.geometricFillShader_DBS.program = 0;
+		Com_Memset(&tr.geometricFillShader_DBS, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.deferredLightingShader_DBS_omni.program)
 	{
 		qglDeleteObjectARB(tr.deferredLightingShader_DBS_omni.program);
-		tr.deferredLightingShader_DBS_omni.program = 0;
+		Com_Memset(&tr.deferredLightingShader_DBS_omni, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.deferredLightingShader_DBS_proj.program)
 	{
 		qglDeleteObjectARB(tr.deferredLightingShader_DBS_proj.program);
-		tr.deferredLightingShader_DBS_proj.program = 0;
+		Com_Memset(&tr.deferredLightingShader_DBS_proj, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.depthFillShader.program)
 	{
 		qglDeleteObjectARB(tr.depthFillShader.program);
-		tr.depthFillShader.program = 0;
+		Com_Memset(&tr.depthFillShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.depthTestShader.program)
 	{
 		qglDeleteObjectARB(tr.depthTestShader.program);
-		tr.depthTestShader.program = 0;
+		Com_Memset(&tr.depthTestShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.depthToColorShader.program)
 	{
 		qglDeleteObjectARB(tr.depthToColorShader.program);
-		tr.depthToColorShader.program = 0;
+		Com_Memset(&tr.depthToColorShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.shadowExtrudeShader.program)
 	{
 		qglDeleteObjectARB(tr.shadowExtrudeShader.program);
-		tr.shadowExtrudeShader.program = 0;
+		Com_Memset(&tr.shadowExtrudeShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.shadowFillShader.program)
 	{
 		qglDeleteObjectARB(tr.shadowFillShader.program);
-		tr.shadowFillShader.program = 0;
+		Com_Memset(&tr.shadowFillShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.forwardLightingShader_DBS_omni.program)
 	{
 		qglDeleteObjectARB(tr.forwardLightingShader_DBS_omni.program);
-		tr.forwardLightingShader_DBS_omni.program = 0;
+		Com_Memset(&tr.forwardLightingShader_DBS_omni, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.forwardLightingShader_DBS_proj.program)
 	{
 		qglDeleteObjectARB(tr.forwardLightingShader_DBS_proj.program);
-		tr.forwardLightingShader_DBS_proj.program = 0;
+		Com_Memset(&tr.forwardLightingShader_DBS_proj, 0, sizeof(shaderProgram_t));
 	}
 
 #ifdef VOLUMETRIC_LIGHTING
 	if(tr.lightVolumeShader_omni.program)
 	{
 		qglDeleteObjectARB(tr.lightVolumeShader_omni.program);
-		tr.lightVolumeShader_omni.program = 0;
+		Com_Memset(&tr.lightVolumeShader_omni, 0, sizeof(shaderProgram_t));
 	}
 #endif
 
 	if(tr.deferredShadowingShader_proj.program)
 	{
 		qglDeleteObjectARB(tr.deferredShadowingShader_proj.program);
-		tr.deferredShadowingShader_proj.program = 0;
+		Com_Memset(&tr.deferredShadowingShader_proj, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.reflectionShader_C.program)
 	{
 		qglDeleteObjectARB(tr.reflectionShader_C.program);
-		tr.reflectionShader_C.program = 0;
+		Com_Memset(&tr.reflectionShader_C, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.reflectionShader_CB.program)
 	{
 		qglDeleteObjectARB(tr.reflectionShader_CB.program);
-		tr.reflectionShader_CB.program = 0;
+		Com_Memset(&tr.reflectionShader_CB, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.refractionShader_C.program)
 	{
 		qglDeleteObjectARB(tr.refractionShader_C.program);
-		tr.refractionShader_C.program = 0;
+		Com_Memset(&tr.refractionShader_C, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.dispersionShader_C.program)
 	{
 		qglDeleteObjectARB(tr.dispersionShader_C.program);
-		tr.dispersionShader_C.program = 0;
+		Com_Memset(&tr.dispersionShader_C, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.skyBoxShader.program)
 	{
 		qglDeleteObjectARB(tr.skyBoxShader.program);
-		tr.skyBoxShader.program = 0;
+		Com_Memset(&tr.skyBoxShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.heatHazeShader.program)
 	{
 		qglDeleteObjectARB(tr.heatHazeShader.program);
-		tr.heatHazeShader.program = 0;
+		Com_Memset(&tr.heatHazeShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.bloomShader.program)
 	{
 		qglDeleteObjectARB(tr.bloomShader.program);
-		tr.bloomShader.program = 0;
+		Com_Memset(&tr.bloomShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.contrastShader.program)
 	{
 		qglDeleteObjectARB(tr.contrastShader.program);
-		tr.contrastShader.program = 0;
+		Com_Memset(&tr.contrastShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.blurXShader.program)
 	{
 		qglDeleteObjectARB(tr.blurXShader.program);
-		tr.blurXShader.program = 0;
+		Com_Memset(&tr.blurXShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.blurYShader.program)
 	{
 		qglDeleteObjectARB(tr.blurYShader.program);
-		tr.blurYShader.program = 0;
+		Com_Memset(&tr.blurYShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.rotoscopeShader.program)
 	{
 		qglDeleteObjectARB(tr.rotoscopeShader.program);
-		tr.rotoscopeShader.program = 0;
+		Com_Memset(&tr.rotoscopeShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.cameraEffectsShader.program)
 	{
 		qglDeleteObjectARB(tr.cameraEffectsShader.program);
-		tr.cameraEffectsShader.program = 0;
+		Com_Memset(&tr.cameraEffectsShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.screenShader.program)
 	{
 		qglDeleteObjectARB(tr.screenShader.program);
-		tr.screenShader.program = 0;
+		Com_Memset(&tr.screenShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.portalShader.program)
 	{
 		qglDeleteObjectARB(tr.portalShader.program);
-		tr.portalShader.program = 0;
+		Com_Memset(&tr.portalShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.liquidShader.program)
 	{
 		qglDeleteObjectARB(tr.liquidShader.program);
-		tr.liquidShader.program = 0;
+		Com_Memset(&tr.liquidShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.uniformFogShader.program)
 	{
 		qglDeleteObjectARB(tr.uniformFogShader.program);
-		tr.uniformFogShader.program = 0;
+		Com_Memset(&tr.uniformFogShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.volumetricFogShader.program)
 	{
 		qglDeleteObjectARB(tr.volumetricFogShader.program);
-		tr.volumetricFogShader.program = 0;
+		Com_Memset(&tr.volumetricFogShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.screenSpaceAmbientOcclusionShader.program)
 	{
 		qglDeleteObjectARB(tr.screenSpaceAmbientOcclusionShader.program);
-		tr.screenSpaceAmbientOcclusionShader.program = 0;
+		Com_Memset(&tr.screenSpaceAmbientOcclusionShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.depthOfFieldShader.program)
 	{
 		qglDeleteObjectARB(tr.depthOfFieldShader.program);
-		tr.depthOfFieldShader.program = 0;
+		Com_Memset(&tr.depthOfFieldShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.toneMappingShader.program)
 	{
 		qglDeleteObjectARB(tr.toneMappingShader.program);
-		tr.toneMappingShader.program = 0;
+		Com_Memset(&tr.toneMappingShader, 0, sizeof(shaderProgram_t));
 	}
 
 	glState.currentProgram = 0;

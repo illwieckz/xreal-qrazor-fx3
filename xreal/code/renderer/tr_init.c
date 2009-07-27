@@ -1311,6 +1311,15 @@ void GfxInfo_f(void)
 	}
 }
 
+static void GLSL_restart_f(void)
+{
+	// make sure the render thread is stopped
+	R_SyncRenderThread();
+
+	GLSL_ShutdownGPUShaders();
+	GLSL_InitGPUShaders();
+}
+
 /*
 ===============
 R_Register
@@ -1591,6 +1600,8 @@ void R_Register(void)
 	ri.Cmd_AddCommand("screenshotPNG", R_ScreenShotPNG_f);
 	ri.Cmd_AddCommand("gfxinfo", GfxInfo_f);
 	ri.Cmd_AddCommand("generatemtr", R_GenerateMaterialFile_f);
+
+	ri.Cmd_AddCommand("glsl_restart", GLSL_restart_f);
 }
 
 /*
@@ -1730,6 +1741,8 @@ void RE_Shutdown(qboolean destroyWindow)
 	ri.Cmd_RemoveCommand("fbolist");
 	ri.Cmd_RemoveCommand("vbolist");
 	ri.Cmd_RemoveCommand("generatemtr");
+
+	ri.Cmd_RemoveCommand("glsl_restart");
 
 	if(tr.registered)
 	{

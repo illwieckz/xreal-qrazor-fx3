@@ -1087,7 +1087,7 @@ typedef struct shaderProgram_s
 	GLint           u_FresnelScale;
 	GLint           u_FresnelBias;
 
-	GLint		u_NormalScale;
+	GLint			u_NormalScale;
 
 	GLint           u_EtaRatio;
 
