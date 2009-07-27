@@ -5588,19 +5588,22 @@ void RB_CameraPostFX(void)
 
 	// bind u_CurrentMap
 	GL_SelectTexture(0);
-	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-					   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	GL_Bind(tr.occlusionRenderFBOImage);
+	/*
+	if(glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
 	{
-		GL_Bind(tr.deferredRenderFBOImage);
-	}
-	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
-	{
-		GL_Bind(tr.deferredRenderFBOImage);
+		// copy depth of the main context to deferredRenderFBO
+		qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+		qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
+		qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+							   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+							   GL_COLOR_BUFFER_BIT,
+							   GL_NEAREST);
 	}
 	else
+	*/
 	{
-		GL_Bind(tr.currentRenderImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.occlusionRenderFBOImage->uploadWidth, tr.occlusionRenderFBOImage->uploadHeight);
 	}
 
 	// bind u_GrainMap
@@ -7434,8 +7437,6 @@ static void RB_RenderView(void)
 		// copy offscreen rendered scene to the current OpenGL context
 		RB_RenderDeferredShadingResultToFrameBuffer();
 
-		RB_CameraPostFX();
-
 		if(backEnd.viewParms.isPortal)
 		{
 			if(glConfig.framebufferBlitAvailable)
@@ -7653,9 +7654,6 @@ static void RB_RenderView(void)
 		// render rotoscope post process effect
 		RB_RenderRotoscope();
 
-		// render chromatric aberration
-		RB_CameraPostFX();
-
 #if 0
 		// add the sun flare
 		RB_DrawSun();
@@ -7704,6 +7702,9 @@ static void RB_RenderView(void)
 			backEnd.pc.c_portals++;
 		}
 	}
+
+	// render chromatric aberration
+	RB_CameraPostFX();
 
 	// copy to given byte buffer that is NOT a FBO
 	if(tr.refdef.pixelTarget != NULL)
