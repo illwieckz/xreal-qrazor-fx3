@@ -1,3 +1,21 @@
+echo ""
+echo ""
+echo "COMPILERINFO AND MAPNAME.SH SCRIPTS ARE DEPRICATED AND WILL BE REMOVED SOON."
+echo "PLEASE UPDATE YOUR MAPS TO USE XMAP2_COMPILE."
+echo ""
+echo "You can do this by adding your bsp, vis, and light compile options to the"
+echo "worldspawn entity, with the following keys:"
+echo "xmap_bspopts, xmap_visopts, xmap_lightopts"
+echo ""
+echo "Just pass the parameters as the key value, like this:"
+echo "-fast -bounce 1"
+echo ""
+echo "Then, run xmap2_compile -h for usage info."
+echo ""
+echo ""
+printf "Press enter to continue."
+read wait
+
 case `uname -m` in
 	"x86_64")
 		COMPILER='../../xmap2.x86_64'

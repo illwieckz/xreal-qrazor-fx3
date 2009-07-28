@@ -22,31 +22,31 @@ MAP="$2"
 
 # map_ convention used to prevent possible binary name collision
 map_bsp() {
-	$COMPILE -v -meta -leaktest $BSPOPTS $MAP
+	if ! $COMPILE -v -meta -leaktest $BSPOPTS $MAP; then exit 1; fi
 }
 
 map_debugportals() {
-	$COMPILE -v -debugportals -meta -leaktest $MAP
+	if ! $COMPILE -v -debugportals -meta -leaktest $MAP; then exit 1; fi
 }
 
 map_debugsurfaces() {
-	$COMPILE -v -debugsurfaces -meta -leaktest $MAP
+	if ! $COMPILE -v -debugsurfaces -meta -leaktest $MAP; then exit 1; fi
 }
 
 map_fastvis() {
-	$COMPILE -vis -fast $VISOPTS $MAP
+	if ! $COMPILE -vis -fast $VISOPTS $MAP; then exit 1; fi
 }
 
 map_vis() {
-	$COMPILE -vis $VISOPTS $MAP
+	if ! $COMPILE -vis $VISOPTS $MAP; then exit 1; fi
 }
 
 map_light() {
-	$COMPILE -light -v $LIGHTOPTS $MAP 
+	if ! $COMPILE -light -v $LIGHTOPTS $MAP; then exit 1; fi
 }
 
 map_scale() {
-	$COMPILE -v -scale "$@" $MAP
+	if ! $COMPILE -v -scale "$@" $MAP; then exit 1; fi
 }
 
 map_package() {
@@ -69,7 +69,9 @@ map_readbspopts() {
 		grep xmap_bspopts | \
 		head -n1 | \
 		sed -r 's/^"xmap_bspopts" "(.*)"$/\1/'`
-		echo "BSPOPTS: $BSPOPTS"
+		if [[ $BSPOPTS != "" ]]; then
+			echo "BSPOPTS: $BSPOPTS"
+		fi
 	else
 		echo "$MAP: no such map."
 		exit 1
@@ -83,7 +85,9 @@ map_readvisopts() {
 		grep xmap_visopts | \
 		head -n1 | \
 		sed -r 's/^"xmap_visopts" "(.*)"$/\1/'`
-		echo "VISOPTS: $VISOPTS"
+		if [[ $VISOPTS != "" ]]; then
+			echo "VISOPTS: $VISOPTS"
+		fi
 	else
 		echo "$MAP: no such map."
 		exit 1
@@ -97,7 +101,13 @@ map_readlightopts() {
 		grep xmap_lightopts | \
 		head -n1 | \
 		sed -r 's/^"xmap_lightopts" "(.*)"$/\1/'`
-		echo "LIGHTOPTS: $LIGHTOPTS"
+		if [[ $LIGHTOPTS != "" ]]; then
+			echo "LIGHTOPTS: $LIGHTOPTS"
+		else
+			echo "Forcing '-fast -filter -lightmapsize 1024' as per map standards."
+			echo "Add 'xmap_lightopts in worldspawn to override."
+			LIGHTOPTS="-fast -filter -lightmapsize 1024"
+		fi
 	else
 		echo "$MAP: no such map."
 		exit 1
