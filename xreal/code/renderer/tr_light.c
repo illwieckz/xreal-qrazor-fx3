@@ -715,8 +715,6 @@ void R_SetupLightProjection(trRefLight_t * light)
 		{
 			int				i;
 			float          *proj = light->projectionMatrix;
-			matrix_t		newProjection;
-			//vec4_t			frustum[6];
 			vec4_t         *frustum = light->localFrustum;
 			vec4_t			lightProject[4];
 			vec3_t			right, up, normal;
@@ -725,6 +723,8 @@ void R_SetupLightProjection(trRefLight_t * light)
 			float			falloffLen;
 			float			rLen;
 			float			uLen;
+			float			a, b, ofs, dist;
+			vec4_t			targetGlobal;
 
 			// This transformation remaps the X,Y coordinates from [-1..1] to [0..1],
 			// presumably needed because the up/right vectors extend symmetrically
@@ -738,7 +738,7 @@ void R_SetupLightProjection(trRefLight_t * light)
 			CrossProduct(up, right, normal);
 			VectorNormalize(normal);
 
-			double dist = DotProduct(light->l.projTarget, normal);
+			dist = DotProduct(light->l.projTarget, normal);
 			if(dist < 0)
 			{
 				dist = -dist;
@@ -753,20 +753,19 @@ void R_SetupLightProjection(trRefLight_t * light)
 			VectorSet4(lightProject[2], normal[0], normal[1], normal[2], 0);
 
 			// now offset to center
-			vec4_t targetGlobal;
 			VectorCopy(light->l.projTarget, targetGlobal);
 			targetGlobal[3] = 1;
 			{
-				double a = DotProduct4(targetGlobal, lightProject[0]);
-				double b = DotProduct4(targetGlobal, lightProject[2]);
-				double ofs = 0.5 - a / b;
+				a = DotProduct4(targetGlobal, lightProject[0]);
+				b = DotProduct4(targetGlobal, lightProject[2]);
+				ofs = 0.5 - a / b;
 
 				VectorMA4(lightProject[0], ofs, lightProject[2], lightProject[0]);
 			}
 			{
-				double a = DotProduct4(targetGlobal, lightProject[1]);
-				double b = DotProduct4(targetGlobal, lightProject[2]);
-				double ofs = 0.5 - a / b;
+				a = DotProduct4(targetGlobal, lightProject[1]);
+				b = DotProduct4(targetGlobal, lightProject[2]);
+				ofs = 0.5 - a / b;
 
 				VectorMA4(lightProject[1], ofs, lightProject[2], lightProject[1]);
 			}
