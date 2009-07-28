@@ -1161,7 +1161,7 @@ void            MatrixFromVectorsFLU(matrix_t m, const vec3_t forward, const vec
 void            MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up);
 void            MatrixFromQuat(matrix_t m, const quat_t q);
 void            MatrixFromPlanes(matrix_t m, const vec4_t left, const vec4_t right, const vec4_t bottom, const vec4_t top,
-								 const vec4_t front, const vec4_t back);
+								 const vec4_t near, const vec4_t far);
 void            MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up);
 void            MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t up);
 void            MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin);
@@ -1173,6 +1173,8 @@ void            MatrixTransformNormal2(const matrix_t m, vec3_t inout);
 void            MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out);
 void            MatrixTransformPoint2(const matrix_t m, vec3_t inout);
 void            MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out);
+void            MatrixTransformPlane(const matrix_t m, const vec4_t in, vec4_t out);
+void            MatrixTransformPlane2(const matrix_t m, vec3_t inout);
 void            MatrixSetupPerspectiveProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near,
 												 vec_t far);
 void            MatrixSetupOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near,

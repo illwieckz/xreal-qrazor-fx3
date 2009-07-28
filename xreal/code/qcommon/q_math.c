@@ -452,6 +452,8 @@ qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec
 
 qboolean PlanesGetIntersectionPoint(const vec4_t plane1, const vec4_t plane2, const vec4_t plane3, vec3_t out)
 {
+	// http://www.cgafaq.info/wiki/Intersection_of_three_planes
+
 	vec3_t	n1, n2, n3;
 	vec3_t	n1n2, n2n3, n3n1;
 	vec_t	denom;
@@ -482,30 +484,7 @@ qboolean PlanesGetIntersectionPoint(const vec4_t plane1, const vec4_t plane2, co
 
 	VectorScale(out, 1.0f / denom, out);
 
-	//return (n2n3*plane1.dist() + n3n1*plane2.dist() + n1n2*plane3.dist()) / denom;
 	return qtrue;
-
-	/*
-	const Vector3& n1 = plane1.normal();
-	const Vector3& n2 = plane2.normal();
-	const Vector3& n3 = plane3.normal();
-
-		Vector3 n1n2 = n1.crossProduct(n2);
-		Vector3 n2n3 = n2.crossProduct(n3);
-		Vector3 n3n1 = n3.crossProduct(n1);
-
-		double denom = n1.dot(n2n3);
-
-		// Check if the denominator is zero (which would mean that no intersection is to be found
-		if (denom != 0) {
-			return (n2n3*plane1.dist() + n3n1*plane2.dist() + n1n2*plane3.dist()) / denom;
-		}
-		else {
-			// No intersection could be found, return <0,0,0>
-			return Vector3(0,0,0);
-		}
-	}
-	*/
 }
 
 /*
@@ -2595,24 +2574,34 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
 #endif
 }
 
-void MatrixFromPlanes(matrix_t m, const vec4_t left, const vec4_t right, const vec4_t bottom, const vec4_t top, const vec4_t front, const vec4_t back)
+void MatrixFromPlanes(matrix_t m, const vec4_t left, const vec4_t right, const vec4_t bottom, const vec4_t top, const vec4_t near, const vec4_t far)
 {
 	m[ 0] = (right[0] - left[0]) / 2;
 	m[ 1] = (top[0] - bottom[0]) / 2;
-	m[ 2] = (back[0] - front[0]) / 2;
+	m[ 2] = (far[0] - near[0]) / 2;
 	m[ 3] = right[0] - (right[0] - left[0]) / 2;
+
 	m[ 4] = (right[1] - left[1]) / 2;
 	m[ 5] = (top[1] - bottom[1]) / 2;
-	m[ 6] = (back[1] - front[1]) / 2;
+	m[ 6] = (far[1] - near[1]) / 2;
 	m[ 7] = right[1] - (right[1] - left[1]) / 2;
-	m[ 8] = (right[1] - left[1]) / 2;
-	m[ 9] = (top[1] - bottom[1]) / 2;
-	m[10] = (back[1] - front[1]) / 2;
-	m[11] = right[1] - (right[1] - left[1]) / 2;
-	m[12] = (right[1] - left[1]) / 2;
-	m[13] = (top[1] - bottom[1]) / 2;
-	m[14] = (back[1] - front[1]) / 2;
-	m[15] = right[1] - (right[1] - left[1]) / 2;
+
+	m[ 8] = (right[2] - left[2]) / 2;
+	m[ 9] = (top[2] - bottom[2]) / 2;
+	m[10] = (far[2] - near[2]) / 2;
+	m[11] = right[2] - (right[2] - left[2]) / 2;
+
+#if 0
+	m[12] = (right[3] - left[3]) / 2;
+	m[13] = (top[3] - bottom[3]) / 2;
+	m[14] = (far[3] - near[3]) / 2;
+	m[15] = right[3] - (right[3] - left[3]) / 2;
+#else
+	m[12] = (-right[3] - -left[3]) / 2;
+	m[13] = (-top[3] - -bottom[3]) / 2;
+	m[14] = (-far[3] - -near[3]) / 2;
+	m[15] = -right[3] - (-right[3] - -left[3]) / 2;
+#endif
 }
 
 void MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up)
@@ -2782,6 +2771,29 @@ void MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out)
 #endif
 }
 
+
+void MatrixTransformPlane(const matrix_t m, const vec4_t in, vec4_t out)
+{
+	vec3_t			translation;
+	vec3_t          planePos;
+
+	// rotate the plane normal
+	MatrixTransformNormal(m, in, out);
+
+	// add new position to current plane position
+	VectorSet(translation,  m[12], m[13], m[14]);
+	VectorMA(translation, in[3], out, planePos);
+
+	out[3] = DotProduct(out, planePos);
+}
+
+void MatrixTransformPlane2(const matrix_t m, vec4_t inout)
+{
+	vec4_t			tmp;
+
+	MatrixTransformPlane(m, inout, tmp);
+	VectorCopy4(tmp, inout);
+}
 
 /*
 replacement for glFrustum
