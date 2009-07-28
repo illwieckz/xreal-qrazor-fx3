@@ -32,10 +32,10 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	vec2 st = stClamped * r_NPOTScale;
 	
-	vec4 original = texture2D(u_CurrentMap, st);
+	vec4 original = clamp(texture2D(u_CurrentMap, st), 0.0, 1.0);
 	
 	vec4 color = original;
-	
+
 	// calculate chromatic aberration
 	vec2 redOffset = vec2(1.0, 0.5);
 	vec2 greenOffset = vec2(0.0, 0.0);
@@ -44,14 +44,14 @@ void	main()
 	color.r = texture2D(u_CurrentMap, st + redOffset * r_FBufScale).r;
 	color.g = texture2D(u_CurrentMap, st + greenOffset * r_FBufScale).g;
 	color.b = texture2D(u_CurrentMap, st + blueOffset * r_FBufScale).b;
-	
-	// add grain
-	vec4 grain = texture2D(u_GrainMap, st * vec2(2.0, 2.0));
-	color.rgb += color.rgb * grain.rgb * vec3(0.4, 0.2, 0.1);
-	
+
 	// blend the vignette
 	vec4 vignette = texture2D(u_VignetteMap, stClamped);
 	color.rgb *= vignette.rgb; 
+	
+	// add grain
+	vec4 grain = texture2D(u_GrainMap, st * vec2(2.0, 2.0));
+	color.rgb += ((color.rgb + (grain.rgb * vec3(0.025, 0.05, 0.1))) * 0.5) + ((color.rgb * (grain.rgb * vec3(0.025, 0.05, 0.1))) * 0.5);
 
 	gl_FragColor = color;
 }
