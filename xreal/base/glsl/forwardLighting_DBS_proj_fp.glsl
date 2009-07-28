@@ -348,15 +348,8 @@ void	main()
 #endif
 	
 		// compute attenuation
-		#if 0
-		vec3 texAtten = var_TexAtten.xyz / var_TexAtten.w;
-		vec3 attenuationXY = texture2D(u_AttenuationMapXY, texAtten.xy).rgb;
-		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(texAtten.z, 0.0)).rgb;
-		#else
 		vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, var_TexAtten.xyw).rgb;
-		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAtten.z, 0.0)).rgb;
-		//vec3 attenuationZ = var_TexAtten.z;
-		#endif
+		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAtten.z + 0.5, 0.0)).rgb; // FIXME
 
 		// compute final color
 		vec4 color = diffuse;
