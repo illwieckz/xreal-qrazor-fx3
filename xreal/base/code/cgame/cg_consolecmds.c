@@ -594,4 +594,7 @@ void CG_InitConsoleCommands(void)
 	// for ACEBot
 	trap_AddCommand("savenodes");
 
+	// for JBullet
+	trap_AddCommand("shootbox");
+	trap_AddCommand("shootboxes");
 }

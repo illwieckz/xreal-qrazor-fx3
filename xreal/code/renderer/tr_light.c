@@ -480,24 +480,58 @@ void R_SetupLightLocalBounds(trRefLight_t * light)
 
 		case RL_PROJ:
 		{
-			float           xMin, xMax, yMin, yMax;
-			float           zNear, zFar;
+			int				j;
+			vec3_t          farCorners[4];
+			//vec4_t			frustum[6];
+			vec4_t         *frustum = light->localFrustum;
 
-			zNear = light->l.distNear;
-			zFar = light->l.distFar;
+			ClearBounds(light->localBounds[0], light->localBounds[1]);
 
-			xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
-			xMin = -xMax;
+			// transform frustum from world space to local space
+			/*
+			for(j = 0; j < 6; j++)
+			{
+				VectorCopy(light->frustum[j].normal, frustum[j]);
+				frustum[j][3] = light->frustum[j].dist;
 
-			yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
-			yMin = -yMax;
+				MatrixTransformPlane2(light->viewMatrix, frustum[j]);
+			}
+			*/
 
-			light->localBounds[0][0] = -zNear;
-			light->localBounds[0][1] = xMin * zFar;
-			light->localBounds[0][2] = yMin * zFar;
-			light->localBounds[1][0] = zFar;
-			light->localBounds[1][1] = xMax * zFar;
-			light->localBounds[1][2] = yMax * zFar;
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[2]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[3]);
+
+			if(!VectorCompare(light->l.projStart, vec3_origin))
+			{
+				vec3_t          nearCorners[4];
+
+				// calculate the vertices defining the top area
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[0]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[1]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[2]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[3]);
+
+				for(j = 0; j < 4; j++)
+				{
+					AddPointToBounds(farCorners[j], light->localBounds[0], light->localBounds[1]);
+					AddPointToBounds(nearCorners[j], light->localBounds[0], light->localBounds[1]);
+				}
+
+			}
+			else
+			{
+				vec3_t	top;
+
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], top);
+				AddPointToBounds(top, light->localBounds[0], light->localBounds[1]);
+
+				for(j = 0; j < 4; j++)
+				{
+					AddPointToBounds(farCorners[j], light->localBounds[0], light->localBounds[1]);
+				}
+			}
 			break;
 		}
 
@@ -544,11 +578,13 @@ void R_SetupLightView(trRefLight_t * light)
 	switch (light->l.rlType)
 	{
 		case RL_OMNI:
+		case RL_PROJ:
 		{
 			MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
 			break;
 		}
 
+		/*
 		case RL_PROJ:
 		{
 			matrix_t        viewMatrix;
@@ -560,6 +596,7 @@ void R_SetupLightView(trRefLight_t * light)
 			MatrixMultiply(quakeToOpenGLMatrix, viewMatrix, light->viewMatrix);
 			break;
 		}
+		*/
 
 		default:
 			ri.Error(ERR_DROP, "R_SetupLightView: Bad rlType");
@@ -628,8 +665,27 @@ void R_SetupLightFrustum(trRefLight_t * light)
 
 		case RL_PROJ:
 		{
-			// calculate frustum planes using the modelview projection matrix
-			R_SetupFrustum(light->frustum, light->viewMatrix, light->projectionMatrix);
+			int             i;
+			vec4_t			worldFrustum[6];
+
+			// transform local frustum to world space
+			for(i = 0; i < 6; i++)
+			{
+				MatrixTransformPlane(light->transformMatrix, light->localFrustum[i], worldFrustum[i]);
+			}
+
+			// normalize all frustum planes
+			for(i = 0; i < 6; i++)
+			{
+				PlaneNormalize(worldFrustum[i]);
+
+				VectorCopy(worldFrustum[i], light->frustum[i].normal);
+				light->frustum[i].dist = worldFrustum[i][3];
+
+				light->frustum[i].type = PLANE_NON_AXIAL;
+
+				SetPlaneSignbits(&light->frustum[i]);
+			}
 			break;
 		}
 
@@ -657,41 +713,147 @@ void R_SetupLightProjection(trRefLight_t * light)
 
 		case RL_PROJ:
 		{
-			float           xMin, xMax, yMin, yMax;
-			float           width, height, depth;
-			float           zNear, zFar;
+			int				i;
 			float          *proj = light->projectionMatrix;
+			matrix_t		newProjection;
+			//vec4_t			frustum[6];
+			vec4_t         *frustum = light->localFrustum;
+			vec4_t			lightProject[4];
+			vec3_t			right, up, normal;
+			vec3_t			start, stop;
+			vec3_t			falloff;
+			float			falloffLen;
+			float			rLen;
+			float			uLen;
 
-			zNear = light->l.distNear;
-			zFar = light->l.distFar;
+			// This transformation remaps the X,Y coordinates from [-1..1] to [0..1],
+			// presumably needed because the up/right vectors extend symmetrically
+			// either side of the target point.
+			//MatrixSetupTranslation(proj, 0.5f, 0.5f, 0);
+			//MatrixMultiplyScale(proj, 0.5f, 0.5f, 1);
 
-#if 1
-			xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
-			xMin = -xMax;
-#else
-			// flip X projection
-			xMin = zNear * tan(light->l.fovX * M_PI / 360.0f);
-			xMax = -xMin;
+			rLen = VectorNormalize2(light->l.projRight, right);
+			uLen = VectorNormalize2(light->l.projUp, up);
+
+			CrossProduct(up, right, normal);
+			VectorNormalize(normal);
+
+			double dist = DotProduct(light->l.projTarget, normal);
+			if(dist < 0)
+			{
+				dist = -dist;
+				VectorInverse(normal);
+			}
+
+			VectorScale(right, ( 0.5f * dist ) / rLen, right);
+			VectorScale(up, -( 0.5f * dist ) / uLen, up);
+
+			VectorSet4(lightProject[0], right[0], right[1], right[2], 0);
+			VectorSet4(lightProject[1], up[0], up[1], up[2], 0);
+			VectorSet4(lightProject[2], normal[0], normal[1], normal[2], 0);
+
+			// now offset to center
+			vec4_t targetGlobal;
+			VectorCopy(light->l.projTarget, targetGlobal);
+			targetGlobal[3] = 1;
+			{
+				double a = DotProduct4(targetGlobal, lightProject[0]);
+				double b = DotProduct4(targetGlobal, lightProject[2]);
+				double ofs = 0.5 - a / b;
+
+				VectorMA4(lightProject[0], ofs, lightProject[2], lightProject[0]);
+			}
+			{
+				double a = DotProduct4(targetGlobal, lightProject[1]);
+				double b = DotProduct4(targetGlobal, lightProject[2]);
+				double ofs = 0.5 - a / b;
+
+				VectorMA4(lightProject[1], ofs, lightProject[2], lightProject[1]);
+			}
+
+			if(!VectorCompare(light->l.projStart, vec3_origin))
+			{
+				VectorCopy(light->l.projStart, start);
+			}
+			else
+			{
+				VectorClear(start);
+			}
+
+			if(!VectorCompare(light->l.projEnd, vec3_origin))
+			{
+				VectorCopy(light->l.projEnd, stop);
+			}
+			else
+			{
+				VectorCopy(light->l.projTarget, stop);
+			}
+
+			// Calculate the falloff vector
+			VectorSubtract(stop, start, falloff);
+			light->falloffLength = falloffLen = VectorNormalize(falloff);
+			if(falloffLen <= 0)
+			{
+				falloffLen = 1;
+			}
+			//FIXME ?
+			VectorScale(falloff, 1.0f / falloffLen, falloff);
+
+			//light->falloffLength = 1;
+
+			VectorSet4(lightProject[3], falloff[0], falloff[1], falloff[2], -DotProduct(start, falloff));
+
+			// we want the planes of s=0, s=q, t=0, and t=q
+			VectorCopy4(lightProject[0], frustum[FRUSTUM_LEFT]);
+			VectorCopy4(lightProject[1], frustum[FRUSTUM_BOTTOM]);
+
+			VectorSubtract(lightProject[2], lightProject[0], frustum[FRUSTUM_RIGHT]);
+			frustum[FRUSTUM_RIGHT][3] = lightProject[2][3] - lightProject[0][3];
+
+			VectorSubtract(lightProject[2], lightProject[1], frustum[FRUSTUM_TOP]);
+			frustum[FRUSTUM_TOP][3] = lightProject[2][3] - lightProject[1][3];
+
+			// we want the planes of s=0 and s=1 for front and rear clipping planes
+			VectorCopy(lightProject[3], frustum[FRUSTUM_NEAR]);
+			frustum[FRUSTUM_NEAR][3] = lightProject[3][3];
+
+			VectorNegate(lightProject[3], frustum[FRUSTUM_FAR]);
+			frustum[FRUSTUM_FAR][3] = -lightProject[3][3] - 1.0f;
+
+#if 0
+			ri.Printf(PRINT_ALL, "light_target: (%5.3f, %5.3f, %5.3f)\n", light->l.projTarget[0], light->l.projTarget[1], light->l.projTarget[2]);
+			ri.Printf(PRINT_ALL, "light_right: (%5.3f, %5.3f, %5.3f)\n", light->l.projRight[0], light->l.projRight[1], light->l.projRight[2]);
+			ri.Printf(PRINT_ALL, "light_up: (%5.3f, %5.3f, %5.3f)\n", light->l.projUp[0], light->l.projUp[1], light->l.projUp[2]);
+			ri.Printf(PRINT_ALL, "light_start: (%5.3f, %5.3f, %5.3f)\n", light->l.projStart[0], light->l.projStart[1], light->l.projStart[2]);
+			ri.Printf(PRINT_ALL, "light_end: (%5.3f, %5.3f, %5.3f)\n", light->l.projEnd[0], light->l.projEnd[1], light->l.projEnd[2]);
+
+			ri.Printf(PRINT_ALL, "unnormalized frustum:\n");
+			for(i = 0; i < 6; i++)
+					ri.Printf(PRINT_ALL, "(%5.6f, %5.6f, %5.6f, %5.6f)\n", frustum[i][0], frustum[i][1], frustum[i][2], frustum[i][3]);
 #endif
 
-#if 1
-			yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
-			yMin = -yMax;
-#else
-			// HACK: flip Y projection to remove the mirror view from projected .RoQ videos
-			yMin = zNear * tan(light->l.fovY * M_PI / 360.0f);
-			yMax = -yMin;
+			// calculate the new projection matrix from the frustum planes
+			MatrixFromPlanes(proj, frustum[FRUSTUM_LEFT], frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], frustum[FRUSTUM_FAR]);
+
+			//MatrixMultiply2(proj, newProjection);
+
+			// scale the falloff texture coordinate so that 0.5 is at the apex and 0.0
+			// as at the base of the pyramid.
+			// TODO: I don't like hacking the matrix like this, but all attempts to use
+			// a transformation seemed to affect too many other things.
+			//proj[10] *= 0.5f;
+
+			// normalise all frustum planes
+			for(i = 0; i < 6; i++)
+			{
+				PlaneNormalize(frustum[i]);
+			}
+
+#if 0
+			ri.Printf(PRINT_ALL, "normalized frustum:\n");
+			for(i = 0; i < 6; i++)
+				ri.Printf(PRINT_ALL, "(%5.3f, %5.3f, %5.3f, %5.3f)\n", light->frustum[i].normal[0], frustum[i][1], frustum[i][2], frustum[i][3]);
 #endif
-
-			width = xMax - xMin;
-			height = yMax - yMin;
-			depth = zFar - zNear;
-
-			// OpenGL projection matrix
-			proj[0] = (2 * zNear) / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
-			proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
-			proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -(2 * zFar * zNear) / depth;
-			proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
 			break;
 		}
 
@@ -1074,44 +1236,66 @@ void R_SetupLightScissor(trRefLight_t * light)
 		case RL_PROJ:
 		{
 			int             j;
-			float           xMin, xMax, yMin, yMax;
-			float           zNear, zFar;
-			vec3_t          corners[4];
+			vec3_t          farCorners[4];
+			vec4_t         *frustum = light->localFrustum;
 
-			zNear = light->l.distNear;
-			zFar = light->l.distFar;
-
-			xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
-			xMin = -xMax;
-
-			yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
-			yMin = -yMax;
-
-			corners[0][0] = zFar;
-			corners[0][1] = xMin * zFar;
-			corners[0][2] = yMin * zFar;
-
-			corners[1][0] = zFar;
-			corners[1][1] = xMax * zFar;
-			corners[1][2] = yMin * zFar;
-
-			corners[2][0] = zFar;
-			corners[2][1] = xMax * zFar;
-			corners[2][2] = yMax * zFar;
-
-			corners[3][0] = zFar;
-			corners[3][1] = xMin * zFar;
-			corners[3][2] = yMax * zFar;
-
-			// draw pyramid
-			for(j = 0; j < 4; j++)
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[2]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[3]);
+#if 1
+			if(!VectorCompare(light->l.projStart, vec3_origin))
 			{
-				R_AddEdgeToLightScissor(light, corners[j], corners[(j + 1) % 4]);
-				R_AddEdgeToLightScissor(light, vec3_origin, corners[j]);
+				vec3_t          nearCorners[4];
+
+				// calculate the vertices defining the top area
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[0]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[1]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[2]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[3]);
+
+				for(j = 0; j < 4; j++)
+				{
+					// outer quad
+					R_AddEdgeToLightScissor(light, nearCorners[j], farCorners[j]);
+					R_AddEdgeToLightScissor(light, farCorners[j], farCorners[(j + 1) % 4]);
+					R_AddEdgeToLightScissor(light, farCorners[(j + 1) % 4], nearCorners[(j + 1) % 4]);
+					R_AddEdgeToLightScissor(light, nearCorners[(j + 1) % 4],  nearCorners[j]);
+
+					// far cap
+					R_AddEdgeToLightScissor(light, farCorners[j], farCorners[(j + 1) % 4]);
+
+					// near cap
+					R_AddEdgeToLightScissor(light, nearCorners[j], nearCorners[(j + 1) % 4]);
+				}
+			}
+			else
+#endif
+			{
+				vec3_t	top;
+
+				// no light_start, just use the top vertex (doesn't need to be mirrored)
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], top);
+
+				for(j = 0; j < 4; j++)
+				{
+					R_AddEdgeToLightScissor(light, farCorners[j], farCorners[(j + 1) % 4]);
+					R_AddEdgeToLightScissor(light, top, farCorners[j]);
+				}
 			}
 			break;
 		}
+
+		default:
+			break;
 	}
+
+
+	Q_clamp(light->scissor.coords[0], tr.viewParms.viewportX, tr.viewParms.viewportX + tr.viewParms.viewportWidth);
+	Q_clamp(light->scissor.coords[2], tr.viewParms.viewportX, tr.viewParms.viewportX + tr.viewParms.viewportWidth);
+
+	Q_clamp(light->scissor.coords[1], tr.viewParms.viewportY, tr.viewParms.viewportY + tr.viewParms.viewportHeight);
+	Q_clamp(light->scissor.coords[3], tr.viewParms.viewportY, tr.viewParms.viewportY + tr.viewParms.viewportHeight);
 }
 
 

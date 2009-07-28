@@ -349,10 +349,9 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 	light.color[1] = 0.8f;
 	light.color[2] = 0.8f;
 
-	light.fovX = 90;
-	light.fovY = 90;
-	light.distNear = 1;
-	light.distFar = 500;
+	VectorSet(light.projTarget, 500, 0, 0);
+	VectorSet(light.projRight, 100, 0, 0);
+	VectorSet(light.projUp, 100, 0, 0);
 
 	trap_R_AddRefLightToScene(&light);
 
@@ -438,10 +437,9 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 	light.color[1] = 0.8f;
 	light.color[2] = 0.8f;
 
-	light.fovX = 90;
-	light.fovY = 90;
-	light.distNear = 1;
-	light.distFar = 500;
+	VectorSet(light.projTarget, 500, 0, 0);
+	VectorSet(light.projRight, 100, 0, 0);
+	VectorSet(light.projUp, 100, 0, 0);
 
 	trap_R_AddRefLightToScene(&light);
 

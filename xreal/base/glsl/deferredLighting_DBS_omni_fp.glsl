@@ -202,9 +202,9 @@ void	main()
 #endif
 	
 		// compute attenuation
-		vec3 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(P.xyz, 1.0)).xyz;
-		vec3 attenuationXY		= texture2D(u_AttenuationMapXY, texAttenXYZ.xy).rgb;
-		vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(texAttenXYZ.z, 0)).rgb;
+		vec4 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(P.xyz, 1.0));
+		vec3 attenuationXY		= texture2DProj(u_AttenuationMapXY, texAttenXYZ.xyw).rgb;
+		vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(texAttenXYZ.z, 0.0)).rgb;
 	
 		// compute final color
 		vec4 color = diffuse;

@@ -2406,7 +2406,7 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 
 	*shadowPlane = 0;
 
-	if(cg_shadows.integer == 0)
+	if(cg_shadows.integer != 1)
 	{
 		return qfalse;
 	}
@@ -2437,6 +2437,7 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 	// fade the shadow out with height
 	alpha = 1.0 - trace.fraction;
 
+#if 0 // FIXME
 	if((cg_shadows.integer >= 4 && cg_shadows.integer <= 6) && cg_precomputedLighting.integer)
 	{
 		refLight_t      light;
@@ -2514,6 +2515,7 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 		trap_R_AddRefLightToScene(&light);
 		return qtrue;
 	}
+#endif
 
 	*shadowPlane = trace.endpos[2] + 1;
 

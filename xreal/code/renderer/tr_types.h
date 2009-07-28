@@ -178,10 +178,11 @@ typedef struct
 	vec3_t          radius;
 
 	// projective light specific
-	float           fovX;
-	float           fovY;
-	float           distNear;
-	float           distFar;
+	vec3_t			projTarget;
+	vec3_t			projRight;
+	vec3_t			projUp;
+	vec3_t			projStart;
+	vec3_t			projEnd;
 
 	qboolean        noShadows;
 	int             noShadowID;	// don't cast shadows of all entities with this id

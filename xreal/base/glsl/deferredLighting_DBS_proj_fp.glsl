@@ -210,7 +210,7 @@ void	main()
 	
 		// compute attenuation
 		vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb;
-		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(clamp(texAtten.z, 0.0, 1.0), 0.0)).rgb;
+		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(texAtten.z, 0.0)).rgb;
 	
 		// compute final color
 		vec4 color = diffuse;

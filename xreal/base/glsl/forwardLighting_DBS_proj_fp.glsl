@@ -354,7 +354,7 @@ void	main()
 		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(texAtten.z, 0.0)).rgb;
 		#else
 		vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, var_TexAtten.xyw).rgb;
-		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(clamp(var_TexAtten.z, 0.0, 1.0), 0.0)).rgb;
+		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAtten.z, 0.0)).rgb;
 		//vec3 attenuationZ = var_TexAtten.z;
 		#endif
 

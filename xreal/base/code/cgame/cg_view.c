@@ -526,10 +526,9 @@ void CG_TestProjLight_f(void)
 
 	AnglesToQuat(cg.refdefViewAngles, cg.testLight.rotation);
 
-	cg.testLight.fovX = 45;
-	cg.testLight.fovY = 45;
-	cg.testLight.distNear = 1;
-	cg.testLight.distFar = 800;
+	VectorSet(cg.testLight.projTarget, 800, 0, 0);
+	VectorSet(cg.testLight.projRight, 100, 0, 0);
+	VectorSet(cg.testLight.projUp, 100, 0, 0);
 
 	cg.testFlashLight = qfalse;
 }

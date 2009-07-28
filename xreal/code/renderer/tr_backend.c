@@ -1291,7 +1291,7 @@ static void Render_lightVolume(interaction_t * ia)
 		case RL_PROJ:
 		{
 			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));	// scale
 			break;
 		}
 
@@ -1565,7 +1565,7 @@ static void RB_RenderInteractions()
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));	// scale
 					break;
 				}
 
@@ -1976,7 +1976,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));	// scale
 					break;
 				}
 
@@ -2364,45 +2364,7 @@ static void RB_RenderInteractionsShadowMapped()
 
 						case RL_PROJ:
 						{
-							float           xMin, xMax, yMin, yMax;
-							float           width, height, depth;
-							float           zNear, zFar;
-							float          *proj;
-
 							// TODO LiSPSM
-
-							zNear = light->l.distNear;
-							zFar = light->l.distFar;
-
-							xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
-							xMin = -xMax;
-
-
-							yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
-							yMin = -yMax;
-
-							width = xMax - xMin;
-							height = yMax - yMin;
-							depth = zFar - zNear;
-
-							// OpenGL projection matrix
-							proj = light->projectionMatrix;
-							proj[0] = (2 * zNear) / width;
-							proj[4] = 0;
-							proj[8] = (xMax + xMin) / width;
-							proj[12] = 0;
-							proj[1] = 0;
-							proj[5] = (2 * zNear) / height;
-							proj[9] = (yMax + yMin) / height;
-							proj[13] = 0;
-							proj[2] = 0;
-							proj[6] = 0;
-							proj[10] = -(zFar + zNear) / depth;
-							proj[14] = -(2 * zFar * zNear) / depth;
-							proj[3] = 0;
-							proj[7] = 0;
-							proj[11] = -1;
-							proj[15] = 0;
 
 							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
 
@@ -2703,7 +2665,7 @@ static void RB_RenderInteractionsShadowMapped()
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));	// scale
 					break;
 				}
 
@@ -3057,6 +3019,8 @@ void RB_RenderInteractionsDeferred()
 			// set light scissor to reduce fillrate
 			GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
+			GL_CheckErrors();
+
 			// build world to light space matrix
 			switch (light->l.rlType)
 			{
@@ -3074,7 +3038,7 @@ void RB_RenderInteractionsDeferred()
 				{
 					// build the attenuation matrix
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, Q_min(light->falloffLength, 1.0));	// scale
 					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
 					MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
 					break;
@@ -3632,6 +3596,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				// set light scissor to reduce fillrate
 				GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
+				GL_CheckErrors();
+
 				// restore camera matrices
 				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 				GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
@@ -3657,8 +3623,9 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					{
 						// build the attenuation matrix
 						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
-						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
+						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));	// scale
+						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
+						//light->attenuationMatrix[10] *= 0.5f;
 						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
 						break;
 					}
@@ -4618,7 +4585,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 					{
 						// build the attenuation matrix
 						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->l.distFar - light->l.distNear, 1.0));	// scale
+						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));	// scale
 						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
 						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
 						break;
@@ -6024,65 +5991,84 @@ void RB_RenderLightOcclusionQueries()
 
 						case RL_PROJ:
 						{
-							float           xMin, xMax, yMin, yMax;
-							float           zNear, zFar;
-							vec4_t          corners[4];
+							vec3_t          farCorners[4];
+							vec4_t         *frustum = light->localFrustum;
 
-							zNear = light->l.distNear;
-							zFar = light->l.distFar;
+							PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
+							PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
+							PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[2]);
+							PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[3]);
 
-							xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
-							xMin = -xMax;
-
-							yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
-							yMin = -yMax;
-
-							corners[0][0] = zFar;
-							corners[0][1] = xMin * zFar;
-							corners[0][2] = yMin * zFar;
-							corners[0][3] = 1;
-
-							corners[1][0] = zFar;
-							corners[1][1] = xMax * zFar;
-							corners[1][2] = yMin * zFar;
-							corners[1][3] = 1;
-
-							corners[2][0] = zFar;
-							corners[2][1] = xMax * zFar;
-							corners[2][2] = yMax * zFar;
-							corners[2][3] = 1;
-
-							corners[3][0] = zFar;
-							corners[3][1] = xMin * zFar;
-							corners[3][2] = yMax * zFar;
-							corners[3][3] = 1;
-
-							tess.numIndexes = 0;
 							tess.numVertexes = 0;
+							tess.numIndexes = 0;
 
-							// draw side planes
-							for(j = 0; j < 4; j++)
+							if(!VectorCompare(light->l.projStart, vec3_origin))
 							{
-								VectorSet4(tess.xyz[tess.numVertexes], 0, 0, 0, 1);
-								VectorCopy4(g_color_table[j + 1], tess.colors[tess.numVertexes]);
-								tess.indexes[tess.numIndexes++] = tess.numVertexes;
-								tess.numVertexes++;
+								vec3_t          nearCorners[4];
 
-								VectorCopy(corners[j], tess.xyz[tess.numVertexes]);
-								tess.xyz[tess.numVertexes][3] = 1;
-								VectorCopy4(g_color_table[j + 1], tess.colors[tess.numVertexes]);
-								tess.indexes[tess.numIndexes++] = tess.numVertexes;
-								tess.numVertexes++;
+								// calculate the vertices defining the top area
+								PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[0]);
+								PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[1]);
+								PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[2]);
+								PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[3]);
 
-								VectorCopy(corners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
-								tess.xyz[tess.numVertexes][3] = 1;
-								VectorCopy4(g_color_table[j + 1], tess.colors[tess.numVertexes]);
-								tess.indexes[tess.numIndexes++] = tess.numVertexes;
-								tess.numVertexes++;
+								// draw outer surfaces
+								for(j = 0; j < 4; j++)
+								{
+									VectorSet4(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
+									VectorSet4(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
+									VectorSet4(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
+									VectorSet4(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
+									Tess_AddQuadStamp2(quadVerts, colorCyan);
+								}
+
+								// draw far cap
+								VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+								VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+								VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+								VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+								Tess_AddQuadStamp2(quadVerts, colorRed);
+
+								// draw near cap
+								VectorSet4(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
+								VectorSet4(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
+								VectorSet4(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
+								VectorSet4(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
+								Tess_AddQuadStamp2(quadVerts, colorGreen);
+
 							}
+							else
+							{
+								vec3_t	top;
 
-							// draw far plane
-							Tess_AddQuadStamp2(corners, g_color_table[j + 1]);
+								// no light_start, just use the top vertex (doesn't need to be mirrored)
+								PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], top);
+
+								// draw pyramid
+								for(j = 0; j < 4; j++)
+								{
+									VectorCopy(farCorners[j], tess.xyz[tess.numVertexes]);
+									VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+									tess.indexes[tess.numIndexes++] = tess.numVertexes;
+									tess.numVertexes++;
+
+									VectorCopy(farCorners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
+									VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+									tess.indexes[tess.numIndexes++] = tess.numVertexes;
+									tess.numVertexes++;
+
+									VectorCopy(top, tess.xyz[tess.numVertexes]);
+									VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+									tess.indexes[tess.numIndexes++] = tess.numVertexes;
+									tess.numVertexes++;
+								}
+
+								VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+								VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+								VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+								VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+								Tess_AddQuadStamp2(quadVerts, colorRed);
+							}
 
 							Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 							Tess_DrawElements();
@@ -6311,6 +6297,9 @@ static void RB_RenderDebugUtils()
 		vec4_t          lightColor;
 		vec4_t          quadVerts[4];
 
+		vec3_t			minSize = {-2, -2, -2};
+		vec3_t			maxSize = { 2,  2,  2};
+
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
 		GL_Cull(CT_TWO_SIDED);
@@ -6464,78 +6453,125 @@ static void RB_RenderDebugUtils()
 
 					case RL_PROJ:
 					{
-						float           xMin, xMax, yMin, yMax;
-						float           zNear, zFar;
-						vec3_t          corners[4];
-
-						zNear = light->l.distNear;
-						zFar = light->l.distFar;
-
-						xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
-						xMin = -xMax;
-
-						yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
-						yMin = -yMax;
-
-
-						corners[0][0] = zFar;
-						corners[0][1] = xMin * zFar;
-						corners[0][2] = yMin * zFar;
-
-						corners[1][0] = zFar;
-						corners[1][1] = xMax * zFar;
-						corners[1][2] = yMin * zFar;
-
-						corners[2][0] = zFar;
-						corners[2][1] = xMax * zFar;
-						corners[2][2] = yMax * zFar;
-
-						corners[3][0] = zFar;
-						corners[3][1] = xMin * zFar;
-						corners[3][2] = yMax * zFar;
+						vec3_t          farCorners[4];
+						//vec4_t		frustum[6];
+						vec4_t         *frustum = light->localFrustum;
 
 						/*
-						// draw pyramid
-						qglBegin(GL_LINES);
+						// transform frustum from world space to local space
+						for(j = 0; j < 6; j++)
+						{
+							//MatrixTransformPlane(light->transformMatrix, light->localFrustum[j], frustum[j]);
+							VectorCopy4(light->localFrustum[j], frustum[j]);
+							MatrixTransformPlane2(light->viewMatrix, frustum[j]);
+						}
+						*/
 
-						qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, lightColor);
+						PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
+						PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
+						PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[2]);
+						PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[3]);
+
+						// the planes of the frustum are measured at world 0,0,0 so we have to position the intersection points relative to the light origin
+#if 0
+						ri.Printf(PRINT_ALL, "pyramid farCorners\n");
 						for(j = 0; j < 4; j++)
 						{
-							qglVertex3fv(corners[j]);
-							qglVertex3fv(corners[(j + 1) % 4]);
-
-							qglVertex3fv(vec3_origin);
-							qglVertex3fv(corners[j]);
+							ri.Printf(PRINT_ALL, "(%5.3f, %5.3f, %5.3f)\n", farCorners[j][0], farCorners[j][1], farCorners[j][2]);
 						}
-						qglEnd();
-						*/
+#endif
 
 						tess.numVertexes = 0;
 						tess.numIndexes = 0;
 
-						for(j = 0; j < 4; j++)
+
+						if(!VectorCompare(light->l.projStart, vec3_origin))
 						{
-							VectorCopy(corners[j], tess.xyz[tess.numVertexes]);
-							VectorCopy4(lightColor, tess.colors[tess.numVertexes]);
-							tess.indexes[tess.numIndexes++] = tess.numVertexes;
-							tess.numVertexes++;
+							vec3_t          nearCorners[4];
 
-							VectorCopy(corners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
-							VectorCopy4(lightColor, tess.colors[tess.numVertexes]);
-							tess.indexes[tess.numIndexes++] = tess.numVertexes;
-							tess.numVertexes++;
+							// calculate the vertices defining the top area
+							PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[0]);
+							PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[1]);
+							PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[2]);
+							PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[3]);
 
-							VectorCopy(vec3_origin, tess.xyz[tess.numVertexes]);
-							VectorCopy4(lightColor, tess.colors[tess.numVertexes]);
-							tess.indexes[tess.numIndexes++] = tess.numVertexes;
-							tess.numVertexes++;
+#if 0
+							ri.Printf(PRINT_ALL, "pyramid nearCorners\n");
+							for(j = 0; j < 4; j++)
+							{
+								ri.Printf(PRINT_ALL, "(%5.3f, %5.3f, %5.3f)\n", nearCorners[j][0], nearCorners[j][1], nearCorners[j][2]);
+							}
+#endif
+
+							// draw outer surfaces
+							for(j = 0; j < 4; j++)
+							{
+								VectorSet4(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
+								VectorSet4(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
+								VectorSet4(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
+								VectorSet4(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
+								Tess_AddQuadStamp2(quadVerts, lightColor);
+							}
+
+							// draw far cap
+							VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+							VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+							VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+							VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+							Tess_AddQuadStamp2(quadVerts, lightColor);
+
+							// draw near cap
+							VectorSet4(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
+							VectorSet4(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
+							VectorSet4(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
+							VectorSet4(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
+							Tess_AddQuadStamp2(quadVerts, lightColor);
+
+						}
+						else
+						{
+							vec3_t	top;
+
+							// no light_start, just use the top vertex (doesn't need to be mirrored)
+							PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], top);
+
+							// draw pyramid
+							for(j = 0; j < 4; j++)
+							{
+								VectorCopy(farCorners[j], tess.xyz[tess.numVertexes]);
+								VectorCopy4(lightColor, tess.colors[tess.numVertexes]);
+								tess.indexes[tess.numIndexes++] = tess.numVertexes;
+								tess.numVertexes++;
+
+								VectorCopy(farCorners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
+								VectorCopy4(lightColor, tess.colors[tess.numVertexes]);
+								tess.indexes[tess.numIndexes++] = tess.numVertexes;
+								tess.numVertexes++;
+
+								VectorCopy(top, tess.xyz[tess.numVertexes]);
+								VectorCopy4(lightColor, tess.colors[tess.numVertexes]);
+								tess.indexes[tess.numIndexes++] = tess.numVertexes;
+								tess.numVertexes++;
+							}
+
+							VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+							VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+							VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+							VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+							Tess_AddQuadStamp2(quadVerts, lightColor);
 						}
 
-						VectorSet4(quadVerts[0], corners[0][0], corners[0][1], corners[0][2], 1);
-						VectorSet4(quadVerts[1], corners[1][0], corners[1][1], corners[1][2], 1);
-						VectorSet4(quadVerts[2], corners[2][0], corners[2][1], corners[2][2], 1);
-						VectorSet4(quadVerts[3], corners[3][0], corners[3][1], corners[3][2], 1);
-						Tess_AddQuadStamp2(quadVerts, lightColor);
+						// draw light_target
+						Tess_AddCube(light->l.projTarget, minSize, maxSize, colorRed);
+						Tess_AddCube(light->l.projRight, minSize, maxSize, colorGreen);
+						Tess_AddCube(light->l.projUp, minSize, maxSize, colorBlue);
+
+						if(!VectorCompare(light->l.projStart, vec3_origin))
+							Tess_AddCube(light->l.projStart, minSize, maxSize, colorYellow);
+
+						if(!VectorCompare(light->l.projEnd, vec3_origin))
+							Tess_AddCube(light->l.projEnd, minSize, maxSize, colorMagenta);
+
 
 						Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 						Tess_DrawElements();

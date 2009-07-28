@@ -120,9 +120,12 @@ typedef struct trRefLight_s
 	qboolean        additive;	// texture detail is lost tho when the lightmap is dark
 	vec3_t          origin;		// l.origin + rotated l.center
 	vec3_t          transformed;	// origin in local coordinate system
+
 	matrix_t        transformMatrix;	// light to world
 	matrix_t        viewMatrix;	// object to light
 	matrix_t        projectionMatrix;	// light frustum
+
+	float			falloffLength;
 
 	matrix_t        attenuationMatrix;	// attenuation * (light view * entity transform)
 	matrix_t        attenuationMatrix2;	// attenuation * tcMod matrices
@@ -142,6 +145,7 @@ typedef struct trRefLight_s
 	qboolean        noOcclusionQueries;
 
 	frustum_t       frustum;
+	vec4_t			localFrustum[6];
 
 	screenRect_t    scissor;
 
@@ -3407,6 +3411,8 @@ Add a polyhedron that is composed of four triangular faces
 @param tretraVerts[0..2] are the ground vertices, tretaVerts[3] is the pyramid offset
 */
 void            Tess_AddTetrahedron(vec4_t tetraVerts[4], vec4_t const color);
+
+void			Tess_AddCube(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
 
 void            Tess_InstantQuad(vec4_t quadVerts[4]);
 void            Tess_UpdateVBOs(unsigned int attribBits);

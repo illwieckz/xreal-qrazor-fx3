@@ -5358,10 +5358,11 @@ void R_LoadEntities(lump_t * l)
 		light->l.radius[1] = 300;
 		light->l.radius[2] = 300;
 
-		light->l.fovX = 90;
-		light->l.fovY = 90;
-		light->l.distNear = 1;
-		light->l.distFar = 300;
+		VectorClear(light->l.projTarget);
+		VectorClear(light->l.projRight);
+		VectorClear(light->l.projUp);
+		VectorClear(light->l.projStart);
+		VectorClear(light->l.projEnd);
 
 		light->l.inverseShadows = qfalse;
 
@@ -5452,28 +5453,34 @@ void R_LoadEntities(lump_t * l)
 			{
 				sscanf(value, "%f %f %f", &light->l.radius[0], &light->l.radius[1], &light->l.radius[2]);
 			}
-			// check for fovX
-			else if(!Q_stricmp(keyname, "light_fovX"))
+			// check for light_target
+			else if(!Q_stricmp(keyname, "light_target"))
 			{
-				light->l.fovX = atof(value);
+				sscanf(value, "%f %f %f", &light->l.projTarget[0], &light->l.projTarget[1], &light->l.projTarget[2]);
 				light->l.rlType = RL_PROJ;
 			}
-			// check for fovY
-			else if(!Q_stricmp(keyname, "light_fovY"))
+			// check for light_right
+			else if(!Q_stricmp(keyname, "light_right"))
 			{
-				light->l.fovY = atof(value);
+				sscanf(value, "%f %f %f", &light->l.projRight[0], &light->l.projRight[1], &light->l.projRight[2]);
 				light->l.rlType = RL_PROJ;
 			}
-			// check for near
-			else if(!Q_stricmp(keyname, "light_near"))
+			// check for light_up
+			else if(!Q_stricmp(keyname, "light_up"))
 			{
-				light->l.distNear = atof(value);
+				sscanf(value, "%f %f %f", &light->l.projUp[0], &light->l.projUp[1], &light->l.projUp[2]);
 				light->l.rlType = RL_PROJ;
 			}
-			// check for far
-			else if(!Q_stricmp(keyname, "light_far"))
+			// check for light_start
+			else if(!Q_stricmp(keyname, "light_start"))
 			{
-				light->l.distFar = atof(value);
+				sscanf(value, "%f %f %f", &light->l.projStart[0], &light->l.projStart[1], &light->l.projStart[2]);
+				light->l.rlType = RL_PROJ;
+			}
+			// check for light_end
+			else if(!Q_stricmp(keyname, "light_end"))
+			{
+				sscanf(value, "%f %f %f", &light->l.projEnd[0], &light->l.projEnd[1], &light->l.projEnd[2]);
 				light->l.rlType = RL_PROJ;
 			}
 			// check for radius
