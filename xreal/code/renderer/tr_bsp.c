@@ -1186,7 +1186,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 
 	// get lightmap
 	realLightmapNum = LittleLong(ds->lightmapNum);
-	if(r_vertexLighting->integer)
+	if(r_vertexLighting->integer || !r_precomputedLighting->integer)
 	{
 		surf->lightmapNum = -1;
 	}
@@ -1382,7 +1382,7 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 
 	// get lightmap
 	realLightmapNum = LittleLong(ds->lightmapNum);
-	if(r_vertexLighting->integer)
+	if(r_vertexLighting->integer || !r_precomputedLighting->integer)
 	{
 		surf->lightmapNum = -1;
 	}

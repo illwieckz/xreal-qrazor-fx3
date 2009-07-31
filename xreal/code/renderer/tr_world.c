@@ -1019,6 +1019,8 @@ static void R_UpdateClusterSurfaces()
 				Com_AddToGrowList(&tr.world->clusterVBOSurfaces[tr.visIndex], vboSurf);
 			}
 
+			//ri.Printf(PRINT_ALL, "creating VBO cluster surface for shader '%s'\n", shader->name);
+
 			// update surface properties
 			vboSurf->numIndexes = numTriangles * 3;
 			vboSurf->numVerts = numVerts;
