@@ -8,6 +8,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xreal", "xreal.vcproj", "{8
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ui", "..\base\code\ui\ui.vcproj", "{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rendererGL", "renderer\rendererGL.vcproj", "{A78CE356-910C-4C0E-886D-5E3F09F40082}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -30,6 +32,10 @@ Global
 		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Debug|Win32.Build.0 = Debug|Win32
 		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Release|Win32.ActiveCfg = Release|Win32
 		{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}.Release|Win32.Build.0 = Release|Win32
+		{A78CE356-910C-4C0E-886D-5E3F09F40082}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A78CE356-910C-4C0E-886D-5E3F09F40082}.Debug|Win32.Build.0 = Debug|Win32
+		{A78CE356-910C-4C0E-886D-5E3F09F40082}.Release|Win32.ActiveCfg = Release|Win32
+		{A78CE356-910C-4C0E-886D-5E3F09F40082}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

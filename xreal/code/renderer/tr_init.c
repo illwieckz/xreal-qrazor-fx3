@@ -1806,11 +1806,16 @@ void RE_EndRegistration(void)
 GetRefAPI
 =====================
 */
-refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
+#if defined(__cplusplus)
+extern "C" {
+#endif
+refexport_t* QCALL GetRefAPI(int apiVersion, refimport_t * rimp)
 {
 	static refexport_t re;
 
 	ri = *rimp;
+
+	ri.Printf(PRINT_ALL, "GetRefAPI()\n");
 
 	Com_Memset(&re, 0, sizeof(re));
 
@@ -1873,7 +1878,13 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 	return &re;
 }
 
-// for q_shared.c
+#if defined(__cplusplus)
+} // extern "C"
+#endif
+
+
+#ifndef REF_HARD_LINKED
+// this is only here so the functions in q_shared.c and q_math.c can link
 void QDECL Com_Printf(const char *msg, ...)
 {
 	va_list         argptr;
@@ -1884,6 +1895,18 @@ void QDECL Com_Printf(const char *msg, ...)
 	va_end(argptr);
 
 	ri.Printf(PRINT_ALL, "%s", text);
+}
+
+void QDECL Com_DPrintf(const char *msg, ...)
+{
+	va_list         argptr;
+	char            text[1024];
+
+	va_start(argptr, msg);
+	Q_vsnprintf(text, sizeof(text), msg, argptr);
+	va_end(argptr);
+
+	ri.Printf(PRINT_DEVELOPER, "%s", text);
 }
 
 void QDECL Com_Error(int level, const char *error, ...)
@@ -1897,3 +1920,4 @@ void QDECL Com_Error(int level, const char *error, ...)
 
 	ri.Error(level, "%s", text);
 }
+#endif

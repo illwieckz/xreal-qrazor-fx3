@@ -3142,8 +3142,6 @@ int CL_ScaledMilliseconds(void)
 static cvar_t  *cl_renderer = NULL;
 static void    *rendererLib = NULL;
 
-refexport_t* (*DGetRefAPI)(int apiVersion, refimport_t * rimp) = NULL;
-
 // Input subsystem
 extern void            IN_Init(void);
 extern void            IN_Shutdown(void);
@@ -3158,13 +3156,18 @@ void CL_InitRef(void)
 {
 	refimport_t     ri;
 	refexport_t    *ret;
+	GetRefAPI_t		GetRefAPI;
 	char            dllName[MAX_OSPATH];
 
 	Com_Printf("----- Initializing Renderer ----\n");
 
 	cl_renderer = Cvar_Get("cl_renderer", "GL", CVAR_ARCHIVE);
 
+#ifdef _WIN32
+	Q_snprintf(dllName, sizeof(dllName), "renderer%s" DLL_EXT, cl_renderer->string);
+#else
 	Q_snprintf(dllName, sizeof(dllName), "renderer%s" ARCH_STRING DLL_EXT, cl_renderer->string);
+#endif
 
 	Com_Printf("Loading \"%s\"...", dllName);
 	if((rendererLib = Sys_LoadLibrary(dllName)) == 0)
@@ -3186,10 +3189,12 @@ void CL_InitRef(void)
 #endif	/* _WIN32 */
 	}
 
-	DGetRefAPI = Sys_LoadFunction(rendererLib, "GetRefAPI");
-	if(!DGetRefAPI)
+	Com_Printf("done\n");
+
+	GetRefAPI = Sys_LoadFunction(rendererLib, "GetRefAPI");
+	if(!GetRefAPI)
 	{
-		Com_Error(ERR_FATAL, "Can't load symbol GetRefAPI");
+		Com_Error(ERR_FATAL, "Can't load symbol GetRefAPI: '%s'",  Sys_LibraryError());
 	}
 
 	ri.Cmd_AddCommand = Cmd_AddCommand;
@@ -3232,7 +3237,6 @@ void CL_InitRef(void)
 	ri.Cvar_VariableIntegerValue = Cvar_VariableIntegerValue;
 
 	// cinematic stuff
-
 	ri.CIN_UploadCinematic = CIN_UploadCinematic;
 	ri.CIN_PlayCinematic = CIN_PlayCinematic;
 	ri.CIN_RunCinematic = CIN_RunCinematic;
@@ -3243,7 +3247,8 @@ void CL_InitRef(void)
 	ri.IN_Shutdown = IN_Shutdown;
 	ri.IN_Restart = IN_Restart;
 
-	ret = DGetRefAPI(REF_API_VERSION, &ri);
+	Com_Printf("Calling GetRefAPI...\n");
+	ret = GetRefAPI(REF_API_VERSION, &ri);
 
 	Com_Printf("-------------------------------\n");
 

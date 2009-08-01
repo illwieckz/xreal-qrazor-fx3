@@ -107,7 +107,7 @@ static void GLimp_SetCurrentContext(qboolean enable)
 }
 #endif
 
-#elif WIN32
+#elif _WIN32
 
 typedef struct
 {
