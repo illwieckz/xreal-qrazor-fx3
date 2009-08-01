@@ -5885,6 +5885,7 @@ static void CreateInternalShaders(void)
 	Q_strncpyz(shader.name, "<default>", sizeof(shader.name));
 
 	shader.type = SHADER_3D_DYNAMIC;
+	stages[0].type = ST_DIFFUSEMAP;
 	stages[0].bundle[0].image[0] = tr.defaultImage;
 	stages[0].active = qtrue;
 	stages[0].stateBits = GLS_DEFAULT;

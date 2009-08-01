@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -48,12 +48,17 @@ void	main()
 	
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
-	
+		
+#if 1
 	// reconstruct vertex position in world space
 	float depth = texture2D(u_DepthMap, st).r;
 	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
 	P.xyz /= P.w;
+#else
+	vec4 P = vec4(1.0, 1.0, 1.0, 1.0);
+#endif
 	
+#if 0
 	if(bool(u_PortalClipping))
 	{
 		float dist = dot(P.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
@@ -63,6 +68,7 @@ void	main()
 			return;
 		}
 	}
+#endif
 	
 #if 0
 	if(distance(P.xyz, u_LightOrigin) > u_LightRadius)
@@ -73,7 +79,7 @@ void	main()
 	}
 #endif
 
-#if !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
+#if 0// !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
 	// make sure that the vertex position is inside the light frustum
 	for(int i = 0; i < 6; ++i)
 	{
@@ -171,8 +177,11 @@ void	main()
 	else
 #endif
 	{
+	
+#if !defined(r_DeferredLighting)
 		// compute the diffuse term
 		vec4 diffuse = texture2D(u_DiffuseMap, st);
+#endif
 	
 		// compute normal in world space
 		vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
@@ -188,7 +197,8 @@ void	main()
 		//N = normalize(N);
 	
 		// compute light direction in world space
-		vec3 L = normalize(u_LightOrigin - P.xyz);
+		vec3 L = u_LightOrigin - P.xyz;
+		L = normalize(L);
 	
 #if defined(r_NormalMapping)
 		// compute view direction in world space
@@ -197,24 +207,42 @@ void	main()
 		// compute half angle in world space
 		vec3 H = normalize(L + V);
 		
-		// compute the specular term
+#if !defined(r_DeferredLighting)
 		vec4 S = texture2D(u_SpecularMap, st);
 #endif
+
+#endif // r_NormalMapping
 	
+
+#if defined(r_DeferredLighting)
+		vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
+#else
+		vec4 color = diffuse;
+#endif
+
+		color.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
+		
+#if defined(r_NormalMapping)
+
+#if defined(r_DeferredLighting)
+		//color.a += pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+#else
+		color.rgb += S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+#endif
+
+#endif // r_NormalMapping
+
+
+#if 1
 		// compute attenuation
 		vec4 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(P.xyz, 1.0));
 		vec3 attenuationXY		= texture2DProj(u_AttenuationMapXY, texAttenXYZ.xyw).rgb;
 		vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(texAttenXYZ.z, 0.0)).rgb;
-	
-		// compute final color
-		vec4 color = diffuse;
-		color.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
-#if defined(r_NormalMapping)
-		color.rgb += S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
-#endif
+		
 		color.rgb *= attenuationXY;
 		color.rgb *= attenuationZ;
-		color.rgb *= u_LightScale;
+#endif
+		//color.rgb *= u_LightScale;
 		color.rgb *= shadow;
 		
 		gl_FragColor = color;

@@ -66,6 +66,13 @@ typedef unsigned short glIndex_t;
 #define DEBUG_OPTIMIZEVERTICES 0
 #define CALC_REDUNDANT_SHADOWVERTS 0
 
+typedef enum
+{
+	DS_DISABLED,				// traditional Doom 3 style rendering
+	DS_STANDARD,				// deferred rendering like in Stalker
+	DS_PREPASS_LIGHTING			// light pre pass rendering like in Cry Engine 3
+} deferredShading_t;
+
 #define REF_CUBEMAP_SIZE		64
 
 typedef enum
@@ -2592,6 +2599,7 @@ typedef struct
 	int             c_occlusionQueriesLightsCulled;
 	int             c_occlusionQueriesInteractionsCulled;
 	int             c_occlusionQueriesResponseTime;
+	int             c_occlusionQueriesFetchTime;
 
 	int             c_forwardAmbientTime;
 	int             c_forwardLightingTime;
@@ -2687,6 +2695,7 @@ typedef struct
 	image_t        *deferredNormalFBOImage;
 	image_t        *deferredSpecularFBOImage;
 	image_t        *deferredRenderFBOImage;
+	image_t        *lightRenderFBOImage;
 	image_t        *occlusionRenderFBOImage;
 	image_t        *depthToColorBackFacesFBOImage;
 	image_t        *depthToColorFrontFacesFBOImage;
@@ -2705,6 +2714,7 @@ typedef struct
 
 	// framebuffer objects
 	FBO_t          *geometricRenderFBO;		// is the G-Buffer for deferred shading
+	FBO_t          *lightRenderFBO;			// is the light buffer which contains all light properties of the light pre pass
 	FBO_t          *deferredRenderFBO;		// is used by HDR rendering and deferred shading
 	FBO_t          *portalRenderFBO;		// holds a copy of the last currentRender that was rendered into a FBO
 	FBO_t          *occlusionRenderFBO;		// used for overlapping visibility determination
@@ -3084,6 +3094,7 @@ extern cvar_t  *r_showDeferredNormal;
 extern cvar_t  *r_showDeferredSpecular;
 extern cvar_t  *r_showDeferredPosition;
 extern cvar_t  *r_showDeferredRender;
+extern cvar_t  *r_showDeferredLight;
 
 extern cvar_t  *r_vboFaces;
 extern cvar_t  *r_vboCurves;

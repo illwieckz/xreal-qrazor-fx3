@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -181,9 +181,12 @@ void	main()
 	else
 #endif
 	{
+	
+#if !defined(r_DeferredLighting)
 		// compute the diffuse term
 		vec4 diffuse = texture2D(u_DiffuseMap, st);
-	
+#endif
+
 		// compute normal in world space
 		vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
 		
@@ -204,20 +207,35 @@ void	main()
 		// compute half angle in world space
 		vec3 H = normalize(L + V);
 		
-		// compute the specular term
+#if !defined(r_DeferredLighting)
 		vec4 S = texture2D(u_SpecularMap, st);
 #endif
+
+#endif // r_NormalMapping
 	
 		// compute attenuation
 		vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb;
 		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(0.5 + texAtten.z, 0.0)).rgb; // FIXME
 	
 		// compute final color
+#if defined(r_DeferredLighting)
+		vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
+#else
 		vec4 color = diffuse;
+#endif
+		
 		color.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
+		
 #if defined(r_NormalMapping)
+
+#if defined(r_DeferredLighting)
+		//color.a += pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+#else
 		color.rgb += S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 #endif
+
+#endif // r_NormalMapping
+
 		color.rgb *= attenuationXY;
 		color.rgb *= attenuationZ;
 		color.rgb *= u_LightScale;

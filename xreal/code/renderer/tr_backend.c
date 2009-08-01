@@ -1444,6 +1444,7 @@ static void RB_RenderInteractions()
 
 	if(r_speeds->integer == 9)
 	{
+		qglFinish();
 		startTime = ri.Milliseconds();
 	}
 
@@ -1682,6 +1683,7 @@ static void RB_RenderInteractionsStencilShadowed()
 
 	if(r_speeds->integer == 9)
 	{
+		qglFinish();
 		startTime = ri.Milliseconds();
 	}
 
@@ -2129,6 +2131,7 @@ static void RB_RenderInteractionsShadowMapped()
 
 	if(r_speeds->integer == 9)
 	{
+		qglFinish();
 		startTime = ri.Milliseconds();
 	}
 
@@ -2838,6 +2841,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 
 	if(r_speeds->integer == 9)
 	{
+		qglFinish();
 		startTime = ri.Milliseconds();
 	}
 
@@ -2959,6 +2963,312 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 	}
 }
 
+void RB_RenderInteractionsDeferredIntoLightBuffer()
+{
+	interaction_t  *ia;
+	int             iaCount;
+	trRefLight_t   *light, *oldLight = NULL;
+	shader_t       *lightShader;
+	shaderStage_t  *attenuationXYStage;
+	shaderStage_t  *attenuationZStage;
+	int             i, j;
+	vec3_t          viewOrigin;
+	vec3_t          lightOrigin;
+	vec4_t          lightColor;
+	vec4_t          lightFrustum[6];
+	cplane_t       *frust;
+	matrix_t        ortho;
+	vec4_t          quadVerts[4];
+	int             startTime = 0, endTime = 0;
+
+	GLimp_LogComment("--- RB_RenderInteractionsDeferredIntoLightBuffer ---\n");
+
+	if(r_speeds->integer == 9)
+	{
+		qglFinish();
+		startTime = ri.Milliseconds();
+	}
+
+	R_BindFBO(tr.lightRenderFBO);
+	GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	qglClear(GL_COLOR_BUFFER_BIT);
+
+	// update uniforms
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
+
+	// set 2D virtual screen size
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
+
+	// update depth render image
+	GL_SelectTexture(1);
+	GL_Bind(tr.depthRenderImage);
+	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+
+	// loop trough all light interactions and render the light quad for each last interaction
+	for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
+	{
+		backEnd.currentLight = light = ia->light;
+
+		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
+		{
+			// skip all interactions of this light because it failed the occlusion query
+			goto skipInteraction;
+		}
+
+		if(light != oldLight)
+		{
+			// set light scissor to reduce fillrate
+			GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+
+			GL_CheckErrors();
+
+			// build world to light space matrix
+			switch (light->l.rlType)
+			{
+				case RL_OMNI:
+				{
+					// build the attenuation matrix
+					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
+					MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
+					break;
+				}
+
+				case RL_PROJ:
+				{
+					// build the attenuation matrix
+					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, Q_min(light->falloffLength, 1.0));	// scale
+					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
+					MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
+					break;
+				}
+
+				default:
+					break;
+			}
+
+			// copy frustum planes for pixel shader
+			for(i = 0; i < 6; i++)
+			{
+				frust = &light->frustum[i];
+
+				VectorCopy(frust->normal, lightFrustum[i]);
+				lightFrustum[i][3] = frust->dist;
+			}
+		}
+
+	  skipInteraction:
+		if(!ia->next)
+		{
+			if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && ia->occlusionQuerySamples)
+			{
+				// last interaction of current light
+				lightShader = light->shader;
+				attenuationZStage = lightShader->stages[0];
+
+				for(j = 1; j < MAX_SHADER_STAGES; j++)
+				{
+					attenuationXYStage = lightShader->stages[j];
+
+					if(!attenuationXYStage)
+					{
+						break;
+					}
+
+					if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
+					{
+						continue;
+					}
+
+					if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
+					{
+						continue;
+					}
+
+					Tess_ComputeColor(attenuationXYStage);
+					R_ComputeFinalAttenuation(attenuationXYStage, light);
+
+					if(light->l.rlType == RL_OMNI)
+					{
+						// enable shader, set arrays
+						GL_BindProgram(&tr.deferredLightingShader_DBS_omni);
+
+						// set OpenGL state for additive lighting
+						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
+
+						GL_Cull(CT_TWO_SIDED);
+
+						// set uniforms
+						VectorCopy(light->origin, lightOrigin);
+						VectorCopy(tess.svars.color, lightColor);
+
+						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_omni, viewOrigin);
+						GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_omni, lightOrigin);
+						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_omni, lightColor);
+						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_omni, light->sphereRadius);
+						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_omni, light->l.scale);
+						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_omni, light->attenuationMatrix2);
+						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
+
+						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_omni, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.unprojectionMatrix);
+
+						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.isPortal);
+						if(backEnd.viewParms.isPortal)
+						{
+							float           plane[4];
+
+							// clipping plane in world space
+							plane[0] = backEnd.viewParms.portalPlane.normal[0];
+							plane[1] = backEnd.viewParms.portalPlane.normal[1];
+							plane[2] = backEnd.viewParms.portalPlane.normal[2];
+							plane[3] = backEnd.viewParms.portalPlane.dist;
+
+							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_omni, plane);
+						}
+
+						// bind u_NormalMap
+						GL_SelectTexture(1);
+						GL_Bind(tr.deferredNormalFBOImage);
+
+						// bind u_DepthMap
+						GL_SelectTexture(3);
+						GL_Bind(tr.depthRenderImage);
+
+						// bind u_AttenuationMapXY
+						GL_SelectTexture(4);
+						BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+
+						// bind u_AttenuationMapZ
+						GL_SelectTexture(5);
+						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+
+						// draw lighting
+						VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
+						VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+						VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						Tess_InstantQuad(quadVerts);
+					}
+					else if(light->l.rlType == RL_PROJ)
+					{
+						// enable shader, set arrays
+						GL_BindProgram(&tr.deferredLightingShader_DBS_proj);
+
+						// set OpenGL state for additive lighting
+						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
+
+						GL_Cull(CT_TWO_SIDED);
+
+						// set uniforms
+						VectorCopy(light->origin, lightOrigin);
+						VectorCopy(tess.svars.color, lightColor);
+
+						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_proj, viewOrigin);
+						GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_proj, lightOrigin);
+						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_proj, lightColor);
+						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_proj, light->sphereRadius);
+						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_proj, light->l.scale);
+						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix2);
+						qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
+
+						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.unprojectionMatrix);
+
+						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.isPortal);
+						if(backEnd.viewParms.isPortal)
+						{
+							float           plane[4];
+
+							// clipping plane in world space
+							plane[0] = backEnd.viewParms.portalPlane.normal[0];
+							plane[1] = backEnd.viewParms.portalPlane.normal[1];
+							plane[2] = backEnd.viewParms.portalPlane.normal[2];
+							plane[3] = backEnd.viewParms.portalPlane.dist;
+
+							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_proj, plane);
+						}
+
+						// bind u_NormalMap
+						GL_SelectTexture(1);
+						GL_Bind(tr.deferredNormalFBOImage);
+
+						// bind u_DepthMap
+						GL_SelectTexture(3);
+						GL_Bind(tr.depthRenderImage);
+
+						// bind u_AttenuationMapXY
+						GL_SelectTexture(4);
+						BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+
+						// bind u_AttenuationMapZ
+						GL_SelectTexture(5);
+						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+
+						// draw lighting
+						VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
+						VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+						VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						Tess_InstantQuad(quadVerts);
+					}
+					else
+					{
+						// TODO
+					}
+				}
+			}
+
+			if(iaCount < (backEnd.viewParms.numInteractions - 1))
+			{
+				// jump to next interaction and continue
+				ia++;
+				iaCount++;
+			}
+			else
+			{
+				// increase last time to leave for loop
+				iaCount++;
+			}
+		}
+		else
+		{
+			// just continue
+			ia = ia->next;
+			iaCount++;
+		}
+
+		oldLight = light;
+	}
+
+	GL_PopMatrix();
+
+	// go back to the world modelview matrix
+	backEnd.orientation = backEnd.viewParms.world;
+	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+
+	// reset scissor
+	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+
+	GL_CheckErrors();
+
+	if(r_speeds->integer == 9)
+	{
+		qglFinish();
+		endTime = ri.Milliseconds();
+		backEnd.pc.c_deferredLightingTime = endTime - startTime;
+	}
+}
+
 void RB_RenderInteractionsDeferred()
 {
 	interaction_t  *ia;
@@ -2981,6 +3291,7 @@ void RB_RenderInteractionsDeferred()
 
 	if(r_speeds->integer == 9)
 	{
+		qglFinish();
 		startTime = ri.Milliseconds();
 	}
 
@@ -3317,6 +3628,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 	if(r_speeds->integer == 9)
 	{
+		qglFinish();
 		startTime = ri.Milliseconds();
 	}
 
@@ -3622,10 +3934,9 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					case RL_PROJ:
 					{
 						// build the attenuation matrix
-						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));	// scale
-						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
-						//light->attenuationMatrix[10] *= 0.5f;
+						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);
+						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));
+						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
 						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
 						break;
 					}
@@ -4260,6 +4571,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 
 	if(r_speeds->integer == 9)
 	{
+		qglFinish();
 		startTime = ri.Milliseconds();
 	}
 
@@ -5755,6 +6067,10 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 		{
 			GL_Bind(tr.depthRenderImage);
 		}
+		else if(r_deferredShading->integer == DS_PREPASS_LIGHTING && r_showDeferredLight->integer)
+		{
+			GL_Bind(tr.lightRenderFBOImage);
+		}
 		else
 		{
 			GL_Bind(tr.deferredRenderFBOImage);
@@ -5858,6 +6174,7 @@ void RB_RenderLightOcclusionQueries()
 		qboolean        queryObjects;
 		GLint           available;
 		vec4_t          quadVerts[4];
+		int             startTime = 0, endTime = 0;
 
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
 
@@ -6143,7 +6460,6 @@ void RB_RenderLightOcclusionQueries()
 			int             i;
 			int             avCount;
 			int             limit;
-			int             startTime = 0, endTime = 0;
 
 			if(r_speeds->integer == 7)
 			{
@@ -6177,8 +6493,11 @@ void RB_RenderLightOcclusionQueries()
 
 			if(r_speeds->integer == 7)
 			{
+				qglFinish();
 				endTime = ri.Milliseconds();
 				backEnd.pc.c_occlusionQueriesResponseTime = endTime - startTime;
+
+				startTime = ri.Milliseconds();
 			}
 		}
 
@@ -6272,6 +6591,13 @@ void RB_RenderLightOcclusionQueries()
 			}
 
 			oldLight = light;
+		}
+
+		if(r_speeds->integer == 7)
+		{
+			qglFinish();
+			endTime = ri.Milliseconds();
+			backEnd.pc.c_occlusionQueriesFetchTime = endTime - startTime;
 		}
 	}
 
@@ -7365,6 +7691,18 @@ static void RB_RenderView(void)
 		}
 		qglClear(clearBits);
 
+		/*
+		if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+		{
+			R_BindFBO(tr.geometricRenderFBO);
+			if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+			{
+				clearBits = GL_COLOR_BUFFER_BIT;
+				GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+				qglClear(clearBits);
+			}
+		}
+		*/
 
 		if((backEnd.refdef.rdflags & RDF_HYPERSPACE))
 		{
@@ -7384,9 +7722,12 @@ static void RB_RenderView(void)
 		GL_CheckErrors();
 
 #if 1
-		// draw everything that is opaque
-		R_BindFBO(tr.deferredRenderFBO);
-		RB_RenderDrawSurfaces(qtrue, qfalse);
+		if(r_deferredShading->integer == DS_STANDARD)
+		{
+			// draw everything that is opaque
+			R_BindFBO(tr.deferredRenderFBO);
+			RB_RenderDrawSurfaces(qtrue, qfalse);
+		}
 #endif
 
 		RB_RenderDrawSurfacesIntoGeometricBuffer();
@@ -7395,23 +7736,43 @@ static void RB_RenderView(void)
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderLightOcclusionQueries();
 
-		if(!r_showDeferredRender->integer)
+		if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
 		{
+			/*
 			if(r_shadows->integer >= 4)
 			{
 				// render dynamic shadowing and lighting using shadow mapping
 				RB_RenderInteractionsDeferredShadowMapped();
 			}
 			else
+			*/
 			{
 				// render dynamic lighting
-				RB_RenderInteractionsDeferred();
+				RB_RenderInteractionsDeferredIntoLightBuffer();
 			}
-		}
 
-		// draw everything that is translucent
-		R_BindFBO(tr.deferredRenderFBO);
-		RB_RenderDrawSurfaces(qfalse, qfalse);
+			// render opaque surfaces using the light buffer results
+		}
+		else
+		{
+			if(!r_showDeferredRender->integer)
+			{
+				if(r_shadows->integer >= 4)
+				{
+					// render dynamic shadowing and lighting using shadow mapping
+					RB_RenderInteractionsDeferredShadowMapped();
+				}
+				else
+				{
+					// render dynamic lighting
+					RB_RenderInteractionsDeferred();
+				}
+			}
+
+			// draw everything that is translucent
+			R_BindFBO(tr.deferredRenderFBO);
+			RB_RenderDrawSurfaces(qfalse, qfalse);
+		}
 
 		// render global fog
 		R_BindFBO(tr.deferredRenderFBO);
@@ -7577,6 +7938,7 @@ static void RB_RenderView(void)
 
 		if(r_speeds->integer == 9)
 		{
+			qglFinish();
 			startTime = ri.Milliseconds();
 		}
 
@@ -7804,6 +8166,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	start = end = 0;
 	if(r_speeds->integer)
 	{
+		qglFinish();
 		start = ri.Milliseconds();
 	}
 
@@ -7870,6 +8233,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 
 	if(r_speeds->integer)
 	{
+		qglFinish();
 		end = ri.Milliseconds();
 		ri.Printf(PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start);
 	}

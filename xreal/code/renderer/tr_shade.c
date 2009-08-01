@@ -347,7 +347,11 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
 		   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_deferredShading\n#define r_deferredShading 1\n#endif\n");
+
+			if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_DeferredLighting\n#define r_DeferredLighting 1\n#endif\n");
+			}
 
 			if(glConfig.framebufferMixedFormatsAvailable)
 			{
@@ -2808,21 +2812,24 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 		}
 		GLSL_SetUniform_NormalTextureMatrix(&tr.geometricFillShader_DBS, tess.svars.texMatrices[TB_NORMALMAP]);
 
-		// bind u_SpecularMap
-		GL_SelectTexture(2);
-		if(r_forceSpecular->integer)
+		if(r_deferredShading->integer == DS_STANDARD)
 		{
-			GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+			// bind u_SpecularMap
+			GL_SelectTexture(2);
+			if(r_forceSpecular->integer)
+			{
+				GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+			}
+			else if(pStage->bundle[TB_SPECULARMAP].image[0])
+			{
+				GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+			}
+			else
+			{
+				GL_Bind(tr.blackImage);
+			}
+			GLSL_SetUniform_SpecularTextureMatrix(&tr.geometricFillShader_DBS, tess.svars.texMatrices[TB_SPECULARMAP]);
 		}
-		else if(pStage->bundle[TB_SPECULARMAP].image[0])
-		{
-			GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
-		}
-		else
-		{
-			GL_Bind(tr.blackImage);
-		}
-		GLSL_SetUniform_SpecularTextureMatrix(&tr.geometricFillShader_DBS, tess.svars.texMatrices[TB_SPECULARMAP]);
 	}
 
 	Tess_DrawElements();

@@ -36,7 +36,9 @@ varying vec4		var_Position;
 varying vec2		var_TexDiffuse;
 #if defined(r_NormalMapping)
 varying vec2		var_TexNormal;
+#if !defined(r_DeferredLighting)
 varying vec2		var_TexSpecular;
+#endif
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
 #endif
@@ -109,10 +111,15 @@ void	main()
 #endif
 		
 	vec2 texDiffuse = var_TexDiffuse.st;
+
 #if defined(r_NormalMapping)
 	vec2 texNormal = var_TexNormal.st;
+	
+#if !defined(r_DeferredLighting)
 	vec2 texSpecular = var_TexSpecular.st;
 #endif
+
+#endif // r_NormalMapping
 
 #if defined(r_ParallaxMapping)
 	if(bool(u_ParallaxMapping))
@@ -155,7 +162,8 @@ void	main()
 		texSpecular.st += texOffset;
 	}
 #endif
-		
+	
+#if 1 //!defined(r_DeferredLighting)
 	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
 	if(u_AlphaTest == ATEST_GT_0 && diffuse.a <= 0.0)
 	{
@@ -172,9 +180,10 @@ void	main()
 		discard;
 		return;
 	}
+#endif
 	
-	vec4 depthColor = diffuse;
-	depthColor.rgb *= u_AmbientColor;
+//	vec4 depthColor = diffuse;
+//	depthColor.rgb *= u_AmbientColor;
 	
 #if defined(r_NormalMapping)
 	// compute normal in tangent space from normalmap
@@ -188,7 +197,10 @@ void	main()
 	// transform normal into world space
 	N = tangentToWorldMatrix * N;
 	
+#if !defined(r_DeferredLighting)
 	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb;
+#endif
+	
 #else
 	vec3 N;
 	if(gl_FrontFacing)
@@ -200,11 +212,16 @@ void	main()
 	// convert normal back to [0,1] color space
 	N = N * 0.5 + 0.5;
 
+#if defined(r_DeferredLighting)
+	gl_FragColor = vec4(N, 0.0);
+#else
 	gl_FragData[0] = vec4(diffuse.rgb, 0.0);
 	gl_FragData[1] = vec4(N, 0.0);
 #if defined(r_NormalMapping)
 	gl_FragData[2] = vec4(specular, 0.0);
 #endif
+
+#endif // r_DeferredLighting
 }
 
 

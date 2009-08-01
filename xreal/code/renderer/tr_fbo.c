@@ -500,30 +500,41 @@ void R_InitFBOs(void)
 		tr.geometricRenderFBO = R_CreateFBO("_geometricRender", width, height);
 		R_BindFBO(tr.geometricRenderFBO);
 
-		if(r_normalMapping->integer)
+		if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
 		{
-			// enable all attachments as draw buffers
-			qglDrawBuffersARB(3, drawbuffers);
+			// only enable normal
+			//qglDrawBuffersARB(1, drawbuffers);
 
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 0);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 0);
-
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
-
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 2);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 2);
+			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 0);
 		}
 		else
 		{
-			// only enable diffuse + normal
-			qglDrawBuffersARB(2, drawbuffers);
+			if(r_normalMapping->integer)
+			{
+				// enable all attachments as draw buffers
+				qglDrawBuffersARB(3, drawbuffers);
 
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 0);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 0);
+				R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 0);
+				R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 0);
 
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
+				R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
+				R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
+
+				R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 2);
+				R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 2);
+			}
+			else
+			{
+				// only enable diffuse + normal
+				qglDrawBuffersARB(2, drawbuffers);
+
+				R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 0);
+				R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 0);
+
+				R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
+				R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
+			}
 		}
 
 		// share depth buffer
@@ -535,7 +546,6 @@ void R_InitFBOs(void)
 
 		qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
 									  tr.geometricRenderFBO->depthBuffer);
-
 
 		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
 		{
@@ -551,6 +561,18 @@ void R_InitFBOs(void)
 		}
 
 		R_CheckFBO(tr.geometricRenderFBO);
+
+
+		if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+		{
+			tr.lightRenderFBO = R_CreateFBO("_lightRender", width, height);
+			R_BindFBO(tr.lightRenderFBO);
+
+			R_CreateFBOColorBuffer(tr.lightRenderFBO, GL_RGBA, 0);
+			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.lightRenderFBOImage->texnum, 0);
+
+			R_CheckFBO(tr.lightRenderFBO);
+		}
 	}
 	else
 	{

@@ -42,7 +42,9 @@ varying vec4		var_Position;
 varying vec2		var_TexDiffuse;
 #if defined(r_NormalMapping)
 varying vec2		var_TexNormal;
+#if !defined(r_DeferredLighting)
 varying vec2		var_TexSpecular;
+#endif
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
 #endif
@@ -108,8 +110,11 @@ void	main()
 	// transform normalmap texcoords
 	var_TexNormal = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
+#if !defined(r_DeferredLighting)
 	// transform specularmap texture coords
 	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
 #endif
+
+#endif // r_NormalMapping
 }
 

@@ -210,6 +210,7 @@ cvar_t         *r_showDeferredNormal;
 cvar_t         *r_showDeferredSpecular;
 cvar_t         *r_showDeferredPosition;
 cvar_t         *r_showDeferredRender;
+cvar_t         *r_showDeferredLight;
 
 cvar_t         *r_vboFaces;
 cvar_t         *r_vboCurves;
@@ -1582,6 +1583,7 @@ void R_Register(void)
 	r_showDeferredSpecular = ri.Cvar_Get("r_showDeferredSpecular", "0", CVAR_CHEAT);
 	r_showDeferredPosition = ri.Cvar_Get("r_showDeferredPosition", "0", CVAR_CHEAT);
 	r_showDeferredRender = ri.Cvar_Get("r_showDeferredRender", "0", CVAR_CHEAT);
+	r_showDeferredLight = ri.Cvar_Get("r_showDeferredLight", "0", CVAR_CHEAT);
 
 	// make sure all the commands added here are also removed in R_Shutdown
 	ri.Cmd_AddCommand("imagelist", R_ImageList_f);

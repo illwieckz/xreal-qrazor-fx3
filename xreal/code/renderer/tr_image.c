@@ -2879,6 +2879,18 @@ static void R_CreateDeferredRenderFBOImages(void)
 		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
 
+	if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+	{
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		{
+			tr.lightRenderFBOImage = R_CreateImage("_lightRenderFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
+		}
+		else
+		{
+			tr.lightRenderFBOImage = R_CreateImage("_lightRenderFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
+		}
+	}
+
 	ri.Hunk_FreeTempMemory(data);
 }
 

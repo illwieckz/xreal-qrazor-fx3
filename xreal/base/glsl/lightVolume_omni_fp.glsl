@@ -62,8 +62,8 @@ void	main()
 #endif
 	
 	// compute incident ray in world space
-	//vec3 R = normalize(P.xyz - u_ViewOrigin);
-	vec3 R = normalize(u_ViewOrigin - P.xyz);
+	vec3 R = normalize(P.xyz - u_ViewOrigin);
+	//vec3 R = normalize(u_ViewOrigin - P.xyz);
 	
 	//float traceDistance = dot(P.xyz - (u_ViewOrigin.xyz + R * u_ZNear ), forward);
 	//traceDistance = clamp(traceDistance, 0.0, 2500.0 ); // Far trace distance
@@ -75,16 +75,17 @@ void	main()
 	
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 	
-	int steps = 40;
-	//float stepSize = u_LightRadius / float(steps);
+	//int steps = 40;
+	//float stepSize = traceDistance / float(steps);
 	
-	//int steps = int(min(traceDistance / length(forward), 2000));	// TODO r_MaxSteps
-	float stepSize = traceDistance / float(steps);
-	//float stepSize = 1.0;
+	int steps = int(min(traceDistance, 2000.0));	// TODO r_MaxSteps
+	float stepSize = 64.0;
 	
-	for(int i = 0; i < steps; i++)
+	for(float tracedDistance = 0.0; tracedDistance < traceDistance; tracedDistance += stepSize)
 	{
-		vec3 T = P.xyz + (R * stepSize * float(i));
+		//vec3 T = P.xyz + (R * stepSize * float(i));
+		//vec3 T = u_ViewOrigin + (R * stepSize * float(i));
+		vec3 T = u_ViewOrigin + (R * tracedDistance);
 	
 		// compute attenuation
 		vec3 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(T, 1.0)).xyz;
