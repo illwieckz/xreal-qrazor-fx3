@@ -14,7 +14,7 @@ case `uname -m` in
 		check_file;
 		;;
 	"i686")
-		BINARY='xmap2.x86'
+		BINARY='xmap2.i386'
 		check_file;
 		;;
 	"*")

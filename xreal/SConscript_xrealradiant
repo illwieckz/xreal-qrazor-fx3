@@ -521,7 +521,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] =
 	
 	if env['arch'] == 'linux-i386' or env['arch'] == 'freebsd-i386':
 		xrealradiant_env.Program('xrealradiant', xrealradiant_src)
-		xrealradiant_env.InstallAs('#xrealradiant/xrealradiant.x86', 'xrealradiant')
+		xrealradiant_env.InstallAs('#xrealradiant/xrealradiant.i386', 'xrealradiant')
 	elif env['arch'] == 'linux-x86_64':
 		xrealradiant_env.Program('xrealradiant', xrealradiant_src)
 		xrealradiant_env.InstallAs('#xrealradiant/xrealradiant.x86_64', 'xrealradiant')

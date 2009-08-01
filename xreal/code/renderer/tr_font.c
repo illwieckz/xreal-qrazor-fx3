@@ -118,14 +118,14 @@ FT_Bitmap      *R_RenderGlyph(FT_GlyphSlot glyph, glyphInfo_t * glyphOut)
 	{
 		size = pitch * height;
 
-		bit2 = Z_Malloc(sizeof(FT_Bitmap));
+		bit2 = ri.Malloc(sizeof(FT_Bitmap));
 
 		bit2->width = width;
 		bit2->rows = height;
 		bit2->pitch = pitch;
 		bit2->pixel_mode = ft_pixel_mode_grays;
 		//bit2->pixel_mode = ft_pixel_mode_mono;
-		bit2->buffer = Z_Malloc(pitch * height);
+		bit2->buffer = ri.Malloc(pitch * height);
 		bit2->num_grays = 256;
 
 		Com_Memset(bit2->buffer, 0, size);
@@ -180,8 +180,8 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 
 		if(calcHeight)
 		{
-			Z_Free(bitmap->buffer);
-			Z_Free(bitmap);
+			ri.Free(bitmap->buffer);
+			ri.Free(bitmap);
 			return &glyph;
 		}
 
@@ -207,8 +207,8 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 
 				*yOut = -1;
 				*xOut = -1;
-				Z_Free(bitmap->buffer);
-				Z_Free(bitmap);
+				ri.Free(bitmap->buffer);
+				ri.Free(bitmap);
 				return &glyph;
 			}
 			else
@@ -225,8 +225,8 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 
 			*yOut = -1;
 			*xOut = -1;
-			Z_Free(bitmap->buffer);
-			Z_Free(bitmap);
+			ri.Free(bitmap->buffer);
+			ri.Free(bitmap);
 			return &glyph;
 		}
 
@@ -290,8 +290,8 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 		*xOut += scaledWidth + 1;
 	}
 
-	Z_Free(bitmap->buffer);
-	Z_Free(bitmap);
+	ri.Free(bitmap->buffer);
+	ri.Free(bitmap);
 
 	return &glyph;
 }
@@ -450,10 +450,10 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 	// make a 256x256 image buffer, once it is full, register it, clean it and keep going
 	// until all glyphs are rendered
 
-	out = Z_Malloc(1024 * 1024);
+	out = ri.Malloc(1024 * 1024);
 	if(out == NULL)
 	{
-		ri.Printf(PRINT_ALL, "RE_RegisterFont: Z_Malloc failure during output image creation.\n");
+		ri.Printf(PRINT_ALL, "RE_RegisterFont: ri.Malloc failure during output image creation.\n");
 		return;
 	}
 	Com_Memset(out, 0, 1024 * 1024);
@@ -487,7 +487,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 			// we need to create an image from the bitmap, set all the handles in the glyphs to this point
 			scaledSize = FONT_SIZE * FONT_SIZE;
 			newSize = scaledSize * 4;
-			imageBuff = Z_Malloc(newSize);
+			imageBuff = ri.Malloc(newSize);
 			left = 0;
 			max = 0;
 			satLevels = 255;
@@ -525,7 +525,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 			Com_Memset(out, 0, 1024 * 1024);
 			xOut = 0;
 			yOut = 0;
-			Z_Free(imageBuff);
+			ri.Free(imageBuff);
 
 			if(i == GLYPH_END)
 			{
@@ -563,7 +563,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 		ri.FS_WriteFile(fileName, font, sizeof(fontInfo_t));
 	}
 
-	Z_Free(out);
+	ri.Free(out);
 
 	ri.FS_FreeFile(faceData);
 #endif

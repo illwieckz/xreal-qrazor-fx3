@@ -71,6 +71,8 @@ static cvar_t  *in_joystickDebug = NULL;
 static cvar_t  *in_joystickThreshold = NULL;
 static cvar_t  *in_joystickNo = NULL;
 
+static cvar_t  *in_fullscreen = NULL;
+
 #define CTRL(a) ((a)-'a'+1)
 
 /*
@@ -606,7 +608,7 @@ static void IN_ActivateMouse(void)
 	}
 
 	// in_nograb makes no sense in fullscreen mode
-	if(!r_fullscreen->integer)
+	if(!in_fullscreen->integer)
 	{
 		if(in_nograb->modified || !mouseActive)
 		{
@@ -634,7 +636,7 @@ static void IN_DeactivateMouse(void)
 
 	// Always show the cursor when the mouse is disabled,
 	// but not when fullscreen
-	if(!r_fullscreen->integer)
+	if(!in_fullscreen->integer)
 		SDL_ShowCursor(1);
 
 	if(!mouseAvailable)
@@ -668,8 +670,8 @@ static void IN_DeactivateMouse(void)
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
 
 		// Don't warp the mouse unless the cursor is within the window
-		if(SDL_GetAppState() & SDL_APPMOUSEFOCUS)
-			SDL_WarpMouse(glConfig.vidWidth / 2, glConfig.vidHeight / 2);
+		//if(SDL_GetAppState() & SDL_APPMOUSEFOCUS)
+		//	SDL_WarpMouse(glConfig.vidWidth / 2, glConfig.vidHeight / 2);
 
 		mouseActive = qfalse;
 	}
@@ -1100,12 +1102,12 @@ void IN_Frame(void)
 	// If not DISCONNECTED (main menu) or ACTIVE (in game), we're loading
 	loading = !!(cls.state != CA_DISCONNECTED && cls.state != CA_ACTIVE);
 
-	if(!r_fullscreen->integer && (Key_GetCatcher() & KEYCATCH_CONSOLE))
+	if(!in_fullscreen->integer && (Key_GetCatcher() & KEYCATCH_CONSOLE))
 	{
 		// Console is down in windowed mode
 		IN_DeactivateMouse();
 	}
-	else if(!r_fullscreen->integer && loading)
+	else if(!in_fullscreen->integer && loading)
 	{
 		// Loading in windowed mode
 		IN_DeactivateMouse();
@@ -1147,6 +1149,8 @@ void IN_Init(void)
 #ifdef MACOS_X_ACCELERATION_HACK
 	in_disablemacosxmouseaccel = Cvar_Get("in_disablemacosxmouseaccel", "1", CVAR_ARCHIVE);
 #endif
+
+	in_fullscreen = Cvar_Get("r_fullscreen", "", 0);
 
 	SDL_EnableUNICODE(1);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);

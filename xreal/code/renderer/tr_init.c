@@ -760,7 +760,7 @@ void R_TakeScreenshot(char *name, ssFormat_t format)
 	{
 		qtime_t         t;
 
-		Com_RealTime(&t);
+		ri.RealTime(&t);
 
 		// scan for a free filename
 		for(lastNumber = 0; lastNumber <= 999; lastNumber++)
@@ -933,6 +933,7 @@ static int QDECL MaterialNameCompare(const void *a, const void *b)
 	return 0;
 }
 
+/*
 static void R_GenerateMaterialFile_f(void)
 {
 	char          **dirnames;
@@ -955,12 +956,12 @@ static void R_GenerateMaterialFile_f(void)
 		return;
 	}
 
-	Q_strncpyz(path, Cmd_Argv(1), sizeof(path));
+	Q_strncpyz(path, ri.Cmd_Argv(1), sizeof(path));
 
-	Q_strncpyz(extension, Cmd_Argv(2), sizeof(extension));
+	Q_strncpyz(extension, ri.Cmd_Argv(2), sizeof(extension));
 	Q_strreplace(extension, sizeof(extension), ".", "");
 
-	Q_strncpyz(fileName, Cmd_Argv(1), sizeof(fileName));
+	Q_strncpyz(fileName, ri.Cmd_Argv(1), sizeof(fileName));
 	Com_DefaultExtension(fileName, sizeof(fileName), ".mtr");
 	Com_Printf("Writing %s.\n", fileName);
 	f = FS_FOpenFileWrite(fileName);
@@ -1034,10 +1035,11 @@ static void R_GenerateMaterialFile_f(void)
 			FS_Printf(f, "}\n\n");
 		}
 	}
-	FS_FreeFileList(dirnames);
+	ri.FS_FreeFileList(dirnames);
 
-	FS_FCloseFile(f);
+	ri.FS_FCloseFile(f);
 }
+*/
 
 //============================================================================
 
@@ -1599,7 +1601,7 @@ void R_Register(void)
 	ri.Cmd_AddCommand("screenshotJPEG", R_ScreenShotJPEG_f);
 	ri.Cmd_AddCommand("screenshotPNG", R_ScreenShotPNG_f);
 	ri.Cmd_AddCommand("gfxinfo", GfxInfo_f);
-	ri.Cmd_AddCommand("generatemtr", R_GenerateMaterialFile_f);
+//	ri.Cmd_AddCommand("generatemtr", R_GenerateMaterialFile_f);
 
 	ri.Cmd_AddCommand("glsl_restart", GLSL_restart_f);
 }
@@ -1869,4 +1871,29 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 	re.TakeVideoFrame = RE_TakeVideoFrame;
 
 	return &re;
+}
+
+// for q_shared.c
+void QDECL Com_Printf(const char *msg, ...)
+{
+	va_list         argptr;
+	char            text[1024];
+
+	va_start(argptr, msg);
+	Q_vsnprintf(text, sizeof(text), msg, argptr);
+	va_end(argptr);
+
+	ri.Printf(PRINT_ALL, "%s", text);
+}
+
+void QDECL Com_Error(int level, const char *error, ...)
+{
+	va_list         argptr;
+	char            text[1024];
+
+	va_start(argptr, error);
+	Q_vsnprintf(text, sizeof(text), error, argptr);
+	va_end(argptr);
+
+	ri.Error(level, "%s", text);
 }

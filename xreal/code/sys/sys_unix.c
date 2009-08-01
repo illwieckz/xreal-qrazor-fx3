@@ -508,17 +508,6 @@ void Sys_ErrorDialog(const char *error)
 	FS_FCloseFile(f);
 }
 
-/*
-==============
-Sys_GLimpInit
-
-Unix specific GL implementation initialisation
-==============
-*/
-void Sys_GLimpInit(void)
-{
-	// NOP
-}
 
 /*
 ==============

@@ -57,86 +57,6 @@ xreal_src = [
 'code/server/sv_net_chan.c',
 'code/server/sv_snapshot.c',
 'code/server/sv_world.c',
-'code/jpeg-6/jcapimin.c',
-'code/jpeg-6/jchuff.c',
-'code/jpeg-6/jcinit.c',
-'code/jpeg-6/jccoefct.c',
-'code/jpeg-6/jccolor.c',
-'code/jpeg-6/jfdctflt.c',
-'code/jpeg-6/jcdctmgr.c',
-'code/jpeg-6/jcphuff.c',
-'code/jpeg-6/jcmainct.c',
-'code/jpeg-6/jcmarker.c',
-'code/jpeg-6/jcmaster.c',
-'code/jpeg-6/jcomapi.c',
-'code/jpeg-6/jcparam.c',
-'code/jpeg-6/jcprepct.c',
-'code/jpeg-6/jcsample.c',
-'code/jpeg-6/jdapimin.c',
-'code/jpeg-6/jdapistd.c',
-'code/jpeg-6/jdatasrc.c',
-'code/jpeg-6/jdcoefct.c',
-'code/jpeg-6/jdcolor.c',
-'code/jpeg-6/jddctmgr.c',
-'code/jpeg-6/jdhuff.c',
-'code/jpeg-6/jdinput.c',
-'code/jpeg-6/jdmainct.c',
-'code/jpeg-6/jdmarker.c',
-'code/jpeg-6/jdmaster.c',
-'code/jpeg-6/jdpostct.c',
-'code/jpeg-6/jdsample.c',
-'code/jpeg-6/jdtrans.c',
-'code/jpeg-6/jerror.c',
-'code/jpeg-6/jidctflt.c',
-'code/jpeg-6/jmemmgr.c',
-'code/jpeg-6/jmemnobs.c',
-'code/jpeg-6/jutils.c',
-'code/png/png.c',
-'code/png/pngset.c',
-'code/png/pngget.c',
-'code/png/pngrutil.c',
-'code/png/pngtrans.c',
-'code/png/pngwutil.c',
-'code/png/pngread.c',
-'code/png/pngrio.c',
-'code/png/pngwio.c',
-'code/png/pngwrite.c',
-'code/png/pngrtran.c',
-'code/png/pngwtran.c',
-'code/png/pngmem.c',
-'code/png/pngerror.c',
-'code/png/pngpread.c',
-'code/renderer/qgl.c',
-'code/renderer/tr_animation.c',
-'code/renderer/tr_backend.c',
-'code/renderer/tr_bsp.c',
-'code/renderer/tr_cmds.c',
-'code/renderer/tr_curve.c',
-'code/renderer/tr_fbo.c',
-'code/renderer/tr_flares.c',
-'code/renderer/tr_font.c',
-'code/renderer/tr_image.c',
-'code/renderer/tr_image_exr.cpp',
-'code/renderer/tr_image_dds.c',
-'code/renderer/tr_image_jpg.c',
-'code/renderer/tr_image_png.c',
-'code/renderer/tr_image_tga.c',
-'code/renderer/tr_init.c',
-'code/renderer/tr_light.c',
-'code/renderer/tr_main.c',
-'code/renderer/tr_marks.c',
-'code/renderer/tr_mesh.c',
-'code/renderer/tr_model.c',
-'code/renderer/tr_noise.c',
-'code/renderer/tr_scene.c',
-'code/renderer/tr_shade.c',
-'code/renderer/tr_shade_calc.c',
-'code/renderer/tr_shader.c',
-'code/renderer/tr_shadows.c',
-'code/renderer/tr_sky.c',
-'code/renderer/tr_surface.c',
-'code/renderer/tr_vbo.c',
-'code/renderer/tr_world.c',
 'code/zlib/adler32.c',
 'code/zlib/compress.c',
 'code/zlib/crc32.c',
@@ -226,7 +146,6 @@ xreal_src = [
 'code/theora/lib/dec/internal.c',
 'code/theora/lib/dec/quant.c',
 'code/theora/lib/dec/state.c',
-'code/openexr/half.cpp'
 ]
 
 theora_decoder_x86_32_src = [
@@ -248,8 +167,6 @@ unix_src = [
 'code/sys/sys_unix.c',
 'code/sys/con_log.c',
 'code/sys/con_passive.c',
-'code/sys/sdl_gamma.c',
-'code/sys/sdl_glimp.c',
 'code/sys/sdl_input.c',
 'code/sys/sdl_snd.c'
 ]
@@ -301,31 +218,25 @@ elif env['curl'] == 'dlopen':
 #if env['openal'] == 1:
 xreal_env.Append(CCFLAGS='-DUSE_OPENAL')
 if env['arch'] != 'darwin-ppc' and env['arch'] != 'darwin-i386':
-        xreal_env.Append(LIBS=['openal'])
+	xreal_env.Append(LIBS=['openal'])
 
 
 
 if env['arch'] == 'linux-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
-	xreal_env.Append(LIBS=['dl', 'm', 'GL'])
-	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
-	xreal_env.ParseConfig('freetype-config --cflags --libs')
-	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	xreal_env.Append(LIBS=['dl', 'm'])
 
 	if env['smp'] == 1:
 		xreal_env.Append(CCFLAGS='-DSMP')
 		xreal_env.Append(LIBS=['pthread'])
 		
 	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])	
-	xreal_env.InstallAs('#xreal.x86', 'xreal')
+	xreal_env.InstallAs('#xreal.i386', 'xreal')
 
 elif env['arch'] == 'linux-x86_64':
 	xreal_env.Append(CCFLAGS='-DC_ONLY')
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
-	xreal_env.Append(LIBS=['dl', 'm', 'GL'])
-	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
-	xreal_env.ParseConfig('freetype-config --cflags --libs')
-	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	xreal_env.Append(LIBS=['dl', 'm'])
 	
 	if env['smp'] == 1:
 		xreal_env.Append(CCFLAGS='-DSMP')
@@ -336,32 +247,19 @@ elif env['arch'] == 'linux-x86_64':
 
 elif env['arch'] == 'freebsd-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
-	xreal_env.Append(LIBS=['m', 'GL'])
-	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
-	xreal_env.ParseConfig('freetype-config --cflags --libs')
-	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	xreal_env.Append(LIBS=['m'])
 
 	if env['smp'] == 1:
 		xreal_env.Append(CCFLAGS='-DSMP')
 		xreal_env.Append(LIBS=['pthread'])
 	
 	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])	
-	xreal_env.InstallAs('#xreal.x86', 'xreal')
-
-elif env['arch'] == 'win32-mingw':
-	xreal_env.Append(CCFLAGS='-DC_ONLY')
-	xreal_env.ParseConfig('sdl-config --cflags --libs')
-	xreal_env.ParseConfig('pkg-config freetype2 --cflags --libs')
-	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
-
-	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm'])
-	xreal_env.Program('xreal', [xreal_src, win_src, theora_decoder_x86_32_src])
-	xreal_env.Install('#', 'xreal.exe')
+	xreal_env.InstallAs('#xreal.i386', 'xreal')
 
 elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
 	xreal_env.Append(LIBS=['m'])
-	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE -DMACOS_X')
+	xreal_env.Append(CCFLAGS='-DMACOS_X')
 	
 	# HACK: for now disable altivec because there are some compiling issues
 	if env['arch'] == 'darwin-ppc':
@@ -369,15 +267,11 @@ elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
 
 	xreal_env.ParseConfig('freetype-config --cflags --libs')
 	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
-	xreal_env.Append(LINKFLAGS= ['-framework', 'IOKit', '-framework', 'OpenAL', '-framework', 'OpenGL'])
-
-	if env['smp'] == 1:
-		xreal_env.Append(CCFLAGS='-DSMP')
-		xreal_env.Append(LIBS=['pthread'])
+	xreal_env.Append(LINKFLAGS= ['-framework', 'IOKit', '-framework', 'OpenAL', '-framework'])
 	
 	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])
 	if env['arch'] == 'darwin-ppc':
 		xreal_env.InstallAs('#xreal.ppc', 'xreal')
 	elif env['arch'] == 'darwin-i386':
-		xreal_env.InstallAs('#xreal.x86', 'xreal')
+		xreal_env.InstallAs('#xreal.i386', 'xreal')
 		

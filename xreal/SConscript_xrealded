@@ -78,7 +78,7 @@ if env['compatq3a'] == 1:
 if env['arch'] == 'linux-i386':
 	xrealded_env.Append(LIBS=['dl', 'm'])
 	xrealded_env.Program('xrealded', [xrealded_src, unix_src])
-	xrealded_env.InstallAs('#xrealded.x86', 'xrealded')
+	xrealded_env.InstallAs('#xrealded.i386', 'xrealded')
 	
 elif env['arch'] == 'linux-x86_64':
 	xrealded_env.Append(CCFLAGS='-DC_ONLY')
@@ -89,4 +89,4 @@ elif env['arch'] == 'linux-x86_64':
 elif env['arch'] == 'netbsd-i386':
 	xrealded_env.Append(LIBS=['m'])
 	xrealded_env.Program('xrealded', [xrealded_src, unix_src])
-	xrealded_env.InstallAs('#xrealded.x86', 'xrealded')
+	xrealded_env.InstallAs('#xrealded.i386', 'xrealded')

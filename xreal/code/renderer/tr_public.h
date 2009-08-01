@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_types.h"
 
-#define	REF_API_VERSION		13
+#define	REF_API_VERSION		14
 
 // *INDENT-OFF*
 
@@ -128,6 +128,8 @@ typedef struct
 	// for anything game related.  Get time from the refdef
 	int             (*Milliseconds) (void);
 
+	int             (*RealTime) (qtime_t * qtime);
+
 	// stack based memory allocation for per-level things that
 	// won't be freed
 #ifdef HUNK_DEBUG
@@ -146,6 +148,8 @@ typedef struct
 	void            (*Cvar_Set) (const char *name, const char *value);
 	void            (*Cvar_CheckRange) (cvar_t * cv, float minVal, float maxVal, qboolean shouldBeIntegral);
 
+	int             (*Cvar_VariableIntegerValue) (const char *var_name);
+
 	void            (*Cmd_AddCommand) (const char *name, void (*cmd) (void));
 	void            (*Cmd_RemoveCommand) (const char *name);
 
@@ -155,6 +159,7 @@ typedef struct
 	void            (*Cmd_ExecuteText) (int exec_when, const char *text);
 
 	// visualization for debugging collision detection
+	byte           *(*CM_ClusterPVS)(int cluster);
 	void            (*CM_DrawDebugSurface) (void (*drawPoly) (int color, int numPoints, float *points));
 
 	// a -1 return means the file does not exist
@@ -173,12 +178,19 @@ typedef struct
 	                e_status(*CIN_RunCinematic) (int handle);
 
 	void            (*CL_WriteAVIVideoFrame) (const byte * buffer, int size);
+
+	// input event handling
+	void            (*IN_Init)(void);
+	void            (*IN_Shutdown)(void);
+	void            (*IN_Restart)(void);
+
+
 } refimport_t;
 
 
 // this is the only function actually exported at the linker level
 // If the module can't init to a valid rendering state, NULL will be
 // returned.
-refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp);
+//refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp);
 
 #endif							// __TR_PUBLIC_H

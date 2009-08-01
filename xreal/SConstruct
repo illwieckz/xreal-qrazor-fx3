@@ -119,6 +119,7 @@ if env['dedicated'] == 1:
 		SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 else:
 	SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
+	SConscript('SConscript_rendererGL', build_dir='build/rendererGL', duplicate=0)
 	SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
 
 	if env['java'] == 0:

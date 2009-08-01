@@ -13,7 +13,7 @@ xrealmaster_env = env.Clone()
 if env['arch'] == 'linux-i386':
 	xrealmaster_env.Append(LIBS=['m'])
 	xrealmaster_env.Program('xrealmaster', xrealmaster_src)
-	xrealmaster_env.InstallAs('#xrealmaster.x86', 'xrealmaster')
+	xrealmaster_env.InstallAs('#xrealmaster.i386', 'xrealmaster')
 	
 elif env['arch'] == 'linux-x86_64':
 	xrealmaster_env.Append(LIBS=['m'])
@@ -23,12 +23,12 @@ elif env['arch'] == 'linux-x86_64':
 elif env['arch'] == 'netbsd-i386':
 	xrealmaster_env.Append(LIBS=['m'])
 	xrealmaster_env.Program('xrealmaster', xrealmaster_src)
-	xrealmaster_env.InstallAs('#xrealmaster.x86', 'xrealmaster')
+	xrealmaster_env.InstallAs('#xrealmaster.i386', 'xrealmaster')
 
 elif env['arch'] == 'freebsd-i386':
 	xrealmaster_env.Append(LIBS=['m'])
 	xrealmaster_env.Program('xrealmaster', xrealmaster_src)
-	xrealmaster_env.InstallAs('#xrealmaster.x86', 'xrealmaster')
+	xrealmaster_env.InstallAs('#xrealmaster.i386', 'xrealmaster')
 
 elif env['arch'] == 'win32-mingw':
 	xrealmaster_env.Append(LIBS=['m', 'wsock32'])

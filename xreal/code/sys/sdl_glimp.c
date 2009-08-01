@@ -427,7 +427,7 @@ GLimp_Shutdown
 */
 void GLimp_Shutdown(void)
 {
-	IN_Shutdown();
+	ri.IN_Shutdown();
 
 	QGL_Shutdown();
 
@@ -804,10 +804,10 @@ static qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen)
 
 		SDL_VideoDriverName(driverName, sizeof(driverName) - 1);
 		ri.Printf(PRINT_ALL, "SDL using driver \"%s\"\n", driverName);
-		Cvar_Set("r_sdlDriver", driverName);
+		ri.Cvar_Set("r_sdlDriver", driverName);
 	}
 
-	if(fullscreen && Cvar_VariableIntegerValue("in_nograb"))
+	if(fullscreen && ri.Cvar_VariableIntegerValue("in_nograb"))
 	{
 		ri.Printf(PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
 		ri.Cvar_Set("r_fullscreen", "0");
@@ -1543,7 +1543,26 @@ void GLimp_Init(void)
 
 	r_sdlDriver = ri.Cvar_Get("r_sdlDriver", "", CVAR_ROM);
 
-	Sys_GLimpInit();
+	// the horror, FIXME !!!
+#if 0 //defined(WIN32)
+	if(!SDL_VIDEODRIVER_externallySet)
+	{
+		// It's a little bit weird having in_mouse control the
+		// video driver, but from ioq3's point of view they're
+		// virtually the same except for the mouse input anyway
+		if(ri.Cvar_VariableIntegerValue("in_mouse") == -1)
+		{
+			// Use the windib SDL backend, which is closest to
+			// the behaviour of idq3 with in_mouse set to -1
+			_putenv("SDL_VIDEODRIVER=windib");
+		}
+		else
+		{
+			// Use the DirectX SDL backend
+			_putenv("SDL_VIDEODRIVER=directx");
+		}
+	}
+#endif
 
 	// create the window and set up the context
 	if(!GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer))
@@ -1626,7 +1645,7 @@ void GLimp_Init(void)
 	ri.Cvar_Get("r_availableModes", "", CVAR_ROM);
 
 	// This depends on SDL_INIT_VIDEO, hence having it here
-	IN_Init();
+	ri.IN_Init();
 }
 
 
@@ -1657,7 +1676,7 @@ void GLimp_EndFrame(void)
 			// Find out the current state
 			fullscreen = !!(s->flags & SDL_FULLSCREEN);
 
-			if(r_fullscreen->integer && Cvar_VariableIntegerValue("in_nograb"))
+			if(r_fullscreen->integer && ri.Cvar_VariableIntegerValue("in_nograb"))
 			{
 				ri.Printf(PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
 				ri.Cvar_Set("r_fullscreen", "0");
@@ -1675,9 +1694,9 @@ void GLimp_EndFrame(void)
 		{
 			// SDL_WM_ToggleFullScreen didn't work, so do it the slow way
 			if(!sdlToggled)
-				Cbuf_AddText("vid_restart");
+				ri.Cmd_ExecuteText(EXEC_APPEND, "vid_restart");
 
-			IN_Restart();
+			ri.IN_Restart();
 		}
 
 		r_fullscreen->modified = qfalse;

@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 #include <limits.h>
 
+#include "../sys/sys_loadlib.h"
+
 #ifdef USE_MUMBLE
 #include "libmumblelink.h"
 #endif
@@ -3042,20 +3044,7 @@ void QDECL CL_RefPrintf(int print_level, const char *fmt, ...)
 
 
 
-/*
-============
-CL_ShutdownRef
-============
-*/
-void CL_ShutdownRef(void)
-{
-	if(!re.Shutdown)
-	{
-		return;
-	}
-	re.Shutdown(qtrue);
-	Com_Memset(&re, 0, sizeof(re));
-}
+
 
 /*
 ============
@@ -3149,6 +3138,17 @@ int CL_ScaledMilliseconds(void)
 	return Sys_Milliseconds() * com_timescale->value;
 }
 
+
+static cvar_t  *cl_renderer = NULL;
+static void    *rendererLib = NULL;
+
+refexport_t* (*DGetRefAPI)(int apiVersion, refimport_t * rimp) = NULL;
+
+// Input subsystem
+extern void            IN_Init(void);
+extern void            IN_Shutdown(void);
+extern void            IN_Restart(void);
+
 /*
 ============
 CL_InitRef
@@ -3158,19 +3158,55 @@ void CL_InitRef(void)
 {
 	refimport_t     ri;
 	refexport_t    *ret;
+	char            dllName[MAX_OSPATH];
 
 	Com_Printf("----- Initializing Renderer ----\n");
+
+	cl_renderer = Cvar_Get("cl_renderer", "GL", CVAR_ARCHIVE);
+
+	Q_snprintf(dllName, sizeof(dllName), "renderer%s" ARCH_STRING DLL_EXT, cl_renderer->string);
+
+	Com_Printf("Loading \"%s\"...", dllName);
+	if((rendererLib = Sys_LoadLibrary(dllName)) == 0)
+	{
+#ifdef _WIN32
+		Com_Printf("failed:\n\"%s\"\n", Sys_LibraryError());
+#else
+		char            fn[1024];
+
+		Q_strncpyz(fn, Sys_Cwd(), sizeof(fn));
+		strncat(fn, "/", sizeof(fn) - strlen(fn) - 1);
+		strncat(fn, dllName, sizeof(fn) - strlen(fn) - 1);
+
+		Com_Printf("Loading \"%s\"...", fn);
+		if((rendererLib = Sys_LoadLibrary(fn)) == 0)
+		{
+			Com_Error(ERR_FATAL, "failed:\n\"%s\"", Sys_LibraryError());
+		}
+#endif	/* _WIN32 */
+	}
+
+	DGetRefAPI = Sys_LoadFunction(rendererLib, "GetRefAPI");
+	if(!DGetRefAPI)
+	{
+		Com_Error(ERR_FATAL, "Can't load symbol GetRefAPI");
+	}
 
 	ri.Cmd_AddCommand = Cmd_AddCommand;
 	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
 	ri.Cmd_Argc = Cmd_Argc;
 	ri.Cmd_Argv = Cmd_Argv;
 	ri.Cmd_ExecuteText = Cbuf_ExecuteText;
+
 	ri.Printf = CL_RefPrintf;
 	ri.Error = Com_Error;
+
 	ri.Milliseconds = CL_ScaledMilliseconds;
+	ri.RealTime = Com_RealTime;
+
 	ri.Malloc = CL_RefMalloc;
 	ri.Free = Z_Free;
+
 #ifdef HUNK_DEBUG
 	ri.Hunk_AllocDebug = Hunk_AllocDebug;
 #else
@@ -3178,7 +3214,10 @@ void CL_InitRef(void)
 #endif
 	ri.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
 	ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
+
+	ri.CM_ClusterPVS = CM_ClusterPVS;
 	ri.CM_DrawDebugSurface = CM_DrawDebugSurface;
+
 	ri.FS_ReadFile = FS_ReadFile;
 	ri.FS_FreeFile = FS_FreeFile;
 	ri.FS_WriteFile = FS_WriteFile;
@@ -3186,9 +3225,11 @@ void CL_InitRef(void)
 	ri.FS_ListFiles = FS_ListFiles;
 	ri.FS_FileIsInPAK = FS_FileIsInPAK;
 	ri.FS_FileExists = FS_FileExists;
+
 	ri.Cvar_Get = Cvar_Get;
 	ri.Cvar_Set = Cvar_Set;
 	ri.Cvar_CheckRange = Cvar_CheckRange;
+	ri.Cvar_VariableIntegerValue = Cvar_VariableIntegerValue;
 
 	// cinematic stuff
 
@@ -3198,11 +3239,11 @@ void CL_InitRef(void)
 
 	ri.CL_WriteAVIVideoFrame = CL_WriteAVIVideoFrame;
 
-	ret = GetRefAPI(REF_API_VERSION, &ri);
+	ri.IN_Init = IN_Init;
+	ri.IN_Shutdown = IN_Shutdown;
+	ri.IN_Restart = IN_Restart;
 
-#if defined __USEA3D && defined __A3D_GEOM
-	hA3Dg_ExportRenderGeom(ret);
-#endif
+	ret = DGetRefAPI(REF_API_VERSION, &ri);
 
 	Com_Printf("-------------------------------\n");
 
@@ -3217,6 +3258,27 @@ void CL_InitRef(void)
 	Cvar_Set("cl_paused", "0");
 }
 
+
+/*
+============
+CL_ShutdownRef
+============
+*/
+void CL_ShutdownRef(void)
+{
+	if(!re.Shutdown)
+	{
+		return;
+	}
+	re.Shutdown(qtrue);
+	Com_Memset(&re, 0, sizeof(re));
+
+	if(rendererLib)
+	{
+		Sys_UnloadLibrary(rendererLib);
+		rendererLib = NULL;
+	}
+}
 
 //===========================================================================================
 

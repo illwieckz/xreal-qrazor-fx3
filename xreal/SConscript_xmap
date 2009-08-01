@@ -133,7 +133,7 @@ if env['arch'] == 'linux-i386':
 	xmap_env.ParseConfig('sdl-config --cflags --libs')
 	xmap_env.Append(LIBS=['m', 'pthread', 'GL', 'GLU'])
 	xmap_env.Program('xmap', xmap_src)
-	xmap_env.InstallAs('#xmap.x86', 'xmap')
+	xmap_env.InstallAs('#xmap.i386', 'xmap')
 	
 elif env['arch'] == 'linux-x86_64':
 	xmap_src += ['code/xmap/gldraw.c']
@@ -153,7 +153,7 @@ if env['arch'] == 'freebsd-i386':
 	xmap_env.ParseConfig('sdl-config --cflags --libs')
 	xmap_env.Append(LIBS=['m', 'pthread', 'GL', 'GLU'])
 	xmap_env.Program('xmap', xmap_src)
-	xmap_env.InstallAs('#xmap.x86', 'xmap')
+	xmap_env.InstallAs('#xmap.i386', 'xmap')
 	
 elif env['arch'] == 'win32-mingw':
 	xmap_src += ['code/xmap/nodraw.c']
