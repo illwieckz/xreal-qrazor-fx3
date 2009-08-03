@@ -555,7 +555,9 @@ int main(int argc, char **argv)
 
 	CON_Init();
 
-#if !defined(USE_JAVA)
+	// Tr3B: don't set the signal handlers
+	// as it effectively breaks all debugging features
+#if 0//!defined(USE_JAVA)
 	signal(SIGILL, Sys_SigHandler);
 	signal(SIGFPE, Sys_SigHandler);
 	signal(SIGSEGV, Sys_SigHandler);
