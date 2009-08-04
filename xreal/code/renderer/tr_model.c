@@ -482,6 +482,9 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 	}
 
 	// build static VBO surfaces
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(r_vboModels->integer && forceStatic)
 	{
 		int             vertexesNum;
@@ -831,7 +834,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 				}
 
 				vboSurf->vbo =
-					R_CreateVBO(va("staticMD3Mesh_VBO %i", vboSurfaces.currentElements), data, dataSize, GL_STATIC_DRAW_ARB);
+					R_CreateVBO(va("staticMD3Mesh_VBO %i", vboSurfaces.currentElements), data, dataSize, VBO_USAGE_STATIC);
 				vboSurf->vbo->ofsXYZ = 0;
 				vboSurf->vbo->ofsTexCoords = ofsTexCoords;
 				vboSurf->vbo->ofsLightCoords = ofsTexCoords;
@@ -844,7 +847,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 
 				vboSurf->ibo =
 					R_CreateIBO(va("staticMD3Mesh_IBO %i", vboSurfaces.currentElements), indexes, indexesSize,
-								GL_STATIC_DRAW_ARB);
+								VBO_USAGE_STATIC);
 
 				ri.Hunk_FreeTempMemory(indexes);
 				ri.Hunk_FreeTempMemory(data);
@@ -875,6 +878,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 
 		//ri.Printf(PRINT_ALL, "%i MD3 VBO surfaces created\n", mdxModel->numVBOSurfaces);
 	}
+#endif // defined(USE_D3D10)
 
 	return qtrue;
 }
@@ -1065,6 +1069,9 @@ static qboolean AddTriangleToVBOTriangleList(growList_t * vboTriangles, skelTria
 
 static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * vboTriangles, md5Model_t * md5, md5Surface_t * surf, int skinIndex, int numBoneReferences, int boneReferences[MAX_BONES])
 {
+#if defined(USE_D3D10)
+	// TODO
+#else
 	int				j, k;
 
 	int             vertexesNum;
@@ -1256,7 +1263,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 		dataOfs += sizeof(vec4_t);
 	}
 
-	vboSurf->vbo = R_CreateVBO(va("staticMD5Mesh_VBO %i", vboSurfaces->currentElements), data, dataSize, GL_STATIC_DRAW_ARB);
+	vboSurf->vbo = R_CreateVBO(va("staticMD5Mesh_VBO %i", vboSurfaces->currentElements), data, dataSize, VBO_USAGE_STATIC);
 	vboSurf->vbo->ofsXYZ = 0;
 	vboSurf->vbo->ofsTexCoords = ofsTexCoords;
 	vboSurf->vbo->ofsLightCoords = ofsTexCoords;
@@ -1269,7 +1276,7 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 	vboSurf->vbo->ofsBoneIndexes = ofsBoneIndexes;
 	vboSurf->vbo->ofsBoneWeights = ofsBoneWeights;
 
-	vboSurf->ibo = R_CreateIBO(va("staticMD5Mesh_IBO %i", vboSurfaces->currentElements), indexes, indexesSize, GL_STATIC_DRAW_ARB);
+	vboSurf->ibo = R_CreateIBO(va("staticMD5Mesh_IBO %i", vboSurfaces->currentElements), indexes, indexesSize, VBO_USAGE_STATIC);
 
 	ri.Hunk_FreeTempMemory(indexes);
 	ri.Hunk_FreeTempMemory(data);
@@ -1281,10 +1288,14 @@ static void AddSurfaceToVBOSurfacesList(growList_t * vboSurfaces, growList_t * v
 	   ri.Printf(PRINT_ALL, "md5 mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
 	   (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
 	 */
+#endif // defined(USE_D3D10)
 }
 
 static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * vboTriangles, growList_t * vboVertexes, md5Model_t * md5, int skinIndex, const char *materialName, int numBoneReferences, int boneReferences[MAX_BONES])
 {
+#if defined(USE_D3D10)
+	// TODO
+#else
 	int				j, k;
 
 	int             vertexesNum;
@@ -1505,7 +1516,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 		dataOfs += sizeof(vec4_t);
 	}
 
-	vboSurf->vbo = R_CreateVBO(va("staticMD5Mesh_VBO %i", vboSurfaces->currentElements), data, dataSize, GL_STATIC_DRAW_ARB);
+	vboSurf->vbo = R_CreateVBO(va("staticMD5Mesh_VBO %i", vboSurfaces->currentElements), data, dataSize, VBO_USAGE_STATIC);
 	vboSurf->vbo->ofsXYZ = 0;
 	vboSurf->vbo->ofsTexCoords = ofsTexCoords;
 	vboSurf->vbo->ofsLightCoords = ofsTexCoords;
@@ -1518,7 +1529,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 	vboSurf->vbo->ofsBoneIndexes = ofsBoneIndexes;
 	vboSurf->vbo->ofsBoneWeights = ofsBoneWeights;
 
-	vboSurf->ibo = R_CreateIBO(va("staticMD5Mesh_IBO %i", vboSurfaces->currentElements), indexes, indexesSize, GL_STATIC_DRAW_ARB);
+	vboSurf->ibo = R_CreateIBO(va("staticMD5Mesh_IBO %i", vboSurfaces->currentElements), indexes, indexesSize, VBO_USAGE_STATIC);
 
 	ri.Hunk_FreeTempMemory(indexes);
 	ri.Hunk_FreeTempMemory(data);
@@ -1532,6 +1543,7 @@ static void AddSurfaceToVBOSurfacesList2(growList_t * vboSurfaces, growList_t * 
 	 */
 
 	ri.Printf(PRINT_ALL, "created VBO surface %i with %i vertices and %i triangles\n", vboSurfaces->currentElements, vboSurf->numVerts, vboSurf->numIndexes / 3);
+#endif
 }
 
 /*
@@ -3063,7 +3075,12 @@ void RE_BeginRegistration(glConfig_t * glconfigOut)
 	tr.visIndex = 0;
 	memset(tr.visClusters, -2, sizeof(tr.visClusters));	// force markleafs to regenerate
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	R_ClearFlares();
+#endif
+
 	RE_ClearScene();
 
 	// HACK: give world entity white color for "colored" shader keyword

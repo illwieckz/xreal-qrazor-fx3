@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -24,13 +24,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 
-
-
 static byte     s_intensitytable[256];
 static unsigned char s_gammatable[256];
 
+#if !defined(USE_D3D10)
 int             gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int             gl_filter_max = GL_LINEAR;
+#endif
 
 #define FILE_HASH_SIZE		(1024 * 2)
 static image_t *hashTable[FILE_HASH_SIZE];
@@ -48,6 +48,8 @@ void R_GammaCorrect(byte * buffer, int bufSize)
 	}
 }
 
+
+#if !defined(USE_D3D10)
 typedef struct
 {
 	char           *name;
@@ -62,6 +64,7 @@ textureMode_t   modes[] = {
 	{"GL_NEAREST_MIPMAP_LINEAR", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST},
 	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR}
 };
+#endif
 
 
 /*
@@ -101,6 +104,7 @@ static long generateHashValue(const char *fname)
 GL_TextureMode
 ===============
 */
+#if !defined(USE_D3D10)
 void GL_TextureMode(const char *string)
 {
 	int             i;
@@ -155,6 +159,7 @@ void GL_TextureMode(const char *string)
 		}
 	}
 }
+#endif // defined(USE_D3D10)
 
 /*
 ===============
@@ -209,6 +214,10 @@ void R_ImageList_f(void)
 		ri.Printf(PRINT_ALL, "%4i: %4i %4i  %s   ",
 				  i, image->uploadWidth, image->uploadHeight, yesno[image->filterType == FT_DEFAULT]);
 
+
+#if defined(USE_D3D10)
+		// TODO
+#else
 		switch (image->type)
 		{
 			case GL_TEXTURE_2D:
@@ -333,6 +342,7 @@ void R_ImageList_f(void)
 				imageDataSize *= 4;
 				break;
 		}
+#endif
 
 		switch (image->wrapType)
 		{
@@ -1042,6 +1052,9 @@ R_UploadImage
 */
 void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 {
+#if defined(USE_D3D10)
+	// TODO
+#else
 	const byte     *data = dataArray[0];
 	byte           *scaledBuffer = NULL;
 	int             scaledWidth, scaledHeight;
@@ -1453,6 +1466,7 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 
 	if(scaledBuffer != 0)
 		ri.Hunk_FreeTempMemory(scaledBuffer);
+#endif // defined(USE_D3D10)
 }
 
 
@@ -1475,17 +1489,14 @@ image_t        *R_AllocImage(const char *name, qboolean linkIntoHashTable)
 		return NULL;
 	}
 
-	/*
-	if(tr.numImages == MAX_DRAWIMAGES)
-	{
-		ri.Error(ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n");
-		return NULL;
-	}
-	*/
-
 	image = ri.Hunk_Alloc(sizeof(image_t), h_low);
 	Com_Memset(image, 0, sizeof(image_t));
+
+#if defined(USE_D3D10)
+	// TODO
+#else
 	qglGenTextures(1, &image->texnum);
+#endif
 
 	Com_AddToGrowList(&tr.images, image);
 
@@ -1517,7 +1528,11 @@ image_t        *R_CreateImage(const char *name,
 	if(!image)
 		return NULL;
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	image->type = GL_TEXTURE_2D;
+#endif
 
 	image->width = width;
 	image->height = height;
@@ -1526,12 +1541,20 @@ image_t        *R_CreateImage(const char *name,
 	image->filterType = filterType;
 	image->wrapType = wrapType;
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	GL_Bind(image);
+#endif
 
 	R_UploadImage(&pic, 1, image);
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	//GL_Unbind();
 	qglBindTexture(image->type, 0);
+#endif
 
 	return image;
 }
@@ -1551,7 +1574,11 @@ image_t        *R_CreateCubeImage(const char *name,
 	if(!image)
 		return NULL;
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	image->type = GL_TEXTURE_CUBE_MAP_ARB;
+#endif
 
 	image->width = width;
 	image->height = height;
@@ -1560,11 +1587,19 @@ image_t        *R_CreateCubeImage(const char *name,
 	image->filterType = filterType;
 	image->wrapType = wrapType;
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	GL_Bind(image);
+#endif
 
 	R_UploadImage(pic, 6, image);
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	qglBindTexture(image->type, 0);
+#endif
 
 	return image;
 }
@@ -2087,6 +2122,9 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 		}
 	}
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(glConfig.textureCompression == TC_S3TC && !(bits & IF_NOCOMPRESSION) && Q_stricmpn(name, "fonts", 5))
 	{
 		Q_strncpyz(ddsName, name, sizeof(ddsName));
@@ -2101,6 +2139,8 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 			return image;
 		}
 	}
+#endif
+
 #if 0
 	else if(r_tryCachedDDSImages->integer && !(bits & IF_NOCOMPRESSION) && Q_strncasecmp(name, "fonts", 5))
 	{
@@ -2339,6 +2379,9 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	}
 
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(glConfig.textureCompression == TC_S3TC && !(bits & IF_NOCOMPRESSION) && Q_stricmpn(name, "fonts", 5))
 	{
 		Q_strncpyz(ddsName, name, sizeof(ddsName));
@@ -2353,6 +2396,8 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 			return image;
 		}
 	}
+#endif
+
 #if 0
 	else if(r_tryCachedDDSImages->integer && !(bits & IF_NOCOMPRESSION) && Q_strncasecmp(name, "fonts", 5))
 	{
@@ -3258,9 +3303,17 @@ void R_ShutdownImages(void)
 	for(i = 0; i < tr.images.currentElements; i++)
 	{
 		image = Com_GrowListElement(&tr.images, i);
+
+#if defined(USE_D3D10)
+		// TODO
+#else
 		qglDeleteTextures(1, &image->texnum);
+#endif
 	}
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	Com_Memset(glState.currenttextures, 0, sizeof(glState.currenttextures));
 	if(qglBindTexture)
 	{
@@ -3277,6 +3330,7 @@ void R_ShutdownImages(void)
 			qglBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
+#endif
 
 	Com_DestroyGrowList(&tr.images);
 	Com_DestroyGrowList(&tr.lightmaps);

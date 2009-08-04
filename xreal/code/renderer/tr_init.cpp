@@ -23,8 +23,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_init.c -- functions that are not called every frame
 #include "tr_local.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 glConfig_t      glConfig;
+
+#if defined(USE_D3D10)
+dxGlobals_t     dx;
+#else
 glstate_t       glState;
+#endif
+
 float           displayAspect = 0.0f;
 
 static void     GfxInfo_f(void);
@@ -252,154 +262,6 @@ cvar_t         *r_bloomPasses;
 cvar_t         *r_rotoscope;
 cvar_t         *r_cameraPostFX;
 
-// GL_ARB_multitexture
-void            (APIENTRY * qglActiveTextureARB) (GLenum texture);
-
-// GL_ARB_texture_compression
-void            (APIENTRY * qglCompressedTexImage3DARB) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data);
-void            (APIENTRY * qglCompressedTexImage2DARB) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid *data);
-void            (APIENTRY * qglCompressedTexImage1DARB) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border, GLsizei imageSize, const GLvoid *data);
-void            (APIENTRY * qglCompressedTexSubImage3DARB) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data);
-void            (APIENTRY * qglCompressedTexSubImage2DARB) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid *data);
-void            (APIENTRY * qglCompressedTexSubImage1DARB) (GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, const GLvoid *data);
-void            (APIENTRY * qglGetCompressedTexImageARB) (GLenum target, GLint level, GLvoid *img);
-
-// GL_ARB_vertex_program
-void            (APIENTRY * qglVertexAttrib4fARB) (GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
-void            (APIENTRY * qglVertexAttrib4fvARB) (GLuint, const GLfloat *);
-void            (APIENTRY * qglVertexAttribPointerARB) (GLuint index, GLint size, GLenum type, GLboolean normalized,
-														GLsizei stride, const GLvoid * pointer);
-void            (APIENTRY * qglEnableVertexAttribArrayARB) (GLuint index);
-void            (APIENTRY * qglDisableVertexAttribArrayARB) (GLuint index);
-
-// GL_ARB_vertex_buffer_object
-void            (APIENTRY * qglBindBufferARB) (GLenum target, GLuint buffer);
-void            (APIENTRY * qglDeleteBuffersARB) (GLsizei n, const GLuint * buffers);
-void            (APIENTRY * qglGenBuffersARB) (GLsizei n, GLuint * buffers);
-
-GLboolean(APIENTRY * qglIsBufferARB) (GLuint buffer);
-void            (APIENTRY * qglBufferDataARB) (GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
-void            (APIENTRY * qglBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data);
-void            (APIENTRY * qglGetBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid * data);
-
-// GL_ARB_occlusion_query
-void            (APIENTRY * qglGenQueriesARB) (GLsizei n, GLuint * ids);
-void            (APIENTRY * qglDeleteQueriesARB) (GLsizei n, const GLuint * ids);
-
-GLboolean(APIENTRY * qglIsQueryARB) (GLuint id);
-void            (APIENTRY * qglBeginQueryARB) (GLenum target, GLuint id);
-void            (APIENTRY * qglEndQueryARB) (GLenum target);
-void            (APIENTRY * qglGetQueryivARB) (GLenum target, GLenum pname, GLint * params);
-void            (APIENTRY * qglGetQueryObjectivARB) (GLuint id, GLenum pname, GLint * params);
-void            (APIENTRY * qglGetQueryObjectuivARB) (GLuint id, GLenum pname, GLuint * params);
-
-GLboolean(APIENTRY * qglUnmapBufferARB) (GLenum target);
-void            (APIENTRY * qglGetBufferParameterivARB) (GLenum target, GLenum pname, GLint * params);
-void            (APIENTRY * qglGetBufferPointervARB) (GLenum target, GLenum pname, GLvoid * *params);
-
-// GL_ARB_shader_objects
-void            (APIENTRY * qglDeleteObjectARB) (GLhandleARB obj);
-
-GLhandleARB(APIENTRY * qglGetHandleARB) (GLenum pname);
-void            (APIENTRY * qglDetachObjectARB) (GLhandleARB containerObj, GLhandleARB attachedObj);
-
-GLhandleARB(APIENTRY * qglCreateShaderObjectARB) (GLenum shaderType);
-void            (APIENTRY * qglShaderSourceARB) (GLhandleARB shaderObj, GLsizei count, const GLcharARB * *string,
-												 const GLint * length);
-void            (APIENTRY * qglCompileShaderARB) (GLhandleARB shaderObj);
-
-GLhandleARB(APIENTRY * qglCreateProgramObjectARB) (void);
-void            (APIENTRY * qglAttachObjectARB) (GLhandleARB containerObj, GLhandleARB obj);
-void            (APIENTRY * qglLinkProgramARB) (GLhandleARB programObj);
-void            (APIENTRY * qglUseProgramObjectARB) (GLhandleARB programObj);
-void            (APIENTRY * qglValidateProgramARB) (GLhandleARB programObj);
-void            (APIENTRY * qglUniform1fARB) (GLint location, GLfloat v0);
-void            (APIENTRY * qglUniform2fARB) (GLint location, GLfloat v0, GLfloat v1);
-void            (APIENTRY * qglUniform3fARB) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
-void            (APIENTRY * qglUniform4fARB) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
-void            (APIENTRY * qglUniform1iARB) (GLint location, GLint v0);
-void            (APIENTRY * qglUniform2iARB) (GLint location, GLint v0, GLint v1);
-void            (APIENTRY * qglUniform3iARB) (GLint location, GLint v0, GLint v1, GLint v2);
-void            (APIENTRY * qglUniform4iARB) (GLint location, GLint v0, GLint v1, GLint v2, GLint v3);
-void            (APIENTRY * qglUniform2fvARB) (GLint location, GLsizei count, const GLfloat * value);
-void            (APIENTRY * qglUniform3fvARB) (GLint location, GLsizei count, const GLfloat * value);
-void            (APIENTRY * qglUniform4fvARB) (GLint location, GLsizei count, const GLfloat * value);
-void            (APIENTRY * qglUniform2ivARB) (GLint location, GLsizei count, const GLint * value);
-void            (APIENTRY * qglUniform3ivARB) (GLint location, GLsizei count, const GLint * value);
-void            (APIENTRY * qglUniform4ivARB) (GLint location, GLsizei count, const GLint * value);
-void            (APIENTRY * qglUniformMatrix2fvARB) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
-void            (APIENTRY * qglUniformMatrix3fvARB) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
-void            (APIENTRY * qglUniformMatrix4fvARB) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
-void            (APIENTRY * qglGetObjectParameterfvARB) (GLhandleARB obj, GLenum pname, GLfloat * params);
-void            (APIENTRY * qglGetObjectParameterivARB) (GLhandleARB obj, GLenum pname, GLint * params);
-void            (APIENTRY * qglGetInfoLogARB) (GLhandleARB obj, GLsizei maxLength, GLsizei * length, GLcharARB * infoLog);
-void            (APIENTRY * qglGetAttachedObjectsARB) (GLhandleARB containerObj, GLsizei maxCount, GLsizei * count,
-													   GLhandleARB * obj);
-GLint(APIENTRY * qglGetUniformLocationARB) (GLhandleARB programObj, const GLcharARB * name);
-void            (APIENTRY * qglGetActiveUniformARB) (GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei * length,
-													 GLint * size, GLenum * type, GLcharARB * name);
-void            (APIENTRY * qglGetUniformfvARB) (GLhandleARB programObj, GLint location, GLfloat * params);
-void            (APIENTRY * qglGetUniformivARB) (GLhandleARB programObj, GLint location, GLint * params);
-void            (APIENTRY * qglGetShaderSourceARB) (GLhandleARB obj, GLsizei maxLength, GLsizei * length, GLcharARB * source);
-
-// GL_ARB_vertex_shader
-void            (APIENTRY * qglBindAttribLocationARB) (GLhandleARB programObj, GLuint index, const GLcharARB * name);
-void            (APIENTRY * qglGetActiveAttribARB) (GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei * length,
-													GLint * size, GLenum * type, GLcharARB * name);
-GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharARB * name);
-
-// GL_ARB_draw_buffers
-void            (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
-
-// GL_ARB_vertex_array_object
-void			(APIENTRY * qglBindVertexArray) (GLuint array);
-void			(APIENTRY * qglDeleteVertexArrays) (GLsizei n, const GLuint *arrays);
-void			(APIENTRY * qglGenVertexArrays) (GLsizei n, GLuint *arrays);
-GLboolean		(APIENTRY * qglIsVertexArray) (GLuint array);
-
-// GL_EXT_texture3D
-void			(APIENTRY * qglTexImage3DEXT) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
-void			(APIENTRY * qglTexSubImage3DEXT) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels);
-
-// GL_EXT_stencil_two_side
-void            (APIENTRY * qglActiveStencilFaceEXT) (GLenum face);
-
-// GL_ATI_separate_stencil
-void            (APIENTRY * qglStencilFuncSeparateATI) (GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
-void            (APIENTRY * qglStencilOpSeparateATI) (GLenum frontfunc, GLenum backfunc, GLint ref, GLuint mask);
-
-// GL_EXT_depth_bounds_test
-void            (APIENTRY * qglDepthBoundsEXT) (GLclampd zmin, GLclampd zmax);
-
-// GL_EXT_framebuffer_object
-GLboolean(APIENTRY * qglIsRenderbufferEXT) (GLuint renderbuffer);
-void            (APIENTRY * qglBindRenderbufferEXT) (GLenum target, GLuint renderbuffer);
-void            (APIENTRY * qglDeleteRenderbuffersEXT) (GLsizei n, const GLuint * renderbuffers);
-void            (APIENTRY * qglGenRenderbuffersEXT) (GLsizei n, GLuint * renderbuffers);
-void            (APIENTRY * qglRenderbufferStorageEXT) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-void            (APIENTRY * qglGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint * params);
-
-GLboolean(APIENTRY * qglIsFramebufferEXT) (GLuint framebuffer);
-void            (APIENTRY * qglBindFramebufferEXT) (GLenum target, GLuint framebuffer);
-void            (APIENTRY * qglDeleteFramebuffersEXT) (GLsizei n, const GLuint * framebuffers);
-void            (APIENTRY * qglGenFramebuffersEXT) (GLsizei n, GLuint * framebuffers);
-
-GLenum(APIENTRY * qglCheckFramebufferStatusEXT) (GLenum target);
-void            (APIENTRY * qglFramebufferTexture1DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
-														 GLint level);
-void            (APIENTRY * qglFramebufferTexture2DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
-														 GLint level);
-void            (APIENTRY * qglFramebufferTexture3DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
-														 GLint level, GLint zoffset);
-void            (APIENTRY * qglFramebufferRenderbufferEXT) (GLenum target, GLenum attachment, GLenum renderbuffertarget,
-															GLuint renderbuffer);
-void            (APIENTRY * qglGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname,
-																		GLint * params);
-void            (APIENTRY * qglGenerateMipmapEXT) (GLenum target);
-
-// GL_EXT_framebuffer_blit
-void			(APIENTRY * qglBlitFramebufferEXT) (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
-
 
 
 /*
@@ -410,6 +272,7 @@ void			(APIENTRY * qglBlitFramebufferEXT) (GLint srcX0, GLint srcY0, GLint srcX1
 ** setting variables, checking GL constants, and reporting the gfx system config
 ** to the user.
 */
+#if !defined(USE_D3D10)
 static void InitOpenGL(void)
 {
 	char            renderer_buffer[1024];
@@ -455,12 +318,14 @@ static void InitOpenGL(void)
 	// set default state
 	GL_SetDefaultState();
 }
+#endif
 
 /*
 ==================
 GL_CheckErrors
 ==================
 */
+#if !defined(USE_D3D10)
 void GL_CheckErrors_(const char *filename, int line)
 {
 	int             err;
@@ -516,6 +381,7 @@ void GL_CheckErrors_(const char *filename, int line)
 
 	ri.Error(ERR_FATAL, "caught OpenGL error: %s in file %s line %i", s, filename, line);
 }
+#endif
 
 
 /*
@@ -624,7 +490,7 @@ static void RB_TakeScreenshot(int x, int y, int width, int height, char *fileNam
 	byte           *buffer;
 	int             i, c, temp;
 
-	buffer = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 3 + 18);
+	buffer = (byte*) ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 3 + 18);
 
 	Com_Memset(buffer, 0, 18);
 	buffer[2] = 2;				// uncompressed type
@@ -634,7 +500,11 @@ static void RB_TakeScreenshot(int x, int y, int width, int height, char *fileNam
 	buffer[15] = height >> 8;
 	buffer[16] = 24;			// pixel size
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	qglReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer + 18);
+#endif
 
 	// swap rgb to bgr
 	c = 18 + width * height * 3;
@@ -665,9 +535,13 @@ static void RB_TakeScreenshotJPEG(int x, int y, int width, int height, char *fil
 {
 	byte           *buffer;
 
-	buffer = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 4);
+	buffer = (byte*) ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 4);
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	qglReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+#endif
 
 	// gamma correct
 	if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
@@ -690,9 +564,13 @@ static void RB_TakeScreenshotPNG(int x, int y, int width, int height, char *file
 {
 	byte           *buffer;
 
-	buffer = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 3);
+	buffer = (byte*) ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 3);
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	qglReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+#endif
 
 	// gamma correct
 	if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
@@ -746,7 +624,7 @@ void R_TakeScreenshot(char *name, ssFormat_t format)
 	screenshotCommand_t *cmd;
 	int             lastNumber;
 
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (screenshotCommand_t *) R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
@@ -1056,7 +934,11 @@ const void     *RB_TakeVideoFrameCmd(const void *data)
 
 	cmd = (const videoFrameCommand_t *)data;
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	qglReadPixels(0, 0, cmd->width, cmd->height, GL_RGBA, GL_UNSIGNED_BYTE, cmd->captureBuffer);
+#endif
 
 	// gamma correct
 	if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
@@ -1089,6 +971,7 @@ const void     *RB_TakeVideoFrameCmd(const void *data)
 /*
 ** GL_SetDefaultState
 */
+#if !defined(USE_D3D10)
 void GL_SetDefaultState(void)
 {
 	int             i;
@@ -1186,6 +1069,7 @@ void GL_SetDefaultState(void)
 		MatrixIdentity(glState.modelViewProjectionMatrix[i]);
 	}
 }
+#endif
 
 
 
@@ -1313,6 +1197,7 @@ void GfxInfo_f(void)
 	}
 }
 
+#if !defined(USE_D3D10)
 static void GLSL_restart_f(void)
 {
 	// make sure the render thread is stopped
@@ -1321,6 +1206,7 @@ static void GLSL_restart_f(void)
 	GLSL_ShutdownGPUShaders();
 	GLSL_InitGPUShaders();
 }
+#endif
 
 /*
 ===============
@@ -1603,7 +1489,9 @@ void R_Register(void)
 	ri.Cmd_AddCommand("gfxinfo", GfxInfo_f);
 //	ri.Cmd_AddCommand("generatemtr", R_GenerateMaterialFile_f);
 
+#if !defined(USE_D3D10)
 	ri.Cmd_AddCommand("glsl_restart", GLSL_restart_f);
+#endif
 }
 
 /*
@@ -1656,7 +1544,7 @@ void R_Init(void)
 
 	R_Register();
 
-	ptr =
+	ptr = (byte *) 
 		ri.Hunk_Alloc(sizeof(*backEndData[0]) + sizeof(srfPoly_t) * r_maxPolys->integer +
 					  sizeof(polyVert_t) * r_maxPolyVerts->integer, h_low);
 	backEndData[0] = (backEndData_t *) ptr;
@@ -1664,7 +1552,7 @@ void R_Init(void)
 	backEndData[0]->polyVerts = (polyVert_t *) ((char *)ptr + sizeof(*backEndData[0]) + sizeof(srfPoly_t) * r_maxPolys->integer);
 	if(r_smp->integer)
 	{
-		ptr =
+		ptr = (byte *)
 			ri.Hunk_Alloc(sizeof(*backEndData[1]) + sizeof(srfPoly_t) * r_maxPolys->integer +
 						  sizeof(polyVert_t) * r_maxPolyVerts->integer, h_low);
 		backEndData[1] = (backEndData_t *) ptr;
@@ -1679,9 +1567,238 @@ void R_Init(void)
 
 	R_ToggleSmpFrame();
 
+#if defined(USE_D3D10)
+	if(glConfig.vidWidth == 0)
+	{
+		DXGI_SWAP_CHAIN_DESC sd;
+		SDL_SysWMinfo   info;
+		HRESULT hr = S_OK;
+		RECT rc;
+		ID3D10Texture2D* backBuffer;
+		UINT createDeviceFlags = 0;
+		int i;
+
+		D3D10_DRIVER_TYPE driverTypes[] =
+		{
+			D3D10_DRIVER_TYPE_HARDWARE,
+			D3D10_DRIVER_TYPE_REFERENCE,
+		};
+		UINT numDriverTypes = sizeof(driverTypes) / sizeof(driverTypes[0]);
+
+		GLimp_Init();
+
+		ri.Printf(PRINT_ALL, "------- D3D10 Initialization -------\n");
+
+		SDL_VERSION(&info.version);
+		if(!SDL_GetWMInfo(&info))
+		{
+			ri.Error(ERR_FATAL, "R_Init: Failed to obtain HWND from SDL (InputRegistry)");
+		}
+
+		//GetClientRect(info.window, &rc);
+		//UINT width = rc.right - rc.left;
+		//UINT height = rc.bottom - rc.top;
+
+		
+#ifdef _DEBUG
+		createDeviceFlags |= D3D10_CREATE_DEVICE_DEBUG;
+#endif
+		
+		ZeroMemory(&sd, sizeof(sd));
+		sd.BufferCount = 1;
+		sd.BufferDesc.Width = glConfig.vidWidth;
+		sd.BufferDesc.Height = glConfig.vidHeight;
+		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		sd.BufferDesc.RefreshRate.Numerator = 60;
+		sd.BufferDesc.RefreshRate.Denominator = 1;
+		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		sd.OutputWindow = info.window;
+		sd.SampleDesc.Count = 1;
+		sd.SampleDesc.Quality = 0;
+		sd.Windowed = TRUE;
+
+#if 1
+		// Look for 'NVIDIA PerfHUD' adapter
+		// If it is present, override default settings
+		IDXGIFactory *pDXGIFactory;
+		hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pDXGIFactory);
+
+		// Search for a PerfHUD adapter.
+		UINT nAdapter = 0;
+		IDXGIAdapter* adapter = NULL;
+		IDXGIAdapter* selectedAdapter = NULL;
+		dx.driverType = D3D10_DRIVER_TYPE_HARDWARE;
+
+		ri.Printf(PRINT_ALL, "Looking for PerfHUD...");
+		bool gotPerfHUD = false;
+		while (pDXGIFactory->EnumAdapters(nAdapter, &adapter) != DXGI_ERROR_NOT_FOUND)
+		{
+			if(adapter)
+			{
+				DXGI_ADAPTER_DESC adaptDesc;
+				if(SUCCEEDED(adapter->GetDesc(&adaptDesc)))
+				{
+					const bool isPerfHUD = wcscmp(adaptDesc.Description, L"NVIDIA PerfHUD") == 0;
+					
+					// Select the first adapter in normal circumstances or the PerfHUD one if it exists.
+					if(nAdapter == 0 || isPerfHUD)
+						selectedAdapter = adapter;
+					
+					if(isPerfHUD)
+					{
+						gotPerfHUD = true;
+						ri.Printf(PRINT_ALL, "found\n");
+						dx.driverType = D3D10_DRIVER_TYPE_REFERENCE;
+						break;
+					}
+				}
+			}
+			++nAdapter;
+		}
+		if(!gotPerfHUD)
+			ri.Printf(PRINT_ALL, "failed\n");
+
+		hr = D3D10CreateDeviceAndSwapChain( selectedAdapter, dx.driverType, NULL, createDeviceFlags,
+											D3D10_SDK_VERSION, &sd, &dx.swapChain, &dx.d3dDevice);
+
+		if(FAILED(hr))
+#endif
+		{
+			ri.Printf(PRINT_ALL, "R_Init: Failed to find PerfHUD");
+
+			for(i = 0; i < numDriverTypes; i++ )
+			{
+				dx.driverType = driverTypes[i];
+				hr = D3D10CreateDeviceAndSwapChain( NULL, dx.driverType, NULL, createDeviceFlags,
+												D3D10_SDK_VERSION, &sd, &dx.swapChain, &dx.d3dDevice);
+				if(SUCCEEDED(hr))
+					break;
+			}
+		
+			if(FAILED(hr))
+			{
+				ri.Error(ERR_FATAL, "R_Init: Failed to create a D3D10 device and swap chain");
+			}
+		}
+
+		// create a render target view
+		hr = dx.swapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*) &backBuffer);
+		if(FAILED(hr))
+			ri.Error(ERR_FATAL, "R_Init: Failed to get a D3D10 back buffer");
+
+		hr = dx.d3dDevice->CreateRenderTargetView(backBuffer, NULL, &dx.renderTargetView);
+		backBuffer->Release();
+		if(FAILED(hr))
+			ri.Error(ERR_FATAL, "R_Init: Failed to create a D3D10 render target view");
+
+		dx.d3dDevice->OMSetRenderTargets(1, &dx.renderTargetView, NULL);
+
+		// TODO move this to renderer backend
+
+		// setup the viewport
+		D3D10_VIEWPORT vp;
+		vp.Width = glConfig.vidWidth;
+		vp.Height = glConfig.vidHeight;
+		vp.MinDepth = 0.0f;
+		vp.MaxDepth = 1.0f;
+		vp.TopLeftX = 0;
+		vp.TopLeftY = 0;
+		dx.d3dDevice->RSSetViewports(1, &vp);
+
+
+#if 0
+		 // create the effect
+		DWORD dwShaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
+#if defined( DEBUG ) || defined( _DEBUG )
+		// Set the D3D10_SHADER_DEBUG flag to embed debug information in the shaders.
+		// Setting this flag improves the shader debugging experience, but still allows 
+		// the shaders to be optimized and to run exactly the way they will run in 
+		// the release configuration of this program.
+		dwShaderFlags |= D3D10_SHADER_DEBUG;
+#endif
+
+		byte *effectBuffer;
+		int effectBufferLen;
+
+		effectBufferLen = ri.FS_ReadFile("shaders/Generic.fx", (void**) &effectBuffer);
+		if(effectBufferLen == 0)
+		{
+			ri.Error(ERR_FATAL, "The FX file cannot be located.  Please run this executable from the directory that contains the FX file.");
+		}
+
+		hr = D3DX10CreateEffectFromMemory(effectBuffer, effectBufferLen, "shaders/Generic.fx", NULL, NULL, "fx_4_0", dwShaderFlags, 0,
+											 dx.d3dDevice, NULL, NULL, &dx.genericEffect, NULL, NULL);
+		if(FAILED(hr))
+		{
+			ri.Error(ERR_FATAL, "D3DX10CreateEffect failed %i", hr);
+		}
+
+		// obtain the technique
+		dx.genericTechnique = dx.genericEffect->GetTechniqueByName("Render");
+
+		// define the input layout
+		D3D10_INPUT_ELEMENT_DESC layout[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+		};
+		UINT numElements = sizeof(layout) / sizeof(layout[0]);
+
+		// create the input layout
+		D3D10_PASS_DESC PassDesc;
+		dx.genericTechnique->GetPassByIndex(0)->GetDesc(&PassDesc);
+
+		hr = dx.d3dDevice->CreateInputLayout( layout, numElements, PassDesc.pIAInputSignature,
+											  PassDesc.IAInputSignatureSize, &dx.vertexLayout );
+		if(FAILED(hr))
+			ri.Error(ERR_FATAL, "R_Init: Failed to create a D3D10 input layout");
+
+		// set the input layout
+		dx.d3dDevice->IASetInputLayout(dx.vertexLayout);
+
+		// create vertex buffer
+		D3DXVECTOR3 vertices[] =
+		{
+			D3DXVECTOR3( 0.0f, 0.5f, 0.5f ),
+			D3DXVECTOR3( 0.5f, -0.5f, 0.5f ),
+			D3DXVECTOR3( -0.5f, -0.5f, 0.5f ),
+		};
+		D3D10_BUFFER_DESC bd;
+		bd.Usage = D3D10_USAGE_DEFAULT;
+		bd.ByteWidth = sizeof(D3DXVECTOR3) * 3;
+		bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+		bd.CPUAccessFlags = 0;
+		bd.MiscFlags = 0;
+		D3D10_SUBRESOURCE_DATA InitData;
+		InitData.pSysMem = vertices;
+		hr = dx.d3dDevice->CreateBuffer(&bd, &InitData, &dx.vertexBuffer);
+		if(FAILED(hr))
+			ri.Error(ERR_FATAL, "R_Init: Failed to create a D3D10 input layout");
+
+		// set vertex buffer
+		UINT stride = sizeof(D3DXVECTOR3);
+		UINT offset = 0;
+		dx.d3dDevice->IASetVertexBuffers(0, 1, &dx.vertexBuffer, &stride, &offset);
+
+		// set primitive topology
+		dx.d3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+#endif
+
+		ri.Printf(PRINT_ALL, "------------------------------------\n");
+	}
+
+	// init command buffers and SMP
+	R_InitCommandBuffers();
+
+	// print info
+	GfxInfo_f();
+
+	// set default state
+	//D3D10_SetDefaultState();
+#else
 	InitOpenGL();
 
 	GLSL_InitGPUShaders();
+#endif
 
 	R_InitImages();
 
@@ -1704,6 +1821,7 @@ void R_Init(void)
 		ri.Cvar_CheckRange(r_ext_texture_filter_anisotropic, 0, glConfig.maxTextureAnisotropy, qfalse);
 	}
 
+#if !defined(USE_D3D10)
 	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 	{
 		qglGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
@@ -1715,6 +1833,7 @@ void R_Init(void)
 		ri.Error(ERR_FATAL, "R_Init() - glGetError() failed = 0x%x\n", err);
 		//ri.Printf(PRINT_ALL, "glGetError() = 0x%x\n", err);
 	}
+#endif
 
 	ri.Printf(PRINT_ALL, "----- finished R_Init -----\n");
 }
@@ -1755,12 +1874,14 @@ void RE_Shutdown(qboolean destroyWindow)
 		R_ShutdownVBOs();
 		R_ShutdownFBOs();
 
+#if !defined(USE_D3D10)
 		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 		{
 			qglDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 		}
 
 		GLSL_ShutdownGPUShaders();
+#endif
 
 		//GLimp_ShutdownRenderThread();
 	}
@@ -1775,6 +1896,20 @@ void RE_Shutdown(qboolean destroyWindow)
 #endif
 	{
 		GLimp_Shutdown();
+
+#if defined(USE_D3D10)
+		if(dx.d3dDevice)
+			dx.d3dDevice->ClearState();
+
+		if(dx.renderTargetView)
+			dx.renderTargetView->Release();
+
+		if(dx.swapChain)
+			dx.swapChain->Release();
+
+		if(dx.d3dDevice)
+			dx.d3dDevice->Release();
+#endif
 	}
 
 	tr.registered = qfalse;
@@ -1896,7 +2031,7 @@ void QDECL Com_Printf(const char *msg, ...)
 
 	ri.Printf(PRINT_ALL, "%s", text);
 }
-
+/*
 void QDECL Com_DPrintf(const char *msg, ...)
 {
 	va_list         argptr;
@@ -1908,7 +2043,7 @@ void QDECL Com_DPrintf(const char *msg, ...)
 
 	ri.Printf(PRINT_DEVELOPER, "%s", text);
 }
-
+*/
 void QDECL Com_Error(int level, const char *error, ...)
 {
 	va_list         argptr;
@@ -1919,5 +2054,9 @@ void QDECL Com_Error(int level, const char *error, ...)
 	va_end(argptr);
 
 	ri.Error(level, "%s", text);
+}
+#endif
+
+#if defined(__cplusplus)
 }
 #endif

@@ -714,7 +714,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 		Q_strncpyz(mapName, bspName, sizeof(mapName));
 		Com_StripExtension(mapName, mapName, sizeof(mapName));
 
-#if 1
+#if !defined(USE_D3D10)
 		if(tr.worldHDR_RGBE)
 		{
 			// we are about to upload textures
@@ -4257,7 +4257,7 @@ static void R_CreateWorldVBO()
 #else
 	s_worldData.vbo = R_CreateVBO2(va("staticBspModel0_VBO %i", 0), numVerts, verts,
 								   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL |
-								   ATTR_NORMAL | ATTR_COLOR | ATTR_PAINTCOLOR | ATTR_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
+								   ATTR_NORMAL | ATTR_COLOR | ATTR_PAINTCOLOR | ATTR_LIGHTDIRECTION, VBO_USAGE_STATIC);
 #endif
 
 	endTime = ri.Milliseconds();
@@ -4615,17 +4615,17 @@ static void R_CreateSubModelVBOs()
 				vboSurf->vbo =
 					R_CreateVBO2(va("staticBspModel%i_VBO %i", m, vboSurfaces.currentElements), numVerts, optimizedVerts,
 								 ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL
-								 | ATTR_COLOR | GLCS_LIGHTCOLOR | ATTR_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
+								 | ATTR_COLOR | GLCS_LIGHTCOLOR | ATTR_LIGHTDIRECTION, VBO_USAGE_STATIC);
 #else
 				vboSurf->vbo =
 					R_CreateVBO2(va("staticBspModel%i_VBO %i", m, vboSurfaces.currentElements), numVerts, verts,
 								 ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL
-								 | ATTR_COLOR | ATTR_PAINTCOLOR | ATTR_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
+								 | ATTR_COLOR | ATTR_PAINTCOLOR | ATTR_LIGHTDIRECTION, VBO_USAGE_STATIC);
 #endif
 
 				vboSurf->ibo =
 					R_CreateIBO2(va("staticBspModel%i_IBO %i", m, vboSurfaces.currentElements), numTriangles, triangles,
-								 GL_STATIC_DRAW_ARB);
+								 VBO_USAGE_STATIC);
 
 				ri.Hunk_FreeTempMemory(triangles);
 				ri.Hunk_FreeTempMemory(optimizedVerts);
@@ -6569,7 +6569,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 
 			   vboSurf->vbo = R_CreateVBO2(va("staticLightMesh_vertices %i", c_vboLightSurfaces), numVerts, optimizedVerts,
 			   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL |
-			   ATTR_COLOR, GL_STATIC_DRAW_ARB);
+			   ATTR_COLOR, VBO_USAGE_STATIC);
 			 */
 
 #if CALC_REDUNDANT_SHADOWVERTS
@@ -6582,7 +6582,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 #endif
 			vboSurf->vbo = s_worldData.vbo;
 			vboSurf->ibo =
-				R_CreateIBO2(va("staticLightMesh_IBO %i", c_vboLightSurfaces), numTriangles, triangles, GL_STATIC_DRAW_ARB);
+				R_CreateIBO2(va("staticLightMesh_IBO %i", c_vboLightSurfaces), numTriangles, triangles, VBO_USAGE_STATIC);
 
 			ri.Hunk_FreeTempMemory(triangles);
 
@@ -6899,7 +6899,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					vboSurf->vbo = s_worldData.vbo;
 					vboSurf->ibo =
 						R_CreateIBO2(va("staticShadowPyramidMesh_IBO %i", c_vboShadowSurfaces), numTriangles, triangles,
-									 GL_STATIC_DRAW_ARB);
+									 VBO_USAGE_STATIC);
 				}
 				else
 				{
@@ -6916,7 +6916,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					vboSurf->vbo = s_worldData.vbo;
 					vboSurf->ibo =
 						R_CreateIBO2(va("staticShadowPyramidMesh_IBO %i", c_vboShadowSurfaces), numTriangles, triangles,
-									 GL_STATIC_DRAW_ARB);
+									 VBO_USAGE_STATIC);
 				}
 
 				ri.Hunk_FreeTempMemory(triangles);
@@ -7301,8 +7301,8 @@ static void R_CreateVBOShadowVolume(trRefLight_t * light)
 		dataOfs += sizeof(vec4_t);
 	}
 
-	shadowSurf->vbo = R_CreateVBO(va("staticShadowVolume_VBO %i", c_vboShadowSurfaces), data, dataSize, GL_STATIC_DRAW_ARB);
-	shadowSurf->ibo = R_CreateIBO(va("staticShadowVolume_IBO %i", c_vboShadowSurfaces), indexes, indexesSize, GL_STATIC_DRAW_ARB);
+	shadowSurf->vbo = R_CreateVBO(va("staticShadowVolume_VBO %i", c_vboShadowSurfaces), data, dataSize, VBO_USAGE_STATIC);
+	shadowSurf->ibo = R_CreateIBO(va("staticShadowVolume_IBO %i", c_vboShadowSurfaces), indexes, indexesSize, VBO_USAGE_STATIC);
 
 	ri.Hunk_FreeTempMemory(indexes);
 	ri.Hunk_FreeTempMemory(data);
@@ -7757,7 +7757,11 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
 	}
 #endif
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	GL_Bind(tr.autoCubeImage);
+#endif
 }
 
 /*static void R_BuildCubeMaps(void)

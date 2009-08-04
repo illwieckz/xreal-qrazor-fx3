@@ -928,11 +928,15 @@ void Tess_DeformGeometry(void)
 	int             i;
 	deformStage_t  *ds;
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(glState.currentVBO != tess.vbo || glState.currentIBO != tess.ibo)
 	{
 		// static VBOs are incompatible with deformVertexes
 		return;
 	}
+#endif
 
 	for(i = 0; i < tess.surfaceShader->numDeforms; i++)
 	{
@@ -992,7 +996,9 @@ void Tess_DeformGeometry(void)
 		}
 	}
 
+#if !defined(USE_D3D10)
 	GL_CheckErrors();
+#endif
 }
 
 /*

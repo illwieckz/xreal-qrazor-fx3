@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -27,9 +27,29 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 R_CreateVBO
 ============
 */
-VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize, int usage)
+VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize, vboUsage_t usage)
 {
+#if defined(USE_D3D10)
+	// TODO
+	return NULL;
+#else
+
 	VBO_t          *vbo;
+	int				glUsage;
+
+	switch (usage)
+	{
+		case VBO_USAGE_STATIC:
+			glUsage = GL_STATIC_DRAW_ARB;
+			break;
+
+		case VBO_USAGE_DYNAMIC:
+			glUsage = GL_DYNAMIC_DRAW_ARB;
+			break;
+
+		default:
+			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
+	}
 
 	if(strlen(name) >= MAX_QPATH)
 	{
@@ -61,13 +81,14 @@ VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize,
 	qglGenBuffersARB(1, &vbo->vertexesVBO);
 
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
-	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, vertexesSize, vertexes, usage);
+	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, vertexesSize, vertexes, glUsage);
 
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 	GL_CheckErrors();
 
 	return vbo;
+#endif // defined(USE_D3D10)
 }
 
 /*
@@ -75,10 +96,13 @@ VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize,
 R_CreateVBO2
 ============
 */
-VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * verts, unsigned int stateBits, int usage)
+VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * verts, unsigned int stateBits, vboUsage_t usage)
 {
+#if defined(USE_D3D10)
+	// TODO
+	return NULL;
+#else
 	VBO_t          *vbo;
-
 	int             i, j;
 
 	byte           *data;
@@ -86,6 +110,21 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	int             dataOfs;
 
 	vec4_t          tmp;
+	int				glUsage;
+
+	switch (usage)
+	{
+		case VBO_USAGE_STATIC:
+			glUsage = GL_STATIC_DRAW_ARB;
+			break;
+
+		case VBO_USAGE_DYNAMIC:
+			glUsage = GL_DYNAMIC_DRAW_ARB;
+			break;
+
+		default:
+			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
+	}
 
 	if(!numVertexes)
 		return NULL;
@@ -274,7 +313,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	qglGenBuffersARB(1, &vbo->vertexesVBO);
 
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
-	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, usage);
+	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, glUsage);
 
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
@@ -283,6 +322,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	ri.Hunk_FreeTempMemory(data);
 
 	return vbo;
+#endif // defined(USE_D3D10)
 }
 
 
@@ -291,9 +331,28 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 R_CreateIBO
 ============
 */
-IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, int usage)
+IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, vboUsage_t usage)
 {
+#if defined(USE_D3D10)
+	// TODO
+	return NULL;
+#else
 	IBO_t          *ibo;
+	int				glUsage;
+
+	switch (usage)
+	{
+		case VBO_USAGE_STATIC:
+			glUsage = GL_STATIC_DRAW_ARB;
+			break;
+
+		case VBO_USAGE_DYNAMIC:
+			glUsage = GL_DYNAMIC_DRAW_ARB;
+			break;
+
+		default:
+			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
+	}
 
 	if(strlen(name) >= MAX_QPATH)
 	{
@@ -313,13 +372,14 @@ IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, i
 	qglGenBuffersARB(1, &ibo->indexesVBO);
 
 	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
-	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, usage);
+	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, glUsage);
 
 	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
 	GL_CheckErrors();
 
 	return ibo;
+#endif // defined(USE_D3D10
 }
 
 /*
@@ -327,10 +387,13 @@ IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, i
 R_CreateIBO2
 ============
 */
-IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t * triangles, int usage)
+IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t * triangles, vboUsage_t usage)
 {
+#if defined(USE_D3D10)
+	// TODO
+	return NULL;
+#else
 	IBO_t          *ibo;
-
 	int             i, j;
 
 	byte           *indexes;
@@ -339,6 +402,21 @@ IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t *
 
 	srfTriangle_t  *tri;
 	glIndex_t       index;
+	int				glUsage;
+
+	switch (usage)
+	{
+		case VBO_USAGE_STATIC:
+			glUsage = GL_STATIC_DRAW_ARB;
+			break;
+
+		case VBO_USAGE_DYNAMIC:
+			glUsage = GL_DYNAMIC_DRAW_ARB;
+			break;
+
+		default:
+			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
+	}
 
 	if(!numTriangles)
 		return NULL;
@@ -375,7 +453,7 @@ IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t *
 	qglGenBuffersARB(1, &ibo->indexesVBO);
 
 	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
-	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, usage);
+	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, glUsage);
 
 	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
@@ -384,6 +462,7 @@ IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t *
 	ri.Hunk_FreeTempMemory(indexes);
 
 	return ibo;
+#endif // defined(USE_D3D10)
 }
 
 /*
@@ -406,6 +485,9 @@ void R_BindVBO(VBO_t * vbo)
 		GLimp_LogComment(va("--- R_BindVBO( %s ) ---\n", vbo->name));
 	}
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(glState.currentVBO != vbo)
 	{
 		glState.currentVBO = vbo;
@@ -415,6 +497,7 @@ void R_BindVBO(VBO_t * vbo)
 
 		backEnd.pc.c_vboVertexBuffers++;
 	}
+#endif
 }
 
 /*
@@ -426,6 +509,9 @@ void R_BindNullVBO(void)
 {
 	GLimp_LogComment("--- R_BindNullVBO ---\n");
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(glState.currentVBO)
 	{
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
@@ -433,6 +519,7 @@ void R_BindNullVBO(void)
 	}
 
 	GL_CheckErrors();
+#endif
 }
 
 /*
@@ -455,6 +542,9 @@ void R_BindIBO(IBO_t * ibo)
 		GLimp_LogComment(va("--- R_BindIBO( %s ) ---\n", ibo->name));
 	}
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(glState.currentIBO != ibo)
 	{
 		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
@@ -463,6 +553,7 @@ void R_BindIBO(IBO_t * ibo)
 
 		backEnd.pc.c_vboIndexBuffers++;
 	}
+#endif
 }
 
 /*
@@ -474,12 +565,16 @@ void R_BindNullIBO(void)
 {
 	GLimp_LogComment("--- R_BindNullIBO ---\n");
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(glState.currentIBO)
 	{
 		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 		glState.currentIBO = NULL;
 		glState.vertexAttribPointersSet = 0;
 	}
+#endif
 }
 
 /*
@@ -501,7 +596,8 @@ void R_InitVBOs(void)
 	data = Com_Allocate(dataSize);
 	memset(data, 0, dataSize);
 
-	tess.vbo = R_CreateVBO("tessVertexArray_VBO", data, dataSize, GL_DYNAMIC_DRAW_ARB);
+	tess.vbo = R_CreateVBO("tessVertexArray_VBO", data, dataSize, VBO_USAGE_DYNAMIC);
+#if !defined(USE_D3D10)
 	tess.vbo->ofsXYZ = 0;
 	tess.vbo->ofsTexCoords = tess.vbo->ofsXYZ + sizeof(tess.xyz);
 	tess.vbo->ofsLightCoords = tess.vbo->ofsTexCoords + sizeof(tess.texCoords);
@@ -513,6 +609,7 @@ void R_InitVBOs(void)
 	tess.vbo->ofsLightDirections = tess.vbo->ofsPaintColors + sizeof(tess.paintColors);
 	tess.vbo->ofsBoneIndexes = tess.vbo->ofsLightDirections + sizeof(tess.lightDirections);
 	tess.vbo->ofsBoneWeights = tess.vbo->ofsBoneIndexes + sizeof(tess.boneIndexes);
+#endif
 
 	Com_Dealloc(data);
 
@@ -520,14 +617,18 @@ void R_InitVBOs(void)
 	data = Com_Allocate(dataSize);
 	memset(data, 0, dataSize);
 
-	tess.ibo = R_CreateIBO("tessVertexArray_IBO", data, dataSize, GL_DYNAMIC_DRAW_ARB);
+	tess.ibo = R_CreateIBO("tessVertexArray_IBO", data, dataSize, VBO_USAGE_DYNAMIC);
 
 	Com_Dealloc(data);
 
 	R_BindNullVBO();
 	R_BindNullIBO();
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	GL_CheckErrors();
+#endif
 }
 
 /*
@@ -546,24 +647,33 @@ void R_ShutdownVBOs(void)
 	R_BindNullVBO();
 	R_BindNullIBO();
 
+
 	for(i = 0; i < tr.vbos.currentElements; i++)
 	{
 		vbo = (VBO_t *) Com_GrowListElement(&tr.vbos, i);
 
+#if defined(USE_D3D10)
+		// TODO
+#else
 		if(vbo->vertexesVBO)
 		{
 			qglDeleteBuffersARB(1, &vbo->vertexesVBO);
 		}
+#endif
 	}
 
 	for(i = 0; i < tr.ibos.currentElements; i++)
 	{
 		ibo = (IBO_t *) Com_GrowListElement(&tr.ibos, i);
 
+#if defined(USE_D3D10)
+		// TODO
+#else
 		if(ibo->indexesVBO)
 		{
 			qglDeleteBuffersARB(1, &ibo->indexesVBO);
 		}
+#endif
 	}
 
 	if(tr.world)
@@ -578,10 +688,14 @@ void R_ShutdownVBOs(void)
 				vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces[j], i);
 				ibo = vboSurf->ibo;
 
+#if defined(USE_D3D10)
+				// TODO
+#else
 				if(ibo->indexesVBO)
 				{
 					qglDeleteBuffersARB(1, &ibo->indexesVBO);
 				}
+#endif
 			}
 
 			Com_DestroyGrowList(&tr.world->clusterVBOSurfaces[j]);

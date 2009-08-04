@@ -28,7 +28,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qfiles.h"
 #include "../qcommon/qcommon.h"
 #include "tr_public.h"
+
+#if 0
+#if !defined(USE_D3D10)
+#define USE_D3D10
+#endif
+#endif
+
+#if defined(USE_D3D10)
+#include <d3d10.h>
+#include <d3dx10.h>
+#include <SDL.h>
+#include <SDL_syswm.h>
+#include <SDL_thread.h>
+#else
 #include "qgl.h"
+#endif
+
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #if 1
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
@@ -61,7 +81,9 @@ typedef unsigned short glIndex_t;
 
 #define MAX_VISCOUNTS			5
 
+#if !defined(USE_D3D10)
 #define VOLUMETRIC_LIGHTING 1
+#endif
 
 #define DEBUG_OPTIMIZEVERTICES 0
 #define CALC_REDUNDANT_SHADOWVERTS 0
@@ -266,10 +288,14 @@ typedef struct image_s
 	// can contain stuff like this now:
 	// addnormals ( textures/base_floor/stetile4_local.tga ,
 	// heightmap ( textures/base_floor/stetile4_bmp.tga , 4 ) )
+#if defined(USE_D3D10)
+	// TODO
+#else
 	GLenum          type;
+	GLuint          texnum;		// gl texture binding
+#endif
 	int             width, height;	// source image
 	int             uploadWidth, uploadHeight;	// after power of two and picmip but not including clamp to MAX_TEXTURE_SIZE
-	GLuint          texnum;		// gl texture binding
 
 	int             frameUsed;	// for texture usage in frame statistics
 
@@ -288,41 +314,47 @@ typedef struct FBO_s
 
 	int             index;
 
-	GLuint          frameBuffer;
+	uint32_t        frameBuffer;
 
-	GLuint          colorBuffers[16];
+	uint32_t        colorBuffers[16];
 	int             colorFormat;
 
-	GLuint          depthBuffer;
+	uint32_t        depthBuffer;
 	int             depthFormat;
 
-	GLuint          stencilBuffer;
+	uint32_t        stencilBuffer;
 	int             stencilFormat;
 
-	GLuint          packedDepthStencilBuffer;
+	uint32_t        packedDepthStencilBuffer;
 	int             packedDepthStencilFormat;
 
 	int             width;
 	int             height;
 } FBO_t;
 
+typedef enum
+{
+	VBO_USAGE_STATIC,
+	VBO_USAGE_DYNAMIC
+} vboUsage_t;
+
 typedef struct VBO_s
 {
 	char            name[MAX_QPATH];
 
-	GLuint          vertexesVBO;
+	uint32_t        vertexesVBO;
 	int             vertexesSize;	// amount of memory data allocated for all vertices in bytes
-	GLuint          ofsXYZ;
-	GLuint          ofsTexCoords;
-	GLuint          ofsLightCoords;
-	GLuint          ofsTangents;
-	GLuint          ofsBinormals;
-	GLuint          ofsNormals;
-	GLuint          ofsColors;
-	GLuint			ofsPaintColors;		// for advanced terrain blending
-	GLuint			ofsLightDirections;
-	GLuint          ofsBoneIndexes;
-	GLuint          ofsBoneWeights;
+	uint32_t        ofsXYZ;
+	uint32_t        ofsTexCoords;
+	uint32_t        ofsLightCoords;
+	uint32_t        ofsTangents;
+	uint32_t        ofsBinormals;
+	uint32_t        ofsNormals;
+	uint32_t        ofsColors;
+	uint32_t		ofsPaintColors;		// for advanced terrain blending
+	uint32_t		ofsLightDirections;
+	uint32_t        ofsBoneIndexes;
+	uint32_t        ofsBoneWeights;
 
 	int             attribs;
 } VBO_t;
@@ -331,9 +363,9 @@ typedef struct IBO_s
 {
 	char            name[MAX_QPATH];
 
-	GLuint          indexesVBO;
+	uint32_t          indexesVBO;
 	int             indexesSize;	// amount of memory data allocated for all triangles in bytes
-//  GLuint          ofsIndexes;
+//  uint32_t          ofsIndexes;
 } IBO_t;
 
 //===============================================================================
@@ -995,6 +1027,7 @@ enum
 
 // Tr3B - shaderProgram_t represents a pair of one
 // GLSL vertex and one GLSL fragment shader
+#if !defined(USE_D3D10)
 typedef struct shaderProgram_s
 {
 	char            name[MAX_QPATH];
@@ -1678,6 +1711,7 @@ static ID_INLINE void GLSL_SetUniform_VertexSkinning(shaderProgram_t * program, 
 	qglUniform1iARB(program->u_VertexSkinning, value);
 }
 
+#endif // #if !defined(USE_D3D10)
 
 
 
@@ -2535,7 +2569,23 @@ typedef struct
 
 #define MAX_GLSTACK			5
 
-// the renderer front end should never modify glstate_t
+// the renderer front end should never modify glState_t or dxGlobals_t
+#if defined(USE_D3D10)
+typedef struct
+{
+	D3D10_DRIVER_TYPE       driverType;// = D3D10_DRIVER_TYPE_NULL;
+	ID3D10Device*           d3dDevice;
+	IDXGISwapChain*         swapChain;
+	ID3D10RenderTargetView* renderTargetView;
+
+	ID3D10Effect*			genericEffect;
+	ID3D10EffectTechnique*	genericTechnique;
+
+	ID3D10InputLayout*      vertexLayout;
+	ID3D10Buffer*           vertexBuffer;
+}
+dxGlobals_t;
+#else
 typedef struct
 {
 	int				blendSrc, blendDst;
@@ -2573,7 +2623,7 @@ typedef struct
 	VBO_t          *currentVBO;
 	IBO_t          *currentIBO;
 } glstate_t;
-
+#endif // !defined(USE_D3D10)
 
 typedef struct
 {
@@ -2756,7 +2806,7 @@ typedef struct
 	//
 	// GPU shader programs
 	//
-
+#if !defined(USE_D3D10)
 	// Q3A standard simple vertex color rendering
 	shaderProgram_t genericSingleShader;
 
@@ -2829,6 +2879,7 @@ typedef struct
 	shaderProgram_t screenSpaceAmbientOcclusionShader;
 	shaderProgram_t depthOfFieldShader;
 	shaderProgram_t toneMappingShader;
+#endif // !defined(USE_D3D10)
 
 	// -----------------------------------------
 
@@ -2901,7 +2952,12 @@ extern int      shadowMapResolutions[5];
 extern backEndState_t backEnd;
 extern trGlobals_t tr;
 extern glConfig_t glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
+
+#if defined(USE_D3D10)
+extern dxGlobals_t dx;
+#else
 extern glstate_t glState;		// outside of TR since it shouldn't be cleared during ref re-init
+#endif
 
 extern float    displayAspect;	// FIXME
 
@@ -3197,6 +3253,7 @@ void            R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const
 /*
 ** GL wrapper/helper functions
 */
+#if !defined(USE_D3D10)
 void            GL_Bind(image_t * image);
 void			GL_BindNearestCubeMap(const vec3_t xyz);
 void			GL_Unbind();
@@ -3233,7 +3290,7 @@ void            GL_State(unsigned long stateVector);
 void            GL_VertexAttribsState(unsigned int stateBits);
 void			GL_VertexAttribPointers(unsigned int attribBits);
 void            GL_Cull(int cullType);
-
+#endif // !defined(USE_D3D10)
 
 void            RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty);
 void            RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty);
@@ -3385,8 +3442,10 @@ typedef struct shaderCommands_s
 
 extern shaderCommands_t tess;
 
+#if !defined(USE_D3D10)
 void            GLSL_InitGPUShaders();
 void            GLSL_ShutdownGPUShaders();
+#endif
 
 // *INDENT-OFF*
 void            Tess_Begin(	void (*stageIteratorFunc)(),
@@ -3581,11 +3640,11 @@ VERTEX BUFFER OBJECTS
 
 ============================================================
 */
-VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize, int usage);
-VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vertexes, unsigned int stateBits, int usage);
+VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize, vboUsage_t usage);
+VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vertexes, unsigned int stateBits, vboUsage_t usage);
 
-IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, int usage);
-IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t * triangles, int usage);
+IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, vboUsage_t usage);
+IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t * triangles, vboUsage_t usage);
 
 void            R_BindVBO(VBO_t * vbo);
 void            R_BindNullVBO(void);
@@ -3849,5 +3908,9 @@ void            R_InitFreeType();
 void            R_DoneFreeType();
 void            RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font);
 
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif							// TR_LOCAL_H

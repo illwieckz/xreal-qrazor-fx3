@@ -936,12 +936,16 @@ qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, sh
 	ia->scissorWidth = light->scissor.coords[2] - light->scissor.coords[0];
 	ia->scissorHeight = light->scissor.coords[3] - light->scissor.coords[1];
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(r_shadows->integer == 3 && qglDepthBoundsEXT)
 	{
 		ia->depthNear = light->depthNear;
 		ia->depthFar = light->depthFar;
 		ia->noDepthBoundsTest = light->noDepthBoundsTest;
 	}
+#endif
 
 	if(glConfig.occlusionQueryAvailable)
 	{
@@ -1310,6 +1314,9 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 	vec4_t          eye, clip, normalized, window;
 	float           depthMin, depthMax;
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(r_shadows->integer == 3 && qglDepthBoundsEXT)
 	{
 		tr.pc.c_depthBoundsTestsRejected++;
@@ -1368,6 +1375,7 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 			tr.pc.c_depthBoundsTests++;
 		}
 	}
+#endif
 }
 
 /*

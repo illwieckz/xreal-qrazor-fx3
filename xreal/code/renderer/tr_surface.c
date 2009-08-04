@@ -57,6 +57,9 @@ Tess_CheckOverflow
 */
 void Tess_CheckOverflow(int verts, int indexes)
 {
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if((glState.currentVBO != NULL && glState.currentVBO != tess.vbo) ||
 	   (glState.currentIBO != NULL && glState.currentIBO != tess.ibo))
 	{
@@ -65,7 +68,7 @@ void Tess_CheckOverflow(int verts, int indexes)
 		R_BindVBO(tess.vbo);
 		R_BindIBO(tess.ibo);
 	}
-
+#endif
 	if(tess.numVertexes + verts < SHADER_MAX_VERTEXES && tess.numIndexes + indexes < SHADER_MAX_INDEXES)
 	{
 		return;
@@ -376,6 +379,9 @@ Tr3B: update the default VBO to replace the client side vertex arrays
 */
 void Tess_UpdateVBOs(unsigned int attribBits)
 {
+#if defined(USE_D3D10)
+	// TODO
+#else
 	GLimp_LogComment("--- Tess_UpdateVBOs ---\n");
 
 	GL_CheckErrors();
@@ -504,6 +510,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 	}
 
 	GL_CheckErrors();
+#endif
 }
 
 
@@ -577,7 +584,9 @@ void Tess_InstantQuad(vec4_t quadVerts[4])
 	tess.numVertexes = 0;
 	tess.numIndexes = 0;
 
+#if !defined(USE_D3D10)
 	GL_CheckErrors();
+#endif
 }
 
 
@@ -2510,6 +2519,9 @@ static void Tess_SurfaceEntity(surfaceType_t * surfType)
 		return;
 	}
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(glState.currentVBO != tess.vbo || glState.currentIBO != tess.ibo)
 	{
 		Tess_EndBegin();
@@ -2517,6 +2529,7 @@ static void Tess_SurfaceEntity(surfaceType_t * surfType)
 		R_BindVBO(tess.vbo);
 		R_BindIBO(tess.ibo);
 	}
+#endif
 
 	switch (backEnd.currentEntity->e.reType)
 	{
@@ -2562,6 +2575,9 @@ static void Tess_SurfaceFlare(srfFlare_t * surf)
 		return;
 	}
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	if(glState.currentVBO != tess.vbo || glState.currentIBO != tess.ibo)
 	{
 		Tess_EndBegin();
@@ -2569,6 +2585,7 @@ static void Tess_SurfaceFlare(srfFlare_t * surf)
 		R_BindVBO(tess.vbo);
 		R_BindIBO(tess.ibo);
 	}
+#endif
 
 	VectorMA(surf->origin, 2.0, surf->normal, origin);
 	VectorSubtract(origin, backEnd.viewParms.orientation.origin, dir);
@@ -2579,7 +2596,11 @@ static void Tess_SurfaceFlare(srfFlare_t * surf)
 	if(d < 0)
 		return;
 
+#if defined(USE_D3D10)
+	// TODO
+#else
 	RB_AddFlare((void *)surf, origin, surf->color, surf->normal);
+#endif
 }
 
 

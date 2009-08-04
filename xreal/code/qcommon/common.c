@@ -3476,8 +3476,13 @@ void Com_Init(char *commandLine)
 	com_maxfps = Cvar_Get("com_maxfps", "125", CVAR_ARCHIVE);
 	com_blood = Cvar_Get("com_blood", "1", CVAR_ARCHIVE);
 
+#if defined(_DEBUG)
+	com_developer = Cvar_Get("developer", "1", CVAR_TEMP);
+	com_logfile = Cvar_Get("logfile", "2", CVAR_TEMP);
+#else
 	com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
 	com_logfile = Cvar_Get("logfile", "0", CVAR_TEMP);
+#endif
 
 	com_timescale = Cvar_Get("timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO);
 	com_fixedtime = Cvar_Get("fixedtime", "0", CVAR_CHEAT);

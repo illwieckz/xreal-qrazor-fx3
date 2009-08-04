@@ -2740,7 +2740,12 @@ static void ParseSkyParms(char **text)
 	{
 		shader.sky.cloudHeight = 512;
 	}
+
+#if defined(USE_D3D10)
+	// TODO
+#else
 	R_InitSkyTexCoords(shader.sky.cloudHeight);
+#endif
 
 
 	// innerbox
@@ -3992,10 +3997,17 @@ static void CollapseStages(void)
 	int				numStages = 0;
 	shaderStage_t	tmpStages[MAX_SHADER_STAGES];
 
+#if defined(USE_D3D10)
+	if(!r_collapseStages->integer)
+	{
+		return;
+	}
+#else
 	if(!qglActiveTextureARB || !r_collapseStages->integer)
 	{
 		return;
 	}
+#endif
 
 	//ri.Printf(PRINT_ALL, "...collapsing '%s'\n", shader.name);
 
@@ -5113,6 +5125,7 @@ void R_ShaderList_f(void)
 				break;
 		}
 
+		/*
 		if(shader->collapseType == COLLAPSE_genericMulti)
 		{
 			if(shader->collapseTextureEnv == GL_ADD)
@@ -5128,7 +5141,8 @@ void R_ShaderList_f(void)
 				ri.Printf(PRINT_ALL, "MT(d)          ");
 			}
 		}
-		else if(shader->collapseType == COLLAPSE_lighting_DB)
+		else */
+		if(shader->collapseType == COLLAPSE_lighting_DB)
 		{
 			ri.Printf(PRINT_ALL, "lighting_DB    ");
 		}

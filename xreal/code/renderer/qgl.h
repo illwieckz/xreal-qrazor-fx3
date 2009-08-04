@@ -33,6 +33,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 int             QGL_Init();
 void            QGL_Shutdown(void);
 void            QGL_EnableLogging(int enable);
@@ -383,5 +387,9 @@ extern void     (APIENTRY * qglGenerateMipmapEXT) (GLenum target);
 
 extern void		(APIENTRY * qglBlitFramebufferEXT) (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif							// __QGL_H__
