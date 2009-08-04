@@ -6953,10 +6953,23 @@ static void RB_RenderDebugUtils()
 						VectorCopy4(colorMdGrey, lightColor);
 					}
 				}
+				else// if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+				{
+					if(!ia->occlusionQuerySamples)
+					{
+						VectorCopy4(colorRed, lightColor);
+					}
+					else
+					{
+						VectorCopy4(colorGreen, lightColor);
+					}
+				}
+				/*
 				else
 				{
 					VectorCopy4(g_color_table[iaCount % 8], lightColor);
 				}
+				*/
 
 				// set up the transformation matrix
 				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
