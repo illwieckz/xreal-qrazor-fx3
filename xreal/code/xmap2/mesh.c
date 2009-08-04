@@ -81,7 +81,7 @@ void LerpDrawVert(bspDrawVert_t * a, bspDrawVert_t * b, bspDrawVert_t * out)
 	out->normal[2] = 0.5f * (a->normal[2] + b->normal[2]);
 
 	/* if the interpolant created a bogus normal, just copy the normal from a */
-	if(VectorNormalize2(out->normal, out->normal) == 0)
+	if(VectorNormalize(out->normal) == 0)
 		VectorCopy(a->normal, out->normal);
 }
 
@@ -129,7 +129,7 @@ void LerpDrawVertAmount(bspDrawVert_t * a, bspDrawVert_t * b, float amount, bspD
 	out->normal[2] = a->normal[2] + amount * (b->normal[2] - a->normal[2]);
 
 	/* if the interpolant created a bogus normal, just copy the normal from a */
-	if(VectorNormalize2(out->normal, out->normal) == 0)
+	if(VectorNormalize(out->normal) == 0)
 		VectorCopy(a->normal, out->normal);
 }
 
@@ -317,7 +317,7 @@ void MakeMeshNormals(mesh_t in)
 						break;	// edge of patch
 					}
 					VectorSubtract(in.verts[y * in.width + x].xyz, base, temp);
-					if(VectorNormalize2(temp, temp) == 0)
+					if(VectorNormalize(temp) == 0)
 					{
 						continue;	// degenerate edge, get more dist
 					}
@@ -338,7 +338,7 @@ void MakeMeshNormals(mesh_t in)
 					continue;	// didn't get two points
 				}
 				CrossProduct(around[(k + 1) & 7], around[k], normal);
-				if(VectorNormalize2(normal, normal) == 0)
+				if(VectorNormalize(normal) == 0)
 				{
 					continue;
 				}
@@ -717,7 +717,7 @@ void ProjectPointOntoVector(vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vPr
 
 	VectorSubtract(point, vStart, pVec);
 	VectorSubtract(vEnd, vStart, vec);
-	VectorNormalize2(vec, vec);
+	VectorNormalize(vec);
 	// project onto the directional vector for this segment
 	VectorMA(vStart, DotProduct(pVec, vec), vec, vProj);
 }

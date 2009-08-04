@@ -568,18 +568,34 @@ void OnlyEnts(void)
 {
 	char            out[1024];
 
+	char            save_cmdline[1024], save_version[1024];
+	const char     *p;
 
 	/* note it */
 	Sys_Printf("--- OnlyEnts ---\n");
 
 	sprintf(out, "%s.bsp", source);
 	LoadBSPFile(out);
+
+	ParseEntities();
+	p = ValueForKey(&entities[0], "_xmap2_cmdline");
+	strncpy(save_cmdline, p, sizeof(save_cmdline));
+	save_cmdline[sizeof(save_cmdline) - 1] = 0;
+	p = ValueForKey(&entities[0], "_xmap2_version");
+	strncpy(save_version, p, sizeof(save_version));
+	save_version[sizeof(save_version) - 1] = 0;
+
 	numEntities = 0;
 
 	LoadShaderInfo();
 	LoadMapFile(name, qfalse);
 	SetModelNumbers();
 	//% Tr3B: SetLightStyles();
+
+	if(*save_cmdline)
+		SetKeyValue(&entities[0], "_xmap2_cmdline", save_cmdline);
+	if(*save_version)
+		SetKeyValue(&entities[0], "_xmap2_version", save_version);
 
 	numBSPEntities = numEntities;
 	UnparseEntities();
@@ -877,6 +893,9 @@ int BSPMain(int argc, char **argv)
 		LoadMapFile(tempSource, qfalse);
 	else
 		LoadMapFile(name, qfalse);
+
+	/* div0: inject command line parameters */
+	InjectCommandLine(argv, 1, argc - 1);
 
 	/* ydnar: decal setup */
 	ProcessDecals();

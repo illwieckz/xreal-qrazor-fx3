@@ -179,7 +179,7 @@ constants
 /* bsp */
 #define	MAX_PATCH_SIZE			64	/* Tr3B: was 32 in Q3A */
 #define	MAX_BRUSH_SIDES			1024
-#define MAX_BUILD_SIDES			300
+#define MAX_BUILD_SIDES			1024
 
 #define	MAX_EXPANDED_AXIS		128
 
@@ -211,7 +211,7 @@ constants
 
 #define	PORTALFILE				"PRT1"
 
-#define	MAX_PORTALS				32768
+#define	MAX_PORTALS				0x20000	/* same as MAX_MAP_PORTALS */
 #define MAX_SEPERATORS			MAX_POINTS_ON_WINDING
 #define	MAX_POINTS_ON_FIXED_WINDING	24	/* ydnar: increased this from 12 at the expense of more memory */
 #define	MAX_PORTALS_ON_LEAF		1024
@@ -316,7 +316,8 @@ abstracted bsp file
 #define	MAX_MAP_PORTALS			0x20000
 #define	MAX_MAP_LIGHTING		0x800000
 #define	MAX_MAP_LIGHTGRID		0x100000	//% 0x800000 /* ydnar: set to points, not bytes */
-#define	MAX_MAP_VISIBILITY		0x800000	//% 0x200000 /* Tr3B */
+#define MAX_MAP_VISCLUSTERS     0x4000	// <= MAX_MAP_LEAFS
+#define	MAX_MAP_VISIBILITY		(VIS_HEADER_SIZE + MAX_MAP_VISCLUSTERS * (((MAX_MAP_VISCLUSTERS + 63) & ~63) >> 3))
 
 #define	MAX_MAP_DRAW_SURFS		0x20000
 #define	MAX_MAP_DRAW_VERTS		0x200000	//% 0x80000 /* Tr3B */
@@ -538,6 +539,12 @@ typedef struct surfaceParm_s
 }
 surfaceParm_t;
 
+typedef enum
+{
+	MINIMAP_MODE_BLACK,
+	MINIMAP_MODE_WHITE
+}
+miniMapMode_t;
 
 typedef struct game_s
 {
@@ -554,7 +561,22 @@ typedef struct game_s
 	qboolean        wolfLight;	/* when true, lights work like wolf q3map  */
 	int             lightmapSize;	/* bsp lightmap width/height */
 	float           lightmapGamma;	/* default lightmap gamma */
+	float           lightmapExposure;	/* default lightmap exposure */
 	float           lightmapCompensate;	/* default lightmap compensate value */
+	float           gridScale;	/* vortex: default lightgrid scale (affects both directional and ambient spectres) */
+	float           gridAmbientScale;	/* vortex: default lightgrid ambient spectre scale */
+	qboolean        noStyles;	/* use lightstyles hack or not */
+	qboolean        keepLights;	/* keep light entities on bsp */
+	int             patchSubdivisions;	/* default patch subdivisions tolerance */
+	qboolean        patchShadows;	/* patch casting enabled */
+	qboolean        deluxeMap;	/* compile deluxemaps */
+	int             deluxeMode;	/* deluxemap mode (0 - modelspace, 1 - tangentspace with renormalization, 2 - tangentspace without renormalization) */
+	int             miniMapSize;	/* minimap size */
+	float           miniMapSharpen;	/* minimap sharpening coefficient */
+	float           miniMapBorder;	/* minimap border amount */
+	qboolean        miniMapKeepAspect;	/* minimap keep aspect ratio by letterboxing */
+	miniMapMode_t   miniMapMode;	/* minimap mode */
+	char           *miniMapNameFormat;	/* minimap name format */
 	char           *bspIdent;	/* 4-letter bsp file prefix */
 	int             bspVersion;	/* bsp version to use */
 	qboolean        lumpSwap;	/* cod-style len/ofs order */
@@ -871,7 +893,9 @@ typedef struct brush_s
 	shaderInfo_t   *celShader;	/* :) */
 
 	/* ydnar: gs mods */
+	int             lightmapSampleSize;	/* jal : entity based _lightmapsamplesize */
 	float           lightmapScale;
+	float           shadeAngleDegrees;	/* jal : entity based _shadeangle */
 	vec3_t          eMins, eMaxs;
 	indexMap_t     *im;
 
@@ -922,6 +946,7 @@ typedef struct parseMesh_s
 	shaderInfo_t   *celShader;	/* :) */
 
 	/* ydnar: gs mods */
+	int             lightmapSampleSize;	/* jal : entity based _lightmapsamplesize */
 	float           lightmapScale;
 	vec3_t          eMins, eMaxs;
 	indexMap_t     *im;
@@ -1019,6 +1044,9 @@ typedef struct mapDrawSurface_s
 	/* ydnar: per-surface (per-entity, actually) lightmap sample size scaling */
 	float           lightmapScale;
 
+	/* jal: per-surface (per-entity, actually) shadeangle */
+	float           shadeAngleDegrees;
+
 	/* ydnar: surface classification */
 	vec3_t          mins, maxs;
 	vec3_t          lightmapAxis;
@@ -1061,6 +1089,7 @@ typedef struct metaTriangle_s
 	shaderInfo_t   *si;
 	side_t         *side;
 	int             entityNum, surfaceNum, planeNum, fogNum, sampleSize, castShadows, recvShadows;
+	float           shadeAngleDegrees;
 	vec4_t          plane;
 	vec3_t          lightmapAxis;
 	int             indexes[3];
@@ -1085,7 +1114,6 @@ typedef struct
 	int             firstBrush, numBrushes;	/* only valid during BSP compile */
 	epair_t        *epairs;
 	vec3_t          originbrush_origin;
-	qboolean        forceNormalSmoothing;	/* vortex: true if entity has _smoothnormals/_sn/_smooth key */
 }
 entity_t;
 
@@ -1459,8 +1487,6 @@ typedef struct surfaceInfo_s
 }
 surfaceInfo_t;
 
-
-
 /* -------------------------------------------------------------------------------
 
 prototypes
@@ -1622,7 +1648,7 @@ picoModel_t    *FindModel(char *name, int frame);
 picoModel_t    *LoadModel(char *name, int frame);
 void            InsertModel(char *name, int frame, matrix_t fullTransform, matrix_t rotation, remap_t * remap,
 							shaderInfo_t * celShader, int eNum, int castShadows, int recvShadows, int spawnFlags,
-							float lightmapScale);
+							float lightmapScale, int lightmapSampleSize, float shadeAngle);
 void            AddTriangleModel(entity_t * e);
 void            AddTriangleModels(entity_t * e);
 
@@ -1715,7 +1741,6 @@ void            BasePortalVis(int portalnum);
 void            BetterPortalVis(int portalnum);
 void            PortalFlow(int portalnum);
 void            PassagePortalFlow(int portalnum);
-void            AllocPortalVis(int portalnum);
 
 
 
@@ -1745,6 +1770,7 @@ void            RadFreeLights();
 
 /* light_ydnar.c */
 void            ColorToBytes(const float *color, byte * colorBytes, float scale);
+void            ColorToFloats(const float *color, float * colorFloats, float scale);
 void            ColorToRGBE(const float *color, unsigned char rgbe[4]);
 void            SmoothNormals(void);
 
@@ -2145,10 +2171,12 @@ Q_EXTERN qboolean			dark Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			sunOnly Q_ASSIGN( qfalse );
 Q_EXTERN int				approximateTolerance Q_ASSIGN( 0 );
 Q_EXTERN qboolean			noCollapse Q_ASSIGN( qfalse );
+Q_EXTERN int				lightmapSearchBlockSize Q_ASSIGN( 0 );
 Q_EXTERN qboolean			exportLightmaps Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			externalLightmaps Q_ASSIGN( qtrue );
-Q_EXTERN qboolean			hdr Q_ASSIGN( qtrue );
 Q_EXTERN int				lmCustomSize Q_ASSIGN( LIGHTMAP_WIDTH );
+Q_EXTERN char *				lmCustomDir Q_ASSIGN( NULL );
+Q_EXTERN int				lmLimitSize Q_ASSIGN( 0 );
 
 Q_EXTERN qboolean			dirty Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			dirtDebug Q_ASSIGN( qfalse );
@@ -2355,7 +2383,8 @@ Q_EXTERN int				allocatedBSPShaders Q_ASSIGN( 0 );
 Q_EXTERN bspShader_t*		bspShaders Q_ASSIGN(0);
 
 Q_EXTERN int				bspEntDataSize Q_ASSIGN( 0 );
-Q_EXTERN char				bspEntData[ MAX_MAP_ENTSTRING ];
+Q_EXTERN int				allocatedBSPEntData Q_ASSIGN( 0 );
+Q_EXTERN char				*bspEntData Q_ASSIGN(0);
 
 Q_EXTERN int				numBSPLeafs Q_ASSIGN( 0 );
 Q_EXTERN bspLeaf_t			bspLeafs[ MAX_MAP_LEAFS ];

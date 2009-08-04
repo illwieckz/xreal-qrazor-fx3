@@ -180,6 +180,7 @@ mapDrawSurface_t *MakeCelSurface(mapDrawSurface_t * src, shaderInfo_t * si)
 	/* do some fixups for celshading */
 	ds->planar = qfalse;
 	ds->planeNum = -1;
+	ds->celShader = NULL;		/* don't cel shade cels :P */
 
 	/* return the surface */
 	return ds;
@@ -627,21 +628,26 @@ void ClassifySurfaces(int numSurfs, mapDrawSurface_t * ds)
 			//%     Sys_Printf( "Failed to map axis %d onto patch\n", bestAxis );
 		}
 
-		/* get lightmap sample size */
-		if(ds->sampleSize <= 0)
+		/* calculate lightmap sample size */
+		if(ds->shaderInfo->lightmapSampleSize > 0)	/* shader value overrides every other */
+			ds->sampleSize = ds->shaderInfo->lightmapSampleSize;
+		else if(ds->sampleSize <= 0)	/* may contain the entity asigned value */
+			ds->sampleSize = sampleSize;	/* otherwise use global default */
+
+		if(ds->lightmapScale > 0.0f)	/* apply surface lightmap scaling factor */
 		{
-			ds->sampleSize = sampleSize;
-			if(ds->shaderInfo->lightmapSampleSize)
-				ds->sampleSize = ds->shaderInfo->lightmapSampleSize;
-			if(ds->lightmapScale > 0)
-				ds->sampleSize *= ds->lightmapScale;
-			if(ds->sampleSize <= 0)
-				ds->sampleSize = 1;
-			if(ds->sampleSize < minSampleSize)
-				ds->sampleSize = minSampleSize;
-			if(ds->sampleSize > 16384)	/* powers of 2 are preferred */
-				ds->sampleSize = 16384;
+			ds->sampleSize = ds->lightmapScale * (float)ds->sampleSize;
+			ds->lightmapScale = 0;	/* applied */
 		}
+
+		if(ds->sampleSize < minSampleSize)
+			ds->sampleSize = minSampleSize;
+
+		if(ds->sampleSize < 1)
+			ds->sampleSize = 1;
+
+		if(ds->sampleSize > 16384)	/* powers of 2 are preferred */
+			ds->sampleSize = 16384;
 	}
 }
 
@@ -910,6 +916,7 @@ mapDrawSurface_t *DrawSurfaceForSide(entity_t * e, brush_t * b, side_t * s, wind
 	ds->mapBrush = b;
 	ds->sideRef = AllocSideRef(s, NULL);
 	ds->fogNum = -1;
+	ds->sampleSize = b->lightmapSampleSize;
 	ds->lightmapScale = b->lightmapScale;
 	ds->numVerts = w->numpoints;
 	ds->verts = safe_malloc(ds->numVerts * sizeof(*ds->verts));
@@ -979,17 +986,21 @@ mapDrawSurface_t *DrawSurfaceForSide(entity_t * e, brush_t * b, side_t * s, wind
 
 		for(k = 0; k < MAX_LIGHTMAPS; k++)
 		{
-			dv->lightColor[k][0] = 1.0f;
-			dv->lightColor[k][1] = 1.0f;
-			dv->lightColor[k][2] = 1.0f;
+			dv->lightColor[k][0] = 255;
+			dv->lightColor[k][1] = 255;
+			dv->lightColor[k][2] = 255;
 
 			/* ydnar: gs mods: handle indexed shader blending */
-			dv->lightColor[k][3] = (indexed ? shaderIndexes[j] : 1);
+			dv->lightColor[k][3] = (indexed ? shaderIndexes[j] : 255);
 		}
 	}
 
 	/* set cel shader */
 	ds->celShader = b->celShader;
+
+	/* set shade angle */
+	if(b->shadeAngleDegrees > 0.0f)
+		ds->shadeAngleDegrees = b->shadeAngleDegrees;
 
 	/* ydnar: gs mods: moved st biasing elsewhere */
 	return ds;
@@ -1098,6 +1109,7 @@ mapDrawSurface_t *DrawSurfaceForMesh(entity_t * e, parseMesh_t * p, mesh_t * mes
 
 	ds->shaderInfo = si;
 	ds->mapMesh = p;
+	ds->sampleSize = p->lightmapSampleSize;
 	ds->lightmapScale = p->lightmapScale;	/* ydnar */
 	ds->patchWidth = mesh->width;
 	ds->patchHeight = mesh->height;
@@ -1175,12 +1187,12 @@ mapDrawSurface_t *DrawSurfaceForMesh(entity_t * e, parseMesh_t * p, mesh_t * mes
 
 		for(k = 0; k < MAX_LIGHTMAPS; k++)
 		{
-			dv->lightColor[k][0] = 1;
-			dv->lightColor[k][1] = 1;
-			dv->lightColor[k][2] = 1;
+			dv->lightColor[k][0] = 255;
+			dv->lightColor[k][1] = 255;
+			dv->lightColor[k][2] = 255;
 
 			/* ydnar: gs mods: handle indexed shader blending */
-			dv->lightColor[k][3] = (indexed ? shaderIndexes[i] : 1);
+			dv->lightColor[k][3] = (indexed ? shaderIndexes[i] : 255);
 		}
 
 		/* ydnar: offset */
@@ -2880,7 +2892,7 @@ static void MakeDebugPortalSurfs_r(node_t * node, shaderInfo_t * si)
 				for(k = 0; k < MAX_LIGHTMAPS; k++)
 				{
 					VectorCopy(debugColors[c % 12], dv->lightColor[k]);
-					dv->lightColor[k][3] = 32 / 255.0f;
+					dv->lightColor[k][3] = 32;
 				}
 			}
 		}
@@ -3133,7 +3145,7 @@ int AddSurfaceModelsToTriangle_r(mapDrawSurface_t * ds, surfaceModel_t * model, 
 
 			/* insert the model */
 			InsertModel((char *)model->model, 0, transform, temp, NULL, ds->celShader, ds->entityNum, ds->castShadows, ds->recvShadows,
-						0, ds->lightmapScale);
+						0, ds->lightmapScale, 0, 0);
 
 			/* return to sender */
 			return 1;
@@ -3224,10 +3236,10 @@ int AddSurfaceModels(mapDrawSurface_t * ds)
 				centroid.paintColor[2] = 1.0f;
 				centroid.paintColor[2] = (alpha > 1.0f ? 1.0f : alpha);
 
-				centroid.lightColor[0][0] = 1.0f;
-				centroid.lightColor[0][1] = 1.0f;
-				centroid.lightColor[0][2] = 1.0f;
-				centroid.lightColor[0][2] = (alpha > 1.0f ? 1.0f : alpha);
+				centroid.lightColor[0][0] = 255;
+				centroid.lightColor[0][1] = 255;
+				centroid.lightColor[0][2] = 255;
+				centroid.lightColor[0][2] = (alpha > 255 ? 255 : alpha);
 
 				/* head vert is centroid */
 				tri[0] = &centroid;

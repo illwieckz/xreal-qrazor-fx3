@@ -47,7 +47,7 @@ void PlaneFromWinding(fixedWinding_t * w, visPlane_t * plane)
 	VectorSubtract(w->points[2], w->points[1], v1);
 	VectorSubtract(w->points[0], w->points[1], v2);
 	CrossProduct(v2, v1, plane->normal);
-	VectorNormalize2(plane->normal, plane->normal);
+	VectorNormalize(plane->normal);
 	plane->dist = DotProduct(w->points[0], plane->normal);
 }
 
@@ -168,6 +168,7 @@ ClusterMerge
 Merges the portal visibility for a leaf
 ===============
 */
+static int      clustersizehistogram[MAX_MAP_LEAFS] = { 0 };
 void ClusterMerge(int leafnum)
 {
 	leaf_t         *leaf;
@@ -213,9 +214,8 @@ void ClusterMerge(int leafnum)
 
 	numvis++;					// count the leaf itself
 
-	totalvis += numvis;
-
-	Sys_FPrintf(SYS_VRB, "cluster %4i : %4i visible\n", leafnum, numvis);
+	//Sys_FPrintf (SYS_VRB,"cluster %4i : %4i visible\n", leafnum, numvis);
+	++clustersizehistogram[numvis];
 
 	memcpy(bspVisBytes + VIS_HEADER_SIZE + leafnum * leafbytes, uncompressed, leafbytes);
 }
@@ -311,8 +311,9 @@ CalcVis
 */
 void CalcVis(void)
 {
-	int             i;
+	int             i, minvis, maxvis;
 	const char     *value;
+	double          mu, sigma, totalvis, totalvis2;
 
 
 	/* ydnar: rr2do2's farplane code */
@@ -334,12 +335,9 @@ void CalcVis(void)
 
 
 	Sys_Printf("\n--- BasePortalVis (%d) ---\n", numportals * 2);
-#if 1
 	RunThreadsOnIndividual(numportals * 2, qtrue, BasePortalVis);
-#else
-	RunThreadsOnIndividual(numportals * 2, qtrue, AllocPortalVis);
-	RunThreadsOnIndividual(numportals * 2, qtrue, BetterPortalVis);
-#endif
+
+//  RunThreadsOnIndividual (numportals*2, qtrue, BetterPortalVis);
 
 	SortPortals();
 
@@ -366,8 +364,36 @@ void CalcVis(void)
 	for(i = 0; i < portalclusters; i++)
 		ClusterMerge(i);
 
-	Sys_Printf("Total visible clusters: %i\n", totalvis);
-	Sys_Printf("Average clusters visible: %i\n", totalvis / portalclusters);
+	totalvis = 0;
+	totalvis2 = 0;
+	minvis = -1;
+	maxvis = -1;
+	for(i = 0; i < MAX_MAP_LEAFS; ++i)
+		if(clustersizehistogram[i])
+		{
+			if(debugCluster)
+				Sys_FPrintf(SYS_VRB, "%4i clusters have exactly %4i visible clusters\n", clustersizehistogram[i], i);
+			/* cast is to prevent integer overflow */
+			totalvis += ((double)i) * ((double)clustersizehistogram[i]);
+			totalvis2 += ((double)i) * ((double)i) * ((double)clustersizehistogram[i]);
+
+			if(minvis < 0)
+				minvis = i;
+			maxvis = i;
+		}
+
+	mu = totalvis / portalclusters;
+	sigma = sqrt(totalvis2 / portalclusters - mu * mu);
+
+	Sys_Printf("Total clusters: %i\n", portalclusters);
+	Sys_Printf("Total visible clusters: %.0f\n", totalvis);
+	Sys_Printf("Average clusters visible: %.2f (%.3f%%/total)\n", mu, mu / portalclusters * 100.0);
+	Sys_Printf("  Standard deviation: %.2f (%.3f%%/total, %.3f%%/avg)\n", sigma, sigma / portalclusters * 100.0,
+			   sigma / mu * 100.0);
+	Sys_Printf("  Minimum: %i (%.3f%%/total, %.3f%%/avg)\n", minvis, minvis / (double)portalclusters * 100.0,
+			   minvis / mu * 100.0);
+	Sys_Printf("  Maximum: %i (%.3f%%/total, %.3f%%/avg)\n", maxvis, maxvis / (double)portalclusters * 100.0,
+			   maxvis / mu * 100.0);
 }
 
 /*
@@ -646,7 +672,7 @@ fixedWinding_t *TryMergeWinding(fixedWinding_t * f1, fixedWinding_t * f2, vec3_t
 	back = f1->points[(i + f1->numpoints - 1) % f1->numpoints];
 	VectorSubtract(p1, back, delta);
 	CrossProduct(planenormal, delta, normal);
-	VectorNormalize2(normal, normal);
+	VectorNormalize(normal);
 
 	back = f2->points[(j + 2) % f2->numpoints];
 	VectorSubtract(back, p1, delta);
@@ -658,7 +684,7 @@ fixedWinding_t *TryMergeWinding(fixedWinding_t * f1, fixedWinding_t * f2, vec3_t
 	back = f1->points[(i + 2) % f1->numpoints];
 	VectorSubtract(back, p2, delta);
 	CrossProduct(planenormal, delta, normal);
-	VectorNormalize2(normal, normal);
+	VectorNormalize(normal);
 
 	back = f2->points[(j + f2->numpoints - 1) % f2->numpoints];
 	VectorSubtract(back, p2, delta);
@@ -888,6 +914,9 @@ void LoadPortals(char *name)
 	Sys_Printf("%6i numportals\n", numportals);
 	Sys_Printf("%6i numfaces\n", numfaces);
 
+	if(numportals > MAX_PORTALS)
+		Error("MAX_PORTALS");
+
 	// these counts should take advantage of 64 bit systems automatically
 	leafbytes = ((portalclusters + 63) & ~63) >> 3;
 	leaflongs = leafbytes / sizeof(long);
@@ -1083,6 +1112,11 @@ int VisMain(int argc, char **argv)
 			Sys_Printf("nosort = true\n");
 			nosort = qtrue;
 		}
+		else if(!strcmp(argv[i], "-v"))
+		{
+			debugCluster = qtrue;
+			Sys_Printf("Extra verbose mode enabled\n");
+		}
 		else if(!strcmp(argv[i], "-tmpin"))
 		{
 			strcpy(inbase, "/tmp");
@@ -1134,6 +1168,10 @@ int VisMain(int argc, char **argv)
 
 	/* ydnar: for getting far plane */
 	ParseEntities();
+
+	/* inject command line parameters */
+	InjectCommandLine(argv, 0, argc - 1);
+	UnparseEntities();
 
 	if(mergevis)
 		MergeLeaves();

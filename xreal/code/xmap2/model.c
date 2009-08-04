@@ -206,7 +206,7 @@ adds a picomodel into the bsp
 */
 
 void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform, remap_t * remap, shaderInfo_t * celShader, int eNum, int castShadows,
-				 int recvShadows, int spawnFlags, float lightmapScale)
+				 int recvShadows, int spawnFlags, float lightmapScale, int lightmapSampleSize, float shadeAngle)
 {
 	int             i, j, k, s, numSurfaces;
 	matrix_t        identity;
@@ -251,6 +251,10 @@ void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform,
 	/* fix bogus lightmap scale */
 	if(lightmapScale <= 0.0f)
 		lightmapScale = 1.0f;
+
+	/* fix bogus shade angle */
+	if(shadeAngle <= 0.0f)
+		shadeAngle = 0.0f;
 
 	/* each surface on the model will become a new map drawsurface */
 	numSurfaces = PicoGetModelNumSurfaces(model);
@@ -346,12 +350,25 @@ void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform,
 		/* set shader */
 		ds->shaderInfo = si;
 
-		/* set lightmap scale */
-		ds->lightmapScale = lightmapScale;
-
 		/* force to meta? */
 		if((si != NULL && si->forceMeta) || (spawnFlags & 4))	/* 3rd bit */
 			ds->type = SURFACE_FORCED_META;
+
+		/* fix the surface's normals (jal: conditioned by shader info) */
+		//if(!(spawnFlags & 64) && (shadeAngle == 0.0f || ds->type != SURFACE_FORCED_META))
+		//	PicoFixSurfaceNormals(surface);
+
+		/* set sample size */
+		if(lightmapSampleSize > 0.0f)
+			ds->sampleSize = lightmapSampleSize;
+
+		/* set lightmap scale */
+		if(lightmapScale > 0.0f)
+			ds->lightmapScale = lightmapScale;
+
+		/* set shading angle */
+		if(shadeAngle > 0.0f)
+			ds->shadeAngleDegrees = shadeAngle;
 
 		/* set particulars */
 		ds->numVerts = PicoGetSurfaceNumVertexes(surface);
@@ -414,10 +431,10 @@ void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform,
 				dv->lightmap[j][0] = 0.0f;
 				dv->lightmap[j][1] = 0.0f;
 
-				dv->lightColor[j][0] = color[0] / 255.0f;
-				dv->lightColor[j][1] = color[1] / 255.0f;
-				dv->lightColor[j][2] = color[2] / 255.0f;
-				dv->lightColor[j][3] = color[3] / 255.0f;
+				dv->lightColor[j][0] = 255;
+				dv->lightColor[j][1] = 255;
+				dv->lightColor[j][2] = 255;
+				dv->lightColor[j][3] = 255;
 			}
 		}
 
@@ -613,7 +630,9 @@ void AddTriangleModel(entity_t * e)
 	const char     *name, *model, *value;
 	char            shader[MAX_QPATH];
 	shaderInfo_t   *celShader;
-	float           temp, lightmapScale;
+	float           temp, baseLightmapScale, lightmapScale;
+	float           shadeAngle;
+	int             lightmapSampleSize;
 	vec3_t          scale;
 	matrix_t        rotation, transform;
 	epair_t        *ep;
@@ -728,13 +747,57 @@ void AddTriangleModel(entity_t * e)
 		celShader = NULL;
 
 	/* get lightmap scale */
-	lightmapScale = FloatForKey(e, "_lightmapscale");
-	if(lightmapScale <= 0.0f)
-		lightmapScale = 0.0f;
+	/* jal : entity based _samplesize */
+	lightmapSampleSize = 0;
+	if(strcmp("", ValueForKey(e, "_lightmapsamplesize")))
+		lightmapSampleSize = IntForKey(e, "_lightmapsamplesize");
+	else if(strcmp("", ValueForKey(e, "_samplesize")))
+		lightmapSampleSize = IntForKey(e, "_samplesize");
+
+	if(lightmapSampleSize < 0)
+		lightmapSampleSize = 0;
+
+	if(lightmapSampleSize > 0.0f)
+		Sys_Printf(" has lightmap sample size of %.d\n", lightmapSampleSize);
+
+	/* get lightmap scale */
+	/* vortex: added _ls key (short name of lightmapscale) */
+	lightmapScale = 0.0f;
+	if(strcmp("", ValueForKey(e, "lightmapscale")) ||
+	   strcmp("", ValueForKey(e, "_lightmapscale")) || strcmp("", ValueForKey(e, "_ls")))
+	{
+		lightmapScale = FloatForKey(e, "lightmapscale");
+		if(lightmapScale <= 0.0f)
+			lightmapScale = FloatForKey(e, "_lightmapscale");
+		if(lightmapScale <= 0.0f)
+			lightmapScale = FloatForKey(e, "_ls");
+		if(lightmapScale < 0.0f)
+			lightmapScale = 0.0f;
+		if(lightmapScale > 0.0f)
+			Sys_Printf("misc_model has lightmap scale of %.4f\n", lightmapScale);
+	}
+
+	/* jal : entity based _shadeangle */
+	shadeAngle = 0.0f;
+	if(strcmp("", ValueForKey(e, "_shadeangle")))
+		shadeAngle = FloatForKey(e, "_shadeangle");
+	/* vortex' aliases */
+	else if(strcmp("", ValueForKey(e, "_smoothnormals")))
+		shadeAngle = FloatForKey(e, "_smoothnormals");
+	else if(strcmp("", ValueForKey(e, "_sn")))
+		shadeAngle = FloatForKey(e, "_sn");
+	else if(strcmp("", ValueForKey(e, "_smooth")))
+		shadeAngle = FloatForKey(e, "_smooth");
+
+	if(shadeAngle < 0.0f)
+		shadeAngle = 0.0f;
+
+	if(shadeAngle > 0.0f)
+		Sys_Printf("misc_model has shading angle of %.4f\n", shadeAngle);
 
 	/* insert the model */
 	InsertModel((char *)model, frame, transform, rotation, remap, celShader, mapEntityNum, castShadows, recvShadows, spawnFlags,
-				lightmapScale);
+				lightmapScale, lightmapSampleSize, shadeAngle);
 
 	/* free shader remappings */
 	while(remap != NULL)
@@ -760,6 +823,8 @@ void AddTriangleModels(entity_t * e)
 	char            shader[MAX_QPATH];
 	shaderInfo_t   *celShader;
 	float           temp, baseLightmapScale, lightmapScale;
+	float           shadeAngle;
+	int             lightmapSampleSize;
 	vec3_t          origin, scale, angles;
 	matrix_t        rotation, rotationScaled, transform;
 	epair_t        *ep;
@@ -783,9 +848,21 @@ void AddTriangleModels(entity_t * e)
 	}
 
 	/* get lightmap scale */
-	baseLightmapScale = FloatForKey(e, "_lightmapscale");
-	if(baseLightmapScale <= 0.0f)
-		baseLightmapScale = 0.0f;
+	/* vortex: added _ls key (short name of lightmapscale) */
+	baseLightmapScale = 0.0f;
+	if(strcmp("", ValueForKey(e, "lightmapscale")) ||
+	   strcmp("", ValueForKey(e, "_lightmapscale")) || strcmp("", ValueForKey(e, "_ls")))
+	{
+		baseLightmapScale = FloatForKey(e, "lightmapscale");
+		if(baseLightmapScale <= 0.0f)
+			baseLightmapScale = FloatForKey(e, "_lightmapscale");
+		if(baseLightmapScale <= 0.0f)
+			baseLightmapScale = FloatForKey(e, "_ls");
+		if(baseLightmapScale < 0.0f)
+			baseLightmapScale = 0.0f;
+		if(baseLightmapScale > 0.0f)
+			Sys_Printf("World Entity has lightmap scale of %.4f\n", baseLightmapScale);
+	}
 
 	/* walk the entity list */
 	for(num = 1; num < numEntities; num++)
@@ -929,14 +1006,57 @@ void AddTriangleModels(entity_t * e)
 		else
 			celShader = NULL;
 
+		/* jal : entity based _samplesize */
+		lightmapSampleSize = 0;
+		if(strcmp("", ValueForKey(e2, "_lightmapsamplesize")))
+			lightmapSampleSize = IntForKey(e2, "_lightmapsamplesize");
+		else if(strcmp("", ValueForKey(e2, "_samplesize")))
+			lightmapSampleSize = IntForKey(e2, "_samplesize");
+
+		if(lightmapSampleSize < 0)
+			lightmapSampleSize = 0;
+
+		if(lightmapSampleSize > 0.0f)
+			Sys_Printf("misc_model has lightmap sample size of %.d\n", lightmapSampleSize);
+
 		/* get lightmap scale */
-		lightmapScale = FloatForKey(e2, "_lightmapscale");
-		if(lightmapScale <= 0.0f)
-			lightmapScale = baseLightmapScale;
+		/* vortex: added _ls key (short name of lightmapscale) */
+		lightmapScale = 0.0f;
+		if(strcmp("", ValueForKey(e2, "lightmapscale")) ||
+		   strcmp("", ValueForKey(e2, "_lightmapscale")) || strcmp("", ValueForKey(e2, "_ls")))
+		{
+			lightmapScale = FloatForKey(e2, "lightmapscale");
+			if(lightmapScale <= 0.0f)
+				lightmapScale = FloatForKey(e2, "_lightmapscale");
+			if(lightmapScale <= 0.0f)
+				lightmapScale = FloatForKey(e2, "_ls");
+			if(lightmapScale < 0.0f)
+				lightmapScale = 0.0f;
+			if(lightmapScale > 0.0f)
+				Sys_Printf("misc_model has lightmap scale of %.4f\n", lightmapScale);
+		}
+
+		/* jal : entity based _shadeangle */
+		shadeAngle = 0.0f;
+		if(strcmp("", ValueForKey(e2, "_shadeangle")))
+			shadeAngle = FloatForKey(e2, "_shadeangle");
+		/* vortex' aliases */
+		else if(strcmp("", ValueForKey(mapEnt, "_smoothnormals")))
+			shadeAngle = FloatForKey(mapEnt, "_smoothnormals");
+		else if(strcmp("", ValueForKey(mapEnt, "_sn")))
+			shadeAngle = FloatForKey(mapEnt, "_sn");
+		else if(strcmp("", ValueForKey(mapEnt, "_smooth")))
+			shadeAngle = FloatForKey(mapEnt, "_smooth");
+
+		if(shadeAngle < 0.0f)
+			shadeAngle = 0.0f;
+
+		if(shadeAngle > 0.0f)
+			Sys_Printf("misc_model has shading angle of %.4f\n", shadeAngle);
 
 		/* insert the model */
 		InsertModel((char *)model, frame, transform, rotation, remap, celShader, mapEntityNum, castShadows, recvShadows, spawnFlags,
-					lightmapScale);
+					lightmapScale, lightmapSampleSize, shadeAngle);
 
 		/* free shader remappings */
 		while(remap != NULL)

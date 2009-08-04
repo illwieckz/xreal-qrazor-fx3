@@ -153,7 +153,7 @@ int AddEdge(vec3_t v1, vec3_t v2, qboolean createNonAxial)
 	vec3_t          dir;
 
 	VectorSubtract(v2, v1, dir);
-	d = VectorNormalize2(dir, dir);
+	d = VectorNormalize(dir);
 	if(d < 0.1)
 	{
 		// if we added a 0 length vector, it would make degenerate planes
@@ -261,7 +261,7 @@ qboolean ColinearEdge(vec3_t v1, vec3_t v2, vec3_t v3)
 
 	VectorSubtract(v2, v1, midpoint);
 	VectorSubtract(v3, v1, dir);
-	d = VectorNormalize2(dir, dir);
+	d = VectorNormalize(dir);
 	if(d == 0)
 	{
 		return qfalse;			// degenerate
@@ -454,7 +454,7 @@ void FixSurfaceJunctions(mapDrawSurface_t * ds)
 					for(j = 0; j < 4; j++)
 					{
 						c = (float)v1->lightColor[k][j] + frac * ((float)v2->lightColor[k][j] - (float)v1->lightColor[k][j]);
-						verts[numVerts].lightColor[k][j] = (c < 1.0f ? c : 1.0f);
+						verts[numVerts].lightColor[k][j] = (c < 255.0f ? c : 255.0f);
 					}
 				}
 
@@ -593,7 +593,7 @@ qboolean FixBrokenSurface(mapDrawSurface_t * ds)
 			/* ydnar 2002-01-26: added nearest-integer welding preference */
 			SnapWeldVector(dv1->xyz, dv2->xyz, avg.xyz);
 			VectorAdd(dv1->normal, dv2->normal, avg.normal);
-			VectorNormalize2(avg.normal, avg.normal);
+			VectorNormalize(avg.normal);
 			avg.st[0] = (dv1->st[0] + dv2->st[0]) * 0.5f;
 			avg.st[1] = (dv1->st[1] + dv2->st[1]) * 0.5f;
 

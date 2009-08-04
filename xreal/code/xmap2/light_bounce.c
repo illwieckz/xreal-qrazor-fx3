@@ -178,7 +178,7 @@ static void RadClipWindingEpsilon(radWinding_t * in, vec3_t normal, vec_t dist,
 		}
 
 		/* normalize the averaged normal */
-		VectorNormalize2(mid.normal, mid.normal);
+		VectorNormalize(mid.normal);
 
 		/* copy the midpoint to both windings */
 		memcpy(&front->verts[front->numVerts++], &mid, sizeof(radVert_t));
@@ -209,7 +209,7 @@ qboolean RadSampleImage(byte * pixels, int width, int height, float st[2], float
 
 
 	/* clear color first */
-	color[0] = color[1] = color[2] = color[3] = 1.0f;
+	color[0] = color[1] = color[2] = color[3] = 255;
 
 	/* dummy check */
 	if(pixels == NULL || width < 1 || height < 1)
@@ -282,7 +282,7 @@ static void RadSample(int lightmapNum, bspDrawSurface_t * ds, rawLightmap_t * lm
 			   (si->lightImage->pixels, si->lightImage->width, si->lightImage->height, rw->verts[samples].st, textureColor))
 			{
 				VectorCopy(si->averageColor, textureColor);
-				textureColor[4] = 1.0f;
+				textureColor[4] = 255.0f;
 			}
 			for(i = 0; i < 3; i++)
 				color[i] = (textureColor[i] / 255) * (rw->verts[samples].color[lightmapNum][i] / 255.0f);
@@ -363,7 +363,7 @@ static void RadSample(int lightmapNum, bspDrawSurface_t * ds, rawLightmap_t * lm
 						   (si->lightImage->pixels, si->lightImage->width, si->lightImage->height, st, textureColor))
 						{
 							VectorCopy(si->averageColor, textureColor);
-							textureColor[4] = 1.0f;
+							textureColor[4] = 255;
 						}
 						for(i = 0; i < 3; i++)
 							color[i] = (textureColor[i] / 255) * (radLuxel[i] / 255);
@@ -493,7 +493,7 @@ static void RadSubdivideDiffuseLight(int lightmapNum, bspDrawSurface_t * ds, raw
 		VectorAdd(normal, rw->verts[i].normal, normal);
 	}
 	VectorScale(normal, (1.0f / rw->numVerts), normal);
-	if(VectorNormalize2(normal, normal) == 0.0f)
+	if(VectorNormalize(normal) == 0.0f)
 		return;
 
 	/* early out? */

@@ -635,9 +635,9 @@ static void ProjectDecalOntoWinding(decalProjector_t * dp, mapDrawSurface_t * ds
 		/* set alpha */
 		d = DotProduct(w->p[i], dp->planes[0]) - dp->planes[0][3];
 		d2 = DotProduct(w->p[i], dp->planes[1]) - dp->planes[1][3];
-		alpha = 1.0f * d2 / (d + d2);
-		if(alpha > 1.0f)
-			alpha = 1.0f;
+		alpha = 255.0f * d2 / (d + d2);
+		if(alpha > 255)
+			alpha = 255;
 		else if(alpha < 0)
 			alpha = 0;
 
@@ -650,9 +650,9 @@ static void ProjectDecalOntoWinding(decalProjector_t * dp, mapDrawSurface_t * ds
 		/* set color */
 		for(j = 0; j < MAX_LIGHTMAPS; j++)
 		{
-			dv->lightColor[j][0] = 1.0f;
-			dv->lightColor[j][1] = 1.0f;
-			dv->lightColor[j][2] = 1.0f;
+			dv->lightColor[j][0] = 255;
+			dv->lightColor[j][1] = 255;
+			dv->lightColor[j][2] = 255;
 			dv->lightColor[j][3] = alpha;
 		}
 	}

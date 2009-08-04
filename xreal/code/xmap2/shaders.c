@@ -152,8 +152,8 @@ void ColorMod(colorMod_t * cm, int numVerts, bspDrawVert_t * drawVerts)
 
 					if(c < 0)
 						c = 0;
-					else if(c > 1.0f)
-						c = 1.0f;
+					else if(c > 255)
+						c = 255;
 
 					dv->lightColor[j][k] = c;
 				}
@@ -803,8 +803,14 @@ static void LoadShaderImages(shaderInfo_t * si)
 	}
 
 	if(VectorLength(si->color) <= 0.0f)
+	{
 		ColorNormalize(color, si->color);
-	VectorScale(color, (1.0f / count), si->averageColor);
+		VectorScale(color, (1.0f / count), si->averageColor);
+	}
+	else
+	{
+		VectorCopy(si->color, si->averageColor);
+	}
 }
 
 

@@ -465,7 +465,7 @@ void FanFaceSurface(mapDrawSurface_t * ds)
 		for(k = 0; k < MAX_LIGHTMAPS; k++)
 		{
 			color[k][j] /= ds->numVerts;
-			centroid->lightColor[k][j] = (color[k][j] < 1.0f ? color[k][j] : 1.0f);
+			centroid->lightColor[k][j] = (color[k][j] < 255.0f ? color[k][j] : 255.0f);
 		}
 
 		if(j < 2)
@@ -789,7 +789,7 @@ void CreateEdge(vec4_t plane, vec3_t a, vec3_t b, edge_t * edge)
 		edge->kingpin = 2;
 	edge->kingpinLength = edge->edge[edge->kingpin];
 
-	VectorNormalize2(edge->edge, edge->edge);
+	VectorNormalize(edge->edge);
 	edge->edge[3] = DotProduct(a, edge->edge);
 	edge->length = DotProduct(b, edge->edge) - edge->edge[3];
 
@@ -866,7 +866,7 @@ void FixMetaTJunctions(void)
 
 			/* debug code: darken verts */
 			if(i == 0)
-				VectorSet(metaVerts[j].lightColor[0], 8 / 255.0f, 8 / 255.0f, 8 / 255.0f);
+				VectorSet(metaVerts[j].lightColor[0], 8, 8, 8);
 
 			/* determine if point lies in the triangle's plane */
 			dist = DotProduct(pt, plane) - plane[3];
@@ -911,8 +911,8 @@ void FixMetaTJunctions(void)
 				/* debug code: brighten this point */
 				//% metaVerts[ j ].color[ 0 ][ 0 ] += 5;
 				//% metaVerts[ j ].color[ 0 ][ 1 ] += 4;
-				VectorSet(metaVerts[tri->indexes[k]].lightColor[0], 255 / 255.0f, 204 / 255.0f, 0);
-				VectorSet(metaVerts[tri->indexes[(k + 1) % 3]].lightColor[0], 255 / 255.0f, 204 / 255.0f, 0);
+				VectorSet(metaVerts[tri->indexes[k]].lightColor[0], 255, 204, 0);
+				VectorSet(metaVerts[tri->indexes[(k + 1) % 3]].lightColor[0], 255, 204, 0);
 
 
 				/* the edge opposite the zero-weighted vertex was hit, so use that as an amount */
@@ -962,8 +962,8 @@ void FixMetaTJunctions(void)
 				CreateEdge(plane, metaVerts[tri->indexes[2]].xyz, metaVerts[tri->indexes[0]].xyz, &edges[2]);
 
 				/* debug code */
-				metaVerts[vertIndex].lightColor[0][0] = 255 / 255.0f;
-				metaVerts[vertIndex].lightColor[0][1] = 204 / 255.0f;
+				metaVerts[vertIndex].lightColor[0][0] = 255;
+				metaVerts[vertIndex].lightColor[0][1] = 204;
 				metaVerts[vertIndex].lightColor[0][2] = 0;
 
 				/* add to counter and end processing of this vert */
@@ -1023,32 +1023,18 @@ void SmoothMetaTriangles(void)
 	   and set per-vertex smoothing angle */
 	for(i = 0, tri = &metaTriangles[i]; i < numMetaTriangles; i++, tri++)
 	{
-		/* vortex: try get smoothing from entity key */
-		shadeAngle = FloatForKey(&entities[tri->entityNum], "_smoothnormals");
-		if(shadeAngle <= 0.0f)
-			shadeAngle = FloatForKey(&entities[tri->entityNum], "_sn");
-		if(shadeAngle <= 0.0f)
-			shadeAngle = FloatForKey(&entities[tri->entityNum], "_smooth");
-		if(shadeAngle > 0.0f)
-		{
-			if(entities[tri->entityNum].forceNormalSmoothing == qfalse)
-			{
-				entities[tri->entityNum].forceNormalSmoothing = qtrue;
-				classname = ValueForKey(&entities[tri->entityNum], "classname");
-				Sys_Printf("Entity %d (%s) has vertex normal smoothing with breaking angle of %3.0f\n", tri->entityNum, classname,
-						   shadeAngle);
-			}
-			shadeAngle = DEG2RAD(shadeAngle);
-		}
+		shadeAngle = defaultShadeAngle;
 
-		/* get shader for shade angle */
+		/* get shade angle from shader */
+		if(tri->si->shadeAngleDegrees > 0.0f)
+			shadeAngle = DEG2RAD(tri->si->shadeAngleDegrees);
+		/* get shade angle from entity */
+		else if(tri->shadeAngleDegrees > 0.0f)
+			shadeAngle = DEG2RAD(tri->shadeAngleDegrees);
+
 		if(shadeAngle <= 0.0f)
-		{
-			if(tri->si->shadeAngleDegrees > 0.0f)
-				shadeAngle = DEG2RAD(tri->si->shadeAngleDegrees);
-			else
-				shadeAngle = defaultShadeAngle;
-		}
+			shadeAngle = defaultShadeAngle;
+
 		if(shadeAngle > maxShadeAngle)
 			maxShadeAngle = shadeAngle;
 
@@ -1148,7 +1134,7 @@ void SmoothMetaTriangles(void)
 			continue;
 
 		/* average normal */
-		if(VectorNormalize2(average, average) > 0)
+		if(VectorNormalize(average) > 0)
 		{
 			/* smooth */
 			for(j = 0; j < numVerts; j++)
@@ -1242,7 +1228,7 @@ returns the score of the triangle added
 
 #define ADEQUATE_SCORE		((AXIS_MIN) + 1 * (VERT_SCORE))
 #define GOOD_SCORE			((AXIS_MIN) + 2 * (VERT_SCORE) + 4 * (ST_SCORE))
-#define PERFECT_SCORE		((AXIS_MIN) + + 3 * (VERT_SCORE) + (SURFACE_SCORE) + 4 * (ST_SCORE))
+#define PERFECT_SCORE		((AXIS_MIN) + 3 * (VERT_SCORE) + (SURFACE_SCORE) + 4 * (ST_SCORE))
 
 static int AddMetaTriangleToSurface(mapDrawSurface_t * ds, metaTriangle_t * tri, qboolean testAdd)
 {
@@ -1477,6 +1463,7 @@ static void MetaTrianglesToSurface(int numPossibles, metaTriangle_t * possibles,
 		ds->planeNum = seed->planeNum;
 		ds->fogNum = seed->fogNum;
 		ds->sampleSize = seed->sampleSize;
+		ds->shadeAngleDegrees = seed->shadeAngleDegrees;
 		ds->verts = verts;
 		ds->indexes = indexes;
 		VectorCopy(seed->lightmapAxis, ds->lightmapAxis);

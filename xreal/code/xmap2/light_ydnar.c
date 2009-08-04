@@ -127,6 +127,89 @@ void ColorToBytes(const float *color, byte * colorBytes, float scale)
 	colorBytes[2] = sample[2];
 }
 
+void ColorToFloats(const float *color, float * colorFloats, float scale)
+{
+	int             i;
+	float           max, gamma;
+	vec3_t          sample;
+	float           inv, dif;
+
+
+	/* ydnar: scaling necessary for simulating r_overbrightBits on external lightmaps */
+	if(scale <= 0.0f)
+		scale = 1.0f;
+
+	/* make a local copy */
+	VectorScale(color, scale, sample);
+
+	/* muck with it */
+	gamma = 1.0f / lightmapGamma;
+	for(i = 0; i < 3; i++)
+	{
+		/* handle negative light */
+		if(sample[i] < 0.0f)
+		{
+			sample[i] = 0.0f;
+			continue;
+		}
+
+		/* gamma */
+		sample[i] = pow(sample[i] / 255.0f, gamma) * 255.0f;
+	}
+
+	if(lightmapExposure == 1)
+	{
+		/* clamp with color normalization */
+		max = sample[0];
+		if(sample[1] > max)
+			max = sample[1];
+		if(sample[2] > max)
+			max = sample[2];
+		if(max > 255.0f)
+			VectorScale(sample, (255.0f / max), sample);
+	}
+	else
+	{
+		if(lightmapExposure == 0)
+		{
+			lightmapExposure = 1.0f;
+		}
+		inv = 1.f / lightmapExposure;
+		//Exposure
+
+		max = sample[0];
+		if(sample[1] > max)
+			max = sample[1];
+		if(sample[2] > max)
+			max = sample[2];
+
+		dif = (1 - exp(-max * inv)) * 255;
+
+		if(max > 0)
+		{
+			dif = dif / max;
+		}
+		else
+		{
+			dif = 0;
+		}
+
+		for(i = 0; i < 3; i++)
+		{
+			sample[i] *= dif;
+		}
+	}
+
+
+	/* compensate for ingame overbrighting/bitshifting */
+	VectorScale(sample, (1.0f / lightmapCompensate), sample);
+
+	/* store it off */
+	colorFloats[0] = sample[0] / 255.0f;
+	colorFloats[1] = sample[1] / 255.0f;
+	colorFloats[2] = sample[2] / 255.0f;
+}
+
 /*
 ColorToRGBE()
 Tr3B: standard conversion from float pixels to rgbe pixels
@@ -336,7 +419,7 @@ void SmoothNormals(void)
 			continue;
 
 		/* average normal */
-		if(VectorNormalize2(average, average) > 0)
+		if(VectorNormalize(average) > 0)
 		{
 			/* smooth */
 			for(j = 0; j < numVerts; j++)
@@ -2052,7 +2135,8 @@ void IlluminateRawLightmap(int rawLightmapNum)
 					VectorCopy(ambientColor, luxel);
 					if(deluxemap)
 					{
-						brightness = DotProduct(ambientColor, LUMINANCE_VECTOR) + 0.0001f;
+						//brightness = DotProduct(ambientColor, LUMINANCE_VECTOR) + 0.0001f;
+						brightness = ambientColor[0] * 0.3f + ambientColor[1] * 0.59f + ambientColor[2] * 0.11f;
 						brightness *= (1.0 / 255.0);
 						// use AT LEAST this amount of contribution from ambient for the deluxemap, fixes points that receive ZERO light
 						if(brightness < 0.00390625f)
@@ -2150,7 +2234,8 @@ void IlluminateRawLightmap(int rawLightmapNum)
 						if(DotProduct(normal, trace.direction) > 0)	// do not take light from the back side
 						{
 							/* color to grayscale (photoshop rgb weighting) */
-							brightness = brightness = DotProduct(trace.color, LUMINANCE_VECTOR) + 0.0001f;
+							//brightness = brightness = DotProduct(trace.color, LUMINANCE_VECTOR) + 0.0001f;
+							brightness = trace.colorNoShadow[0] * 0.3f + trace.colorNoShadow[1] * 0.59f + trace.colorNoShadow[2] * 0.11f;
 							brightness *= (1.0 / 255.0);
 							VectorScale(trace.direction, brightness, trace.direction);
 							VectorAdd(deluxel, trace.direction, deluxel);
@@ -2837,17 +2922,8 @@ void IlluminateVertexes(int num)
 
 				if(!info->si->noVertexLight)
 				{
-					if(hdr)
-					{
-						VectorScale(vertLuxel, info->si->vertexScale <= 0.0f ? 1.0f : info->si->vertexScale, verts[i].lightColor[lightmapNum]);
-						VectorCopy(vertDeluxel, verts[i].lightDirection[lightmapNum]);
-
-					}
-					else
-					{
-						// FIXME bspDrawVert_t::color is not byte[4] anymore
-						//ColorToBytes(vertLuxel, verts[i].color[lightmapNum], info->si->vertexScale);
-					}
+					ColorToFloats(vertLuxel, verts[i].lightColor[lightmapNum], info->si->vertexScale);
+					VectorCopy(vertDeluxel, verts[i].lightDirection[lightmapNum]);
 				}
 			}
 		}
@@ -2963,15 +3039,10 @@ void IlluminateVertexes(int num)
 			numVertsIlluminated++;
 
 			/* store into bytes (for vertex approximation) */
-			if(hdr)
+			if(!info->si->noVertexLight)
 			{
-				VectorScale(vertLuxel, 1.0f, verts[i].lightColor[lightmapNum]);
+				ColorToFloats(vertLuxel, verts[i].lightColor[lightmapNum], 1.0f);
 				VectorCopy(vertDeluxel, verts[i].lightDirection[lightmapNum]);
-			}
-			else
-			{
-				// FIXME bspDrawVert_t::color is not byte[4] anymore
-				//ColorToBytes(vertLuxel, verts[i].color[lightmapNum], 1.0f);
 			}
 		}
 	}

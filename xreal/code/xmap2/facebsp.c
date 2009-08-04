@@ -257,7 +257,7 @@ void BuildFaceTree_r(node_t * node, face_t * list)
 	winding_t      *frontWinding, *backWinding;
 	int             i;
 	int             splitPlaneNum, compileFlags;
-	qboolean        isstruct = 0;
+	qboolean        isstruct = qfalse;
 
 
 	/* count faces left */

@@ -37,7 +37,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 #include "xmap2.h"
 
 
-#define USE_HDR_LIGHTMAPS 1
+//#define USE_HDR_LIGHTMAPS
 
 
 /* -------------------------------------------------------------------------------
@@ -736,14 +736,14 @@ qboolean AddSurfaceToRawLightmap(int num, rawLightmap_t * lm)
 		size[i] = (maxs[i] - mins[i]) / sampleSize + 1.0f;
 
 		/* hack (god this sucks) */
-		if(size[i] > lm->customWidth || size[i] > lm->customHeight)
+		if(size[i] > lm->customWidth || size[i] > lm->customHeight || (lmLimitSize && size[i] > lmLimitSize))
 		{
 			i = -1;
 			sampleSize += 1.0f;
 		}
 	}
 
-	if(sampleSize != lm->sampleSize)
+	if(sampleSize != lm->sampleSize && lmLimitSize == 0)
 	{
 		Sys_FPrintf(SYS_VRB,
 					"WARNING: surface at (%6.0f %6.0f %6.0f) (%6.0f %6.0f %6.0f) too large for desired samplesize/lightmapsize/lightmapscale combination, increased samplesize from %d to %d\n",
@@ -1985,9 +1985,10 @@ FindOutLightmaps()
 for a given surface lightmap, find output lightmap pages and positions for it
 */
 
+#define LIGHTMAP_RESERVE_COUNT 1
 static void FindOutLightmaps(rawLightmap_t * lm)
 {
-	int             i, j, lightmapNum, xMax, yMax, x, y, sx, sy, ox, oy, offset, temp;
+	int             i, j, k, lightmapNum, xMax, yMax, x, y, sx, sy, ox, oy, offset, temp;
 	outLightmap_t  *olm;
 	surfaceInfo_t  *info;
 	float          *luxel, *deluxel;
@@ -2081,7 +2082,11 @@ static void FindOutLightmaps(rawLightmap_t * lm)
 			y = 0;
 
 			/* walk the list of lightmap pages */
-			for(i = 0; i < numOutLightmaps; i++)
+			if(lightmapSearchBlockSize <= 0 || numOutLightmaps < LIGHTMAP_RESERVE_COUNT)
+				i = 0;
+			else
+				i = ((numOutLightmaps - LIGHTMAP_RESERVE_COUNT) / lightmapSearchBlockSize) * lightmapSearchBlockSize;
+			for(; i < numOutLightmaps; i++)
 			{
 				/* get the output lightmap */
 				olm = &outLightmaps[i];
@@ -2134,21 +2139,22 @@ static void FindOutLightmaps(rawLightmap_t * lm)
 		/* no match? */
 		if(ok == qfalse)
 		{
-			/* allocate two new output lightmaps */
-			numOutLightmaps += 1;
+			/* allocate LIGHTMAP_RESERVE_COUNT new output lightmaps */
+			numOutLightmaps += LIGHTMAP_RESERVE_COUNT;
 			olm = safe_malloc(numOutLightmaps * sizeof(outLightmap_t));
-			if(outLightmaps != NULL && numOutLightmaps > 1)
+			if(outLightmaps != NULL && numOutLightmaps > LIGHTMAP_RESERVE_COUNT)
 			{
-				memcpy(olm, outLightmaps, (numOutLightmaps - 1) * sizeof(outLightmap_t));
+				memcpy(olm, outLightmaps, (numOutLightmaps - LIGHTMAP_RESERVE_COUNT) * sizeof(outLightmap_t));
 				free(outLightmaps);
 			}
 			outLightmaps = olm;
 
 			/* initialize both out lightmaps */
-			SetupOutLightmap(lm, &outLightmaps[numOutLightmaps - 1]);
+			for(k = numOutLightmaps - LIGHTMAP_RESERVE_COUNT; k < numOutLightmaps; ++k)
+				SetupOutLightmap(lm, &outLightmaps[k]);
 
 			/* set out lightmap */
-			i = numOutLightmaps - 1;
+			i = numOutLightmaps - LIGHTMAP_RESERVE_COUNT;
 			olm = &outLightmaps[i];
 
 			/* set stamp xy origin to the first surface lightmap */
@@ -2374,8 +2380,15 @@ void StoreSurfaceLightmaps(void)
 	Sys_Printf("--- StoreSurfaceLightmaps ---\n");
 
 	/* setup */
-	strcpy(dirname, source);
-	StripExtension(dirname);
+	if(lmCustomDir)
+	{
+		strcpy(dirname, lmCustomDir);
+	}
+	else
+	{
+		strcpy(dirname, source);
+		StripExtension(dirname);
+	}
 	memset(rgbGenValues, 0, sizeof(rgbGenValues));
 	memset(alphaGenValues, 0, sizeof(alphaGenValues));
 
@@ -3019,7 +3032,7 @@ void StoreSurfaceLightmaps(void)
 	}
 
 	/* note it */
-	Sys_FPrintf(SYS_VRB, "storing...");
+	Sys_Printf("storing...");
 
 	/* count the bsp lightmaps and allocate space */
 	if(bspLightBytes != NULL)
@@ -3107,7 +3120,7 @@ void StoreSurfaceLightmaps(void)
 	}
 
 	if(numExtLightmaps > 0)
-		Sys_FPrintf(SYS_VRB, "\n");
+		Sys_Printf("\n");
 
 	/* delete unused external lightmaps */
 	for(i = numExtLightmaps; i; i++)
@@ -3259,15 +3272,10 @@ void StoreSurfaceLightmaps(void)
 				}
 
 				/* store to bytes */
-				if(hdr)
+				if(!info->si->noVertexLight)
 				{
-					VectorScale(color, info->si->vertexScale <= 0.0f ? 1.0f : info->si->vertexScale, dv[j].lightColor[lightmapNum]);
+					ColorToFloats(color, dv[j].lightColor[lightmapNum], info->si->vertexScale);
 					VectorCopy(lightDirection, dv[j].lightDirection[lightmapNum]);
-				}
-				else
-				{
-					// FIXME bspDrawVert_t::color is not byte[4] anymore
-					//ColorToBytes(color, dv[j].color[lightmapNum], info->si->vertexScale);
 				}
 			}
 		}

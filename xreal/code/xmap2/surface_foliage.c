@@ -139,7 +139,7 @@ static void SubdivideFoliageTriangle_r(mapDrawSurface_t * ds, foliage_t * foliag
 
 			/* scale centroid */
 			VectorScale(fi->xyz, 0.33333333f, fi->xyz);
-			if(VectorNormalize2(fi->normal, fi->normal) == 0.0f)
+			if(VectorNormalize(fi->normal) == 0.0f)
 				return;
 
 			/* add to count and return */
@@ -277,7 +277,7 @@ void Foliage(mapDrawSurface_t * src)
 
 		/* add the model to the bsp */
 		InsertModel(foliage->model, 0, transform, rotation, NULL, NULL, src->entityNum, src->castShadows, src->recvShadows, 0,
-					src->lightmapScale);
+					src->lightmapScale, 0, 0);
 
 		/* walk each new surface */
 		for(i = oldNumMapDrawSurfs; i < numMapDrawSurfs; i++)
@@ -321,10 +321,10 @@ void Foliage(mapDrawSurface_t * src)
 
 				for(k = 0; k < MAX_LIGHTMAPS; k++)
 				{
-					fi->lightColor[k][0] = 1.0f;
-					fi->lightColor[k][1] = 1.0f;
-					fi->lightColor[k][2] = 1.0f;
-					fi->lightColor[k][3] = 1.0f;
+					fi->lightColor[k][0] = 255;
+					fi->lightColor[k][1] = 255;
+					fi->lightColor[k][2] = 255;
+					fi->lightColor[k][3] = 255;
 				}
 			}
 

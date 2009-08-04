@@ -319,8 +319,6 @@ int CopyLump(bspHeader_t * header, int lump, void *dest, int size)
 
 int CopyLump_Allocate(bspHeader_t * header, int lump, void **dest, int size, int *allocationVariable)
 {
-	int             length, offset;
-
 	/* get lump length and offset */
 	*allocationVariable = header->lumps[lump].length / size;
 	*dest = realloc(*dest, size * *allocationVariable);
@@ -558,7 +556,44 @@ void ParseEntities(void)
 	numBSPEntities = numEntities;
 }
 
+/*
+ * must be called before UnparseEntities
+ */
+void InjectCommandLine(char **argv, int beginArgs, int endArgs)
+{
+	const char     *previousCommandLine;
+	char            newCommandLine[1024];
+	const char     *inpos;
+	char           *outpos = newCommandLine;
+	char           *sentinel = newCommandLine + sizeof(newCommandLine) - 1;
+	int             i;
 
+	previousCommandLine = ValueForKey(&entities[0], "_xmap2_cmdline");
+	if(previousCommandLine && *previousCommandLine)
+	{
+		inpos = previousCommandLine;
+		while(outpos != sentinel && *inpos)
+			*outpos++ = *inpos++;
+		if(outpos != sentinel)
+			*outpos++ = ';';
+		if(outpos != sentinel)
+			*outpos++ = ' ';
+	}
+
+	for(i = beginArgs; i < endArgs; ++i)
+	{
+		if(outpos != sentinel && i != beginArgs)
+			*outpos++ = ' ';
+		inpos = argv[i];
+		while(outpos != sentinel && *inpos)
+			if(*inpos != '\\' && *inpos != '"' && *inpos != ';' && (unsigned char)*inpos >= ' ')
+				*outpos++ = *inpos++;
+	}
+
+	*outpos = 0;
+	SetKeyValue(&entities[0], "_xmap2_cmdline", newCommandLine);
+	SetKeyValue(&entities[0], "_xmap2_version", XMAP_VERSION);
+}
 
 /*
 UnparseEntities()
@@ -578,6 +613,7 @@ void UnparseEntities(void)
 
 
 	/* setup */
+	AUTOEXPAND_BY_REALLOC(bspEntData, 0, allocatedBSPEntData, 1024);
 	buf = bspEntData;
 	end = buf;
 	*end = 0;
@@ -585,6 +621,14 @@ void UnparseEntities(void)
 	/* run through entity list */
 	for(i = 0; i < numBSPEntities && i < numEntities; i++)
 	{
+		{
+			int             sz = end - buf;
+
+			AUTOEXPAND_BY_REALLOC(bspEntData, sz + 65536, allocatedBSPEntData, 1024);
+			buf = bspEntData;
+			end = buf + sz;
+		}
+
 		/* get epair */
 		ep = entities[i].epairs;
 		if(ep == NULL)
@@ -619,7 +663,7 @@ void UnparseEntities(void)
 		end += 2;
 
 		/* check for overflow */
-		if(end > buf + MAX_MAP_ENTSTRING)
+		if(end > buf + allocatedBSPEntData)
 			Error("Entity text too long");
 	}
 
@@ -900,7 +944,6 @@ note: does not set them to defaults if the keys are not found!
 void GetEntityShadowFlags(const entity_t * ent, const entity_t * ent2, int *castShadows, int *recvShadows)
 {
 	const char     *value;
-
 
 	/* get cast shadows */
 	if(castShadows != NULL)

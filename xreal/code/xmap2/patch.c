@@ -262,10 +262,10 @@ void ParsePatch(qboolean onlyLights, qboolean patchDef3)
 
 			for(k = 0; k < MAX_LIGHTMAPS; k++)
 			{
-				verts[i * m.width + j].lightColor[k][0] = 1.0f;
-				verts[i * m.width + j].lightColor[k][1] = 1.0f;
-				verts[i * m.width + j].lightColor[k][2] = 1.0f;
-				verts[i * m.width + j].lightColor[k][3] = 1.0f;
+				verts[i * m.width + j].lightColor[k][0] = 255;
+				verts[i * m.width + j].lightColor[k][1] = 255;
+				verts[i * m.width + j].lightColor[k][2] = 255;
+				verts[i * m.width + j].lightColor[k][3] = 255;
 			}
 		}
 		MatchToken(")");

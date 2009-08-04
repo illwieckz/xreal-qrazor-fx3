@@ -666,6 +666,8 @@ qboolean FloodEntities(tree_t * tree)
 
 		/* get origin */
 		GetVectorForKey(e, "origin", origin);
+
+		/* as a special case, allow origin-less entities */
 		if(VectorCompare(origin, vec3_origin))
 			continue;
 

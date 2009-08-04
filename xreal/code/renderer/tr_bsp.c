@@ -138,7 +138,7 @@ static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
 R_ColorShiftLightingFloats
 ===============
 */
-#if defined(COMPAT_Q3A)
+#if 1 //defined(COMPAT_Q3A)
 static void R_ColorShiftLightingFloats(const vec4_t in, vec4_t out)
 {
 	int             shift, r, g, b;
@@ -177,7 +177,7 @@ R_HDRTonemapLightingColors
 */
 static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean applyGamma)
 {
-#if 0 //!defined(USE_HDR_LIGHTMAPS)
+#if 1 //!defined(USE_HDR_LIGHTMAPS)
 	R_ColorShiftLightingFloats(in, out);
 #else
 	int             i;

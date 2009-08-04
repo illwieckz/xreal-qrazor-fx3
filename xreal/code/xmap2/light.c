@@ -1447,7 +1447,7 @@ void TraceGrid(int num)
 	/////////////////////
 
 	/* normalize to get primary light direction */
-	VectorNormalize2(gp->dir, gp->dir);
+	VectorNormalize(gp->dir);
 
 	/* now that we have identified the primary light direction,
 	   go back and separate all the light into directed and ambient */
@@ -1509,17 +1509,9 @@ void TraceGrid(int num)
 			if(color[j] < minGridLight[j])
 				color[j] = minGridLight[j];
 
-		if(hdr)
-		{
-			VectorCopy(color, bgp->ambient[i]);
-			VectorCopy(gp->directed[i], bgp->directed[i]);
-		}
-		else
-		{
-			// FIXME bspGridPoint_t::ambient and directed a float values
-			// ColorToBytes(color, bgp->ambient[i], 1.0f);
-			// ColorToBytes(gp->directed[i], bgp->directed[i], 1.0f);
-		}
+		/* vortex: apply gridscale and gridambientscale here */
+		ColorToFloats(color, bgp->ambient[i], gridScale * gridAmbientScale);
+		ColorToFloats(gp->directed[i], bgp->directed[i], gridScale);
 	}
 
 	/* debug code */
@@ -1850,6 +1842,7 @@ int LightMain(int argc, char **argv)
 	float           f;
 	char            mapSource[1024];
 	const char     *value;
+	int             lightmapMergeSize = 0;
 
 
 	/* note it */
@@ -1870,6 +1863,42 @@ int LightMain(int argc, char **argv)
 	Sys_Printf(" lightning gamma: %f\n", lightmapGamma);
 
 	lightmapCompensate = game->lightmapCompensate;
+	Sys_Printf(" lightning compensation: %f\n", lightmapCompensate);
+
+	lightmapExposure = game->lightmapExposure;
+	Sys_Printf(" lightning exposure: %f\n", lightmapExposure);
+
+	gridScale = game->gridScale;
+	Sys_Printf(" lightgrid scale: %f\n", gridScale);
+
+	gridAmbientScale = game->gridAmbientScale;
+	Sys_Printf(" lightgrid ambient scale: %f\n", gridAmbientScale);
+
+	noStyles = game->noStyles;
+	if(noStyles == qtrue)
+		Sys_Printf(" shader lightstyles hack: disabled\n");
+	else
+		Sys_Printf(" shader lightstyles hack: enabled\n");
+
+	patchShadows = game->patchShadows;
+	if(patchShadows == qtrue)
+		Sys_Printf(" patch shadows: enabled\n");
+	else
+		Sys_Printf(" patch shadows: disabled\n");
+
+	deluxemap = game->deluxeMap;
+	deluxemode = game->deluxeMode;
+	if(deluxemap == qtrue)
+	{
+		if(deluxemode)
+			Sys_Printf(" deluxemapping: enabled with tangentspace deluxemaps\n");
+		else
+			Sys_Printf(" deluxemapping: enabled with modelspace deluxemaps\n");
+	}
+	else
+		Sys_Printf(" deluxemapping: disabled\n");
+
+	Sys_Printf("--- ProcessCommandLine ---\n");
 
 	/* process commandline arguments */
 	for(i = 1; i < (argc - 1); i++)
@@ -2058,13 +2087,6 @@ int LightMain(int argc, char **argv)
 			deluxemap = qfalse;
 			Sys_Printf("Disabling generating of deluxemaps for average light direction\n");
 		}
-		else if(!strcmp(argv[i], "-hdr"))
-		{
-			hdr = qtrue;
-			externalLightmaps = qtrue;
-			Sys_Printf("Storing lightmaps in the RGBE High Dynamic Range format\n");
-		}
-
 		else if(!strcmp(argv[i], "-external"))
 		{
 			externalLightmaps = qtrue;
@@ -2090,6 +2112,23 @@ int LightMain(int argc, char **argv)
 				externalLightmaps = qtrue;
 				Sys_Printf("Storing all lightmaps externally\n");
 			}
+		}
+
+		else if(!strcmp(argv[i], "-rawlightmapsizelimit"))
+		{
+			lmLimitSize = atoi(argv[i + 1]);
+
+			i++;
+			Sys_Printf("Raw lightmap size limit set to %d x %d pixels\n", lmLimitSize, lmLimitSize);
+		}
+
+		else if(!strcmp(argv[i], "-lightmapdir"))
+		{
+			lmCustomDir = argv[i + 1];
+			i++;
+			Sys_Printf("Lightmap directory set to %s\n", lmCustomDir);
+			externalLightmaps = qtrue;
+			Sys_Printf("Storing all lightmaps externally\n");
 		}
 
 		/* ydnar: add this to suppress warnings */
@@ -2129,6 +2168,27 @@ int LightMain(int argc, char **argv)
 		{
 			noCollapse = qtrue;
 			Sys_Printf("Identical lightmap collapsing disabled\n");
+		}
+
+		else if(!strcmp(argv[i], "-nolightmapsearch"))
+		{
+			lightmapSearchBlockSize = 1;
+			Sys_Printf("No lightmap searching - all lightmaps will be sequential\n");
+		}
+
+		else if(!strcmp(argv[i], "-lightmapsearchpower"))
+		{
+			lightmapMergeSize = (game->lightmapSize << atoi(argv[i + 1]));
+			++i;
+			Sys_Printf("Restricted lightmap searching enabled - optimize for lightmap merge power %d (size %d)\n", atoi(argv[i]),
+					   lightmapMergeSize);
+		}
+
+		else if(!strcmp(argv[i], "-lightmapsearchblocksize"))
+		{
+			lightmapSearchBlockSize = atoi(argv[i + 1]);
+			++i;
+			Sys_Printf("Restricted lightmap searching enabled - block size set to %d\n", lightmapSearchBlockSize);
 		}
 
 		else if(!strcmp(argv[i], "-shade"))
@@ -2414,6 +2474,16 @@ int LightMain(int argc, char **argv)
 
 	}
 
+	/* fix up lightmap search power */
+	if(lightmapMergeSize)
+	{
+		lightmapSearchBlockSize = (lightmapMergeSize / lmCustomSize) * (lightmapMergeSize / lmCustomSize);
+		if(lightmapSearchBlockSize < 1)
+			lightmapSearchBlockSize = 1;
+
+		Sys_Printf("Restricted lightmap searching enabled - block size adjusted to %d\n", lightmapSearchBlockSize);
+	}
+
 	/* clean up map name */
 	strcpy(source, ExpandArg(argv[i]));
 	StripExtension(source);
@@ -2441,6 +2511,9 @@ int LightMain(int argc, char **argv)
 	/* parse bsp entities */
 	ParseEntities();
 
+	/* inject command line parameters */
+	InjectCommandLine(argv, 0, argc - 1);
+
 	/* load map file */
 	value = ValueForKey(&entities[0], "_keepLights");
 	if(value[0] != '1')
@@ -2453,10 +2526,12 @@ int LightMain(int argc, char **argv)
 		SetKeyValue(&entities[0], "deluxeMapping", "0");
 
 	/* Tr3B: tell the .bsp wether we have HDR light mapping support or not */
+	/*
 	if(hdr)
 		SetKeyValue(&entities[0], "hdrRGBE", "1");
 	else
 		SetKeyValue(&entities[0], "hdrRGBE", "0");
+	*/
 
 	/* set the entity/model origins and init yDrawVerts */
 	SetEntityOrigins();
