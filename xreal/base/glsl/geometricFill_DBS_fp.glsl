@@ -157,9 +157,12 @@ void	main()
 		// compute texcoords offset
 		vec2 texOffset = S * depth;
 		
-		texDiffuse.st += texOffset;
 		texNormal.st += texOffset;
+		texDiffuse.st += texOffset;
+		
+		#if !defined(r_DeferredLighting)
 		texSpecular.st += texOffset;
+		#endif
 	}
 #endif
 	
