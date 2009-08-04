@@ -1,7 +1,6 @@
 /*
 ===========================================================================
 Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2006 defconx          <defcon-x@ns-co.net>
 
 This file is part of XreaL source code.
 
@@ -37,7 +36,7 @@ void	main()
 
 	// compute normal in tangent space from normalmap
 	color0 = texture2D(u_NormalMap, var_TexNormal).rgba;
-	vec3 N = 2.0 * (color0.rgb.xyz - 0.5);
+	vec3 N = 2.0 * (color0.rgb - 0.5);
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
 	vec2 st = gl_FragCoord.st * r_FBufScale;
