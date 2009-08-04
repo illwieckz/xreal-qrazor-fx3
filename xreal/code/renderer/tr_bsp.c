@@ -177,7 +177,7 @@ R_HDRTonemapLightingColors
 */
 static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean applyGamma)
 {
-#if 1 //!defined(USE_HDR_LIGHTMAPS)
+#if 0 //!defined(USE_HDR_LIGHTMAPS)
 	R_ColorShiftLightingFloats(in, out);
 #else
 	int             i;
@@ -186,6 +186,11 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 	//const vec3_t    LUMINANCE_VECTOR = { 0.2125f, 0.7154f, 0.0721f };
 	vec4_t          sample;
 
+	if(!tr.worldHDR_RGBE)
+	{
+		R_ColorShiftLightingFloats(in, out);
+		return;
+	}
 
 #if 0
 	scaledLuminance = r_hdrLightmapExposure->value * DotProduct(in, LUMINANCE_VECTOR);
