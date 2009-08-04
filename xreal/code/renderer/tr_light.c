@@ -1172,6 +1172,12 @@ void R_SetupLightScissor(trRefLight_t * light)
 		return;
 	}
 
+	if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+	{
+		// we use the stencil volume test instead of the light scissor
+		return;
+	}
+
 	// transform local light corners to world space -> eye space -> clip space -> window space
 	// and extend the light scissor's mins maxs by resulting window coords
 	light->scissor.coords[0] = 100000000;

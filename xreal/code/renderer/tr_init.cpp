@@ -1331,6 +1331,13 @@ void R_Register(void)
 	r_vboSmoothNormals = ri.Cvar_Get("r_vboSmoothNormals", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
+
+	// HACK turn off HDR for development
+	if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+	{
+		ri.Cvar_CheckRange(r_hdrRendering, 0, 0, qtrue);
+	}
+
 	r_hdrMinLuminance = ri.Cvar_Get("r_hdrMinLuminance", "0.18", CVAR_CHEAT);
 	r_hdrMaxLuminance = ri.Cvar_Get("r_hdrMaxLuminance", "3000", CVAR_CHEAT);
 	r_hdrKey = ri.Cvar_Get("r_hdrKey", "0.72", CVAR_CHEAT);
@@ -1544,7 +1551,7 @@ void R_Init(void)
 
 	R_Register();
 
-	ptr = (byte *) 
+	ptr = (byte *)
 		ri.Hunk_Alloc(sizeof(*backEndData[0]) + sizeof(srfPoly_t) * r_maxPolys->integer +
 					  sizeof(polyVert_t) * r_maxPolyVerts->integer, h_low);
 	backEndData[0] = (backEndData_t *) ptr;
@@ -1599,11 +1606,11 @@ void R_Init(void)
 		//UINT width = rc.right - rc.left;
 		//UINT height = rc.bottom - rc.top;
 
-		
+
 #ifdef _DEBUG
 		createDeviceFlags |= D3D10_CREATE_DEVICE_DEBUG;
 #endif
-		
+
 		ZeroMemory(&sd, sizeof(sd));
 		sd.BufferCount = 1;
 		sd.BufferDesc.Width = glConfig.vidWidth;
@@ -1639,11 +1646,11 @@ void R_Init(void)
 				if(SUCCEEDED(adapter->GetDesc(&adaptDesc)))
 				{
 					const bool isPerfHUD = wcscmp(adaptDesc.Description, L"NVIDIA PerfHUD") == 0;
-					
+
 					// Select the first adapter in normal circumstances or the PerfHUD one if it exists.
 					if(nAdapter == 0 || isPerfHUD)
 						selectedAdapter = adapter;
-					
+
 					if(isPerfHUD)
 					{
 						gotPerfHUD = true;
@@ -1674,7 +1681,7 @@ void R_Init(void)
 				if(SUCCEEDED(hr))
 					break;
 			}
-		
+
 			if(FAILED(hr))
 			{
 				ri.Error(ERR_FATAL, "R_Init: Failed to create a D3D10 device and swap chain");
@@ -1711,8 +1718,8 @@ void R_Init(void)
 		DWORD dwShaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
 		// Set the D3D10_SHADER_DEBUG flag to embed debug information in the shaders.
-		// Setting this flag improves the shader debugging experience, but still allows 
-		// the shaders to be optimized and to run exactly the way they will run in 
+		// Setting this flag improves the shader debugging experience, but still allows
+		// the shaders to be optimized and to run exactly the way they will run in
 		// the release configuration of this program.
 		dwShaderFlags |= D3D10_SHADER_DEBUG;
 #endif

@@ -4444,7 +4444,14 @@ void Tess_StageIteratorGBuffer()
 #if 1
 				if(tess.surfaceShader->sort <= SS_OPAQUE && !(pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)))
 				{
-					R_BindFBO(tr.geometricRenderFBO);
+					if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+					{
+						R_BindNullFBO();
+					}
+					else
+					{
+						R_BindFBO(tr.geometricRenderFBO);
+					}
 					Render_geometricFill_DBS(stage, qtrue);
 				}
 #endif
@@ -4485,7 +4492,14 @@ void Tess_StageIteratorGBuffer()
 				}
 #endif
 
-				R_BindFBO(tr.geometricRenderFBO);
+				if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+				{
+					R_BindNullFBO();
+				}
+				else
+				{
+					R_BindFBO(tr.geometricRenderFBO);
+				}
 				Render_geometricFill_DBS(stage, qfalse);
 				break;
 			}
