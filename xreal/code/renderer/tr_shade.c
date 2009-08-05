@@ -1248,6 +1248,51 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.forwardLightingShader_DBS_proj.program);
 	GL_CheckErrors();
 
+
+
+	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_post, "forwardLighting_DBS_post",
+							   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL, qtrue);
+
+	tr.forwardLightingShader_DBS_post.u_DiffuseMap = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_DiffuseMap");
+	tr.forwardLightingShader_DBS_post.u_NormalMap = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_NormalMap");
+	tr.forwardLightingShader_DBS_post.u_SpecularMap = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_SpecularMap");
+	tr.forwardLightingShader_DBS_post.u_LightMap = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_LightMap");
+	tr.forwardLightingShader_DBS_post.u_DiffuseTextureMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_DiffuseTextureMatrix");
+	tr.forwardLightingShader_DBS_post.u_NormalTextureMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_NormalTextureMatrix");
+	tr.forwardLightingShader_DBS_post.u_SpecularTextureMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_SpecularTextureMatrix");
+	tr.forwardLightingShader_DBS_post.u_AlphaTest = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_AlphaTest");
+	tr.forwardLightingShader_DBS_post.u_ViewOrigin = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_ViewOrigin");
+	tr.forwardLightingShader_DBS_post.u_AmbientColor =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_AmbientColor");
+	tr.forwardLightingShader_DBS_post.u_ParallaxMapping = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_ParallaxMapping");
+	tr.forwardLightingShader_DBS_post.u_DepthScale = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_DepthScale");
+	tr.forwardLightingShader_DBS_post.u_ModelMatrix = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_ModelMatrix");
+	tr.forwardLightingShader_DBS_post.u_ModelViewMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_ModelViewMatrix");
+	tr.forwardLightingShader_DBS_post.u_ModelViewProjectionMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_ModelViewProjectionMatrix");
+	if(glConfig.vboVertexSkinningAvailable)
+	{
+		tr.forwardLightingShader_DBS_post.u_VertexSkinning =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_VertexSkinning");
+		tr.forwardLightingShader_DBS_post.u_BoneMatrix =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_BoneMatrix");
+	}
+
+	qglUseProgramObjectARB(tr.forwardLightingShader_DBS_post.program);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_post.u_LightMap, 0);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_post.u_DiffuseMap, 1);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_post.u_NormalMap, 2);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_post.u_SpecularMap, 3);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.forwardLightingShader_DBS_post.program);
+	GLSL_ShowProgramUniforms(tr.forwardLightingShader_DBS_post.program);
+	GL_CheckErrors();
+
 #ifdef VOLUMETRIC_LIGHTING
 	// volumetric lighting
 	GLSL_InitGPUShader(&tr.lightVolumeShader_omni, "lightVolume_omni", ATTR_POSITION, qtrue);
@@ -1848,6 +1893,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.forwardLightingShader_DBS_proj.program);
 		Com_Memset(&tr.forwardLightingShader_DBS_proj, 0, sizeof(shaderProgram_t));
+	}
+
+	if(tr.forwardLightingShader_DBS_post.program)
+	{
+		qglDeleteObjectARB(tr.forwardLightingShader_DBS_post.program);
+		Com_Memset(&tr.forwardLightingShader_DBS_post, 0, sizeof(shaderProgram_t));
 	}
 
 #ifdef VOLUMETRIC_LIGHTING
@@ -2714,6 +2765,126 @@ static void Render_deluxeMapping(int stage)
 	// bind u_DeluxeMap
 	GL_SelectTexture(4);
 	BindDeluxeMap();
+
+	Tess_DrawElements();
+
+	GL_CheckErrors();
+}
+
+static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
+{
+	shaderStage_t  *pStage;
+	unsigned        stateBits;
+	vec3_t          viewOrigin;
+	vec4_t          ambientColor;
+
+	GLimp_LogComment("--- Render_forwardLighting_DBS_post ---\n");
+
+	pStage = tess.surfaceStages[stage];
+
+	// remove blend mode
+	stateBits = pStage->stateBits;
+	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
+	stateBits &= (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+
+	GL_State(stateBits);
+
+	// enable shader, set arrays
+	GL_BindProgram(&tr.forwardLightingShader_DBS_post);
+	GL_VertexAttribsState(tr.forwardLightingShader_DBS_post.attribs);
+
+	// set uniforms
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
+
+	if(r_precomputedLighting->integer)
+	{
+		VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
+		ClampColor(ambientColor);
+	}
+	else if(r_forceAmbient->integer)
+	{
+		ambientColor[0] = r_forceAmbient->value;
+		ambientColor[1] = r_forceAmbient->value;
+		ambientColor[2] = r_forceAmbient->value;
+	}
+	else
+	{
+		VectorClear(ambientColor);
+	}
+
+	GLSL_SetUniform_AlphaTest(&tr.forwardLightingShader_DBS_post, pStage->stateBits);
+	GLSL_SetUniform_ViewOrigin(&tr.forwardLightingShader_DBS_post, viewOrigin);
+	GLSL_SetUniform_AmbientColor(&tr.forwardLightingShader_DBS_post, ambientColor);
+
+	GLSL_SetUniform_ModelMatrix(&tr.forwardLightingShader_DBS_post, backEnd.orientation.transformMatrix);
+	GLSL_SetUniform_ModelViewMatrix(&tr.forwardLightingShader_DBS_post, glState.modelViewMatrix[glState.stackIndex]);
+	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.forwardLightingShader_DBS_post, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	if(glConfig.vboVertexSkinningAvailable)
+	{
+		GLSL_SetUniform_VertexSkinning(&tr.forwardLightingShader_DBS_post, tess.vboVertexSkinning);
+
+		if(tess.vboVertexSkinning)
+			qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_post.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
+
+	if(r_parallaxMapping->integer)
+	{
+		float           depthScale;
+
+		GLSL_SetUniform_ParallaxMapping(&tr.forwardLightingShader_DBS_post, tess.surfaceShader->parallax);
+
+		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
+		GLSL_SetUniform_DepthScale(&tr.forwardLightingShader_DBS_post, depthScale);
+	}
+
+	// bind u_LightMap
+	GL_SelectTexture(0);
+	GL_Bind(tr.lightRenderFBOImage);
+
+	// bind u_DiffuseMap
+	GL_SelectTexture(1);
+	if(cmap2black)
+	{
+		GL_Bind(tr.blackImage);
+	}
+	else
+	{
+		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	}
+	GLSL_SetUniform_DiffuseTextureMatrix(&tr.forwardLightingShader_DBS_post, tess.svars.texMatrices[TB_DIFFUSEMAP]);
+
+	if(r_normalMapping->integer)
+	{
+		// bind u_NormalMap
+		GL_SelectTexture(2);
+		if(pStage->bundle[TB_NORMALMAP].image[0])
+		{
+			GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.flatImage);
+		}
+		GLSL_SetUniform_NormalTextureMatrix(&tr.forwardLightingShader_DBS_post, tess.svars.texMatrices[TB_NORMALMAP]);
+
+
+		// bind u_SpecularMap
+		GL_SelectTexture(3);
+		if(r_forceSpecular->integer)
+		{
+			GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+		}
+		else if(pStage->bundle[TB_SPECULARMAP].image[0])
+		{
+			GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.blackImage);
+		}
+		GLSL_SetUniform_SpecularTextureMatrix(&tr.forwardLightingShader_DBS_post, tess.svars.texMatrices[TB_SPECULARMAP]);
+	}
 
 	Tess_DrawElements();
 
@@ -4299,7 +4470,14 @@ void Tess_StageIteratorGeneric()
 					}
 					else
 					{
-						Render_depthFill(stage, qfalse);
+						if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+						{
+							Render_forwardLighting_DBS_post(stage, qfalse);
+						}
+						else
+						{
+							Render_depthFill(stage, qfalse);
+						}
 					}
 				}
 				break;
@@ -4346,6 +4524,7 @@ void Tess_StageIteratorGeneric()
 				Render_portal(stage);
 				break;
 			}
+
 
 			case ST_HEATHAZEMAP:
 			{

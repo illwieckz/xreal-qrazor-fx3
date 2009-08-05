@@ -74,7 +74,7 @@ void	main()
 		return;
 	}
 	
-#if !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
+#if !defined(r_DeferredLighting) && !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
 	// make sure that the vertex position is inside the light frustum
 	for(int i = 0; i < 6; ++i)
 	{

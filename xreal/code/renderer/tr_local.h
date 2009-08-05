@@ -88,6 +88,8 @@ typedef unsigned short glIndex_t;
 #define DEBUG_OPTIMIZEVERTICES 0
 #define CALC_REDUNDANT_SHADOWVERTS 0
 
+//#define OFFSCREEN_PREPASS_LIGHTING 1
+
 typedef enum
 {
 	DS_DISABLED,				// traditional Doom 3 style rendering
@@ -2847,6 +2849,9 @@ typedef struct
 	// Doom3 style omni-directional multi-pass lighting
 	shaderProgram_t forwardLightingShader_DBS_omni;
 	shaderProgram_t forwardLightingShader_DBS_proj;
+
+	// forward shading using the pre pass light buffer
+	shaderProgram_t forwardLightingShader_DBS_post;
 
 #ifdef VOLUMETRIC_LIGHTING
 	// volumetric lighting

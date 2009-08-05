@@ -79,7 +79,7 @@ void	main()
 	}
 #endif
 
-#if 0// !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
+#if !defined(r_DeferredLighting) && !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
 	// make sure that the vertex position is inside the light frustum
 	for(int i = 0; i < 6; ++i)
 	{
@@ -242,7 +242,7 @@ void	main()
 		color.rgb *= attenuationXY;
 		color.rgb *= attenuationZ;
 #endif
-		//color.rgb *= u_LightScale;
+		color.rgb *= u_LightScale;
 		color.rgb *= shadow;
 		
 		gl_FragColor = color;

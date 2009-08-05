@@ -2975,8 +2975,6 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
-	vec4_t          lightFrustum[6];
-	cplane_t       *frust;
 	matrix_t        ortho;
 	vec4_t          quadVerts[4];
 	int             startTime = 0, endTime = 0;
@@ -2998,6 +2996,12 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
+
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+	R_BindFBO(tr.lightRenderFBO);
+#else
+	R_BindNullFBO();
+
 	// update normal render image
 	GL_SelectTexture(0);
 	GL_Bind(tr.deferredNormalFBOImage);
@@ -3007,9 +3011,8 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 	GL_SelectTexture(1);
 	GL_Bind(tr.depthRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+#endif
 
-	//R_BindFBO(tr.lightRenderFBO);
-	R_BindNullFBO();
 	GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	qglClear(GL_COLOR_BUFFER_BIT);
 
@@ -3359,15 +3362,6 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 						break;
 				}
 
-				// copy frustum planes for pixel shader
-				for(i = 0; i < 6; i++)
-				{
-					frust = &light->frustum[i];
-
-					VectorCopy(frust->normal, lightFrustum[i]);
-					lightFrustum[i][3] = frust->dist;
-				}
-
 				// set 2D virtual screen size
 				GL_PushMatrix();
 				MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
@@ -3424,7 +3418,7 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_omni, light->sphereRadius);
 						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_omni, light->l.scale);
 						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_omni, light->attenuationMatrix2);
-						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
+						//qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 
 						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_omni, glState.modelViewProjectionMatrix[glState.stackIndex]);
 						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.unprojectionMatrix);
@@ -3482,7 +3476,7 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_proj, light->sphereRadius);
 						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_proj, light->l.scale);
 						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix2);
-						qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
+						//qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
 
 						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
 						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.unprojectionMatrix);
@@ -3622,6 +3616,12 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
+
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+	R_BindFBO(tr.lightRenderFBO);
+#else
+	R_BindNullFBO();
+
 	// update normal render image
 	GL_SelectTexture(0);
 	GL_Bind(tr.deferredNormalFBOImage);
@@ -3631,9 +3631,8 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 	GL_SelectTexture(1);
 	GL_Bind(tr.depthRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+#endif
 
-	//R_BindFBO(tr.lightRenderFBO);
-	R_BindNullFBO();
 	GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	qglClear(GL_COLOR_BUFFER_BIT);
 
@@ -3887,8 +3886,12 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 				}
 
 				// finally draw light
-				//R_BindFBO(tr.deferredRenderFBO);
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+				R_BindFBO(tr.lightRenderFBO);
+
+#else
 				R_BindNullFBO();
+#endif
 
 				GLimp_LogComment("--- Rendering light volume ---\n");
 
@@ -4485,8 +4488,6 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 
 					// end of lighting
 					GL_PopMatrix();
-
-					//R_BindNullFBO();
 				}
 			}
 		}						// end if(iaCount == iaFirst)
@@ -9161,6 +9162,52 @@ static void RB_RenderView(void)
 		int             clearBits = 0;
 		int             startTime = 0, endTime = 0;
 
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		// clear frame buffer objects
+		R_BindFBO(tr.deferredRenderFBO);
+
+		//qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		clearBits = GL_DEPTH_BUFFER_BIT;
+
+		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+		{
+			clearBits |= GL_COLOR_BUFFER_BIT;
+			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
+		}
+		qglClear(clearBits);
+
+		R_BindFBO(tr.geometricRenderFBO);
+		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+		{
+			clearBits = GL_COLOR_BUFFER_BIT;
+			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
+		}
+		else
+		{
+			if(glConfig.framebufferBlitAvailable)
+			{
+				// copy color of the main context to deferredRenderFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   GL_COLOR_BUFFER_BIT,
+									   GL_NEAREST);
+			}
+		}
+		qglClear(clearBits);
+
+		R_BindFBO(tr.geometricRenderFBO);
+		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+		{
+			clearBits = GL_COLOR_BUFFER_BIT;
+			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			qglClear(clearBits);
+		}
+
+
+#else
 		// disable offscreen rendering
 		if(glConfig.framebufferObjectAvailable)
 		{
@@ -9169,6 +9216,7 @@ static void RB_RenderView(void)
 			//else
 				R_BindNullFBO();
 		}
+#endif
 
 		// we will need to change the projection matrix before drawing
 		// 2D images again
@@ -9243,8 +9291,24 @@ static void RB_RenderView(void)
 			RB_RenderInteractionsDeferredIntoLightBuffer();
 		}
 
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		R_BindFBO(tr.lightRenderFBO);
+#else
+		R_BindNullFBO();
+
+		// update light render image
+		GL_SelectTexture(0);
+		GL_Bind(tr.lightRenderFBOImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.lightRenderFBOImage->uploadWidth, tr.lightRenderFBOImage->uploadHeight);
+#endif
+
 		// render opaque surfaces using the light buffer results
-		// TODO
+		R_BindNullFBO();
+		RB_RenderDrawSurfaces(qtrue, qfalse);
+
+		// draw everything that is translucent
+		R_BindNullFBO();
+		RB_RenderDrawSurfaces(qfalse, qfalse);
 
 		// render debug information
 		R_BindNullFBO();
