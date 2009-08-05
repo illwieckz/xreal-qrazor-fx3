@@ -284,6 +284,7 @@ static void SurfaceToMetaTriangles(mapDrawSurface_t * ds)
 			src.recvShadows = ds->recvShadows;
 			src.fogNum = ds->fogNum;
 			src.sampleSize = ds->sampleSize;
+			src.shadeAngleDegrees = ds->shadeAngleDegrees;
 			VectorCopy(ds->lightmapAxis, src.lightmapAxis);
 
 			/* copy drawverts */

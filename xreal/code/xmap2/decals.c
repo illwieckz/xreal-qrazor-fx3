@@ -1,6 +1,6 @@
 /* -------------------------------------------------------------------------------
 
-Copyright (C) 1999-2006 Id Software, Inc. and contributors.
+Copyright (C) 1999-2007 id Software, Inc. and contributors.
 For a list of contributors, see the accompanying CONTRIBUTORS file.
 
 This file is part of GtkRadiant.
@@ -622,6 +622,7 @@ static void ProjectDecalOntoWinding(decalProjector_t * dp, mapDrawSurface_t * ds
 	ds2->shaderInfo = dp->si;
 	ds2->fogNum = ds->fogNum;	/* why was this -1? */
 	ds2->lightmapScale = ds->lightmapScale;
+	ds2->shadeAngleDegrees = ds->shadeAngleDegrees;
 	ds2->numVerts = w->numpoints;
 	ds2->verts = safe_malloc(ds2->numVerts * sizeof(*ds2->verts));
 	memset(ds2->verts, 0, ds2->numVerts * sizeof(*ds2->verts));
