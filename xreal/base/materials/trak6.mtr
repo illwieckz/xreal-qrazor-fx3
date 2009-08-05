@@ -23,131 +23,131 @@ textures/trak/trak6/light1
 
 textures/trak/trak6/tile2
 {
-	qer_editorImage		textures/trak/trak6/tile2.tga
+	qer_editorImage		textures/trak/trak6/tile2.png
 
 	parallax
 	{
 		stage		diffuseMap
-		map		textures/trak/trak6/tile2.tga
+		map		textures/trak/trak6/tile2.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak6/tile2_nm.tga
-	specularMap		textures/trak/trak6/tile2_gloss.tga
+	normalMap		textures/trak/trak6/tile2_nm.png
+	specularMap		textures/trak/trak6/tile2_gloss.png
 }
 
 textures/trak/trak6/wall2
 {
-	qer_editorImage		textures/trak/trak6/wall2.tga
+	qer_editorImage		textures/trak/trak6/wall2.png
 
 	parallax
 	{
 		stage		diffuseMap
-		map		textures/trak/trak6/wall2.tga
+		map		textures/trak/trak6/wall2.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak6/wall2_nm.tga
-	specularMap		textures/trak/trak6/wall2_gloss.tga
+	normalMap		textures/trak/trak6/wall2_nm.png
+	specularMap		textures/trak/trak6/wall2_gloss.png
 }
 
 textures/trak/trak6/trim1
 {
-	qer_editorImage		textures/trak/trak6/trim1.tga
+	qer_editorImage		textures/trak/trak6/trim1.png
 
 	parallax
 	{
 		stage		diffuseMap
-		map		textures/trak/trak6/trim1.tga
+		map		textures/trak/trak6/trim1.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak6/trim1_nm.tga
-	specularMap		textures/trak/trak6/trim1_gloss.tga
+	normalMap		textures/trak/trak6/trim1_nm.png
+	specularMap		textures/trak/trak6/trim1_gloss.png
 }
 
 
 
 textures/trak/trak6/panel1
 {
-	qer_editorImage		textures/trak/trak6/panel1.tga
+	qer_editorImage		textures/trak/trak6/panel1.png
 
 	parallax
 	{
 		stage		diffuseMap
-		map		textures/trak/trak6/panel1.tga
+		map		textures/trak/trak6/panel1.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak6/panel1_nm.tga
-	specularMap		textures/trak/trak6/panel1_gloss.tga
+	normalMap		textures/trak/trak6/panel1_nm.png
+	specularMap		textures/trak/trak6/panel1_gloss.png
 }
 
 textures/trak/trak6/crate1
 {
-	qer_editorImage		textures/trak/trak6/crate1.tga
+	qer_editorImage		textures/trak/trak6/crate1.png
 
 	parallax
 	{
 		stage		diffuseMap
-		map		textures/trak/trak6/crate1.tga
+		map		textures/trak/trak6/crate1.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak6/crate1_nm.tga
-	specularMap		textures/trak/trak6/crate1_gloss.tga
+	normalMap		textures/trak/trak6/crate1_nm.png
+	specularMap		textures/trak/trak6/crate1_gloss.png
 }
 
 textures/trak/trak6/pipe2
 {
-	qer_editorImage		textures/trak/trak6/pipe2.tga
+	qer_editorImage		textures/trak/trak6/pipe2.png
 
 	parallax
 	{
 		stage		diffuseMap
-		map		textures/trak/trak6/pipe2.tga
+		map		textures/trak/trak6/pipe2.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak6/pipe2_nm.tga
-	specularMap		textures/trak/trak6/pipe2_gloss.tga
+	normalMap		textures/trak/trak6/pipe2_nm.png
+	specularMap		textures/trak/trak6/pipe2_gloss.png
 }
 
 textures/trak/trak6/grate2
 {
-	qer_editorImage		textures/trak/trak6/grate2.tga
+	qer_editorImage		textures/trak/trak6/grate2.png
 
 	parallax
 	{
 		stage		diffuseMap
-		map		textures/trak/trak6/grate2.tga
+		map		textures/trak/trak6/grate2.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak6/grate2_nm.tga
-	specularMap		textures/trak/trak6/grate2_gloss.tga
+	normalMap		textures/trak/trak6/grate2_nm.png
+	specularMap		textures/trak/trak6/grate2_gloss.png
 }
 
 textures/trak/trak6/trim2
 {
-	qer_editorImage		textures/trak/trak6/trim2.tga
+	qer_editorImage		textures/trak/trak6/trim2.png
 
 	parallax
 	{
 		stage		diffuseMap
-		map		textures/trak/trak6/trim2.tga
+		map		textures/trak/trak6/trim2.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak6/trim2_nm.tga
-	specularMap		textures/trak/trak6/trim2_gloss.tga
+	normalMap		textures/trak/trak6/trim2_nm.png
+	specularMap		textures/trak/trak6/trim2_gloss.png
 }
 
 
 textures/trak/trak6/tile3
 {
-	qer_editorImage		textures/trak/trak6/tile3.tga
+	qer_editorImage		textures/trak/trak6/tile3.png
 
 	parallax
 	{
 		stage		diffuseMap
-		map		textures/trak/trak6/tile3.tga
+		map		textures/trak/trak6/tile3.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak6/tile3_nm.tga
-	specularMap		textures/trak/trak6/tile3_gloss.tga
+	normalMap		textures/trak/trak6/tile3_nm.png
+	specularMap		textures/trak/trak6/tile3_gloss.png
 }
 
 
