@@ -1611,6 +1611,7 @@ void GLimp_Init(void)
 		   Q_stristr(glConfig.renderer_string, "9800") ||
 		   Q_stristr(glConfig.renderer_string, "gts 250") ||
 		   Q_stristr(glConfig.renderer_string, "gtx 260") ||
+		   Q_stristr(glConfig.renderer_string, "gtx 275") ||
 		   Q_stristr(glConfig.renderer_string, "gtx 280") ||
 		   Q_stristr(glConfig.renderer_string, "gtx 285") ||
 		   Q_stristr(glConfig.renderer_string, "gtx 295"))
