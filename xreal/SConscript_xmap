@@ -124,6 +124,7 @@ xmap_src = [
 xmap_env = env.Clone()
 xmap_env.Append(CCFLAGS='-DXMAP')
 xmap_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
+xmap_env.Append(CCFLAGS='-DUSE_XML')
 
 if env['arch'] == 'linux-i386':
 	xmap_src += ['code/xmap/gldraw.c']
