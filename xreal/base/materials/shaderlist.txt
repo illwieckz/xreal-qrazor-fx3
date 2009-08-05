@@ -59,6 +59,8 @@ tr3b_sky
 tr3b_video
 tr3b_water
 trak
+trak6
+trak7
 #zogg_floor
 #zogg_mapobject
 #zogg_misc
