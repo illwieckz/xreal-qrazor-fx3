@@ -528,8 +528,14 @@ void MakeTreePortals_r(node_t * node)
 		if(node->mins[i] < MIN_WORLD_COORD || node->maxs[i] > MAX_WORLD_COORD)
 		{
 			if(node->portals && node->portals->winding)
+			{
+#if defined(USE_XML)
 				xml_Winding("WARNING: Node With Unbounded Volume", node->portals->winding->p, node->portals->winding->numpoints,
 							qfalse);
+#else
+				Sys_Printf("WARNING: node wiht unbounded volume\n");
+#endif
+			}
 
 			break;
 		}
@@ -740,7 +746,9 @@ qboolean FloodEntities(tree_t * tree)
 			inside = qtrue;
 		if((!r || tree->outside_node.occupied) && !tripped)
 		{
+#if defined(USE_XML)
 			xml_Select("Entity leaked", e->mapEntityNum, 0, qfalse);
+#endif
 			tripped = qtrue;
 		}
 	}

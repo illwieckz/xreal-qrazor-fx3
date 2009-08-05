@@ -24,10 +24,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __INOUT__
 #define __INOUT__
 
-// inout is the only stuff relying on xml, include the headers there
-#include "libxml/tree.h"
 #include "cmdlib.h"
 #include "mathlib.h"
+
+#if defined(USE_XML)
+// inout is the only stuff relying on xml, include the headers there
+#include "libxml/tree.h"
 
 // some useful xml routines
 xmlNodePtr      xml_NodeForVec(vec3_t v);
@@ -42,6 +44,16 @@ void            xml_Select(char *msg, int entitynum, int brushnum, qboolean bErr
 void            xml_Winding(char *msg, vec3_t p[], int numpoints, qboolean die);
 void            xml_Point(char *msg, vec3_t pt);
 
+#ifdef _DEBUG
+#define DBG_XML 1
+#endif
+
+#ifdef DBG_XML
+void            DumpXML();
+#endif
+
+#endif // USE_XML
+
 void            Broadcast_Setup(const char *dest);
 void            Broadcast_Shutdown();
 
@@ -55,12 +67,6 @@ extern qboolean verbose;
 void            Sys_Printf(const char *text, ...);
 void            Sys_FPrintf(int flag, const char *text, ...);
 
-#ifdef _DEBUG
-#define DBG_XML 1
-#endif
 
-#ifdef DBG_XML
-void            DumpXML();
-#endif
 
 #endif

@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <windows.h>
 #endif
 
-
+#if defined(USE_XML)
 // network broadcasting
 #include "../xrealradiant/include/stream_version.h"
 
@@ -239,9 +239,11 @@ void xml_Winding(char *msg, vec3_t p[], int numpoints, qboolean die)
 		Sys_Printf("\n");
 	}
 }
+#endif
 
 void Broadcast_Setup(const char *dest)
 {
+#if defined(USE_XML)
 	address_t       address;
 	char            sMsg[1024];
 
@@ -256,27 +258,33 @@ void Broadcast_Setup(const char *dest)
 		NMSG_WriteString(&msg, sMsg);
 		Net_Send(brdcst_socket, &msg);
 	}
+#endif
 }
 
 void Broadcast_Shutdown()
 {
+#if defined(USE_XML)
 	if(brdcst_socket)
 	{
 		Sys_Printf("Disconnecting\n");
 		Net_Disconnect(brdcst_socket);
 		brdcst_socket = NULL;
 	}
+#endif
 }
 
 // all output ends up through here
 void FPrintf(int flag, char *buf)
 {
+#if defined(USE_XML)
 	xmlNodePtr      node;
 	static qboolean bGotXML = qfalse;
+#endif
 	char            level[2];
 
 	printf(buf);
 
+#if defined(USE_XML)
 	// the following part is XML stuff only.. but maybe we don't want that message to go down the XML pipe?
 	if(flag == SYS_NOXML)
 		return;
@@ -308,6 +316,7 @@ void FPrintf(int flag, char *buf)
 	xmlSetProp(node, "level", (char *)&level);
 
 	xml_SendNode(node);
+#endif
 }
 
 #ifdef DBG_XML

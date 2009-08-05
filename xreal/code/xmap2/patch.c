@@ -330,7 +330,11 @@ void ParsePatch(qboolean onlyLights, qboolean patchDef3)
 	/* warn and select degenerate patch */
 	if(degenerate)
 	{
+#if defined(USE_XML)
 		xml_Select("degenerate patch", mapEnt->mapEntityNum, entitySourceBrushes, qfalse);
+#else
+		Error("Entity %i, Brush %i: degenerate patch", mapEnt->mapEntityNum, entitySourceBrushes);
+#endif
 		free(m.verts);
 		return;
 	}

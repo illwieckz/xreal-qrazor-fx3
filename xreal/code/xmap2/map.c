@@ -401,7 +401,11 @@ void SetBrushContents(brush_t * b)
 	/* check for detail & structural */
 	if((compileFlags & C_DETAIL) && (compileFlags & C_STRUCTURAL))
 	{
+#if defined(USE_XML)
 		xml_Select("Mixed detail and structural (defaulting to structural)", mapEnt->mapEntityNum, entitySourceBrushes, qfalse);
+#else
+		Sys_Printf("Entity %i, Brush %i: Mixed detail and structural (defaulting to structural)", mapEnt->mapEntityNum, entitySourceBrushes, qfalse);
+#endif
 		compileFlags &= ~C_DETAIL;
 	}
 
@@ -500,7 +504,11 @@ void AddBrushBevels(void)
 				// add a new side
 				if(buildBrush->numsides == MAX_BUILD_SIDES)
 				{
+#if defined(USE_XML)
 					xml_Select("MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum, qtrue);
+#else
+					Error("Entity %i, Brush %i: MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum);
+#endif
 				}
 				memset(s, 0, sizeof(*s));
 				buildBrush->numsides++;
@@ -650,7 +658,11 @@ void AddBrushBevels(void)
 					// add this plane
 					if(buildBrush->numsides == MAX_BUILD_SIDES)
 					{
+#if defined(USE_XML)
 						xml_Select("MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum, qtrue);
+#else
+						Error("Entity %i, Brush %i: MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum);
+#endif
 					}
 					s2 = &buildBrush->sides[buildBrush->numsides];
 					buildBrush->numsides++;
@@ -972,7 +984,11 @@ static void ParseRawBrush(qboolean onlyLights)
 
 		/* test side count */
 		if(buildBrush->numsides >= MAX_BUILD_SIDES)
+#if defined(USE_XML)
 			xml_Select("MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum, qtrue);
+#else
+			Error("Entity %i, Brush %i: MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum);
+#endif
 
 		/* add side */
 		side = &buildBrush->sides[buildBrush->numsides];
@@ -1107,7 +1123,12 @@ qboolean RemoveDuplicateBrushPlanes(brush_t * b)
 		// check for a degenerate plane
 		if(sides[i].planenum == -1)
 		{
+#if defined(USE_XML)
 			xml_Select("degenerate plane", b->entityNum, b->brushNum, qfalse);
+#else
+			Error("Entity %i, Brush %i: degenerate plane", b->entityNum, b->brushNum);
+#endif
+
 			// remove it
 			for(k = i + 1; k < b->numsides; k++)
 			{
@@ -1123,7 +1144,12 @@ qboolean RemoveDuplicateBrushPlanes(brush_t * b)
 		{
 			if(sides[i].planenum == sides[j].planenum)
 			{
+#if defined(USE_XML)
 				xml_Select("duplicate plane", b->entityNum, b->brushNum, qfalse);
+#else
+				Error("Entity %i, Brush %i: duplicate plane", b->entityNum, b->brushNum);
+#endif
+
 				// remove the second duplicate
 				for(k = i + 1; k < b->numsides; k++)
 				{
@@ -1137,7 +1163,11 @@ qboolean RemoveDuplicateBrushPlanes(brush_t * b)
 			if(sides[i].planenum == (sides[j].planenum ^ 1))
 			{
 				// mirror plane, brush is invalid
+#if defined(USE_XML)
 				xml_Select("mirrored plane", b->entityNum, b->brushNum, qfalse);
+#else
+				Error("Entity %i, Brush %i: mirrored plane", b->entityNum, b->brushNum);
+#endif
 				return qfalse;
 			}
 		}

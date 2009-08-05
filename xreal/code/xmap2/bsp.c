@@ -204,7 +204,9 @@ void ProcessWorldModel(void)
 	tree_t         *tree;
 	face_t         *faces;
 	qboolean        ignoreLeaks, leaked;
+#if defined(USE_XML)
 	xmlNodePtr      polyline, leaknode;
+#endif
 	char            level[2], shader[1024];
 	const char     *value;
 
@@ -280,6 +282,7 @@ void ProcessWorldModel(void)
 		Sys_FPrintf(SYS_NOXML, "**********************\n");
 		Sys_FPrintf(SYS_NOXML, "******* leaked *******\n");
 		Sys_FPrintf(SYS_NOXML, "**********************\n");
+#if defined(USE_XML)
 		polyline = LeakFile(tree);
 		leaknode = xmlNewNode(NULL, "message");
 		xmlNodeSetContent(leaknode, "MAP LEAKED\n");
@@ -288,6 +291,9 @@ void ProcessWorldModel(void)
 		level[1] = 0;
 		xmlSetProp(leaknode, "level", (char *)&level);
 		xml_SendNode(leaknode);
+#else
+		LeakFile(tree);
+#endif
 		if(leaktest)
 		{
 			Sys_Printf("--- MAP LEAKED, ABORTING LEAKTEST ---\n");
