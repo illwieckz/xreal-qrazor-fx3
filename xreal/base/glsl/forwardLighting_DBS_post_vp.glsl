@@ -37,6 +37,7 @@ uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
+uniform int			u_ParallaxMapping;
 
 varying vec2		var_TexDiffuse;
 
