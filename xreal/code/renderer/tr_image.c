@@ -2680,13 +2680,13 @@ static void R_CreateDepthRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
-	{
-		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_DEPTH16, FT_NEAREST, WT_CLAMP);
-	}
-	else if(glConfig.framebufferPackedDepthStencilAvailable)
+	if(glConfig.framebufferPackedDepthStencilAvailable)
 	{
 		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_PACKED_DEPTH24_STENCIL8, FT_NEAREST, WT_CLAMP);
+	}
+	else if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
+	{
+		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_DEPTH16, FT_NEAREST, WT_CLAMP);
 	}
 	else
 	{
@@ -2907,26 +2907,17 @@ static void R_CreateDeferredRenderFBOImages(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
-		   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	if(DS_STANDARD_ENABLED())
 	{
 		tr.deferredDiffuseFBOImage = R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 		tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 		tr.deferredSpecularFBOImage = R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
+	else if(DS_PREPASS_LIGHTING_ENABLED())
+	{
+		tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 
-	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
-	{
-		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
-	}
-	else
-	{
-		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
-	}
-
-	if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
-	{
-		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		if(HDR_ENABLED())
 		{
 			tr.lightRenderFBOImage = R_CreateImage("_lightRenderFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
 		}
@@ -2934,6 +2925,15 @@ static void R_CreateDeferredRenderFBOImages(void)
 		{
 			tr.lightRenderFBOImage = R_CreateImage("_lightRenderFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 		}
+	}
+
+	if(HDR_ENABLED())
+	{
+		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
+	}
+	else
+	{
+		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
 
 	ri.Hunk_FreeTempMemory(data);

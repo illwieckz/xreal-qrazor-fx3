@@ -1229,7 +1229,7 @@ void R_Register(void)
 	r_ext_separate_stencil = ri.Cvar_Get("r_ext_separate_stencil", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_depth_bounds_test = ri.Cvar_Get("r_ext_depth_bounds_test", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_framebuffer_object = ri.Cvar_Get("r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_packed_depth_stencil = ri.Cvar_Get("r_ext_packed_depth_stencil", "0", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_packed_depth_stencil = ri.Cvar_Get("r_ext_packed_depth_stencil", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_framebuffer_blit = ri.Cvar_Get("r_ext_framebuffer_blit", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_extx_framebuffer_mixed_formats = ri.Cvar_Get("r_extx_framebuffer_mixed_formats", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_generate_mipmap = ri.Cvar_Get("r_ext_generate_mipmap", "1", CVAR_CHEAT | CVAR_LATCH);
@@ -1333,10 +1333,12 @@ void R_Register(void)
 	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
 	// HACK turn off HDR for development
+#if !defined(OFFSCREEN_PREPASS_LIGHTING)
 	if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
 	{
 		ri.Cvar_CheckRange(r_hdrRendering, 0, 0, qtrue);
 	}
+#endif
 
 	r_hdrMinLuminance = ri.Cvar_Get("r_hdrMinLuminance", "0.18", CVAR_CHEAT);
 	r_hdrMaxLuminance = ri.Cvar_Get("r_hdrMaxLuminance", "3000", CVAR_CHEAT);

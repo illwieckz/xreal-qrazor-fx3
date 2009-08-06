@@ -7148,10 +7148,9 @@ void RB_RenderBloom()
 		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.contrastShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 		GL_PopMatrix();
 
-		if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-						   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		if(DS_STANDARD_ENABLED() || DS_PREPASS_LIGHTING_ENABLED())
 		{
-			if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+			if(HDR_ENABLED())
 			{
 				if(r_hdrKey->value <= 0)
 				{
@@ -7173,7 +7172,7 @@ void RB_RenderBloom()
 			GL_SelectTexture(0);
 			GL_Bind(tr.downScaleFBOImage_quarter);
 		}
-		else if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		else if(HDR_ENABLED())
 		{
 			if(r_hdrKey->value <= 0)
 			{
@@ -7262,8 +7261,7 @@ void RB_RenderBloom()
 			}
 
 			// add offscreen processed bloom to screen
-			if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-				   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+			if(DS_STANDARD_ENABLED())
 			{
 				R_BindFBO(tr.deferredRenderFBO);
 
@@ -7276,7 +7274,23 @@ void RB_RenderBloom()
 				GL_SelectTexture(0);
 				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
 			}
-			else if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+			else if(DS_PREPASS_LIGHTING_ENABLED())
+			{
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+				R_BindFBO(tr.deferredRenderFBO);
+#else
+				R_BindNullFBO();
+#endif
+				GL_BindProgram(&tr.screenShader);
+				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+
+				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+				GL_SelectTexture(0);
+				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
+			}
+			else if(HDR_ENABLED())
 			{
 				R_BindFBO(tr.deferredRenderFBO);
 
@@ -9157,7 +9171,7 @@ static void RB_RenderView(void)
 
 	backEnd.pc.c_surfaces += backEnd.viewParms.numDrawSurfs;
 
-	if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+	if(DS_PREPASS_LIGHTING_ENABLED())
 	{
 		int             clearBits = 0;
 		int             startTime = 0, endTime = 0;
@@ -9277,7 +9291,11 @@ static void RB_RenderView(void)
 		RB_RenderDrawSurfacesIntoGeometricBuffer();
 
 		// try to cull lights using hardware occlusion queries
-		//R_BindFBO(tr.deferredRenderFBO);
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		R_BindFBO(tr.deferredRenderFBO);
+#else
+		R_BindNullFBO();
+#endif
 		RB_RenderLightOcclusionQueries();
 
 		if(r_shadows->integer >= 4)
@@ -9291,9 +9309,7 @@ static void RB_RenderView(void)
 			RB_RenderInteractionsDeferredIntoLightBuffer();
 		}
 
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-		R_BindFBO(tr.lightRenderFBO);
-#else
+#if !defined(OFFSCREEN_PREPASS_LIGHTING)
 		R_BindNullFBO();
 
 		// update light render image
@@ -9303,19 +9319,149 @@ static void RB_RenderView(void)
 #endif
 
 		// render opaque surfaces using the light buffer results
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		R_BindFBO(tr.deferredRenderFBO);
+#else
 		R_BindNullFBO();
+#endif
 		RB_RenderDrawSurfaces(qtrue, qfalse);
 
 		// draw everything that is translucent
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		R_BindFBO(tr.deferredRenderFBO);
+#else
 		R_BindNullFBO();
+#endif
 		RB_RenderDrawSurfaces(qfalse, qfalse);
 
 		// render debug information
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		R_BindFBO(tr.deferredRenderFBO);
+#else
 		R_BindNullFBO();
+#endif
 		RB_RenderDebugUtils();
+
+		// scale down rendered HDR scene to 1 / 4th
+		if(HDR_ENABLED())
+		{
+			if(glConfig.framebufferBlitAvailable)
+			{
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
+										GL_COLOR_BUFFER_BIT,
+										GL_LINEAR);
+
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_64x64->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   0, 0, 64, 64,
+									   GL_COLOR_BUFFER_BIT,
+									   GL_LINEAR);
+			}
+			else
+			{
+				// FIXME add non EXT_framebuffer_blit code
+			}
+
+			RB_CalculateAdaptation();
+		}
+		else
+		{
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+			if(glConfig.framebufferBlitAvailable)
+			{
+				// copy deferredRenderFBO to downScaleFBO_quarter
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
+										GL_COLOR_BUFFER_BIT,
+										GL_LINEAR);
+			}
+			else
+			{
+				// FIXME add non EXT_framebuffer_blit code
+			}
+#else
+#if 0
+			// FIXME: this trashes the OpenGL context for an unknown reason
+			if(glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
+			{
+				// copy main context to portalRenderFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   GL_COLOR_BUFFER_BIT,
+									   GL_NEAREST);
+			}
+			else
+#endif
+			{
+				// FIXME add non EXT_framebuffer_blit code
+			}
+#endif
+		}
+
+		GL_CheckErrors();
+
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		// render bloom post process effect
+		RB_RenderBloom();
+
+		// copy offscreen rendered scene to the current OpenGL context
+		RB_RenderDeferredShadingResultToFrameBuffer();
+#endif
+
+		if(backEnd.viewParms.isPortal)
+		{
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+			if(glConfig.framebufferBlitAvailable)
+			{
+				// copy deferredRenderFBO to portalRenderFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
+									   0, 0, tr.portalRenderFBO->width, tr.portalRenderFBO->height,
+									   GL_COLOR_BUFFER_BIT,
+									   GL_NEAREST);
+			}
+			else
+			{
+				// capture current color buffer
+				GL_SelectTexture(0);
+				GL_Bind(tr.portalRenderImage);
+				qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.portalRenderImage->uploadWidth, tr.portalRenderImage->uploadHeight);
+			}
+#else
+#if 0
+			// FIXME: this trashes the OpenGL context for an unknown reason
+			if(glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
+			{
+				// copy main context to portalRenderFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   GL_COLOR_BUFFER_BIT,
+									   GL_NEAREST);
+			}
+			else
+#endif
+			{
+				// capture current color buffer
+				GL_SelectTexture(0);
+				GL_Bind(tr.portalRenderImage);
+				qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.portalRenderImage->uploadWidth, tr.portalRenderImage->uploadHeight);
+			}
+#endif
+			backEnd.pc.c_portals++;
+		}
 	}
-	else if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	else if(DS_STANDARD_ENABLED())
 	{
 		int             clearBits = 0;
 
@@ -9380,19 +9526,6 @@ static void RB_RenderView(void)
 		}
 		qglClear(clearBits);
 
-		/*
-		if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
-		{
-			R_BindFBO(tr.geometricRenderFBO);
-			if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
-			{
-				clearBits = GL_COLOR_BUFFER_BIT;
-				GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-				qglClear(clearBits);
-			}
-		}
-		*/
-
 		if((backEnd.refdef.rdflags & RDF_HYPERSPACE))
 		{
 			RB_Hyperspace();
@@ -9410,58 +9543,33 @@ static void RB_RenderView(void)
 
 		GL_CheckErrors();
 
-#if 1
-		if(r_deferredShading->integer == DS_STANDARD)
-		{
-			// draw everything that is opaque
-			R_BindFBO(tr.deferredRenderFBO);
-			RB_RenderDrawSurfaces(qtrue, qfalse);
-		}
-#endif
-
 		RB_RenderDrawSurfacesIntoGeometricBuffer();
+
+		// draw everything that is opaque
+		R_BindFBO(tr.deferredRenderFBO);
+		RB_RenderDrawSurfaces(qtrue, qfalse);
 
 		// try to cull lights using hardware occlusion queries
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderLightOcclusionQueries();
 
-		if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+		if(!r_showDeferredRender->integer)
 		{
-			/*
 			if(r_shadows->integer >= 4)
 			{
 				// render dynamic shadowing and lighting using shadow mapping
 				RB_RenderInteractionsDeferredShadowMapped();
 			}
 			else
-			*/
 			{
 				// render dynamic lighting
-				RB_RenderInteractionsDeferredIntoLightBuffer();
+				RB_RenderInteractionsDeferred();
 			}
-
-			// render opaque surfaces using the light buffer results
 		}
-		else
-		{
-			if(!r_showDeferredRender->integer)
-			{
-				if(r_shadows->integer >= 4)
-				{
-					// render dynamic shadowing and lighting using shadow mapping
-					RB_RenderInteractionsDeferredShadowMapped();
-				}
-				else
-				{
-					// render dynamic lighting
-					RB_RenderInteractionsDeferred();
-				}
-			}
 
-			// draw everything that is translucent
-			R_BindFBO(tr.deferredRenderFBO);
-			RB_RenderDrawSurfaces(qfalse, qfalse);
-		}
+		// draw everything that is translucent
+		R_BindFBO(tr.deferredRenderFBO);
+		RB_RenderDrawSurfaces(qfalse, qfalse);
 
 		// render global fog
 		R_BindFBO(tr.deferredRenderFBO);
@@ -9595,7 +9703,7 @@ static void RB_RenderView(void)
 		}
 		else
 		{
-			if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
+			if(HDR_ENABLED())
 			{
 				// copy color of the main context to deferredRenderFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);

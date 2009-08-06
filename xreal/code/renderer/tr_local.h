@@ -88,7 +88,7 @@ typedef unsigned short glIndex_t;
 #define DEBUG_OPTIMIZEVERTICES 0
 #define CALC_REDUNDANT_SHADOWVERTS 0
 
-//#define OFFSCREEN_PREPASS_LIGHTING 1
+#define OFFSCREEN_PREPASS_LIGHTING 1
 
 typedef enum
 {
@@ -96,6 +96,12 @@ typedef enum
 	DS_STANDARD,				// deferred rendering like in Stalker
 	DS_PREPASS_LIGHTING			// light pre pass rendering like in Cry Engine 3
 } deferredShading_t;
+
+#define DS_STANDARD_ENABLED() ((r_deferredShading->integer == DS_STANDARD && glConfig.maxColorAttachments >= 4 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4 && glConfig.framebufferPackedDepthStencilAvailable))
+
+#define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING && glConfig.maxColorAttachments >= 2 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 2 && glConfig.framebufferPackedDepthStencilAvailable))
+
+#define HDR_ENABLED() ((r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable))
 
 #define REF_CUBEMAP_SIZE		64
 

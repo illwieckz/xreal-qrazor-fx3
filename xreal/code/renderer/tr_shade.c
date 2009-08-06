@@ -2380,10 +2380,19 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	vec3_t          lightDir;
 	vec4_t          lightColor;
 	unsigned int 	attribBits = ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL;
+	unsigned int	stateBits;
 
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
-	GL_State(pStage->stateBits);
+	stateBits = pStage->stateBits;
+
+	if(DS_PREPASS_LIGHTING_ENABLED())
+	{
+		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
+		stateBits |= (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+	}
+
+	GL_State(stateBits);
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.vertexLightingShader_DBS_entity);
@@ -2487,10 +2496,19 @@ static void Render_vertexLighting_DBS_entity(int stage)
 static void Render_vertexLighting_DBS_world(int stage)
 {
 	vec3_t          viewOrigin;
+	unsigned int	stateBits;
 
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
-	GL_State(pStage->stateBits);
+	stateBits = pStage->stateBits;
+
+	if(DS_PREPASS_LIGHTING_ENABLED())
+	{
+		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
+		stateBits |= (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+	}
+
+	GL_State(stateBits);
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.vertexLightingShader_DBS_world);
@@ -2644,12 +2662,21 @@ static void Render_vertexLighting_DBS_world(int stage)
 static void Render_lightMapping(int stage, qboolean asColorMap)
 {
 	shaderStage_t  *pStage;
+	unsigned long	stateBits;
 
 	GLimp_LogComment("--- Render_lightMapping ---\n");
 
 	pStage = tess.surfaceStages[stage];
 
-	GL_State(pStage->stateBits);
+	stateBits = pStage->stateBits;
+
+	if(DS_PREPASS_LIGHTING_ENABLED())
+	{
+		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
+		stateBits |= (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+	}
+
+	GL_State(stateBits);
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.lightMappingShader);
@@ -2684,12 +2711,21 @@ static void Render_deluxeMapping(int stage)
 {
 	vec3_t          viewOrigin;
 	shaderStage_t  *pStage;
+	unsigned long	stateBits;
 
 	GLimp_LogComment("--- Render_deluxeMapping ---\n");
 
 	pStage = tess.surfaceStages[stage];
 
-	GL_State(pStage->stateBits);
+	stateBits = pStage->stateBits;
+
+	if(DS_PREPASS_LIGHTING_ENABLED())
+	{
+		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
+		stateBits |= (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+	}
+
+	GL_State(stateBits);
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.deluxeMappingShader);
@@ -2774,7 +2810,7 @@ static void Render_deluxeMapping(int stage)
 static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
 {
 	shaderStage_t  *pStage;
-	unsigned        stateBits;
+	unsigned long   stateBits;
 	vec3_t          viewOrigin;
 	vec4_t          ambientColor;
 
@@ -2785,7 +2821,7 @@ static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
 	// remove blend mode
 	stateBits = pStage->stateBits;
 	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
-	stateBits &= (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+	stateBits |= (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 
 	GL_State(stateBits);
 
@@ -2796,6 +2832,7 @@ static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
 	// set uniforms
 	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 
+#if 0
 	if(r_precomputedLighting->integer)
 	{
 		VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
@@ -2808,6 +2845,7 @@ static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
 		ambientColor[2] = r_forceAmbient->value;
 	}
 	else
+#endif
 	{
 		VectorClear(ambientColor);
 	}
@@ -4467,10 +4505,15 @@ void Tess_StageIteratorGeneric()
 						{
 							Render_vertexLighting_DBS_world(stage);
 						}
+
+						if(DS_PREPASS_LIGHTING_ENABLED())
+						{
+							Render_forwardLighting_DBS_post(stage, qfalse);
+						}
 					}
 					else
 					{
-						if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+						if(DS_PREPASS_LIGHTING_ENABLED())
 						{
 							Render_forwardLighting_DBS_post(stage, qfalse);
 						}
@@ -4625,7 +4668,11 @@ void Tess_StageIteratorGBuffer()
 				{
 					if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
 					{
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+						R_BindFBO(tr.geometricRenderFBO);
+#else
 						R_BindNullFBO();
+#endif
 					}
 					else
 					{
@@ -4673,7 +4720,11 @@ void Tess_StageIteratorGBuffer()
 
 				if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
 				{
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+					R_BindFBO(tr.geometricRenderFBO);
+#else
 					R_BindNullFBO();
+#endif
 				}
 				else
 				{
