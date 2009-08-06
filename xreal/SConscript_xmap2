@@ -147,6 +147,7 @@ xmap2_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 xmap2_env.Append(CCFLAGS='-Icode/common/')
 xmap2_env.Append(CCFLAGS='-Icode/xrealradiant/libs/')
 #xmap2_env.Append(CCFLAGS='-DAAS')
+#xmap2_env.Append(CCFLAGS='-DUSE_XML')
 
 if env['arch'] == 'linux-i386':
 	xmap2_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')

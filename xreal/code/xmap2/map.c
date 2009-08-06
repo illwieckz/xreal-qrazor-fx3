@@ -404,7 +404,7 @@ void SetBrushContents(brush_t * b)
 #if defined(USE_XML)
 		xml_Select("Mixed detail and structural (defaulting to structural)", mapEnt->mapEntityNum, entitySourceBrushes, qfalse);
 #else
-		Sys_Printf("Entity %i, Brush %i: Mixed detail and structural (defaulting to structural)", mapEnt->mapEntityNum, entitySourceBrushes, qfalse);
+		Sys_Printf("Entity %i, Brush %i: Mixed detail and structural (defaulting to structural)\n", mapEnt->mapEntityNum, entitySourceBrushes, qfalse);
 #endif
 		compileFlags &= ~C_DETAIL;
 	}
@@ -507,7 +507,7 @@ void AddBrushBevels(void)
 #if defined(USE_XML)
 					xml_Select("MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum, qtrue);
 #else
-					Error("Entity %i, Brush %i: MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum);
+					Sys_Printf("Entity %i, Brush %i: MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum);
 #endif
 				}
 				memset(s, 0, sizeof(*s));
@@ -661,7 +661,7 @@ void AddBrushBevels(void)
 #if defined(USE_XML)
 						xml_Select("MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum, qtrue);
 #else
-						Error("Entity %i, Brush %i: MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum);
+						Sys_Printf("Entity %i, Brush %i: MAX_BUILD_SIDES\n", buildBrush->entityNum, buildBrush->brushNum);
 #endif
 					}
 					s2 = &buildBrush->sides[buildBrush->numsides];
@@ -987,7 +987,7 @@ static void ParseRawBrush(qboolean onlyLights)
 #if defined(USE_XML)
 			xml_Select("MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum, qtrue);
 #else
-			Error("Entity %i, Brush %i: MAX_BUILD_SIDES", buildBrush->entityNum, buildBrush->brushNum);
+			Sys_Printf("Entity %i, Brush %i: MAX_BUILD_SIDES\n", buildBrush->entityNum, buildBrush->brushNum);
 #endif
 
 		/* add side */
@@ -1126,7 +1126,7 @@ qboolean RemoveDuplicateBrushPlanes(brush_t * b)
 #if defined(USE_XML)
 			xml_Select("degenerate plane", b->entityNum, b->brushNum, qfalse);
 #else
-			Error("Entity %i, Brush %i: degenerate plane", b->entityNum, b->brushNum);
+			Sys_Printf("Entity %i, Brush %i: degenerate plane\n", b->entityNum, b->brushNum);
 #endif
 
 			// remove it
@@ -1147,7 +1147,7 @@ qboolean RemoveDuplicateBrushPlanes(brush_t * b)
 #if defined(USE_XML)
 				xml_Select("duplicate plane", b->entityNum, b->brushNum, qfalse);
 #else
-				Error("Entity %i, Brush %i: duplicate plane", b->entityNum, b->brushNum);
+				Sys_Printf("Entity %i, Brush %i: duplicate plane\n", b->entityNum, b->brushNum);
 #endif
 
 				// remove the second duplicate
@@ -1166,7 +1166,7 @@ qboolean RemoveDuplicateBrushPlanes(brush_t * b)
 #if defined(USE_XML)
 				xml_Select("mirrored plane", b->entityNum, b->brushNum, qfalse);
 #else
-				Error("Entity %i, Brush %i: mirrored plane", b->entityNum, b->brushNum);
+				Sys_Printf("Entity %i, Brush %i: mirrored plane\n", b->entityNum, b->brushNum);
 #endif
 				return qfalse;
 			}

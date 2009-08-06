@@ -533,7 +533,7 @@ void MakeTreePortals_r(node_t * node)
 				xml_Winding("WARNING: Node With Unbounded Volume", node->portals->winding->p, node->portals->winding->numpoints,
 							qfalse);
 #else
-				Sys_Printf("WARNING: node wiht unbounded volume\n");
+				Sys_Printf("WARNING: node with unbounded volume\n");
 #endif
 			}
 
@@ -748,6 +748,8 @@ qboolean FloodEntities(tree_t * tree)
 		{
 #if defined(USE_XML)
 			xml_Select("Entity leaked", e->mapEntityNum, 0, qfalse);
+#else
+			Sys_Printf("Entity leaked: %i\n", e->mapEntityNum);
 #endif
 			tripped = qtrue;
 		}
