@@ -2014,7 +2014,7 @@ void R_AddLightInteractions()
 		// calc local bounds for culling
 		if(light->isStatic)
 		{
-#if 0
+#if 1
 			// ignore if not in PVS
 			if(!r_noLightVisCull->integer)
 			{

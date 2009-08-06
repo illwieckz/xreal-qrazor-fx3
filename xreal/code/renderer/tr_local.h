@@ -75,7 +75,7 @@ typedef unsigned short glIndex_t;
 #define MAX_STATES_PER_SHADER 32
 #define MAX_STATE_NAME 32
 
-#define MAX_OCCLUSION_QUERIES	128
+#define MAX_OCCLUSION_QUERIES	4096
 
 #define	MAX_FBOS				64
 
@@ -3509,6 +3509,7 @@ Add a polyhedron that is composed of four triangular faces
 void            Tess_AddTetrahedron(vec4_t tetraVerts[4], vec4_t const color);
 
 void			Tess_AddCube(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
+void			Tess_AddCubeNormals(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
 
 void            Tess_InstantQuad(vec4_t quadVerts[4]);
 void            Tess_UpdateVBOs(unsigned int attribBits);

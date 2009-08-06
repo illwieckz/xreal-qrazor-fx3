@@ -3085,41 +3085,7 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 				{
 					case RL_OMNI:
 					{
-						VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-						VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-						VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-						VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-						Tess_AddQuadStamp2(quadVerts, colorRed);
-
-						VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-						VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-						VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-						VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-						Tess_AddQuadStamp2(quadVerts, colorGreen);
-
-						VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-						VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-						VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-						VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-						Tess_AddQuadStamp2(quadVerts, colorBlue);
-
-						VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-						VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-						VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-						VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-						Tess_AddQuadStamp2(quadVerts, colorYellow);
-
-						VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-						VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-						VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-						VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-						Tess_AddQuadStamp2(quadVerts, colorMagenta);
-
-						VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-						VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-						VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-						VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-						Tess_AddQuadStamp2(quadVerts, colorCyan);
+						Tess_AddCube(vec3_origin, light->localBounds[0], light->localBounds[1], colorWhite);
 
 						Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 						break;
@@ -3633,7 +3599,7 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 #endif
 
-	GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	GL_ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	qglClear(GL_COLOR_BUFFER_BIT);
 
 	// if we need to clear the FBO color buffers then it should be white
@@ -7762,78 +7728,17 @@ void RB_RenderLightOcclusionQueries()
 					// begin the occlusion query
 					qglBeginQueryARB(GL_SAMPLES_PASSED, tr.occlusionQueryObjects[ocCount]);
 
+					tess.numIndexes = 0;
+					tess.numVertexes = 0;
+
 					switch (light->l.rlType)
 					{
 						case RL_OMNI:
 						{
-							tess.numIndexes = 0;
-							tess.numVertexes = 0;
-
-							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2],
-									   1);
-							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2],
-									   1);
-							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2],
-									   1);
-							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2],
-									   1);
-							Tess_AddQuadStamp2(quadVerts, colorRed);
-
-							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2],
-									   1);
-							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2],
-									   1);
-							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2],
-									   1);
-							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2],
-									   1);
-							Tess_AddQuadStamp2(quadVerts, colorGreen);
-
-							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2],
-									   1);
-							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2],
-									   1);
-							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2],
-									   1);
-							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2],
-									   1);
-							Tess_AddQuadStamp2(quadVerts, colorBlue);
-
-							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2],
-									   1);
-							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2],
-									   1);
-							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2],
-									   1);
-							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2],
-									   1);
-							Tess_AddQuadStamp2(quadVerts, colorYellow);
-
-							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2],
-									   1);
-							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2],
-									   1);
-							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2],
-									   1);
-							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2],
-									   1);
-							Tess_AddQuadStamp2(quadVerts, colorMagenta);
-
-							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2],
-									   1);
-							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2],
-									   1);
-							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2],
-									   1);
-							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2],
-									   1);
-							Tess_AddQuadStamp2(quadVerts, colorCyan);
+							Tess_AddCube(vec3_origin, light->localBounds[0], light->localBounds[1], colorWhite);
 
 							Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 							Tess_DrawElements();
-
-							tess.numIndexes = 0;
-							tess.numVertexes = 0;
 							break;
 						}
 
@@ -7920,15 +7825,15 @@ void RB_RenderLightOcclusionQueries()
 
 							Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 							Tess_DrawElements();
-
-							tess.numIndexes = 0;
-							tess.numVertexes = 0;
 							break;
 						}
 
 						default:
 							break;
 					}
+
+					tess.numIndexes = 0;
+					tess.numVertexes = 0;
 
 
 					// end the query
@@ -7997,12 +7902,13 @@ void RB_RenderLightOcclusionQueries()
 				startTime = ri.Milliseconds();
 			}
 
-			limit = (int)(ocCount * 5 / 6);	// instead of N-1, to prevent the GPU from going idle
-			//limit = ocCount;
+			//limit = (int)(ocCount * 5 / 6);	// instead of N-1, to prevent the GPU from going idle
+			limit = ocCount;
 
-
+#if 1
 			if(limit >= (MAX_OCCLUSION_QUERIES - 1))
 				limit = (MAX_OCCLUSION_QUERIES - 1);
+#endif
 
 			i = 0;
 			avCount = -1;
