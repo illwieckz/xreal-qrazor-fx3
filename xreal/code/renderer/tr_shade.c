@@ -2953,20 +2953,27 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	// set uniforms
 	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 
-	if(r_precomputedLighting->integer)
+	if(DS_PREPASS_LIGHTING_ENABLED())
 	{
-		VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
-		ClampColor(ambientColor);
-	}
-	else if(r_forceAmbient->integer)
-	{
-		ambientColor[0] = r_forceAmbient->value;
-		ambientColor[1] = r_forceAmbient->value;
-		ambientColor[2] = r_forceAmbient->value;
+		VectorClear(ambientColor);
 	}
 	else
 	{
-		VectorClear(ambientColor);
+		if(r_precomputedLighting->integer)
+		{
+			VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
+			ClampColor(ambientColor);
+		}
+		else if(r_forceAmbient->integer)
+		{
+			ambientColor[0] = r_forceAmbient->value;
+			ambientColor[1] = r_forceAmbient->value;
+			ambientColor[2] = r_forceAmbient->value;
+		}
+		else
+		{
+			VectorClear(ambientColor);
+		}
 	}
 
 	GLSL_SetUniform_AlphaTest(&tr.geometricFillShader_DBS, pStage->stateBits);

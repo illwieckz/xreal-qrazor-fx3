@@ -99,7 +99,11 @@ typedef enum
 
 #define DS_STANDARD_ENABLED() ((r_deferredShading->integer == DS_STANDARD && glConfig.maxColorAttachments >= 4 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4 && glConfig.framebufferPackedDepthStencilAvailable))
 
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
 #define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING && glConfig.maxColorAttachments >= 2 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 2 && glConfig.framebufferPackedDepthStencilAvailable))
+#else
+#define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING))
+#endif
 
 #define HDR_ENABLED() ((r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable))
 
@@ -1465,17 +1469,7 @@ static ID_INLINE void GLSL_SetUniform_LightRadius(shaderProgram_t * program, flo
 	qglUniform1fARB(program->u_LightRadius, value);
 }
 
-static ID_INLINE void GLSL_SetUniform_LightScale(shaderProgram_t * program, float value)
-{
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_LightScale == value)
-		return;
 
-	program->t_LightScale = value;
-#endif
-
-	qglUniform1fARB(program->u_LightScale, value);
-}
 
 static ID_INLINE void GLSL_SetUniform_LightAttenuationMatrix(shaderProgram_t * program, const matrix_t m)
 {
@@ -2661,6 +2655,7 @@ typedef struct
 
 	int             c_forwardAmbientTime;
 	int             c_forwardLightingTime;
+	int             c_forwardTranslucentTime;
 
 	int             c_deferredGBufferTime;
 	int             c_deferredLightingTime;
@@ -3202,6 +3197,26 @@ extern cvar_t  *r_bloomBlur;
 extern cvar_t  *r_bloomPasses;
 extern cvar_t  *r_rotoscope;
 extern cvar_t  *r_cameraPostFX;
+
+static ID_INLINE void GLSL_SetUniform_LightScale(shaderProgram_t * program, float value)
+{
+#if 0
+	if(DS_PREPASS_LIGHTING_ENABLED())
+	{
+		value -= (r_lightScale->value -1);
+		value = Q_max(value, 0);
+	}
+#endif
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_LightScale == value)
+		return;
+
+	program->t_LightScale = value;
+#endif
+
+	qglUniform1fARB(program->u_LightScale, value);
+}
 
 //====================================================================
 

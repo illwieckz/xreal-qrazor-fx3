@@ -220,28 +220,39 @@ void	main()
 		vec4 color = diffuse;
 #endif
 
-		color.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
+		float NL = clamp(dot(N, L), 0.0, 1.0);
+		color.rgb *= u_LightColor * NL;
+		
+		// compute attenuation
+		vec4 texAtten = (u_LightAttenuationMatrix * vec4(P.xyz, 1.0));
+		vec3 attenuation = texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb * texture2D(u_AttenuationMapZ, vec2(texAtten.z, 0.0)).rgb;
+		
 		
 #if defined(r_NormalMapping)
 
 #if defined(r_DeferredLighting)
-		//color.a += pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+		
+		float specular;
+		
+		// Blinn-Phong 
+		float NH = clamp(dot(N, H), 0.0, 1.0);
+		specular = pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent);// * r_SpecularScale;
+		
+		// R.V == Phong
+		//float RV = clamp(dot(normalize(reflect(-V, N)), L), 0.0, 1.0);
+		//specular = pow(RV, r_SpecularExponent);
+		
+		color.a = specular * length(attenuation);
+		//color.a = NH;// * NL;
+		//color.a = RV;// * length(attenuation);
 #else
 		color.rgb += S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 #endif
 
 #endif // r_NormalMapping
-
-
-#if 1
-		// compute attenuation
-		vec4 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(P.xyz, 1.0));
-		vec3 attenuationXY		= texture2DProj(u_AttenuationMapXY, texAttenXYZ.xyw).rgb;
-		vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(texAttenXYZ.z, 0.0)).rgb;
 		
-		color.rgb *= attenuationXY;
-		color.rgb *= attenuationZ;
-#endif
+		
+		color.rgb *= attenuation;
 		color.rgb *= u_LightScale;
 		color.rgb *= shadow;
 		

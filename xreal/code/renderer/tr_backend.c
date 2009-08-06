@@ -3013,7 +3013,7 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 #endif
 
-	GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	GL_ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	qglClear(GL_COLOR_BUFFER_BIT);
 
 	// update uniforms
@@ -9222,13 +9222,9 @@ static void RB_RenderView(void)
 
 
 #else
-		// disable offscreen rendering
 		if(glConfig.framebufferObjectAvailable)
 		{
-			//if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
-			//	R_BindFBO(tr.deferredRenderFBO);
-			//else
-				R_BindNullFBO();
+			R_BindNullFBO();
 		}
 #endif
 
@@ -9318,6 +9314,12 @@ static void RB_RenderView(void)
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.lightRenderFBOImage->uploadWidth, tr.lightRenderFBOImage->uploadHeight);
 #endif
 
+		if(r_speeds->integer == 9)
+		{
+			qglFinish();
+			startTime = ri.Milliseconds();
+		}
+
 		// render opaque surfaces using the light buffer results
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
 		R_BindFBO(tr.deferredRenderFBO);
@@ -9326,6 +9328,13 @@ static void RB_RenderView(void)
 #endif
 		RB_RenderDrawSurfaces(qtrue, qfalse);
 
+		if(r_speeds->integer == 9)
+		{
+			qglFinish();
+			endTime = ri.Milliseconds();
+			backEnd.pc.c_forwardLightingTime = endTime - startTime;
+		}
+
 		// draw everything that is translucent
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
 		R_BindFBO(tr.deferredRenderFBO);
@@ -9333,6 +9342,13 @@ static void RB_RenderView(void)
 		R_BindNullFBO();
 #endif
 		RB_RenderDrawSurfaces(qfalse, qfalse);
+
+		if(r_speeds->integer == 9)
+		{
+			qglFinish();
+			endTime = ri.Milliseconds();
+			backEnd.pc.c_forwardTranslucentTime = endTime - startTime;
+		}
 
 		// render debug information
 #if defined(OFFSCREEN_PREPASS_LIGHTING)

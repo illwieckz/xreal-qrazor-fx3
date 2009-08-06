@@ -166,40 +166,28 @@ void	main()
 	fragCoord *= r_NPOTScale;
 	
 	vec4 light = texture2D(u_LightMap, fragCoord);
+	light.rgb += light.aaa;
 	
 	// reconstruct the light equation
 	vec4 color = vec4(u_AmbientColor.rgb + (diffuse.rgb * light.rgb), diffuse.a);
 	//color = diffuse;
 	//color.rgb = light.rgb;
 	
-	/*
-	by Wolgang Engel
-	I spent some more time with the Light Pre-Pass renderer. Here are my assumptions:
-
-	N.H^n = (N.L * N.H^n * Att) / (N.L * Att)
-
-	This division happens in the forward rendering path. The light source has its own shininess value in there == the power n value. With the specular component extracted, I can apply the material shininess value like this.
-
-	(N.H^n)^nm
-
-	Then I can re-construct the Blinn-Phong lighting equation. The data stored in the Light Buffer is treated like one light source. As a reminder, the first three channels of the light buffer hold:
-
-	N.L * Att * DiffuseColor
-
-	Color = Ambient + (LightBuffer.rgb * MatDiffInt) + MatSpecInt * (N.H^n)^mn * N.L * Att
-
-	So how could I do this :-)
-
-	N.H^n = (N.L * N.H^n * Att) / (N.L * Att)
+	const vec4 LUMINANCE_VECTOR = vec4(0.2125, 0.7154, 0.0721, 0.0);
+	float Y = dot(LUMINANCE_VECTOR, light);
 	
-	N.L * Att is not in any channel of the Light buffer. How can I get this? The trick here is to convert the first three channels of the Light Buffer to luminance. The value should be pretty close to N.L * Att.
-	This also opens up a bunch of ideas for different materials. Every time you need the N.L * Att term you replace it with luminance. This should give you a wide range of materials.
-	*/
+#if defined(r_NormalMapping)
+	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb ;
 	
-#if 0 //defined(r_NormalMapping)
-	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+	specular *= light.rgb;
+	
+	//specular *= pow(light.a / Y, r_SpecularExponent);
+	specular *= light.a;// / Y;
+	//specular = vec3(light.a);
+	
+	specular *= r_SpecularScale;
 	color.rgb += specular;
+	//color.rgb = specular;
 #endif
 
 	gl_FragColor = color;
