@@ -243,7 +243,7 @@ void	main()
 		//specular = pow(RV, r_SpecularExponent);
 		
 		color.a = specular * length(attenuation);
-		//color.a = NH;// * NL;
+		color.a = NH * length(attenuation);
 		//color.a = RV;// * length(attenuation);
 #else
 		color.rgb += S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;

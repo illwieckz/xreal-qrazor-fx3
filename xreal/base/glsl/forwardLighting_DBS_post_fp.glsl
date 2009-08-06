@@ -166,7 +166,7 @@ void	main()
 	fragCoord *= r_NPOTScale;
 	
 	vec4 light = texture2D(u_LightMap, fragCoord);
-	light.rgb += light.aaa;
+	//light.rgb += light.aaa;
 	
 	// reconstruct the light equation
 	vec4 color = vec4(u_AmbientColor.rgb + (diffuse.rgb * light.rgb), diffuse.a);
@@ -179,13 +179,15 @@ void	main()
 #if defined(r_NormalMapping)
 	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb ;
 	
+	specular *= Y;
 	specular *= light.rgb;
+	//specular *= (light.rgb + light.aaa);
 	
 	//specular *= pow(light.a / Y, r_SpecularExponent);
 	specular *= light.a;// / Y;
 	//specular = vec3(light.a);
 	
-	specular *= r_SpecularScale;
+	specular *= r_SpecularScale;// * 2.0;
 	color.rgb += specular;
 	//color.rgb = specular;
 #endif
