@@ -3198,6 +3198,7 @@ extern cvar_t  *r_bloomPasses;
 extern cvar_t  *r_rotoscope;
 extern cvar_t  *r_cameraPostFX;
 
+#if !defined(USE_D3D10)
 static ID_INLINE void GLSL_SetUniform_LightScale(shaderProgram_t * program, float value)
 {
 #if 0
@@ -3217,6 +3218,7 @@ static ID_INLINE void GLSL_SetUniform_LightScale(shaderProgram_t * program, floa
 
 	qglUniform1fARB(program->u_LightScale, value);
 }
+#endif
 
 //====================================================================
 
