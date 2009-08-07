@@ -1423,6 +1423,21 @@ static void Tess_SurfaceTriangles(srfTriangles_t * srf)
 	}
 	else
 	{
+
+		if(srf->vbo || srf->ibo)
+		{
+			Tess_EndBegin();
+
+			R_BindVBO(srf->vbo);
+			R_BindIBO(srf->ibo);
+
+			tess.numIndexes += srf->numTriangles * 3;
+			tess.numVertexes += srf->numVerts;
+
+			Tess_End();
+			return;
+		}
+
 		Tess_CheckOverflow(srf->numVerts, srf->numTriangles * 3);
 
 		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)

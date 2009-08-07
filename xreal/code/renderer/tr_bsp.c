@@ -4269,6 +4269,22 @@ static void R_CreateWorldVBO()
 	ri.Printf(PRINT_ALL, "world VBO calculation time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 
 
+	// point triangle surfaces to world VBO
+	for(k = 0, surface = &s_worldData.surfaces[0]; k < s_worldData.numWorldSurfaces; k++, surface++)
+	{
+		if(*surface->data == SF_TRIANGLES)
+		{
+			srfTriangles_t *srf = (srfTriangles_t *) surface->data;
+
+			if(r_vboTriangles->integer && srf->numVerts && srf->numTriangles)
+			{
+				srf->vbo = s_worldData.vbo;
+				srf->ibo = R_CreateIBO2(va("staticBspModel0_triangleSurface %i", k), srf->numTriangles, triangles + srf->firstTriangle, VBO_USAGE_STATIC);
+			}
+		}
+	}
+
+
 	startTime = ri.Milliseconds();
 
 	// Tr3B: FIXME move this to somewhere else?

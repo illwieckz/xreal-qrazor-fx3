@@ -2049,6 +2049,10 @@ typedef struct
 	// BSP VBO offsets
 	int             firstVert;
 	int             firstTriangle;
+
+	// static render data
+	VBO_t          *vbo;		// points to bsp model VBO
+	IBO_t          *ibo;
 } srfTriangles_t;
 
 typedef struct srfVBOMesh_s

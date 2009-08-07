@@ -347,7 +347,7 @@ static void R_AddWorldSurface(bspSurface_t * surf)
 
 	shader = surf->shader;
 
-	if(r_vboWorld->integer && !shader->isSky && !shader->isPortal && !shader->numDeforms)
+	if(r_vboWorld->integer && !(r_vboTriangles->integer && *surf->data == SF_TRIANGLES) && !shader->isSky && !shader->isPortal && !shader->numDeforms)
 		return;
 
 	// try to cull before lighting or adding
@@ -903,6 +903,9 @@ static void R_UpdateClusterSurfaces()
 				{
 					srfTriangles_t *tri = (srfTriangles_t *) surface2->data;
 
+					if(r_vboTriangles->integer)
+						continue;
+
 					if(tri->numVerts)
 						numVerts += tri->numVerts;
 
@@ -970,6 +973,9 @@ static void R_UpdateClusterSurfaces()
 				else if(*surface2->data == SF_TRIANGLES)
 				{
 					srfTriangles_t *srf = (srfTriangles_t *) surface2->data;
+
+					if(r_vboTriangles->integer)
+						continue;
 
 					if(srf->numTriangles)
 					{
