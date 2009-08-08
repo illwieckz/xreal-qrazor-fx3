@@ -154,8 +154,9 @@ typedef struct
 
 typedef enum
 {
-	RL_OMNI,
-	RL_PROJ,
+	RL_OMNI,			// point light
+	RL_PROJ,			// spot light
+	RL_DIRECTIONAL,		// sun light
 
 	RL_MAX_REF_LIGHT_TYPE
 } refLightType_t;

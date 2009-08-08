@@ -5141,6 +5141,7 @@ void R_LoadEntities(lump_t * l)
 	int             numLights = 0;
 	int             numOmniLights = 0;
 	int             numProjLights = 0;
+	int             numParallelLights = 0;
 	trRefLight_t   *light;
 
 	ri.Printf(PRINT_ALL, "...loading entities\n");
@@ -5552,6 +5553,11 @@ void R_LoadEntities(lump_t * l)
 			{
 				light->noRadiosity = qtrue;
 			}
+			// check if this light is a parallel sun light
+			else if(!Q_stricmp(keyname, "parallel") && !Q_stricmp(value, "1"))
+			{
+				light->l.rlType = RL_DIRECTIONAL;
+			}
 		}
 
 		if(*token != '}')
@@ -5579,6 +5585,10 @@ void R_LoadEntities(lump_t * l)
 						numProjLights++;
 						break;
 
+					case RL_DIRECTIONAL:
+						numParallelLights++;
+						break;
+
 					default:
 						break;
 				}
@@ -5590,15 +5600,16 @@ void R_LoadEntities(lump_t * l)
 		numEntities++;
 	}
 
-	if((numOmniLights + numProjLights) != s_worldData.numLights)
+	if((numOmniLights + numProjLights + numParallelLights) != s_worldData.numLights)
 	{
-		ri.Error(ERR_DROP, "counted %i lights and parsed %i lights", s_worldData.numLights, (numOmniLights + numProjLights));
+		ri.Error(ERR_DROP, "counted %i lights and parsed %i lights", s_worldData.numLights, (numOmniLights + numProjLights + numParallelLights));
 	}
 
 	ri.Printf(PRINT_ALL, "%i total entities parsed\n", numEntities);
 	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numOmniLights + numProjLights);
 	ri.Printf(PRINT_ALL, "%i omni-directional lights parsed\n", numOmniLights);
 	ri.Printf(PRINT_ALL, "%i projective lights parsed\n", numProjLights);
+	ri.Printf(PRINT_ALL, "%i directional lights parsed\n", numParallelLights);
 }
 
 

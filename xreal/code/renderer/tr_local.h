@@ -187,6 +187,10 @@ typedef struct trRefLight_s
 
 	frustum_t       frustum;
 	vec4_t			localFrustum[6];
+	struct VBO_s   *frustumVBO;
+	struct IBO_s   *frustumIBO;
+	int             frustumIndexes;
+	int            	frustumVerts;
 
 	screenRect_t    scissor;
 
@@ -2835,6 +2839,7 @@ typedef struct
 	// deferred lighting
 	shaderProgram_t deferredLightingShader_DBS_omni;
 	shaderProgram_t deferredLightingShader_DBS_proj;
+	shaderProgram_t deferredLightingShader_DBS_directional;
 
 	// black depth fill rendering with textures
 	shaderProgram_t depthFillShader;
@@ -3121,6 +3126,7 @@ extern cvar_t  *r_stitchCurves;
 extern cvar_t  *r_smp;
 extern cvar_t  *r_showSmp;
 extern cvar_t  *r_skipBackEnd;
+extern cvar_t  *r_skipLightBuffer;
 
 extern cvar_t  *r_ignoreGLErrors;
 

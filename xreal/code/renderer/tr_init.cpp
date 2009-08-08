@@ -58,6 +58,7 @@ cvar_t         *r_zfar;
 cvar_t         *r_smp;
 cvar_t         *r_showSmp;
 cvar_t         *r_skipBackEnd;
+cvar_t         *r_skipLightBuffer;
 
 cvar_t         *r_ignorehwgamma;
 cvar_t         *r_measureOverdraw;
@@ -1320,7 +1321,7 @@ void R_Register(void)
 
 	r_vboFaces = ri.Cvar_Get("r_vboFaces", "0", CVAR_CHEAT);
 	r_vboCurves = ri.Cvar_Get("r_vboCurves", "0", CVAR_CHEAT);
-	r_vboTriangles = ri.Cvar_Get("r_vboTriangles", "0", CVAR_CHEAT);
+	r_vboTriangles = ri.Cvar_Get("r_vboTriangles", "1", CVAR_CHEAT);
 	r_vboShadows = ri.Cvar_Get("r_vboShadows", "1", CVAR_CHEAT);
 	r_vboLighting = ri.Cvar_Get("r_vboLighting", "1", CVAR_CHEAT);
 	r_vboDynamicLighting = ri.Cvar_Get("r_vboDynamicLighting", "0", CVAR_CHEAT);
@@ -1381,6 +1382,7 @@ void R_Register(void)
 
 	r_showSmp = ri.Cvar_Get("r_showSmp", "0", CVAR_CHEAT);
 	r_skipBackEnd = ri.Cvar_Get("r_skipBackEnd", "0", CVAR_CHEAT);
+	r_skipLightBuffer = ri.Cvar_Get("r_skipLightBuffer", "0", CVAR_CHEAT);
 
 	r_measureOverdraw = ri.Cvar_Get("r_measureOverdraw", "0", CVAR_CHEAT);
 	r_lodscale = ri.Cvar_Get("r_lodscale", "5", CVAR_CHEAT);

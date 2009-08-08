@@ -468,6 +468,7 @@ void R_SetupLightLocalBounds(trRefLight_t * light)
 	switch (light->l.rlType)
 	{
 		case RL_OMNI:
+		case RL_DIRECTIONAL:
 		{
 			light->localBounds[0][0] = -light->l.radius[0];
 			light->localBounds[0][1] = -light->l.radius[1];
@@ -579,6 +580,7 @@ void R_SetupLightView(trRefLight_t * light)
 	{
 		case RL_OMNI:
 		case RL_PROJ:
+		case RL_DIRECTIONAL:
 		{
 			MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
 			break;
@@ -613,6 +615,7 @@ void R_SetupLightFrustum(trRefLight_t * light)
 	switch (light->l.rlType)
 	{
 		case RL_OMNI:
+		case RL_DIRECTIONAL:
 		{
 			int             i;
 			vec3_t          planeNormal;
@@ -692,6 +695,165 @@ void R_SetupLightFrustum(trRefLight_t * light)
 		default:
 			break;
 	}
+
+	if(light->isStatic)
+	{
+		int             i, j;
+		vec4_t          quadVerts[4];
+		srfVert_t      *verts;
+		srfTriangle_t  *triangles;
+
+		if(glConfig.smpActive)
+			ri.Error(ERR_FATAL, "R_SetupLightFrustum: FIXME SMP");
+
+		tess.numIndexes = 0;
+		tess.numVertexes = 0;
+
+		switch (light->l.rlType)
+		{
+			case RL_OMNI:
+			case RL_DIRECTIONAL:
+			{
+				Tess_AddCube(vec3_origin, light->localBounds[0], light->localBounds[1], colorWhite);
+
+				//Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
+
+				verts = ri.Hunk_AllocateTempMemory(tess.numVertexes * sizeof(srfVert_t));
+				triangles = ri.Hunk_AllocateTempMemory((tess.numIndexes / 3) * sizeof(srfTriangle_t));
+
+				for(i = 0; i < tess.numVertexes; i++)
+				{
+					VectorCopy(tess.xyz[i], verts[i].xyz);
+				}
+
+				for(i = 0; i < (tess.numIndexes / 3); i++)
+				{
+					triangles[i].indexes[0] = tess.indexes[i * 3 + 0];
+					triangles[i].indexes[1] = tess.indexes[i * 3 + 1];
+					triangles[i].indexes[2] = tess.indexes[i * 3 + 2];
+				}
+
+				light->frustumVBO = R_CreateVBO2("staticLightFrustum_VBO", tess.numVertexes, verts, ATTR_POSITION | ATTR_COLOR, VBO_USAGE_STATIC);
+				light->frustumIBO = R_CreateIBO2("staticLightFrustum_IBO", tess.numIndexes / 3, triangles, VBO_USAGE_STATIC);
+
+				ri.Hunk_FreeTempMemory(triangles);
+				ri.Hunk_FreeTempMemory(verts);
+
+				light->frustumVerts = tess.numVertexes;
+				light->frustumIndexes = tess.numIndexes;
+				break;
+			}
+
+			case RL_PROJ:
+			{
+				vec3_t          farCorners[4];
+				vec4_t         *frustum = light->localFrustum;
+
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[2]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[3]);
+
+				if(!VectorCompare(light->l.projStart, vec3_origin))
+				{
+					vec3_t          nearCorners[4];
+
+					// calculate the vertices defining the top area
+					PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[0]);
+					PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[1]);
+					PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[2]);
+					PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[3]);
+
+					// draw outer surfaces
+					for(j = 0; j < 4; j++)
+					{
+						VectorSet4(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
+						VectorSet4(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
+						VectorSet4(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
+						VectorSet4(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
+						Tess_AddQuadStamp2(quadVerts, colorCyan);
+					}
+
+					// draw far cap
+					VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+					VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+					VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+					VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+					Tess_AddQuadStamp2(quadVerts, colorRed);
+
+					// draw near cap
+					VectorSet4(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
+					VectorSet4(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
+					VectorSet4(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
+					VectorSet4(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
+					Tess_AddQuadStamp2(quadVerts, colorGreen);
+
+				}
+				else
+				{
+					vec3_t	top;
+
+					// no light_start, just use the top vertex (doesn't need to be mirrored)
+					PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], top);
+
+					// draw pyramid
+					for(j = 0; j < 4; j++)
+					{
+						VectorCopy(farCorners[j], tess.xyz[tess.numVertexes]);
+						VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+						tess.indexes[tess.numIndexes++] = tess.numVertexes;
+						tess.numVertexes++;
+
+						VectorCopy(farCorners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
+						VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+						tess.indexes[tess.numIndexes++] = tess.numVertexes;
+						tess.numVertexes++;
+
+						VectorCopy(top, tess.xyz[tess.numVertexes]);
+						VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+						tess.indexes[tess.numIndexes++] = tess.numVertexes;
+						tess.numVertexes++;
+					}
+
+					VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+					VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+					VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+					VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+					Tess_AddQuadStamp2(quadVerts, colorRed);
+				}
+
+				//Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
+
+				verts = ri.Hunk_AllocateTempMemory(tess.numVertexes * sizeof(srfVert_t));
+				triangles = ri.Hunk_AllocateTempMemory((tess.numIndexes / 3) * sizeof(srfTriangle_t));
+
+				for(i = 0; i < tess.numVertexes; i++)
+				{
+					VectorCopy(tess.xyz[i], verts[i].xyz);
+				}
+
+				for(i = 0; i < (tess.numIndexes / 3); i++)
+				{
+					triangles[i].indexes[0] = tess.indexes[i * 3 + 0];
+					triangles[i].indexes[1] = tess.indexes[i * 3 + 1];
+					triangles[i].indexes[2] = tess.indexes[i * 3 + 2];
+				}
+
+				light->frustumVBO = R_CreateVBO2("staticLightFrustum_VBO", tess.numVertexes, verts, ATTR_POSITION | ATTR_COLOR, VBO_USAGE_STATIC);
+				light->frustumIBO = R_CreateIBO2("staticLightFrustum_IBO", tess.numIndexes / 3, triangles, VBO_USAGE_STATIC);
+
+				ri.Hunk_FreeTempMemory(triangles);
+				ri.Hunk_FreeTempMemory(verts);
+				break;
+			}
+
+			default:
+				break;
+		}
+
+		tess.numIndexes = 0;
+		tess.numVertexes = 0;
+	}
 }
 
 
@@ -706,6 +868,7 @@ void R_SetupLightProjection(trRefLight_t * light)
 	switch (light->l.rlType)
 	{
 		case RL_OMNI:
+		case RL_DIRECTIONAL:
 		{
 			MatrixSetupScale(light->projectionMatrix, 1.0 / light->l.radius[0], 1.0 / light->l.radius[1], 1.0 / light->l.radius[2]);
 			break;
