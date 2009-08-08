@@ -3772,8 +3772,7 @@ static void Render_heatHaze(int stage)
 
 		previousFBO = glState.currentFBO;
 
-		if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		if(DS_STANDARD_ENABLED())
 		{
 			// copy deferredRenderFBO to portalRenderFBO
 			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
@@ -3783,7 +3782,29 @@ static void Render_heatHaze(int stage)
 								   GL_DEPTH_BUFFER_BIT,
 								   GL_NEAREST);
 		}
-		else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+		else if(DS_PREPASS_LIGHTING_ENABLED())
+		{
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+			// copy deferredRenderFBO to portalRenderFBO
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
+								   0, 0, tr.occlusionRenderFBO->width, tr.occlusionRenderFBO->height,
+								   GL_DEPTH_BUFFER_BIT,
+								   GL_NEAREST);
+#else
+#if 1
+			// copy depth of the main context to deferredRenderFBO
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   GL_DEPTH_BUFFER_BIT,
+								   GL_NEAREST);
+#endif
+#endif
+		}
+		else if(HDR_ENABLED())
 		{
 			// copy deferredRenderFBO to portalRenderFBO
 			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
@@ -3876,12 +3897,20 @@ static void Render_heatHaze(int stage)
 
 	// bind u_CurrentMap
 	GL_SelectTexture(1);
-	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-				   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	if(DS_STANDARD_ENABLED())
 	{
 		GL_Bind(tr.deferredRenderFBOImage);
 	}
-	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	else if(DS_PREPASS_LIGHTING_ENABLED())
+	{
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		GL_Bind(tr.deferredRenderFBOImage);
+#else
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+#endif
+	}
+	else if(HDR_ENABLED())
 	{
 		GL_Bind(tr.deferredRenderFBOImage);
 	}
@@ -3890,7 +3919,6 @@ static void Render_heatHaze(int stage)
 		GL_Bind(tr.currentRenderImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	}
-
 
 	// bind u_ContrastMap
 	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
@@ -3941,12 +3969,20 @@ static void Render_liquid(int stage)
 
 	// capture current color buffer for u_CurrentMap
 	GL_SelectTexture(0);
-	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-					   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	if(DS_STANDARD_ENABLED())
 	{
 		GL_Bind(tr.deferredRenderFBOImage);
 	}
-	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	else if(DS_PREPASS_LIGHTING_ENABLED())
+	{
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		GL_Bind(tr.deferredRenderFBOImage);
+#else
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+#endif
+	}
+	else if(HDR_ENABLED())
 	{
 		GL_Bind(tr.deferredRenderFBOImage);
 	}
@@ -3962,12 +3998,20 @@ static void Render_liquid(int stage)
 
 	// bind u_DepthMap
 	GL_SelectTexture(2);
-	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	if(DS_STANDARD_ENABLED())
 	{
 		GL_Bind(tr.depthRenderImage);
 	}
-	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	else if(DS_PREPASS_LIGHTING_ENABLED())
+	{
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		GL_Bind(tr.depthRenderImage);
+#else
+		GL_Bind(tr.depthRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+#endif
+	}
+	else if(HDR_ENABLED())
 	{
 		GL_Bind(tr.depthRenderImage);
 	}
