@@ -215,6 +215,7 @@ cvar_t         *r_showLightMaps;
 cvar_t         *r_showDeluxeMaps;
 cvar_t         *r_showAreaPortals;
 cvar_t         *r_showCubeProbes;
+cvar_t         *r_showBspNodes;
 
 cvar_t         *r_showDeferredDiffuse;
 cvar_t         *r_showDeferredNormal;
@@ -230,17 +231,20 @@ cvar_t         *r_vboShadows;
 cvar_t         *r_vboLighting;
 cvar_t         *r_vboDynamicLighting;
 cvar_t         *r_vboModels;
-cvar_t         *r_vboWorld;
 cvar_t         *r_vboOptimizeVertices;
 cvar_t         *r_vboVertexSkinning;
 cvar_t         *r_vboSmoothNormals;
 
-cvar_t         *r_precacheLightIndexes;
-cvar_t         *r_precacheShadowIndexes;
+cvar_t         *r_mergeClusterSurfaces;
+cvar_t         *r_mergeClusterFaces;
+cvar_t         *r_mergeClusterCurves;
+cvar_t         *r_mergeClusterTriangles;
 
 cvar_t         *r_deferredShading;
 cvar_t         *r_parallaxMapping;
 cvar_t         *r_parallaxDepthScale;
+
+cvar_t         *r_dynamicBspOcclusionCulling;
 
 cvar_t         *r_hdrRendering;
 cvar_t         *r_hdrMinLuminance;
@@ -1287,8 +1291,6 @@ void R_Register(void)
 #endif
 	r_intensity = ri.Cvar_Get("r_intensity", "1", CVAR_LATCH);
 	r_singleShader = ri.Cvar_Get("r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH);
-	r_precacheLightIndexes = ri.Cvar_Get("r_precacheLightIndexes", "1", CVAR_CHEAT | CVAR_LATCH);
-	r_precacheShadowIndexes = ri.Cvar_Get("r_precacheShadowIndexes", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_stitchCurves = ri.Cvar_Get("r_stitchCurves", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_debugShadowMaps = ri.Cvar_Get("r_debugShadowMaps", "0", CVAR_CHEAT | CVAR_LATCH);
 	r_shadowMapLuminanceAlpha = ri.Cvar_Get("r_shadowMapLuminanceAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1326,10 +1328,16 @@ void R_Register(void)
 	r_vboLighting = ri.Cvar_Get("r_vboLighting", "1", CVAR_CHEAT);
 	r_vboDynamicLighting = ri.Cvar_Get("r_vboDynamicLighting", "0", CVAR_CHEAT);
 	r_vboModels = ri.Cvar_Get("r_vboModels", "1", CVAR_CHEAT);
-	r_vboWorld = ri.Cvar_Get("r_vboWorld", "1", CVAR_CHEAT);
 	r_vboOptimizeVertices = ri.Cvar_Get("r_vboOptimizeVertices", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_vboVertexSkinning = ri.Cvar_Get("r_vboVertexSkinning", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_vboSmoothNormals = ri.Cvar_Get("r_vboSmoothNormals", "1", CVAR_ARCHIVE | CVAR_LATCH);
+
+	r_mergeClusterSurfaces = ri.Cvar_Get("r_mergeClusterSurfaces", "1", CVAR_CHEAT);
+	r_mergeClusterFaces = ri.Cvar_Get("r_mergeClusterFaces", "1", CVAR_CHEAT);
+	r_mergeClusterCurves = ri.Cvar_Get("r_mergeClusterCurves", "1", CVAR_CHEAT);
+	r_mergeClusterTriangles = ri.Cvar_Get("r_mergeClusterTriangles", "0", CVAR_CHEAT);
+
+	r_dynamicBspOcclusionCulling = ri.Cvar_Get("r_dynamicBspOcclusionCulling", "0", CVAR_ARCHIVE);
 
 	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
@@ -1476,6 +1484,7 @@ void R_Register(void)
 	r_showDeluxeMaps = ri.Cvar_Get("r_showDeluxeMaps", "0", CVAR_CHEAT);
 	r_showAreaPortals = ri.Cvar_Get("r_showAreaPortals", "0", CVAR_CHEAT);
 	r_showCubeProbes = ri.Cvar_Get("r_showCubeProbes", "0", CVAR_CHEAT);
+	r_showBspNodes = ri.Cvar_Get("r_showBspNodes", "0", CVAR_CHEAT);
 
 	r_showDeferredDiffuse = ri.Cvar_Get("r_showDeferredDiffuse", "0", CVAR_CHEAT);
 	r_showDeferredNormal = ri.Cvar_Get("r_showDeferredNormal", "0", CVAR_CHEAT);
@@ -1889,6 +1898,19 @@ void RE_Shutdown(qboolean destroyWindow)
 		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 		{
 			qglDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
+
+			if(tr.world)
+			{
+				int				j;
+				bspNode_t      *node;
+
+				for(j = 0; j < tr.world->numnodes; j++)
+				{
+					node = &tr.world->nodes[j];
+
+					qglDeleteQueriesARB(MAX_VISCOUNTS, node->occlusionQueryObjects);
+				}
+			}
 		}
 
 		GLSL_ShutdownGPUShaders();

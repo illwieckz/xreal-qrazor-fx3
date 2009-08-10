@@ -120,6 +120,7 @@ This will also allow mirrors on both sides of a model without recursion.
 */
 static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 {
+#if 1
 	srfSurfaceFace_t *sface;
 	float           d;
 
@@ -187,6 +188,9 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 	}
 
 	return qfalse;
+#else
+	return qfalse;
+#endif
 }
 
 // *INDENT-OFF*
@@ -347,7 +351,12 @@ static void R_AddWorldSurface(bspSurface_t * surf)
 
 	shader = surf->shader;
 
-	if(r_vboWorld->integer && !(r_vboTriangles->integer && *surf->data == SF_TRIANGLES) && !shader->isSky && !shader->isPortal && !shader->numDeforms)
+	if(r_mergeClusterSurfaces->integer &&
+		!r_dynamicBspOcclusionCulling->integer &&
+		(r_mergeClusterFaces->integer && *surf->data == SF_FACE) &&
+		(r_mergeClusterCurves->integer && *surf->data == SF_GRID) &&
+		(r_mergeClusterTriangles->integer && *surf->data == SF_TRIANGLES) &&
+		!shader->isSky && !shader->isPortal && !shader->numDeforms)
 		return;
 
 	// try to cull before lighting or adding
@@ -467,6 +476,75 @@ void R_AddBSPModelSurfaces(trRefEntity_t * ent)
 */
 
 
+static void R_RecursiveWorldNodeFetchVisibility(bspNode_t * node, int planeBits)
+{
+	bspNode_t      *parent;
+
+	if(!r_dynamicBspOcclusionCulling->integer)
+		return;
+
+	do
+	{
+		if(node->issueOcclusionQuery)
+		{
+#if defined(USE_D3D10)
+		// TODO
+#else
+			GLint available;
+
+			available = 0;
+			if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+			{
+				qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+				GL_CheckErrors();
+			}
+
+			if(available)
+			{
+				// get the object and store it in the occlusion bits for the light
+				qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT, &node->occlusionQuerySamples[0]);
+				node->issueOcclusionQuery = qfalse;
+			}
+			else
+			{
+				node->occlusionQuerySamples[0] = 1;
+			}
+
+			GL_CheckErrors();
+#endif
+		}
+		else
+		{
+			node->occlusionQuerySamples[0] = 1;
+		}
+
+		if(node->occlusionQuerySamples[0] <= 0)
+			return;
+
+		// pull up visibility
+		parent = node;
+		do
+		{
+			if(parent->visible)
+				break;
+
+			parent->visible = qtrue;
+			parent = parent->parent;
+		} while(parent);
+
+		if(node->contents != -1)
+		{
+			break;
+		}
+
+		// recurse down the children, front side first
+		R_RecursiveWorldNodeFetchVisibility(node->children[0], planeBits);
+
+		// tail recurse
+		node = node->children[1];
+	} while(1);
+}
+
 /*
 ================
 R_RecursiveWorldNode
@@ -476,46 +554,113 @@ static void R_RecursiveWorldNode(bspNode_t * node, int planeBits)
 {
 	do
 	{
-		// if the node wasn't marked as potentially visible, exit
-		if(node->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex])
+		if(r_dynamicBspOcclusionCulling->integer)
 		{
-			return;
-		}
+			qboolean wasVisible;
+			qboolean leafOrWasInvisible;
 
-		// if the bounding volume is outside the frustum, nothing
-		// inside can be visible OPTIMIZE: don't do this all the way to leafs?
-		if(!r_nocull->integer)
-		{
-			int             i;
-			int             r;
-
-			for(i = 0; i < FRUSTUM_PLANES; i++)
+			// if the bounding volume is outside the frustum, nothing
+			// inside can be visible OPTIMIZE: don't do this all the way to leafs?
+			if(!r_nocull->integer)
 			{
-				if(planeBits & (1 << i))
+				int             i;
+				int             r;
+
+				for(i = 0; i < FRUSTUM_PLANES; i++)
 				{
-					r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
-					if(r == 2)
+					if(planeBits & (1 << i))
 					{
-						return;	// culled
-					}
-					if(r == 1)
-					{
-						planeBits &= ~(1 << i);	// all descendants will also be in front
+						r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
+						if(r == 2)
+						{
+							return;	// culled
+						}
+						if(r == 1)
+						{
+							planeBits &= ~(1 << i);	// all descendants will also be in front
+						}
 					}
 				}
 			}
-		}
 
-		if(node->contents != -1)
+			// identify previously visible nodes
+			wasVisible = node->visible && (node->lastVisited == tr.frameCount -1);
+
+			// identify nodes that we cannot skip queries for
+			leafOrWasInvisible = !wasVisible || (node->contents != -1);
+
+			// reset node's visibility classification
+			node->visible = qfalse;
+
+			// update node's visited flag
+			node->lastVisited = tr.frameCount;
+
+			// skip testing previously visible interior nodes
+			if(leafOrWasInvisible)
+			{
+				node->issueOcclusionQuery = qtrue;
+			}
+
+			if(wasVisible)
+			{
+				if(node->contents != -1)
+					break;
+
+				// recurse down the children, front side first
+				R_RecursiveWorldNode(node->children[0], planeBits);
+				//R_RecursiveWorldNode(node->children[0], planeBits);
+
+				// tail recurse
+				node = node->children[1];
+			}
+			else
+			{
+				return;
+			}
+		}
+		else
 		{
-			break;
+			// if the node wasn't marked as potentially visible, exit
+			if(node->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex])
+			{
+				return;
+			}
+
+			// if the bounding volume is outside the frustum, nothing
+			// inside can be visible OPTIMIZE: don't do this all the way to leafs?
+			if(!r_nocull->integer)
+			{
+				int             i;
+				int             r;
+
+				for(i = 0; i < FRUSTUM_PLANES; i++)
+				{
+					if(planeBits & (1 << i))
+					{
+						r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
+						if(r == 2)
+						{
+							return;	// culled
+						}
+						if(r == 1)
+						{
+							planeBits &= ~(1 << i);	// all descendants will also be in front
+						}
+					}
+				}
+			}
+
+			if(node->contents != -1)
+			{
+				break;
+			}
+
+			// recurse down the children, front side first
+			R_RecursiveWorldNode(node->children[0], planeBits);
+
+			// tail recurse
+			node = node->children[1];
 		}
-
-		// recurse down the children, front side first
-		R_RecursiveWorldNode(node->children[0], planeBits);
-
-		// tail recurse
-		node = node->children[1];
 	} while(1);
 
 	{
@@ -883,6 +1028,9 @@ static void R_UpdateClusterSurfaces()
 				{
 					srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface2->data;
 
+					if(!r_mergeClusterFaces->integer)
+						continue;
+
 					if(face->numVerts)
 						numVerts += face->numVerts;
 
@@ -892,6 +1040,9 @@ static void R_UpdateClusterSurfaces()
 				else if(*surface2->data == SF_GRID)
 				{
 					srfGridMesh_t  *grid = (srfGridMesh_t *) surface2->data;
+
+					if(!r_mergeClusterCurves->integer)
+						continue;
 
 					if(grid->numVerts)
 						numVerts += grid->numVerts;
@@ -903,7 +1054,7 @@ static void R_UpdateClusterSurfaces()
 				{
 					srfTriangles_t *tri = (srfTriangles_t *) surface2->data;
 
-					if(r_vboTriangles->integer)
+					if(!r_mergeClusterTriangles->integer)
 						continue;
 
 					if(tri->numVerts)
@@ -936,6 +1087,9 @@ static void R_UpdateClusterSurfaces()
 				{
 					srfSurfaceFace_t *srf = (srfSurfaceFace_t *) surface2->data;
 
+					if(!r_mergeClusterFaces->integer)
+						continue;
+
 					if(srf->numTriangles)
 					{
 						srfTriangle_t  *tri;
@@ -954,6 +1108,9 @@ static void R_UpdateClusterSurfaces()
 				else if(*surface2->data == SF_GRID)
 				{
 					srfGridMesh_t  *srf = (srfGridMesh_t *) surface2->data;
+
+					if(!r_mergeClusterCurves->integer)
+						continue;
 
 					if(srf->numTriangles)
 					{
@@ -974,7 +1131,7 @@ static void R_UpdateClusterSurfaces()
 				{
 					srfTriangles_t *srf = (srfTriangles_t *) surface2->data;
 
-					if(r_vboTriangles->integer)
+					if(!r_mergeClusterTriangles->integer)
 						continue;
 
 					if(srf->numTriangles)
@@ -1068,13 +1225,14 @@ static void R_UpdateClusterSurfaces()
 
 	ri.Hunk_FreeTempMemory(surfacesSorted);
 
-#if 0
-	if(r_showcluster->integer)
+	if(r_showcluster->modified || r_showcluster->integer)
 	{
-		ri.Printf(PRINT_ALL, "%i VBO surfaces created for cluster %i and vis index %i\n",
-				  tr.world->numClusterVBOSurfaces[tr.visIndex], cluster - tr.world->clusters, tr.visIndex);
+		r_showcluster->modified = qfalse;
+		if(r_showcluster->integer)
+		{
+			ri.Printf(PRINT_ALL, "  surfaces:%i\n", tr.world->numClusterVBOSurfaces[tr.visIndex]);
+		}
 	}
-#endif
 }
 
 /*
@@ -1094,7 +1252,7 @@ static void R_MarkLeaves(void)
 
 	// lockpvs lets designers walk around to determine the
 	// extent of the current pvs
-	if(r_lockpvs->integer)
+	if(r_lockpvs->integer || r_dynamicBspOcclusionCulling->integer)
 	{
 		return;
 	}
@@ -1131,10 +1289,10 @@ static void R_MarkLeaves(void)
 
 	if(r_showcluster->modified || r_showcluster->integer)
 	{
-		r_showcluster->modified = qfalse;
+		//r_showcluster->modified = qfalse;
 		if(r_showcluster->integer)
 		{
-			ri.Printf(PRINT_ALL, "update cluster:%i  area:%i  index:%i\n", cluster, leaf->area, tr.visIndex);
+			ri.Printf(PRINT_ALL, "update cluster:%i  area:%i  index:%i", cluster, leaf->area, tr.visIndex);
 		}
 	}
 
@@ -1279,13 +1437,16 @@ void R_AddWorldSurfaces(void)
 	// clear out the visible min/max
 	ClearBounds(tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]);
 
+	// update the bsp nodes with the dynamic occlusion query results
+	R_RecursiveWorldNodeFetchVisibility(tr.world->nodes, FRUSTUM_CLIPALL);
+
 	// update visbounds and add surfaces that weren't cached with VBOs
 	R_RecursiveWorldNode(tr.world->nodes, FRUSTUM_CLIPALL);
 
 	// dynamically compute far clip plane distance for sky
 	R_SetFarClip();
 
-	if(r_vboWorld->integer)
+	if(r_mergeClusterSurfaces->integer && !r_dynamicBspOcclusionCulling->integer)
 	{
 		int             j, i;
 		srfVBOMesh_t   *srf;

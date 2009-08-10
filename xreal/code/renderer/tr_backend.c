@@ -7916,6 +7916,13 @@ void RB_RenderLightOcclusionQueries()
 					// don't read back immediately so that we give the query time to be ready
 					qglEndQueryARB(GL_SAMPLES_PASSED);
 
+#if 0
+					if(!qglIsQueryARB(tr.occlusionQueryObjects[ocCount]))
+					{
+						ri.Error(ERR_FATAL, "tr.occlusionQueryObjects[%i] has no occlusion query object: %i", ocCount, tr.occlusionQueryObjects[ocCount]);
+					}
+#endif
+
 					backEnd.pc.c_occlusionQueries++;
 				}
 
@@ -8106,6 +8113,84 @@ void RB_RenderLightOcclusionQueries()
 			qglFinish();
 			endTime = ri.Milliseconds();
 			backEnd.pc.c_occlusionQueriesFetchTime = endTime - startTime;
+		}
+	}
+
+	GL_CheckErrors();
+}
+
+void RB_RenderBspOcclusionQueries()
+{
+	GLimp_LogComment("--- RB_RenderBspOcclusionQueries ---\n");
+
+	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
+	{
+		int             j;
+		bspNode_t      *node;
+
+		GL_BindProgram(&tr.genericSingleShader);
+		GL_Cull(CT_TWO_SIDED);
+
+		GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+
+		// set uniforms
+		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
+		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
+		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
+		if(glConfig.vboVertexSkinningAvailable)
+		{
+			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
+		}
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
+
+		// set up the transformation matrix
+		backEnd.orientation = backEnd.viewParms.world;
+		GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+		// bind u_ColorMap
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+		GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
+
+		// don't write to the color buffer or depth buffer
+		GL_State(GLS_COLORMASK_BITS);
+
+		for(j = 0; j < tr.world->numnodes; j++)
+		{
+			node = &tr.world->nodes[j];
+
+			if(!node->issueOcclusionQuery)
+				continue;
+
+			// begin the occlusion query
+			qglBeginQueryARB(GL_SAMPLES_PASSED, node->occlusionQueryObjects[0]);
+
+			R_BindVBO(node->volumeVBO);
+			R_BindIBO(node->volumeIBO);
+
+			GL_VertexAttribsState(ATTR_POSITION);
+
+			tess.numVertexes = node->volumeVerts;
+			tess.numIndexes = node->volumeIndexes;
+
+			Tess_DrawElements();
+
+			// end the query
+			// don't read back immediately so that we give the query time to be ready
+			qglEndQueryARB(GL_SAMPLES_PASSED);
+
+#if 0
+			if(!qglIsQueryARB(node->occlusionQueryObjects[0]))
+			{
+				ri.Error(ERR_FATAL, "node %i has no occlusion query object in slot %i: %i", j, 0, node->occlusionQueryObjects[0]);
+			}
+#endif
+
+			backEnd.pc.c_occlusionQueries++;
+
+			tess.numIndexes = 0;
+			tess.numVertexes = 0;
 		}
 	}
 
@@ -9106,6 +9191,130 @@ static void RB_RenderDebugUtils()
 	}
 #endif
 
+	if(r_showBspNodes->integer)
+	{
+		bspNode_t      *node;
+		int             j;
+		GLint           available;
+
+		if(tr.refdef.rdflags & (RDF_NOWORLDMODEL))
+		{
+			return;
+		}
+
+		GL_BindProgram(&tr.genericSingleShader);
+		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
+		GL_Cull(CT_TWO_SIDED);
+
+		// set uniforms
+		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
+		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_CUSTOM_RGB);
+		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_CUSTOM);
+		if(glConfig.vboVertexSkinningAvailable)
+		{
+			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
+		}
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
+
+		// set up the transformation matrix
+		backEnd.orientation = backEnd.viewParms.world;
+		GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+		// bind u_ColorMap
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+		GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
+
+		GL_CheckErrors();
+
+		for(j = 0; j < tr.world->numnodes; j++)
+		{
+			node = &tr.world->nodes[j];
+
+			if(!r_dynamicBspOcclusionCulling->integer)
+			{
+				if(node->contents == -1)
+				{
+					if(r_showBspNodes->integer != 2)
+						continue;
+
+					GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
+
+					if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
+					else
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
+				}
+				else
+				{
+					if(r_showBspNodes->integer == 2)
+						continue;
+
+					if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
+					else
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
+				}
+			}
+			else
+			{
+				if(!node->issueOcclusionQuery)
+					continue;
+
+				available = 0;
+				if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+				{
+					qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+					GL_CheckErrors();
+				}
+
+				if(available)
+				{
+					backEnd.pc.c_occlusionQueriesAvailable++;
+
+					// get the object and store it in the occlusion bits for the light
+					qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT, &node->occlusionQuerySamples[0]);
+
+					//if(ocSamples <= 0)
+					//{
+					//	backEnd.pc.c_occlusionQueriesLightsCulled++;
+					//}
+
+					if(node->occlusionQuerySamples[0] > 0)
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
+					else
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
+				}
+				else
+				{
+					node->occlusionQuerySamples[0] = 1;
+
+					GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
+				}
+
+				GL_CheckErrors();
+			}
+
+			R_BindVBO(node->volumeVBO);
+			R_BindIBO(node->volumeIBO);
+
+			GL_VertexAttribsState(ATTR_POSITION);
+
+			tess.numVertexes = node->volumeVerts;
+			tess.numIndexes = node->volumeIndexes;
+
+			Tess_DrawElements();
+
+			tess.numIndexes = 0;
+			tess.numVertexes = 0;
+		}
+
+		// go back to the world modelview matrix
+		backEnd.orientation = backEnd.viewParms.world;
+		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+	}
+
 	GL_CheckErrors();
 }
 
@@ -9244,6 +9453,15 @@ static void RB_RenderView(void)
 		GL_CheckErrors();
 
 		RB_RenderDrawSurfacesIntoGeometricBuffer();
+
+
+		// try to cull bsp nodes for the next frame using hardware occlusion queries
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		R_BindFBO(tr.deferredRenderFBO);
+#else
+		R_BindNullFBO();
+#endif
+		RB_RenderBspOcclusionQueries();
 
 		// try to cull lights using hardware occlusion queries
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
@@ -9524,6 +9742,10 @@ static void RB_RenderView(void)
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderDrawSurfaces(qtrue, qfalse);
 
+		// try to cull bsp nodes for the next frame using hardware occlusion queries
+		R_BindFBO(tr.deferredRenderFBO);
+		RB_RenderBspOcclusionQueries();
+
 		// try to cull lights using hardware occlusion queries
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderLightOcclusionQueries();
@@ -9719,6 +9941,9 @@ static void RB_RenderView(void)
 
 		// draw everything that is opaque
 		RB_RenderDrawSurfaces(qtrue, qfalse);
+
+		// try to cull bsp nodes for the next frame using hardware occlusion queries
+		RB_RenderBspOcclusionQueries();
 
 		// render ambient occlusion process effect
 		// Tr3B: needs way more work RB_RenderScreenSpaceAmbientOcclusion(qfalse);

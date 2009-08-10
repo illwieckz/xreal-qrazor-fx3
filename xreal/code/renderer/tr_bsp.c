@@ -4272,14 +4272,34 @@ static void R_CreateWorldVBO()
 	// point triangle surfaces to world VBO
 	for(k = 0, surface = &s_worldData.surfaces[0]; k < s_worldData.numWorldSurfaces; k++, surface++)
 	{
-		if(*surface->data == SF_TRIANGLES)
+		if(*surface->data == SF_FACE)
+		{
+			srfSurfaceFace_t *srf = (srfSurfaceFace_t *) surface->data;
+
+			//if(r_vboFaces->integer && srf->numVerts && srf->numTriangles)
+			{
+				srf->vbo = s_worldData.vbo;
+				srf->ibo = R_CreateIBO2(va("staticBspModel0_planarSurface_IBO %i", k), srf->numTriangles, triangles + srf->firstTriangle, VBO_USAGE_STATIC);
+			}
+		}
+		else if(*surface->data == SF_GRID)
+		{
+			srfGridMesh_t  *srf = (srfGridMesh_t *) surface->data;
+
+			//if(r_vboCurves->integer && srf->numVerts && srf->numTriangles)
+			{
+				srf->vbo = s_worldData.vbo;
+				srf->ibo = R_CreateIBO2(va("staticBspModel0_curveSurface_IBO %i", k), srf->numTriangles, triangles + srf->firstTriangle, VBO_USAGE_STATIC);
+			}
+		}
+		else if(*surface->data == SF_TRIANGLES)
 		{
 			srfTriangles_t *srf = (srfTriangles_t *) surface->data;
 
-			if(r_vboTriangles->integer && srf->numVerts && srf->numTriangles)
+			//if(r_vboTriangles->integer && srf->numVerts && srf->numTriangles)
 			{
 				srf->vbo = s_worldData.vbo;
-				srf->ibo = R_CreateIBO2(va("staticBspModel0_triangleSurface %i", k), srf->numTriangles, triangles + srf->firstTriangle, VBO_USAGE_STATIC);
+				srf->ibo = R_CreateIBO2(va("staticBspModel0_triangleSurface_IBO %i", k), srf->numTriangles, triangles + srf->firstTriangle, VBO_USAGE_STATIC);
 			}
 		}
 	}
@@ -4842,6 +4862,9 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 	dleaf_t        *inLeaf;
 	bspNode_t      *out;
 	int             numNodes, numLeafs;
+	srfVert_t      *verts;
+	srfTriangle_t  *triangles;
+	IBO_t          *volumeIBO;
 
 	ri.Printf(PRINT_ALL, "...loading nodes and leaves\n");
 
@@ -4904,6 +4927,59 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 		out->markSurfaces = s_worldData.markSurfaces + LittleLong(inLeaf->firstLeafSurface);
 		out->numMarkSurfaces = LittleLong(inLeaf->numLeafSurfaces);
 	}
+
+	// calculate occlusion query volumes
+#if defined(USE_D3D10)
+	// TODO
+#else
+	for(j = 0, out = &s_worldData.nodes[0]; j < s_worldData.numnodes; j++, out++)
+	{
+		qglGenQueriesARB(MAX_VISCOUNTS, out->occlusionQueryObjects);
+
+		tess.numIndexes = 0;
+		tess.numVertexes = 0;
+
+		Tess_AddCube(vec3_origin, out->mins, out->maxs, colorWhite);
+
+		if(j == 0)
+		{
+			verts = ri.Hunk_AllocateTempMemory(tess.numVertexes * sizeof(srfVert_t));
+			triangles = ri.Hunk_AllocateTempMemory((tess.numIndexes / 3) * sizeof(srfTriangle_t));
+		}
+
+		for(i = 0; i < tess.numVertexes; i++)
+		{
+			VectorCopy(tess.xyz[i], verts[i].xyz);
+		}
+
+		for(i = 0; i < (tess.numIndexes / 3); i++)
+		{
+			triangles[i].indexes[0] = tess.indexes[i * 3 + 0];
+			triangles[i].indexes[1] = tess.indexes[i * 3 + 1];
+			triangles[i].indexes[2] = tess.indexes[i * 3 + 2];
+		}
+
+		out->volumeVBO = R_CreateVBO2(va("staticBspNode_VBO %i", j), tess.numVertexes, verts, ATTR_POSITION, VBO_USAGE_STATIC);
+
+		if(j == 0)
+		{
+			out->volumeIBO = volumeIBO = R_CreateIBO2(va("staticBspNode_IBO %i", j), tess.numIndexes / 3, triangles, VBO_USAGE_STATIC);
+		}
+		else
+		{
+			out->volumeIBO = volumeIBO;
+		}
+
+		out->volumeVerts = tess.numVertexes;
+		out->volumeIndexes = tess.numIndexes;
+	}
+
+	ri.Hunk_FreeTempMemory(triangles);
+	ri.Hunk_FreeTempMemory(verts);
+
+	tess.numIndexes = 0;
+	tess.numVertexes = 0;
+#endif
 
 	// chain decendants
 	R_SetParent(s_worldData.nodes, NULL);

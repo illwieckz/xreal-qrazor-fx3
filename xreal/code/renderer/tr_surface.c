@@ -995,6 +995,20 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 	}
 	else
 	{
+		if(r_vboFaces->integer && srf->vbo && srf->ibo)
+		{
+			Tess_EndBegin();
+
+			R_BindVBO(srf->vbo);
+			R_BindIBO(srf->ibo);
+
+			tess.numIndexes += srf->numTriangles * 3;
+			tess.numVertexes += srf->numVerts;
+
+			Tess_End();
+			return;
+		}
+
 		Tess_CheckOverflow(srf->numVerts, srf->numTriangles * 3);
 
 		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
@@ -1215,6 +1229,20 @@ static void Tess_SurfaceGrid(srfGridMesh_t * srf)
 	}
 	else
 	{
+		if(r_vboCurves->integer && srf->vbo && srf->ibo)
+		{
+			Tess_EndBegin();
+
+			R_BindVBO(srf->vbo);
+			R_BindIBO(srf->ibo);
+
+			tess.numIndexes += srf->numTriangles * 3;
+			tess.numVertexes += srf->numVerts;
+
+			Tess_End();
+			return;
+		}
+
 		Tess_CheckOverflow(srf->numVerts, srf->numTriangles * 3);
 
 		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
@@ -1424,7 +1452,7 @@ static void Tess_SurfaceTriangles(srfTriangles_t * srf)
 	else
 	{
 
-		if(srf->vbo || srf->ibo)
+		if(r_vboTriangles->integer && srf->vbo && srf->ibo)
 		{
 			Tess_EndBegin();
 

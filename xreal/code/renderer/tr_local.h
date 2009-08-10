@@ -379,9 +379,9 @@ typedef struct IBO_s
 {
 	char            name[MAX_QPATH];
 
-	uint32_t          indexesVBO;
+	uint32_t        indexesVBO;
 	int             indexesSize;	// amount of memory data allocated for all triangles in bytes
-//  uint32_t          ofsIndexes;
+//  uint32_t        ofsIndexes;
 } IBO_t;
 
 //===============================================================================
@@ -2012,6 +2012,10 @@ typedef struct srfGridMesh_s
 	// BSP VBO offsets
 	int             firstVert;
 	int             firstTriangle;
+
+	// static render data
+	VBO_t          *vbo;		// points to bsp model VBO
+	IBO_t          *ibo;
 } srfGridMesh_t;
 
 typedef struct
@@ -2032,6 +2036,10 @@ typedef struct
 	// BSP VBO offsets
 	int             firstVert;
 	int             firstTriangle;
+
+	// static render data
+	VBO_t          *vbo;		// points to bsp model VBO
+	IBO_t          *ibo;
 } srfSurfaceFace_t;
 
 
@@ -2141,6 +2149,20 @@ typedef struct bspNode_s
 	int             lightCount;
 	vec3_t          mins, maxs;	// for bounding box culling
 	struct bspNode_s *parent;
+
+	qboolean		visible;
+	int				lastVisited;
+	qboolean		issueOcclusionQuery;
+
+	VBO_t          *volumeVBO;
+	IBO_t          *volumeIBO;
+	int				volumeVerts;
+	int				volumeIndexes;
+
+#if !defined(USE_D3D10)
+	uint32_t        occlusionQueryObjects[MAX_VISCOUNTS];
+	int             occlusionQuerySamples[MAX_VISCOUNTS];	// visible fragment count
+#endif
 
 	// node specific
 	cplane_t       *plane;
@@ -2957,7 +2979,7 @@ typedef struct
 	float           sawToothTable[FUNCTABLE_SIZE];
 	float           inverseSawToothTable[FUNCTABLE_SIZE];
 
-	unsigned int    occlusionQueryObjects[MAX_OCCLUSION_QUERIES];
+	uint32_t        occlusionQueryObjects[MAX_OCCLUSION_QUERIES];
 } trGlobals_t;
 
 extern const matrix_t quakeToOpenGLMatrix;
@@ -3160,6 +3182,7 @@ extern cvar_t  *r_showLightMaps;	// render lightmaps only
 extern cvar_t  *r_showDeluxeMaps;
 extern cvar_t  *r_showAreaPortals;
 extern cvar_t  *r_showCubeProbes;
+extern cvar_t  *r_showBspNodes;
 
 extern cvar_t  *r_showDeferredDiffuse;
 extern cvar_t  *r_showDeferredNormal;
@@ -3175,17 +3198,20 @@ extern cvar_t  *r_vboShadows;
 extern cvar_t  *r_vboLighting;
 extern cvar_t  *r_vboDynamicLighting;
 extern cvar_t  *r_vboModels;
-extern cvar_t  *r_vboWorld;
 extern cvar_t  *r_vboOptimizeVertices;
 extern cvar_t  *r_vboVertexSkinning;
 extern cvar_t  *r_vboSmoothNormals;
 
-extern cvar_t  *r_precacheLightIndexes;
-extern cvar_t  *r_precacheShadowIndexes;
+extern cvar_t  *r_mergeClusterSurfaces;
+extern cvar_t  *r_mergeClusterFaces;
+extern cvar_t  *r_mergeClusterCurves;
+extern cvar_t  *r_mergeClusterTriangles;
 
 extern cvar_t  *r_deferredShading;
 extern cvar_t  *r_parallaxMapping;
 extern cvar_t  *r_parallaxDepthScale;
+
+extern cvar_t  *r_dynamicBspOcclusionCulling;
 
 extern cvar_t  *r_hdrRendering;
 extern cvar_t  *r_hdrMinLuminance;
