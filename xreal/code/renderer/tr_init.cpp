@@ -1322,7 +1322,7 @@ void R_Register(void)
 	r_lightScale = ri.Cvar_Get("r_lightScale", "3", CVAR_CHEAT);
 
 	r_vboFaces = ri.Cvar_Get("r_vboFaces", "0", CVAR_CHEAT);
-	r_vboCurves = ri.Cvar_Get("r_vboCurves", "0", CVAR_CHEAT);
+	r_vboCurves = ri.Cvar_Get("r_vboCurves", "1", CVAR_CHEAT);
 	r_vboTriangles = ri.Cvar_Get("r_vboTriangles", "1", CVAR_CHEAT);
 	r_vboShadows = ri.Cvar_Get("r_vboShadows", "1", CVAR_CHEAT);
 	r_vboLighting = ri.Cvar_Get("r_vboLighting", "1", CVAR_CHEAT);

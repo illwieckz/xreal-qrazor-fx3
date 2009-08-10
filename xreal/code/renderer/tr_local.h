@@ -2159,7 +2159,7 @@ typedef struct bspNode_s
 	int				volumeVerts;
 	int				volumeIndexes;
 
-#if !defined(USE_D3D10)
+#if 1//!defined(USE_D3D10)
 	uint32_t        occlusionQueryObjects[MAX_VISCOUNTS];
 	int             occlusionQuerySamples[MAX_VISCOUNTS];	// visible fragment count
 #endif
