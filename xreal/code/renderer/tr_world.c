@@ -353,9 +353,9 @@ static void R_AddWorldSurface(bspSurface_t * surf)
 
 	if(r_mergeClusterSurfaces->integer &&
 		!r_dynamicBspOcclusionCulling->integer &&
-		(r_mergeClusterFaces->integer && *surf->data == SF_FACE) &&
-		(r_mergeClusterCurves->integer && *surf->data == SF_GRID) &&
-		(r_mergeClusterTriangles->integer && *surf->data == SF_TRIANGLES) &&
+		((r_mergeClusterFaces->integer && *surf->data == SF_FACE) ||
+		(r_mergeClusterCurves->integer && *surf->data == SF_GRID) ||
+		(r_mergeClusterTriangles->integer && *surf->data == SF_TRIANGLES)) &&
 		!shader->isSky && !shader->isPortal && !shader->numDeforms)
 		return;
 
