@@ -1471,6 +1471,7 @@ static void IssueOcclusionQuery(bspNode_t * node)
 	EnQueue(&node->occlusionQuery, &tr.occlusionQueryQueue);
 	InsertLink(&node->occlusionQuery2, &tr.occlusionQueryList);
 
+#if !defined(USE_D3D10)
 	//Tess_EndBegin();
 
 	// begin the occlusion query
@@ -1503,10 +1504,14 @@ static void IssueOcclusionQuery(bspNode_t * node)
 	tess.numVertexes = 0;
 
 	GL_CheckErrors();
+#endif
 }
 
 static qboolean ResultAvailable(bspNode_t *node)
 {
+#if defined(USE_D3D10)
+	// TODO
+#else
 	GLint			available;
 
 	available = 0;
@@ -1517,10 +1522,12 @@ static qboolean ResultAvailable(bspNode_t *node)
 	}
 
 	return !!available;
+#endif
 }
 
 static void GetOcclusionQueryResult(bspNode_t *node)
 {
+#if !defined(USE_D3D10)
 	GLint			available;
 
 	GLimp_LogComment("--- GetOcclusionQueryResult ---\n");
@@ -1538,6 +1545,7 @@ static void GetOcclusionQueryResult(bspNode_t *node)
 	qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT, &node->occlusionQuerySamples[0]);
 
 	GL_CheckErrors();
+#endif
 }
 
 static void R_CoherentHierachicalCulling()
@@ -1546,6 +1554,7 @@ static void R_CoherentHierachicalCulling()
 	link_t		   *l;
 	int				visibilityThreshold = 0;
 
+#if !defined(USE_D3D10)
 	GLimp_LogComment("--- R_CoherentHierachicalCulling ---\n");
 
 	//R_BindFBO(tr.occlusionRenderFBO);
@@ -1680,6 +1689,7 @@ static void R_CoherentHierachicalCulling()
 	R_BindNullFBO();
 
 	GL_CheckErrors();
+#endif
 }
 
 
