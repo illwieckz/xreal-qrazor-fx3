@@ -373,7 +373,7 @@ void GL_PolygonMode(GLenum face, GLenum mode)
 	}
 }
 
-static void GL_Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
+void GL_Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	if(glState.scissorX != x || glState.scissorY != y || glState.scissorWidth != width || glState.scissorHeight != height)
 	{
@@ -386,7 +386,7 @@ static void GL_Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
 	}
 }
 
-static void GL_Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
+void GL_Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	if(glState.viewportX != x || glState.viewportY != y || glState.viewportWidth != width || glState.viewportHeight != height)
 	{
@@ -8125,8 +8125,9 @@ void RB_RenderBspOcclusionQueries()
 
 	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
 	{
-		int             j;
+		//int             j;
 		bspNode_t      *node;
+		link_t		   *l, *next, *sentinel;
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_Cull(CT_TWO_SIDED);
@@ -8156,12 +8157,11 @@ void RB_RenderBspOcclusionQueries()
 		// don't write to the color buffer or depth buffer
 		GL_State(GLS_COLORMASK_BITS);
 
-		for(j = 0; j < tr.world->numnodes; j++)
+		sentinel = &tr.occlusionQueryList;
+		for(l = sentinel->next; l != sentinel; l = next)
 		{
-			node = &tr.world->nodes[j];
-
-			if(!node->issueOcclusionQuery)
-				continue;
+			next = l->next;
+			node = (bspNode_t *) l->data;
 
 			// begin the occlusion query
 			qglBeginQueryARB(GL_SAMPLES_PASSED, node->occlusionQueryObjects[0]);
@@ -8195,6 +8195,101 @@ void RB_RenderBspOcclusionQueries()
 	}
 
 	GL_CheckErrors();
+}
+
+void RB_CollectBspOcclusionQueries()
+{
+	GLimp_LogComment("--- RB_CollectBspOcclusionQueries ---\n");
+
+	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
+	{
+		//int             j;
+		bspNode_t      *node;
+		link_t		   *l, *next, *sentinel;
+
+		int				ocCount;
+		int             avCount;
+		GLint           available;
+
+		qglFinish();
+
+		ocCount = 0;
+		sentinel = &tr.occlusionQueryList;
+		for(l = sentinel->next; l != sentinel; l = l->next)
+		{
+			node = (bspNode_t *) l->data;
+
+			if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+			{
+				ocCount++;
+			}
+		}
+
+		//ri.Printf(PRINT_ALL, "waiting for %i queries...\n", ocCount);
+
+		avCount = 0;
+		do
+		{
+			for(l = sentinel->next; l != sentinel; l = l->next)
+			{
+				node = (bspNode_t *) l->data;
+
+				if(node->issueOcclusionQuery)
+				{
+					available = 0;
+					if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+					{
+						qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+						GL_CheckErrors();
+					}
+
+					if(available)
+					{
+						node->issueOcclusionQuery = qfalse;
+						avCount++;
+
+						//if(//avCount % oc)
+
+						//ri.Printf(PRINT_ALL, "%i queries...\n", avCount);
+					}
+				}
+			}
+
+		} while(avCount < ocCount);
+
+		for(l = sentinel->next; l != sentinel; l = l->next)
+		{
+			node = (bspNode_t *) l->data;
+
+			available = 0;
+			if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+			{
+				qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+				GL_CheckErrors();
+			}
+
+			if(available)
+			{
+				backEnd.pc.c_occlusionQueriesAvailable++;
+
+				// get the object and store it in the occlusion bits for the light
+				qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT, &node->occlusionQuerySamples[0]);
+
+				if(node->occlusionQuerySamples[0] <= 0)
+				{
+					backEnd.pc.c_occlusionQueriesLeafsCulled++;
+				}
+			}
+			else
+			{
+				node->occlusionQuerySamples[0] = 1;
+			}
+
+			GL_CheckErrors();
+		}
+
+		//ri.Printf(PRINT_ALL, "done\n");
+	}
 }
 
 /*
@@ -9194,8 +9289,7 @@ static void RB_RenderDebugUtils()
 	if(r_showBspNodes->integer)
 	{
 		bspNode_t      *node;
-		int             j;
-		GLint           available;
+		link_t		   *l, *sentinel;
 
 		if(tr.refdef.rdflags & (RDF_NOWORLDMODEL))
 		{
@@ -9228,23 +9322,32 @@ static void RB_RenderDebugUtils()
 
 		GL_CheckErrors();
 
-		for(j = 0; j < tr.world->numnodes; j++)
+		if(r_dynamicBspOcclusionCulling->integer)
 		{
-			node = &tr.world->nodes[j];
+			sentinel = &tr.occlusionQueryList;
+		}
+		else
+		{
+			sentinel = &tr.traversalStack;
+		}
+
+		for(l = sentinel->next; l != sentinel; l = l->next)
+		{
+			node = (bspNode_t *) l->data;
 
 			if(!r_dynamicBspOcclusionCulling->integer)
 			{
-				if(node->contents == -1)
+				if(node->contents != -1)
 				{
-					if(r_showBspNodes->integer != 2)
+					if(r_showBspNodes->integer == 3)
 						continue;
 
 					GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
 
-					if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
-						GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
-					else
-						GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
+					//if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
+					//	GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
+					//else
+					//	GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
 				}
 				else
 				{
@@ -9259,27 +9362,10 @@ static void RB_RenderDebugUtils()
 			}
 			else
 			{
-				if(!node->issueOcclusionQuery)
-					continue;
-
-				available = 0;
-				if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+				if(node->contents != -1)
 				{
-					qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-					GL_CheckErrors();
-				}
-
-				if(available)
-				{
-					backEnd.pc.c_occlusionQueriesAvailable++;
-
-					// get the object and store it in the occlusion bits for the light
-					qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT, &node->occlusionQuerySamples[0]);
-
-					//if(ocSamples <= 0)
-					//{
-					//	backEnd.pc.c_occlusionQueriesLightsCulled++;
-					//}
+					if(r_showBspNodes->integer == 3)
+						continue;
 
 					if(node->occlusionQuerySamples[0] > 0)
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
@@ -9288,12 +9374,22 @@ static void RB_RenderDebugUtils()
 				}
 				else
 				{
-					node->occlusionQuerySamples[0] = 1;
+					if(r_showBspNodes->integer == 2)
+						continue;
 
-					GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
+					if(node->occlusionQuerySamples[0] > 0)
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorYellow);
+					else
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
 				}
 
 				GL_CheckErrors();
+			}
+
+			if(node->contents != -1)
+			{
+				qglEnable(GL_POLYGON_OFFSET_FILL);
+				qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
 			}
 
 			R_BindVBO(node->volumeVBO);
@@ -9308,6 +9404,11 @@ static void RB_RenderDebugUtils()
 
 			tess.numIndexes = 0;
 			tess.numVertexes = 0;
+
+			if(node->contents != -1)
+			{
+				qglDisable(GL_POLYGON_OFFSET_FILL);
+			}
 		}
 
 		// go back to the world modelview matrix
@@ -9526,6 +9627,14 @@ static void RB_RenderView(void)
 			endTime = ri.Milliseconds();
 			backEnd.pc.c_forwardTranslucentTime = endTime - startTime;
 		}
+
+		// wait until all bsp node occlusion queries are back
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		R_BindFBO(tr.deferredRenderFBO);
+#else
+		R_BindNullFBO();
+#endif
+		RB_CollectBspOcclusionQueries();
 
 		// render debug information
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
@@ -9771,6 +9880,10 @@ static void RB_RenderView(void)
 		// render global fog
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderUniformFog();
+
+		// wait until all bsp node occlusion queries are back
+		R_BindFBO(tr.deferredRenderFBO);
+		RB_CollectBspOcclusionQueries();
 
 		// render debug information
 		R_BindFBO(tr.deferredRenderFBO);
@@ -10059,6 +10172,9 @@ static void RB_RenderView(void)
 		RB_RenderFlares();
 #endif
 
+		// wait until all bsp node occlusion queries are back
+		RB_CollectBspOcclusionQueries();
+
 		// render debug information
 		RB_RenderDebugUtils();
 
@@ -10096,6 +10212,19 @@ static void RB_RenderView(void)
 			}
 			backEnd.pc.c_portals++;
 		}
+
+#if 0
+		if(r_dynamicBspOcclusionCulling->integer)
+		{
+			// copy depth of the main context to deferredRenderFBO
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   GL_DEPTH_BUFFER_BIT,
+								   GL_NEAREST);
+		}
+#endif
 	}
 
 	// render chromatric aberration

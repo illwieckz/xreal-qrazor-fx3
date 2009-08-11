@@ -148,6 +148,53 @@ enum
 };
 
 
+
+typedef struct link_s
+{
+	void            *data;
+	struct link_s	*prev, *next;
+} link_t;
+
+static ID_INLINE void InitLink(link_t *l, void *data)
+{
+	l->data = data;
+	l->prev = l->next = l;
+}
+
+static ID_INLINE void ClearLink(link_t *l)
+{
+	l->data = NULL;
+	l->prev = l->next = l;
+}
+
+static ID_INLINE void RemoveLink(link_t *l)
+{
+	l->next->prev = l->prev;
+	l->prev->next = l->next;
+
+	l->prev = l->next = NULL;
+}
+
+static ID_INLINE void InsertLinkBefore(link_t *l, link_t *sentinel)
+{
+	l->next = sentinel;
+	l->prev = sentinel->prev;
+
+	l->prev->next = l;
+	l->next->prev = l;
+}
+
+static ID_INLINE void InsertLink(link_t *l, link_t *sentinel)
+{
+	l->next = sentinel->next;
+	l->prev = sentinel;
+
+	l->next->prev = l;
+	l->prev->next = l;
+}
+
+
+
 // a trRefLight_t has all the information passed in by
 // the client game, as well as some locally derived info
 typedef struct trRefLight_s
@@ -2154,6 +2201,10 @@ typedef struct bspNode_s
 	int				lastVisited;
 	qboolean		issueOcclusionQuery;
 
+	link_t			visChain;				// updated every visit
+	link_t			occlusionQuery;	// updated every visit
+	link_t			occlusionQuery2;	// updated every visit
+
 	VBO_t          *volumeVBO;
 	IBO_t          *volumeIBO;
 	int				volumeVerts;
@@ -2580,6 +2631,7 @@ typedef struct
 	int             c_pyramidTests;
 	int             c_pyramid_cull_ent_in, c_pyramid_cull_ent_clip, c_pyramid_cull_ent_out;
 
+	int				c_nodes;
 	int             c_leafs;
 
 	int             c_slights;
@@ -2679,6 +2731,7 @@ typedef struct
 	int             c_occlusionQueries;
 	int             c_occlusionQueriesAvailable;
 	int             c_occlusionQueriesLightsCulled;
+	int             c_occlusionQueriesLeafsCulled;
 	int             c_occlusionQueriesInteractionsCulled;
 	int             c_occlusionQueriesResponseTime;
 	int             c_occlusionQueriesFetchTime;
@@ -2739,6 +2792,10 @@ typedef struct
 	int             visIndex;
 	int             visClusters[MAX_VISCOUNTS];
 	int             visCounts[MAX_VISCOUNTS];	// incremented every time a new vis cluster is entered
+
+	link_t			traversalStack;
+	link_t			occlusionQueryQueue;
+	link_t			occlusionQueryList;
 
 	int             frameCount;	// incremented every frame
 	int             sceneCount;	// incremented every scene
@@ -3345,6 +3402,8 @@ void            GL_LoadProjectionMatrix(const matrix_t m);
 void            GL_PushMatrix();
 void            GL_PopMatrix();
 void			GL_PolygonMode(GLenum face, GLenum mode);
+void			GL_Scissor(GLint x, GLint y, GLsizei width, GLsizei height);
+void			GL_Viewport(GLint x, GLint y, GLsizei width, GLsizei height);
 
 void            GL_CheckErrors_(const char *filename, int line);
 

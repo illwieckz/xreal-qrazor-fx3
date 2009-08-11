@@ -4865,6 +4865,8 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 	srfVert_t      *verts;
 	srfTriangle_t  *triangles;
 	IBO_t          *volumeIBO;
+	vec3_t			mins, maxs;
+	vec3_t			offset = {0.01, 0.01, 0.01};
 
 	ri.Printf(PRINT_ALL, "...loading nodes and leaves\n");
 
@@ -4934,12 +4936,31 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 #else
 	for(j = 0, out = &s_worldData.nodes[0]; j < s_worldData.numnodes; j++, out++)
 	{
+		//if(out->contents != -1 && !out->numMarkSurfaces)
+		//	ri.Error(ERR_DROP, "leaf %i is empty", j);
+
+		out->lastVisited = -10;
+		out->visible = qtrue;
+		out->occlusionQuerySamples[0] = 1;
+
+		InitLink(&out->visChain, out);
+		InitLink(&out->occlusionQuery, out);
+		InitLink(&out->occlusionQuery2, out);
+
 		qglGenQueriesARB(MAX_VISCOUNTS, out->occlusionQueryObjects);
 
 		tess.numIndexes = 0;
 		tess.numVertexes = 0;
 
-		Tess_AddCube(vec3_origin, out->mins, out->maxs, colorWhite);
+		VectorCopy(out->mins, mins);
+		VectorCopy(out->maxs, maxs);
+
+#if 1
+		// HACK: make the AABB a little bit smaller to avoid z-fighting for the occlusion queries
+		VectorAdd(mins, offset, mins);
+		VectorSubtract(maxs, offset, maxs);
+#endif
+		Tess_AddCube(vec3_origin, mins, maxs, colorWhite);
 
 		if(j == 0)
 		{
@@ -8414,6 +8435,12 @@ void RE_LoadWorldMap(const char *name)
 	// make sure the VBO glState entries are save
 	R_BindNullVBO();
 	R_BindNullIBO();
+
+	// never move this to RE_BeginFrame because we need it to set it here for the first frame
+	// but we need the information across 2 frames
+	ClearLink(&tr.traversalStack);
+	ClearLink(&tr.occlusionQueryQueue);
+	ClearLink(&tr.occlusionQueryList);
 
 	ri.FS_FreeFile(buffer);
 }
