@@ -1856,7 +1856,6 @@ static void PushNode(link_t * traversalStack, bspNode_t * node)
 
 static void R_CoherentHierachicalCulling()
 {
-	link_t         *l;
 	bspNode_t      *node;
 	bspNode_t      *multiQueryNode;
 
@@ -1873,7 +1872,7 @@ static void R_CoherentHierachicalCulling()
 	// TODO
 #else
 
-	GLimp_LogComment("--- R_CoherentHierachicalCulling ---\n");
+	GLimp_LogComment("--- R_CoherentHierachicalCulling++ ---\n");
 
 	//ri.Printf(PRINT_ALL, "--- R_CHC++ begin ---\n");
 
@@ -2065,6 +2064,15 @@ static void R_CoherentHierachicalCulling()
 					//node->lastVisited[tr.viewCount] = tr.frameCount;
 					wasVisible = qtrue;
 				}
+#if 1
+				else if(node->contents == -1)
+				{
+					// setting all BSP nodes to visible will traverse to all leaves
+					// this has the advantage that we can group leaf queries which will save really many occlusion queries
+					node->visible[tr.viewCount] = qtrue;
+					wasVisible = qtrue;
+				}
+#endif
 				else
 				{
 					/*
@@ -2075,9 +2083,11 @@ static void R_CoherentHierachicalCulling()
 						node->lastVisited[tr.viewCount] = tr.frameCount;
 					}
 					*/
+
+					node->visible[tr.viewCount] = qfalse;
 				}
 
-				node->visible[tr.viewCount] = qfalse;
+				// update node's visited flag
 				node->lastVisited[tr.viewCount] = tr.frameCount;
 
 				// optimization
