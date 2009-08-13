@@ -1710,9 +1710,11 @@ static void IssueMultiOcclusionQueries(link_t * multiQueue, link_t * individualQ
 	// TODO
 #else
 	qglEndQueryARB(GL_SAMPLES_PASSED);
+
+	GL_CheckErrors();
 #endif
 
-#if 1
+#if 0
 	if(!qglIsQueryARB(multiQueryNode->occlusionQueryObjects[tr.viewCount]))
 	{
 		ri.Error(ERR_FATAL, "IssueMultiOcclusionQueries: node %i has no occlusion query object in slot %i: %i", multiQueryNode - tr.world->nodes, tr.viewCount, multiQueryNode->occlusionQueryObjects[tr.viewCount]);
@@ -1729,8 +1731,6 @@ static void IssueMultiOcclusionQueries(link_t * multiQueue, link_t * individualQ
 	}
 
 	EnQueue(individualQueue, multiQueryNode);
-
-	GL_CheckErrors();
 
 	//ri.Printf(PRINT_ALL, "--- IssueMultiOcclusionQueries end ---\n");
 }
@@ -1758,10 +1758,12 @@ static qboolean ResultAvailable(bspNode_t *node)
 static void GetOcclusionQueryResult(bspNode_t *node)
 {
 	link_t			*l, *sentinel;
+	int			     ocSamples;
 
-#if !defined(USE_D3D10)
+#if defined(USE_D3D10)
+	// TODO
+#else
 	GLint			available;
-	GLint			ocSamples;
 
 	GLimp_LogComment("--- GetOcclusionQueryResult ---\n");
 
