@@ -55,14 +55,7 @@ void R_PerformanceCounters(void)
 				  backEnd.pc.c_occlusionQueriesLightsCulled,
 				  tr.pc.c_dlightInteractions + tr.pc.c_slightInteractions - backEnd.pc.c_occlusionQueriesInteractionsCulled);
 
-		/*
-		   ri.Printf(PRINT_ALL, "%i draws %.2f mtex %.2f dc\n",
-		   backEnd.pc.c_drawElements,
-		   R_SumOfUsedImages() / (1000000.0f),
-		   backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight));
-		 */
-
-		ri.Printf(PRINT_ALL, "%i draws %i queries %i CHC ms %i vbos %i ibos %i verts %i tris\n",
+		ri.Printf(PRINT_ALL, "%i draws %i queries %i CHC++ ms %i vbos %i ibos %i verts %i tris\n",
 				  backEnd.pc.c_drawElements,
 				  tr.pc.c_occlusionQueries,
 				  tr.pc.c_CHCTime,
@@ -130,6 +123,14 @@ void R_PerformanceCounters(void)
 		else
 			ri.Printf(PRINT_ALL, "forward shading times: ambient:%i lighting:%i\n", backEnd.pc.c_forwardAmbientTime,
 					  backEnd.pc.c_forwardLightingTime);
+	}
+	else if(r_speeds->integer == 10)
+	{
+		ri.Printf(PRINT_ALL, "%i CHC++ ms %i queries %i multi queries %i saved\n",
+						  tr.pc.c_CHCTime,
+						  tr.pc.c_occlusionQueries,
+						  tr.pc.c_occlusionQueriesMulti,
+						  tr.pc.c_occlusionQueriesSaved);
 	}
 
 	Com_Memset(&tr.pc, 0, sizeof(tr.pc));

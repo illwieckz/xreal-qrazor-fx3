@@ -4847,6 +4847,10 @@ static void R_SetParent(bspNode_t * node, bspNode_t * parent)
 	if(node->contents != -1)
 	{
 		node->sameAABBAsParent = VectorCompare(node->mins, parent->mins) && VectorCompare(node->maxs, parent->maxs);
+		if(node->sameAABBAsParent)
+		{
+			//ri.Printf(PRINT_ALL, "node %i has same AABB as their parent\n", node - s_worldData.nodes);
+		}
 		return;
 	}
 	R_SetParent(node->children[0], node);
@@ -4949,6 +4953,7 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 		InitLink(&out->visChain, out);
 		InitLink(&out->occlusionQuery, out);
 		InitLink(&out->occlusionQuery2, out);
+		//QueueInit(&node->multiQuery);
 
 		qglGenQueriesARB(MAX_VIEWS, out->occlusionQueryObjects);
 

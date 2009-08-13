@@ -153,6 +153,7 @@ enum
 typedef struct link_s
 {
 	void            *data;
+	int				numElements;	// only used by sentinels
 	struct link_s	*prev, *next;
 } link_t;
 
@@ -175,7 +176,7 @@ static ID_INLINE void RemoveLink(link_t *l)
 
 	l->prev = l->next = NULL;
 }
-
+/*
 static ID_INLINE void InsertLinkBefore(link_t *l, link_t *sentinel)
 {
 	l->next = sentinel;
@@ -184,6 +185,7 @@ static ID_INLINE void InsertLinkBefore(link_t *l, link_t *sentinel)
 	l->prev->next = l;
 	l->next->prev = l;
 }
+*/
 
 static ID_INLINE void InsertLink(link_t *l, link_t *sentinel)
 {
@@ -2204,9 +2206,10 @@ typedef struct bspNode_s
 	int				lastVisited[MAX_VIEWS];
 	qboolean		issueOcclusionQuery[MAX_VIEWS];
 
-	link_t			visChain;				// updated every visit
-	link_t			occlusionQuery;	// updated every visit
+	link_t			visChain;			// updated every visit
+	link_t			occlusionQuery;		// updated every visit
 	link_t			occlusionQuery2;	// updated every visit
+	link_t			multiQuery;			// CHC++: list of all nodes that are used by the same occlusion query
 
 	VBO_t          *volumeVBO;
 	IBO_t          *volumeIBO;
@@ -2216,6 +2219,7 @@ typedef struct bspNode_s
 #if 1//!defined(USE_D3D10)
 	uint32_t        occlusionQueryObjects[MAX_VIEWS];
 	int             occlusionQuerySamples[MAX_VIEWS];	// visible fragment count
+	int             occlusionQueryNumbers[MAX_VIEWS];	// for debugging
 #endif
 
 	// node specific
@@ -2650,6 +2654,8 @@ typedef struct
 	int             c_depthBoundsTests, c_depthBoundsTestsRejected;
 
 	int				c_occlusionQueries;
+	int				c_occlusionQueriesMulti;
+	int				c_occlusionQueriesSaved;
 	int             c_CHCTime;
 } frontEndCounters_t;
 
@@ -3277,6 +3283,9 @@ extern cvar_t  *r_parallaxMapping;
 extern cvar_t  *r_parallaxDepthScale;
 
 extern cvar_t  *r_dynamicBspOcclusionCulling;
+extern cvar_t  *r_chcMaxPrevInvisNodesBatchSize;
+extern cvar_t  *r_chcMaxVisibleFrames;
+extern cvar_t  *r_chcVisibilityThreshold;
 
 extern cvar_t  *r_hdrRendering;
 extern cvar_t  *r_hdrMinLuminance;

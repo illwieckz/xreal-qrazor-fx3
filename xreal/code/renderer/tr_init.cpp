@@ -245,6 +245,9 @@ cvar_t         *r_parallaxMapping;
 cvar_t         *r_parallaxDepthScale;
 
 cvar_t         *r_dynamicBspOcclusionCulling;
+cvar_t         *r_chcMaxPrevInvisNodesBatchSize;
+cvar_t         *r_chcMaxVisibleFrames;
+cvar_t         *r_chcVisibilityThreshold;
 
 cvar_t         *r_hdrRendering;
 cvar_t         *r_hdrMinLuminance;
@@ -1338,6 +1341,9 @@ void R_Register(void)
 	r_mergeClusterTriangles = ri.Cvar_Get("r_mergeClusterTriangles", "0", CVAR_CHEAT);
 
 	r_dynamicBspOcclusionCulling = ri.Cvar_Get("r_dynamicBspOcclusionCulling", "0", CVAR_ARCHIVE);
+	r_chcMaxPrevInvisNodesBatchSize = ri.Cvar_Get("r_chcMaxPrevInvisNodesBatchSize", "50", CVAR_CHEAT);
+	r_chcMaxVisibleFrames = ri.Cvar_Get("r_chcMaxVisibleFrames", "1", CVAR_CHEAT);
+	r_chcVisibilityThreshold = ri.Cvar_Get("r_chcVisibilityThreshold", "0", CVAR_CHEAT);
 
 	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
 

@@ -9327,7 +9327,8 @@ static void RB_RenderDebugUtils()
 
 		if(r_dynamicBspOcclusionCulling->integer)
 		{
-			sentinel = &tr.occlusionQueryList;
+			//sentinel = &tr.occlusionQueryList;
+			sentinel = &tr.traversalStack;
 		}
 		else
 		{
@@ -9363,6 +9364,9 @@ static void RB_RenderDebugUtils()
 			}
 			else
 			{
+				if(node->lastVisited[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
+					continue;
+
 				if(node->contents != -1)
 				{
 					if(r_showBspNodes->integer == 3)
@@ -9382,6 +9386,11 @@ static void RB_RenderDebugUtils()
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorYellow);
 					else
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
+				}
+
+				if(r_showBspNodes->integer == 4)
+				{
+					GLSL_SetUniform_Color(&tr.genericSingleShader, g_color_table[node->occlusionQueryNumbers[backEnd.viewParms.viewCount] % MAX_CCODES]);
 				}
 
 				GL_CheckErrors();
