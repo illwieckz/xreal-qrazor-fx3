@@ -478,6 +478,11 @@ void RE_RenderScene(const refdef_t * fd)
 	tr.frameSceneNum++;
 	tr.sceneCount++;
 
+	// Tr3B: a scene can have multiple views caused by mirrors or portals
+	// the number of views is restricted so we can use hardware occlusion queries
+	// and put them into the BSP nodes for each view
+	tr.viewCount = -1;
+
 	// setup view parms for the initial view
 	//
 	// set up viewport

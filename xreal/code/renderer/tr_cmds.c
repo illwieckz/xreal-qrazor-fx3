@@ -62,8 +62,10 @@ void R_PerformanceCounters(void)
 		   backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight));
 		 */
 
-		ri.Printf(PRINT_ALL, "%i draws %i vbos %i ibos %i verts %i tris\n",
+		ri.Printf(PRINT_ALL, "%i draws %i queries %i CHC ms %i vbos %i ibos %i verts %i tris\n",
 				  backEnd.pc.c_drawElements,
+				  tr.pc.c_occlusionQueries,
+				  tr.pc.c_CHCTime,
 				  backEnd.pc.c_vboVertexBuffers, backEnd.pc.c_vboIndexBuffers,
 				  backEnd.pc.c_vboVertexes, backEnd.pc.c_vboIndexes / 3);
 	}
@@ -410,6 +412,7 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 
 	tr.frameCount++;
 	tr.frameSceneNum = 0;
+	tr.viewCount = 0;
 
 #if defined(USE_D3D10)
 	// draw buffer stuff

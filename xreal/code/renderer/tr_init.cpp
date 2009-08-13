@@ -1908,7 +1908,7 @@ void RE_Shutdown(qboolean destroyWindow)
 				{
 					node = &tr.world->nodes[j];
 
-					qglDeleteQueriesARB(MAX_VISCOUNTS, node->occlusionQueryObjects);
+					qglDeleteQueriesARB(MAX_VIEWS, node->occlusionQueryObjects);
 				}
 			}
 		}

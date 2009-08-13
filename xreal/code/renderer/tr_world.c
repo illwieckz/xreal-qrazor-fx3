@@ -282,7 +282,7 @@ static void R_AddInteractionSurface(bspSurface_t * surf, trRefLight_t * light)
 
 	// Tr3B - this surface is maybe not in this view but it may still cast a shadow
 	// into this view
-	if(surf->viewCount != tr.viewCount)
+	if(surf->viewCount != tr.viewCountNoReset)
 	{
 		if(r_shadows->integer <= 2 || light->l.noShadows)
 			return;
@@ -345,9 +345,9 @@ static void R_AddWorldSurface(bspSurface_t * surf)
 {
 	shader_t       *shader;
 
-	if(surf->viewCount == tr.viewCount)
+	if(surf->viewCount == tr.viewCountNoReset)
 		return;
-	surf->viewCount = tr.viewCount;
+	surf->viewCount = tr.viewCountNoReset;
 
 	shader = surf->shader;
 
@@ -383,11 +383,11 @@ R_AddBrushModelSurface
 */
 static void R_AddBrushModelSurface(bspSurface_t * surf)
 {
-	if(surf->viewCount == tr.viewCount)
+	if(surf->viewCount == tr.viewCountNoReset)
 	{
 		return;					// already in this view
 	}
-	surf->viewCount = tr.viewCount;
+	surf->viewCount = tr.viewCountNoReset;
 
 	// try to cull before lighting or adding
 	if(R_CullSurface(surf->data, surf->shader))
@@ -1126,7 +1126,7 @@ static void R_MarkLeaves(void)
 
 	// lockpvs lets designers walk around to determine the
 	// extent of the current pvs
-	if(r_lockpvs->integer || r_dynamicBspOcclusionCulling->integer)
+	if(r_lockpvs->integer)// || r_dynamicBspOcclusionCulling->integer)
 	{
 		return;
 	}
@@ -1147,7 +1147,7 @@ static void R_MarkLeaves(void)
 		}
 	}
 	// if r_showcluster was just turned on, remark everything
-	if(i != MAX_VISCOUNTS && !tr.refdef.areamaskModified && !r_showcluster->modified)
+	if(i != MAX_VISCOUNTS && !tr.refdef.areamaskModified && !r_showcluster->modified)// && !r_dynamicBspOcclusionCulling->modified)
 	{
 		if(tr.visClusters[i] != tr.visClusters[tr.visIndex] && r_showcluster->integer)
 		{
@@ -1170,7 +1170,17 @@ static void R_MarkLeaves(void)
 		}
 	}
 
-	R_UpdateClusterSurfaces();
+	/*
+	if(r_dynamicBspOcclusionCulling->modified)
+	{
+		r_dynamicBspOcclusionCulling->modified = qfalse;
+	}
+	*/
+
+	if(!r_dynamicBspOcclusionCulling->integer)
+	{
+		R_UpdateClusterSurfaces();
+	}
 
 	if(r_novis->integer || tr.visClusters[tr.visIndex] == -1)
 	{
@@ -1371,25 +1381,44 @@ static qboolean StackEmpty(link_t *l)
 	return l->next == l;
 }
 
-static void* StackTop(link_t *l)
+static link_t* StackTop(link_t *l)
 {
 	return l->next;
 }
 
-static link_t* StackPop(link_t *l)
+static void StackPush(link_t *sentinel, void *data)
+{
+	link_t *l;
+
+	l = Com_Allocate(sizeof(*l));
+	InitLink(l, data);
+
+	InsertLink(l, sentinel);
+}
+
+static void* StackPop(link_t *l)
 {
 	link_t* top;
+	void *data;
+
+	if(l->next == l)
+		return NULL;
 
 	top = l->next;
 
+#if 1
 	RemoveLink(top);
+#else
+	top->next->prev = top->prev;
+	top->prev->next = top->next;
 
-	return top;
-}
+	top->prev = top->next = NULL;
+#endif
 
-static void StackPush(link_t *l, link_t *sentinel)
-{
-	InsertLink(l, sentinel);
+	data = top->data;
+	Com_Dealloc(top);
+
+	return data;
 }
 
 static qboolean QueueEmpty(link_t *l)
@@ -1397,30 +1426,113 @@ static qboolean QueueEmpty(link_t *l)
 	return l->prev == l;
 }
 
-static void EnQueue(link_t *l, link_t *sentinel)
+static void EnQueue(link_t *sentinel, void *data)
 {
+	link_t *l;
+
+	l = Com_Allocate(sizeof(*l));
+	InitLink(l, data);
+
 	InsertLink(l, sentinel);
 }
 
-
-static link_t* DeQueue(link_t *l)
+static void* DeQueue(link_t *l)
 {
 	link_t* tail;
+	void *data;
 
 	tail = l->prev;
 
+#if 1
 	RemoveLink(tail);
+#else
+	tail->next->prev = tail->prev;
+	tail->prev->next = tail->next;
 
-	return tail;
+	tail->prev = tail->next = NULL;
+#endif
+
+	data = tail->data;
+	Com_Dealloc(tail);
+
+	return data;
 }
 
-static void TraverseNode(bspNode_t * node, int planeBits)
+static link_t* QueueFront(link_t *l)
 {
-	bspNode_t      *parent;
+	return l->prev;
+}
 
-	parent = node;
+static void DrawNode_r(bspNode_t * node, int planeBits)
+{
 	do
 	{
+		// if the bounding volume is outside the frustum, nothing
+		// inside can be visible OPTIMIZE: don't do this all the way to leafs?
+		if(!r_nocull->integer)
+		{
+			int             i;
+			int             r;
+
+			for(i = 0; i < FRUSTUM_PLANES; i++)
+			{
+				if(planeBits & (1 << i))
+				{
+					r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
+					if(r == 2)
+					{
+						return;	// culled
+					}
+					if(r == 1)
+					{
+						planeBits &= ~(1 << i);	// all descendants will also be in front
+					}
+				}
+			}
+		}
+
+		if(!(node->contents & CONTENTS_TRANSLUCENT))
+		{
+#if !defined(USE_D3D10)
+			//Tess_EndBegin();
+
+			R_BindVBO(node->volumeVBO);
+			R_BindIBO(node->volumeIBO);
+
+			GL_VertexAttribsState(ATTR_POSITION);
+
+			tess.numVertexes = node->volumeVerts;
+			tess.numIndexes = node->volumeIndexes;
+
+			Tess_DrawElements();
+
+			tess.numIndexes = 0;
+			tess.numVertexes = 0;
+#endif
+		}
+
+		if(node->contents != -1)
+		{
+			break;
+		}
+
+		// recurse down the children, front side first
+		//DrawNode_r(node->children[0], planeBits);
+
+		// tail recurse
+		node = node->children[1];
+	} while(1);
+}
+
+static void DrawNodePost_r(bspNode_t * node, int planeBits)
+{
+	do
+	{
+		if(!node->visible[tr.viewCount] || node->lastVisited[tr.viewCount] != tr.frameCount)
+		{
+			return;
+		}
+
 		// if the bounding volume is outside the frustum, nothing
 		// inside can be visible OPTIMIZE: don't do this all the way to leafs?
 		if(!r_nocull->integer)
@@ -1451,31 +1563,25 @@ static void TraverseNode(bspNode_t * node, int planeBits)
 			break;
 		}
 
-		if(node != parent)
-			StackPush(&node->visChain, &tr.traversalStack);
-
 		// recurse down the children, front side first
-		TraverseNode(node->children[0], planeBits);
+		DrawNodePost_r(node->children[0], planeBits);
 
 		// tail recurse
 		node = node->children[1];
 	} while(1);
 }
 
-
-
-static void IssueOcclusionQuery(bspNode_t * node)
+static void IssueOcclusionQuery(link_t * queue, bspNode_t * node)
 {
 	GLimp_LogComment("--- IssueOcclusionQuery ---\n");
 
-	EnQueue(&node->occlusionQuery, &tr.occlusionQueryQueue);
-	InsertLink(&node->occlusionQuery2, &tr.occlusionQueryList);
+	EnQueue(queue, node);
 
 #if !defined(USE_D3D10)
 	//Tess_EndBegin();
 
 	// begin the occlusion query
-	qglBeginQueryARB(GL_SAMPLES_PASSED, node->occlusionQueryObjects[0]);
+	qglBeginQueryARB(GL_SAMPLES_PASSED, node->occlusionQueryObjects[tr.viewCount]);
 
 	R_BindVBO(node->volumeVBO);
 	R_BindIBO(node->volumeIBO);
@@ -1492,13 +1598,13 @@ static void IssueOcclusionQuery(bspNode_t * node)
 	qglEndQueryARB(GL_SAMPLES_PASSED);
 
 #if 0
-	if(!qglIsQueryARB(node->occlusionQueryObjects[0]))
+	if(!qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 	{
-		ri.Error(ERR_FATAL, "node %i has no occlusion query object in slot %i: %i", j, 0, node->occlusionQueryObjects[0]);
+		ri.Error(ERR_FATAL, "node %i has no occlusion query object in slot %i: %i", j, 0, node->occlusionQueryObjects[tr.viewCount]);
 	}
 #endif
 
-	backEnd.pc.c_occlusionQueries++;
+	tr.pc.c_occlusionQueries++;
 
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
@@ -1515,10 +1621,10 @@ static qboolean ResultAvailable(bspNode_t *node)
 	GLint			available;
 
 	available = 0;
-	if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+	if(qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 	{
-		qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-		GL_CheckErrors();
+		qglGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+		//GL_CheckErrors();
 	}
 
 	return !!available;
@@ -1532,36 +1638,76 @@ static void GetOcclusionQueryResult(bspNode_t *node)
 
 	GLimp_LogComment("--- GetOcclusionQueryResult ---\n");
 
+	qglFinish();
+
 	available = 0;
 	while(!available)
 	{
-		if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+		if(qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 		{
-			qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-			GL_CheckErrors();
+			qglGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+			//GL_CheckErrors();
 		}
 	}
 
-	qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT, &node->occlusionQuerySamples[0]);
+	qglGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT, &node->occlusionQuerySamples[tr.viewCount]);
 
 	GL_CheckErrors();
 #endif
 }
 
+static void PushNode(link_t * traversalStack, bspNode_t * node)
+{
+	if(node->contents != -1)
+	{
+		DrawLeaf(node);
+	}
+	else
+	{
+		//float			d1, d2;
+		cplane_t       *splitPlane;
+
+		splitPlane = node->plane;
+
+		//d1 = DistanceSquared(tr.viewParms.orientation.origin, node->children[0]->origin);
+		//d2 = DistanceSquared(tr.viewParms.orientation.origin, node->children[1]->origin);
+
+		//if(d1 <= d2)
+		if(DotProduct(splitPlane->normal, tr.viewParms.orientation.axis[0]) <= 0)
+		{
+			StackPush(traversalStack, node->children[0]);
+			StackPush(traversalStack, node->children[1]);
+		}
+		else
+		{
+			StackPush(traversalStack, node->children[1]);
+			StackPush(traversalStack, node->children[0]);
+		}
+	}
+}
+
 static void R_CoherentHierachicalCulling()
 {
 	bspNode_t      *node, *parent;
-	link_t		   *l;
 	int				visibilityThreshold = 0;
+
+	link_t			traversalStack;
+	link_t			occlusionQueryQueue;
+	int             startTime = 0, endTime = 0;
 
 #if !defined(USE_D3D10)
 	GLimp_LogComment("--- R_CoherentHierachicalCulling ---\n");
 
-	//R_BindFBO(tr.occlusionRenderFBO);
-	R_BindNullFBO();
+	//ri.Printf(PRINT_ALL, "tr.viewCount = %i, tr.viewCountNoReset = %i\n", tr.viewCount, tr.viewCountNoReset);
 
-	//GL_ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	qglClear(GL_DEPTH_BUFFER_BIT);
+	if(r_speeds->integer)
+	{
+		qglFinish();
+		startTime = ri.Milliseconds();
+	}
+
+	//R_BindFBO(tr.occlusionRenderFBO[tr.viewCount]);
+	R_BindNullFBO();
 
 	GL_BindProgram(&tr.genericSingleShader);
 	GL_Cull(CT_TWO_SIDED);
@@ -1593,93 +1739,142 @@ static void R_CoherentHierachicalCulling()
 	GL_Bind(tr.whiteImage);
 	GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
 
-	// don't write to the color buffer or depth buffer
+#if 0
+	GL_ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	qglClear(GL_DEPTH_BUFFER_BIT);
+
 	GL_State(GLS_COLORMASK_BITS | GLS_DEPTHMASK_TRUE);
-	//GL_State(GLS_DEFAULT);
+
+	// draw BSP node volumes to depth
+	DrawNode_r(&tr.world->nodes[0], FRUSTUM_CLIPALL);
+#endif
+
+	// now we should have a depth buffer that we can use for occlusion culling
+	GL_State(GLS_COLORMASK_BITS);
 
 	ClearLink(&tr.traversalStack);
 	ClearLink(&tr.occlusionQueryQueue);
 	ClearLink(&tr.occlusionQueryList);
 
-	StackPush(&tr.world->nodes[0].visChain, &tr.traversalStack);
-	//IssueOcclusionQuery(&tr.world->nodes[0]);
+	ClearLink(&traversalStack);
+	ClearLink(&occlusionQueryQueue);
 
-	while(!StackEmpty(&tr.traversalStack) || !StackEmpty(&tr.occlusionQueryQueue))
+	StackPush(&traversalStack, &tr.world->nodes[0]);
+
+	while(!StackEmpty(&traversalStack) || !QueueEmpty(&occlusionQueryQueue))
 	{
 		//--PART 1: process finished occlusion queries
 #if 1
-		while(!StackEmpty(&tr.occlusionQueryQueue) && (ResultAvailable(StackTop(&tr.occlusionQueryQueue)) || StackEmpty(&tr.traversalStack)))
+		while(!QueueEmpty(&occlusionQueryQueue) && (ResultAvailable(QueueFront(&occlusionQueryQueue)->data) || StackEmpty(&traversalStack)))
 		{
-			l = StackPop(&tr.occlusionQueryQueue);
-
-			node = (bspNode_t *) l->data;
-
-			// wait if result not available
-			GetOcclusionQueryResult(node);
-
-			//if(node->occlusionQuerySamples[0] > visibilityThreshold)
+			//if(ResultAvailable(QueueFront(&occlusionQueryQueue)->data))
 			{
-				if(r_logFile->integer)
+				node = (bspNode_t *) DeQueue(&occlusionQueryQueue);
+
+				// wait if result not available
+				GetOcclusionQueryResult(node);
+
+				if(node->occlusionQuerySamples[tr.viewCount] > visibilityThreshold)
 				{
-					// don't just call LogComment, or we will get
-					// a call to va() every frame!
-					GLimp_LogComment(va("node %i visible\n", node - tr.world->nodes));
+					if(r_logFile->integer)
+					{
+						// don't just call LogComment, or we will get
+						// a call to va() every frame!
+						GLimp_LogComment(va("node %i visible\n", node - tr.world->nodes));
+					}
+
+					// pull up visibility
+					parent = node;
+					do
+					{
+						if(parent->visible)
+							break;
+
+						parent->visible[tr.viewCount] = qtrue;
+						//parent->lastVisited[tr.viewCount] = tr.frameCount -1;
+						parent = parent->parent;
+					} while(parent);
+
+					PushNode(&traversalStack, node);
 				}
-
-				// pull up visibility
-				parent = node;
-				do
+				/*
+				else
 				{
-					if(parent->visible)
-						break;
-
-					parent->visible = qtrue;
-					parent = parent->parent;
-				} while(parent);
-
-				 TraverseNode(node, FRUSTUM_CLIPALL);
+					if(r_logFile->integer)
+					{
+						// don't just call LogComment, or we will get
+						// a call to va() every frame!
+						GLimp_LogComment(va("node %i invisible\n", node - tr.world->nodes));
+					}
+				}
+				*/
 			}
 		}
 #endif
 
 #if 1
 		//--PART 2: hierarchical traversal
-		if(!StackEmpty(&tr.traversalStack))
+		if(!StackEmpty(&traversalStack))
 		{
-			l = StackPop(&tr.traversalStack);
+			node = (bspNode_t *) StackPop(&traversalStack);
 
-			node = (bspNode_t *) l->data;
+			// if the node wasn't marked as potentially visible, exit
+			if(node->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex])
+				continue;
 
-			if(InsideViewFrustum(node, FRUSTUM_CLIPALL))
+			// don't waste time dealing with empty leaves
+			if(node->contents != -1 && !node->numMarkSurfaces)
+				continue;
+
+			if(!InsideViewFrustum(node, FRUSTUM_CLIPALL))
+				continue;
+
 			{
 				qboolean wasVisible;
 				qboolean leafOrWasInvisible;
 
-				node = (bspNode_t *) l->data;
-
 				// identify previously visible nodes
-				wasVisible = node->visible && (node->lastVisited == tr.frameCount -1);
+				wasVisible = node->visible[tr.viewCount] && (node->lastVisited[tr.viewCount] == tr.frameCount -1);
 				//wasVisible = qtrue;
+
+				// reset node's visibility classification
+				if(BoundsIntersectPoint(node->mins, node->maxs, tr.viewParms.orientation.origin))
+				{
+					node->visible[tr.viewCount] = qtrue;
+					wasVisible = qtrue;
+				}
+				else
+				{
+					node->visible[tr.viewCount] = qfalse;
+				}
+
+				// optimization
+				if((node->contents != -1) && node->sameAABBAsParent)
+				{
+					node->visible[tr.viewCount] = qtrue;
+					wasVisible = qtrue;
+				}
 
 				// identify nodes that we cannot skip queries for
 				leafOrWasInvisible = !wasVisible || (node->contents != -1);
 
-				// reset node's visibility classification
-				node->visible = qfalse;
-
-				// update node's visited flag
-				node->lastVisited = tr.frameCount;
-
 				// skip testing previously visible interior nodes
 				if(leafOrWasInvisible)
 				{
-					IssueOcclusionQuery(node);
+					IssueOcclusionQuery(&occlusionQueryQueue, node);
+
+					// for debug utils
+					if(node->lastVisited[tr.viewCount] != tr.frameCount)
+						InsertLink(&node->occlusionQuery, &tr.occlusionQueryList);
 				}
+
+				// update node's visited flag
+				node->lastVisited[tr.viewCount] = tr.frameCount;
 
 				// always traverse a node if it was visible
 				if(wasVisible)
 				{
-					TraverseNode(node, FRUSTUM_CLIPALL);
+					PushNode(&traversalStack, node);
 				}
 			}
 		}
@@ -1689,6 +1884,13 @@ static void R_CoherentHierachicalCulling()
 	R_BindNullFBO();
 
 	GL_CheckErrors();
+
+	if(r_speeds->integer)
+	{
+		qglFinish();
+		endTime = ri.Milliseconds();
+		tr.pc.c_CHCTime = endTime - startTime;
+	}
 #endif
 }
 
@@ -1705,10 +1907,16 @@ static void R_RecursiveChainWorldNode(bspNode_t * node, int planeBits)
 		qboolean needsQuery;
 		qboolean intersect;
 
+		// if the node wasn't marked as potentially visible, exit
+		if(node->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex])
+		{
+			return;
+		}
+
+		// don't waste time dealing empty leaves
 		if(node->contents != -1 && !node->numMarkSurfaces)
 		{
-			// don't waste time dealing with this empty leaf
-			break;
+			return;
 		}
 
 		// if the bounding volume is outside the frustum, nothing
@@ -1738,30 +1946,50 @@ static void R_RecursiveChainWorldNode(bspNode_t * node, int planeBits)
 		InsertLink(&node->visChain, &tr.traversalStack);
 
 		// identify previously visible nodes
-		wasVisible = node->visible && (node->lastVisited == tr.frameCount -1);
-		//wasVisible = qtrue;
+#if 1
+		if(r_dynamicBspOcclusionCulling->integer == 2)
+		{
+			if(node->contents != -1)
+				wasVisible = node->visible[tr.viewCount] && (node->lastVisited[tr.viewCount] == tr.frameCount -1);
+			else
+				wasVisible = qtrue;//node->visible;
+		}
+		else
+		{
+			wasVisible = node->visible[tr.viewCount] && (node->lastVisited[tr.viewCount] == tr.frameCount -1);
+		}
+#else
+		wasVisible = node->visible[tr.viewCount] && (node->lastVisited[tr.viewCount] == tr.frameCount -1);
+#endif
 
 		// reset node's visibility classification
 		intersect = BoundsIntersectPoint(node->mins, node->maxs, tr.viewParms.orientation.origin);
 #if 1
 		if(intersect)
 		{
-			node->visible = qtrue;
-			//wasVisible = qtrue;
+			node->visible[tr.viewCount] = qtrue;
+			wasVisible = qtrue;
 		}
 		else
 		{
-			if(node->contents != -1)
-				node->visible = qfalse;
+			if(r_dynamicBspOcclusionCulling->integer == 2)
+			{
+				if(node->contents != -1)
+					node->visible[tr.viewCount] = qfalse;
+				else
+					node->visible[tr.viewCount] = qtrue;
+			}
 			else
-				node->visible = qfalse;
+			{
+				node->visible[tr.viewCount] = qfalse;
+			}
 		}
 #else
 		node->visible = qfalse;
 #endif
 
 		// update node's visited flag
-		node->lastVisited = tr.frameCount;
+		node->lastVisited[tr.viewCount] = tr.frameCount;
 
 		// identify nodes that we cannot skip queries for
 		needsQuery = (!wasVisible || (node->contents != -1)) && !intersect;
@@ -1769,13 +1997,13 @@ static void R_RecursiveChainWorldNode(bspNode_t * node, int planeBits)
 		//needsQuery = (!wasVisible || (node->contents != -1) || (node->lastVisited != tr.frameCount -1)) && !intersect;
 		//needsQuery = (!wasVisible || (node->lastVisited != tr.frameCount -1)) && !intersect;
 		//needsQuery = !wasVisible && (node->contents != -1) && (node->lastVisited != tr.frameCount -1) && !intersect;
-		//needsQuery = wasVisible && (node->contents != -1) && !intersect;
+		//needsQuery = !wasVisible && (node->contents != -1) && !intersect;
 
 		// skip testing previously visible interior nodes
 		if(needsQuery)
 		{
 			InsertLink(&node->occlusionQuery, &tr.occlusionQueryList);
-			node->issueOcclusionQuery = qtrue;
+			node->issueOcclusionQuery[tr.viewCount] = qtrue;
 		}
 
 		if(wasVisible)
@@ -1787,12 +2015,30 @@ static void R_RecursiveChainWorldNode(bspNode_t * node, int planeBits)
 			}
 			else
 			{
-				// recurse down the children, front side first
-				R_RecursiveChainWorldNode(node->children[0], planeBits);
-				//R_RecursiveChainWorldNode(node->children[1], planeBits);
+				//float			d1, d2;
+				cplane_t       *splitPlane;
 
-				// tail recurse
-				node = node->children[1];
+				splitPlane = node->plane;
+
+				//d1 = DistanceSquared(tr.viewParms.orientation.origin, node->children[0]->origin);
+				//d2 = DistanceSquared(tr.viewParms.orientation.origin, node->children[1]->origin);
+
+				//if(d1 <= d2)
+				if(DotProduct(splitPlane->normal, tr.viewParms.orientation.axis[0]) <= 0)
+				{
+					// recurse down the children, front side first
+					R_RecursiveChainWorldNode(node->children[0], planeBits);
+
+					// tail recurse
+					node = node->children[1];
+				}
+				else
+				{
+					R_RecursiveChainWorldNode(node->children[1], planeBits);
+
+					// tail recurse
+					node = node->children[0];
+				}
 			}
 		}
 		else
@@ -1808,9 +2054,9 @@ static void MarkInvisible(bspNode_t * node)
 	do
 	{
 		// update node's visited flag
-		node->lastVisited = tr.frameCount;
+		node->lastVisited[tr.viewCount] = tr.frameCount;
 
-		node->visible = qfalse;
+		node->visible[tr.viewCount] = qfalse;
 
 		if(node->contents != -1)
 			break;
@@ -1828,7 +2074,6 @@ static void R_CoherentHierachicalCulling2()
 {
 	bspNode_t      *node, *parent;
 	link_t		   *l, *sentinel;
-	int				j;
 
 	// wait until all occlusion queries from the previous frame are ready to read
 #if 0
@@ -1847,7 +2092,7 @@ static void R_CoherentHierachicalCulling2()
 	{
 		node = (bspNode_t *) l->data;
 
-		if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+		if(qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 		{
 			ocCount++;
 		}
@@ -1865,9 +2110,9 @@ static void R_CoherentHierachicalCulling2()
 			if(node->issueOcclusionQuery)
 			{
 				available = 0;
-				if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+				if(qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 				{
-					qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+					qglGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 					GL_CheckErrors();
 				}
 
@@ -1890,9 +2135,9 @@ static void R_CoherentHierachicalCulling2()
 	{
 		node = (bspNode_t *) l->data;
 
-		if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+		if(qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 		{
-			qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT, &node->occlusionQuerySamples[0]);
+			qglGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT, &node->occlusionQuerySamples[tr.viewCount]);
 		}
 	}
 
@@ -1909,9 +2154,9 @@ static void R_CoherentHierachicalCulling2()
 	{
 		node = (bspNode_t *) l->data;
 #if 1
-		if(node->occlusionQuerySamples[0] <= 0)// && !BoundsIntersectPoint(node->mins, node->maxs, tr.viewParms.orientation.origin))
+		if(node->occlusionQuerySamples[tr.viewCount] <= 0)// && !BoundsIntersectPoint(node->mins, node->maxs, tr.viewParms.orientation.origin))
 		{
-			node->visible = qfalse;
+			node->visible[tr.viewCount] = qfalse;
 			//MarkInvisible(node);
 			continue;
 		}
@@ -1925,8 +2170,8 @@ static void R_CoherentHierachicalCulling2()
 			if(parent->visible)
 				break;
 
-			parent->visible = qtrue;
-			parent->lastVisited = tr.frameCount -1;
+			parent->visible[tr.viewCount] = qtrue;
+			parent->lastVisited[tr.viewCount] = tr.frameCount -1;
 
 			parent = parent->parent;
 		} while(parent);
@@ -1969,7 +2214,7 @@ void R_AddWorldSurfaces(void)
 	// update the bsp nodes with the dynamic occlusion query results
 	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
 	{
-		R_CoherentHierachicalCulling2();
+		R_CoherentHierachicalCulling();
 	}
 	else
 	{
@@ -2203,7 +2448,7 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 
 			// Tr3B - this surface is maybe not in this view but it may still cast a shadow
 			// into this view
-			if(surface->viewCount != tr.viewCount)
+			if(surface->viewCount != tr.viewCountNoReset)
 			{
 				if(r_shadows->integer <= 3 || light->l.noShadows)
 					continue;

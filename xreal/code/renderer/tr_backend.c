@@ -8119,6 +8119,7 @@ void RB_RenderLightOcclusionQueries()
 	GL_CheckErrors();
 }
 
+#if 0
 void RB_RenderBspOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_RenderBspOcclusionQueries ---\n");
@@ -8164,7 +8165,7 @@ void RB_RenderBspOcclusionQueries()
 			node = (bspNode_t *) l->data;
 
 			// begin the occlusion query
-			qglBeginQueryARB(GL_SAMPLES_PASSED, node->occlusionQueryObjects[0]);
+			qglBeginQueryARB(GL_SAMPLES_PASSED, node->occlusionQueryObjects[backEnd.viewParms.viewCount]);
 
 			R_BindVBO(node->volumeVBO);
 			R_BindIBO(node->volumeIBO);
@@ -8181,9 +8182,9 @@ void RB_RenderBspOcclusionQueries()
 			qglEndQueryARB(GL_SAMPLES_PASSED);
 
 #if 0
-			if(!qglIsQueryARB(node->occlusionQueryObjects[0]))
+			if(!qglIsQueryARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount]))
 			{
-				ri.Error(ERR_FATAL, "node %i has no occlusion query object in slot %i: %i", j, 0, node->occlusionQueryObjects[0]);
+				ri.Error(ERR_FATAL, "node %i has no occlusion query object in slot %i: %i", j, 0, node->occlusionQueryObjects[backEnd.viewParms.viewCount]);
 			}
 #endif
 
@@ -8196,6 +8197,7 @@ void RB_RenderBspOcclusionQueries()
 
 	GL_CheckErrors();
 }
+
 
 void RB_CollectBspOcclusionQueries()
 {
@@ -8219,7 +8221,7 @@ void RB_CollectBspOcclusionQueries()
 		{
 			node = (bspNode_t *) l->data;
 
-			if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+			if(qglIsQueryARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount]))
 			{
 				ocCount++;
 			}
@@ -8237,9 +8239,9 @@ void RB_CollectBspOcclusionQueries()
 				if(node->issueOcclusionQuery)
 				{
 					available = 0;
-					if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+					if(qglIsQueryARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount]))
 					{
-						qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+						qglGetQueryObjectivARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 						GL_CheckErrors();
 					}
 
@@ -8262,9 +8264,9 @@ void RB_CollectBspOcclusionQueries()
 			node = (bspNode_t *) l->data;
 
 			available = 0;
-			if(qglIsQueryARB(node->occlusionQueryObjects[0]))
+			if(qglIsQueryARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount]))
 			{
-				qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+				qglGetQueryObjectivARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 				GL_CheckErrors();
 			}
 
@@ -8273,16 +8275,16 @@ void RB_CollectBspOcclusionQueries()
 				backEnd.pc.c_occlusionQueriesAvailable++;
 
 				// get the object and store it in the occlusion bits for the light
-				qglGetQueryObjectivARB(node->occlusionQueryObjects[0], GL_QUERY_RESULT, &node->occlusionQuerySamples[0]);
+				qglGetQueryObjectivARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount], GL_QUERY_RESULT, &node->occlusionQuerySamples[backEnd.viewParms.viewCount]);
 
-				if(node->occlusionQuerySamples[0] <= 0)
+				if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] <= 0)
 				{
 					backEnd.pc.c_occlusionQueriesLeafsCulled++;
 				}
 			}
 			else
 			{
-				node->occlusionQuerySamples[0] = 1;
+				node->occlusionQuerySamples[backEnd.viewParms.viewCount] = 1;
 			}
 
 			GL_CheckErrors();
@@ -8291,6 +8293,7 @@ void RB_CollectBspOcclusionQueries()
 		//ri.Printf(PRINT_ALL, "done\n");
 	}
 }
+#endif
 
 /*
 some debug utilities for displaying entity AABBs and so on
@@ -9342,22 +9345,20 @@ static void RB_RenderDebugUtils()
 					if(r_showBspNodes->integer == 3)
 						continue;
 
-					GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
-
-					//if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
-					//	GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
-					//else
-					//	GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
+					if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
+					else
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
 				}
 				else
 				{
 					if(r_showBspNodes->integer == 2)
 						continue;
 
-					if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
-						GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
+					if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorYellow);
 					else
-						GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
+						GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
 				}
 			}
 			else
@@ -9367,7 +9368,7 @@ static void RB_RenderDebugUtils()
 					if(r_showBspNodes->integer == 3)
 						continue;
 
-					if(node->occlusionQuerySamples[0] > 0)
+					if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
 					else
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
@@ -9377,7 +9378,7 @@ static void RB_RenderDebugUtils()
 					if(r_showBspNodes->integer == 2)
 						continue;
 
-					if(node->occlusionQuerySamples[0] > 0)
+					if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorYellow);
 					else
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
@@ -9557,12 +9558,14 @@ static void RB_RenderView(void)
 
 
 		// try to cull bsp nodes for the next frame using hardware occlusion queries
+		/*
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
 		R_BindFBO(tr.deferredRenderFBO);
 #else
 		R_BindNullFBO();
 #endif
 		RB_RenderBspOcclusionQueries();
+		*/
 
 		// try to cull lights using hardware occlusion queries
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
@@ -9629,12 +9632,14 @@ static void RB_RenderView(void)
 		}
 
 		// wait until all bsp node occlusion queries are back
+		/*
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
 		R_BindFBO(tr.deferredRenderFBO);
 #else
 		R_BindNullFBO();
 #endif
 		RB_CollectBspOcclusionQueries();
+		*/
 
 		// render debug information
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
@@ -9852,8 +9857,10 @@ static void RB_RenderView(void)
 		RB_RenderDrawSurfaces(qtrue, qfalse);
 
 		// try to cull bsp nodes for the next frame using hardware occlusion queries
+		/*
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderBspOcclusionQueries();
+		*/
 
 		// try to cull lights using hardware occlusion queries
 		R_BindFBO(tr.deferredRenderFBO);
@@ -9882,8 +9889,10 @@ static void RB_RenderView(void)
 		RB_RenderUniformFog();
 
 		// wait until all bsp node occlusion queries are back
+		/*
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_CollectBspOcclusionQueries();
+		*/
 
 		// render debug information
 		R_BindFBO(tr.deferredRenderFBO);
@@ -10056,7 +10065,7 @@ static void RB_RenderView(void)
 		RB_RenderDrawSurfaces(qtrue, qfalse);
 
 		// try to cull bsp nodes for the next frame using hardware occlusion queries
-		RB_RenderBspOcclusionQueries();
+		//RB_RenderBspOcclusionQueries();
 
 		// render ambient occlusion process effect
 		// Tr3B: needs way more work RB_RenderScreenSpaceAmbientOcclusion(qfalse);
@@ -10173,7 +10182,7 @@ static void RB_RenderView(void)
 #endif
 
 		// wait until all bsp node occlusion queries are back
-		RB_CollectBspOcclusionQueries();
+		//RB_CollectBspOcclusionQueries();
 
 		// render debug information
 		RB_RenderDebugUtils();

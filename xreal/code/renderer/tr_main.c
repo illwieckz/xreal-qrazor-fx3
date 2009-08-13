@@ -2325,15 +2325,21 @@ void R_RenderView(viewParms_t * parms)
 	}
 
 	tr.viewCount++;
+	tr.viewCountNoReset++;
+
+	if(tr.viewCount >= MAX_VIEWS)
+	{
+		ri.Printf(PRINT_ALL, "MAX_VIEWS (%i) hit. Don't add more mirrors or portals. Skipping view ...\n", MAX_VIEWS);
+		return;
+	}
 
 	tr.viewParms = *parms;
 	tr.viewParms.frameSceneNum = tr.frameSceneNum;
 	tr.viewParms.frameCount = tr.frameCount;
+	tr.viewParms.viewCount = tr.viewCount;// % MAX_VIEWS;
 
 	firstDrawSurf = tr.refdef.numDrawSurfs;
 	firstInteraction = tr.refdef.numInteractions;
-
-	tr.viewCount++;
 
 	// set viewParms.world
 	R_RotateForViewer();

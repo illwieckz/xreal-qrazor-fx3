@@ -183,7 +183,7 @@ void R_BoxSurfaces_r(bspNode_t * node, vec3_t mins, vec3_t maxs, surfaceType_t *
 		// check if the surface has NOIMPACT or NOMARKS set
 		if((surf->shader->surfaceFlags & (SURF_NOIMPACT | SURF_NOMARKS)) || (surf->shader->contentFlags & CONTENTS_FOG))
 		{
-			surf->viewCount = tr.viewCount;
+			surf->viewCount = tr.viewCountNoReset;
 		}
 		// extra check for surfaces to avoid list overflows
 		else if(*(surf->data) == SF_FACE)
@@ -192,22 +192,22 @@ void R_BoxSurfaces_r(bspNode_t * node, vec3_t mins, vec3_t maxs, surfaceType_t *
 			s = BoxOnPlaneSide(mins, maxs, &((srfSurfaceFace_t *) surf->data)->plane);
 			if(s == 1 || s == 2)
 			{
-				surf->viewCount = tr.viewCount;
+				surf->viewCount = tr.viewCountNoReset;
 			}
 			else if(DotProduct(((srfSurfaceFace_t *) surf->data)->plane.normal, dir) > -0.5)
 			{
 				// don't add faces that make sharp angles with the projection direction
-				surf->viewCount = tr.viewCount;
+				surf->viewCount = tr.viewCountNoReset;
 			}
 		}
 		else if(*(surfaceType_t *) (surf->data) != SF_GRID
 			&& *(surfaceType_t *) (surf->data) != SF_TRIANGLES)
-			surf->viewCount = tr.viewCount;
+			surf->viewCount = tr.viewCountNoReset;
 		// check the viewCount because the surface may have
 		// already been added if it spans multiple leafs
-		if(surf->viewCount != tr.viewCount)
+		if(surf->viewCount != tr.viewCountNoReset)
 		{
-			surf->viewCount = tr.viewCount;
+			surf->viewCount = tr.viewCountNoReset;
 			list[*listlength] = (surfaceType_t *) surf->data;
 			(*listlength)++;
 		}
@@ -312,7 +312,7 @@ int R_MarkFragments(int numPoints, const vec3_t * points, const vec3_t projectio
 	vec3_t          v1, v2;
 
 	//increment view count for double check prevention
-	tr.viewCount++;
+	tr.viewCountNoReset++;
 
 	//
 	VectorNormalize2(projection, projectionDir);

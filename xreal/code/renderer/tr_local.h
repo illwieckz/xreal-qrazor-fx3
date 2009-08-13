@@ -80,6 +80,7 @@ typedef unsigned short glIndex_t;
 #define	MAX_FBOS				64
 
 #define MAX_VISCOUNTS			5
+#define MAX_VIEWS				10
 
 #if !defined(USE_D3D10)
 #define VOLUMETRIC_LIGHTING 1
@@ -1845,6 +1846,7 @@ typedef struct
 
 	int             frameSceneNum;	// copied from tr.frameSceneNum
 	int             frameCount;	// copied from tr.frameCount
+	int				viewCount; // copied from tr.viewCount
 
 	cplane_t        portalPlane;	// clip anything behind this if mirroring
 	int             viewportX, viewportY, viewportWidth, viewportHeight;
@@ -2195,11 +2197,12 @@ typedef struct bspNode_s
 	int             visCounts[MAX_VISCOUNTS];	// node needs to be traversed if current
 	int             lightCount;
 	vec3_t          mins, maxs;	// for bounding box culling
+	vec3_t			origin;		// center of the bounding box
 	struct bspNode_s *parent;
 
-	qboolean		visible;
-	int				lastVisited;
-	qboolean		issueOcclusionQuery;
+	qboolean		visible[MAX_VIEWS];
+	int				lastVisited[MAX_VIEWS];
+	qboolean		issueOcclusionQuery[MAX_VIEWS];
 
 	link_t			visChain;				// updated every visit
 	link_t			occlusionQuery;	// updated every visit
@@ -2211,8 +2214,8 @@ typedef struct bspNode_s
 	int				volumeIndexes;
 
 #if 1//!defined(USE_D3D10)
-	uint32_t        occlusionQueryObjects[MAX_VISCOUNTS];
-	int             occlusionQuerySamples[MAX_VISCOUNTS];	// visible fragment count
+	uint32_t        occlusionQueryObjects[MAX_VIEWS];
+	int             occlusionQuerySamples[MAX_VIEWS];	// visible fragment count
 #endif
 
 	// node specific
@@ -2222,6 +2225,7 @@ typedef struct bspNode_s
 	// leaf specific
 	int             cluster;
 	int             area;
+	qboolean		sameAABBAsParent;
 
 	int             numMarkSurfaces;
 	bspSurface_t  **markSurfaces;
@@ -2644,6 +2648,9 @@ typedef struct
 	int             c_dlightInteractions;
 
 	int             c_depthBoundsTests, c_depthBoundsTestsRejected;
+
+	int				c_occlusionQueries;
+	int             c_CHCTime;
 } frontEndCounters_t;
 
 #define FUNCTABLE_SIZE		1024
@@ -2800,6 +2807,7 @@ typedef struct
 	int             frameCount;	// incremented every frame
 	int             sceneCount;	// incremented every scene
 	int             viewCount;	// incremented every view (twice a scene if portaled)
+	int				viewCountNoReset;
 	int             lightCount;	// incremented every time a dlight traverses the world
 	// and every R_MarkFragments call
 

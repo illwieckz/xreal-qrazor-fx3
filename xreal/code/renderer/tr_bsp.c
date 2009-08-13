@@ -4845,7 +4845,10 @@ static void R_SetParent(bspNode_t * node, bspNode_t * parent)
 {
 	node->parent = parent;
 	if(node->contents != -1)
+	{
+		node->sameAABBAsParent = VectorCompare(node->mins, parent->mins) && VectorCompare(node->maxs, parent->maxs);
 		return;
+	}
 	R_SetParent(node->children[0], node);
 	R_SetParent(node->children[1], node);
 }
@@ -4939,15 +4942,15 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 		//if(out->contents != -1 && !out->numMarkSurfaces)
 		//	ri.Error(ERR_DROP, "leaf %i is empty", j);
 
-		out->lastVisited = -10;
-		out->visible = qtrue;
-		out->occlusionQuerySamples[0] = 1;
+		Com_Memset(out->lastVisited, -1, sizeof(out->lastVisited));
+		Com_Memset(out->visible, qtrue, sizeof(out->visible));
+		//out->occlusionQuerySamples[0] = 1;
 
 		InitLink(&out->visChain, out);
 		InitLink(&out->occlusionQuery, out);
 		InitLink(&out->occlusionQuery2, out);
 
-		qglGenQueriesARB(MAX_VISCOUNTS, out->occlusionQueryObjects);
+		qglGenQueriesARB(MAX_VIEWS, out->occlusionQueryObjects);
 
 		tess.numIndexes = 0;
 		tess.numVertexes = 0;
@@ -4955,7 +4958,12 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 		VectorCopy(out->mins, mins);
 		VectorCopy(out->maxs, maxs);
 
-#if 1
+		for(i = 0; i < 3; i++)
+		{
+			out->origin[i] = (mins[i] + maxs[i]) * 0.5f;
+		}
+
+#if 0
 		// HACK: make the AABB a little bit smaller to avoid z-fighting for the occlusion queries
 		VectorAdd(mins, offset, mins);
 		VectorSubtract(maxs, offset, maxs);
