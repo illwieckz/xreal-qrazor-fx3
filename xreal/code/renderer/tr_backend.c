@@ -33,7 +33,7 @@ void GL_Bind(image_t * image)
 	if(!image)
 	{
 		ri.Printf(PRINT_WARNING, "GL_Bind: NULL image\n");
-		texnum = tr.defaultImage->texnum;
+		image = tr.defaultImage;
 	}
 	else
 	{
@@ -42,9 +42,9 @@ void GL_Bind(image_t * image)
 			// don't just call LogComment, or we will get a call to va() every frame!
 			GLimp_LogComment(va("--- GL_Bind( %s ) ---\n", image->name));
 		}
-
-		texnum = image->texnum;
 	}
+
+	texnum = image->texnum;
 
 	if(r_nobind->integer && tr.blackImage)
 	{
