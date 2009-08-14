@@ -198,6 +198,126 @@ static ID_INLINE void InsertLink(link_t *l, link_t *sentinel)
 
 
 
+static ID_INLINE qboolean StackEmpty(link_t *l)
+{
+	// GCC shit: cannot convert 'bool' to 'qboolean' in return
+	return l->next == l ? qtrue : qfalse;
+}
+
+static ID_INLINE link_t* StackTop(link_t *l)
+{
+	return l->next;
+}
+
+static ID_INLINE void StackPush(link_t *sentinel, void *data)
+{
+	link_t *l;
+
+	l = (link_t *) Com_Allocate(sizeof(*l));
+	InitLink(l, data);
+
+	InsertLink(l, sentinel);
+}
+
+static ID_INLINE void* StackPop(link_t *l)
+{
+	link_t* top;
+	void *data;
+
+	if(l->next == l)
+		return NULL;
+
+	top = l->next;
+
+#if 1
+	RemoveLink(top);
+#else
+	top->next->prev = top->prev;
+	top->prev->next = top->next;
+
+	top->prev = top->next = NULL;
+#endif
+
+	data = top->data;
+	Com_Dealloc(top);
+
+	return data;
+}
+
+
+static ID_INLINE void QueueInit(link_t *l)
+{
+	l->data = NULL;
+	l->numElements = 0;
+	l->prev = l->next = l;
+}
+
+static ID_INLINE int QueueSize(link_t *l)
+{
+	return l->numElements;
+}
+
+static ID_INLINE qboolean QueueEmpty(link_t *l)
+{
+	return l->prev == l ? qtrue : qfalse;
+}
+
+static ID_INLINE void EnQueue(link_t *sentinel, void *data)
+{
+	link_t *l;
+
+	l = (link_t *) Com_Allocate(sizeof(*l));
+	InitLink(l, data);
+
+	InsertLink(l, sentinel);
+
+	sentinel->numElements++;
+}
+
+/*
+static ID_INLINE void EnQueue2(link_t *sentinel, void *data, void *(*mallocFunc)(size_t __size))
+{
+	link_t *l;
+
+	l = mallocFunc(sizeof(*l));
+	InitLink(l, data);
+
+	InsertLink(l, sentinel);
+
+	sentinel->numElements++;
+}
+*/
+
+static ID_INLINE void* DeQueue(link_t *l)
+{
+	link_t* tail;
+	void *data;
+
+	tail = l->prev;
+
+#if 1
+	RemoveLink(tail);
+#else
+	tail->next->prev = tail->prev;
+	tail->prev->next = tail->next;
+
+	tail->prev = tail->next = NULL;
+#endif
+
+	data = tail->data;
+	Com_Dealloc(tail);
+
+	l->numElements--;
+
+	return data;
+}
+
+static ID_INLINE link_t* QueueFront(link_t *l)
+{
+	return l->prev;
+}
+
+
 // a trRefLight_t has all the information passed in by
 // the client game, as well as some locally derived info
 typedef struct trRefLight_s
@@ -260,9 +380,11 @@ typedef struct trRefLight_s
 	int             numLightOnlyInteractions;
 	qboolean        noSort;		// don't sort interactions by material
 
+	link_t			leafs;
+
 	int             visCounts[MAX_VISCOUNTS];	// node needs to be traversed if current
-	struct bspNode_s **leafs;
-	int             numLeafs;
+	//struct bspNode_s **leafs;
+	//int             numLeafs;
 } trRefLight_t;
 
 
@@ -2204,6 +2326,7 @@ typedef struct bspNode_s
 
 	qboolean		visible[MAX_VIEWS];
 	int				lastVisited[MAX_VIEWS];
+	int				lastQueried[MAX_VIEWS];
 	qboolean		issueOcclusionQuery[MAX_VIEWS];
 
 	link_t			visChain;			// updated every visit

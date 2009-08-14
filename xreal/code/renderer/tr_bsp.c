@@ -6170,7 +6170,7 @@ static void R_RecursivePrecacheInteractionNode(bspNode_t * node, trRefLight_t * 
 R_RecursiveAddInteractionNode
 ================
 */
-static void R_RecursiveAddInteractionNode(bspNode_t * node, trRefLight_t * light, int *numLeafs, qboolean onlyCount)
+static void R_RecursiveAddInteractionNode(bspNode_t * node, trRefLight_t * light)
 {
 	int             r;
 
@@ -6190,13 +6190,14 @@ static void R_RecursiveAddInteractionNode(bspNode_t * node, trRefLight_t * light
 
 		if(R_CullLightWorldBounds(light, worldBounds) != CULL_OUT)
 		{
-			if(!onlyCount)
-			{
-				// assign leave and increase leave counter
-				light->leafs[*numLeafs] = node;
-			}
+			link_t *l;
 
-			*numLeafs = *numLeafs + 1;
+			l = ri.Hunk_Alloc(sizeof(*l), h_low);
+			InitLink(l, node);
+
+			InsertLink(l, &light->leafs);
+
+			light->leafs.numElements++;
 		}
 		return;
 	}
@@ -6208,18 +6209,18 @@ static void R_RecursiveAddInteractionNode(bspNode_t * node, trRefLight_t * light
 	switch (r)
 	{
 		case 1:
-			R_RecursiveAddInteractionNode(node->children[0], light, numLeafs, onlyCount);
+			R_RecursiveAddInteractionNode(node->children[0], light);
 			break;
 
 		case 2:
-			R_RecursiveAddInteractionNode(node->children[1], light, numLeafs, onlyCount);
+			R_RecursiveAddInteractionNode(node->children[1], light);
 			break;
 
 		case 3:
 		default:
 			// recurse down the children, front side first
-			R_RecursiveAddInteractionNode(node->children[0], light, numLeafs, onlyCount);
-			R_RecursiveAddInteractionNode(node->children[1], light, numLeafs, onlyCount);
+			R_RecursiveAddInteractionNode(node->children[0], light);
+			R_RecursiveAddInteractionNode(node->children[1], light);
 			break;
 	}
 }
@@ -7635,18 +7636,9 @@ void R_PrecacheInteractions()
 
 		// count number of leafs that touch this light
 		s_lightCount++;
-		numLeafs = 0;
-		R_RecursiveAddInteractionNode(s_worldData.nodes, light, &numLeafs, qtrue);
-		//ri.Printf(PRINT_ALL, "light %i touched %i leaves\n", i, numLeafs);
-
-		// create storage room for them
-		light->leafs = (struct bspNode_s **)ri.Hunk_Alloc(numLeafs * sizeof(*light->leafs), h_low);
-		light->numLeafs = numLeafs;
-
-		// fill storage with them
-		s_lightCount++;
-		numLeafs = 0;
-		R_RecursiveAddInteractionNode(s_worldData.nodes, light, &numLeafs, qfalse);
+		QueueInit(&light->leafs);
+		R_RecursiveAddInteractionNode(s_worldData.nodes, light);
+		ri.Printf(PRINT_ALL, "light %i touched %i leaves\n", i, QueueSize(&light->leafs));
 
 #if 0
 		// Tr3b: this can cause really bad shadow problems :/

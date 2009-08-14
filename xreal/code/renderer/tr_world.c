@@ -1376,109 +1376,6 @@ static qboolean InsideViewFrustum(bspNode_t * node, int planeBits)
 
 
 
-static qboolean StackEmpty(link_t *l)
-{
-	return l->next == l;
-}
-
-static link_t* StackTop(link_t *l)
-{
-	return l->next;
-}
-
-static void StackPush(link_t *sentinel, void *data)
-{
-	link_t *l;
-
-	l = Com_Allocate(sizeof(*l));
-	InitLink(l, data);
-
-	InsertLink(l, sentinel);
-}
-
-static void* StackPop(link_t *l)
-{
-	link_t* top;
-	void *data;
-
-	if(l->next == l)
-		return NULL;
-
-	top = l->next;
-
-#if 1
-	RemoveLink(top);
-#else
-	top->next->prev = top->prev;
-	top->prev->next = top->next;
-
-	top->prev = top->next = NULL;
-#endif
-
-	data = top->data;
-	Com_Dealloc(top);
-
-	return data;
-}
-
-
-static void QueueInit(link_t *l)
-{
-	l->data = NULL;
-	l->numElements = 0;
-	l->prev = l->next = l;
-}
-
-static int QueueSize(link_t *l)
-{
-	return l->numElements;
-}
-
-static qboolean QueueEmpty(link_t *l)
-{
-	return l->prev == l;
-}
-
-static void EnQueue(link_t *sentinel, void *data)
-{
-	link_t *l;
-
-	l = Com_Allocate(sizeof(*l));
-	InitLink(l, data);
-
-	InsertLink(l, sentinel);
-
-	sentinel->numElements++;
-}
-
-static void* DeQueue(link_t *l)
-{
-	link_t* tail;
-	void *data;
-
-	tail = l->prev;
-
-#if 1
-	RemoveLink(tail);
-#else
-	tail->next->prev = tail->prev;
-	tail->prev->next = tail->next;
-
-	tail->prev = tail->next = NULL;
-#endif
-
-	data = tail->data;
-	Com_Dealloc(tail);
-
-	l->numElements--;
-
-	return data;
-}
-
-static link_t* QueueFront(link_t *l)
-{
-	return l->prev;
-}
 
 static void DrawNode_r(bspNode_t * node, int planeBits)
 {
@@ -1541,31 +1438,7 @@ static void DrawNode_r(bspNode_t * node, int planeBits)
 	} while(1);
 }
 
-static void BuildNodeTraversalStackPost_r(bspNode_t * node)
-{
-	do
-	{
-		/*
-		if((tr.frameCount - node->lastVisited[tr.viewCount]) > r_chcMaxVisibleFrames->integer)
-		{
-			return;
-		}
-		*/
 
-		InsertLink(&node->visChain, &tr.traversalStack);
-
-		if(node->contents != -1)
-		{
-			break;
-		}
-
-		// recurse down the children, front side first
-		BuildNodeTraversalStackPost_r(node->children[0]);
-
-		// tail recurse
-		node = node->children[1];
-	} while(1);
-}
 
 
 
@@ -1794,12 +1667,16 @@ static void GetOcclusionQueryResult(bspNode_t *node)
 #endif
 
 	node->occlusionQuerySamples[tr.viewCount] = ocSamples;
+	node->lastQueried[tr.viewCount] = tr.frameCount;
 
 	// copy result to all nodes that were linked to this multi query node
 	sentinel = &node->multiQuery;
 	for(l = sentinel->prev; l != sentinel; l = l->prev)
 	{
+		node = (bspNode_t *) l->data;
+
 		node->occlusionQuerySamples[tr.viewCount] = ocSamples;
+		node->lastQueried[tr.viewCount] = tr.frameCount;
 	}
 }
 
@@ -1814,6 +1691,7 @@ static void PullUpVisibility(bspNode_t * node)
 			break;
 
 		parent->visible[tr.viewCount] = qtrue;
+		parent->lastVisited[tr.viewCount] = tr.frameCount;
 		parent = parent->parent;
 	} while(parent);
 }
@@ -1856,6 +1734,49 @@ static void PushNode(link_t * traversalStack, bspNode_t * node)
 	}
 }
 
+static void BuildNodeTraversalStackPost_r(bspNode_t * node)
+{
+	do
+	{
+
+#if 0
+		if((tr.frameCount != node->lastVisited[tr.viewCount]))// > r_chcMaxVisibleFrames->integer)
+		{
+			return;
+		}
+#endif
+
+		if(((tr.frameCount - node->lastQueried[tr.viewCount]) <= r_chcMaxVisibleFrames->integer))
+		{
+			node->visible[tr.viewCount] = node->occlusionQuerySamples[tr.viewCount] > r_chcVisibilityThreshold->integer;
+		}
+		else
+		{
+			node->visible[tr.viewCount] = qfalse;
+		}
+
+		if(tr.frameCount == node->lastVisited[tr.viewCount])
+		{
+			InsertLink(&node->visChain, &tr.traversalStack);
+		}
+
+		if(node->contents != -1)
+		{
+			if(node->visible[tr.viewCount])
+			{
+				PullUpVisibility(node);
+			}
+			break;
+		}
+
+		// recurse down the children, front side first
+		BuildNodeTraversalStackPost_r(node->children[0]);
+
+		// tail recurse
+		node = node->children[1];
+	} while(1);
+}
+
 static void R_CoherentHierachicalCulling()
 {
 	bspNode_t      *node;
@@ -1867,6 +1788,9 @@ static void R_CoherentHierachicalCulling()
 	link_t			invisibleQueue; // CHC++
 	link_t			renderQueue;
 	int             startTime = 0, endTime = 0;
+
+	qboolean wasVisible;
+	qboolean leafOrWasInvisible;
 
 	//ri.Cvar_Set("r_logFile", "1");
 
@@ -1994,8 +1918,6 @@ static void R_CoherentHierachicalCulling()
 
 						PullUpVisibility(node);
 						PushNode(&traversalStack, node);
-
-						//node->lastVisited[tr.viewCount] = tr.frameCount;
 					}
 				}
 				else
@@ -2017,7 +1939,6 @@ static void R_CoherentHierachicalCulling()
 					else
 					{
 						node->visible[tr.viewCount] = qfalse;
-						//node->lastVisited[tr.viewCount] = tr.frameCount;
 					}
 				}
 			}
@@ -2039,9 +1960,11 @@ static void R_CoherentHierachicalCulling()
 
 			//ri.Printf(PRINT_ALL, "<-- %i\n", node - tr.world->nodes);
 
+#if 1
 			// if the node wasn't marked as potentially visible, exit
 			if(node->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex])
 				continue;
+#endif
 
 			// don't waste time dealing with empty leaves
 			if(node->contents != -1 && !node->numMarkSurfaces)
@@ -2050,85 +1973,100 @@ static void R_CoherentHierachicalCulling()
 			if(!InsideViewFrustum(node, FRUSTUM_CLIPALL))
 				continue;
 
+
+			// identify previously visible nodes
+			/*
+			if(node->lastQueried[tr.viewCount] == tr.frameCount)
 			{
-				qboolean wasVisible;
-				qboolean leafOrWasInvisible;
+				wasVisible = node->visible[tr.viewCount];
+				//wasVisible = node->occlusionQuerySamples[tr.viewCount] > r_chcVisibilityThreshold->integer;
+				//node->visible[tr.viewCount] = wasVisible;
+			}
+			else
+			*/
+			{
+				//wasVisible = node->visible[tr.viewCount] && (node->lastVisited[tr.viewCount] == tr.frameCount -1);
+				wasVisible = node->visible[tr.viewCount] && ((tr.frameCount - node->lastVisited[tr.viewCount]) <= r_chcMaxVisibleFrames->integer);
+			}
+			//wasVisible = qtrue;
 
-				// identify previously visible nodes
-				//wasVisible = node->visible[tr.viewCount] && ((tr.frameCount - node->lastVisited[tr.viewCount]) <= r_chcMaxVisibleFrames->integer);
-				wasVisible = node->visible[tr.viewCount] && (node->lastVisited[tr.viewCount] == tr.frameCount -1);
-				//wasVisible = qtrue;
-
-				// reset node's visibility classification
-				if(BoundsIntersectPoint(node->mins, node->maxs, tr.viewParms.orientation.origin))
-				{
-					node->visible[tr.viewCount] = qtrue;
-					//node->lastVisited[tr.viewCount] = tr.frameCount;
-					wasVisible = qtrue;
-				}
-#if 1
-				else if(node->contents == -1)
-				{
-					// setting all BSP nodes to visible will traverse to all leaves
-					// this has the advantage that we can group leaf queries which will save really many occlusion queries
-					node->visible[tr.viewCount] = qtrue;
-					wasVisible = qtrue;
-				}
+			// reset node's visibility classification
+			if(BoundsIntersectPoint(node->mins, node->maxs, tr.viewParms.orientation.origin))
+			{
+				node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
+				node->lastQueried[tr.viewCount] = tr.frameCount;
+				node->visible[tr.viewCount] = qtrue;
+				wasVisible = qtrue;
+			}
+#if 0
+			else if(node->contents == -1)
+			{
+				// setting all BSP nodes to visible will traverse to all leaves
+				// this has the advantage that we can group leaf queries which will save really many occlusion queries
+				node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
+				node->lastQueried[tr.viewCount] = tr.frameCount;
+				node->visible[tr.viewCount] = qtrue;
+				wasVisible = qtrue;
+			}
 #endif
-				else
+			else
+			{
+				/*
+				if((tr.frameCount - node->lastVisited[tr.viewCount]) >= r_chcMaxVisibleFrames->integer)
+				//if((int)fabs((tr.frameCount - node->lastVisited[tr.viewCount]) * random()) >= r_chcMaxVisibleFrames->integer)
 				{
-					/*
-					if((tr.frameCount - node->lastVisited[tr.viewCount]) >= r_chcMaxVisibleFrames->integer)
-					//if((int)fabs((tr.frameCount - node->lastVisited[tr.viewCount]) * random()) >= r_chcMaxVisibleFrames->integer)
-					{
-						node->visible[tr.viewCount] = qfalse;
-						node->lastVisited[tr.viewCount] = tr.frameCount;
-					}
-					*/
+					node->visible[tr.viewCount] = qfalse;
+					node->lastVisited[tr.viewCount] = tr.frameCount;
+				}
+				*/
 
+#if 0
+				if((tr.frameCount - node->lastQueried[tr.viewCount]) >= r_chcMaxVisibleFrames->integer)
+				{
 					node->visible[tr.viewCount] = qfalse;
 				}
+#endif
+			}
 
-				// update node's visited flag
-				node->lastVisited[tr.viewCount] = tr.frameCount;
+			// update node's visited flag
+			node->lastVisited[tr.viewCount] = tr.frameCount;
 
-				// optimization
+			// optimization
 #if 0
-				if((node->contents != -1) && node->sameAABBAsParent)
-				{
-					node->visible[tr.viewCount] = qtrue;
-					wasVisible = qtrue;
-				}
+			if((node->contents != -1) && node->sameAABBAsParent)
+			{
+				node->visible[tr.viewCount] = qtrue;
+				wasVisible = qtrue;
+			}
 #endif
 
-				// identify nodes that we cannot skip queries for
-				leafOrWasInvisible = !wasVisible || (node->contents != -1);
+			// identify nodes that we cannot skip queries for
+			leafOrWasInvisible = !wasVisible || (node->contents != -1);
 
-				// skip testing previously visible interior nodes
-				if(leafOrWasInvisible)
-				//if(!wasVisible)
-				{
+			// skip testing previously visible interior nodes
+			if(leafOrWasInvisible)
+			//if(!wasVisible)
+			{
 #if 0
-					IssueOcclusionQuery(&occlusionQueryQueue, node, qtrue);
+				IssueOcclusionQuery(&occlusionQueryQueue, node, qtrue);
 #else
-					EnQueue(&invisibleQueue, node);
+				EnQueue(&invisibleQueue, node);
 
-					if(QueueSize(&invisibleQueue) >= r_chcMaxPrevInvisNodesBatchSize->integer)
-						IssueMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
+				if(QueueSize(&invisibleQueue) >= r_chcMaxPrevInvisNodesBatchSize->integer)
+					IssueMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
 #endif
-				}
-				else
-				{
+			}
+			else
+			{
 #if 0
-					if((node->contents != -1)) // && QueryReasonable(node))
-					{
-						EnQueue(&visibleQueue, node);
-					}
+				if((node->contents != -1)) // && QueryReasonable(node))
+				{
+					EnQueue(&visibleQueue, node);
+				}
 #endif
 
-					// always traverse a node if it was visible
-					PushNode(&traversalStack, node);
-				}
+				// always traverse a node if it was visible
+				PushNode(&traversalStack, node);
 			}
 		}
 		else

@@ -1985,6 +1985,7 @@ void R_AddLightInteractions()
 	trRefLight_t   *light;
 	bspNode_t     **leafs;
 	bspNode_t      *leaf;
+	link_t         *l, *sentinel;
 
 	for(i = 0; i < tr.refdef.numLights; i++)
 	{
@@ -2018,21 +2019,60 @@ void R_AddLightInteractions()
 			// ignore if not in PVS
 			if(!r_noLightVisCull->integer)
 			{
-				for(j = 0, leafs = light->leafs; j < light->numLeafs; j++, leafs++)
+				if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
 				{
-					leaf = *leafs;
+					int numVisibleLeafs = 0;
 
-					if(leaf->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
+					for(l = light->leafs.next; l != &light->leafs; l = l->next)
 					{
-						light->visCounts[tr.visIndex] = tr.visCounts[tr.visIndex];
+						if(!l || !l->data)
+						{
+							// something odd happens with the prev/next pointers if ri.Hunk_Alloc was used
+							break;
+						}
+
+						leaf = (bspNode_t *) l->data;
+
+						//ri.Printf(PRINT_ALL, "leaf %i: visible = %i, %i\n", leaf - tr.world->nodes, leaf->visible[tr.viewCount], tr.viewCount);
+
+						if(leaf->visible[tr.viewCount])
+						{
+							numVisibleLeafs++;
+						}
+					}
+
+					if(numVisibleLeafs == 0)
+					{
+						tr.pc.c_pvs_cull_light_out++;
+						light->cull = CULL_OUT;
+						continue;
 					}
 				}
-
-				if(light->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex])
+				else
 				{
-					tr.pc.c_pvs_cull_light_out++;
-					light->cull = CULL_OUT;
-					continue;
+
+					for(l = light->leafs.next; l != &light->leafs; l = l->next)
+					{
+						if(!l || !l->data)
+						{
+							// something odd happens with the prev/next pointers if ri.Hunk_Alloc was used
+							break;
+						}
+
+						leaf = (bspNode_t *) l->data;
+
+						if(leaf->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
+						{
+							light->visCounts[tr.visIndex] = tr.visCounts[tr.visIndex];
+						}
+					}
+
+					if(light->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex])
+					{
+						tr.pc.c_pvs_cull_light_out++;
+						light->cull = CULL_OUT;
+						continue;
+					}
 				}
 			}
 #endif

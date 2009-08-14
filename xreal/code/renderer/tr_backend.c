@@ -9356,7 +9356,7 @@ static void RB_RenderDebugUtils()
 					if(r_showBspNodes->integer == 2)
 						continue;
 
-					if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
+					if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorYellow);
 					else
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
@@ -9364,7 +9364,7 @@ static void RB_RenderDebugUtils()
 			}
 			else
 			{
-				if(node->lastVisited[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
+				if(r_showBspNodes->integer == 5 && node->lastQueried[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
 					continue;
 
 				if(node->contents != -1)
@@ -9372,7 +9372,8 @@ static void RB_RenderDebugUtils()
 					if(r_showBspNodes->integer == 3)
 						continue;
 
-					if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
+					//if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
+					if(node->visible[backEnd.viewParms.viewCount])
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorGreen);
 					else
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorRed);
@@ -9382,7 +9383,8 @@ static void RB_RenderDebugUtils()
 					if(r_showBspNodes->integer == 2)
 						continue;
 
-					if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
+					//if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
+					if(node->visible[backEnd.viewParms.viewCount])
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorYellow);
 					else
 						GLSL_SetUniform_Color(&tr.genericSingleShader, colorBlue);
