@@ -2035,7 +2035,7 @@ void R_AddLightInteractions()
 
 						//ri.Printf(PRINT_ALL, "leaf %i: visible = %i, %i\n", leaf - tr.world->nodes, leaf->visible[tr.viewCount], tr.viewCount);
 
-						if(leaf->visible[tr.viewCount])
+						if(leaf->visible[tr.viewCount] && (tr.frameCount - leaf->lastVisited[tr.viewCount]) <= r_chcMaxVisibleFrames->integer)
 						{
 							numVisibleLeafs++;
 						}

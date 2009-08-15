@@ -455,6 +455,13 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_ParallaxMapping\n#define r_ParallaxMapping 1\n#endif\n");
 		}
 
+		if(r_wrapAroundLighting->value)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra),
+							 va("#ifndef r_WrapAroundLighting\n#define r_WrapAroundLighting %f\n#endif\n",
+									 r_wrapAroundLighting->value));
+		}
+
 		/*
 		   if(glConfig.textureFloatAvailable)
 		   {

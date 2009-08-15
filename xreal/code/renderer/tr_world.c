@@ -1739,14 +1739,19 @@ static void BuildNodeTraversalStackPost_r(bspNode_t * node)
 	do
 	{
 
-#if 0
+#if 1
 		if((tr.frameCount != node->lastVisited[tr.viewCount]))// > r_chcMaxVisibleFrames->integer)
 		{
 			return;
 		}
 #endif
 
-		if(((tr.frameCount - node->lastQueried[tr.viewCount]) <= r_chcMaxVisibleFrames->integer))
+#if 0
+		if((tr.frameCount - node->lastQueried[tr.viewCount]) <= r_chcMaxVisibleFrames->integer)
+#else
+		// if r_chcMaxVisibleFrames 10 then range from 5 to 10
+		if((tr.frameCount - node->lastQueried[tr.viewCount]) <= Q_min((int)ceil((r_chcMaxVisibleFrames->value * 0.5f) + (r_chcMaxVisibleFrames->value * 0.5f) * random()), r_chcMaxVisibleFrames->integer))
+#endif
 		{
 			node->visible[tr.viewCount] = node->occlusionQuerySamples[tr.viewCount] > r_chcVisibilityThreshold->integer;
 		}
@@ -1789,8 +1794,8 @@ static void R_CoherentHierachicalCulling()
 	link_t			renderQueue;
 	int             startTime = 0, endTime = 0;
 
-	qboolean wasVisible;
-	qboolean leafOrWasInvisible;
+	qboolean		wasVisible;
+	qboolean		needsQuery;
 
 	//ri.Cvar_Set("r_logFile", "1");
 
@@ -1975,20 +1980,9 @@ static void R_CoherentHierachicalCulling()
 
 
 			// identify previously visible nodes
-			/*
-			if(node->lastQueried[tr.viewCount] == tr.frameCount)
-			{
-				wasVisible = node->visible[tr.viewCount];
-				//wasVisible = node->occlusionQuerySamples[tr.viewCount] > r_chcVisibilityThreshold->integer;
-				//node->visible[tr.viewCount] = wasVisible;
-			}
-			else
-			*/
-			{
-				//wasVisible = node->visible[tr.viewCount] && (node->lastVisited[tr.viewCount] == tr.frameCount -1);
-				wasVisible = node->visible[tr.viewCount] && ((tr.frameCount - node->lastVisited[tr.viewCount]) <= r_chcMaxVisibleFrames->integer);
-			}
-			//wasVisible = qtrue;
+			wasVisible = node->visible[tr.viewCount] && ((tr.frameCount - node->lastVisited[tr.viewCount]) <= r_chcMaxVisibleFrames->integer);
+
+			// identify nodes that we cannot skip queries for
 
 			// reset node's visibility classification
 			if(BoundsIntersectPoint(node->mins, node->maxs, tr.viewParms.orientation.origin))
@@ -1996,36 +1990,36 @@ static void R_CoherentHierachicalCulling()
 				node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
 				node->lastQueried[tr.viewCount] = tr.frameCount;
 				node->visible[tr.viewCount] = qtrue;
-				wasVisible = qtrue;
+
+				needsQuery = qfalse;
 			}
-#if 0
-			else if(node->contents == -1)
+			else if(r_dynamicBspOcclusionCulling->integer == 2 && node->contents == -1)
 			{
 				// setting all BSP nodes to visible will traverse to all leaves
 				// this has the advantage that we can group leaf queries which will save really many occlusion queries
 				node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
 				node->lastQueried[tr.viewCount] = tr.frameCount;
 				node->visible[tr.viewCount] = qtrue;
-				wasVisible = qtrue;
+
+				needsQuery = qfalse;
 			}
-#endif
+			else if(r_dynamicBspOcclusionCulling->integer == 1 && node->contents != -1)
+			{
+				// NOTE: this is the fastest dynamic occlusion culling path
+
+				// only very few leaves are invisible if we don't traverse through all bsp nodes
+				// so testing these leaves just causes additional occlusion queries which can be avoided
+				// by setting all reached leaves to visible
+				node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
+				node->lastQueried[tr.viewCount] = tr.frameCount;
+				node->visible[tr.viewCount] = qtrue;
+
+				needsQuery = qfalse;
+			}
 			else
 			{
-				/*
-				if((tr.frameCount - node->lastVisited[tr.viewCount]) >= r_chcMaxVisibleFrames->integer)
-				//if((int)fabs((tr.frameCount - node->lastVisited[tr.viewCount]) * random()) >= r_chcMaxVisibleFrames->integer)
-				{
-					node->visible[tr.viewCount] = qfalse;
-					node->lastVisited[tr.viewCount] = tr.frameCount;
-				}
-				*/
-
-#if 0
-				if((tr.frameCount - node->lastQueried[tr.viewCount]) >= r_chcMaxVisibleFrames->integer)
-				{
-					node->visible[tr.viewCount] = qfalse;
-				}
-#endif
+				// CHC default
+				needsQuery = !wasVisible || (node->contents != -1);
 			}
 
 			// update node's visited flag
@@ -2040,12 +2034,8 @@ static void R_CoherentHierachicalCulling()
 			}
 #endif
 
-			// identify nodes that we cannot skip queries for
-			leafOrWasInvisible = !wasVisible || (node->contents != -1);
 
-			// skip testing previously visible interior nodes
-			if(leafOrWasInvisible)
-			//if(!wasVisible)
+			if(needsQuery)
 			{
 #if 0
 				IssueOcclusionQuery(&occlusionQueryQueue, node, qtrue);

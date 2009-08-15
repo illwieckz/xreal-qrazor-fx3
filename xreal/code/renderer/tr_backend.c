@@ -9364,6 +9364,9 @@ static void RB_RenderDebugUtils()
 			}
 			else
 			{
+				if(node->lastVisited[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
+					continue;
+
 				if(r_showBspNodes->integer == 5 && node->lastQueried[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
 					continue;
 
