@@ -3497,6 +3497,10 @@ void            R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t norma
 								   const vec3_t v0, const vec3_t v1, const vec3_t v2,
 								   const vec2_t t0, const vec2_t t1, const vec2_t t2);
 
+void            R_CalcTangentSpaceFast(vec3_t tangent, vec3_t binormal, vec3_t normal,
+								   const vec3_t v0, const vec3_t v1, const vec3_t v2,
+								   const vec2_t t0, const vec2_t t1, const vec2_t t2);
+
 void            R_CalcTangentSpace2(vec3_t tangent, vec3_t binormal, vec3_t normal,
 									const vec3_t v0, const vec3_t v1, const vec3_t v2,
 									const vec2_t t0, const vec2_t t1, const vec2_t t2);

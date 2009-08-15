@@ -183,6 +183,70 @@ void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 		binormal[2] = -cp[2] / cp[0];
 	}
 
+	VectorNormalize(tangent);
+	VectorNormalize(binormal);
+
+	// normal...
+	// compute the cross product TxB
+	CrossProduct(tangent, binormal, normal);
+	VectorNormalize(normal);
+
+	// Gram-Schmidt orthogonalization process for B
+	// compute the cross product B=NxT to obtain
+	// an orthogonal basis
+	CrossProduct(normal, tangent, binormal);
+
+	// compute the face normal based on vertex points
+	VectorSubtract(v2, v0, e0);
+	VectorSubtract(v1, v0, e1);
+	CrossProduct(e0, e1, faceNormal);
+
+	VectorNormalize(faceNormal);
+
+	if(DotProduct(normal, faceNormal) < 0)
+	{
+		VectorInverse(normal);
+		//VectorInverse(tangent);
+		//VectorInverse(binormal);
+	}
+}
+
+void R_CalcTangentSpaceFast(vec3_t tangent, vec3_t binormal, vec3_t normal,
+						const vec3_t v0, const vec3_t v1, const vec3_t v2, const vec2_t t0, const vec2_t t1, const vec2_t t2)
+{
+	vec3_t          cp, e0, e1;
+	vec3_t          faceNormal;
+
+	VectorSet(e0, v1[0] - v0[0], t1[0] - t0[0], t1[1] - t0[1]);
+	VectorSet(e1, v2[0] - v0[0], t2[0] - t0[0], t2[1] - t0[1]);
+
+	CrossProduct(e0, e1, cp);
+	if(fabs(cp[0]) > 10e-6)
+	{
+		tangent[0] = -cp[1] / cp[0];
+		binormal[0] = -cp[2] / cp[0];
+	}
+
+	e0[0] = v1[1] - v0[1];
+	e1[0] = v2[1] - v0[1];
+
+	CrossProduct(e0, e1, cp);
+	if(fabs(cp[0]) > 10e-6)
+	{
+		tangent[1] = -cp[1] / cp[0];
+		binormal[1] = -cp[2] / cp[0];
+	}
+
+	e0[0] = v1[2] - v0[2];
+	e1[0] = v2[2] - v0[2];
+
+	CrossProduct(e0, e1, cp);
+	if(fabs(cp[0]) > 10e-6)
+	{
+		tangent[2] = -cp[1] / cp[0];
+		binormal[2] = -cp[2] / cp[0];
+	}
+
 	VectorNormalizeFast(tangent);
 	VectorNormalizeFast(binormal);
 

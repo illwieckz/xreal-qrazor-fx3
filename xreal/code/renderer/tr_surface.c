@@ -826,7 +826,7 @@ static void Tess_SurfacePolychain(srfPoly_t * p)
 			t1 = tess.texCoords[indices[1]];
 			t2 = tess.texCoords[indices[2]];
 
-			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
+			R_CalcTangentSpaceFast(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
 
 			for(j = 0; j < 3; j++)
 			{
@@ -2121,7 +2121,7 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf)
 				t1 = tess.texCoords[indices[1]];
 				t2 = tess.texCoords[indices[2]];
 
-				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
+				R_CalcTangentSpaceFast(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
 
 				for(j = 0; j < 3; j++)
 				{
