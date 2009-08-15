@@ -2365,6 +2365,7 @@ static void RB_RenderInteractionsShadowMapped()
 						}
 
 						case RL_PROJ:
+						case RL_DIRECTIONAL:
 						{
 							// TODO LiSPSM
 
@@ -2495,6 +2496,7 @@ static void RB_RenderInteractionsShadowMapped()
 			{
 				case RL_OMNI:
 				case RL_PROJ:
+				case RL_DIRECTIONAL:
 				{
 					if(light == oldLight && entity == oldEntity && (alphaTest ? shader == oldShader : alphaTest == oldAlphaTest))
 					{
@@ -2689,6 +2691,7 @@ static void RB_RenderInteractionsShadowMapped()
 			{
 				case RL_OMNI:
 				case RL_PROJ:
+				//case RL_DIRECTIONAL:
 				{
 					// add the triangles for this surface
 					rb_surfaceTable[*surface] (surface);
@@ -2752,6 +2755,7 @@ static void RB_RenderInteractionsShadowMapped()
 					}
 
 					case RL_PROJ:
+					case RL_DIRECTIONAL:
 					{
 						// jump back to first interaction of this light and start lighting
 						ia = &backEnd.viewParms.interactions[iaFirst];
@@ -3946,6 +3950,26 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 							break;
 						}
 
+						case RL_DIRECTIONAL:
+						{
+							GLimp_LogComment("--- Rendering directional shadowMap ---\n");
+
+							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
+							if(!r_ignoreGLErrors->integer)
+							{
+								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
+							}
+
+							// set the window clipping
+							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+
+							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+							GL_LoadProjectionMatrix(light->projectionMatrix);
+							break;
+						}
+
 						default:
 							break;
 					}
@@ -4567,9 +4591,83 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 							Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 						}
 					}
-					else
+					else if(light->l.rlType == RL_DIRECTIONAL)
 					{
-						// TODO
+						// enable shader, set arrays
+						GL_BindProgram(&tr.deferredLightingShader_DBS_directional);
+
+						// set OpenGL state for additive lighting
+						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE | GLS_STENCILTEST_ENABLE);
+
+						GL_Cull(CT_TWO_SIDED);
+
+						// set uniforms
+						VectorCopy(light->origin, lightOrigin);
+						VectorCopy(tess.svars.color, lightColor);
+						shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
+
+						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_directional, viewOrigin);
+
+						//if(VectorLength(light->))
+						GLSL_SetUniform_LightDir(&tr.deferredLightingShader_DBS_directional, tr.sunDirection);
+
+						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_directional, lightColor);
+						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_directional, light->sphereRadius);
+						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_directional, light->l.scale);
+						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_directional, light->attenuationMatrix2);
+
+						GLSL_SetUniform_ShadowMatrix(&tr.deferredLightingShader_DBS_directional, light->attenuationMatrix);
+						GLSL_SetUniform_ShadowCompare(&tr.deferredLightingShader_DBS_directional, shadowCompare);
+
+						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_directional, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_directional, backEnd.viewParms.unprojectionMatrix);
+
+						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_directional, backEnd.viewParms.isPortal);
+						if(backEnd.viewParms.isPortal)
+						{
+							float           plane[4];
+
+							// clipping plane in world space
+							plane[0] = backEnd.viewParms.portalPlane.normal[0];
+							plane[1] = backEnd.viewParms.portalPlane.normal[1];
+							plane[2] = backEnd.viewParms.portalPlane.normal[2];
+							plane[3] = backEnd.viewParms.portalPlane.dist;
+
+							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_directional, plane);
+						}
+
+						if(DS_STANDARD_ENABLED())
+						{
+							// bind u_DiffuseMap
+							GL_SelectTexture(0);
+							GL_Bind(tr.deferredDiffuseFBOImage);
+						}
+
+						// bind u_NormalMap
+						GL_SelectTexture(1);
+						GL_Bind(tr.deferredNormalFBOImage);
+
+						if(DS_STANDARD_ENABLED() && r_normalMapping->integer)
+						{
+							// bind u_SpecularMap
+							GL_SelectTexture(2);
+							GL_Bind(tr.deferredSpecularFBOImage);
+						}
+
+						// bind u_DepthMap
+						GL_SelectTexture(3);
+						GL_Bind(tr.depthRenderImage);
+
+						// bind u_AttenuationMapXY
+						GL_SelectTexture(4);
+						BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+
+						// bind u_AttenuationMapZ
+						GL_SelectTexture(5);
+						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+
+						// draw lighting with a fullscreen quad
+						Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 					}
 
 					// end of lighting
@@ -4620,6 +4718,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 			{
 				case RL_OMNI:
 				case RL_PROJ:
+				case RL_DIRECTIONAL:
 				{
 					if(light == oldLight && entity == oldEntity && (alphaTest ? shader == oldShader : alphaTest == oldAlphaTest))
 					{
@@ -4735,6 +4834,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 			{
 				case RL_OMNI:
 				case RL_PROJ:
+				//case RL_DIRECTIONAL:
 				{
 					// add the triangles for this surface
 					rb_surfaceTable[*surface] (surface);
@@ -4798,6 +4898,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 					}
 
 					case RL_PROJ:
+					case RL_DIRECTIONAL:
 					{
 						// jump back to first interaction of this light and start lighting
 						ia = &backEnd.viewParms.interactions[iaFirst];
@@ -8918,7 +9019,7 @@ static void RB_RenderView(void)
 			RB_RenderInteractionsShadowMapped();
 
 			// render player shadows if any
-			RB_RenderInteractionsDeferredInverseShadows();
+			//RB_RenderInteractionsDeferredInverseShadows();
 		}
 		else if(r_shadows->integer == 3)
 		{
