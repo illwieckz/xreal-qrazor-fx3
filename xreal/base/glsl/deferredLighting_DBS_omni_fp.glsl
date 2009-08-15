@@ -33,9 +33,6 @@ uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform mat4		u_LightAttenuationMatrix;
-#if !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
-uniform vec4		u_LightFrustum[6];
-#endif
 uniform int			u_ShadowCompare;
 uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
@@ -76,21 +73,6 @@ void	main()
 		// position is outside of light volume
 		discard;
 		return;
-	}
-#endif
-
-#if !defined(r_DeferredLighting) && !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
-	// make sure that the vertex position is inside the light frustum
-	for(int i = 0; i < 6; ++i)
-	{
-		vec4 plane = u_LightFrustum[i];
-
-		float dist = dot(P.xyz, plane.xyz) - plane.w;
-		if(dist < 0.0)
-		{
-			discard;
-			return;
-		}
 	}
 #endif
 
@@ -143,6 +125,7 @@ void	main()
 	if(shadow <= 0.0)
 	{
 		discard;
+		return;
 	}
 	else
 #elif defined(ESM)
@@ -173,6 +156,7 @@ void	main()
 	if(shadow <= 0.0)
 	{
 		discard;
+		return;
 	}
 	else
 #endif
@@ -220,7 +204,11 @@ void	main()
 		vec4 color = diffuse;
 #endif
 
+#if 0 //defined(r_WrapAroundLighting)
+		float NL = clamp(dot(N, L) + r_WrapAroundLighting, 0.0, 1.0) / clamp(1.0 + r_WrapAroundLighting, 0.0, 1.0);
+#else
 		float NL = clamp(dot(N, L), 0.0, 1.0);
+#endif
 		color.rgb *= u_LightColor * NL;
 		
 		// compute attenuation

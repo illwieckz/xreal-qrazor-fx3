@@ -192,7 +192,13 @@ void	main()
 	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 	
 	// compute the light term
-	vec3 light = u_AmbientColor + u_LightColor * clamp(dot(N, L), 0.0, 1.0);
+#if defined(r_WrapAroundLighting)
+	float NL = clamp(dot(N, L) + r_WrapAroundLighting, 0.0, 1.0) / clamp(1.0 + r_WrapAroundLighting, 0.0, 1.0);
+#else
+	float NL = clamp(dot(N, L), 0.0, 1.0);
+#endif
+	
+	vec3 light = u_AmbientColor + u_LightColor * NL;
 	clamp(light, 0.0, 1.0);
 	
 	// compute final color

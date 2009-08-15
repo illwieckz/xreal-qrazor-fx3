@@ -1815,7 +1815,19 @@ static void R_CoherentHierachicalCulling()
 		startTime = ri.Milliseconds();
 	}
 
-	if(DS_STANDARD_ENABLED() || DS_PREPASS_LIGHTING_ENABLED() || HDR_ENABLED())
+	if(DS_STANDARD_ENABLED())
+	{
+		R_BindFBO(tr.deferredRenderFBO);
+	}
+	else if(DS_PREPASS_LIGHTING_ENABLED())
+	{
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+		R_BindFBO(tr.deferredRenderFBO);
+#else
+		R_BindNullFBO();
+#endif
+	}
+	else if(HDR_ENABLED())
 	{
 		R_BindFBO(tr.deferredRenderFBO);
 	}
@@ -2089,6 +2101,9 @@ static void R_CoherentHierachicalCulling()
 	BuildNodeTraversalStackPost_r(&tr.world->nodes[0]);
 
 	R_BindNullFBO();
+
+	// reenable color buffer and depth buffer writes
+	GL_State(GLS_DEFAULT);
 
 	GL_CheckErrors();
 

@@ -33,9 +33,6 @@ uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform mat4		u_LightAttenuationMatrix;
-#if !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
-uniform vec4		u_LightFrustum[6];
-#endif
 uniform mat4		u_ShadowMatrix;
 uniform int			u_ShadowCompare;
 uniform int         u_PortalClipping;
@@ -73,21 +70,6 @@ void	main()
 		discard;
 		return;
 	}
-	
-#if !defined(r_DeferredLighting) && !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
-	// make sure that the vertex position is inside the light frustum
-	for(int i = 0; i < 6; ++i)
-	{
-		vec4 plane = u_LightFrustum[i];
-
-		float dist = dot(P.xyz, plane.xyz) - plane.w;
-		if(dist < 0.0)
-		{
-			discard;
-			return;
-		}
-	}
-#endif
 
 	float shadow = 1.0;
 	

@@ -136,6 +136,7 @@ void	main()
 	if(var_TexAtten.q <= 0.0)
 	{
 		discard;
+		return;
 	}
 	
 #if defined(VSM)
@@ -250,6 +251,7 @@ void	main()
 	if(shadow <= 0.0)
 	{
 		discard;
+		return;
 	}
 	else
 #elif defined(ESM)
@@ -301,6 +303,7 @@ void	main()
 	if(shadow <= 0.0)
 	{
 		discard;
+		return;
 	}
 	else
 #endif

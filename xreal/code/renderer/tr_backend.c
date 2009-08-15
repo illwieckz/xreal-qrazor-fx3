@@ -1362,7 +1362,6 @@ static void Render_lightVolume(interaction_t * ia)
 			GLSL_SetUniform_LightRadius(&tr.lightVolumeShader_omni, light->sphereRadius);
 			GLSL_SetUniform_LightScale(&tr.lightVolumeShader_omni, light->l.scale);
 			GLSL_SetUniform_LightAttenuationMatrix(&tr.lightVolumeShader_omni, light->attenuationMatrix2);
-			//qglUniform4fvARB(tr.lightVolumeShader_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 
 			GLSL_SetUniform_ShadowMatrix(&tr.lightVolumeShader_omni, light->attenuationMatrix);
 			GLSL_SetUniform_ShadowCompare(&tr.lightVolumeShader_omni, shadowCompare);
@@ -2963,7 +2962,9 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 	}
 }
 
-void RB_RenderInteractionsDeferredIntoLightBuffer()
+
+
+void RB_RenderInteractionsDeferred()
 {
 	interaction_t  *ia;
 	int             iaCount;
@@ -2979,7 +2980,7 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 	vec4_t          quadVerts[4];
 	int             startTime = 0, endTime = 0;
 
-	GLimp_LogComment("--- RB_RenderInteractionsDeferredIntoLightBuffer ---\n");
+	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
 
 	if(r_skipLightBuffer->integer)
 		return;
@@ -3000,24 +3001,31 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 
+	if(DS_PREPASS_LIGHTING_ENABLED())
+	{
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
-	R_BindFBO(tr.lightRenderFBO);
+		R_BindFBO(tr.lightRenderFBO);
 #else
-	R_BindNullFBO();
+		R_BindNullFBO();
 
-	// update normal render image
-	GL_SelectTexture(0);
-	GL_Bind(tr.deferredNormalFBOImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.deferredNormalFBOImage->uploadWidth, tr.deferredNormalFBOImage->uploadHeight);
+		// update normal render image
+		GL_SelectTexture(0);
+		GL_Bind(tr.deferredNormalFBOImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.deferredNormalFBOImage->uploadWidth, tr.deferredNormalFBOImage->uploadHeight);
 
-	// update depth render image
-	GL_SelectTexture(1);
-	GL_Bind(tr.depthRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+		// update depth render image
+		GL_SelectTexture(1);
+		GL_Bind(tr.depthRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 #endif
 
-	GL_ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	qglClear(GL_COLOR_BUFFER_BIT);
+		GL_ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		qglClear(GL_COLOR_BUFFER_BIT);
+	}
+	else
+	{
+		R_BindFBO(tr.deferredRenderFBO);
+	}
 
 	// update uniforms
 	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
@@ -3420,9 +3428,23 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_omni, plane);
 						}
 
+						if(DS_STANDARD_ENABLED())
+						{
+							// bind u_DiffuseMap
+							GL_SelectTexture(0);
+							GL_Bind(tr.deferredDiffuseFBOImage);
+						}
+
 						// bind u_NormalMap
 						GL_SelectTexture(1);
 						GL_Bind(tr.deferredNormalFBOImage);
+
+						if(DS_STANDARD_ENABLED() && r_normalMapping->integer)
+						{
+							// bind u_SpecularMap
+							GL_SelectTexture(2);
+							GL_Bind(tr.deferredSpecularFBOImage);
+						}
 
 						// bind u_DepthMap
 						GL_SelectTexture(3);
@@ -3538,9 +3560,23 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_directional, plane);
 						}
 
+						if(DS_STANDARD_ENABLED())
+						{
+							// bind u_DiffuseMap
+							GL_SelectTexture(0);
+							GL_Bind(tr.deferredDiffuseFBOImage);
+						}
+
 						// bind u_NormalMap
 						GL_SelectTexture(1);
 						GL_Bind(tr.deferredNormalFBOImage);
+
+						if(DS_STANDARD_ENABLED() && r_normalMapping->integer)
+						{
+							// bind u_SpecularMap
+							GL_SelectTexture(2);
+							GL_Bind(tr.deferredSpecularFBOImage);
+						}
 
 						// bind u_DepthMap
 						GL_SelectTexture(3);
@@ -3602,7 +3638,8 @@ void RB_RenderInteractionsDeferredIntoLightBuffer()
 	}
 }
 
-static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
+
+static void RB_RenderInteractionsDeferredShadowMapped()
 {
 	interaction_t  *ia;
 	int             iaCount;
@@ -3623,14 +3660,12 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
-	vec4_t          lightFrustum[6];
-	cplane_t       *frust;
 	qboolean        shadowCompare;
 	matrix_t        ortho;
 	vec4_t          quadVerts[4];
 	int             startTime = 0, endTime = 0;
 
-	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer ---\n");
+	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
 
 	if(r_skipLightBuffer->integer)
 		return;
@@ -3659,24 +3694,31 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 
+if(DS_PREPASS_LIGHTING_ENABLED())
+	{
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
-	R_BindFBO(tr.lightRenderFBO);
+		R_BindFBO(tr.lightRenderFBO);
 #else
-	R_BindNullFBO();
+		R_BindNullFBO();
 
-	// update normal render image
-	GL_SelectTexture(0);
-	GL_Bind(tr.deferredNormalFBOImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.deferredNormalFBOImage->uploadWidth, tr.deferredNormalFBOImage->uploadHeight);
+		// update normal render image
+		GL_SelectTexture(0);
+		GL_Bind(tr.deferredNormalFBOImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.deferredNormalFBOImage->uploadWidth, tr.deferredNormalFBOImage->uploadHeight);
 
-	// update depth render image
-	GL_SelectTexture(1);
-	GL_Bind(tr.depthRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+		// update depth render image
+		GL_SelectTexture(1);
+		GL_Bind(tr.depthRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 #endif
 
-	GL_ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	qglClear(GL_COLOR_BUFFER_BIT);
+		GL_ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		qglClear(GL_COLOR_BUFFER_BIT);
+	}
+	else
+	{
+		R_BindFBO(tr.deferredRenderFBO);
+	}
 
 	// if we need to clear the FBO color buffers then it should be white
 	GL_ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -3928,12 +3970,18 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 				}
 
 				// finally draw light
+				if(DS_PREPASS_LIGHTING_ENABLED())
+				{
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
-				R_BindFBO(tr.lightRenderFBO);
-
+					R_BindFBO(tr.lightRenderFBO);
 #else
-				R_BindNullFBO();
+					R_BindNullFBO();
 #endif
+				}
+				else
+				{
+					R_BindFBO(tr.deferredRenderFBO);
+				}
 
 				GLimp_LogComment("--- Rendering light volume ---\n");
 
@@ -4209,7 +4257,6 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 
 				qglStencilFunc(GL_NOTEQUAL, 128, 255);
 
-
 				if(qglActiveStencilFaceEXT)
 				{
 					qglActiveStencilFaceEXT(GL_BACK);
@@ -4258,15 +4305,6 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 
 				// update uniforms
 				VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
-
-				// copy frustum planes for pixel shader
-				for(i = 0; i < 6; i++)
-				{
-					frust = &light->frustum[i];
-
-					VectorCopy(frust->normal, lightFrustum[i]);
-					lightFrustum[i][3] = frust->dist;
-				}
 
 				// set 2D virtual screen size
 				GL_PushMatrix();
@@ -4324,7 +4362,7 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_omni, light->sphereRadius);
 						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_omni, light->l.scale);
 						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_omni, light->attenuationMatrix2);
-						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
+
 						GLSL_SetUniform_ShadowCompare(&tr.deferredLightingShader_DBS_omni, shadowCompare);
 
 						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_omni, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -4344,9 +4382,23 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_omni, plane);
 						}
 
+						if(DS_STANDARD_ENABLED())
+						{
+							// bind u_DiffuseMap
+							GL_SelectTexture(0);
+							GL_Bind(tr.deferredDiffuseFBOImage);
+						}
+
 						// bind u_NormalMap
 						GL_SelectTexture(1);
 						GL_Bind(tr.deferredNormalFBOImage);
+
+						if(DS_STANDARD_ENABLED() && r_normalMapping->integer)
+						{
+							// bind u_SpecularMap
+							GL_SelectTexture(2);
+							GL_Bind(tr.deferredSpecularFBOImage);
+						}
 
 						// bind u_DepthMap
 						GL_SelectTexture(3);
@@ -4390,7 +4442,6 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 							GLSL_SetUniform_LightColor(&tr.deferredShadowingShader_proj, lightColor);
 							GLSL_SetUniform_LightRadius(&tr.deferredShadowingShader_proj, light->sphereRadius);
 							GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix2);
-							qglUniform4fvARB(tr.deferredShadowingShader_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
 
 							GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix);
 							GLSL_SetUniform_ShadowCompare(&tr.deferredShadowingShader_proj, shadowCompare);
@@ -4454,7 +4505,6 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 							GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_proj, light->sphereRadius);
 							GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_proj, light->l.scale);
 							GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix2);
-							qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
 
 							GLSL_SetUniform_ShadowMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix);
 							GLSL_SetUniform_ShadowCompare(&tr.deferredLightingShader_DBS_proj, shadowCompare);
@@ -4476,9 +4526,23 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 								GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_proj, plane);
 							}
 
+							if(DS_STANDARD_ENABLED())
+							{
+								// bind u_DiffuseMap
+								GL_SelectTexture(0);
+								GL_Bind(tr.deferredDiffuseFBOImage);
+							}
+
 							// bind u_NormalMap
 							GL_SelectTexture(1);
 							GL_Bind(tr.deferredNormalFBOImage);
+
+							if(DS_STANDARD_ENABLED() && r_normalMapping->integer)
+							{
+								// bind u_SpecularMap
+								GL_SelectTexture(2);
+								GL_Bind(tr.deferredSpecularFBOImage);
+							}
 
 							// bind u_DepthMap
 							GL_SelectTexture(3);
@@ -4808,1269 +4872,6 @@ static void RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer()
 	}
 }
 
-void RB_RenderInteractionsDeferred()
-{
-	interaction_t  *ia;
-	int             iaCount;
-	trRefLight_t   *light, *oldLight = NULL;
-	shader_t       *lightShader;
-	shaderStage_t  *attenuationXYStage;
-	shaderStage_t  *attenuationZStage;
-	int             i, j;
-	vec3_t          viewOrigin;
-	vec3_t          lightOrigin;
-	vec4_t          lightColor;
-	vec4_t          lightFrustum[6];
-	cplane_t       *frust;
-	matrix_t        ortho;
-	vec4_t          quadVerts[4];
-	int             startTime = 0, endTime = 0;
-
-	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
-
-	if(r_speeds->integer == 9)
-	{
-		qglFinish();
-		startTime = ri.Milliseconds();
-	}
-
-	R_BindFBO(tr.deferredRenderFBO);
-
-	// update uniforms
-	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
-
-	// set 2D virtual screen size
-	GL_PushMatrix();
-	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
-									-99999, 99999);
-	GL_LoadProjectionMatrix(ortho);
-	GL_LoadModelViewMatrix(matrixIdentity);
-
-	// update depth render image
-	GL_SelectTexture(1);
-	GL_Bind(tr.depthRenderImage);
-	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
-
-	// loop trough all light interactions and render the light quad for each last interaction
-	for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
-	{
-		backEnd.currentLight = light = ia->light;
-
-		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
-		{
-			// skip all interactions of this light because it failed the occlusion query
-			goto skipInteraction;
-		}
-
-		if(light != oldLight)
-		{
-			// set light scissor to reduce fillrate
-			GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
-
-			GL_CheckErrors();
-
-			// build world to light space matrix
-			switch (light->l.rlType)
-			{
-				case RL_OMNI:
-				{
-					// build the attenuation matrix
-					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
-					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
-					MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
-					break;
-				}
-
-				case RL_PROJ:
-				{
-					// build the attenuation matrix
-					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, Q_min(light->falloffLength, 1.0));	// scale
-					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
-					MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
-					break;
-				}
-
-				default:
-					break;
-			}
-
-			// copy frustum planes for pixel shader
-			for(i = 0; i < 6; i++)
-			{
-				frust = &light->frustum[i];
-
-				VectorCopy(frust->normal, lightFrustum[i]);
-				lightFrustum[i][3] = frust->dist;
-			}
-		}
-
-	  skipInteraction:
-		if(!ia->next)
-		{
-			if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && ia->occlusionQuerySamples)
-			{
-				// last interaction of current light
-				lightShader = light->shader;
-				attenuationZStage = lightShader->stages[0];
-
-				for(j = 1; j < MAX_SHADER_STAGES; j++)
-				{
-					attenuationXYStage = lightShader->stages[j];
-
-					if(!attenuationXYStage)
-					{
-						break;
-					}
-
-					if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
-					{
-						continue;
-					}
-
-					if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
-					{
-						continue;
-					}
-
-					Tess_ComputeColor(attenuationXYStage);
-					R_ComputeFinalAttenuation(attenuationXYStage, light);
-
-					if(light->l.rlType == RL_OMNI)
-					{
-						// enable shader, set arrays
-						GL_BindProgram(&tr.deferredLightingShader_DBS_omni);
-
-						// set OpenGL state for additive lighting
-						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-
-						GL_Cull(CT_TWO_SIDED);
-
-						// set uniforms
-						VectorCopy(light->origin, lightOrigin);
-						VectorCopy(tess.svars.color, lightColor);
-
-
-						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_omni, viewOrigin);
-						GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_omni, lightOrigin);
-						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_omni, lightColor);
-						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_omni, light->sphereRadius);
-						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_omni, light->l.scale);
-						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_omni, light->attenuationMatrix2);
-						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
-
-						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_omni, glState.modelViewProjectionMatrix[glState.stackIndex]);
-						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.unprojectionMatrix);
-
-						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.isPortal);
-						if(backEnd.viewParms.isPortal)
-						{
-							float           plane[4];
-
-							// clipping plane in world space
-							plane[0] = backEnd.viewParms.portalPlane.normal[0];
-							plane[1] = backEnd.viewParms.portalPlane.normal[1];
-							plane[2] = backEnd.viewParms.portalPlane.normal[2];
-							plane[3] = backEnd.viewParms.portalPlane.dist;
-
-							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_omni, plane);
-						}
-
-						// bind u_DiffuseMap
-						GL_SelectTexture(0);
-						GL_Bind(tr.deferredDiffuseFBOImage);
-
-						// bind u_NormalMap
-						GL_SelectTexture(1);
-						GL_Bind(tr.deferredNormalFBOImage);
-
-						if(r_normalMapping->integer)
-						{
-							// bind u_SpecularMap
-							GL_SelectTexture(2);
-							GL_Bind(tr.deferredSpecularFBOImage);
-						}
-
-						// bind u_DepthMap
-						GL_SelectTexture(3);
-						GL_Bind(tr.depthRenderImage);
-
-						// bind u_AttenuationMapXY
-						GL_SelectTexture(4);
-						BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-
-						// bind u_AttenuationMapZ
-						GL_SelectTexture(5);
-						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-
-						// draw lighting
-						VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
-						VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-						VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						Tess_InstantQuad(quadVerts);
-					}
-					else if(light->l.rlType == RL_PROJ)
-					{
-						// enable shader, set arrays
-						GL_BindProgram(&tr.deferredLightingShader_DBS_proj);
-
-						// set OpenGL state for additive lighting
-						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-
-						GL_Cull(CT_TWO_SIDED);
-
-						// set uniforms
-						VectorCopy(light->origin, lightOrigin);
-						VectorCopy(tess.svars.color, lightColor);
-
-						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_proj, viewOrigin);
-						GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_proj, lightOrigin);
-						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_proj, lightColor);
-						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_proj, light->sphereRadius);
-						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_proj, light->l.scale);
-						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix2);
-						qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-
-						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
-						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.unprojectionMatrix);
-
-						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.isPortal);
-						if(backEnd.viewParms.isPortal)
-						{
-							float           plane[4];
-
-							// clipping plane in world space
-							plane[0] = backEnd.viewParms.portalPlane.normal[0];
-							plane[1] = backEnd.viewParms.portalPlane.normal[1];
-							plane[2] = backEnd.viewParms.portalPlane.normal[2];
-							plane[3] = backEnd.viewParms.portalPlane.dist;
-
-							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_proj, plane);
-						}
-
-						// bind u_DiffuseMap
-						GL_SelectTexture(0);
-						GL_Bind(tr.deferredDiffuseFBOImage);
-
-						// bind u_NormalMap
-						GL_SelectTexture(1);
-						GL_Bind(tr.deferredNormalFBOImage);
-
-						if(r_normalMapping->integer)
-						{
-							// bind u_SpecularMap
-							GL_SelectTexture(2);
-							GL_Bind(tr.deferredSpecularFBOImage);
-						}
-
-						// bind u_DepthMap
-						GL_SelectTexture(3);
-						GL_Bind(tr.depthRenderImage);
-
-						// bind u_AttenuationMapXY
-						GL_SelectTexture(4);
-						BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-
-						// bind u_AttenuationMapZ
-						GL_SelectTexture(5);
-						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-
-						// draw lighting
-						VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
-						VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-						VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						Tess_InstantQuad(quadVerts);
-					}
-					else
-					{
-						// TODO
-					}
-				}
-			}
-
-			if(iaCount < (backEnd.viewParms.numInteractions - 1))
-			{
-				// jump to next interaction and continue
-				ia++;
-				iaCount++;
-			}
-			else
-			{
-				// increase last time to leave for loop
-				iaCount++;
-			}
-		}
-		else
-		{
-			// just continue
-			ia = ia->next;
-			iaCount++;
-		}
-
-		oldLight = light;
-	}
-
-	GL_PopMatrix();
-
-	// go back to the world modelview matrix
-	backEnd.orientation = backEnd.viewParms.world;
-	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
-
-	// reset scissor
-	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-
-	GL_CheckErrors();
-
-	if(r_speeds->integer == 9)
-	{
-		qglFinish();
-		endTime = ri.Milliseconds();
-		backEnd.pc.c_deferredLightingTime = endTime - startTime;
-	}
-}
-
-static void RB_RenderInteractionsDeferredShadowMapped()
-{
-	interaction_t  *ia;
-	int             iaCount;
-	int             iaFirst;
-	shader_t       *shader, *oldShader;
-	trRefEntity_t  *entity, *oldEntity;
-	trRefLight_t   *light, *oldLight;
-	surfaceType_t  *surface;
-	qboolean        depthRange, oldDepthRange;
-	qboolean        alphaTest, oldAlphaTest;
-	qboolean        drawShadows;
-	int             cubeSide;
-
-	shader_t       *lightShader;
-	shaderStage_t  *attenuationXYStage;
-	shaderStage_t  *attenuationZStage;
-	int             i, j;
-	vec3_t          viewOrigin;
-	vec3_t          lightOrigin;
-	vec4_t          lightColor;
-	vec4_t          lightFrustum[6];
-	cplane_t       *frust;
-	qboolean        shadowCompare;
-	matrix_t        ortho;
-	vec4_t          quadVerts[4];
-	int             startTime = 0, endTime = 0;
-
-	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
-
-	if(r_speeds->integer == 9)
-	{
-		qglFinish();
-		startTime = ri.Milliseconds();
-	}
-
-	oldLight = NULL;
-	oldEntity = NULL;
-	oldShader = NULL;
-	oldDepthRange = depthRange = qfalse;
-	oldAlphaTest = alphaTest = qfalse;
-	drawShadows = qtrue;
-	cubeSide = 0;
-
-	// if we need to clear the FBO color buffers then it should be white
-	GL_ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-	// update depth render image
-	R_BindFBO(tr.deferredRenderFBO);
-	GL_SelectTexture(1);
-	GL_Bind(tr.depthRenderImage);
-	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
-
-	// render interactions
-	for(iaCount = 0, iaFirst = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
-	{
-		backEnd.currentLight = light = ia->light;
-		backEnd.currentEntity = entity = ia->entity;
-		surface = ia->surface;
-		shader = ia->surfaceShader;
-		alphaTest = shader->alphaTest;
-
-		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
-		{
-			// skip all interactions of this light because it failed the occlusion query
-			goto skipInteraction;
-		}
-
-		// only iaCount == iaFirst if first iteration or counters were reset
-		if(iaCount == iaFirst)
-		{
-			if(drawShadows)
-			{
-				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
-				GL_BindProgram(NULL);
-				GL_State(GLS_DEFAULT);
-				//GL_VertexAttribsState(ATTR_POSITION);
-
-				GL_SelectTexture(0);
-				GL_Bind(tr.whiteImage);
-
-				if(light->l.noShadows || light->shadowLOD < 0)
-				{
-					if(r_logFile->integer)
-					{
-						// don't just call LogComment, or we will get
-						// a call to va() every frame!
-						GLimp_LogComment(va("----- Skipping shadowCube side: %i -----\n", cubeSide));
-					}
-
-					goto skipInteraction;
-				}
-				else
-				{
-					R_BindFBO(tr.shadowMapFBO[light->shadowLOD]);
-
-					switch (light->l.rlType)
-					{
-						case RL_OMNI:
-						{
-							float           xMin, xMax, yMin, yMax;
-							float           width, height, depth;
-							float           zNear, zFar;
-							float           fovX, fovY;
-							qboolean        flipX, flipY;
-							float          *proj;
-							vec3_t          angles;
-							matrix_t        rotationMatrix, transformMatrix, viewMatrix;
-
-							if(r_logFile->integer)
-							{
-								// don't just call LogComment, or we will get
-								// a call to va() every frame!
-								GLimp_LogComment(va("----- Rendering shadowCube side: %i -----\n", cubeSide));
-							}
-
-							R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
-												 tr.shadowCubeFBOImage[light->shadowLOD]->texnum, 0);
-							if(!r_ignoreGLErrors->integer)
-							{
-								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
-							}
-
-							// set the window clipping
-							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-
-							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-							switch (cubeSide)
-							{
-								case 0:
-								{
-									// view parameters
-									VectorSet(angles, 0, 0, 90);
-
-									// projection parameters
-									flipX = qfalse;
-									flipY = qfalse;
-									break;
-								}
-
-								case 1:
-								{
-									VectorSet(angles, 0, 180, 90);
-									flipX = qtrue;
-									flipY = qtrue;
-									break;
-								}
-
-								case 2:
-								{
-									VectorSet(angles, 0, 90, 0);
-									flipX = qfalse;
-									flipY = qfalse;
-									break;
-								}
-
-								case 3:
-								{
-									VectorSet(angles, 0, -90, 0);
-									flipX = qtrue;
-									flipY = qtrue;
-									break;
-								}
-
-								case 4:
-								{
-									VectorSet(angles, -90, 90, 0);
-									flipX = qfalse;
-									flipY = qfalse;
-									break;
-								}
-
-								case 5:
-								{
-									VectorSet(angles, 90, 90, 0);
-									flipX = qtrue;
-									flipY = qtrue;
-									break;
-								}
-
-								default:
-								{
-									// shut up compiler
-									VectorSet(angles, 0, 0, 0);
-									flipX = qfalse;
-									flipY = qfalse;
-									break;
-								}
-							}
-
-							// Quake -> OpenGL view matrix from light perspective
-							MatrixFromAngles(rotationMatrix, angles[PITCH], angles[YAW], angles[ROLL]);
-							MatrixSetupTransformFromRotation(transformMatrix, rotationMatrix, light->origin);
-							MatrixAffineInverse(transformMatrix, viewMatrix);
-
-							// convert from our coordinate system (looking down X)
-							// to OpenGL's coordinate system (looking down -Z)
-							MatrixMultiply(quakeToOpenGLMatrix, viewMatrix, light->viewMatrix);
-
-							// OpenGL projection matrix
-							fovX = 90;
-							fovY = 90;	//R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-
-							zNear = 1.0;
-							zFar = light->sphereRadius;
-
-							if(!flipX)
-							{
-								xMax = zNear * tan(fovX * M_PI / 360.0f);
-								xMin = -xMax;
-							}
-							else
-							{
-								xMin = zNear * tan(fovX * M_PI / 360.0f);
-								xMax = -xMin;
-							}
-
-							if(!flipY)
-							{
-								yMax = zNear * tan(fovY * M_PI / 360.0f);
-								yMin = -yMax;
-							}
-							else
-							{
-								yMin = zNear * tan(fovY * M_PI / 360.0f);
-								yMax = -yMin;
-							}
-
-							width = xMax - xMin;
-							height = yMax - yMin;
-							depth = zFar - zNear;
-
-							proj = light->projectionMatrix;
-							proj[0] = (2 * zNear) / width;
-							proj[4] = 0;
-							proj[8] = (xMax + xMin) / width;
-							proj[12] = 0;
-							proj[1] = 0;
-							proj[5] = (2 * zNear) / height;
-							proj[9] = (yMax + yMin) / height;
-							proj[13] = 0;
-							proj[2] = 0;
-							proj[6] = 0;
-							proj[10] = -(zFar + zNear) / depth;
-							proj[14] = -(2 * zFar * zNear) / depth;
-							proj[3] = 0;
-							proj[7] = 0;
-							proj[11] = -1;
-							proj[15] = 0;
-
-							GL_LoadProjectionMatrix(light->projectionMatrix);
-							break;
-						}
-
-						case RL_PROJ:
-						{
-							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
-
-							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
-							if(!r_ignoreGLErrors->integer)
-							{
-								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
-							}
-
-							// set the window clipping
-							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-
-							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-							GL_LoadProjectionMatrix(light->projectionMatrix);
-							break;
-						}
-
-						default:
-							break;
-					}
-				}
-
-				if(r_logFile->integer)
-				{
-					// don't just call LogComment, or we will get
-					// a call to va() every frame!
-					GLimp_LogComment(va("----- First Shadow Interaction: %i -----\n", iaCount));
-				}
-			}
-			else
-			{
-				GLimp_LogComment("--- Rendering lighting ---\n");
-
-				if(r_logFile->integer)
-				{
-					// don't just call LogComment, or we will get
-					// a call to va() every frame!
-					GLimp_LogComment(va("----- First Light Interaction: %i -----\n", iaCount));
-				}
-
-				// finally draw light
-				R_BindFBO(tr.deferredRenderFBO);
-
-				// set the window clipping
-				GL_Viewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-							backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-
-				//GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-				//        backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-
-				// set light scissor to reduce fillrate
-				GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
-
-				GL_CheckErrors();
-
-				// restore camera matrices
-				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
-				GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-
-				switch (light->l.rlType)
-				{
-					case RL_OMNI:
-					{
-						// reset light view and projection matrices
-						MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
-						MatrixSetupScale(light->projectionMatrix, 1.0 / light->l.radius[0], 1.0 / light->l.radius[1],
-										 1.0 / light->l.radius[2]);
-
-						// build the attenuation matrix
-						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
-						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
-						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
-						break;
-					}
-
-					case RL_PROJ:
-					{
-						// build the attenuation matrix
-						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);
-						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));
-						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
-						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
-						break;
-					}
-
-					default:
-						break;
-				}
-
-				// update uniforms
-				VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
-
-				// copy frustum planes for pixel shader
-				for(i = 0; i < 6; i++)
-				{
-					frust = &light->frustum[i];
-
-					VectorCopy(frust->normal, lightFrustum[i]);
-					lightFrustum[i][3] = frust->dist;
-				}
-
-				// set 2D virtual screen size
-				GL_PushMatrix();
-				MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-												backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-												backEnd.viewParms.viewportY,
-												backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
-				GL_LoadProjectionMatrix(ortho);
-				GL_LoadModelViewMatrix(matrixIdentity);
-
-				// last interaction of current light
-				lightShader = light->shader;
-				attenuationZStage = lightShader->stages[0];
-
-				for(j = 1; j < MAX_SHADER_STAGES; j++)
-				{
-					attenuationXYStage = lightShader->stages[j];
-
-					if(!attenuationXYStage)
-					{
-						break;
-					}
-
-					if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
-					{
-						continue;
-					}
-
-					if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
-					{
-						continue;
-					}
-
-					Tess_ComputeColor(attenuationXYStage);
-					R_ComputeFinalAttenuation(attenuationXYStage, light);
-
-					if(light->l.rlType == RL_OMNI)
-					{
-						// enable shader, set arrays
-						GL_BindProgram(&tr.deferredLightingShader_DBS_omni);
-
-						// set OpenGL state for additive lighting
-						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-
-						GL_Cull(CT_TWO_SIDED);
-
-						// set uniforms
-						VectorCopy(light->origin, lightOrigin);
-						VectorCopy(tess.svars.color, lightColor);
-						shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
-
-						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_omni, viewOrigin);
-						GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_omni, lightOrigin);
-						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_omni, lightColor);
-						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_omni, light->sphereRadius);
-						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_omni, light->l.scale);
-						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_omni, light->attenuationMatrix2);
-						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
-						GLSL_SetUniform_ShadowCompare(&tr.deferredLightingShader_DBS_omni, shadowCompare);
-
-						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_omni, glState.modelViewProjectionMatrix[glState.stackIndex]);
-						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.unprojectionMatrix);
-
-						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.isPortal);
-						if(backEnd.viewParms.isPortal)
-						{
-							float           plane[4];
-
-							// clipping plane in world space
-							plane[0] = backEnd.viewParms.portalPlane.normal[0];
-							plane[1] = backEnd.viewParms.portalPlane.normal[1];
-							plane[2] = backEnd.viewParms.portalPlane.normal[2];
-							plane[3] = backEnd.viewParms.portalPlane.dist;
-
-							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_omni, plane);
-						}
-
-						// bind u_DiffuseMap
-						GL_SelectTexture(0);
-						GL_Bind(tr.deferredDiffuseFBOImage);
-
-						// bind u_NormalMap
-						GL_SelectTexture(1);
-						GL_Bind(tr.deferredNormalFBOImage);
-
-						if(r_normalMapping->integer)
-						{
-							// bind u_SpecularMap
-							GL_SelectTexture(2);
-							GL_Bind(tr.deferredSpecularFBOImage);
-						}
-
-						// bind u_DepthMap
-						GL_SelectTexture(3);
-						GL_Bind(tr.depthRenderImage);
-
-						// bind u_AttenuationMapXY
-						GL_SelectTexture(4);
-						BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-
-						// bind u_AttenuationMapZ
-						GL_SelectTexture(5);
-						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-
-						// bind u_ShadowMap
-						if(shadowCompare)
-						{
-							GL_SelectTexture(6);
-							GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
-						}
-
-						// draw lighting
-						VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
-						VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-						VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						Tess_InstantQuad(quadVerts);
-					}
-					else if(light->l.rlType == RL_PROJ)
-					{
-						if(light->l.inverseShadows)
-						{
-							GL_BindProgram(&tr.deferredShadowingShader_proj);
-
-							GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
-							//GL_State(GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
-							GL_Cull(CT_TWO_SIDED);
-
-							// set uniforms
-							VectorCopy(light->origin, lightOrigin);
-							VectorCopy(tess.svars.color, lightColor);
-							shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
-
-							GLSL_SetUniform_LightOrigin(&tr.deferredShadowingShader_proj, lightOrigin);
-							GLSL_SetUniform_LightColor(&tr.deferredShadowingShader_proj, lightColor);
-							GLSL_SetUniform_LightRadius(&tr.deferredShadowingShader_proj, light->sphereRadius);
-							GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix2);
-							qglUniform4fvARB(tr.deferredShadowingShader_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-
-							GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix);
-							GLSL_SetUniform_ShadowCompare(&tr.deferredShadowingShader_proj, shadowCompare);
-
-							GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredShadowingShader_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
-							GLSL_SetUniform_UnprojectMatrix(&tr.deferredShadowingShader_proj, backEnd.viewParms.unprojectionMatrix);
-
-							GLSL_SetUniform_PortalClipping(&tr.deferredShadowingShader_proj, backEnd.viewParms.isPortal);
-							if(backEnd.viewParms.isPortal)
-							{
-								float           plane[4];
-
-								// clipping plane in world space
-								plane[0] = backEnd.viewParms.portalPlane.normal[0];
-								plane[1] = backEnd.viewParms.portalPlane.normal[1];
-								plane[2] = backEnd.viewParms.portalPlane.normal[2];
-								plane[3] = backEnd.viewParms.portalPlane.dist;
-
-								GLSL_SetUniform_PortalPlane(&tr.deferredShadowingShader_proj, plane);
-							}
-
-							// bind u_DepthMap
-							GL_SelectTexture(0);
-							GL_Bind(tr.depthRenderImage);
-
-							// bind u_AttenuationMapXY
-							GL_SelectTexture(1);
-							BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-
-							// bind u_AttenuationMapZ
-							GL_SelectTexture(2);
-							BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-
-							// bind u_ShadowMap
-							if(shadowCompare)
-							{
-								GL_SelectTexture(3);
-								GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
-							}
-
-							// draw lighting
-							VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
-							VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-							VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0,
-									   1);
-							VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-							Tess_InstantQuad(quadVerts);
-						}
-						else
-						{
-							GL_BindProgram(&tr.deferredLightingShader_DBS_proj);
-
-							// set OpenGL state for additive lighting
-							GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-							GL_Cull(CT_TWO_SIDED);
-
-							// set uniforms
-							VectorCopy(light->origin, lightOrigin);
-							VectorCopy(tess.svars.color, lightColor);
-							shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
-
-							GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_proj, viewOrigin);
-							GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_proj, lightOrigin);
-							GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_proj, lightColor);
-							GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_proj, light->sphereRadius);
-							GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_proj, light->l.scale);
-							GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix2);
-							qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-
-							GLSL_SetUniform_ShadowMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix);
-							GLSL_SetUniform_ShadowCompare(&tr.deferredLightingShader_DBS_proj, shadowCompare);
-
-							GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
-							GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.unprojectionMatrix);
-
-							GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.isPortal);
-							if(backEnd.viewParms.isPortal)
-							{
-								float           plane[4];
-
-								// clipping plane in world space
-								plane[0] = backEnd.viewParms.portalPlane.normal[0];
-								plane[1] = backEnd.viewParms.portalPlane.normal[1];
-								plane[2] = backEnd.viewParms.portalPlane.normal[2];
-								plane[3] = backEnd.viewParms.portalPlane.dist;
-
-								GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_proj, plane);
-							}
-
-							// bind u_DiffuseMap
-							GL_SelectTexture(0);
-							GL_Bind(tr.deferredDiffuseFBOImage);
-
-							// bind u_NormalMap
-							GL_SelectTexture(1);
-							GL_Bind(tr.deferredNormalFBOImage);
-
-							if(r_normalMapping->integer)
-							{
-								// bind u_SpecularMap
-								GL_SelectTexture(2);
-								GL_Bind(tr.deferredSpecularFBOImage);
-							}
-
-							// bind u_DepthMap
-							GL_SelectTexture(3);
-							GL_Bind(tr.depthRenderImage);
-
-							// bind u_AttenuationMapXY
-							GL_SelectTexture(4);
-							BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-
-							// bind u_AttenuationMapZ
-							GL_SelectTexture(5);
-							BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-
-							// bind u_ShadowMap
-							if(shadowCompare)
-							{
-								GL_SelectTexture(6);
-								GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
-							}
-
-							// draw lighting
-							VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
-							VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-							VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0,
-									   1);
-							VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-							Tess_InstantQuad(quadVerts);
-						}
-					}
-					else
-					{
-						// TODO
-					}
-
-					// end of lighting
-					GL_PopMatrix();
-
-					R_BindNullFBO();
-				}
-			}
-		}						// end if(iaCount == iaFirst)
-
-		if(drawShadows)
-		{
-			if(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK))
-			{
-				goto skipInteraction;
-			}
-
-			if(shader->isSky)
-			{
-				goto skipInteraction;
-			}
-
-			if(shader->sort > SS_OPAQUE)
-			{
-				goto skipInteraction;
-			}
-
-			if(shader->noShadows || light->l.noShadows || light->shadowLOD < 0)
-			{
-				goto skipInteraction;
-			}
-
-			if(light->l.inverseShadows && (entity == &tr.worldEntity))
-			{
-				// this light only casts shadows by its player and their items
-				goto skipInteraction;
-			}
-
-			if(ia->type == IA_LIGHTONLY)
-			{
-				goto skipInteraction;
-			}
-
-			if(light->l.rlType == RL_OMNI && !(ia->cubeSideBits & (1 << cubeSide)))
-			{
-				goto skipInteraction;
-			}
-
-			switch (light->l.rlType)
-			{
-				case RL_OMNI:
-				case RL_PROJ:
-				{
-					if(light == oldLight && entity == oldEntity && (alphaTest ? shader == oldShader : alphaTest == oldAlphaTest))
-					{
-						if(r_logFile->integer)
-						{
-							// don't just call LogComment, or we will get
-							// a call to va() every frame!
-							GLimp_LogComment(va("----- Batching Shadow Interaction: %i -----\n", iaCount));
-						}
-
-						// fast path, same as previous
-						rb_surfaceTable[*surface] (surface);
-						goto nextInteraction;
-					}
-					else
-					{
-						if(oldLight)
-						{
-							// draw the contents of the last shader batch
-							Tess_End();
-						}
-
-						if(r_logFile->integer)
-						{
-							// don't just call LogComment, or we will get
-							// a call to va() every frame!
-							GLimp_LogComment(va("----- Beginning Shadow Interaction: %i -----\n", iaCount));
-						}
-
-						// we don't need tangent space calculations here
-						Tess_Begin(Tess_StageIteratorShadowFill, shader, light->shader, qtrue, qfalse, -1);
-					}
-					break;
-				}
-
-				default:
-					break;
-			}
-		}
-		else
-		{
-			// jump to !ia->next
-			goto nextInteraction;
-		}
-
-		// change the modelview matrix if needed
-		if(entity != oldEntity)
-		{
-			depthRange = qfalse;
-
-			if(entity != &tr.worldEntity)
-			{
-				// set up the transformation matrix
-				if(drawShadows)
-				{
-					R_RotateEntityForLight(entity, light, &backEnd.orientation);
-				}
-				else
-				{
-					R_RotateEntityForViewParms(entity, &backEnd.viewParms, &backEnd.orientation);
-				}
-
-				if(entity->e.renderfx & RF_DEPTHHACK)
-				{
-					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
-				}
-			}
-			else
-			{
-				// set up the transformation matrix
-				if(drawShadows)
-				{
-					Com_Memset(&backEnd.orientation, 0, sizeof(backEnd.orientation));
-
-					backEnd.orientation.axis[0][0] = 1;
-					backEnd.orientation.axis[1][1] = 1;
-					backEnd.orientation.axis[2][2] = 1;
-					VectorCopy(light->l.origin, backEnd.orientation.viewOrigin);
-
-					MatrixIdentity(backEnd.orientation.transformMatrix);
-					//MatrixAffineInverse(backEnd.orientation.transformMatrix, backEnd.orientation.viewMatrix);
-					MatrixMultiply(light->viewMatrix, backEnd.orientation.transformMatrix, backEnd.orientation.viewMatrix);
-					MatrixCopy(backEnd.orientation.viewMatrix, backEnd.orientation.modelViewMatrix);
-				}
-				else
-				{
-					// transform by the camera placement
-					backEnd.orientation = backEnd.viewParms.world;
-				}
-			}
-
-			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-
-			// change depthrange if needed
-			if(oldDepthRange != depthRange)
-			{
-				if(depthRange)
-				{
-					qglDepthRange(0, 0.3);
-				}
-				else
-				{
-					qglDepthRange(0, 1);
-				}
-				oldDepthRange = depthRange;
-			}
-		}
-
-		if(drawShadows)
-		{
-			switch (light->l.rlType)
-			{
-				case RL_OMNI:
-				case RL_PROJ:
-				{
-					// add the triangles for this surface
-					rb_surfaceTable[*surface] (surface);
-					break;
-				}
-
-				default:
-					break;
-			}
-		}
-		else
-		{
-			// DO NOTHING
-			//rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
-		}
-
-	  nextInteraction:
-
-		// remember values
-		oldLight = light;
-		oldEntity = entity;
-		oldShader = shader;
-		oldAlphaTest = alphaTest;
-
-	  skipInteraction:
-		if(!ia->next)
-		{
-			// if ia->next does not point to any other interaction then
-			// this is the last interaction of the current light
-
-			if(r_logFile->integer)
-			{
-				// don't just call LogComment, or we will get
-				// a call to va() every frame!
-				GLimp_LogComment(va("----- Last Interaction: %i -----\n", iaCount));
-			}
-
-			if(drawShadows)
-			{
-				// draw the contents of the last shader batch
-				Tess_End();
-
-				switch (light->l.rlType)
-				{
-					case RL_OMNI:
-					{
-						if(cubeSide == 5)
-						{
-							cubeSide = 0;
-							drawShadows = qfalse;
-						}
-						else
-						{
-							cubeSide++;
-						}
-
-						// jump back to first interaction of this light
-						ia = &backEnd.viewParms.interactions[iaFirst];
-						iaCount = iaFirst;
-						break;
-					}
-
-					case RL_PROJ:
-					{
-						// jump back to first interaction of this light and start lighting
-						ia = &backEnd.viewParms.interactions[iaFirst];
-						iaCount = iaFirst;
-						drawShadows = qfalse;
-						break;
-					}
-
-					default:
-						break;
-				}
-			}
-			else
-			{
-#ifdef VOLUMETRIC_LIGHTING
-				// draw the light volume if needed
-				if(light->shader->volumetricLight)
-				{
-					Render_lightVolume(ia);
-				}
-#endif
-
-				if(iaCount < (backEnd.viewParms.numInteractions - 1))
-				{
-					// jump to next interaction and start shadowing
-					ia++;
-					iaCount++;
-					iaFirst = iaCount;
-					drawShadows = qtrue;
-				}
-				else
-				{
-					// increase last time to leave for loop
-					iaCount++;
-				}
-			}
-
-			// force updates
-			oldLight = NULL;
-			oldEntity = NULL;
-			oldShader = NULL;
-		}
-		else
-		{
-			// just continue
-			ia = ia->next;
-			iaCount++;
-		}
-	}
-
-	// go back to the world modelview matrix
-	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
-	if(depthRange)
-	{
-		qglDepthRange(0, 1);
-	}
-
-	// reset scissor clamping
-	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-
-	// reset clear color
-	GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-	GL_CheckErrors();
-
-	if(r_speeds->integer == 9)
-	{
-		qglFinish();
-		endTime = ri.Milliseconds();
-		backEnd.pc.c_deferredLightingTime = endTime - startTime;
-	}
-}
 
 static void RB_RenderInteractionsDeferredInverseShadows()
 {
@@ -6514,7 +5315,6 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 						GLSL_SetUniform_LightColor(&tr.deferredShadowingShader_proj, lightColor);
 						GLSL_SetUniform_LightRadius(&tr.deferredShadowingShader_proj, light->sphereRadius);
 						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix2);
-						qglUniform4fvARB(tr.deferredShadowingShader_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
 
 						GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix);
 						GLSL_SetUniform_ShadowCompare(&tr.deferredShadowingShader_proj, shadowCompare);
@@ -9460,11 +8260,30 @@ static void RB_RenderView(void)
 		int             clearBits = 0;
 		int             startTime = 0, endTime = 0;
 
+		// sync with gl if needed
+		if(r_finish->integer == 1 && !glState.finishCalled)
+		{
+			qglFinish();
+			glState.finishCalled = qtrue;
+		}
+		if(r_finish->integer == 0)
+		{
+			glState.finishCalled = qtrue;
+		}
+
+		// we will need to change the projection matrix before drawing
+		// 2D images again
+		backEnd.projection2D = qfalse;
+
+		// set the modelview matrix for the viewer
+		SetViewportAndScissor();
+
+		// ensures that depth writes are enabled for the depth clear
+		GL_State(GLS_DEFAULT);
+
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
 		// clear frame buffer objects
 		R_BindFBO(tr.deferredRenderFBO);
-
-		//qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		clearBits = GL_DEPTH_BUFFER_BIT;
 
@@ -9496,59 +8315,22 @@ static void RB_RenderView(void)
 		}
 		qglClear(clearBits);
 
-		R_BindFBO(tr.geometricRenderFBO);
-		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
-		{
-			clearBits = GL_COLOR_BUFFER_BIT;
-			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			qglClear(clearBits);
-		}
-
-
 #else
 		if(glConfig.framebufferObjectAvailable)
 		{
 			R_BindNullFBO();
 		}
-#endif
-
-		// we will need to change the projection matrix before drawing
-		// 2D images again
-		backEnd.projection2D = qfalse;
-
-		// set the modelview matrix for the viewer
-		SetViewportAndScissor();
-
-		// ensures that depth writes are enabled for the depth clear
-		GL_State(GLS_DEFAULT);
 
 		// clear relevant buffers
 		clearBits = GL_DEPTH_BUFFER_BIT;
-
-		if(r_measureOverdraw->integer || r_shadows->integer == 3)
-		{
-			clearBits |= GL_STENCIL_BUFFER_BIT;
-		}
 
 		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 		{
 			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
 			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
 		}
-		else
-		{
-			if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
-			{
-				// copy color of the main context to deferredRenderFBO
-				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
-				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
-									   GL_COLOR_BUFFER_BIT,
-									   GL_NEAREST);
-			}
-		}
 		qglClear(clearBits);
+#endif
 
 		if((backEnd.refdef.rdflags & RDF_HYPERSPACE))
 		{
@@ -9592,12 +8374,12 @@ static void RB_RenderView(void)
 		if(r_shadows->integer >= 4)
 		{
 			// render dynamic shadowing and lighting using shadow mapping
-			RB_RenderInteractionsDeferredShadowMappedIntoLightBuffer();
+			RB_RenderInteractionsDeferredShadowMapped();
 		}
 		else
 		{
 			// render dynamic lighting
-			RB_RenderInteractionsDeferredIntoLightBuffer();
+			RB_RenderInteractionsDeferred();
 		}
 
 #if !defined(OFFSCREEN_PREPASS_LIGHTING)
@@ -9607,6 +8389,42 @@ static void RB_RenderView(void)
 		GL_SelectTexture(0);
 		GL_Bind(tr.lightRenderFBOImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.lightRenderFBOImage->uploadWidth, tr.lightRenderFBOImage->uploadHeight);
+
+		// restore color buffer
+#if 1
+		{
+			matrix_t        ortho;
+
+			// set 2D virtual screen size
+			GL_PushMatrix();
+			MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+											backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+											backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+											-99999, 99999);
+			GL_LoadProjectionMatrix(ortho);
+			GL_LoadModelViewMatrix(matrixIdentity);
+
+			GL_State(GLS_DEPTHTEST_DISABLE);
+			GL_Cull(CT_TWO_SIDED);
+
+			// enable shader, set arrays
+			GL_BindProgram(&tr.screenShader);
+
+			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+			GL_SelectTexture(0);
+			GL_Bind(tr.currentRenderImage);
+			qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+
+			// draw viewport
+			Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+
+			// go back to 3D
+			GL_PopMatrix();
+
+			GL_CheckErrors();
+		}
+#endif
 #endif
 
 		if(r_speeds->integer == 9)

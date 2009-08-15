@@ -181,6 +181,7 @@ void	main()
 	if(shadow <= 0.0)
 	{
 		discard;
+		return;
 	}
 	else
 #elif defined(ESM)
@@ -223,6 +224,7 @@ void	main()
 	if(shadow <= 0.0)
 	{
 		discard;
+		return;
 	}
 	else
 #endif
