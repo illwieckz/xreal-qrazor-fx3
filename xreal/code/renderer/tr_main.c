@@ -91,7 +91,7 @@ void R_CalcNormalForTriangle(vec3_t normal, const vec3_t v0, const vec3_t v1, co
 	VectorSubtract(v1, v0, vdir);
 	CrossProduct(udir, vdir, normal);
 
-	VectorNormalizeFast(normal);
+	VectorNormalize(normal);
 }
 
 /*
@@ -100,7 +100,6 @@ R_CalcTangentsForTriangle
 http://members.rogers.com/deseric/tangentspace.htm
 =============
 */
-/*
 void R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
 							   const vec3_t v0, const vec3_t v1, const vec3_t v2,
 							   const vec2_t t0, const vec2_t t1, const vec2_t t2)
@@ -131,15 +130,14 @@ void R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
 	tangent[0] = -planes[0][1] / planes[0][0];
 	tangent[1] = -planes[1][1] / planes[1][0];
 	tangent[2] = -planes[2][1] / planes[2][0];
-	VectorNormalizeFast(tangent);
+	VectorNormalize(tangent);
 
 	// binormal...
 	binormal[0] = -planes[0][2] / planes[0][0];
 	binormal[1] = -planes[1][2] / planes[1][0];
 	binormal[2] = -planes[2][2] / planes[2][0];
-	VectorNormalizeFast(binormal);
+	VectorNormalize(binormal);
 }
-*/
 
 /*
 =============
@@ -343,8 +341,7 @@ qboolean R_CalcTangentVectors(srfVert_t * dv[3])
 
 
 	/* calculate barycentric basis for the triangle */
-	bb = (dv[1]->st[0] - dv[0]->st[0]) * (dv[2]->st[1] - dv[0]->st[1]) - (dv[2]->st[0] - dv[0]->st[0]) * (dv[1]->st[1] -
-																										  dv[0]->st[1]);
+	bb = (dv[1]->st[0] - dv[0]->st[0]) * (dv[2]->st[1] - dv[0]->st[1]) - (dv[2]->st[0] - dv[0]->st[0]) * (dv[1]->st[1] - dv[0]->st[1]);
 	if(fabs(bb) < 0.00000001f)
 		return qfalse;
 

@@ -2013,7 +2013,12 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const cha
 				t1 = surf->verts[tri->indexes[1]].texCoords;
 				t2 = surf->verts[tri->indexes[2]].texCoords;
 
+#if 0
 				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
+#else
+				R_CalcNormalForTriangle(normal, v0, v1, v2);
+				R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
+#endif
 
 				for(k = 0; k < 3; k++)
 				{
@@ -2042,6 +2047,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const cha
 			int             k;
 			float           bb, s, t;
 			vec3_t          bary;
+			vec3_t			faceNormal;
 			md5Vertex_t    *dv[3];
 
 			for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
@@ -2050,13 +2056,15 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const cha
 				dv[1] = &surf->verts[tri->indexes[1]];
 				dv[2] = &surf->verts[tri->indexes[2]];
 
-				/* calculate barycentric basis for the triangle */
+				R_CalcNormalForTriangle(faceNormal, dv[0]->position, dv[1]->position, dv[2]->position);
+
+				// calculate barycentric basis for the triangle
 				bb = (dv[1]->texCoords[0] - dv[0]->texCoords[0]) * (dv[2]->texCoords[1] - dv[0]->texCoords[1]) - (dv[2]->texCoords[0] - dv[0]->texCoords[0]) * (dv[1]->texCoords[1] -
 																													  dv[0]->texCoords[1]);
 				if(fabs(bb) < 0.00000001f)
 					continue;
 
-				/* do each vertex */
+				// do each vertex
 				for(k = 0; k < 3; k++)
 				{
 					// calculate s tangent vector
@@ -2073,7 +2081,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const cha
 					VectorSubtract(dv[k]->tangent, dv[k]->position, dv[k]->tangent);
 					VectorNormalize(dv[k]->tangent);
 
-					// calculate t tangent vector
+					// calculate t tangent vector (binormal)
 					s = dv[k]->texCoords[0];
 					t = dv[k]->texCoords[1] + 10.0f;
 					bary[0] = ((dv[1]->texCoords[0] - s) * (dv[2]->texCoords[1] - t) - (dv[2]->texCoords[0] - s) * (dv[1]->texCoords[1] - t)) / bb;
@@ -2087,15 +2095,40 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const cha
 					VectorSubtract(dv[k]->binormal, dv[k]->position, dv[k]->binormal);
 					VectorNormalize(dv[k]->binormal);
 
-					// debug code
-					//% Sys_FPrintf( SYS_VRB, "%d S: (%f %f %f) T: (%f %f %f)\n", i,
-					//%     stv[ i ][ 0 ], stv[ i ][ 1 ], stv[ i ][ 2 ], ttv[ i ][ 0 ], ttv[ i ][ 1 ], ttv[ i ][ 2 ] );
+					// calculate the normal as cross product N=TxB
+#if 0
+					CrossProduct(dv[k]->tangent, dv[k]->binormal, dv[k]->normal);
+					VectorNormalize(dv[k]->normal);
+
+					// Gram-Schmidt orthogonalization process for B
+					// compute the cross product B=NxT to obtain
+					// an orthogonal basis
+					CrossProduct(dv[k]->normal, dv[k]->tangent, dv[k]->binormal);
+
+					if(DotProduct(dv[k]->normal, faceNormal) < 0)
+					{
+						VectorInverse(dv[k]->normal);
+						//VectorInverse(dv[k]->tangent);
+						//VectorInverse(dv[k]->binormal);
+					}
+#else
+					VectorAdd(dv[k]->normal, faceNormal, dv[k]->normal);
+#endif
 				}
 			}
+
+#if 1
+			for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+			{
+				//VectorNormalize(v->tangent);
+				//VectorNormalize(v->binormal);
+				VectorNormalize(v->normal);
+			}
+#endif
 		}
 #endif
 
-		#if 0
+#if 0
 		// do another extra smoothing for normals to avoid flat shading
 		for(j = 0; j < surf->numVerts; j++)
 		{
@@ -2112,7 +2145,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const cha
 
 			VectorNormalize(surf->verts[j].normal);
 		}
-		#endif
+#endif
 	}
 
 	// split the surfaces into VBO surfaces by the maximum number of GPU vertex skinning bones
@@ -2860,6 +2893,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 	}
 
 	// calc tangent spaces
+#if 1
 	{
 		md5Vertex_t    *v0, *v1, *v2;
 		const float    *p0, *p1, *p2;
@@ -2893,7 +2927,12 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 			t1 = v1->texCoords;
 			t2 = v2->texCoords;
 
+#if 0
 			R_CalcTangentSpace(tangent, binormal, normal, p0, p1, p2, t0, t1, t2);
+#else
+			R_CalcNormalForTriangle(normal, p0, p1, p2);
+			R_CalcTangentsForTriangle(tangent, binormal, p0, p1, p2, t0, t1, t2);
+#endif
 
 			for(k = 0; k < 3; k++)
 			{
@@ -2920,8 +2959,99 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 			VectorNormalize(v0->binormal);
 			VectorNormalize(v0->normal);
 		}
+	}
+#else
+	{
+		float           bb, s, t;
+		vec3_t          bary;
+		vec3_t			faceNormal;
+		md5Vertex_t    *dv[3];
 
-		#if 0
+		for(j = 0; j < sortedTriangles.currentElements; j++)
+		{
+			skelTriangle_t *tri = Com_GrowListElement(&sortedTriangles, j);
+
+			dv[0] = Com_GrowListElement(&vboVertexes, tri->indexes[0]);
+			dv[1] = Com_GrowListElement(&vboVertexes, tri->indexes[1]);
+			dv[2] = Com_GrowListElement(&vboVertexes, tri->indexes[2]);
+
+			R_CalcNormalForTriangle(faceNormal, dv[0]->position, dv[1]->position, dv[2]->position);
+
+			// calculate barycentric basis for the triangle
+			bb = (dv[1]->texCoords[0] - dv[0]->texCoords[0]) * (dv[2]->texCoords[1] - dv[0]->texCoords[1]) - (dv[2]->texCoords[0] - dv[0]->texCoords[0]) * (dv[1]->texCoords[1] -
+																												  dv[0]->texCoords[1]);
+			if(fabs(bb) < 0.00000001f)
+				continue;
+
+			// do each vertex
+			for(k = 0; k < 3; k++)
+			{
+				// calculate s tangent vector
+				s = dv[k]->texCoords[0] + 10.0f;
+				t = dv[k]->texCoords[1];
+				bary[0] = ((dv[1]->texCoords[0] - s) * (dv[2]->texCoords[1] - t) - (dv[2]->texCoords[0] - s) * (dv[1]->texCoords[1] - t)) / bb;
+				bary[1] = ((dv[2]->texCoords[0] - s) * (dv[0]->texCoords[1] - t) - (dv[0]->texCoords[0] - s) * (dv[2]->texCoords[1] - t)) / bb;
+				bary[2] = ((dv[0]->texCoords[0] - s) * (dv[1]->texCoords[1] - t) - (dv[1]->texCoords[0] - s) * (dv[0]->texCoords[1] - t)) / bb;
+
+				dv[k]->tangent[0] = bary[0] * dv[0]->position[0] + bary[1] * dv[1]->position[0] + bary[2] * dv[2]->position[0];
+				dv[k]->tangent[1] = bary[0] * dv[0]->position[1] + bary[1] * dv[1]->position[1] + bary[2] * dv[2]->position[1];
+				dv[k]->tangent[2] = bary[0] * dv[0]->position[2] + bary[1] * dv[1]->position[2] + bary[2] * dv[2]->position[2];
+
+				VectorSubtract(dv[k]->tangent, dv[k]->position, dv[k]->tangent);
+				VectorNormalize(dv[k]->tangent);
+
+				// calculate t tangent vector (binormal)
+				s = dv[k]->texCoords[0];
+				t = dv[k]->texCoords[1] + 10.0f;
+				bary[0] = ((dv[1]->texCoords[0] - s) * (dv[2]->texCoords[1] - t) - (dv[2]->texCoords[0] - s) * (dv[1]->texCoords[1] - t)) / bb;
+				bary[1] = ((dv[2]->texCoords[0] - s) * (dv[0]->texCoords[1] - t) - (dv[0]->texCoords[0] - s) * (dv[2]->texCoords[1] - t)) / bb;
+				bary[2] = ((dv[0]->texCoords[0] - s) * (dv[1]->texCoords[1] - t) - (dv[1]->texCoords[0] - s) * (dv[0]->texCoords[1] - t)) / bb;
+
+				dv[k]->binormal[0] = bary[0] * dv[0]->position[0] + bary[1] * dv[1]->position[0] + bary[2] * dv[2]->position[0];
+				dv[k]->binormal[1] = bary[0] * dv[0]->position[1] + bary[1] * dv[1]->position[1] + bary[2] * dv[2]->position[1];
+				dv[k]->binormal[2] = bary[0] * dv[0]->position[2] + bary[1] * dv[1]->position[2] + bary[2] * dv[2]->position[2];
+
+				VectorSubtract(dv[k]->binormal, dv[k]->position, dv[k]->binormal);
+				VectorNormalize(dv[k]->binormal);
+
+				// calculate the normal as cross product N=TxB
+#if 0
+				CrossProduct(dv[k]->tangent, dv[k]->binormal, dv[k]->normal);
+				VectorNormalize(dv[k]->normal);
+
+				// Gram-Schmidt orthogonalization process for B
+				// compute the cross product B=NxT to obtain
+				// an orthogonal basis
+				CrossProduct(dv[k]->normal, dv[k]->tangent, dv[k]->binormal);
+
+				if(DotProduct(dv[k]->normal, faceNormal) < 0)
+				{
+					VectorInverse(dv[k]->normal);
+					//VectorInverse(dv[k]->tangent);
+					//VectorInverse(dv[k]->binormal);
+				}
+#else
+				VectorAdd(dv[k]->normal, faceNormal, dv[k]->normal);
+#endif
+			}
+		}
+
+#if 1
+		for(j = 0; j < vboVertexes.currentElements; j++)
+		{
+			dv[0] = Com_GrowListElement(&vboVertexes, j);
+			//VectorNormalize(dv[0]->tangent);
+			//VectorNormalize(dv[0]->binormal);
+			VectorNormalize(dv[0]->normal);
+		}
+#endif
+	}
+#endif
+
+#if 0
+	{
+		md5Vertex_t    *v0, *v1;
+
 		// do another extra smoothing for normals to avoid flat shading
 		for(j = 0; j < vboVertexes.currentElements; j++)
 		{
@@ -2942,9 +3072,8 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 
 			VectorNormalize(v0->normal);
 		}
-		#endif
-
 	}
+#endif
 
 	// split the surfaces into VBO surfaces by the maximum number of GPU vertex skinning bones
 	Com_InitGrowList(&vboSurfaces, 10);
