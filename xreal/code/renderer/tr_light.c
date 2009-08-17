@@ -1347,13 +1347,14 @@ void R_SetupLightScissor(trRefLight_t * light)
 		return;
 	}
 
-#if 1
-	if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+	if(!r_dynamicBspOcclusionCulling->integer)
 	{
-		// we use the stencil volume test instead of the light scissor
+		// don't calculate the light scissors because there are up to 500 realtime lights in the view frustum
+		// that were not killed by the PVS
 		return;
 	}
 
+#if 0
 	if(r_shadows->integer != 3)
 	{
 		// we don't need it for any other mode ...
