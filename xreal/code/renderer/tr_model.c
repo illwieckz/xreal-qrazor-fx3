@@ -2013,7 +2013,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const cha
 				t1 = surf->verts[tri->indexes[1]].texCoords;
 				t2 = surf->verts[tri->indexes[2]].texCoords;
 
-#if 0
+#if 1
 				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
 #else
 				R_CalcNormalForTriangle(normal, v0, v1, v2);
@@ -2927,7 +2927,7 @@ static qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const cha
 			t1 = v1->texCoords;
 			t2 = v2->texCoords;
 
-#if 0
+#if 1
 			R_CalcTangentSpace(tangent, binormal, normal, p0, p1, p2, t0, t1, t2);
 #else
 			R_CalcNormalForTriangle(normal, p0, p1, p2);

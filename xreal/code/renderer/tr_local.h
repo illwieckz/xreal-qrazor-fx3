@@ -354,6 +354,14 @@ typedef struct trRefLight_s
 	qboolean        noDepthBoundsTest;
 
 	qboolean        noOcclusionQueries;
+	uint32_t        occlusionQueryObjects[MAX_VIEWS];
+	int             occlusionQuerySamples[MAX_VIEWS];	// visible fragment count
+	qboolean		visible[MAX_VIEWS];
+	int				lastVisited[MAX_VIEWS];
+	int				lastQueried[MAX_VIEWS];
+//	qboolean		issueOcclusionQuery[MAX_VIEWS];
+
+	link_t			multiQuery;			// CHC++: list of all nodes that are used by the same occlusion query
 
 	frustum_t       frustum;
 	vec4_t			localFrustum[6];
@@ -2865,6 +2873,8 @@ typedef struct
 	int             c_flareRenders;
 
 	int             c_occlusionQueries;
+	int				c_occlusionQueriesMulti;
+	int				c_occlusionQueriesSaved;
 	int             c_occlusionQueriesAvailable;
 	int             c_occlusionQueriesLightsCulled;
 	int             c_occlusionQueriesLeafsCulled;
@@ -3172,8 +3182,6 @@ typedef struct
 	float           triangleTable[FUNCTABLE_SIZE];
 	float           sawToothTable[FUNCTABLE_SIZE];
 	float           inverseSawToothTable[FUNCTABLE_SIZE];
-
-	uint32_t        occlusionQueryObjects[MAX_OCCLUSION_QUERIES];
 } trGlobals_t;
 
 extern const matrix_t quakeToOpenGLMatrix;
@@ -3492,7 +3500,12 @@ void            R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, 
 
 qboolean        R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkst);
 void            R_CalcNormalForTriangle(vec3_t normal, const vec3_t v0, const vec3_t v1, const vec3_t v2);
+
 void            R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
+							   const vec3_t v0, const vec3_t v1, const vec3_t v2,
+							   const vec2_t t0, const vec2_t t1, const vec2_t t2);
+
+void            R_CalcTangentsForTriangle2(vec3_t tangent, vec3_t binormal,
 							   const vec3_t v0, const vec3_t v1, const vec3_t v2,
 							   const vec2_t t0, const vec2_t t1, const vec2_t t2);
 
@@ -3504,9 +3517,9 @@ void            R_CalcTangentSpaceFast(vec3_t tangent, vec3_t binormal, vec3_t n
 								   const vec3_t v0, const vec3_t v1, const vec3_t v2,
 								   const vec2_t t0, const vec2_t t1, const vec2_t t2);
 
-void            R_CalcTangentSpace2(vec3_t tangent, vec3_t binormal, vec3_t normal,
-									const vec3_t v0, const vec3_t v1, const vec3_t v2,
-									const vec2_t t0, const vec2_t t1, const vec2_t t2);
+void            R_CalcTBN(vec3_t tangent, vec3_t binormal, vec3_t normal,
+								   const vec3_t v0, const vec3_t v1, const vec3_t v2,
+								   const vec2_t t0, const vec2_t t1, const vec2_t t2);
 
 qboolean        R_CalcTangentVectors(srfVert_t * dv[3]);
 

@@ -1622,7 +1622,12 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 			t1 = cv->verts[tri->indexes[1]].st;
 			t2 = cv->verts[tri->indexes[2]].st;
 
+#if 1
 			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
+#else
+			R_CalcNormalForTriangle(normal, v0, v1, v2);
+			R_CalcTangentsForTriangle2(tangent, binormal, v0, v1, v2, t0, t1, t2);
+#endif
 
 			for(j = 0; j < 3; j++)
 			{
@@ -1637,26 +1642,20 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 
 		for(i = 0; i < numVerts; i++)
 		{
-			VectorNormalize(cv->verts[i].tangent);
+			float			dot;
+
+			//VectorNormalize(cv->verts[i].tangent);
 			VectorNormalize(cv->verts[i].binormal);
 			VectorNormalize(cv->verts[i].normal);
-		}
 
-		// do another extra smoothing for normals to avoid flat shading
-		for(i = 0; i < numVerts; i++)
-		{
-			for(j = 0; j < numVerts; j++)
-			{
-				if(i == j)
-					continue;
+			// Gram-Schmidt orthogonalize
+			dot = DotProduct(cv->verts[i].normal, cv->verts[i].tangent);
+			VectorMA(cv->verts[i].tangent, -dot, cv->verts[i].normal, cv->verts[i].tangent);
+			VectorNormalize(cv->verts[i].tangent);
 
-				if(R_CompareVert(&cv->verts[i], &cv->verts[j], qfalse))
-				{
-					VectorAdd(cv->verts[i].normal, cv->verts[j].normal, cv->verts[i].normal);
-				}
-			}
-
-			VectorNormalize(cv->verts[i].normal);
+			//dot = DotProduct(cv->verts[i].normal, cv->verts[i].tangent);
+			//VectorMA(cv->verts[i].tangent, -dot, cv->verts[i].normal, cv->verts[i].tangent);
+			//VectorNormalize(cv->verts[i].tangent);
 		}
 	}
 #else
@@ -1673,6 +1672,26 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 		}
 	}
 #endif
+
+#if 0
+	// do another extra smoothing for normals to avoid flat shading
+	for(i = 0; i < numVerts; i++)
+	{
+		for(j = 0; j < numVerts; j++)
+		{
+			if(i == j)
+				continue;
+
+			if(R_CompareVert(&cv->verts[i], &cv->verts[j], qfalse))
+			{
+				VectorAdd(cv->verts[i].normal, cv->verts[j].normal, cv->verts[i].normal);
+			}
+		}
+
+		VectorNormalize(cv->verts[i].normal);
+	}
+#endif
+
 }
 
 /*
@@ -5503,6 +5522,12 @@ void R_LoadEntities(lump_t * l)
 		light->additive = qtrue;
 
 		light->shadowLOD = 0;
+
+#if defined(USE_D3D10)
+		// TODO
+#else
+		qglGenQueriesARB(MAX_VIEWS, light->occlusionQueryObjects);
+#endif
 	}
 
 	// parse lights

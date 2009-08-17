@@ -6612,22 +6612,358 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 	GL_PopMatrix();
 }
 
+
+
+
+
+
+static void RenderLightOcclusionVolume( trRefLight_t * light)
+{
+	int				j;
+	vec4_t          quadVerts[4];
+
+	GL_CheckErrors();
+
+	R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+	GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	if(light->isStatic && light->frustumVBO && light->frustumIBO)
+	{
+		R_BindVBO(light->frustumVBO);
+		R_BindIBO(light->frustumIBO);
+
+		GL_VertexAttribsState(ATTR_POSITION);
+
+		tess.numVertexes = light->frustumVerts;
+		tess.numIndexes = light->frustumIndexes;
+
+		Tess_DrawElements();
+	}
+	else
+	{
+		tess.numIndexes = 0;
+		tess.numVertexes = 0;
+
+		switch (light->l.rlType)
+		{
+			case RL_OMNI:
+			{
+				Tess_AddCube(vec3_origin, light->localBounds[0], light->localBounds[1], colorWhite);
+
+				Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
+				Tess_DrawElements();
+				break;
+			}
+
+			case RL_PROJ:
+			{
+				vec3_t          farCorners[4];
+				vec4_t         *frustum = light->localFrustum;
+
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[2]);
+				PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[3]);
+
+				tess.numVertexes = 0;
+				tess.numIndexes = 0;
+
+				if(!VectorCompare(light->l.projStart, vec3_origin))
+				{
+					vec3_t          nearCorners[4];
+
+					// calculate the vertices defining the top area
+					PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[0]);
+					PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[1]);
+					PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[2]);
+					PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[3]);
+
+					// draw outer surfaces
+					for(j = 0; j < 4; j++)
+					{
+						VectorSet4(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
+						VectorSet4(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
+						VectorSet4(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
+						VectorSet4(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
+						Tess_AddQuadStamp2(quadVerts, colorCyan);
+					}
+
+					// draw far cap
+					VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+					VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+					VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+					VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+					Tess_AddQuadStamp2(quadVerts, colorRed);
+
+					// draw near cap
+					VectorSet4(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
+					VectorSet4(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
+					VectorSet4(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
+					VectorSet4(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
+					Tess_AddQuadStamp2(quadVerts, colorGreen);
+
+				}
+				else
+				{
+					vec3_t	top;
+
+					// no light_start, just use the top vertex (doesn't need to be mirrored)
+					PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], top);
+
+					// draw pyramid
+					for(j = 0; j < 4; j++)
+					{
+						VectorCopy(farCorners[j], tess.xyz[tess.numVertexes]);
+						VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+						tess.indexes[tess.numIndexes++] = tess.numVertexes;
+						tess.numVertexes++;
+
+						VectorCopy(farCorners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
+						VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+						tess.indexes[tess.numIndexes++] = tess.numVertexes;
+						tess.numVertexes++;
+
+						VectorCopy(top, tess.xyz[tess.numVertexes]);
+						VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+						tess.indexes[tess.numIndexes++] = tess.numVertexes;
+						tess.numVertexes++;
+					}
+
+					VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+					VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+					VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+					VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+					Tess_AddQuadStamp2(quadVerts, colorRed);
+				}
+
+				Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
+				Tess_DrawElements();
+				break;
+			}
+
+			default:
+				break;
+		}
+	}
+
+	tess.numIndexes = 0;
+	tess.numVertexes = 0;
+
+	GL_CheckErrors();
+}
+
+static void IssueLightOcclusionQuery(link_t * queue, trRefLight_t * light, qboolean resetMultiQueryLink)
+{
+	GLimp_LogComment("--- IssueLightOcclusionQuery ---\n");
+
+	//ri.Printf(PRINT_ALL, "--- IssueOcclusionQuery(%i) ---\n", node - tr.world->nodes);
+
+	EnQueue(queue, light);
+
+	// tell GetOcclusionQueryResult that this is not a multi query
+	if(resetMultiQueryLink)
+	{
+		QueueInit(&light->multiQuery);
+	}
+
+	//Tess_EndBegin();
+
+	GL_CheckErrors();
+
+#if 0
+	if(qglIsQueryARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+	{
+		ri.Error(ERR_FATAL, "IssueOcclusionQuery: light %i has already an occlusion query object in slot %i: %i", light - tr.world->lights, backEnd.viewParms.viewCount, light->occlusionQueryObjects[backEnd.viewParms.viewCount]);
+	}
+#endif
+
+	// begin the occlusion query
+	qglBeginQueryARB(GL_SAMPLES_PASSED, light->occlusionQueryObjects[backEnd.viewParms.viewCount]);
+
+	GL_CheckErrors();
+
+	RenderLightOcclusionVolume(light);
+
+	// end the query
+	qglEndQueryARB(GL_SAMPLES_PASSED);
+
+#if 1
+	if(!qglIsQueryARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+	{
+		ri.Error(ERR_FATAL, "IssueLightOcclusionQuery: light %i has no occlusion query object in slot %i: %i", light - tr.world->lights, backEnd.viewParms.viewCount, light->occlusionQueryObjects[backEnd.viewParms.viewCount]);
+	}
+#endif
+
+	//light->occlusionQueryNumbers[backEnd.viewParms.viewCount] = backEnd.pc.c_occlusionQueries;
+	backEnd.pc.c_occlusionQueries++;
+
+	tess.numIndexes = 0;
+	tess.numVertexes = 0;
+
+	GL_CheckErrors();
+}
+
+static void IssueLightMultiOcclusionQueries(link_t * multiQueue, link_t * individualQueue)
+{
+	trRefLight_t *light;
+	trRefLight_t *multiQueryLight;
+	link_t *l;
+
+	GLimp_LogComment("--- IssueLightMultiOcclusionQueries ---\n");
+
+#if 0
+	ri.Printf(PRINT_ALL, "IssueLightMultiOcclusionQueries(");
+	for(l = multiQueue->prev; l != multiQueue; l = l->prev)
+	{
+		node = (bspNode_t *) l->data;
+
+		ri.Printf(PRINT_ALL, "%i, ", node - tr.world->nodes);
+	}
+	ri.Printf(PRINT_ALL, ")\n");
+#endif
+
+	if(QueueEmpty(multiQueue))
+		return;
+
+	multiQueryLight = (trRefLight_t *) QueueFront(multiQueue)->data;
+
+	// begin the occlusion query
+	GL_CheckErrors();
+
+#if 0
+	if(!qglIsQueryARB(multiQueryNode->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+	{
+		ri.Error(ERR_FATAL, "IssueLightMultiOcclusionQueries: node %i has already occlusion query object in slot %i: %i", multiQueryNode - tr.world->nodes, backEnd.viewParms.viewCount, multiQueryNode->occlusionQueryObjects[backEnd.viewParms.viewCount]);
+	}
+#endif
+
+	qglBeginQueryARB(GL_SAMPLES_PASSED, multiQueryLight->occlusionQueryObjects[backEnd.viewParms.viewCount]);
+
+	GL_CheckErrors();
+
+	//ri.Printf(PRINT_ALL, "rendering nodes:[");
+	for(l = multiQueue->prev; l != multiQueue; l = l->prev)
+	{
+		light = (trRefLight_t *) l->data;
+
+		//ri.Printf(PRINT_ALL, "%i, ", light - tr.world->lights);
+
+		RenderLightOcclusionVolume(light);
+	}
+	//ri.Printf(PRINT_ALL, "]\n");
+
+	//multiQueryLight->occlusionQueryNumbers[backEnd.viewParms.viewCount] = tr.pc.c_occlusionQueries;
+	tr.pc.c_occlusionQueries++;
+	tr.pc.c_occlusionQueriesMulti++;
+
+	// end the query
+	qglEndQueryARB(GL_SAMPLES_PASSED);
+
+	GL_CheckErrors();
+
+#if 0
+	if(!qglIsQueryARB(multiQueryNode->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+	{
+		ri.Error(ERR_FATAL, "IssueMultiOcclusionQueries: node %i has no occlusion query object in slot %i: %i", multiQueryNode - tr.world->nodes, backEnd.viewParms.viewCount, multiQueryNode->occlusionQueryObjects[backEnd.viewParms.viewCount]);
+	}
+#endif
+
+	// move queue to node->multiQuery queue
+	QueueInit(&multiQueryLight->multiQuery);
+	DeQueue(multiQueue);
+	while(!QueueEmpty(multiQueue))
+	{
+		light = (trRefLight_t *) DeQueue(multiQueue);
+		EnQueue(&multiQueryLight->multiQuery, light);
+	}
+
+	EnQueue(individualQueue, multiQueryLight);
+
+	//ri.Printf(PRINT_ALL, "--- IssueMultiOcclusionQueries end ---\n");
+}
+
+static qboolean LightOcclusionResultAvailable(trRefLight_t *light)
+{
+	GLint			available;
+
+	qglFinish();
+
+	available = 0;
+	//if(qglIsQueryARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+	{
+		qglGetQueryObjectivARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+		GL_CheckErrors();
+	}
+
+	return !!available;
+}
+
+static void GetLightOcclusionQueryResult(trRefLight_t *light)
+{
+	link_t			*l, *sentinel;
+	int			     ocSamples;
+	GLint			 available;
+
+	GLimp_LogComment("--- GetLightOcclusionQueryResult ---\n");
+
+	qglFinish();
+
+#if 0
+	if(!qglIsQueryARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+	{
+		ri.Error(ERR_FATAL, "GetOcclusionQueryResult: node %i has no occlusion query object in slot %i: %i", node - tr.world->nodes, backEnd.viewParms.viewCount, node->occlusionQueryObjects[backEnd.viewParms.viewCount]);
+	}
+#endif
+
+	available = 0;
+	while(!available)
+	{
+		//if(qglIsQueryARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+		{
+			qglGetQueryObjectivARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+			//GL_CheckErrors();
+		}
+	}
+
+	backEnd.pc.c_occlusionQueriesAvailable++;
+
+	qglGetQueryObjectivARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount], GL_QUERY_RESULT, &ocSamples);
+
+	//ri.Printf(PRINT_ALL, "GetOcclusionQueryResult(%i): available = %i, samples = %i\n", node - tr.world->nodes, available, ocSamples);
+
+	GL_CheckErrors();
+
+	light->occlusionQuerySamples[backEnd.viewParms.viewCount] = ocSamples;
+	light->lastQueried[backEnd.viewParms.viewCount] = backEnd.viewParms.frameCount;
+
+	// copy result to all nodes that were linked to this multi query node
+	sentinel = &light->multiQuery;
+	for(l = sentinel->prev; l != sentinel; l = l->prev)
+	{
+		light = (trRefLight_t *) l->data;
+
+		light->occlusionQuerySamples[backEnd.viewParms.viewCount] = ocSamples;
+		light->lastQueried[backEnd.viewParms.viewCount] = tr.frameCount;
+	}
+}
+
 void RB_RenderLightOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_RenderLightOcclusionQueries ---\n");
 
-	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
+	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
-		int             j;
 		interaction_t  *ia;
 		int             iaCount;
 		int             iaFirst;
-		trRefLight_t   *light, *oldLight;
-		int             ocCount;
+		trRefLight_t   *light, *oldLight, *multiQueryLight;
 		GLint           ocSamples = 0;
 		qboolean        queryObjects;
-		GLint           available;
-		vec4_t          quadVerts[4];
+		link_t			occlusionQueryQueue;
+		link_t			invisibleQueue;
+		qboolean		wasVisible;
+		qboolean		needsQuery;
 		int             startTime = 0, endTime = 0;
 
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
@@ -6668,8 +7004,10 @@ void RB_RenderLightOcclusionQueries()
 			GL_State(GLS_COLORMASK_BITS);
 		}
 
+		QueueInit(&occlusionQueryQueue);
+		QueueInit(&invisibleQueue);
+
 		// loop trough all light interactions and render the light OBB for each last interaction
-		ocCount = -1;
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
 			backEnd.currentLight = light = ia->light;
@@ -6678,153 +7016,41 @@ void RB_RenderLightOcclusionQueries()
 			if(!ia->next)
 			{
 				// last interaction of current light
-				if(!ia->noOcclusionQueries &&
-				   ocCount <
-				   (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.orientation.origin) == CULL_OUT */ )
+				if(!ia->noOcclusionQueries) /*&& R_CullLightPoint(light, backEnd.viewParms.orientation.origin) == CULL_OUT */
 				{
-					ocCount++;
+					// identify previously visible nodes
+					//wasVisible = light->visible[backEnd.viewParms.viewCount] && ((backEnd.viewParms.frameCount - light->lastVisited[backEnd.viewParms.viewCount]) <= r_chcMaxVisibleFrames->integer);
+					wasVisible = light->visible[backEnd.viewParms.viewCount] && (light->lastVisited[backEnd.viewParms.viewCount] == backEnd.viewParms.frameCount -1);
 
-					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
-					GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-
-					// begin the occlusion query
-					qglBeginQueryARB(GL_SAMPLES_PASSED, tr.occlusionQueryObjects[ocCount]);
-
-					if(light->isStatic && light->frustumVBO && light->frustumIBO)
+					/*
+					if(BoundsIntersectPoint(light->mins, light->maxs, tr.viewParms.orientation.origin))
 					{
-						R_BindVBO(light->frustumVBO);
-						R_BindIBO(light->frustumIBO);
+						light->occlusionQuerySamples[backEnd.viewParms.viewCount] = r_chcVisibilityThreshold->integer + 1;
+						light->lastQueried[backEnd.viewParms.viewCount] = tr.frameCount;
+						light->visible[backEnd.viewParms.viewCount] = qtrue;
 
-						GL_VertexAttribsState(ATTR_POSITION);
-
-						tess.numVertexes = light->frustumVerts;
-						tess.numIndexes = light->frustumIndexes;
-
-						Tess_DrawElements();
+						needsQuery = qfalse;
 					}
 					else
+					*/
 					{
-						tess.numIndexes = 0;
-						tess.numVertexes = 0;
-
-						switch (light->l.rlType)
-						{
-							case RL_OMNI:
-							{
-								Tess_AddCube(vec3_origin, light->localBounds[0], light->localBounds[1], colorWhite);
-
-								Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
-								Tess_DrawElements();
-								break;
-							}
-
-							case RL_PROJ:
-							{
-								vec3_t          farCorners[4];
-								vec4_t         *frustum = light->localFrustum;
-
-								PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
-								PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
-								PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[2]);
-								PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[3]);
-
-								tess.numVertexes = 0;
-								tess.numIndexes = 0;
-
-								if(!VectorCompare(light->l.projStart, vec3_origin))
-								{
-									vec3_t          nearCorners[4];
-
-									// calculate the vertices defining the top area
-									PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[0]);
-									PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[1]);
-									PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[2]);
-									PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[3]);
-
-									// draw outer surfaces
-									for(j = 0; j < 4; j++)
-									{
-										VectorSet4(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
-										VectorSet4(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
-										VectorSet4(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
-										VectorSet4(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
-										Tess_AddQuadStamp2(quadVerts, colorCyan);
-									}
-
-									// draw far cap
-									VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
-									VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
-									VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
-									VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
-									Tess_AddQuadStamp2(quadVerts, colorRed);
-
-									// draw near cap
-									VectorSet4(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
-									VectorSet4(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
-									VectorSet4(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
-									VectorSet4(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
-									Tess_AddQuadStamp2(quadVerts, colorGreen);
-
-								}
-								else
-								{
-									vec3_t	top;
-
-									// no light_start, just use the top vertex (doesn't need to be mirrored)
-									PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], top);
-
-									// draw pyramid
-									for(j = 0; j < 4; j++)
-									{
-										VectorCopy(farCorners[j], tess.xyz[tess.numVertexes]);
-										VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
-										tess.indexes[tess.numIndexes++] = tess.numVertexes;
-										tess.numVertexes++;
-
-										VectorCopy(farCorners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
-										VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
-										tess.indexes[tess.numIndexes++] = tess.numVertexes;
-										tess.numVertexes++;
-
-										VectorCopy(top, tess.xyz[tess.numVertexes]);
-										VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
-										tess.indexes[tess.numIndexes++] = tess.numVertexes;
-										tess.numVertexes++;
-									}
-
-									VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
-									VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
-									VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
-									VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
-									Tess_AddQuadStamp2(quadVerts, colorRed);
-								}
-
-								Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
-								Tess_DrawElements();
-								break;
-							}
-
-							default:
-								break;
-						}
+						needsQuery = !wasVisible;
 					}
 
-					tess.numIndexes = 0;
-					tess.numVertexes = 0;
+					// update node's visited flag
+					light->lastVisited[backEnd.viewParms.viewCount] = backEnd.viewParms.frameCount;
 
-					// end the query
-					// don't read back immediately so that we give the query time to be ready
-					qglEndQueryARB(GL_SAMPLES_PASSED);
-
+					if(needsQuery)
+					{
 #if 0
-					if(!qglIsQueryARB(tr.occlusionQueryObjects[ocCount]))
-					{
-						ri.Error(ERR_FATAL, "tr.occlusionQueryObjects[%i] has no occlusion query object: %i", ocCount, tr.occlusionQueryObjects[ocCount]);
-					}
-#endif
+						IssueLightOcclusionQuery(&occlusionQueryQueue, light, qtrue);
+#else
+						EnQueue(&invisibleQueue, light);
 
-					backEnd.pc.c_occlusionQueries++;
+						if(QueueSize(&invisibleQueue) >= r_chcMaxPrevInvisNodesBatchSize->integer)
+							IssueLightMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
+#endif
+					}
 				}
 
 				if(iaCount < (backEnd.viewParms.numInteractions - 1))
@@ -6847,82 +7073,91 @@ void RB_RenderLightOcclusionQueries()
 			}
 		}
 
+		if(!QueueEmpty(&invisibleQueue))
+		{
+			// remaining previously invisible node queries
+			IssueLightMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
+
+			//ri.Printf(PRINT_ALL, "occlusionQueryQueue.empty() = %i\n", QueueEmpty(&occlusionQueryQueue));
+		}
+
 		// go back to the world modelview matrix
 		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
-		if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+		while(!QueueEmpty(&occlusionQueryQueue))
 		{
-			// FIXME it ain't work in subviews
-			return;
-		}
-
-		if(ocCount == -1)
-		{
-			// Tr3B: avoid the following qglFinish if there are no lights
-			return;
-		}
-
-		/*
-		   if(!ocCount)
-		   {
-		   qglEnable(GL_TEXTURE_2D);
-		   return;
-		   }
-		 */
-
-		qglFinish();
-
-		// do other work until "most" of the queries are back, to avoid
-		// wasting time spinning
-		if(ocCount >= 0)
-		{
-			int             i;
-			int             avCount;
-			int             limit;
-
-			//limit = (int)(ocCount * 5 / 6);	// instead of N-1, to prevent the GPU from going idle
-			limit = ocCount;
-
-#if 1
-			if(limit >= (MAX_OCCLUSION_QUERIES - 1))
-				limit = (MAX_OCCLUSION_QUERIES - 1);
-#endif
-
-			i = 0;
-			avCount = -1;
-			do
+			if(LightOcclusionResultAvailable(QueueFront(&occlusionQueryQueue)->data))
 			{
-				if(i >= ocCount)
+				light = (trRefLight_t *) DeQueue(&occlusionQueryQueue);
+
+				// wait if result not available
+				GetLightOcclusionQueryResult(light);
+
+				if(light->occlusionQuerySamples[backEnd.viewParms.viewCount] > r_chcVisibilityThreshold->integer)
 				{
-					i = 0;
+					// if a query of multiple previously invisible objects became visible, we need to
+					// test all the individual objects ...
+					if(!QueueEmpty(&light->multiQuery))
+					{
+						multiQueryLight = light;
+
+						IssueLightOcclusionQuery(&occlusionQueryQueue, multiQueryLight, qfalse);
+
+						while(!QueueEmpty(&multiQueryLight->multiQuery))
+						{
+							light = (trRefLight_t *) DeQueue(&multiQueryLight->multiQuery);
+
+							IssueLightOcclusionQuery(&occlusionQueryQueue, light, qtrue);
+						}
+					}
+					else
+					{
+						light->visible[backEnd.viewParms.viewCount] = qtrue;
+					}
 				}
+				else
+				{
+					if(!QueueEmpty(&light->multiQuery))
+					{
+						light->visible[backEnd.viewParms.viewCount] = qfalse;
 
-				qglGetQueryObjectivARB(tr.occlusionQueryObjects[i], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+						multiQueryLight = light;
+						while(!QueueEmpty(&multiQueryLight->multiQuery))
+						{
+							light = (trRefLight_t *) DeQueue(&multiQueryLight->multiQuery);
 
-				if(available)
-					avCount++;
+							light->visible[backEnd.viewParms.viewCount] = qfalse;
 
-				i++;
-
-			} while(avCount < limit);
-
-			if(r_speeds->integer == 7)
-			{
-				qglFinish();
-				endTime = ri.Milliseconds();
-				backEnd.pc.c_occlusionQueriesResponseTime = endTime - startTime;
-
-				startTime = ri.Milliseconds();
+							backEnd.pc.c_occlusionQueriesSaved++;
+						}
+					}
+					else
+					{
+						light->visible[backEnd.viewParms.viewCount] = qfalse;
+					}
+				}
 			}
 		}
+
+		if(r_speeds->integer == 7)
+		{
+			qglFinish();
+			endTime = ri.Milliseconds();
+			backEnd.pc.c_occlusionQueriesResponseTime = endTime - startTime;
+
+			startTime = ri.Milliseconds();
+		}
+
+		// go back to the world modelview matrix
+		backEnd.orientation = backEnd.viewParms.world;
+		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 		// reenable writes to depth and color buffers
 		GL_State(GLS_DEPTHMASK_TRUE);
 
 		// loop trough all light interactions and fetch results for each last interaction
 		// then copy result to all other interactions that belong to the same light
-		ocCount = -1;
 		iaFirst = 0;
 		queryObjects = qtrue;
 		oldLight = NULL;
@@ -6949,28 +7184,16 @@ void RB_RenderLightOcclusionQueries()
 			{
 				if(queryObjects)
 				{
-					if(!ia->noOcclusionQueries &&
-					   ocCount <
-					   (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.orientation.origin) == CULL_OUT */ )
+					if(!ia->noOcclusionQueries)
 					{
-						ocCount++;
-
-						qglGetQueryObjectivARB(tr.occlusionQueryObjects[ocCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-						if(available)
+						if((backEnd.viewParms.frameCount - light->lastQueried[backEnd.viewParms.viewCount]) <= Q_min((int)ceil((r_chcMaxVisibleFrames->value * 0.5f) + (r_chcMaxVisibleFrames->value * 0.5f) * random()), r_chcMaxVisibleFrames->integer))
 						{
-							backEnd.pc.c_occlusionQueriesAvailable++;
-
-							// get the object and store it in the occlusion bits for the light
-							qglGetQueryObjectivARB(tr.occlusionQueryObjects[ocCount], GL_QUERY_RESULT, &ocSamples);
-
-							if(ocSamples <= 0)
-							{
-								backEnd.pc.c_occlusionQueriesLightsCulled++;
-							}
+							ocSamples = light->occlusionQuerySamples[backEnd.viewParms.viewCount] > r_chcVisibilityThreshold->integer;
 						}
 						else
 						{
-							ocSamples = 1;
+							backEnd.pc.c_occlusionQueriesLightsCulled++;
+							ocSamples = 0;
 						}
 					}
 					else
@@ -7333,6 +7556,7 @@ static void RB_RenderDebugUtils()
 				qglEnd();
 				*/
 
+#if 1
 				if(light->isStatic && light->frustumVBO && light->frustumIBO)
 				{
 					R_BindVBO(light->frustumVBO);
@@ -7349,6 +7573,7 @@ static void RB_RenderDebugUtils()
 					tess.numVertexes = 0;
 				}
 				else
+#endif
 				{
 					tess.numIndexes = 0;
 					tess.numVertexes = 0;
@@ -7359,6 +7584,9 @@ static void RB_RenderDebugUtils()
 						case RL_DIRECTIONAL:
 						{
 							Tess_AddCube(vec3_origin, light->localBounds[0], light->localBounds[1], lightColor);
+
+							if(!VectorCompare(light->l.center, vec3_origin))
+								Tess_AddCube(light->l.center, minSize, maxSize, colorYellow);
 
 							Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 							Tess_DrawElements();
