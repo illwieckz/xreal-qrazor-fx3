@@ -1995,8 +1995,10 @@ static void R_CoherentHierachicalCulling()
 			// identify nodes that we cannot skip queries for
 
 			// reset node's visibility classification
-			if(BoundsIntersectPoint(node->mins, node->maxs, tr.viewParms.orientation.origin))
+			//if(BoundsIntersectPoint(node->mins, node->maxs, tr.viewParms.orientation.origin))
+			if(BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[FRUSTUM_NEAR]) == 3)
 			{
+				// node clips near plane so avoid the occlusion query test
 				node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
 				node->lastQueried[tr.viewCount] = tr.frameCount;
 				node->visible[tr.viewCount] = qtrue;

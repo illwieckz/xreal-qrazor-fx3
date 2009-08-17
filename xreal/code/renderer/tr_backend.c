@@ -3071,6 +3071,9 @@ void RB_RenderInteractionsDeferred()
 				GL_Bind(tr.whiteImage);
 				GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
 
+				// set light scissor to reduce fillrate
+				GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+
 				// set the reference stencil value
 				GL_ClearStencil(128);
 
@@ -3084,9 +3087,6 @@ void RB_RenderInteractionsDeferred()
 
 				qglStencilFunc(GL_ALWAYS, 128, 255);
 				qglStencilMask(255);
-
-				// set light scissor to reduce fillrate
-				//GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
 				if(light->isStatic && light->frustumVBO && light->frustumIBO)
 				{
@@ -3467,8 +3467,16 @@ void RB_RenderInteractionsDeferred()
 						GL_SelectTexture(5);
 						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
+#if 0
 						// draw lighting with a fullscreen quad
 						Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+#else
+						VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
+						VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+						VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						Tess_InstantQuad(quadVerts);
+#endif
 					}
 					else if(light->l.rlType == RL_PROJ)
 					{
@@ -3524,8 +3532,16 @@ void RB_RenderInteractionsDeferred()
 						GL_SelectTexture(5);
 						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
+#if 0
 						// draw lighting with a fullscreen quad
 						Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+#else
+						VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
+						VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+						VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						Tess_InstantQuad(quadVerts);
+#endif
 					}
 					else if(light->l.rlType == RL_DIRECTIONAL)
 					{
@@ -3599,8 +3615,16 @@ void RB_RenderInteractionsDeferred()
 						GL_SelectTexture(5);
 						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
+#if 0
 						// draw lighting with a fullscreen quad
 						Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+#else
+						VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
+						VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+						VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						Tess_InstantQuad(quadVerts);
+#endif
 					}
 				}
 

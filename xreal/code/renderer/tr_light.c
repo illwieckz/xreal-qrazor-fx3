@@ -1337,7 +1337,8 @@ void R_SetupLightScissor(trRefLight_t * light)
 		light->noOcclusionQueries = qfalse;
 	}
 
-	if(r_noLightScissors->integer || R_CullLightPoint(light, tr.viewParms.orientation.origin) == CULL_IN)
+	// check if the light volume clips agains the near plane
+	if(r_noLightScissors->integer || BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], &tr.viewParms.frustum[FRUSTUM_NEAR]) == 3)
 	{
 		if(glConfig.occlusionQueryAvailable)
 		{
@@ -1346,6 +1347,7 @@ void R_SetupLightScissor(trRefLight_t * light)
 		return;
 	}
 
+#if 1
 	if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
 	{
 		// we use the stencil volume test instead of the light scissor
@@ -1357,6 +1359,7 @@ void R_SetupLightScissor(trRefLight_t * light)
 		// we don't need it for any other mode ...
 		return;
 	}
+#endif
 
 	// transform local light corners to world space -> eye space -> clip space -> window space
 	// and extend the light scissor's mins maxs by resulting window coords
