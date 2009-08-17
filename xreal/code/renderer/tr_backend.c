@@ -3071,11 +3071,6 @@ void RB_RenderInteractionsDeferred()
 				GL_Bind(tr.whiteImage);
 				GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
 
-				// set up the transformation matrix
-				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
-				GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-
 				// set the reference stencil value
 				GL_ClearStencil(128);
 
@@ -3095,6 +3090,11 @@ void RB_RenderInteractionsDeferred()
 
 				if(light->isStatic && light->frustumVBO && light->frustumIBO)
 				{
+					// render in world space
+					backEnd.orientation = backEnd.viewParms.world;
+					GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
 					R_BindVBO(light->frustumVBO);
 					R_BindIBO(light->frustumIBO);
 
@@ -3105,6 +3105,11 @@ void RB_RenderInteractionsDeferred()
 				}
 				else
 				{
+					// render in light space
+					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+					GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
 					tess.numIndexes = 0;
 					tess.numVertexes = 0;
 
@@ -4039,11 +4044,6 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 				GL_Bind(tr.whiteImage);
 				GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
 
-				// set up the transformation matrix
-				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
-				GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-
 				// set the reference stencil value
 				GL_ClearStencil(128);
 
@@ -4060,6 +4060,11 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 
 				if(light->isStatic && light->frustumVBO && light->frustumIBO)
 				{
+					// render in world space
+					backEnd.orientation = backEnd.viewParms.world;
+					GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
 					R_BindVBO(light->frustumVBO);
 					R_BindIBO(light->frustumIBO);
 
@@ -4070,6 +4075,11 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 				}
 				else
 				{
+					// render in light space
+					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+					GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
 					tess.numIndexes = 0;
 					tess.numVertexes = 0;
 
@@ -6624,12 +6634,13 @@ static void RenderLightOcclusionVolume( trRefLight_t * light)
 
 	GL_CheckErrors();
 
-	R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
-	GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-
 	if(light->isStatic && light->frustumVBO && light->frustumIBO)
 	{
+		// render in world space
+		backEnd.orientation = backEnd.viewParms.world;
+		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
 		R_BindVBO(light->frustumVBO);
 		R_BindIBO(light->frustumIBO);
 
@@ -6642,6 +6653,11 @@ static void RenderLightOcclusionVolume( trRefLight_t * light)
 	}
 	else
 	{
+		// render in light space
+		R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+		GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
 		tess.numIndexes = 0;
 		tess.numVertexes = 0;
 
@@ -6854,8 +6870,8 @@ static void IssueLightMultiOcclusionQueries(link_t * multiQueue, link_t * indivi
 	//ri.Printf(PRINT_ALL, "]\n");
 
 	//multiQueryLight->occlusionQueryNumbers[backEnd.viewParms.viewCount] = tr.pc.c_occlusionQueries;
-	tr.pc.c_occlusionQueries++;
-	tr.pc.c_occlusionQueriesMulti++;
+	backEnd.pc.c_occlusionQueries++;
+	backEnd.pc.c_occlusionQueriesMulti++;
 
 	// end the query
 	qglEndQueryARB(GL_SAMPLES_PASSED);
@@ -6948,12 +6964,36 @@ static void GetLightOcclusionQueryResult(trRefLight_t *light)
 	}
 }
 
+static int LightCompare(const void *a, const void *b)
+{
+	trRefLight_t   *l1, *l2;
+	float           d1, d2;
+
+	l1 = (trRefLight_t *) *(void **)a;
+	l2 = (trRefLight_t *) *(void **)b;
+
+	d1 = DistanceSquared(backEnd.viewParms.orientation.origin, l1->l.origin);
+	d2 = DistanceSquared(backEnd.viewParms.orientation.origin, l2->l.origin);
+
+	if(d1 < d2)
+	{
+		return -1;
+	}
+	if(d1 > d2)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
 void RB_RenderLightOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_RenderLightOcclusionQueries ---\n");
 
 	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
+		int				i;
 		interaction_t  *ia;
 		int             iaCount;
 		int             iaFirst;
@@ -6962,8 +7002,8 @@ void RB_RenderLightOcclusionQueries()
 		qboolean        queryObjects;
 		link_t			occlusionQueryQueue;
 		link_t			invisibleQueue;
+		growList_t      invisibleList;
 		qboolean		wasVisible;
-		qboolean		needsQuery;
 		int             startTime = 0, endTime = 0;
 
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
@@ -7006,6 +7046,7 @@ void RB_RenderLightOcclusionQueries()
 
 		QueueInit(&occlusionQueryQueue);
 		QueueInit(&invisibleQueue);
+		Com_InitGrowList(&invisibleList, 1000);
 
 		// loop trough all light interactions and render the light OBB for each last interaction
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
@@ -7019,36 +7060,36 @@ void RB_RenderLightOcclusionQueries()
 				if(!ia->noOcclusionQueries) /*&& R_CullLightPoint(light, backEnd.viewParms.orientation.origin) == CULL_OUT */
 				{
 					// identify previously visible nodes
-					//wasVisible = light->visible[backEnd.viewParms.viewCount] && ((backEnd.viewParms.frameCount - light->lastVisited[backEnd.viewParms.viewCount]) <= r_chcMaxVisibleFrames->integer);
-					wasVisible = light->visible[backEnd.viewParms.viewCount] && (light->lastVisited[backEnd.viewParms.viewCount] == backEnd.viewParms.frameCount -1);
-
-					/*
-					if(BoundsIntersectPoint(light->mins, light->maxs, tr.viewParms.orientation.origin))
-					{
-						light->occlusionQuerySamples[backEnd.viewParms.viewCount] = r_chcVisibilityThreshold->integer + 1;
-						light->lastQueried[backEnd.viewParms.viewCount] = tr.frameCount;
-						light->visible[backEnd.viewParms.viewCount] = qtrue;
-
-						needsQuery = qfalse;
-					}
-					else
-					*/
-					{
-						needsQuery = !wasVisible;
-					}
+					//wasVisible = light->visible[backEnd.viewParms.viewCount] && ((backEnd.viewParms.frameCount - light->lastQueried[backEnd.viewParms.viewCount]) <= r_chcMaxVisibleFrames->integer);
+					//wasVisible = light->visible[backEnd.viewParms.viewCount] && (light->lastVisited[backEnd.viewParms.viewCount] == backEnd.viewParms.frameCount -1);
+					wasVisible = light->visible[backEnd.viewParms.viewCount] && ((backEnd.viewParms.frameCount - light->lastQueried[backEnd.viewParms.viewCount]) <= Q_min((int)ceil((r_chcMaxVisibleFrames->value * 0.5f) + (r_chcMaxVisibleFrames->value * 0.5f) * random()), r_chcMaxVisibleFrames->integer));
 
 					// update node's visited flag
 					light->lastVisited[backEnd.viewParms.viewCount] = backEnd.viewParms.frameCount;
 
-					if(needsQuery)
+					if(R_CullLightPoint(light, backEnd.viewParms.orientation.origin) == CULL_IN)
+					{
+						light->occlusionQuerySamples[backEnd.viewParms.viewCount] = r_chcVisibilityThreshold->integer + 1;
+						light->lastQueried[backEnd.viewParms.viewCount] = backEnd.viewParms.frameCount;
+						light->visible[backEnd.viewParms.viewCount] = qtrue;
+					}
+					else if(wasVisible)
+					{
+						//light->occlusionQuerySamples[backEnd.viewParms.viewCount] = r_chcVisibilityThreshold->integer + 1;
+						//light->lastQueried[backEnd.viewParms.viewCount] = backEnd.viewParms.frameCount;
+						//light->visible[backEnd.viewParms.viewCount] = qtrue;
+					}
+					else
 					{
 #if 0
 						IssueLightOcclusionQuery(&occlusionQueryQueue, light, qtrue);
-#else
+#elif 0
 						EnQueue(&invisibleQueue, light);
 
 						if(QueueSize(&invisibleQueue) >= r_chcMaxPrevInvisNodesBatchSize->integer)
 							IssueLightMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
+#else
+						Com_AddToGrowList(&invisibleList, light);
 #endif
 					}
 				}
@@ -7072,6 +7113,20 @@ void RB_RenderLightOcclusionQueries()
 				iaCount++;
 			}
 		}
+
+		// sort lights by distance
+		qsort(invisibleList.elements, invisibleList.currentElements, sizeof(void *), LightCompare);
+
+		for(i = 0; i < invisibleList.currentElements; i++)
+		{
+			light = Com_GrowListElement(&invisibleList, i);
+
+			EnQueue(&invisibleQueue, light);
+
+			if(QueueSize(&invisibleQueue) >= r_chcMaxPrevInvisNodesBatchSize->integer)
+				IssueLightMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
+		}
+		Com_DestroyGrowList(&invisibleList);
 
 		if(!QueueEmpty(&invisibleQueue))
 		{
@@ -7121,6 +7176,7 @@ void RB_RenderLightOcclusionQueries()
 					if(!QueueEmpty(&light->multiQuery))
 					{
 						light->visible[backEnd.viewParms.viewCount] = qfalse;
+						backEnd.pc.c_occlusionQueriesLightsCulled++;
 
 						multiQueryLight = light;
 						while(!QueueEmpty(&multiQueryLight->multiQuery))
@@ -7128,13 +7184,14 @@ void RB_RenderLightOcclusionQueries()
 							light = (trRefLight_t *) DeQueue(&multiQueryLight->multiQuery);
 
 							light->visible[backEnd.viewParms.viewCount] = qfalse;
-
+							backEnd.pc.c_occlusionQueriesLightsCulled++;
 							backEnd.pc.c_occlusionQueriesSaved++;
 						}
 					}
 					else
 					{
 						light->visible[backEnd.viewParms.viewCount] = qfalse;
+						backEnd.pc.c_occlusionQueriesLightsCulled++;
 					}
 				}
 			}
@@ -7186,15 +7243,7 @@ void RB_RenderLightOcclusionQueries()
 				{
 					if(!ia->noOcclusionQueries)
 					{
-						if((backEnd.viewParms.frameCount - light->lastQueried[backEnd.viewParms.viewCount]) <= Q_min((int)ceil((r_chcMaxVisibleFrames->value * 0.5f) + (r_chcMaxVisibleFrames->value * 0.5f) * random()), r_chcMaxVisibleFrames->integer))
-						{
-							ocSamples = light->occlusionQuerySamples[backEnd.viewParms.viewCount] > r_chcVisibilityThreshold->integer;
-						}
-						else
-						{
-							backEnd.pc.c_occlusionQueriesLightsCulled++;
-							ocSamples = 0;
-						}
+						ocSamples = light->visible[backEnd.viewParms.viewCount];
 					}
 					else
 					{
@@ -7517,11 +7566,6 @@ static void RB_RenderDebugUtils()
 
 				GLSL_SetUniform_Color(&tr.genericSingleShader, lightColor);
 
-				// set up the transformation matrix
-				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
-				GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-
 				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
 				VectorMA(vec3_origin, 16, forward, forward);
 				VectorMA(vec3_origin, 16, left, left);
@@ -7559,6 +7603,11 @@ static void RB_RenderDebugUtils()
 #if 1
 				if(light->isStatic && light->frustumVBO && light->frustumIBO)
 				{
+					// go back to the world modelview matrix
+					backEnd.orientation = backEnd.viewParms.world;
+					GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
 					R_BindVBO(light->frustumVBO);
 					R_BindIBO(light->frustumIBO);
 
@@ -7575,6 +7624,11 @@ static void RB_RenderDebugUtils()
 				else
 #endif
 				{
+					// set up the transformation matrix
+					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+					GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
 					tess.numIndexes = 0;
 					tess.numVertexes = 0;
 

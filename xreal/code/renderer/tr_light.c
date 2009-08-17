@@ -714,7 +714,12 @@ void R_SetupLightFrustum(trRefLight_t * light)
 			case RL_OMNI:
 			case RL_DIRECTIONAL:
 			{
-				Tess_AddCube(vec3_origin, light->localBounds[0], light->localBounds[1], colorWhite);
+				vec3_t	worldBounds[2];
+
+				MatrixTransformPoint(light->transformMatrix, light->localBounds[0], worldBounds[0]);
+				MatrixTransformPoint(light->transformMatrix, light->localBounds[1], worldBounds[1]);
+
+				Tess_AddCube(vec3_origin, worldBounds[0], worldBounds[1], colorWhite);
 
 				//Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 
@@ -747,7 +752,13 @@ void R_SetupLightFrustum(trRefLight_t * light)
 			case RL_PROJ:
 			{
 				vec3_t          farCorners[4];
-				vec4_t         *frustum = light->localFrustum;
+				vec4_t			frustum[6];
+
+				// transform local frustum to world space
+				for(i = 0; i < 6; i++)
+				{
+					MatrixTransformPlane(light->transformMatrix, light->localFrustum[i], frustum[i]);
+				}
 
 				PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
 				PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);

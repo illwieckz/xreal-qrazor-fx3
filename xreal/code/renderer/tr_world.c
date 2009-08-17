@@ -1405,11 +1405,11 @@ static void DrawNode_r(bspNode_t * node, int planeBits)
 			}
 		}
 
-		if(!(node->contents & CONTENTS_TRANSLUCENT))
+		if(node->contents != -1 && !(node->contents & CONTENTS_TRANSLUCENT))
 		{
-#if !defined(USE_D3D10)
-			//Tess_EndBegin();
-
+#if defined(USE_D3D10)
+			//TODO
+#else
 			R_BindVBO(node->volumeVBO);
 			R_BindIBO(node->volumeIBO);
 
@@ -1423,15 +1423,11 @@ static void DrawNode_r(bspNode_t * node, int planeBits)
 			tess.numIndexes = 0;
 			tess.numVertexes = 0;
 #endif
-		}
-
-		if(node->contents != -1)
-		{
 			break;
 		}
 
 		// recurse down the children, front side first
-		//DrawNode_r(node->children[0], planeBits);
+		DrawNode_r(node->children[0], planeBits);
 
 		// tail recurse
 		node = node->children[1];
@@ -1872,12 +1868,14 @@ static void R_CoherentHierachicalCulling()
 
 	GL_State(GLS_COLORMASK_BITS | GLS_DEPTHMASK_TRUE);
 
-	// draw BSP node volumes to depth
+	// draw BSP leaf volumes to depth
 	DrawNode_r(&tr.world->nodes[0], FRUSTUM_CLIPALL);
-#endif
 
-	// now we should have a depth buffer that we can use for occlusion culling
 	GL_State(GLS_COLORMASK_BITS);
+#else
+	// use the depth buffer of the previous frame for occlusion culling
+	GL_State(GLS_COLORMASK_BITS);
+#endif
 
 	ClearLink(&tr.traversalStack);
 	QueueInit(&tr.occlusionQueryQueue);
