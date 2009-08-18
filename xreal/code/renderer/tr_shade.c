@@ -469,6 +469,11 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		   }
 		 */
 
+
+		// OK we added a lot of stuff but if we do something bad in the GLSL shaders then we want the proper line
+		// so we have to reset the line counting
+		Q_strcat(bufferExtra, sizeof(bufferExtra), "#line 0\n");
+
 		sizeExtra = strlen(bufferExtra);
 		sizeFinal = sizeExtra + size;
 
