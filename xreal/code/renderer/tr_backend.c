@@ -6826,6 +6826,15 @@ static void IssueLightOcclusionQuery(link_t * queue, trRefLight_t * light, qbool
 
 	//ri.Printf(PRINT_ALL, "--- IssueOcclusionQuery(%i) ---\n", node - tr.world->nodes);
 
+	if(tr.numUsedOcclusionQueryObjects < (MAX_OCCLUSION_QUERIES -1))
+	{
+		light->occlusionQueryObject = tr.occlusionQueryObjects[tr.numUsedOcclusionQueryObjects++];
+	}
+	else
+	{
+		light->occlusionQueryObject = 0;
+	}
+
 	EnQueue(queue, light);
 
 	// tell GetOcclusionQueryResult that this is not a multi query
@@ -6834,39 +6843,30 @@ static void IssueLightOcclusionQuery(link_t * queue, trRefLight_t * light, qbool
 		QueueInit(&light->multiQuery);
 	}
 
-	//Tess_EndBegin();
-
-	GL_CheckErrors();
-
-#if 0
-	if(qglIsQueryARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+	if(light->occlusionQueryObject > 0)
 	{
-		ri.Error(ERR_FATAL, "IssueOcclusionQuery: light %i has already an occlusion query object in slot %i: %i", light - tr.world->lights, backEnd.viewParms.viewCount, light->occlusionQueryObjects[backEnd.viewParms.viewCount]);
-	}
-#endif
+		GL_CheckErrors();
 
-	// begin the occlusion query
-	qglBeginQueryARB(GL_SAMPLES_PASSED, light->occlusionQueryObjects[backEnd.viewParms.viewCount]);
+		// begin the occlusion query
+		qglBeginQueryARB(GL_SAMPLES_PASSED, light->occlusionQueryObject);
 
-	GL_CheckErrors();
+		GL_CheckErrors();
 
-	RenderLightOcclusionVolume(light);
+		RenderLightOcclusionVolume(light);
 
-	// end the query
-	qglEndQueryARB(GL_SAMPLES_PASSED);
+		// end the query
+		qglEndQueryARB(GL_SAMPLES_PASSED);
 
 #if 1
-	if(!qglIsQueryARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount]))
-	{
-		ri.Error(ERR_FATAL, "IssueLightOcclusionQuery: light %i has no occlusion query object in slot %i: %i", light - tr.world->lights, backEnd.viewParms.viewCount, light->occlusionQueryObjects[backEnd.viewParms.viewCount]);
-	}
+		if(!qglIsQueryARB(light->occlusionQueryObject))
+		{
+			ri.Error(ERR_FATAL, "IssueLightOcclusionQuery: light %i has no occlusion query object in slot %i: %i", light - tr.world->lights, backEnd.viewParms.viewCount, light->occlusionQueryObject);
+		}
 #endif
 
-	//light->occlusionQueryNumbers[backEnd.viewParms.viewCount] = backEnd.pc.c_occlusionQueries;
-	backEnd.pc.c_occlusionQueries++;
-
-	tess.numIndexes = 0;
-	tess.numVertexes = 0;
+		//light->occlusionQueryNumbers[backEnd.viewParms.viewCount] = backEnd.pc.c_occlusionQueries;
+		backEnd.pc.c_occlusionQueries++;
+	}
 
 	GL_CheckErrors();
 }
@@ -6883,9 +6883,9 @@ static void IssueLightMultiOcclusionQueries(link_t * multiQueue, link_t * indivi
 	ri.Printf(PRINT_ALL, "IssueLightMultiOcclusionQueries(");
 	for(l = multiQueue->prev; l != multiQueue; l = l->prev)
 	{
-		node = (bspNode_t *) l->data;
+		light = (trRefLight_t *) l->data;
 
-		ri.Printf(PRINT_ALL, "%i, ", node - tr.world->nodes);
+		ri.Printf(PRINT_ALL, "%i, ", light - backEnd.refdef.lights);
 	}
 	ri.Printf(PRINT_ALL, ")\n");
 #endif
@@ -6895,46 +6895,50 @@ static void IssueLightMultiOcclusionQueries(link_t * multiQueue, link_t * indivi
 
 	multiQueryLight = (trRefLight_t *) QueueFront(multiQueue)->data;
 
-	// begin the occlusion query
-	GL_CheckErrors();
+	if(tr.numUsedOcclusionQueryObjects < (MAX_OCCLUSION_QUERIES -1))
+	{
+		multiQueryLight->occlusionQueryObject = tr.occlusionQueryObjects[tr.numUsedOcclusionQueryObjects++];
+	}
+	else
+	{
+		multiQueryLight->occlusionQueryObject = 0;
+	}
+
+	if(multiQueryLight->occlusionQueryObject > 0)
+	{
+		// begin the occlusion query
+		GL_CheckErrors();
+
+		qglBeginQueryARB(GL_SAMPLES_PASSED, multiQueryLight->occlusionQueryObject);
+
+		GL_CheckErrors();
+
+		//ri.Printf(PRINT_ALL, "rendering nodes:[");
+		for(l = multiQueue->prev; l != multiQueue; l = l->prev)
+		{
+			light = (trRefLight_t *) l->data;
+
+			//ri.Printf(PRINT_ALL, "%i, ", light - backEnd.refdef.lights);
+
+			RenderLightOcclusionVolume(light);
+		}
+		//ri.Printf(PRINT_ALL, "]\n");
+
+		backEnd.pc.c_occlusionQueries++;
+		backEnd.pc.c_occlusionQueriesMulti++;
+
+		// end the query
+		qglEndQueryARB(GL_SAMPLES_PASSED);
+
+		GL_CheckErrors();
 
 #if 0
-	if(!qglIsQueryARB(multiQueryNode->occlusionQueryObjects[backEnd.viewParms.viewCount]))
-	{
-		ri.Error(ERR_FATAL, "IssueLightMultiOcclusionQueries: node %i has already occlusion query object in slot %i: %i", multiQueryNode - tr.world->nodes, backEnd.viewParms.viewCount, multiQueryNode->occlusionQueryObjects[backEnd.viewParms.viewCount]);
-	}
+		if(!qglIsQueryARB(multiQueryNode->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+		{
+			ri.Error(ERR_FATAL, "IssueMultiOcclusionQueries: node %i has no occlusion query object in slot %i: %i", multiQueryNode - tr.world->nodes, backEnd.viewParms.viewCount, multiQueryNode->occlusionQueryObjects[backEnd.viewParms.viewCount]);
+		}
 #endif
-
-	qglBeginQueryARB(GL_SAMPLES_PASSED, multiQueryLight->occlusionQueryObjects[backEnd.viewParms.viewCount]);
-
-	GL_CheckErrors();
-
-	//ri.Printf(PRINT_ALL, "rendering nodes:[");
-	for(l = multiQueue->prev; l != multiQueue; l = l->prev)
-	{
-		light = (trRefLight_t *) l->data;
-
-		//ri.Printf(PRINT_ALL, "%i, ", light - tr.world->lights);
-
-		RenderLightOcclusionVolume(light);
 	}
-	//ri.Printf(PRINT_ALL, "]\n");
-
-	//multiQueryLight->occlusionQueryNumbers[backEnd.viewParms.viewCount] = tr.pc.c_occlusionQueries;
-	backEnd.pc.c_occlusionQueries++;
-	backEnd.pc.c_occlusionQueriesMulti++;
-
-	// end the query
-	qglEndQueryARB(GL_SAMPLES_PASSED);
-
-	GL_CheckErrors();
-
-#if 0
-	if(!qglIsQueryARB(multiQueryNode->occlusionQueryObjects[backEnd.viewParms.viewCount]))
-	{
-		ri.Error(ERR_FATAL, "IssueMultiOcclusionQueries: node %i has no occlusion query object in slot %i: %i", multiQueryNode - tr.world->nodes, backEnd.viewParms.viewCount, multiQueryNode->occlusionQueryObjects[backEnd.viewParms.viewCount]);
-	}
-#endif
 
 	// move queue to node->multiQuery queue
 	QueueInit(&multiQueryLight->multiQuery);
@@ -6954,16 +6958,21 @@ static qboolean LightOcclusionResultAvailable(trRefLight_t *light)
 {
 	GLint			available;
 
-	qglFinish();
-
-	available = 0;
-	//if(qglIsQueryARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+	if(light->occlusionQueryObject > 0)
 	{
-		qglGetQueryObjectivARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-		GL_CheckErrors();
+		qglFinish();
+
+		available = 0;
+		//if(qglIsQueryARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+		{
+			qglGetQueryObjectivARB(light->occlusionQueryObject, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+			GL_CheckErrors();
+		}
+
+		return !!available;
 	}
 
-	return !!available;
+	return qtrue;
 }
 
 static void GetLightOcclusionQueryResult(trRefLight_t *light)
@@ -6974,35 +6983,41 @@ static void GetLightOcclusionQueryResult(trRefLight_t *light)
 
 	GLimp_LogComment("--- GetLightOcclusionQueryResult ---\n");
 
-	qglFinish();
+	if(light->occlusionQueryObject > 0)
+	{
+		qglFinish();
 
 #if 0
-	if(!qglIsQueryARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount]))
-	{
-		ri.Error(ERR_FATAL, "GetOcclusionQueryResult: node %i has no occlusion query object in slot %i: %i", node - tr.world->nodes, backEnd.viewParms.viewCount, node->occlusionQueryObjects[backEnd.viewParms.viewCount]);
-	}
+		if(!qglIsQueryARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+		{
+			ri.Error(ERR_FATAL, "GetOcclusionQueryResult: node %i has no occlusion query object in slot %i: %i", node - tr.world->nodes, backEnd.viewParms.viewCount, node->occlusionQueryObjects[backEnd.viewParms.viewCount]);
+		}
 #endif
 
-	available = 0;
-	while(!available)
-	{
-		//if(qglIsQueryARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+		available = 0;
+		while(!available)
 		{
-			qglGetQueryObjectivARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-			//GL_CheckErrors();
+			//if(qglIsQueryARB(node->occlusionQueryObjects[backEnd.viewParms.viewCount]))
+			{
+				qglGetQueryObjectivARB(light->occlusionQueryObject, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+				//GL_CheckErrors();
+			}
 		}
+
+		backEnd.pc.c_occlusionQueriesAvailable++;
+
+		qglGetQueryObjectivARB(light->occlusionQueryObject, GL_QUERY_RESULT, &ocSamples);
+
+		//ri.Printf(PRINT_ALL, "GetOcclusionQueryResult(%i): available = %i, samples = %i\n", node - tr.world->nodes, available, ocSamples);
+
+		GL_CheckErrors();
+	}
+	else
+	{
+		ocSamples = 1;
 	}
 
-	backEnd.pc.c_occlusionQueriesAvailable++;
-
-	qglGetQueryObjectivARB(light->occlusionQueryObjects[backEnd.viewParms.viewCount], GL_QUERY_RESULT, &ocSamples);
-
-	//ri.Printf(PRINT_ALL, "GetOcclusionQueryResult(%i): available = %i, samples = %i\n", node - tr.world->nodes, available, ocSamples);
-
-	GL_CheckErrors();
-
-	light->occlusionQuerySamples[backEnd.viewParms.viewCount] = ocSamples;
-	light->lastQueried[backEnd.viewParms.viewCount] = backEnd.viewParms.frameCount;
+	light->occlusionQuerySamples = ocSamples;
 
 	// copy result to all nodes that were linked to this multi query node
 	sentinel = &light->multiQuery;
@@ -7010,8 +7025,7 @@ static void GetLightOcclusionQueryResult(trRefLight_t *light)
 	{
 		light = (trRefLight_t *) l->data;
 
-		light->occlusionQuerySamples[backEnd.viewParms.viewCount] = ocSamples;
-		light->lastQueried[backEnd.viewParms.viewCount] = tr.frameCount;
+		light->occlusionQuerySamples = ocSamples;
 	}
 }
 
@@ -7054,7 +7068,6 @@ void RB_RenderLightOcclusionQueries()
 		link_t			occlusionQueryQueue;
 		link_t			invisibleQueue;
 		growList_t      invisibleList;
-		qboolean		wasVisible;
 		int             startTime = 0, endTime = 0;
 
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
@@ -7095,6 +7108,7 @@ void RB_RenderLightOcclusionQueries()
 			GL_State(GLS_COLORMASK_BITS);
 		}
 
+		tr.numUsedOcclusionQueryObjects = 0;
 		QueueInit(&occlusionQueryQueue);
 		QueueInit(&invisibleQueue);
 		Com_InitGrowList(&invisibleList, 1000);
@@ -7108,41 +7122,18 @@ void RB_RenderLightOcclusionQueries()
 			if(!ia->next)
 			{
 				// last interaction of current light
-				if(!ia->noOcclusionQueries) /*&& R_CullLightPoint(light, backEnd.viewParms.orientation.origin) == CULL_OUT */
+				if(!ia->noOcclusionQueries)
 				{
-					// identify previously visible nodes
-					//wasVisible = light->visible[backEnd.viewParms.viewCount] && ((backEnd.viewParms.frameCount - light->lastQueried[backEnd.viewParms.viewCount]) <= r_chcMaxVisibleFrames->integer);
-					//wasVisible = light->visible[backEnd.viewParms.viewCount] && (light->lastVisited[backEnd.viewParms.viewCount] == backEnd.viewParms.frameCount -1);
-					wasVisible = light->visible[backEnd.viewParms.viewCount] && ((backEnd.viewParms.frameCount - light->lastQueried[backEnd.viewParms.viewCount]) <= Q_min((int)ceil((r_chcMaxVisibleFrames->value * 0.5f) + (r_chcMaxVisibleFrames->value * 0.5f) * random()), r_chcMaxVisibleFrames->integer));
-
-					// update node's visited flag
-					light->lastVisited[backEnd.viewParms.viewCount] = backEnd.viewParms.frameCount;
-
-					if(R_CullLightPoint(light, backEnd.viewParms.orientation.origin) == CULL_IN)
-					{
-						light->occlusionQuerySamples[backEnd.viewParms.viewCount] = r_chcVisibilityThreshold->integer + 1;
-						light->lastQueried[backEnd.viewParms.viewCount] = backEnd.viewParms.frameCount;
-						light->visible[backEnd.viewParms.viewCount] = qtrue;
-					}
-					else if(wasVisible)
-					{
-						//light->occlusionQuerySamples[backEnd.viewParms.viewCount] = r_chcVisibilityThreshold->integer + 1;
-						//light->lastQueried[backEnd.viewParms.viewCount] = backEnd.viewParms.frameCount;
-						//light->visible[backEnd.viewParms.viewCount] = qtrue;
-					}
-					else
-					{
 #if 0
-						IssueLightOcclusionQuery(&occlusionQueryQueue, light, qtrue);
+					IssueLightOcclusionQuery(&occlusionQueryQueue, light, qtrue);
 #elif 0
-						EnQueue(&invisibleQueue, light);
+					EnQueue(&invisibleQueue, light);
 
-						if(QueueSize(&invisibleQueue) >= r_chcMaxPrevInvisNodesBatchSize->integer)
-							IssueLightMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
+					if(QueueSize(&invisibleQueue) >= r_chcMaxPrevInvisNodesBatchSize->integer)
+						IssueLightMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
 #else
-						Com_AddToGrowList(&invisibleList, light);
+					Com_AddToGrowList(&invisibleList, light);
 #endif
-					}
 				}
 
 				if(iaCount < (backEnd.viewParms.numInteractions - 1))
@@ -7200,7 +7191,7 @@ void RB_RenderLightOcclusionQueries()
 				// wait if result not available
 				GetLightOcclusionQueryResult(light);
 
-				if(light->occlusionQuerySamples[backEnd.viewParms.viewCount] > r_chcVisibilityThreshold->integer)
+				if(light->occlusionQuerySamples > r_chcVisibilityThreshold->integer)
 				{
 					// if a query of multiple previously invisible objects became visible, we need to
 					// test all the individual objects ...
@@ -7217,16 +7208,11 @@ void RB_RenderLightOcclusionQueries()
 							IssueLightOcclusionQuery(&occlusionQueryQueue, light, qtrue);
 						}
 					}
-					else
-					{
-						light->visible[backEnd.viewParms.viewCount] = qtrue;
-					}
 				}
 				else
 				{
 					if(!QueueEmpty(&light->multiQuery))
 					{
-						light->visible[backEnd.viewParms.viewCount] = qfalse;
 						backEnd.pc.c_occlusionQueriesLightsCulled++;
 
 						multiQueryLight = light;
@@ -7234,14 +7220,12 @@ void RB_RenderLightOcclusionQueries()
 						{
 							light = (trRefLight_t *) DeQueue(&multiQueryLight->multiQuery);
 
-							light->visible[backEnd.viewParms.viewCount] = qfalse;
 							backEnd.pc.c_occlusionQueriesLightsCulled++;
 							backEnd.pc.c_occlusionQueriesSaved++;
 						}
 					}
 					else
 					{
-						light->visible[backEnd.viewParms.viewCount] = qfalse;
 						backEnd.pc.c_occlusionQueriesLightsCulled++;
 					}
 				}
@@ -7294,7 +7278,7 @@ void RB_RenderLightOcclusionQueries()
 				{
 					if(!ia->noOcclusionQueries)
 					{
-						ocSamples = light->visible[backEnd.viewParms.viewCount];
+						ocSamples = light->occlusionQuerySamples > r_chcVisibilityThreshold->integer;
 					}
 					else
 					{

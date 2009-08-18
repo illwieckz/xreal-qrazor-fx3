@@ -1852,6 +1852,11 @@ void R_Init(void)
 	}
 
 #if !defined(USE_D3D10)
+	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
+	 {
+		qglGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
+	 }
+
 	err = qglGetError();
 	if(err != GL_NO_ERROR)
 	{
@@ -1902,11 +1907,13 @@ void RE_Shutdown(qboolean destroyWindow)
 #if !defined(USE_D3D10)
 		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 		{
+			qglDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
+
 			if(tr.world)
 			{
 				int				j;
 				bspNode_t      *node;
-				trRefLight_t   *light;
+				//trRefLight_t   *light;
 
 				for(j = 0; j < tr.world->numnodes; j++)
 				{
@@ -1915,12 +1922,14 @@ void RE_Shutdown(qboolean destroyWindow)
 					qglDeleteQueriesARB(MAX_VIEWS, node->occlusionQueryObjects);
 				}
 
+				/*
 				for(j = 0; j < tr.world->numLights; j++)
 				{
 					light = &tr.world->lights[j];
 
 					qglDeleteQueriesARB(MAX_VIEWS, light->occlusionQueryObjects);
 				}
+				*/
 			}
 		}
 

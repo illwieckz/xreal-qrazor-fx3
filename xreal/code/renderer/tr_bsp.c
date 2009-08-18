@@ -5522,12 +5522,6 @@ void R_LoadEntities(lump_t * l)
 		light->additive = qtrue;
 
 		light->shadowLOD = 0;
-
-#if defined(USE_D3D10)
-		// TODO
-#else
-		qglGenQueriesARB(MAX_VIEWS, light->occlusionQueryObjects);
-#endif
 	}
 
 	// parse lights

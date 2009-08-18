@@ -354,14 +354,9 @@ typedef struct trRefLight_s
 	qboolean        noDepthBoundsTest;
 
 	qboolean        noOcclusionQueries;
-	uint32_t        occlusionQueryObjects[MAX_VIEWS];
-	int             occlusionQuerySamples[MAX_VIEWS];	// visible fragment count
-	qboolean		visible[MAX_VIEWS];
-	int				lastVisited[MAX_VIEWS];
-	int				lastQueried[MAX_VIEWS];
-//	qboolean		issueOcclusionQuery[MAX_VIEWS];
-
-	link_t			multiQuery;			// CHC++: list of all nodes that are used by the same occlusion query
+	uint32_t        occlusionQueryObject;
+	int             occlusionQuerySamples;
+	link_t			multiQuery;				// CHC++: list of all nodes that are used by the same occlusion query
 
 	frustum_t       frustum;
 	vec4_t			localFrustum[6];
@@ -3182,6 +3177,9 @@ typedef struct
 	float           triangleTable[FUNCTABLE_SIZE];
 	float           sawToothTable[FUNCTABLE_SIZE];
 	float           inverseSawToothTable[FUNCTABLE_SIZE];
+
+	uint32_t        occlusionQueryObjects[MAX_OCCLUSION_QUERIES];
+	int				numUsedOcclusionQueryObjects;
 } trGlobals_t;
 
 extern const matrix_t quakeToOpenGLMatrix;
