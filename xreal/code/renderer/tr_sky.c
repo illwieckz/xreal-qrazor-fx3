@@ -308,7 +308,7 @@ static void MakeSkyVec(float s, float t, int axis, vec4_t outSt, vec4_t outXYZ)
 	int             j, k;
 	float           boxSize;
 
-	boxSize = backEnd.viewParms.skyFar / 1.75;	// div sqrt(3)
+	boxSize = backEnd.viewParms.zFar / 1.75;	// div sqrt(3)
 	b[0] = s * boxSize;
 	b[1] = t * boxSize;
 	b[2] = boxSize;
@@ -657,7 +657,7 @@ void R_InitSkyTexCoords(float heightCloud)
 
 	// init zfar so MakeSkyVec works even though
 	// a world hasn't been bounded
-	backEnd.viewParms.skyFar = 1024;
+	backEnd.viewParms.zFar = 1024;
 
 	for(i = 0; i < 6; i++)
 	{

@@ -1230,75 +1230,6 @@ static void R_MarkLeaves(void)
 }
 
 
-/*
-=============
-R_SetFarClip
-=============
-*/
-static void R_SetFarClip(void)
-{
-	float           farthestCornerDistance = 0;
-	int             i;
-
-	// if not rendering the world (icons, menus, etc)
-	// set a 2k far clip plane
-	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
-	{
-		tr.viewParms.skyFar = 2048;
-		return;
-	}
-
-	// set far clipping planes dynamically
-	farthestCornerDistance = 0;
-	for(i = 0; i < 8; i++)
-	{
-		vec3_t          v;
-		vec3_t          vecTo;
-		float           distance;
-
-		if(i & 1)
-		{
-			v[0] = tr.viewParms.visBounds[0][0];
-		}
-		else
-		{
-			v[0] = tr.viewParms.visBounds[1][0];
-		}
-
-		if(i & 2)
-		{
-			v[1] = tr.viewParms.visBounds[0][1];
-		}
-		else
-		{
-			v[1] = tr.viewParms.visBounds[1][1];
-		}
-
-		if(i & 4)
-		{
-			v[2] = tr.viewParms.visBounds[0][2];
-		}
-		else
-		{
-			v[2] = tr.viewParms.visBounds[1][2];
-		}
-
-		VectorSubtract(v, tr.viewParms.orientation.origin, vecTo);
-
-		distance = vecTo[0] * vecTo[0] + vecTo[1] * vecTo[1] + vecTo[2] * vecTo[2];
-
-		if(distance > farthestCornerDistance)
-		{
-			farthestCornerDistance = distance;
-		}
-	}
-	tr.viewParms.skyFar = sqrt(farthestCornerDistance);
-}
-
-
-
-
-
 static void DrawLeaf(bspNode_t * node)
 {
 	// leaf node, so add mark surfaces
@@ -2448,9 +2379,6 @@ void R_AddWorldSurfaces(void)
 		// update visbounds and add surfaces that weren't cached with VBOs
 		R_RecursiveWorldNode(tr.world->nodes, FRUSTUM_CLIPALL);
 	}
-
-	// dynamically compute far clip plane distance for sky
-	R_SetFarClip();
 
 	if(r_mergeClusterSurfaces->integer && !r_dynamicBspOcclusionCulling->integer)
 	{

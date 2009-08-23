@@ -213,9 +213,10 @@ void	main()
 		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
 		
 		#if defined(DEBUG_ESM)
-		gl_FragColor.r = DEBUG_ESM & 1 ? shadowDistance : 0.0;
-		gl_FragColor.g = DEBUG_ESM & 2 ? -(shadowDistance - vertexDistance) : 0.0;
-		gl_FragColor.b = DEBUG_ESM & 4 ? 1.0 - shadow : 0.0;
+		#extension GL_EXT_gpu_shader4 : enable
+		gl_FragColor.r = (DEBUG_ESM & 1) != 0 ? shadowDistance : 0.0;
+		gl_FragColor.g = (DEBUG_ESM & 2) != 0 ? -(shadowDistance - vertexDistance) : 0.0;
+		gl_FragColor.b = (DEBUG_ESM & 4) != 0 ? shadow : 0.0;
 		gl_FragColor.a = 1.0;
 		return;
 		#endif

@@ -5615,7 +5615,7 @@ void Tess_End()
 	// call off to shader specific tess end function
 	tess.stageIteratorFunc();
 
-	if(!tess.shadowVolume)
+	if(!tess.shadowVolume && (tess.stageIteratorFunc != Tess_StageIteratorShadowFill))
 	{
 		// draw debugging stuff
 		if(r_showTris->integer || r_showBatches->integer ||

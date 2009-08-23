@@ -2118,6 +2118,7 @@ static void RB_RenderInteractionsShadowMapped()
 	matrix_t        modelToLight;
 	qboolean        drawShadows;
 	int             cubeSide;
+	int				splitFrustumIndex;
 	int             startTime = 0, endTime = 0;
 
 	if(!glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable)
@@ -2214,18 +2215,9 @@ static void RB_RenderInteractionsShadowMapped()
 								// a call to va() every frame!
 								GLimp_LogComment(va("----- Rendering shadowCube side: %i -----\n", cubeSide));
 							}
-							/*
-							   if(r_shadows->integer == 6)
-							   {
-							   R_AttachFBOTextureDepth(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
-							   tr.shadowCubeFBOImage[light->shadowLOD]->texnum);
-							   }
-							   else
-							 */
-							{
-								R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
-													 tr.shadowCubeFBOImage[light->shadowLOD]->texnum, 0);
-							}
+
+							R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
+												 tr.shadowCubeFBOImage[light->shadowLOD]->texnum, 0);
 							if(!r_ignoreGLErrors->integer)
 							{
 								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
@@ -2365,22 +2357,10 @@ static void RB_RenderInteractionsShadowMapped()
 						}
 
 						case RL_PROJ:
-						case RL_DIRECTIONAL:
 						{
-							// TODO LiSPSM
-
 							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
 
-							/*
-							   if(r_shadows->integer == 6)
-							   {
-							   R_AttachFBOTextureDepth(tr.shadowMapFBOImage[light->shadowLOD]->texnum);
-							   }
-							   else
-							 */
-							{
-								R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
-							}
+							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
 							if(!r_ignoreGLErrors->integer)
 							{
 								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
@@ -2392,6 +2372,28 @@ static void RB_RenderInteractionsShadowMapped()
 
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+							GL_LoadProjectionMatrix(light->projectionMatrix);
+							break;
+						}
+
+						case RL_DIRECTIONAL:
+						{
+							GLimp_LogComment("--- Rendering directional shadowMap ---\n");
+
+							splitFrustumIndex = 0;
+							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[splitFrustumIndex]->texnum, 0);
+							if(!r_ignoreGLErrors->integer)
+							{
+								R_CheckFBO(tr.shadowMapFBO[splitFrustumIndex]);
+							}
+
+							// set the window clipping
+							GL_Viewport(0, 0, shadowMapResolutions[splitFrustumIndex], shadowMapResolutions[splitFrustumIndex]);
+							GL_Scissor(0, 0, shadowMapResolutions[splitFrustumIndex], shadowMapResolutions[splitFrustumIndex]);
+
+							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+							MatrixSetupOrthogonalProjection(light->projectionMatrix, -1, 1, -1, 1, -light->sphereRadius, light->sphereRadius);
 							GL_LoadProjectionMatrix(light->projectionMatrix);
 							break;
 						}
@@ -3685,6 +3687,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	qboolean        alphaTest, oldAlphaTest;
 	qboolean        drawShadows;
 	int             cubeSide;
+	int				splitFrustum;
 
 	shader_t       *lightShader;
 	shaderStage_t  *attenuationXYStage;
@@ -3981,20 +3984,31 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 
 						case RL_DIRECTIONAL:
 						{
+							vec3_t			angles;
+							vec3_t			lightDirection;
+
 							GLimp_LogComment("--- Rendering directional shadowMap ---\n");
 
-							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
+							splitFrustum = 0;
+							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[splitFrustum]->texnum, 0);
 							if(!r_ignoreGLErrors->integer)
 							{
-								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
+								R_CheckFBO(tr.shadowMapFBO[splitFrustum]);
 							}
 
 							// set the window clipping
-							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							GL_Viewport(0, 0, shadowMapResolutions[splitFrustum], shadowMapResolutions[splitFrustum]);
+							GL_Scissor(0, 0, shadowMapResolutions[splitFrustum], shadowMapResolutions[splitFrustum]);
 
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+							// FIXME replace with a per light value
+							VectorCopy(tr.sunDirection, lightDirection);
+
+							//VectorToAngles(lightDirection, angles);
+							//MatrixSetupTransformFromRotation()
+
+							MatrixSetupOrthogonalProjection(light->projectionMatrix, -1, 1, -1, 1, -light->sphereRadius, light->sphereRadius);
 							GL_LoadProjectionMatrix(light->projectionMatrix);
 							break;
 						}
@@ -4069,7 +4083,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 				GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
 
 				// set light scissor to reduce fillrate
-				GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+				//GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
 				// set the reference stencil value
 				GL_ClearStencil(128);
@@ -4085,6 +4099,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 				qglStencilFunc(GL_ALWAYS, 128, 255);
 				qglStencilMask(255);
 
+#if 1
 				if(light->isStatic && light->frustumVBO && light->frustumIBO)
 				{
 					// render in world space
@@ -4101,6 +4116,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 					tess.numIndexes = light->frustumIndexes;
 				}
 				else
+#endif
 				{
 					// render in light space
 					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
@@ -4360,6 +4376,16 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 						break;
 					}
 
+					case RL_DIRECTIONAL:
+					{
+						// build the attenuation matrix
+						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
+						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
+						break;
+					}
+
 					default:
 						break;
 				}
@@ -4566,7 +4592,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 							// set uniforms
 							VectorCopy(light->origin, lightOrigin);
 							VectorCopy(tess.svars.color, lightColor);
-							shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
+							shadowCompare = qtrue; //!light->l.noShadows && light->shadowLOD >= 0;
 
 							GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_proj, viewOrigin);
 							GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_proj, lightOrigin);
@@ -4657,7 +4683,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 						// set uniforms
 						VectorCopy(light->origin, lightOrigin);
 						VectorCopy(tess.svars.color, lightColor);
-						shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
+						shadowCompare = qtrue; //!light->l.noShadows && light->shadowLOD >= 0;
 
 						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_directional, viewOrigin);
 
@@ -4719,6 +4745,13 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 						GL_SelectTexture(5);
 						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
+						// bind u_ShadowMap
+						if(shadowCompare)
+						{
+							GL_SelectTexture(6);
+							GL_Bind(tr.shadowMapFBOImage[splitFrustum]);
+						}
+
 #if 0
 						// draw lighting with a fullscreen quad
 						Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -4730,10 +4763,61 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 						Tess_InstantQuad(quadVerts);
 #endif
 					}
-
-					// end of lighting
-					GL_PopMatrix();
 				}
+
+#if 0
+				// draw split frustum shadow maps
+				if(light->l.rlType == RL_DIRECTIONAL)
+				{
+					float		x, y, w, h;
+
+					GL_Viewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+								backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+
+					GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+							   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+
+					GL_BindProgram(&tr.genericSingleShader);
+					GL_Cull(CT_TWO_SIDED);
+					GL_State(GLS_DEPTHTEST_DISABLE);
+
+					// set uniforms
+					GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
+					GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
+					GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
+					if(glConfig.vboVertexSkinningAvailable)
+					{
+						GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
+					}
+					GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
+					GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
+
+					GL_SelectTexture(0);
+					GL_Bind(tr.shadowMapFBOImage[splitFrustum]);
+
+					w = glConfig.vidWidth / 20;
+					h = glConfig.vidHeight / 15;
+					x = splitFrustum % 20 * w;
+					y = splitFrustum / 20 * h;
+
+					// show in proportional size
+					//if(r_showImages->integer == 2)
+					{
+						w *= tr.shadowMapFBOImage[splitFrustum]->uploadWidth / 512.0f;
+						h *= tr.shadowMapFBOImage[splitFrustum]->uploadHeight / 512.0f;
+					}
+
+					VectorSet4(quadVerts[0], x, y, 0, 1);
+					VectorSet4(quadVerts[1], x + w, y, 0, 1);
+					VectorSet4(quadVerts[2], x + w, y + h, 0, 1);
+					VectorSet4(quadVerts[3], x, y + h, 0, 1);
+
+					Tess_InstantQuad(quadVerts);
+				}
+#endif
+
+				// end of lighting
+				GL_PopMatrix();
 			}
 		}						// end if(iaCount == iaFirst)
 
@@ -4895,7 +4979,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 			{
 				case RL_OMNI:
 				case RL_PROJ:
-				//case RL_DIRECTIONAL:
+				case RL_DIRECTIONAL:
 				{
 					// add the triangles for this surface
 					rb_surfaceTable[*surface] (surface);
@@ -6685,6 +6769,7 @@ static void RenderLightOcclusionVolume( trRefLight_t * light)
 
 	GL_CheckErrors();
 
+#if 1
 	if(light->isStatic && light->frustumVBO && light->frustumIBO)
 	{
 		// render in world space
@@ -6703,6 +6788,7 @@ static void RenderLightOcclusionVolume( trRefLight_t * light)
 		Tess_DrawElements();
 	}
 	else
+#endif
 	{
 		// render in light space
 		R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
@@ -7124,16 +7210,7 @@ void RB_RenderLightOcclusionQueries()
 				// last interaction of current light
 				if(!ia->noOcclusionQueries)
 				{
-#if 0
-					IssueLightOcclusionQuery(&occlusionQueryQueue, light, qtrue);
-#elif 0
-					EnQueue(&invisibleQueue, light);
-
-					if(QueueSize(&invisibleQueue) >= r_chcMaxPrevInvisNodesBatchSize->integer)
-						IssueLightMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
-#else
 					Com_AddToGrowList(&invisibleList, light);
-#endif
 				}
 
 				if(iaCount < (backEnd.viewParms.numInteractions - 1))
@@ -7165,8 +7242,16 @@ void RB_RenderLightOcclusionQueries()
 
 			EnQueue(&invisibleQueue, light);
 
-			if(QueueSize(&invisibleQueue) >= r_chcMaxPrevInvisNodesBatchSize->integer)
-				IssueLightMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
+			if((invisibleList.currentElements - i) <= 100)
+			{
+				if(QueueSize(&invisibleQueue) >= 10)
+					IssueLightMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
+			}
+			else
+			{
+				if(QueueSize(&invisibleQueue) >= 50)
+					IssueLightMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
+			}
 		}
 		Com_DestroyGrowList(&invisibleList);
 
@@ -7685,18 +7770,23 @@ static void RB_RenderDebugUtils()
 						case RL_PROJ:
 						{
 							vec3_t          farCorners[4];
-							//vec4_t		frustum[6];
+							//vec4_t			frustum[6];
 							vec4_t         *frustum = light->localFrustum;
 
-							/*
+#if 0
 							// transform frustum from world space to local space
 							for(j = 0; j < 6; j++)
 							{
-								//MatrixTransformPlane(light->transformMatrix, light->localFrustum[j], frustum[j]);
-								VectorCopy4(light->localFrustum[j], frustum[j]);
-								MatrixTransformPlane2(light->viewMatrix, frustum[j]);
+								MatrixTransformPlane(light->transformMatrix, light->localFrustum[j], frustum[j]);
+								//VectorCopy4(light->localFrustum[j], frustum[j]);
+								//MatrixTransformPlane2(light->viewMatrix, frustum[j]);
 							}
-							*/
+
+							// go back to the world modelview matrix
+							backEnd.orientation = backEnd.viewParms.world;
+							GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+							GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+#endif
 
 							PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
 							PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
@@ -8642,6 +8732,155 @@ static void RB_RenderDebugUtils()
 			{
 				qglDisable(GL_POLYGON_OFFSET_FILL);
 			}
+		}
+
+		// go back to the world modelview matrix
+		backEnd.orientation = backEnd.viewParms.world;
+		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+	}
+
+	if(r_showParallelShadowSplits->integer)
+	{
+		int				i, j;
+		bspNode_t      *node;
+		link_t		   *l, *sentinel;
+		vec3_t          farCorners[4];
+		vec3_t          nearCorners[4];
+		vec4_t			frustum[6];
+		vec4_t          quadVerts[4];
+		vec4_t			frustumColor;
+		float			lambda;
+		float			ratio;
+		float			zNear;
+
+		if(tr.refdef.rdflags & (RDF_NOWORLDMODEL))
+		{
+			return;
+		}
+
+		GL_BindProgram(&tr.genericSingleShader);
+		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
+		GL_Cull(CT_TWO_SIDED);
+
+		// set uniforms
+		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
+		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_CUSTOM_RGB);
+		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_CUSTOM);
+		if(glConfig.vboVertexSkinningAvailable)
+		{
+			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
+		}
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
+
+		// set up the transformation matrix
+		backEnd.orientation = backEnd.viewParms.world;
+		GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+		// bind u_ColorMap
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+		GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
+
+		GL_CheckErrors();
+
+		if(r_dynamicBspOcclusionCulling->integer)
+		{
+			//sentinel = &tr.occlusionQueryList;
+			sentinel = &tr.traversalStack;
+		}
+		else
+		{
+			sentinel = &tr.traversalStack;
+		}
+
+		for(i = 0; i < r_parallelShadowSplits->integer; i++)
+		{
+			lambda = r_parallelShadowSplitWeight->value;
+			ratio = r_zfar->value / r_znear->value;
+
+			tess.numIndexes = 0;
+			tess.numVertexes = 0;
+
+			VectorCopy4(g_color_table[i % 8], frustumColor);
+
+			for(j = 0; j < 6; j++)
+			{
+				VectorCopy(backEnd.viewParms.frustum[j].normal, frustum[j]);
+				frustum[j][3] = backEnd.viewParms.frustum[j].dist;
+			}
+
+			if(i >= 1)
+			{
+				float si = i / (float)r_parallelShadowSplits->integer;
+
+				if(i >= 2 && i < (r_parallelShadowSplits->integer - 1))
+				{
+					frustum[FRUSTUM_FAR][3] = zNear * 1.005f;
+				}
+				frustum[FRUSTUM_NEAR][3] = zNear = lambda * (r_znear->value * powf(ratio, si)) + (1 - lambda) * (r_znear->value + (r_zfar->value - r_znear->value) * si);
+			}
+
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[0]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[1]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[2]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[3]);
+
+#if 1
+			ri.Printf(PRINT_ALL, "split frustum %i\n", i);
+			ri.Printf(PRINT_ALL, "pyramid nearCorners\n");
+			for(j = 0; j < 4; j++)
+			{
+				ri.Printf(PRINT_ALL, "(%5.3f, %5.3f, %5.3f)\n", nearCorners[j][0], nearCorners[j][1], nearCorners[j][2]);
+			}
+#endif
+
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[2]);
+			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[3]);
+
+#if 1
+			ri.Printf(PRINT_ALL, "pyramid farCorners\n");
+			for(j = 0; j < 4; j++)
+			{
+				ri.Printf(PRINT_ALL, "(%5.3f, %5.3f, %5.3f)\n", farCorners[j][0], farCorners[j][1], farCorners[j][2]);
+			}
+#endif
+
+			tess.numVertexes = 0;
+			tess.numIndexes = 0;
+
+			// draw outer surfaces
+			for(j = 0; j < 4; j++)
+			{
+				VectorSet4(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
+				VectorSet4(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
+				VectorSet4(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
+				VectorSet4(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
+				Tess_AddQuadStamp2(quadVerts, frustumColor);
+			}
+
+			// draw far cap
+			VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+			VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+			VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+			VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+			Tess_AddQuadStamp2(quadVerts, frustumColor);
+
+			// draw near cap
+			VectorSet4(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
+			VectorSet4(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
+			VectorSet4(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
+			VectorSet4(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
+			Tess_AddQuadStamp2(quadVerts, frustumColor);
+
+
+			Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
+			Tess_DrawElements();
+
+			tess.numIndexes = 0;
+			tess.numVertexes = 0;
 		}
 
 		// go back to the world modelview matrix

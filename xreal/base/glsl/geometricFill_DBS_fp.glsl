@@ -194,8 +194,9 @@ void	main()
 	//N.z = sqrt(1.0 - dot(N.xy, N.xy));
 	#if defined(r_NormalScale)
 	N.z *= r_NormalScale;
-	normalize(N);
 	#endif
+	
+	N = normalize(N);
 	
 	// transform normal into world space
 	N = tangentToWorldMatrix * N;

@@ -721,8 +721,6 @@ void R_SetupLightFrustum(trRefLight_t * light)
 
 				Tess_AddCube(vec3_origin, worldBounds[0], worldBounds[1], colorWhite);
 
-				//Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
-
 				verts = ri.Hunk_AllocateTempMemory(tess.numVertexes * sizeof(srfVert_t));
 				triangles = ri.Hunk_AllocateTempMemory((tess.numIndexes / 3) * sizeof(srfTriangle_t));
 
@@ -738,7 +736,7 @@ void R_SetupLightFrustum(trRefLight_t * light)
 					triangles[i].indexes[2] = tess.indexes[i * 3 + 2];
 				}
 
-				light->frustumVBO = R_CreateVBO2("staticLightFrustum_VBO", tess.numVertexes, verts, ATTR_POSITION | ATTR_COLOR, VBO_USAGE_STATIC);
+				light->frustumVBO = R_CreateVBO2("staticLightFrustum_VBO", tess.numVertexes, verts, ATTR_POSITION, VBO_USAGE_STATIC);
 				light->frustumIBO = R_CreateIBO2("staticLightFrustum_IBO", tess.numIndexes / 3, triangles, VBO_USAGE_STATIC);
 
 				ri.Hunk_FreeTempMemory(triangles);
@@ -833,8 +831,6 @@ void R_SetupLightFrustum(trRefLight_t * light)
 					Tess_AddQuadStamp2(quadVerts, colorRed);
 				}
 
-				//Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
-
 				verts = ri.Hunk_AllocateTempMemory(tess.numVertexes * sizeof(srfVert_t));
 				triangles = ri.Hunk_AllocateTempMemory((tess.numIndexes / 3) * sizeof(srfTriangle_t));
 
@@ -850,11 +846,14 @@ void R_SetupLightFrustum(trRefLight_t * light)
 					triangles[i].indexes[2] = tess.indexes[i * 3 + 2];
 				}
 
-				light->frustumVBO = R_CreateVBO2("staticLightFrustum_VBO", tess.numVertexes, verts, ATTR_POSITION | ATTR_COLOR, VBO_USAGE_STATIC);
+				light->frustumVBO = R_CreateVBO2("staticLightFrustum_VBO", tess.numVertexes, verts, ATTR_POSITION, VBO_USAGE_STATIC);
 				light->frustumIBO = R_CreateIBO2("staticLightFrustum_IBO", tess.numIndexes / 3, triangles, VBO_USAGE_STATIC);
 
 				ri.Hunk_FreeTempMemory(triangles);
 				ri.Hunk_FreeTempMemory(verts);
+
+				light->frustumVerts = tess.numVertexes;
+				light->frustumIndexes = tess.numIndexes;
 				break;
 			}
 
@@ -1692,7 +1691,7 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 		proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
 
 		// calculate frustum planes using the modelview projection matrix
-		R_SetupFrustum(frustum, modelViewMatrix, projectionMatrix);
+		R_SetupFrustum2(frustum, modelViewMatrix, projectionMatrix);
 
 		// use the frustum planes to cut off shadowmaps beyond the light volume
 		anyClip = qfalse;

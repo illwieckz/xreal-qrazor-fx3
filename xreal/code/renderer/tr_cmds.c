@@ -134,6 +134,10 @@ void R_PerformanceCounters(void)
 						  tr.pc.c_occlusionQueriesMulti,
 						  tr.pc.c_occlusionQueriesSaved);
 	}
+	else if(r_speeds->integer == 11)
+	{
+		ri.Printf(PRINT_ALL, "zNear: %.0f zFar: %.0f\n", tr.viewParms.zNear, tr.viewParms.zFar);
+	}
 
 	Com_Memset(&tr.pc, 0, sizeof(tr.pc));
 	Com_Memset(&backEnd.pc, 0, sizeof(backEnd.pc));

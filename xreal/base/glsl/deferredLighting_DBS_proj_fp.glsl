@@ -125,6 +125,7 @@ void	main()
 	if(shadow <= 0.0)
 	{
 		discard;
+		return;
 	}
 	else
 #elif defined(ESM)
@@ -148,9 +149,10 @@ void	main()
 		//shadow = smoothstep(0.0, 1.0, shadow);
 		
 		#if defined(DEBUG_ESM)
-		gl_FragColor.r = DEBUG_ESM & 1 ? shadowDistance : 0.0;
-		gl_FragColor.g = DEBUG_ESM & 2 ? -(shadowDistance - vertexDistance) : 0.0;
-		gl_FragColor.b = DEBUG_ESM & 4 ? shadow : 0.0;
+		#extension GL_EXT_gpu_shader4 : enable
+		gl_FragColor.r = (DEBUG_ESM & 1) != 0 ? shadowDistance : 0.0;
+		gl_FragColor.g = (DEBUG_ESM & 2) != 0 ? -(shadowDistance - vertexDistance) : 0.0;
+		gl_FragColor.b = (DEBUG_ESM & 4) != 0 ? shadow : 0.0;
 		gl_FragColor.a = 1.0;
 		return;
 		#endif
@@ -159,6 +161,7 @@ void	main()
 	if(shadow <= 0.0)
 	{
 		discard;
+		return;
 	}
 	else
 #endif
@@ -178,6 +181,8 @@ void	main()
 		//N.z = P.w;
 		//N.xyz = 2.0 * (N.xyz - 0.5);
 		//N.z = sqrt(1.0 - dot(N.xy, N.xy));
+		
+		N = normalize(N);
 	
 		// compute light direction in world space
 		vec3 L = normalize(u_LightOrigin - P.xyz);

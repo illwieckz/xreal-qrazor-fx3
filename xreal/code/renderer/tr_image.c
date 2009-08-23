@@ -2949,7 +2949,7 @@ static void R_CreateShadowMapFBOImage(void)
 	if(!glConfig.textureFloatAvailable || r_shadows->integer <= 3)
 		return;
 
-	for(i = 0; i < 5; i++)
+	for(i = 0; i < MAX_SHADOWMAPS; i++)
 	{
 		width = height = shadowMapResolutions[i];
 

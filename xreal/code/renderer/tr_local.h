@@ -82,6 +82,8 @@ typedef unsigned short glIndex_t;
 #define MAX_VISCOUNTS			5
 #define MAX_VIEWS				10
 
+#define MAX_SHADOWMAPS			5
+
 #if !defined(USE_D3D10)
 #define VOLUMETRIC_LIGHTING 1
 #endif
@@ -125,11 +127,11 @@ typedef struct screenRect_s
 
 typedef enum
 {
-	FRUSTUM_NEAR,
 	FRUSTUM_LEFT,
 	FRUSTUM_RIGHT,
 	FRUSTUM_BOTTOM,
 	FRUSTUM_TOP,
+	FRUSTUM_NEAR,
 	FRUSTUM_FAR,
 	FRUSTUM_PLANES = 5,
 	FRUSTUM_CLIPALL = 1 | 2 | 4 | 8 | 16	//| 32
@@ -1986,7 +1988,8 @@ typedef struct
 	frustum_t       frustum;
 
 	vec3_t          visBounds[2];
-	float           skyFar;
+	float           zNear;
+	float           zFar;
 
 	int             numDrawSurfs;
 	struct drawSurf_s *drawSurfs;
@@ -2986,8 +2989,8 @@ typedef struct
 //	image_t        *downScaleFBOImage_16x16;
 //	image_t        *downScaleFBOImage_4x4;
 //	image_t        *downScaleFBOImage_1x1;
-	image_t        *shadowMapFBOImage[5];
-	image_t        *shadowCubeFBOImage[5];
+	image_t        *shadowMapFBOImage[MAX_SHADOWMAPS];
+	image_t        *shadowCubeFBOImage[MAX_SHADOWMAPS];
 
 	// external images
 	image_t        *charsetImage;
@@ -3007,7 +3010,7 @@ typedef struct
 //	FBO_t          *downScaleFBO_1x1;
 	FBO_t          *contrastRenderFBO;
 	FBO_t          *bloomRenderFBO[2];
-	FBO_t          *shadowMapFBO[5];
+	FBO_t          *shadowMapFBO[MAX_SHADOWMAPS];
 
 	// internal shaders
 	shader_t       *defaultShader;
@@ -3336,6 +3339,8 @@ extern cvar_t  *r_shadowMapLinearFilter;
 extern cvar_t  *r_lightBleedReduction;
 extern cvar_t  *r_overDarkeningFactor;
 extern cvar_t  *r_shadowMapDepthScale;
+extern cvar_t  *r_parallelShadowSplits;
+extern cvar_t  *r_parallelShadowSplitWeight;
 
 extern cvar_t  *r_intensity;
 
@@ -3384,6 +3389,7 @@ extern cvar_t  *r_showDeluxeMaps;
 extern cvar_t  *r_showAreaPortals;
 extern cvar_t  *r_showCubeProbes;
 extern cvar_t  *r_showBspNodes;
+extern cvar_t  *r_showParallelShadowSplits;
 
 extern cvar_t  *r_showDeferredDiffuse;
 extern cvar_t  *r_showDeferredNormal;
@@ -3494,7 +3500,7 @@ void            R_RotateEntityForViewParms(const trRefEntity_t * ent, const view
 void            R_RotateEntityForLight(const trRefEntity_t * ent, const trRefLight_t * light, orientationr_t * orien);
 void            R_RotateLightForViewParms(const trRefLight_t * ent, const viewParms_t * viewParms, orientationr_t * orien);
 
-void            R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float *projectionMatrix);
+void            R_SetupFrustum2(frustum_t frustum, const float *modelViewMatrix, const float *projectionMatrix);
 
 qboolean        R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkst);
 void            R_CalcNormalForTriangle(vec3_t normal, const vec3_t v0, const vec3_t v1, const vec3_t v2);

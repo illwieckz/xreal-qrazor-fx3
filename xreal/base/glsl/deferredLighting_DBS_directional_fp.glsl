@@ -82,17 +82,43 @@ void	main()
 	if(shadow <= 0.0)
 	{
 		discard;
+		return;
 	}
 	else
 #elif defined(ESM)
 	if(bool(u_ShadowCompare))
 	{
-		// TODO
+		// compute incident ray
+		vec3 I = u_LightDir;
+		
+		// no filter
+		vec4 texShadow = u_ShadowMatrix * vec4(P.xyz, 1.0);
+		vec4 shadowMoments = texture2DProj(u_ShadowMap, texShadow.xyw);
+		
+		const float	SHADOW_BIAS = 0.001;
+		float vertexDistance = (length(I) / u_LightRadius) * r_ShadowMapDepthScale; // - SHADOW_BIAS;
+		
+		float shadowDistance = shadowMoments.a;
+		
+		// exponential shadow mapping
+		//shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
+		//shadow = smoothstep(0.0, 1.0, shadow);
+		
+		#if defined(DEBUG_ESM)
+		#extension GL_EXT_gpu_shader4 : enable
+		gl_FragColor.r = (DEBUG_ESM & 1) != 0 ? shadowDistance : 0.0;
+		gl_FragColor.g = (DEBUG_ESM & 2) != 0 ? -(shadowDistance - vertexDistance) : 0.0;
+		gl_FragColor.b = (DEBUG_ESM & 4) != 0 ? shadow : 0.0;
+		gl_FragColor.a = 1.0;
+		return;
+		#endif
 	}
 	
 	if(shadow <= 0.0)
 	{
 		discard;
+		return;
 	}
 	else
 #endif
@@ -105,6 +131,8 @@ void	main()
 
 		// compute normal in world space
 		vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
+		
+		N = normalize(N);
 	
 		// compute light direction in world space
 		vec3 L = u_LightDir;

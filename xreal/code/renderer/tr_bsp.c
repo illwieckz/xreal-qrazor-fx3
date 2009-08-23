@@ -5592,7 +5592,14 @@ void R_LoadEntities(lump_t * l)
 			// check for center
 			else if(!Q_stricmp(keyname, "light_center"))
 			{
-				sscanf(value, "%f %f %f", &light->l.center[0], &light->l.center[1], &light->l.center[2]);
+				//sscanf(value, "%f %f %f", &light->l.center[0], &light->l.center[1], &light->l.center[2]);
+
+				s = value;
+				for(i = 0; i < 3; i++)
+				{
+					token = Com_Parse(&s);
+					light->l.center[i] = atof(token);
+				}
 			}
 			// check for color
 			else if(!Q_stricmp(keyname, "_color"))
@@ -7657,7 +7664,7 @@ void R_PrecacheInteractions()
 		s_lightCount++;
 		QueueInit(&light->leafs);
 		R_RecursiveAddInteractionNode(s_worldData.nodes, light);
-		ri.Printf(PRINT_ALL, "light %i touched %i leaves\n", i, QueueSize(&light->leafs));
+		//ri.Printf(PRINT_ALL, "light %i touched %i leaves\n", i, QueueSize(&light->leafs));
 
 #if 0
 		// Tr3b: this can cause really bad shadow problems :/

@@ -1115,23 +1115,243 @@ void R_RotateForViewer(void)
 }
 
 /*
+** SetFarClip
+*/
+static void SetFarClip(void)
+{
+	float           farthestCornerDistance;
+	int             i, j;
+	vec3_t          v;
+	vec3_t          eye;
+	float          *modelMatrix;
+
+	// if not rendering the world (icons, menus, etc)
+	// set a 2k far clip plane
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		tr.viewParms.zFar = 2048;
+		return;
+	}
+
+	//
+	// set far clipping planes dynamically
+	//
+/// Berserker: setup the more precision zFar - convert corners from world to eye coordinates, and take the farthest X local coordinate
+#if 0
+	modelMatrix = tr.viewParms.world.viewMatrix2;
+	farthestCornerDistance = 0;
+	// check visBounds
+	for(i = 0; i < 8; i++)
+	{
+		if(i & 1)
+		{
+			v[0] = tr.viewParms.visBounds[0][0];
+		}
+		else
+		{
+			v[0] = tr.viewParms.visBounds[1][0];
+		}
+
+		if(i & 2)
+		{
+			v[1] = tr.viewParms.visBounds[0][1];
+		}
+		else
+		{
+			v[1] = tr.viewParms.visBounds[1][1];
+		}
+
+		if(i & 4)
+		{
+			v[2] = tr.viewParms.visBounds[0][2];
+		}
+		else
+		{
+			v[2] = tr.viewParms.visBounds[1][2];
+		}
+
+		for(j = 0; j < 3; j++)
+		{
+			eye[j] =
+				v[0] * modelMatrix[j + 0 * 4] +
+				v[1] * modelMatrix[j + 1 * 4] + v[2] * modelMatrix[j + 2 * 4] + modelMatrix[j + 3 * 4];
+		}
+
+		farthestCornerDistance = max(farthestCornerDistance, eye[0] * eye[0] + eye[1] * eye[1] + eye[2] * eye[2]);
+	}
+
+#if 0
+	// check lightBounds
+	if(tr.refdef.numLights)
+	{
+		for(i = 0; i < 8; i++)
+		{
+			if(i & 1)
+			{
+				v[0] = tr.viewParms.lightBounds[0][0];
+			}
+			else
+			{
+				v[0] = tr.viewParms.lightBounds[1][0];
+			}
+
+			if(i & 2)
+			{
+				v[1] = tr.viewParms.lightBounds[0][1];
+			}
+			else
+			{
+				v[1] = tr.viewParms.lightBounds[1][1];
+			}
+
+			if(i & 4)
+			{
+				v[2] = tr.viewParms.lightBounds[0][2];
+			}
+			else
+			{
+				v[2] = tr.viewParms.lightBounds[1][2];
+			}
+
+			for(j = 0; j < 3; j++)
+			{
+				eye[j] =
+					v[0] * modelMatrix[j + 0 * 4] +
+					v[1] * modelMatrix[j + 1 * 4] + v[2] * modelMatrix[j + 2 * 4] + modelMatrix[j + 3 * 4];
+			}
+
+			farthestCornerDistance = max(farthestCornerDistance, eye[0] * eye[0] + eye[1] * eye[1] + eye[2] * eye[2]);
+		}
+	}
+#endif
+
+#else
+	farthestCornerDistance = 0;
+
+	// check visBounds
+	for(i = 0; i < 8; i++)
+	{
+		vec3_t          v;
+		float           distance;
+
+		if(i & 1)
+		{
+			v[0] = tr.viewParms.visBounds[0][0];
+		}
+		else
+		{
+			v[0] = tr.viewParms.visBounds[1][0];
+		}
+
+		if(i & 2)
+		{
+			v[1] = tr.viewParms.visBounds[0][1];
+		}
+		else
+		{
+			v[1] = tr.viewParms.visBounds[1][1];
+		}
+
+		if(i & 4)
+		{
+			v[2] = tr.viewParms.visBounds[0][2];
+		}
+		else
+		{
+			v[2] = tr.viewParms.visBounds[1][2];
+		}
+
+		distance = DistanceSquared(v, tr.viewParms.orientation.origin);
+
+		if(distance > farthestCornerDistance)
+		{
+			farthestCornerDistance = distance;
+		}
+	}
+
+#if 0
+	// check lightBounds
+	for(i = 0; i < 8; i++)
+	{
+		vec3_t          v;
+		vec3_t          vecTo;
+		float           distance;
+
+		if(i & 1)
+		{
+			v[0] = tr.viewParms.lightBounds[0][0];
+		}
+		else
+		{
+			v[0] = tr.viewParms.lightBounds[1][0];
+		}
+
+		if(i & 2)
+		{
+			v[1] = tr.viewParms.lightBounds[0][1];
+		}
+		else
+		{
+			v[1] = tr.viewParms.lightBounds[1][1];
+		}
+
+		if(i & 4)
+		{
+			v[2] = tr.viewParms.lightBounds[0][2];
+		}
+		else
+		{
+			v[2] = tr.viewParms.lightBounds[1][2];
+		}
+
+		VectorSubtract(v, tr.viewParms.orientation.origin, vecTo);
+
+		distance = vecTo[0] * vecTo[0] + vecTo[1] * vecTo[1] + vecTo[2] * vecTo[2];
+
+		if(distance > farthestCornerDistance)
+		{
+			farthestCornerDistance = distance;
+		}
+	}
+#endif
+
+#endif
+	tr.viewParms.zFar = sqrt(farthestCornerDistance);
+}
+
+/*
 ===============
 R_SetupProjection
 ===============
 */
 // *INDENT-OFF*
-void R_SetupProjection(void)
+static void R_SetupProjection(qboolean infiniteFarClip)
 {
 	float           xMin, xMax, yMin, yMax;
 	float           width, height, depth;
 	float           zNear, zFar;
 
-//	matrix_t        proj;
 	float          *proj = tr.viewParms.projectionMatrix;
 
-	// set up projection matrix
-	zNear = r_znear->value;
-	zFar = r_zfar->value;
+	if(r_zfar->value > 0)
+	{
+		// dynamically compute far clip plane distance
+		SetFarClip();
+
+		// sanity check
+		zNear = tr.viewParms.zNear = r_znear->value;
+		zFar = tr.viewParms.zFar = Q_max(tr.viewParms.zFar, r_zfar->value);
+	}
+	else if(infiniteFarClip)
+	{
+		zNear = tr.viewParms.zNear = r_znear->value;
+		zFar = tr.viewParms.zFar = 0;
+	}
+	else
+	{
+		zNear = tr.viewParms.zNear = r_znear->value;
+		zFar = tr.viewParms.zFar = r_zfar->value;
+	}
 
 //	if(r_shadows->integer == 3)
 //		zFar = 0;
@@ -1146,9 +1366,9 @@ void R_SetupProjection(void)
 	height = yMax - yMin;
 	depth = zFar - zNear;
 
-	if(zFar <= 0)
+	if(zFar <= 0 || infiniteFarClip)
 	{
-		// Tr3B - far plane at infinity, see RobustShadowVolumes.pdf by Nvidia
+		// Tr3B: far plane at infinity, see RobustShadowVolumes.pdf by Nvidia
 		proj[0] = 2 * zNear / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
 		proj[1] = 0;					proj[5] = 2 * zNear / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
 		proj[2] = 0;					proj[6] = 0;					proj[10] = -1;						proj[14] = -2 * zNear;
@@ -1162,10 +1382,6 @@ void R_SetupProjection(void)
 		proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -2 * zFar * zNear / depth;
 		proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
 	}
-
-	// convert from our coordinate system (looking down X)
-	// to OpenGL's coordinate system (looking down -Z)
-//	MatrixMultiply(proj, quakeToOpenGLMatrix, tr.viewParms.projectionMatrix);
 }
 // *INDENT-ON*
 
@@ -1175,7 +1391,7 @@ R_SetupUnprojection
 create a matrix with similar functionality like gluUnproject, project from window space to world space
 =================
 */
-void R_SetupUnprojection(void)
+static void R_SetupUnprojection(void)
 {
 	float          *unprojectMatrix = tr.viewParms.unprojectionMatrix;
 
@@ -1187,6 +1403,57 @@ void R_SetupUnprojection(void)
 	MatrixMultiplyScale(unprojectMatrix, 2.0 * Q_recip((float)glConfig.vidWidth), 2.0 * Q_recip((float)glConfig.vidHeight), 2.0);
 }
 
+
+/*
+=================
+R_SetupFrustum
+
+Setup that culling frustum planes for the current view
+=================
+*/
+static void R_SetupFrustum(void)
+{
+	int             i;
+	float           xs, xc;
+	float           ang;
+	vec3_t			planeOrigin;
+
+	ang = tr.viewParms.fovX / 180 * M_PI * 0.5f;
+	xs = sin(ang);
+	xc = cos(ang);
+
+	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[0].normal);
+	VectorMA(tr.viewParms.frustum[0].normal, xc, tr.viewParms.orientation.axis[1], tr.viewParms.frustum[0].normal);
+
+	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[1].normal);
+	VectorMA(tr.viewParms.frustum[1].normal, -xc, tr.viewParms.orientation.axis[1], tr.viewParms.frustum[1].normal);
+
+	ang = tr.viewParms.fovY / 180 * M_PI * 0.5f;
+	xs = sin(ang);
+	xc = cos(ang);
+
+	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[2].normal);
+	VectorMA(tr.viewParms.frustum[2].normal, xc, tr.viewParms.orientation.axis[2], tr.viewParms.frustum[2].normal);
+
+	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[3].normal);
+	VectorMA(tr.viewParms.frustum[3].normal, -xc, tr.viewParms.orientation.axis[2], tr.viewParms.frustum[3].normal);
+
+	for(i = 0; i < 4; i++)
+	{
+		tr.viewParms.frustum[i].type = PLANE_NON_AXIAL;
+		tr.viewParms.frustum[i].dist = DotProduct(tr.viewParms.orientation.origin, tr.viewParms.frustum[i].normal);
+		SetPlaneSignbits(&tr.viewParms.frustum[i]);
+	}
+
+	// Tr3B: set extra near plane which is required by the dynamic occlusion culling
+	tr.viewParms.frustum[FRUSTUM_NEAR].type = PLANE_NON_AXIAL;
+	VectorCopy(tr.viewParms.orientation.axis[0], tr.viewParms.frustum[FRUSTUM_NEAR].normal);
+
+	VectorMA(tr.viewParms.orientation.origin, r_znear->value, tr.viewParms.orientation.axis[0], planeOrigin);
+	tr.viewParms.frustum[FRUSTUM_NEAR].dist = DotProduct(planeOrigin, tr.viewParms.frustum[i].normal);
+	SetPlaneSignbits(&tr.viewParms.frustum[FRUSTUM_NEAR]);
+}
+
 /*
 =================
 R_SetupFrustum
@@ -1195,7 +1462,7 @@ Setup that culling frustum planes for the current view
 =================
 */
 // *INDENT-OFF*
-void R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float *projectionMatrix)
+void R_SetupFrustum2(frustum_t frustum, const float *modelViewMatrix, const float *projectionMatrix)
 {
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 	int				i;
@@ -2365,6 +2632,158 @@ void R_AddLightInteractions()
 	}
 }
 
+void R_AddLightBoundsToVisBounds()
+{
+	int             i, j;
+	trRefLight_t   *light;
+	bspNode_t     **leafs;
+	bspNode_t      *leaf;
+	link_t         *l, *sentinel;
+
+	for(i = 0; i < tr.refdef.numLights; i++)
+	{
+		light = tr.currentLight = &tr.refdef.lights[i];
+
+		if(light->isStatic)
+		{
+			if(r_noStaticLighting->integer || ((r_precomputedLighting->integer || r_vertexLighting->integer) && !light->noRadiosity))
+			{
+				//light->cull = CULL_OUT;
+				continue;
+			}
+		}
+		else
+		{
+			if(r_noDynamicLighting->integer)
+			{
+				//light->cull = CULL_OUT;
+				continue;
+			}
+		}
+
+		// we must set up parts of tr.or for light culling
+		R_RotateLightForViewParms(light, &tr.viewParms, &tr.orientation);
+
+		// calc local bounds for culling
+		if(light->isStatic)
+		{
+			// ignore if not in PVS
+			if(!r_noLightVisCull->integer)
+			{
+				if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
+				{
+					int numVisibleLeafs = 0;
+
+					for(l = light->leafs.next; l != &light->leafs; l = l->next)
+					{
+						if(!l || !l->data)
+						{
+							// something odd happens with the prev/next pointers if ri.Hunk_Alloc was used
+							break;
+						}
+
+						leaf = (bspNode_t *) l->data;
+
+						//ri.Printf(PRINT_ALL, "leaf %i: visible = %i, %i\n", leaf - tr.world->nodes, leaf->visible[tr.viewCount], tr.viewCount);
+
+						if(leaf->visible[tr.viewCount] && (tr.frameCount - leaf->lastVisited[tr.viewCount]) <= r_chcMaxVisibleFrames->integer)
+						{
+							numVisibleLeafs++;
+						}
+					}
+
+					if(numVisibleLeafs == 0)
+					{
+						//tr.pc.c_pvs_cull_light_out++;
+						//light->cull = CULL_OUT;
+						continue;
+					}
+				}
+				else
+				{
+
+					for(l = light->leafs.next; l != &light->leafs; l = l->next)
+					{
+						if(!l || !l->data)
+						{
+							// something odd happens with the prev/next pointers if ri.Hunk_Alloc was used
+							break;
+						}
+
+						leaf = (bspNode_t *) l->data;
+
+						if(leaf->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
+						{
+							light->visCounts[tr.visIndex] = tr.visCounts[tr.visIndex];
+						}
+					}
+
+					if(light->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex])
+					{
+						//tr.pc.c_pvs_cull_light_out++;
+						//light->cull = CULL_OUT;
+						continue;
+					}
+				}
+			}
+		}
+		else
+		{
+			R_SetupLightLocalBounds(light);
+		}
+
+		// look if we have to draw the light including its interactions
+		switch (R_CullLocalBox(light->localBounds))
+		{
+			case CULL_IN:
+			default:
+				break;
+
+			case CULL_CLIP:
+				break;
+
+			case CULL_OUT:
+				continue;
+		}
+
+		if(!light->isStatic)
+		{
+			// set up light transform matrix
+			MatrixSetupTransformFromQuat(light->transformMatrix, light->l.rotation, light->l.origin);
+
+			// setup world bounds for intersection tests
+			R_SetupLightWorldBounds(light);
+		}
+
+		// add to z buffer bounds
+		if(light->worldBounds[0][0] < tr.viewParms.visBounds[0][0])
+		{
+			tr.viewParms.visBounds[0][0] = light->worldBounds[0][0];
+		}
+		if(light->worldBounds[0][1] < tr.viewParms.visBounds[0][1])
+		{
+			tr.viewParms.visBounds[0][1] = light->worldBounds[0][1];
+		}
+		if(light->worldBounds[0][2] < tr.viewParms.visBounds[0][2])
+		{
+			tr.viewParms.visBounds[0][2] = light->worldBounds[0][2];
+		}
+
+		if(light->worldBounds[1][0] > tr.viewParms.visBounds[1][0])
+		{
+			tr.viewParms.visBounds[1][0] = light->worldBounds[1][0];
+		}
+		if(light->worldBounds[1][1] > tr.viewParms.visBounds[1][1])
+		{
+			tr.viewParms.visBounds[1][1] = light->worldBounds[1][1];
+		}
+		if(light->worldBounds[1][2] > tr.viewParms.visBounds[1][2])
+		{
+			tr.viewParms.visBounds[1][2] = light->worldBounds[1][2];
+		}
+	}
+}
+
 
 void R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix)
 {
@@ -2550,20 +2969,33 @@ void R_RenderView(viewParms_t * parms)
 	// set viewParms.world
 	R_RotateForViewer();
 
-	// set the projection matrix now that we have the world bounded
-	// this needs to be done before entities are
-	// added, because they use the projection
-	// matrix for lod calculation
-	R_SetupProjection();
+	// set the projection matrix with the far clip plane set at infinity
+	// this required for the CHC++ algorithm
+	R_SetupProjection(qtrue);
 
-	R_SetupUnprojection();
-
-	// set camera frustum planes in world space
-	R_SetupFrustum(tr.viewParms.frustum, tr.orientation.modelViewMatrix, tr.viewParms.projectionMatrix);
+	R_SetupFrustum();
 
 	R_AddWorldSurfaces();
 
 	R_AddPolygonSurfaces();
+
+	// we have tr.viewParms.visBounds set and now we need to add the light bounds
+	// or we get wrong occlusion query results
+	R_AddLightBoundsToVisBounds();
+
+	// set the projection matrix now that we have the world bounded
+	// this needs to be done before entities are
+	// added, because they use the projection
+	// matrix for lod calculation
+	R_SetupProjection(qfalse);
+
+	R_SetupUnprojection();
+
+	// set camera frustum planes in world space again, but this time including the far plane
+	tr.orientation = tr.viewParms.world;
+	R_SetupFrustum2(tr.viewParms.frustum, tr.orientation.modelViewMatrix, tr.viewParms.projectionMatrix);
+
+	//R_AddWorldSurfaces();
 
 	R_AddEntitySurfaces();
 
