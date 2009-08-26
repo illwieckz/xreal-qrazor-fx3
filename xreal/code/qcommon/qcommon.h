@@ -184,7 +184,7 @@ void            NET_LeaveMulticast6(void);
 void            NET_Sleep(int msec);
 
 
-#define	MAX_MSGLEN				16384	// max length of a message, which may
+#define	MAX_MSGLEN				(16384*4)	// max length of a message, which may
 											// be fragmented into multiple packets
 
 #define MAX_DOWNLOAD_WINDOW			8	// max of eight download frames
@@ -238,7 +238,7 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION 75
+#define	PROTOCOL_VERSION 76
 
 // maintain a list of compatible protocols for demo playing
 // NOTE: that stuff only works with two digits protocols

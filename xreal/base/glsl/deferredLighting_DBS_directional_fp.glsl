@@ -28,6 +28,7 @@ uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
 uniform sampler2D	u_ShadowMap;
 uniform vec3		u_ViewOrigin;
+uniform vec3		u_LightOrigin;
 uniform vec3		u_LightDir;
 uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
@@ -76,7 +77,45 @@ void	main()
 #if defined(VSM)
 	if(bool(u_ShadowCompare))
 	{
-		// TODO
+		vec4 shadowVert = u_ShadowMatrix * vec4(P.xyz, 1.0);
+		vec4 shadowMoments = texture2DProj(u_ShadowMap, shadowVert.xyw);
+		
+		const float	SHADOW_BIAS = 0.001;
+		float vertexDistance = shadowVert.z - SHADOW_BIAS;
+	
+		#if defined(VSM_CLAMP)
+		// convert to [-1, 1] vector space
+		shadowMoments = 2.0 * (shadowMoments - 0.5);
+		#endif
+		
+		float shadowDistance = shadowMoments.r;
+		float shadowDistanceSquared = shadowMoments.a;
+	
+		// standard shadow map comparison
+		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+	
+		// variance shadow mapping
+		float E_x2 = shadowDistanceSquared;
+		float Ex_2 = shadowDistance * shadowDistance;
+	
+		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
+		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
+		//float variance = smoothstep(VSM_EPSILON, 1.0, max(E_x2 - Ex_2, 0.0));
+	
+		float mD = shadowDistance - vertexDistance;
+		float mD_2 = mD * mD;
+		float p = variance / (variance + mD_2);
+		p = smoothstep(0.0, 1.0, p);
+	
+		#if defined(DEBUG_VSM)
+		gl_FragColor.r = DEBUG_VSM & 1 ? variance : 0.0;
+		gl_FragColor.g = DEBUG_VSM & 2 ? mD_2 : 0.0;
+		gl_FragColor.b = DEBUG_VSM & 4 ? p : 0.0;
+		gl_FragColor.a = 1.0;
+		return;
+		#else
+		shadow = max(shadow, p);
+		#endif
 	}
 	
 	if(shadow <= 0.0)
@@ -88,26 +127,26 @@ void	main()
 #elif defined(ESM)
 	if(bool(u_ShadowCompare))
 	{
-		// compute incident ray
-		vec3 I = u_LightDir;
-		
 		// no filter
-		vec4 texShadow = u_ShadowMatrix * vec4(P.xyz, 1.0);
-		vec4 shadowMoments = texture2DProj(u_ShadowMap, texShadow.xyw);
+		vec4 shadowVert = u_ShadowMatrix * vec4(P.xyz, 1.0);
+		vec4 shadowMoments = texture2DProj(u_ShadowMap, shadowVert.xyw);
 		
 		const float	SHADOW_BIAS = 0.001;
-		float vertexDistance = (length(I) / u_LightRadius) * r_ShadowMapDepthScale; // - SHADOW_BIAS;
+		float vertexDistance = shadowVert.z;// * r_ShadowMapDepthScale;
 		
 		float shadowDistance = shadowMoments.a;
 		
 		// exponential shadow mapping
-		//shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+		#if 0
+		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+		#else
 		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
+		#endif
 		//shadow = smoothstep(0.0, 1.0, shadow);
 		
 		#if defined(DEBUG_ESM)
 		#extension GL_EXT_gpu_shader4 : enable
-		gl_FragColor.r = (DEBUG_ESM & 1) != 0 ? shadowDistance : 0.0;
+		gl_FragColor.r = (DEBUG_ESM & 1) != 0 ? shadowDistance : 0.0;// vertexDistance;
 		gl_FragColor.g = (DEBUG_ESM & 2) != 0 ? -(shadowDistance - vertexDistance) : 0.0;
 		gl_FragColor.b = (DEBUG_ESM & 4) != 0 ? shadow : 0.0;
 		gl_FragColor.a = 1.0;
@@ -177,6 +216,7 @@ void	main()
 		//color.rgb *= attenuationZ;
 		color.rgb *= u_LightScale;
 		color.rgb *= shadow;
+		//color.rgb = vec3(shadow);
 		
 		gl_FragColor = color;
 	}

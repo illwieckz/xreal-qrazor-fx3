@@ -2819,33 +2819,156 @@ static void Com_WriteCDKey(const char *filename, const char *ikey)
 
 #endif							// STANDALONE
 
-static void Com_PrintMatrix(const matrix_t m)
+
+static void Com_PrintVector(const vec3_t v)
 {
-	Com_Printf("%i %i %i %i\n"
-			   "%i %i %i %i\n"
-			   "%i %i %i %i\n"
-			   "%i %i %i %i\n\n", (int)m[0], (int)m[1], (int)m[2],
-			   (int)m[3], (int)m[4], (int)m[5], (int)m[6], (int)m[7],
-			   (int)m[8], (int)m[9], (int)m[10], (int)m[11], (int)m[12], (int)m[13], (int)m[14], (int)m[15]);
+	Com_Printf("(%5.3f, %5.3f, %5.3f)\n", v[0], v[1], v[2]);
 }
 
-/*static void Com_PrintQuat(const quat_t q)
+// *INDENT-OFF*
+static void Com_PrintMatrix(const matrix_t m)
 {
-	Com_Printf("%f %f %f %f\n", q[0], q[1], q[2], q[3]);
-}*/
+	Com_Printf("(%5.3f, %5.3f, %5.3f, %5.3f)\n"
+			   "(%5.3f, %5.3f, %5.3f, %5.3f)\n"
+			   "(%5.3f, %5.3f, %5.3f, %5.3f)\n"
+			   "(%5.3f, %5.3f, %5.3f, %5.3f)\n\n",
+			   m[0], m[4], m[8], m[12],
+			   m[1], m[5], m[9], m[13],
+			   m[2], m[6], m[10], m[14],
+			   m[3], m[7], m[11], m[15]);
+}
+// *INDENT-ON*
+
+static void Com_PrintQuat(const quat_t q)
+{
+	Com_Printf("(%5.3f, %5.3f, %5.3f, %5.3f)\n", q[0], q[1], q[2], q[3]);
+}
 
 static void Com_MathTest_f(void)
 {
+	vec3_t			forward, right, up;
 	matrix_t        m;			//, m2;
+	const matrix_t  quakeToOpenGLMatrix = {
+		0, 0, -1, 0,
+		-1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 0, 1
+	};
+
+	const matrix_t quakeToD3DMatrix = {
+		0, 0, 1, 0,
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 0, 1
+	};
+
+	VectorSet(forward, 1, 0, 0);
+	VectorSet(right, 0, 1, 0);
+	VectorSet(up, 0, 0, 1);
+
+	Com_Printf("forward = ");
+	Com_PrintVector(forward);
+
+	Com_Printf("right = ");
+	Com_PrintVector(right);
+
+	Com_Printf("up = ");
+	Com_PrintVector(up);
 
 	Com_Printf("...matrices\n");
 
-	MatrixFromAngles(m, -90, 90, 0);
+	Com_Printf("Quake to OpenGL =\n");
+	Com_PrintMatrix(quakeToOpenGLMatrix);
+
+	MatrixTransformNormal2(quakeToOpenGLMatrix, forward);
+	MatrixTransformNormal2(quakeToOpenGLMatrix, right);
+	MatrixTransformNormal2(quakeToOpenGLMatrix, up);
+
+	Com_Printf("forward = ");
+	Com_PrintVector(forward);
+
+	Com_Printf("right = ");
+	Com_PrintVector(right);
+
+	Com_Printf("up = ");
+	Com_PrintVector(up);
+
+
+	MatrixIdentity(m);
+	MatrixMultiplyRotation(m, -90, 0, 0);
+	MatrixMultiplyRotation(m, 0, 180, 0);
+	MatrixMultiplyRotation(m, 0, 180, -90);
+	Com_Printf("Quake to D3D =\n");
 	Com_PrintMatrix(m);
 
-	MatrixFromAngles(m, 90, -90, 0);
+	Com_PrintMatrix(quakeToD3DMatrix);
+
+	VectorSet(forward, 1, 0, 0);
+	VectorSet(right, 0, 1, 0);
+	VectorSet(up, 0, 0, 1);
+
+	MatrixCopy(quakeToD3DMatrix, m);
+	MatrixTransformNormal2(m, forward);
+	MatrixTransformNormal2(m, right);
+	MatrixTransformNormal2(m, up);
+
+	Com_Printf("forward = ");
+	Com_PrintVector(forward);
+
+	Com_Printf("right = ");
+	Com_PrintVector(right);
+
+	Com_Printf("up = ");
+	Com_PrintVector(up);
+
+
+	VectorSet(forward, 1, 0, 0);
+	VectorSet(right, 0, 1, 0);
+	VectorSet(up, 0, 0, 1);
+	MatrixSetupLookAtLH(m, vec3_origin, forward, up);
+	Com_Printf("LookAtLH =\n");
 	Com_PrintMatrix(m);
 
+	MatrixTransformNormal2(m, forward);
+	MatrixTransformNormal2(m, right);
+	MatrixTransformNormal2(m, up);
+
+	Com_Printf("forward = ");
+	Com_PrintVector(forward);
+
+	Com_Printf("right = ");
+	Com_PrintVector(right);
+
+	Com_Printf("up = ");
+	Com_PrintVector(up);
+
+
+
+
+	VectorSet(forward, 1, 0, 0);
+	VectorSet(right, 0, 1, 0);
+	VectorSet(up, 0, 0, 1);
+	MatrixSetupLookAtRH(m, vec3_origin, forward, up);
+	Com_Printf("LookAtRH =\n");
+	Com_PrintMatrix(m);
+
+	MatrixTransformNormal2(m, forward);
+	MatrixTransformNormal2(m, right);
+	MatrixTransformNormal2(m, up);
+
+	Com_Printf("forward = ");
+	Com_PrintVector(forward);
+
+	Com_Printf("right = ");
+	Com_PrintVector(right);
+
+	Com_Printf("up = ");
+	Com_PrintVector(up);
+
+
+	MatrixFromAngles(m, 90, 90, 0);
+	Com_PrintMatrix(m);
+	/*
 	MatrixFromAngles(m, 90, 90, 0);
 	Com_PrintMatrix(m);
 
@@ -2868,6 +2991,16 @@ static void Com_MathTest_f(void)
 	Com_PrintMatrix(m);
 
 	MatrixMultiplyRotation(m, 90, 90, 0);
+	Com_PrintMatrix(m);
+	*/
+
+	MatrixSetupTranslation(m, 0.5, 0.5, 0.5);	// bias
+	MatrixMultiplyScale(m, 0.5, 0.5, 0.5);	// scale
+	Com_PrintMatrix(m);
+
+	MatrixSetupScale(m, 0, 0, -1);
+	MatrixMultiply2(m, quakeToOpenGLMatrix);
+
 	Com_PrintMatrix(m);
 
 	/*

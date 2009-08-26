@@ -1137,6 +1137,7 @@ void GLSL_InitGPUShaders(void)
 	tr.shadowFillShader.u_AlphaTest = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_AlphaTest");
 	tr.shadowFillShader.u_LightOrigin = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_LightOrigin");
 	tr.shadowFillShader.u_LightRadius = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_LightRadius");
+	tr.shadowFillShader.u_LightParallel = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_LightParallel");
 	tr.shadowFillShader.u_ModelMatrix = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ModelMatrix");
 	tr.shadowFillShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ModelViewProjectionMatrix");
@@ -1857,7 +1858,22 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.toneMappingShader.program);
 	GL_CheckErrors();
 
-	endTime = ri.Milliseconds();
+	// debugUtils
+	GLSL_InitGPUShader(&tr.debugShadowMapShader, "debugShadowMap", ATTR_POSITION | ATTR_TEXCOORD, qtrue);
+
+	tr.debugShadowMapShader.u_ShadowMap = qglGetUniformLocationARB(tr.debugShadowMapShader.program, "u_ShadowMap");
+	tr.debugShadowMapShader.u_ModelViewProjectionMatrix =
+		qglGetUniformLocationARB(tr.debugShadowMapShader.program, "u_ModelViewProjectionMatrix");
+
+	qglUseProgramObjectARB(tr.debugShadowMapShader.program);
+	qglUniform1iARB(tr.debugShadowMapShader.u_ShadowMap, 0);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.debugShadowMapShader.program);
+	GLSL_ShowProgramUniforms(tr.debugShadowMapShader.program);
+	GL_CheckErrors();
+
+endTime = ri.Milliseconds();
 
 	ri.Printf(PRINT_ALL, "GLSL shaders load time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 }
@@ -2100,6 +2116,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.toneMappingShader.program);
 		Com_Memset(&tr.toneMappingShader, 0, sizeof(shaderProgram_t));
+	}
+
+	if(tr.debugShadowMapShader.program)
+	{
+		qglDeleteObjectARB(tr.debugShadowMapShader.program);
+		Com_Memset(&tr.debugShadowMapShader, 0, sizeof(shaderProgram_t));
 	}
 
 	glState.currentProgram = 0;
@@ -3232,10 +3254,19 @@ static void Render_shadowFill(int stage)
 	// set uniforms
 	GLSL_SetUniform_AlphaTest(&tr.shadowFillShader, pStage->stateBits);
 
-	VectorCopy(backEnd.currentLight->origin, lightOrigin);	// in world space
+	if(backEnd.currentLight->l.rlType == RL_DIRECTIONAL)
+	{
+		GLSL_SetUniform_LightParallel(&tr.shadowFillShader, qtrue);
+	}
+	else
+	{
+		GLSL_SetUniform_LightParallel(&tr.shadowFillShader, qfalse);
 
-	GLSL_SetUniform_LightRadius(&tr.shadowFillShader, backEnd.currentLight->sphereRadius);
-	GLSL_SetUniform_LightOrigin(&tr.shadowFillShader, lightOrigin);
+		VectorCopy(backEnd.currentLight->origin, lightOrigin);	// in world space
+
+		GLSL_SetUniform_LightRadius(&tr.shadowFillShader, backEnd.currentLight->sphereRadius);
+		GLSL_SetUniform_LightOrigin(&tr.shadowFillShader, lightOrigin);
+	}
 
 	GLSL_SetUniform_ModelMatrix(&tr.shadowFillShader, backEnd.orientation.transformMatrix);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.shadowFillShader, glState.modelViewProjectionMatrix[glState.stackIndex]);

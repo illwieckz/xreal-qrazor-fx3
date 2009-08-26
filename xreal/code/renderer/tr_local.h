@@ -333,13 +333,15 @@ typedef struct trRefLight_s
 	qboolean        additive;	// texture detail is lost tho when the lightmap is dark
 	vec3_t          origin;		// l.origin + rotated l.center
 	vec3_t          transformed;	// origin in local coordinate system
+	vec3_t			direction;	// for directional lights (sun)
 
 	matrix_t        transformMatrix;	// light to world
-	matrix_t        viewMatrix;	// object to light
+	matrix_t        viewMatrix;			// object to light
 	matrix_t        projectionMatrix;	// light frustum
 
 	float			falloffLength;
 
+	matrix_t		shadowMatrix;
 	matrix_t        attenuationMatrix;	// attenuation * (light view * entity transform)
 	matrix_t        attenuationMatrix2;	// attenuation * tcMod matrices
 
@@ -1293,6 +1295,9 @@ typedef struct shaderProgram_s
 	GLint           u_LightRadius;
 	float			t_LightRadius;
 
+	GLint           u_LightParallel;
+	qboolean		t_LightParallel;
+
 	GLint           u_LightScale;
 	float			t_LightScale;
 
@@ -1648,6 +1653,18 @@ static ID_INLINE void GLSL_SetUniform_LightRadius(shaderProgram_t * program, flo
 #endif
 
 	qglUniform1fARB(program->u_LightRadius, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_LightParallel(shaderProgram_t * program, qboolean value)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_LightParallel == value)
+		return;
+
+	program->t_LightParallel = value;
+#endif
+
+	qglUniform1iARB(program->u_LightParallel, value);
 }
 
 
@@ -3118,6 +3135,8 @@ typedef struct
 	shaderProgram_t screenSpaceAmbientOcclusionShader;
 	shaderProgram_t depthOfFieldShader;
 	shaderProgram_t toneMappingShader;
+	shaderProgram_t debugShadowMapShader;
+
 #endif // !defined(USE_D3D10)
 
 	// -----------------------------------------
@@ -3186,6 +3205,7 @@ typedef struct
 } trGlobals_t;
 
 extern const matrix_t quakeToOpenGLMatrix;
+extern const matrix_t quakeToD3DMatrix;
 extern const matrix_t openGLToQuakeMatrix;
 extern int      shadowMapResolutions[5];
 

@@ -36,7 +36,7 @@ extern "C" {
 #define PRODUCT_VERSION         "0.8.2"
 
 #if 0
-#if defined(COMPAT_Q3A)
+#if !defined(COMPAT_Q3A)
 #define COMPAT_Q3A 1
 #endif
 #endif
@@ -1186,6 +1186,12 @@ void            MatrixSetupPerspectiveProjection(matrix_t m, vec_t left, vec_t r
 void            MatrixSetupOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near,
 												vec_t far);
 
+void			MatrixSetupOrthogonalProjectionLH(matrix_t m, vec_t width, vec_t height, vec_t near, vec_t far);
+
+void            MatrixSetupLookAtLH(matrix_t output, const vec3_t pos, const vec3_t dir, const vec3_t up);
+void            MatrixSetupLookAtRH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up);
+void            MatrixScaleTranslateToFit(matrix_t output, const vec3_t vMin, const vec3_t vMax);
+
 static ID_INLINE void AnglesToMatrix(const vec3_t angles, matrix_t m)
 {
 	MatrixFromAngles(m, angles[PITCH], angles[YAW], angles[ROLL]);
@@ -1384,7 +1390,7 @@ void            Com_MatchToken(char **buf_p, char *match);
 void            Com_SkipBracedSection(char **program);
 void            Com_SkipRestOfLine(char **data);
 
-void            Com_Parse1DMatrix(char **buf_p, int x, float *m);
+void            Com_Parse1DMatrix(char **buf_p, int x, float *m, qboolean checkBrackets);
 void            Com_Parse2DMatrix(char **buf_p, int y, int x, float *m);
 void            Com_Parse3DMatrix(char **buf_p, int z, int y, int x, float *m);
 int             Com_HexStrToInt(const char *str);
@@ -1715,7 +1721,7 @@ typedef enum
 
 // Tr3B: if you increase GMODELNUM_BITS then:
 //  increase MAX_CONFIGSTRINGS to 2048 and double MAX_MSGLEN
-#define	GMODELNUM_BITS		8	// don't need to send any more
+#define	GMODELNUM_BITS		9	// don't need to send any more
 #define	MAX_MODELS			(1 << GMODELNUM_BITS)	// references entityState_t::modelindex
 
 #define	MAX_SOUNDS			256	// so they cannot be blindly increased
@@ -1725,7 +1731,7 @@ typedef enum
 #define	MAX_GAME_PARTICLE_SYSTEMS		64	// needed by Tremulous
 
 
-#define	MAX_CONFIGSTRINGS	1024
+#define	MAX_CONFIGSTRINGS	(1024 * 2)
 
 // these are the only configstrings that the system reserves, all the
 // other ones are strictly for servergame to clientgame communication

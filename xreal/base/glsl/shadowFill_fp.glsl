@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_ColorMap;
 uniform int			u_AlphaTest;
+uniform int			u_LightParallel;
 uniform vec3		u_LightOrigin;
 uniform float       u_LightRadius;
 
@@ -49,8 +50,17 @@ void	main()
 	}
 	
 #if defined(VSM)
+
+	float distance;
+	if(bool(u_LightParallel))
+	{
+		distance = gl_FragCoord.z;
+	}
+	else
+	{
+		distance = length(var_Position - u_LightOrigin) / u_LightRadius;
+	}
 	
-	float distance = length(var_Position - u_LightOrigin) / u_LightRadius;
 	float distanceSquared = distance * distance;
 
 	// shadowmap can be float RGBA or luminance alpha so store distanceSquared into alpha
@@ -64,7 +74,15 @@ void	main()
 
 #elif defined(ESM)
 	
-	float distance = (length(var_Position - u_LightOrigin) / u_LightRadius) * r_ShadowMapDepthScale;// ;
+	float distance;
+	if(bool(u_LightParallel))
+	{
+		distance = gl_FragCoord.z;// * r_ShadowMapDepthScale;
+	}
+	else
+	{
+		distance = (length(var_Position - u_LightOrigin) / u_LightRadius) * r_ShadowMapDepthScale;
+	}
 	
 	gl_FragColor = vec4(0.0, 0.0, 0.0, distance);
 #else

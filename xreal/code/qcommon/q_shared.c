@@ -1268,12 +1268,15 @@ void Com_SkipRestOfLine(char **data)
 }
 
 
-void Com_Parse1DMatrix(char **buf_p, int x, float *m)
+void Com_Parse1DMatrix(char **buf_p, int x, float *m, qboolean checkBrackets)
 {
 	char           *token;
 	int             i;
 
-	Com_MatchToken(buf_p, "(");
+	if(checkBrackets)
+	{
+		Com_MatchToken(buf_p, "(");
+	}
 
 	for(i = 0; i < x; i++)
 	{
@@ -1281,7 +1284,10 @@ void Com_Parse1DMatrix(char **buf_p, int x, float *m)
 		m[i] = atof(token);
 	}
 
-	Com_MatchToken(buf_p, ")");
+	if(checkBrackets)
+	{
+		Com_MatchToken(buf_p, ")");
+	}
 }
 
 void Com_Parse2DMatrix(char **buf_p, int y, int x, float *m)
@@ -1292,7 +1298,7 @@ void Com_Parse2DMatrix(char **buf_p, int y, int x, float *m)
 
 	for(i = 0; i < y; i++)
 	{
-		Com_Parse1DMatrix(buf_p, x, m + i * x);
+		Com_Parse1DMatrix(buf_p, x, m + i * x, qtrue);
 	}
 
 	Com_MatchToken(buf_p, ")");

@@ -34,6 +34,15 @@ const matrix_t  quakeToOpenGLMatrix = {
 	0, 0, 0, 1
 };
 
+// convert from our coordinate system (looking down X)
+// to D3D's coordinate system (looking down Z)
+const matrix_t quakeToD3DMatrix = {
+	0, 0, 1, 0,
+	1, 0, 0, 0,
+	0, 1, 0, 0,
+	0, 0, 0, 1
+};
+
 // inverse of QuakeToOpenGL matrix
 const matrix_t  openGLToQuakeMatrix = {
 	0, -1, 0, 0,

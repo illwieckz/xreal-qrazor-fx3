@@ -2819,6 +2819,103 @@ void MatrixSetupOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t 
 	m[3] = 0;					m[7] = 0;					m[11] = 0;					m[15] = 1;
 }
 
+void MatrixSetupOrthogonalProjectionLH(matrix_t m, vec_t width, vec_t height, vec_t near, vec_t far)
+{
+	m[0] = 2 / width;			m[4] = 0;					m[8] = 0;					m[12] = 0;
+	m[1] = 0;					m[5] = 2 / height;			m[9] = 0;					m[13] = 0;
+	m[2] = 0;					m[6] = 0;					m[10] = 1 / (far - near);	m[14] = -near / (near - far);
+	m[3] = 0;					m[7] = 0;					m[11] = 0;					m[15] = 1;
+}
+
+void MatrixSetupLookAtLH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up)
+{
+	vec3_t dirN;
+	vec3_t upN;
+	vec3_t sideN;
+
+	CrossProduct(up, dir, sideN);
+	VectorNormalize(sideN);
+
+	CrossProduct(dir, sideN, upN);
+	VectorNormalize(upN);
+
+	VectorNormalize2(dir, dirN);
+
+	m[ 0] = sideN[0];	m[ 4] = sideN[1];		m[ 8] = sideN[2];		m[12] = -DotProduct(sideN, eye);
+	m[ 1] = upN[0];		m[ 5] = upN[1];			m[ 9] = upN[2];			m[13] = -DotProduct(upN, eye);
+	m[ 2] = dirN[0];	m[ 6] = dirN[1];		m[10] = dirN[2];		m[14] = -DotProduct(dirN, eye);
+	m[ 3] = 0;			m[ 7] = 0;				m[11] = 0;				m[15] = 1;
+}
+
+void MatrixSetupLookAtRH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up)
+{
+	vec3_t dirN;
+	vec3_t upN;
+	vec3_t sideN;
+
+	CrossProduct(dir, up, sideN);
+	VectorNormalize(sideN);
+
+	CrossProduct(sideN, dir, upN);
+	VectorNormalize(upN);
+
+	VectorNormalize2(dir, dirN);
+
+	m[ 0] = sideN[0];	m[ 4] = sideN[1];		m[ 8] = sideN[2];		m[12] = -DotProduct(sideN, eye);
+	m[ 1] = upN[0];		m[ 5] = upN[1];			m[ 9] = upN[2];			m[13] = -DotProduct(upN, eye);
+	m[ 2] = dirN[0];	m[ 6] = dirN[1];		m[10] = dirN[2];		m[14] = -DotProduct(dirN, eye);
+	m[ 3] = 0;			m[ 7] = 0;				m[11] = 0;				m[15] = 1;
+}
+
+void MatrixScaleTranslateToFit(matrix_t m, const vec3_t mins, const vec3_t maxs)
+{
+#if 0
+	m[ 0] = 2/(maxs[0]-mins[0]);
+	m[ 4] = 0;
+	m[ 8] = 0;
+	m[12] = -(maxs[0]+mins[0])/(maxs[0]-mins[0]);
+
+	m[ 1] = 0;
+	m[ 5] = 2/(maxs[1]-mins[1]);
+	m[ 9] = 0;
+	m[13] = -(maxs[1]+mins[1])/(maxs[1]-mins[1]);
+
+	m[ 2] = 0;
+	m[ 6] = 0;
+	m[10] = 2/(maxs[2]-mins[2]);
+	m[14] = -(maxs[2]+mins[2])/(maxs[2]-mins[2]);
+
+	m[ 3] = 0;
+	m[ 7] = 0;
+	m[11] = 0;
+	m[15] = 1;
+#else
+	float			scaleX, scaleY, scaleZ;
+	float			offsetX, offsetY, offsetZ;
+
+	scaleX = 2.0f / (maxs[0] - mins[0]);
+	scaleY = 2.0f / (maxs[1] - mins[1]);
+
+	offsetX = -0.5f * (maxs[0] + mins[0]) * scaleX;
+	offsetY = -0.5f * (maxs[1] + mins[1]) * scaleY;
+
+#if 1
+	scaleZ = 1.0f / (maxs[2] - mins[2]);
+	offsetZ = -mins[2] * scaleZ;
+#else
+	scaleZ = 1.0f / maxs[2];
+	offsetZ = 0;
+#endif
+
+	m[ 0] = scaleX;		m[ 4] = 0;			m[ 8] = 0;      	m[12] = offsetX;
+	m[ 1] = 0;			m[ 5] = scaleY;		m[ 9] = 0;      	m[13] = offsetY;
+	m[ 2] = 0;			m[ 6] = 0;      	m[10] = scaleZ;		m[14] = offsetZ;
+	m[ 3] = 0;			m[ 7] = 0;			m[11] = 0;			m[15] = 1;
+#endif
+}
+
+
+
 // *INDENT-ON*
 
 

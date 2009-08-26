@@ -6465,6 +6465,7 @@ static int UpdateLightTriangles(const srfVert_t * verts, int numTriangles, srfTr
 	numFacing = 0;
 	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
 	{
+#if 0
 		vec3_t          pos[3];
 		float           d;
 
@@ -6501,6 +6502,10 @@ static int UpdateLightTriangles(const srfVert_t * verts, int numTriangles, srfTr
 
 		if(tri->facingLight)
 			numFacing++;
+#else
+		tri->facingLight = qtrue;
+		numFacing++;
+#endif
 	}
 
 	return numFacing;
