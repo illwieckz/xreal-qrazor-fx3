@@ -4863,7 +4863,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 							// set uniforms
 							VectorCopy(light->origin, lightOrigin);
 							VectorCopy(tess.svars.color, lightColor);
-							shadowCompare = qtrue; //!light->l.noShadows && light->shadowLOD >= 0;
+							shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
 
 							GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_proj, viewOrigin);
 							GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_proj, lightOrigin);
