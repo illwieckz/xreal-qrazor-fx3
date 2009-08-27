@@ -7,6 +7,7 @@ Version 2
 "music" "music/jamendo.com/Silence/Encre/03-Pollution.ogg"
 "editor_drLastCameraPos" "1519.21 -260.027 -55.6829"
 "editor_drLastCameraAngle" "-2.7 180.9 0"
+"xmap_lightopts" "-fast -filter -super 2 -samplesize 1 -lightmapsize 1024 -pointscale 1.0 -skyscale 1.0 -areascale 1.0"
 // primitive 0
 {
 brushDef3

@@ -10,6 +10,8 @@ Version 2
 "music" "music/jamendo.com/Vate/Motor/02-Parabellum.ogg"
 "editor_drLastCameraPos" "-50.5367 736.444 187.571"
 "editor_drLastCameraAngle" "-6.6 80.021 0"
+"xmap_visopts" "-fast"
+"xmap_lightopts" "-fast -filter -super 2 -samplesize 1 -lightmapsize 2048 -pointscale 2.0 -skyscale 7.0 -areascale 1.0"
 // primitive 0
 {
 brushDef3

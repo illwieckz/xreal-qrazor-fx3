@@ -5,6 +5,7 @@ Version 2
 "_lightmapscale" "0.125"
 "editor_drLastCameraPos" "561.387 122.348 100.209"
 "editor_drLastCameraAngle" "-8.4 292.8 0"
+"xmap_lightopts" "-fast -filter -super 2 -samplesize 1 -lightmapsize 2048 -pointscale 1.0 -skyscale 1.0 -areascale 1.0"
 // primitive 0
 {
 brushDef3

@@ -10,6 +10,7 @@ Version 2
 "message" "^1Ingar DM1 ^7by Ingar^3=^7KCT^3="
 "editor_drLastCameraPos" "-1578.82 16.3298 481.907"
 "editor_drLastCameraAngle" "-0.899998 97.8 0"
+"xmap_lightopts" "-fast -filter -samplesize 1 -lightmapsize 1024 -super 2 -pointscale 7.0 -skyscale 2.0 -areascale 3.0 -bounce 0"
 // primitive 0
 {
 brushDef3

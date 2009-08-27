@@ -4,6 +4,7 @@ Version 2
 "classname" "worldspawn"
 "editor_drLastCameraPos" "2.67719 257.618 328.741"
 "editor_drLastCameraAngle" "1.5 198.6 0"
+"xmap_lightopts" "-fast -filter -super 2 -samplesize 1 -lightmapsize 1024 -pointscale 1.0 -skyscale 1.0 -areascale 1.0 -bounce 1"
 // primitive 0
 {
 brushDef3

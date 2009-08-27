@@ -5,6 +5,7 @@ Version 2
 "_keeplights" "1"
 "editor_drLastCameraPos" "142.381 175.408 109.69"
 "editor_drLastCameraAngle" "-9.6 217.2 0"
+"xmap_lightopts" "-fast -filter -super 2 -samplesize 1 -lightmapsize 512 -pointscale 1.0 -skyscale 1.0 -areascale 1.0 -bounce 0"
 // primitive 0
 {
 brushDef3

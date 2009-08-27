@@ -149,6 +149,9 @@ check_compiler() {
 		i386|i486|i586|i686)
 			COMPILER='../../xmap2.i386'
 			;;
+		powerpc|powerpc64)
+			COMPILER='../../xmap2.ppc'
+			;;
 		*)
 			echo "You are not running a supported platform for compiling XreaL maps. If you would like to compile XreaL maps on your platform, please visit http://www.xreal-project.net for contact information."
 			exit 0

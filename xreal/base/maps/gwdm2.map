@@ -7,6 +7,7 @@ Version 2
 "message" "gwdm2 by gw <wrdgrg@yahoo.com>"
 "editor_drLastCameraPos" "269.762 498.168 565.469"
 "editor_drLastCameraAngle" "-26.4 3.30001 0"
+"xmap_lightopts" "-fast -filter -samplesize 1 -lightmapsize 1024 -super 2 -floodlight -pointscale 2.0 -skyscale 5.0 -areascale 2.0 -bounce 0"
 // primitive 0
 {
 patchDef2

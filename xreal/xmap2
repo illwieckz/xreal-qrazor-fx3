@@ -9,12 +9,16 @@ function check_file() {
 }
 
 case `uname -m` in
-	"x86_64")
+	x86_64)
 		BINARY='xmap2.x86_64'
 		check_file;
 		;;
-	"i686")
+	i386|i486|i586|i686)
 		BINARY='xmap2.i386'
+		check_file;
+		;;
+	powerpc|powerpc64)
+		BINARY='xmap2.ppc'
 		check_file;
 		;;
 	"*")

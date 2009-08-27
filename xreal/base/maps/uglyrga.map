@@ -2,6 +2,7 @@ Version 2
 // entity 0
 {
 "classname" "worldspawn"
+"xmap_lightopts" "-fast -filter -super 2 -samplesize 1 -lightmapsize 2048 -pointscale 1.0 -skyscale 1.0 -areascale 1.0"
 // brush 0
 {
 brushDef3

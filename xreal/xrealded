@@ -9,12 +9,16 @@ function check_file() {
 }
 
 case `uname -m` in
-	"x86_64")
+	x86_64)
 		BINARY='xrealded.x86_64'
 		check_file;
 		;;
-	"i686")
+	i386|i486|i586|i686)
 		BINARY='xrealded.x86'
+		check_file;
+		;;
+	powerpc|powerpc64)
+		BINARY='xrealded.ppc'
 		check_file;
 		;;
 	"*")

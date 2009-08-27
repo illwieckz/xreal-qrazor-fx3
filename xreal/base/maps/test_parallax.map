@@ -4,6 +4,7 @@ Version 2
 {
 "classname" "worldspawn"
 "_keeplights" "1"
+"xmap_lightopts" "-fast -filter -super 2 -samplesize 1 -lightmapsize 1024 -pointscale 1.0 -skyscale 1.0 -areascale 1.0"
 // brush 0
 {
 brushDef3

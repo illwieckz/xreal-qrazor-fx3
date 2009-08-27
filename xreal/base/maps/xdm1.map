@@ -5,6 +5,7 @@ Version 2
 "classname" "worldspawn"
 "message" "xdm1: Horizontally Vertical by Pat 'raynorpat' Raynor\nOriginal Design by Matt 'Lunaran' Breit"
 "music" "music/paradox2_13.ogg"
+"xmap_lightopts" "-fast -filter -super 2 -samplesize 1 -lightmapsize 512 -pointscale 1.0 -skyscale 1.0 -areascale 1.0"
 // brush 0
 {
 brushDef3
