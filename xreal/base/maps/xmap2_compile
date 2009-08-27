@@ -1,23 +1,28 @@
 #!/bin/bash
-case `uname -m` in
-	"x86_64")
-		COMPILER='../../xmap2.x86_64'
-		;;
-	*)
-		COMPILER='../../xmap2.i386'
-		;;
-esac
+################################################################################
+#                                                                              #
+#  XMAP2 map compilation script.                                               #
+#  By Evan 'Odin' Goers                                                        #
+#                                                                              #
+# To use this script, add your compilation options for each stage(bsp, vis,    #
+# light) to your map's worldspawn entity. You can do this by adding a key      #
+# called xmap_bspopts, xmap_visopts, or xmap_lightopts. An example is as       #
+# follows:                                                                     #
+#                                                                              #
+#  "xmap_lightopts" "-fast -filter -bounce 2"                                  #
+#                                                                              #
+################################################################################
 
-if [ ! -f $COMPILER ]; then
-        echo "`basename $COMPILER` not found!"
-        echo "Did you build XreaL with scons xmap=1?"
-        exit 1
-fi
 
+# fs_basepath is generally '../..' since xmap2_compile is in the base/maps/ dir.
 FS_BASEPATH='../..'
+# fs_game should be 'base'
 FS_GAME='base'
+# game should be 'xreal'
 GAME='xreal'
-COMPILE="$COMPILER -fs_basepath $FS_BASEPATH -fs_game $FS_GAME -game $GAME"
+
+# DO NOT EDIT THIS LINE OR THE FOLLOWING LINES. DOING SO MAY RESULT IN
+# UNEXPECTED SCRIPT BEHAVIOR.
 MAP="$2"
 
 # map_ convention used to prevent possible binary name collision
@@ -136,31 +141,59 @@ map_help() {
 	echo "help and additions from DavidSev, and Robert 'Tr3B' Beckebans."
 }
 
+check_compiler() {
+	case `uname -m` in
+		x86_64)
+			COMPILER='../../xmap2.x86_64'
+			;;
+		i386|i486|i586|i686)
+			COMPILER='../../xmap2.i386'
+			;;
+		*)
+			echo "You are not running a supported platform for compiling XreaL maps. If you would like to compile XreaL maps on your platform, please visit http://www.xreal-project.net for contact information."
+			exit 0
+			;;
+	esac
+
+	if [ ! -f $COMPILER ]; then
+		echo "`basename $COMPILER` not found!"
+		echo "Did you build XreaL with scons xmap=1?"
+		exit 1
+	fi
+	COMPILE="$COMPILER -fs_basepath $FS_BASEPATH -fs_game $FS_GAME -game $GAME"
+}
+
 case $1 in
 	-bsp)
+		check_compiler;
 		map_readbspopts;
 		map_bsp $BSPOPTS;
 		;;
 		
 	-debugportals)
+		check_compiler;
 		map_debugportals;
 		;;
 	
 	-debugsurfaces)
+		check_compiler;
 		map_debugsurfaces;
 		;;
 
 	-fastvis)
+		check_compiler;
 		map_readvisopts;
 		map_fastvis $VISOPTS;
 		;;
 		
 	-vis)
+		check_compiler;
 		map_readvisopts;
 		map_vis $VISOPTS;
 		;;
 
 	-light)
+		check_compiler;
 		map_readlightopts;
 		map_light $LIGHTOPTS;
 		;;
@@ -170,6 +203,7 @@ case $1 in
 		;;
 
 	-all)
+		check_compiler;
 		map_readbspopts;
 		map_bsp $BSPOPTS;
 		map_readvisopts;
