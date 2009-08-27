@@ -28,7 +28,7 @@ public class Engine {
 
 	// Tr3B: if you increase GMODELNUM_BITS then:
 	// increase MAX_CONFIGSTRINGS to 2048 and double MAX_MSGLEN
-	public static final int GMODELNUM_BITS = 8; // don't need to send any more
+	public static final int GMODELNUM_BITS = 9; // don't need to send any more
 	public static final int MAX_MODELS = (1 << GMODELNUM_BITS); // references
 																// entityState_t::modelindex
 
@@ -36,7 +36,7 @@ public class Engine {
 												// increased
 	public static final int MAX_EFFECTS = 256;
 
-	public static final int MAX_CONFIGSTRINGS = 1024;
+	public static final int MAX_CONFIGSTRINGS = (1024 * 2);
 	
 	/**
 	 * Print to the Quake console
