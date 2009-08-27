@@ -39,9 +39,12 @@ textures/odin/walls/rockwall4
 textures/odin/walls/m_rustywall1.png
 {
 	qer_editorImage	textures/odin/walls/m_rustywall1.png
+
+	parallax
+
 	diffuseMap	textures/odin/walls/m_rustywall1.png
+	bumpMap		textures/odin/walls/m_rustywall1_local.png
 	specularMap	textures/odin/walls/m_rustywall1_s.png
-	normalMap	textures/odin/walls/m_rustywall1_local.png
 }
 
 textures/odin/walls/m_rustywall2.png

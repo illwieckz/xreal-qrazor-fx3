@@ -617,7 +617,17 @@ textures/common/black
 
 	{
 		stage colorMap
-		map textures/common/black.tga
+		map _black
+	}
+}
+
+textures/common/white
+{
+	qer_editorimage textures/common/white.tga
+
+	{
+		stage colorMap
+		map _white
 	}
 }
 

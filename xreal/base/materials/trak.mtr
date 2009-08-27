@@ -365,29 +365,45 @@ textures/trak/trak5/glass_twosided
 {
 	qer_editorImage		textures/trak/trak5/glass.png
 	qer_trans		0.9
+	noshadows
 	twosided
+	translucent
+	glass
 
+	{
+		stage		heatHazeMap
+		scroll		time * 0, time * 0
+		clamp
+		deformMagnitude	.4
+		map		textures/sfx/vp1.tga
+	}
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/glass.png
-		blend		GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		blend		GL_DST_ALPHA, GL_ONE
 	}
-	specularMap		textures/trak/trak5/glass.png
-	normalMap		textures/trak/trak5/glass_nm.png
 }
 
 textures/trak/trak5/glass
 {
 	qer_editorImage		textures/trak/trak5/glass.png
 	qer_trans		0.9
+	noshadows
+	translucent
+	glass
 
+	{
+		stage		heatHazeMap
+		scroll		time * 0, time * 0
+		clamp
+		deformMagnitude	.4
+		map		textures/sfx/vp1.tga
+	}
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/glass.png
-		blend		GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		blend		GL_DST_ALPHA, GL_ONE
 	}
-	specularMap		textures/trak/trak5/glass.png
-	normalMap		textures/trak/trak5/glass_nm.png
 }
 
 textures/trak/trak5/grate1a
