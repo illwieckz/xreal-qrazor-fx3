@@ -375,7 +375,7 @@ textures/trak/trak5/glass_twosided
 		scroll		time * 0, time * 0
 		clamp
 		deformMagnitude	.4
-		map		textures/sfx/vp1.tga
+		map		textures/sfx/vp1.png
 	}
 	{
 		stage		diffuseMap
@@ -397,7 +397,7 @@ textures/trak/trak5/glass
 		scroll		time * 0, time * 0
 		clamp
 		deformMagnitude	.4
-		map		textures/sfx/vp1.tga
+		map		textures/sfx/vp1.png
 	}
 	{
 		stage		diffuseMap
