@@ -33,6 +33,7 @@ uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
 uniform mat4		u_ColorTextureMatrix;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
+uniform int			u_LightParallel;
 
 varying vec3		var_Position;
 varying vec2		var_Tex;
@@ -63,11 +64,22 @@ void	main()
 	else
 #endif
 	{
-		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
+		if(bool(u_LightParallel))
+		{
+			// transform vertex position into homogenous clip-space
+			gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 		
-		// transform position into world space
-		var_Position = (u_ModelMatrix * attr_Position).xyz;
+			// transform position into world space
+			var_Position = gl_Position.xyz / gl_Position.w;
+		}
+		else
+		{
+			// transform vertex position into homogenous clip-space
+			gl_Position = u_ModelViewProjectionMatrix * attr_Position;
+		
+			// transform position into world space
+			var_Position = (u_ModelMatrix * attr_Position).xyz;
+		}
 	}
 	
 	// transform texcoords

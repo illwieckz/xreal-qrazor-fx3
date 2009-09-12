@@ -1307,7 +1307,7 @@ static void R_AddEdgeToLightScissor(trRefLight_t * light, vec3_t local1, vec3_t 
 		R_LocalPointToWorld(local1, world1);
 		R_LocalPointToWorld(local2, world2);
 
-		frust = &tr.viewParms.frustum[i];
+		frust = &tr.viewParms.frustums[0][i];
 
 		// check edge to frustrum plane
 		side1 = ((DotProduct(frust->normal, world1) - frust->dist) >= 0.0);
@@ -1364,7 +1364,7 @@ void R_SetupLightScissor(trRefLight_t * light)
 	}
 
 	// check if the light volume clips agains the near plane
-	if(r_noLightScissors->integer || BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], &tr.viewParms.frustum[FRUSTUM_NEAR]) == 3)
+	if(r_noLightScissors->integer || BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], &tr.viewParms.frustums[0][FRUSTUM_NEAR]) == 3)
 	{
 		if(glConfig.occlusionQueryAvailable)
 		{

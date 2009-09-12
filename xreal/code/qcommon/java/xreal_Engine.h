@@ -22,15 +22,15 @@ extern "C" {
 #undef xreal_Engine_ENTITYNUM_MAX_NORMAL
 #define xreal_Engine_ENTITYNUM_MAX_NORMAL 2046L
 #undef xreal_Engine_GMODELNUM_BITS
-#define xreal_Engine_GMODELNUM_BITS 8L
+#define xreal_Engine_GMODELNUM_BITS 9L
 #undef xreal_Engine_MAX_MODELS
-#define xreal_Engine_MAX_MODELS 256L
+#define xreal_Engine_MAX_MODELS 512L
 #undef xreal_Engine_MAX_SOUNDS
 #define xreal_Engine_MAX_SOUNDS 256L
 #undef xreal_Engine_MAX_EFFECTS
 #define xreal_Engine_MAX_EFFECTS 256L
 #undef xreal_Engine_MAX_CONFIGSTRINGS
-#define xreal_Engine_MAX_CONFIGSTRINGS 1024L
+#define xreal_Engine_MAX_CONFIGSTRINGS 2048L
 #undef xreal_Engine_EXEC_NOW
 #define xreal_Engine_EXEC_NOW 0L
 #undef xreal_Engine_EXEC_INSERT

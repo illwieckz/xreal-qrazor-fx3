@@ -109,7 +109,7 @@ static void RB_SetGL2D(void)
 	GL_Viewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
 	GL_Scissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
 
-	MatrixSetupOrthogonalProjection(proj, 0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1);
+	MatrixOrthogonalProjection(proj, 0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1);
 	GL_LoadProjectionMatrix(proj);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
@@ -302,7 +302,7 @@ static void Render_lightVolume(interaction_t * ia)
 
 	// set 2D virtual screen size
 	GL_PushMatrix();
-	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+	MatrixOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
 									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 									backEnd.viewParms.viewportY,
 									backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
@@ -473,7 +473,7 @@ static void D3D10_RenderView(void)
 	{
 		int             clearBits = 0;
 
-		// clear the back buffer 
+		// clear the back buffer
 		float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; // red,green,blue,alpha
 		dx.d3dDevice->ClearRenderTargetView(dx.renderTargetView, ClearColor);
 
@@ -1265,7 +1265,7 @@ const void     *RB_SwapBuffers(const void *data)
 #endif
 
 	GLimp_LogComment("***************** RB_SwapBuffers *****************\n\n\n");
-	
+
 	// present the information rendered to the back buffer to the front buffer (the screen)
     dx.swapChain->Present(0, 0);
 

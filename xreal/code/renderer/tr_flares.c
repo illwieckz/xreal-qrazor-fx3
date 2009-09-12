@@ -520,7 +520,7 @@ void RB_RenderFlares(void)
 	GL_CheckErrors();
 
 	GL_PushMatrix();
-	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+	MatrixOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
 									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
 									-99999, 99999);

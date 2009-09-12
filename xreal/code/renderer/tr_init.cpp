@@ -146,6 +146,7 @@ cvar_t         *r_overDarkeningFactor;
 cvar_t         *r_shadowMapDepthScale;
 cvar_t         *r_parallelShadowSplits;
 cvar_t         *r_parallelShadowSplitWeight;
+cvar_t         *r_lightSpacePerspectiveWarping;
 
 cvar_t         *r_mode;
 cvar_t         *r_collapseStages;
@@ -1000,6 +1001,9 @@ void GL_SetDefaultState(void)
 	GL_FrontFace(GL_CCW);
 	GL_CullFace(GL_FRONT);
 
+	glState.faceCulling = CT_TWO_SIDED;
+	qglDisable(GL_CULL_FACE);
+
 	qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1, 1, 1, 1);
 
 	// initialize downstream texture units if we're running
@@ -1070,7 +1074,6 @@ void GL_SetDefaultState(void)
 	qglDepthMask(GL_TRUE);
 	qglDisable(GL_DEPTH_TEST);
 	qglEnable(GL_SCISSOR_TEST);
-	qglDisable(GL_CULL_FACE);
 	qglDisable(GL_BLEND);
 
 	glState.stackIndex = 0;
@@ -1309,6 +1312,8 @@ void R_Register(void)
 	r_parallelShadowSplitWeight = ri.Cvar_Get("r_parallelShadowSplitWeight", "0.75", CVAR_CHEAT);
 	r_parallelShadowSplits = ri.Cvar_Get("r_parallelShadowSplits", "4", CVAR_CHEAT);
 	ri.Cvar_CheckRange(r_screenSpaceAmbientOcclusion, 0, MAX_SHADOWMAPS -1, qtrue);
+
+	r_lightSpacePerspectiveWarping = ri.Cvar_Get("r_lightSpacePerspectiveWarping", "1", CVAR_CHEAT);
 
 	// archived variables that can change at any time
 	r_lodbias = ri.Cvar_Get("r_lodbias", "0", CVAR_ARCHIVE);

@@ -2652,12 +2652,20 @@ void MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t u
 	}
 }
 
-void MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin)
+void MatrixSetupTransformFromVectorsFLU(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin)
 {
 	m[ 0] = forward[0];     m[ 4] = left[0];        m[ 8] = up[0];  m[12] = origin[0];
 	m[ 1] = forward[1];     m[ 5] = left[1];        m[ 9] = up[1];  m[13] = origin[1];
 	m[ 2] = forward[2];     m[ 6] = left[2];        m[10] = up[2];  m[14] = origin[2];
 	m[ 3] = 0;              m[ 7] = 0;              m[11] = 0;      m[15] = 1;
+}
+
+void MatrixSetupTransformFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up, const vec3_t origin)
+{
+	m[ 0] = forward[0];     m[ 4] = -right[0];        m[ 8] = up[0];  m[12] = origin[0];
+	m[ 1] = forward[1];     m[ 5] = -right[1];        m[ 9] = up[1];  m[13] = origin[1];
+	m[ 2] = forward[2];     m[ 6] = -right[2];        m[10] = up[2];  m[14] = origin[2];
+	m[ 3] = 0;              m[ 7] = 0;             	  m[11] = 0;      m[15] = 1;
 }
 
 void MatrixSetupTransformFromRotation(matrix_t m, const matrix_t rot, const vec3_t origin)
@@ -2795,49 +2803,151 @@ void MatrixTransformPlane2(const matrix_t m, vec4_t inout)
 	VectorCopy4(tmp, inout);
 }
 
+
 /*
 replacement for glFrustum
 see glspec30.pdf chapter 2.12 Coordinate Transformations
 */
-void MatrixSetupPerspectiveProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
+void MatrixPerspectiveProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
 {
 	m[0] = (2 * near) / (right - left);	m[4] = 0;							m[8] = (right + left) / (right - left);		m[12] = 0;
 	m[1] = 0;							m[5] = (2 * near) / (top - bottom);	m[9] = (top + bottom) / (top - bottom);		m[13] = 0;
-	m[2] = 0;							m[6] = 0;							m[10] = -(far + near) / (far - near);		m[14] = (-2 * far * near) / (far - near);
+	m[2] = 0;							m[6] = 0;							m[10] = -(far + near) / (far - near);		m[14] = -(2 * far * near) / (far - near);
 	m[3] = 0;							m[7] = 0;							m[11] = -1;									m[15] = 0;
+}
+
+/*
+same as D3DXMatrixPerspectiveOffCenterLH
+
+http://msdn.microsoft.com/en-us/library/bb205353(VS.85).aspx
+*/
+void MatrixPerspectiveProjectionLH(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
+{
+	m[0] = (2 * near) / (right - left);	m[4] = 0;							m[8] = (left + right) / (left - right);		m[12] = 0;
+	m[1] = 0;							m[5] = (2 * near) / (top - bottom);	m[9] = (top + bottom) / (bottom - top);		m[13] = 0;
+	m[2] = 0;							m[6] = 0;							m[10] = far / (far - near);					m[14] = (near * far) / (near - far);
+	m[3] = 0;							m[7] = 0;							m[11] = 1;									m[15] = 0;
+}
+
+/*
+same as D3DXMatrixPerspectiveOffCenterRH
+
+http://msdn.microsoft.com/en-us/library/bb205354(VS.85).aspx
+*/
+void MatrixPerspectiveProjectionRH(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
+{
+	m[0] = (2 * near) / (right - left);	m[4] = 0;							m[8] = (left + right) / (right - left);		m[12] = 0;
+	m[1] = 0;							m[5] = (2 * near) / (top - bottom);	m[9] = (top + bottom) / (top - bottom);		m[13] = 0;
+	m[2] = 0;							m[6] = 0;							m[10] = far / (near - far);					m[14] = (near * far) / (near - far);
+	m[3] = 0;							m[7] = 0;							m[11] = -1;									m[15] = 0;
+}
+
+/*
+same as D3DXMatrixPerspectiveFovLH
+
+http://msdn.microsoft.com/en-us/library/bb205350(VS.85).aspx
+*/
+void MatrixPerspectiveProjectionFovYAspectLH(matrix_t m, vec_t fov, vec_t aspect, vec_t near, vec_t far)
+{
+	vec_t width, height;
+
+	width = tanf(DEG2RAD(fov * 0.5f));
+	height = width / aspect;
+
+	m[0] = 1 / width;	m[4] = 0;			m[8] = 0;						m[12] = 0;
+	m[1] = 0;			m[5] = 1 / height;	m[9] = 0;						m[13] = 0;
+	m[2] = 0;			m[6] = 0;			m[10] = far / (far - near);		m[14] = -(near * far) / (far - near);
+	m[3] = 0;			m[7] = 0;			m[11] = 1;						m[15] = 0;
+}
+
+void MatrixPerspectiveProjectionFovXYLH(matrix_t m, vec_t fovX, vec_t fovY, vec_t near, vec_t far)
+{
+	vec_t width, height;
+
+	width = tanf(DEG2RAD(fovX * 0.5f));
+	height = tanf(DEG2RAD(fovY * 0.5f));
+
+	m[0] = 1 / width;	m[4] = 0;			m[8] = 0;						m[12] = 0;
+	m[1] = 0;			m[5] = 1 / height;	m[9] = 0;						m[13] = 0;
+	m[2] = 0;			m[6] = 0;			m[10] = far / (far - near);		m[14] = -(near * far) / (far - near);
+	m[3] = 0;			m[7] = 0;			m[11] = 1;						m[15] = 0;
+}
+
+void MatrixPerspectiveProjectionFovXYRH(matrix_t m, vec_t fovX, vec_t fovY, vec_t near, vec_t far)
+{
+	vec_t width, height;
+
+	width = tanf(DEG2RAD(fovX * 0.5f));
+	height = tanf(DEG2RAD(fovY * 0.5f));
+
+	m[0] = 1 / width;	m[4] = 0;			m[8] = 0;						m[12] = 0;
+	m[1] = 0;			m[5] = 1 / height;	m[9] = 0;						m[13] = 0;
+	m[2] = 0;			m[6] = 0;			m[10] = far / (near - far);		m[14] = (near * far) / (near - far);
+	m[3] = 0;			m[7] = 0;			m[11] = -1;						m[15] = 0;
+}
+
+// Tr3B: far plane at infinity, see RobustShadowVolumes.pdf by Nvidia
+void MatrixPerspectiveProjectionFovXYInfiniteRH(matrix_t m, vec_t fovX, vec_t fovY, vec_t near)
+{
+	vec_t width, height;
+
+	width = tanf(DEG2RAD(fovX * 0.5f));
+	height = tanf(DEG2RAD(fovY * 0.5f));
+
+	m[0] = 1 / width;	m[4] = 0;			m[8] = 0;						m[12] = 0;
+	m[1] = 0;			m[5] = 1 / height;	m[9] = 0;						m[13] = 0;
+	m[2] = 0;			m[6] = 0;			m[10] = -1;						m[14] = -2 * near;
+	m[3] = 0;			m[7] = 0;			m[11] = -1;						m[15] = 0;
 }
 
 /*
 replacement for glOrtho
 see glspec30.pdf chapter 2.12 Coordinate Transformations
 */
-void MatrixSetupOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
+void MatrixOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
 {
+#if 1
 	m[0] = 2 / (right - left);	m[4] = 0;					m[8] = 0;					m[12] = -(right + left) / (right - left);
 	m[1] = 0;					m[5] = 2 / (top - bottom);	m[9] = 0;					m[13] = -(top + bottom) / (top - bottom);
 	m[2] = 0;					m[6] = 0;					m[10] = -2 / (far - near);	m[14] = -(far + near) / (far - near);
 	m[3] = 0;					m[7] = 0;					m[11] = 0;					m[15] = 1;
+#else
+	MatrixOrthogonalProjectionLH(m, left, right, bottom, top, near, far);
+#endif
 }
 
-void MatrixSetupOrthogonalProjectionLH(matrix_t m, vec_t width, vec_t height, vec_t near, vec_t far)
+/*
+same as D3DXMatrixOrthoOffCenterLH
+
+http://msdn.microsoft.com/en-us/library/bb205347(VS.85).aspx
+*/
+void MatrixOrthogonalProjectionLH(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
 {
-	m[0] = 2 / width;			m[4] = 0;					m[8] = 0;					m[12] = 0;
-	m[1] = 0;					m[5] = 2 / height;			m[9] = 0;					m[13] = 0;
-	m[2] = 0;					m[6] = 0;					m[10] = 1 / (far - near);	m[14] = -near / (near - far);
+	m[0] = 2 / (right - left);	m[4] = 0;					m[8] = 0;					m[12] = (left + right) / (left - right);
+	m[1] = 0;					m[5] = 2 / (top - bottom);	m[9] = 0;					m[13] = (top + bottom) / (bottom - top);
+	m[2] = 0;					m[6] = 0;					m[10] = 1 / (far - near);	m[14] = near / (near - far);
 	m[3] = 0;					m[7] = 0;					m[11] = 0;					m[15] = 1;
 }
 
-void MatrixSetupLookAtLH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up)
+void MatrixLookAtLH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up)
 {
 	vec3_t dirN;
 	vec3_t upN;
 	vec3_t sideN;
 
+#if 1
 	CrossProduct(up, dir, sideN);
 	VectorNormalize(sideN);
 
 	CrossProduct(dir, sideN, upN);
 	VectorNormalize(upN);
+#else
+	CrossProduct(dir, up, sideN);
+	VectorNormalize(sideN);
+
+	CrossProduct(sideN, dir, upN);
+	VectorNormalize(upN);
+#endif
 
 	VectorNormalize2(dir, dirN);
 
@@ -2847,7 +2957,7 @@ void MatrixSetupLookAtLH(matrix_t m, const vec3_t eye, const vec3_t dir, const v
 	m[ 3] = 0;			m[ 7] = 0;				m[11] = 0;				m[15] = 1;
 }
 
-void MatrixSetupLookAtRH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up)
+void MatrixLookAtRH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up)
 {
 	vec3_t dirN;
 	vec3_t upN;
@@ -2863,13 +2973,13 @@ void MatrixSetupLookAtRH(matrix_t m, const vec3_t eye, const vec3_t dir, const v
 
 	m[ 0] = sideN[0];	m[ 4] = sideN[1];		m[ 8] = sideN[2];		m[12] = -DotProduct(sideN, eye);
 	m[ 1] = upN[0];		m[ 5] = upN[1];			m[ 9] = upN[2];			m[13] = -DotProduct(upN, eye);
-	m[ 2] = dirN[0];	m[ 6] = dirN[1];		m[10] = dirN[2];		m[14] = -DotProduct(dirN, eye);
+	m[ 2] = -dirN[0];	m[ 6] = -dirN[1];		m[10] = -dirN[2];		m[14] = DotProduct(dirN, eye);
 	m[ 3] = 0;			m[ 7] = 0;				m[11] = 0;				m[15] = 1;
 }
 
 void MatrixScaleTranslateToFit(matrix_t m, const vec3_t mins, const vec3_t maxs)
 {
-#if 0
+#if 1
 	m[ 0] = 2/(maxs[0]-mins[0]);
 	m[ 4] = 0;
 	m[ 8] = 0;

@@ -2002,7 +2002,8 @@ typedef struct
 	matrix_t        projectionMatrix;
 	matrix_t        unprojectionMatrix;	// transform pixel window space -> world space
 
-	frustum_t       frustum;
+	frustum_t       frustums[MAX_SHADOWMAPS + 1];	// first frustum is the default one with complete zNear - zFar range
+													// and the other ones are for PSSM
 
 	vec3_t          visBounds[2];
 	float           zNear;
@@ -3205,8 +3206,9 @@ typedef struct
 } trGlobals_t;
 
 extern const matrix_t quakeToOpenGLMatrix;
-extern const matrix_t quakeToD3DMatrix;
 extern const matrix_t openGLToQuakeMatrix;
+extern const matrix_t quakeToD3DMatrix;
+extern const matrix_t flipZMatrix;
 extern int      shadowMapResolutions[5];
 
 extern backEndState_t backEnd;
@@ -3361,6 +3363,7 @@ extern cvar_t  *r_overDarkeningFactor;
 extern cvar_t  *r_shadowMapDepthScale;
 extern cvar_t  *r_parallelShadowSplits;
 extern cvar_t  *r_parallelShadowSplitWeight;
+extern cvar_t  *r_lightSpacePerspectiveWarping;
 
 extern cvar_t  *r_intensity;
 

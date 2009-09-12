@@ -40,6 +40,57 @@ uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
 uniform mat4		u_UnprojectMatrix;
 
+
+/*
+Some explanations by Marco Salvi about exponential shadow mapping:
+
+Now you are filtering exponential values which rapidly go out of range,
+to avoid this issue you can filter the logarithm of these values (and the go back to exp space)
+
+For example if you averaging two exponential value such as exp(A) and exp(B) you have:
+
+a*exp(A) + b*exp(B) (a and b are some filter weights)
+
+but you can rewrite the same expression as:
+
+exp(A) * (a + b*exp(B-A)) ,
+
+exp(A) * exp( log (a + b*exp(B-A)))),
+
+and:
+
+exp(A + log(a + b*exp(B-A))
+
+Now your sum of exponential is written as a single exponential, if you take the logarithm of it you can then just work on its argument:
+
+A + log(a + b*exp(B-A))
+
+Basically you end up filtering the argument of your exponential functions, which are just linear depth values,
+so you enjoy the same range you have with less exotic techniques.
+Just don't forget to go back to exp space when you use the final filtered value.
+
+
+Though hardware texture filtering is not mathematically correct in log space it just causes a some overdarkening, nothing major.
+
+If you have your shadow map filtered in log space occlusion is just computed like this (let assume we use bilinear filtering):
+
+float occluder = tex2D( esm_sampler, esm_uv );
+float occlusion = exp( occluder - receiver );
+
+while with filtering in exp space you have:
+
+float exp_occluder = tex2D( esm_sampler, esm_uv );
+float occlusion = exp_occluder / exp( receiver );
+
+EDIT: if more complex filters are used (trilinear, aniso, with mip maps) you need to generate mip maps using log filteirng as well.
+*/
+
+float log_conv(float x0, float X, float y0, float Y)
+{
+    return (X + log(x0 + (y0 * exp(Y - X))));
+}
+
+
 void	main()
 {
 	// calculate the screen texcoord in the 0.0 to 1.0 range
@@ -133,6 +184,7 @@ void	main()
 		
 		const float	SHADOW_BIAS = 0.001;
 		float vertexDistance = shadowVert.z;// * r_ShadowMapDepthScale;
+		vertexDistance /= shadowVert.w;
 		
 		float shadowDistance = shadowMoments.a;
 		
@@ -140,13 +192,14 @@ void	main()
 		#if 0
 		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
 		#else
+		//shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
 		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
 		#endif
 		//shadow = smoothstep(0.0, 1.0, shadow);
 		
 		#if defined(DEBUG_ESM)
 		#extension GL_EXT_gpu_shader4 : enable
-		gl_FragColor.r = (DEBUG_ESM & 1) != 0 ? shadowDistance : 0.0;// vertexDistance;
+		gl_FragColor.r = (DEBUG_ESM & 1) != 0 ? vertexDistance : 0.0;// vertexDistance;
 		gl_FragColor.g = (DEBUG_ESM & 2) != 0 ? -(shadowDistance - vertexDistance) : 0.0;
 		gl_FragColor.b = (DEBUG_ESM & 4) != 0 ? shadow : 0.0;
 		gl_FragColor.a = 1.0;

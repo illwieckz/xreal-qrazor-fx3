@@ -34,22 +34,30 @@ const matrix_t  quakeToOpenGLMatrix = {
 	0, 0, 0, 1
 };
 
-// convert from our coordinate system (looking down X)
-// to D3D's coordinate system (looking down Z)
-const matrix_t quakeToD3DMatrix = {
-	0, 0, 1, 0,
-	1, 0, 0, 0,
-	0, 1, 0, 0,
-	0, 0, 0, 1
-};
-
-// inverse of QuakeToOpenGL matrix
+// inverse of quakeToOpenGL matrix
 const matrix_t  openGLToQuakeMatrix = {
 	0, -1, 0, 0,
 	0, 0, 1, 0,
 	-1, 0, 0, 0,
 	0, 0, 0, 1
 };
+
+// convert from our right handed coordinate system (looking down X)
+// to D3D's left handed coordinate system (looking down Z)
+const matrix_t quakeToD3DMatrix = {
+		0, 0, 1, 0,
+		-1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 0, 1
+};
+
+const matrix_t flipZMatrix = {
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, -1, 0,
+		0, 0, 0, 1
+};
+
 
 int             shadowMapResolutions[5] = { 2048, 1024, 512, 256, 128 };
 
@@ -641,7 +649,7 @@ int R_CullLocalBox(vec3_t localBounds[2])
 	anyBack = 0;
 	for(i = 0; i < FRUSTUM_PLANES; i++)
 	{
-		frust = &tr.viewParms.frustum[i];
+		frust = &tr.viewParms.frustums[0][i];
 
 		front = back = 0;
 		for(j = 0; j < 8; j++)
@@ -706,7 +714,7 @@ int R_CullLocalBox(vec3_t localBounds[2])
 	anyClip = qfalse;
 	for(i = 0; i < FRUSTUM_PLANES; i++)
 	{
-		frust = &tr.viewParms.frustum[i];
+		frust = &tr.viewParms.frustums[0][i];
 
 		r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], frust);
 
@@ -768,7 +776,7 @@ int R_CullPointAndRadius(vec3_t pt, float radius)
 	// check against frustum planes
 	for(i = 0; i < FRUSTUM_PLANES; i++)
 	{
-		frust = &tr.viewParms.frustum[i];
+		frust = &tr.viewParms.frustums[0][i];
 
 		dist = DotProduct(pt, frust->normal) - frust->dist;
 		if(dist < -radius)
@@ -960,7 +968,7 @@ void R_RotateEntityForViewParms(const trRefEntity_t * ent, const viewParms_t * v
 	VectorCopy(ent->e.axis[1], or->axis[1]);
 	VectorCopy(ent->e.axis[2], or->axis[2]);
 
-	MatrixSetupTransform(or->transformMatrix, or->axis[0], or->axis[1], or->axis[2], or->origin);
+	MatrixSetupTransformFromVectorsFLU(or->transformMatrix, or->axis[0], or->axis[1], or->axis[2], or->origin);
 	MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
 	MatrixMultiply(viewParms->world.viewMatrix, or->transformMatrix, or->modelViewMatrix);
 
@@ -1029,7 +1037,7 @@ void R_RotateEntityForLight(const trRefEntity_t * ent, const trRefLight_t * ligh
 	VectorCopy(ent->e.axis[1], or->axis[1]);
 	VectorCopy(ent->e.axis[2], or->axis[2]);
 
-	MatrixSetupTransform(or->transformMatrix, or->axis[0], or->axis[1], or->axis[2], or->origin);
+	MatrixSetupTransformFromVectorsFLU(or->transformMatrix, or->axis[0], or->axis[1], or->axis[2], or->origin);
 	MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
 
 	MatrixMultiply(light->viewMatrix, or->transformMatrix, or->modelViewMatrix);
@@ -1074,7 +1082,7 @@ void R_RotateLightForViewParms(const trRefLight_t * light, const viewParms_t * v
 
 	QuatToAxis(light->l.rotation, or->axis);
 
-	MatrixSetupTransform(or->transformMatrix, or->axis[0], or->axis[1], or->axis[2], or->origin);
+	MatrixSetupTransformFromVectorsFLU(or->transformMatrix, or->axis[0], or->axis[1], or->axis[2], or->origin);
 	MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
 	MatrixMultiply(viewParms->world.viewMatrix, or->transformMatrix, or->modelViewMatrix);
 
@@ -1098,8 +1106,9 @@ Sets up the modelview matrix for a given viewParm
 void R_RotateForViewer(void)
 {
 	matrix_t        transformMatrix;
-
-//  matrix_t        viewMatrix;
+	axis_t			viewAxis;
+	vec3_t			forward, right, up;
+	matrix_t        viewMatrix;
 
 	Com_Memset(&tr.orientation, 0, sizeof(tr.orientation));
 	tr.orientation.axis[0][0] = 1;
@@ -1107,17 +1116,59 @@ void R_RotateForViewer(void)
 	tr.orientation.axis[2][2] = 1;
 	VectorCopy(tr.viewParms.orientation.origin, tr.orientation.viewOrigin);
 
+	MatrixIdentity(tr.orientation.transformMatrix);
+
+#if 0
+	ri.Printf(PRINT_ALL, "transform forward = (%5.3f, %5.3f, %5.3f), left = (%5.3f, %5.3f, %5.3f), up = (%5.3f, %5.3f, %5.3f)\n",
+				tr.viewParms.orientation.axis[0][0], tr.viewParms.orientation.axis[0][1], tr.viewParms.orientation.axis[0][2],
+				tr.viewParms.orientation.axis[1][0], tr.viewParms.orientation.axis[1][1], tr.viewParms.orientation.axis[1][2],
+				tr.viewParms.orientation.axis[2][0], tr.viewParms.orientation.axis[2][1], tr.viewParms.orientation.axis[2][2]);
+#endif
+
 	// transform by the camera placement
-	MatrixSetupTransform(transformMatrix,
+	MatrixSetupTransformFromVectorsFLU(transformMatrix,
 						 tr.viewParms.orientation.axis[0], tr.viewParms.orientation.axis[1], tr.viewParms.orientation.axis[2], tr.viewParms.orientation.origin);
 
 	MatrixAffineInverse(transformMatrix, tr.orientation.viewMatrix2);
 //  MatrixAffineInverse(transformMatrix, tr.orientation.viewMatrix);
 
-	// convert from our coordinate system (looking down X)
-	// to OpenGL's coordinate system (looking down -Z)
-	MatrixIdentity(tr.orientation.transformMatrix);
+
+#if 0
+	// convert from our right handed coordinate system (looking down X)
+	// to D3D's left handed coordinate system (looking down Z)
+	MatrixMultiply(quakeToD3DMatrix, tr.orientation.viewMatrix2, tr.orientation.viewMatrix);
+#elif 0
+	// convert from our right handed coordinate system (looking down X)
+	// to OpenGL's right handed coordinate system (looking down -Z)
 	MatrixMultiply(quakeToOpenGLMatrix, tr.orientation.viewMatrix2, tr.orientation.viewMatrix);
+#else
+	// convert from our right handed coordinate system (looking down X)
+	// to OpenGL's right handed coordinate system (looking down -Z)
+	MatrixLookAtRH(tr.orientation.viewMatrix, tr.viewParms.orientation.origin, tr.viewParms.orientation.axis[0], tr.viewParms.orientation.axis[2]);
+#endif
+
+#if 0
+	MatrixToVectorsFLU(tr.orientation.viewMatrix, viewAxis[0], viewAxis[1], viewAxis[2]);
+
+	ri.Printf(PRINT_ALL, "view forward = (%5.3f, %5.3f, %5.3f), left = (%5.3f, %5.3f, %5.3f), up = (%5.3f, %5.3f, %5.3f)\n",
+				viewAxis[0][0], viewAxis[0][1], viewAxis[0][2],
+				viewAxis[1][0], viewAxis[1][1], viewAxis[1][2],
+				viewAxis[2][0], viewAxis[2][1], viewAxis[2][2]);
+
+	VectorSet(forward, 1, 0, 0);
+	VectorSet(right, 0, 1, 0);
+	VectorSet(up, 0, 0, 1);
+
+	MatrixTransformNormal2(tr.orientation.viewMatrix, forward);
+	MatrixTransformNormal2(tr.orientation.viewMatrix, right);
+	MatrixTransformNormal2(tr.orientation.viewMatrix, up);
+
+	ri.Printf(PRINT_ALL, "transformed forward = (%5.3f, %5.3f, %5.3f), right = (%5.3f, %5.3f, %5.3f), up = (%5.3f, %5.3f, %5.3f)\n",
+					forward[0], forward[1], forward[2],
+					right[0], right[1], right[2],
+					up[0], up[1], up[2]);
+#endif
+
 	MatrixCopy(tr.orientation.viewMatrix, tr.orientation.modelViewMatrix);
 
 	tr.viewParms.world = tr.orientation;
@@ -1375,6 +1426,7 @@ static void R_SetupProjection(qboolean infiniteFarClip)
 	height = yMax - yMin;
 	depth = zFar - zNear;
 
+#if 0
 	if(zFar <= 0 || infiniteFarClip)
 	{
 		// Tr3B: far plane at infinity, see RobustShadowVolumes.pdf by Nvidia
@@ -1391,6 +1443,43 @@ static void R_SetupProjection(qboolean infiniteFarClip)
 		proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -2 * zFar * zNear / depth;
 		proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
 	}
+#else
+
+	if(zFar <= 0 || infiniteFarClip)
+	{
+		MatrixPerspectiveProjectionFovXYInfiniteRH(proj, tr.refdef.fov_x, tr.refdef.fov_y, zNear);
+	}
+	else
+	{
+		MatrixPerspectiveProjectionFovXYRH(proj, tr.refdef.fov_x, tr.refdef.fov_y, zNear, zFar);
+	}
+
+#endif
+
+#if 0
+	int				i;
+	matrix_t        mvp;
+	vec4_t			axis[3];
+	vec4_t			trans;
+
+	MatrixMultiply(tr.viewParms.projectionMatrix, tr.orientation.modelViewMatrix, mvp);
+	MatrixCopy(tr.orientation.modelViewMatrix, mvp);
+
+	VectorSet4(axis[0], 1, 0, 0, 1);
+	VectorSet4(axis[1], 0, 1, 0, 1);
+	VectorSet4(axis[2], 0, 0, 1, 1);
+
+	for(i = 0; i < 3; i++)
+	{
+		MatrixTransform4(mvp, axis[i], trans);
+
+		trans[0] /= trans[3];
+		trans[1] /= trans[3];
+		trans[2] /= trans[3];
+
+		ri.Printf(PRINT_ALL, "transformed[%i] = (%5.3f, %5.3f, %5.3f)\n", i, trans[0], trans[1], trans[2]);
+	}
+#endif
 }
 // *INDENT-ON*
 
@@ -1431,36 +1520,36 @@ static void R_SetupFrustum(void)
 	xs = sin(ang);
 	xc = cos(ang);
 
-	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[0].normal);
-	VectorMA(tr.viewParms.frustum[0].normal, xc, tr.viewParms.orientation.axis[1], tr.viewParms.frustum[0].normal);
+	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustums[0][0].normal);
+	VectorMA(tr.viewParms.frustums[0][0].normal, xc, tr.viewParms.orientation.axis[1], tr.viewParms.frustums[0][0].normal);
 
-	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[1].normal);
-	VectorMA(tr.viewParms.frustum[1].normal, -xc, tr.viewParms.orientation.axis[1], tr.viewParms.frustum[1].normal);
+	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustums[0][1].normal);
+	VectorMA(tr.viewParms.frustums[0][1].normal, -xc, tr.viewParms.orientation.axis[1], tr.viewParms.frustums[0][1].normal);
 
 	ang = tr.viewParms.fovY / 180 * M_PI * 0.5f;
 	xs = sin(ang);
 	xc = cos(ang);
 
-	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[2].normal);
-	VectorMA(tr.viewParms.frustum[2].normal, xc, tr.viewParms.orientation.axis[2], tr.viewParms.frustum[2].normal);
+	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustums[0][2].normal);
+	VectorMA(tr.viewParms.frustums[0][2].normal, xc, tr.viewParms.orientation.axis[2], tr.viewParms.frustums[0][2].normal);
 
-	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[3].normal);
-	VectorMA(tr.viewParms.frustum[3].normal, -xc, tr.viewParms.orientation.axis[2], tr.viewParms.frustum[3].normal);
+	VectorScale(tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustums[0][3].normal);
+	VectorMA(tr.viewParms.frustums[0][3].normal, -xc, tr.viewParms.orientation.axis[2], tr.viewParms.frustums[0][3].normal);
 
 	for(i = 0; i < 4; i++)
 	{
-		tr.viewParms.frustum[i].type = PLANE_NON_AXIAL;
-		tr.viewParms.frustum[i].dist = DotProduct(tr.viewParms.orientation.origin, tr.viewParms.frustum[i].normal);
-		SetPlaneSignbits(&tr.viewParms.frustum[i]);
+		tr.viewParms.frustums[0][i].type = PLANE_NON_AXIAL;
+		tr.viewParms.frustums[0][i].dist = DotProduct(tr.viewParms.orientation.origin, tr.viewParms.frustums[0][i].normal);
+		SetPlaneSignbits(&tr.viewParms.frustums[0][i]);
 	}
 
 	// Tr3B: set extra near plane which is required by the dynamic occlusion culling
-	tr.viewParms.frustum[FRUSTUM_NEAR].type = PLANE_NON_AXIAL;
-	VectorCopy(tr.viewParms.orientation.axis[0], tr.viewParms.frustum[FRUSTUM_NEAR].normal);
+	tr.viewParms.frustums[0][FRUSTUM_NEAR].type = PLANE_NON_AXIAL;
+	VectorCopy(tr.viewParms.orientation.axis[0], tr.viewParms.frustums[0][FRUSTUM_NEAR].normal);
 
-	VectorMA(tr.viewParms.orientation.origin, r_znear->value, tr.viewParms.orientation.axis[0], planeOrigin);
-	tr.viewParms.frustum[FRUSTUM_NEAR].dist = DotProduct(planeOrigin, tr.viewParms.frustum[i].normal);
-	SetPlaneSignbits(&tr.viewParms.frustum[FRUSTUM_NEAR]);
+	VectorMA(tr.viewParms.orientation.origin, r_znear->value, tr.viewParms.frustums[0][FRUSTUM_NEAR].normal, planeOrigin);
+	tr.viewParms.frustums[0][FRUSTUM_NEAR].dist = DotProduct(planeOrigin, tr.viewParms.frustums[0][FRUSTUM_NEAR].normal);
+	SetPlaneSignbits(&tr.viewParms.frustums[0][FRUSTUM_NEAR]);
 }
 
 /*
@@ -1473,6 +1562,7 @@ Setup that culling frustum planes for the current view
 // *INDENT-OFF*
 void R_SetupFrustum2(frustum_t frustum, const float *modelViewMatrix, const float *projectionMatrix)
 {
+#if 1
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 	int				i;
 	matrix_t        m;
@@ -1534,8 +1624,78 @@ void R_SetupFrustum2(frustum_t frustum, const float *modelViewMatrix, const floa
 
 		SetPlaneSignbits(&frustum[i]);
 	}
+#else
+	vec3_t			planeOrigin;
+
+	tr.viewParms.frustums[0][FRUSTUM_FAR].type = PLANE_NON_AXIAL;
+	VectorNegate(tr.viewParms.orientation.axis[0], tr.viewParms.frustums[0][FRUSTUM_FAR].normal);
+
+	VectorMA(tr.viewParms.orientation.origin, tr.viewParms.zFar, tr.viewParms.frustums[0][FRUSTUM_FAR].normal, planeOrigin);
+	tr.viewParms.frustums[0][FRUSTUM_FAR].dist = DotProduct(planeOrigin, tr.viewParms.frustums[0][FRUSTUM_FAR].normal);
+	SetPlaneSignbits(&tr.viewParms.frustums[0][FRUSTUM_FAR]);
+#endif
 }
 // *INDENT-ON*
+
+
+static void CopyPlane(const cplane_t * in, cplane_t * out)
+{
+	VectorCopy(in->normal, out->normal);
+	out->dist = in->dist;
+	out->type = in->type;
+	out->signbits = in->signbits;
+	out->pad[0] = in->pad[0];
+	out->pad[1] = in->pad[1];
+}
+
+
+
+static void R_SetupSplitFrustums(void)
+{
+	int				i, j;
+	float			lambda;
+	float			ratio;
+	vec3_t			planeOrigin;
+	float			zNear, zFar;
+
+	lambda = r_parallelShadowSplitWeight->value;
+	ratio = tr.viewParms.zFar / tr.viewParms.zNear;
+
+	for(i = 0; i < r_parallelShadowSplits->integer; i++)
+	{
+		float si = (i + 1) / (float)r_parallelShadowSplits->integer;
+
+		zFar = lambda * (tr.viewParms.zNear * powf(ratio, si)) + (1 - lambda) * (tr.viewParms.zNear + (tr.viewParms.zFar - tr.viewParms.zNear) * si);
+
+		if(i == 0)
+		{
+			CopyPlane(&tr.viewParms.frustums[0][FRUSTUM_NEAR], &tr.viewParms.frustums[i + 1][FRUSTUM_NEAR]);
+		}
+		else if(i >= 1 && i < (r_parallelShadowSplits->integer - 1))
+		{
+			zNear = zFar * 0.995f;
+
+			tr.viewParms.frustums[i + 1][FRUSTUM_NEAR].type = PLANE_NON_AXIAL;
+			VectorCopy(tr.viewParms.orientation.axis[0], tr.viewParms.frustums[i + 1][FRUSTUM_NEAR].normal);
+
+			VectorMA(tr.viewParms.orientation.origin, zNear, tr.viewParms.frustums[i + 1][FRUSTUM_NEAR].normal, planeOrigin);
+			tr.viewParms.frustums[i + 1][FRUSTUM_NEAR].dist = DotProduct(planeOrigin, tr.viewParms.frustums[i + 1][FRUSTUM_NEAR].normal);
+			SetPlaneSignbits(&tr.viewParms.frustums[i + 1][FRUSTUM_NEAR]);
+		}
+
+		tr.viewParms.frustums[i + 1][FRUSTUM_FAR].type = PLANE_NON_AXIAL;
+		VectorNegate(tr.viewParms.orientation.axis[0], tr.viewParms.frustums[i + 1][FRUSTUM_FAR].normal);
+
+		VectorMA(tr.viewParms.orientation.origin, zFar, tr.viewParms.frustums[i + 1][FRUSTUM_FAR].normal, planeOrigin);
+		tr.viewParms.frustums[i + 1][FRUSTUM_FAR].dist = DotProduct(planeOrigin, tr.viewParms.frustums[i + 1][FRUSTUM_FAR].normal);
+		SetPlaneSignbits(&tr.viewParms.frustums[i + 1][FRUSTUM_FAR]);
+
+		for(j = 0; j < 4; j++)
+		{
+			CopyPlane(&tr.viewParms.frustums[0][j], &tr.viewParms.frustums[i + 1][j]);
+		}
+	}
+}
 
 
 /*
@@ -3002,7 +3162,10 @@ void R_RenderView(viewParms_t * parms)
 
 	// set camera frustum planes in world space again, but this time including the far plane
 	tr.orientation = tr.viewParms.world;
-	R_SetupFrustum2(tr.viewParms.frustum, tr.orientation.modelViewMatrix, tr.viewParms.projectionMatrix);
+	R_SetupFrustum2(tr.viewParms.frustums[0], tr.orientation.modelViewMatrix, tr.viewParms.projectionMatrix);
+
+	// for parallel split shadow mapping
+	R_SetupSplitFrustums();
 
 	//R_AddWorldSurfaces();
 

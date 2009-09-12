@@ -2847,7 +2847,7 @@ static void Com_PrintQuat(const quat_t q)
 static void Com_MathTest_f(void)
 {
 	vec3_t			forward, right, up;
-	matrix_t        m;			//, m2;
+	matrix_t        m, world, view, proj, mvp;			//, m2;
 	const matrix_t  quakeToOpenGLMatrix = {
 		0, 0, -1, 0,
 		-1, 0, 0, 0,
@@ -2857,7 +2857,7 @@ static void Com_MathTest_f(void)
 
 	const matrix_t quakeToD3DMatrix = {
 		0, 0, 1, 0,
-		1, 0, 0, 0,
+		-1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 0, 1
 	};
@@ -2880,9 +2880,16 @@ static void Com_MathTest_f(void)
 	Com_Printf("Quake to OpenGL =\n");
 	Com_PrintMatrix(quakeToOpenGLMatrix);
 
-	MatrixTransformNormal2(quakeToOpenGLMatrix, forward);
-	MatrixTransformNormal2(quakeToOpenGLMatrix, right);
-	MatrixTransformNormal2(quakeToOpenGLMatrix, up);
+	VectorSet(forward, 1, 0, 0);
+	VectorSet(right, 0, 1, 0);
+	VectorSet(up, 0, 0, 1);
+	MatrixFromVectorsFRU(m, forward, right, up);
+	MatrixSetupTransformFromRotation(world, m, vec3_origin);
+	MatrixAffineInverse(world, view);
+	MatrixMultiply(quakeToOpenGLMatrix, view, m);
+	MatrixTransformNormal2(m, forward);
+	MatrixTransformNormal2(m, right);
+	MatrixTransformNormal2(m, up);
 
 	Com_Printf("forward = ");
 	Com_PrintVector(forward);
@@ -2895,9 +2902,13 @@ static void Com_MathTest_f(void)
 
 
 	MatrixIdentity(m);
-	MatrixMultiplyRotation(m, -90, 0, 0);
-	MatrixMultiplyRotation(m, 0, 180, 0);
-	MatrixMultiplyRotation(m, 0, 180, -90);
+	MatrixMultiplyScale(m, 1, 1, -1);
+	MatrixMultiply2(m, quakeToOpenGLMatrix);
+	//MatrixMultiplyRotation(m, -90, 0, 0);
+	//MatrixMultiplyRotation(m, 0, 180, 0);
+	//MatrixMultiplyRotation(m, 0, 0, -90);
+	//MatrixCopy(m, quakeToOpenGLMatrix);
+
 	Com_Printf("Quake to D3D =\n");
 	Com_PrintMatrix(m);
 
@@ -2906,8 +2917,13 @@ static void Com_MathTest_f(void)
 	VectorSet(forward, 1, 0, 0);
 	VectorSet(right, 0, 1, 0);
 	VectorSet(up, 0, 0, 1);
+	MatrixFromVectorsFRU(m, forward, right, up);
+	MatrixSetupTransformFromRotation(world, m, vec3_origin);
+	MatrixAffineInverse(world, view);
+	Com_Printf("view =\n");
+	Com_PrintMatrix(view);
 
-	MatrixCopy(quakeToD3DMatrix, m);
+	MatrixMultiply(quakeToD3DMatrix, view, m);
 	MatrixTransformNormal2(m, forward);
 	MatrixTransformNormal2(m, right);
 	MatrixTransformNormal2(m, up);
@@ -2925,7 +2941,7 @@ static void Com_MathTest_f(void)
 	VectorSet(forward, 1, 0, 0);
 	VectorSet(right, 0, 1, 0);
 	VectorSet(up, 0, 0, 1);
-	MatrixSetupLookAtLH(m, vec3_origin, forward, up);
+	MatrixLookAtLH(m, vec3_origin, forward, up);
 	Com_Printf("LookAtLH =\n");
 	Com_PrintMatrix(m);
 
@@ -2942,13 +2958,28 @@ static void Com_MathTest_f(void)
 	Com_Printf("up = ");
 	Com_PrintVector(up);
 
+	MatrixPerspectiveProjectionFovXYLH(m, -90, 90, 0.1, 4096);
+	Com_Printf("ProjectionFovXYLH =\n");
+	Com_PrintMatrix(m);
+
+	MatrixTransformNormal2(m, forward);
+	MatrixTransformNormal2(m, right);
+	MatrixTransformNormal2(m, up);
+
+	Com_Printf("forward = ");
+	Com_PrintVector(forward);
+
+	Com_Printf("right = ");
+	Com_PrintVector(right);
+
+	Com_Printf("up = ");
+	Com_PrintVector(up);
 
 
-
-	VectorSet(forward, 1, 0, 0);
+	VectorSet(forward, -1, 0, 0);
 	VectorSet(right, 0, 1, 0);
 	VectorSet(up, 0, 0, 1);
-	MatrixSetupLookAtRH(m, vec3_origin, forward, up);
+	MatrixLookAtRH(m, vec3_origin, forward, up);
 	Com_Printf("LookAtRH =\n");
 	Com_PrintMatrix(m);
 
@@ -2966,8 +2997,41 @@ static void Com_MathTest_f(void)
 	Com_PrintVector(up);
 
 
+	//
+	VectorSet(forward, 1, 0, 0);
+	VectorSet(right, 0, 1, 0);
+	VectorSet(up, 0, 0, 1);
+
+	CrossProduct(up, forward, right);
+
+	Com_Printf("right = ");
+	Com_PrintVector(right);
+
+	CrossProduct(forward, right, up);
+
+	Com_Printf("up = ");
+	Com_PrintVector(up);
+
 	MatrixFromAngles(m, 90, 90, 0);
 	Com_PrintMatrix(m);
+
+
+	MatrixClear(m);
+	m[0] = 1;
+	m[9] = -1; // y -> -z
+	m[6] = 1;  // z -> y
+	m[15] = 1;
+	Com_Printf("switchToArticle =\n");
+	Com_PrintMatrix(m);
+
+	MatrixClear(m);
+	m[0] = 1;
+	m[9] = 1; // y -> -z
+	m[6] = -1;  // z -> y
+	m[15] = 1;
+	Com_Printf("switchToGL =\n");
+	Com_PrintMatrix(m);
+
 	/*
 	MatrixFromAngles(m, 90, 90, 0);
 	Com_PrintMatrix(m);

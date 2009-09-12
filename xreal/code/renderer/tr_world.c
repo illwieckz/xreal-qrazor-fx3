@@ -510,7 +510,7 @@ static void R_RecursiveWorldNode(bspNode_t * node, int planeBits)
 			{
 				if(planeBits & (1 << i))
 				{
-					r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
+					r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustums[0][i]);
 					if(r == 2)
 					{
 						return;	// culled
@@ -620,7 +620,7 @@ static void R_RecursiveInteractionNode(bspNode_t * node, trRefLight_t * light, i
 		{
 			if(planeBits & (1 << i))
 			{
-				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
+				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustums[0][i]);
 
 				if(r == 2)
 				{
@@ -1289,7 +1289,7 @@ static qboolean InsideViewFrustum(bspNode_t * node, int planeBits)
 		{
 			if(planeBits & (1 << i))
 			{
-				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
+				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustums[0][i]);
 				if(r == 2)
 				{
 					return qfalse;	// culled
@@ -1323,7 +1323,7 @@ static void DrawNode_r(bspNode_t * node, int planeBits)
 			{
 				if(planeBits & (1 << i))
 				{
-					r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
+					r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustums[0][i]);
 					if(r == 2)
 					{
 						return;	// culled
@@ -1927,7 +1927,7 @@ static void R_CoherentHierachicalCulling()
 
 			// reset node's visibility classification
 			//if(BoundsIntersectPoint(node->mins, node->maxs, tr.viewParms.orientation.origin))
-			if(BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[FRUSTUM_NEAR]) == 3)
+			if(BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustums[0][FRUSTUM_NEAR]) == 3)
 			{
 				// node clips near plane so avoid the occlusion query test
 				node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
@@ -2085,7 +2085,7 @@ static void R_RecursiveChainWorldNode(bspNode_t * node, int planeBits)
 			{
 				if(planeBits & (1 << i))
 				{
-					r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[i]);
+					r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustums[0][i]);
 					if(r == 2)
 					{
 						return;	// culled
@@ -2395,7 +2395,7 @@ void R_AddWorldSurfaces(void)
 
 			for(i = 0; i < FRUSTUM_PLANES; i++)
 			{
-				frust = &tr.viewParms.frustum[i];
+				frust = &tr.viewParms.frustums[0][i];
 
 				r = BoxOnPlaneSide(srf->bounds[0], srf->bounds[1], frust);
 

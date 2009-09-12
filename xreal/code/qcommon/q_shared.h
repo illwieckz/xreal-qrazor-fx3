@@ -1170,7 +1170,8 @@ void            MatrixFromPlanes(matrix_t m, const vec4_t left, const vec4_t rig
 								 const vec4_t near, const vec4_t far);
 void            MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up);
 void            MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t up);
-void            MatrixSetupTransform(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin);
+void            MatrixSetupTransformFromVectorsFLU(matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin);
+void            MatrixSetupTransformFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up, const vec3_t origin);
 void            MatrixSetupTransformFromRotation(matrix_t m, const matrix_t rot, const vec3_t origin);
 void            MatrixSetupTransformFromQuat(matrix_t m, const quat_t quat, const vec3_t origin);
 void            MatrixAffineInverse(const matrix_t in, matrix_t out);
@@ -1181,15 +1182,19 @@ void            MatrixTransformPoint2(const matrix_t m, vec3_t inout);
 void            MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out);
 void            MatrixTransformPlane(const matrix_t m, const vec4_t in, vec4_t out);
 void            MatrixTransformPlane2(const matrix_t m, vec3_t inout);
-void            MatrixSetupPerspectiveProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near,
-												 vec_t far);
-void            MatrixSetupOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near,
-												vec_t far);
+void            MatrixPerspectiveProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
+void            MatrixPerspectiveProjectionLH(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
+void            MatrixPerspectiveProjectionRH(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
+void            MatrixPerspectiveProjectionFovYAspectLH(matrix_t m, vec_t fov, vec_t aspect, vec_t near, vec_t far);
+void            MatrixPerspectiveProjectionFovXYLH(matrix_t m, vec_t fovX, vec_t fovY, vec_t near, vec_t far);
+void            MatrixPerspectiveProjectionFovXYRH(matrix_t m, vec_t fovX, vec_t fovY, vec_t near, vec_t far);
+void            MatrixPerspectiveProjectionFovXYInfiniteRH(matrix_t m, vec_t fovX, vec_t fovY, vec_t near);
+void            MatrixOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
 
-void			MatrixSetupOrthogonalProjectionLH(matrix_t m, vec_t width, vec_t height, vec_t near, vec_t far);
+void			MatrixOrthogonalProjectionLH(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
 
-void            MatrixSetupLookAtLH(matrix_t output, const vec3_t pos, const vec3_t dir, const vec3_t up);
-void            MatrixSetupLookAtRH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up);
+void            MatrixLookAtLH(matrix_t output, const vec3_t pos, const vec3_t dir, const vec3_t up);
+void            MatrixLookAtRH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up);
 void            MatrixScaleTranslateToFit(matrix_t output, const vec3_t vMin, const vec3_t vMax);
 
 static ID_INLINE void AnglesToMatrix(const vec3_t angles, matrix_t m)

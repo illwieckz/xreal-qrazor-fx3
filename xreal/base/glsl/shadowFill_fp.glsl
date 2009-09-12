@@ -78,6 +78,9 @@ void	main()
 	if(bool(u_LightParallel))
 	{
 		distance = gl_FragCoord.z;// * r_ShadowMapDepthScale;
+		//distance /= gl_FragCoord.w;
+		//distance = var_Position.z / var_Position.w;
+		//distance = var_Position.z;
 	}
 	else
 	{
