@@ -2268,7 +2268,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 			{
 				matrix_t        modelToWorld;
 
-				MatrixSetupTransform(modelToWorld, gun.axis[0], gun.axis[1], gun.axis[2], gun.origin);
+				MatrixSetupTransformFromVectorsFLU(modelToWorld, gun.axis[0], gun.axis[1], gun.axis[2], gun.origin);
 				MatrixTransformPoint(modelToWorld, gun.skeleton.bones[boneIndex].origin, flashOrigin);
 
 				// add lightning bolt
