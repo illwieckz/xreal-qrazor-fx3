@@ -9,6 +9,14 @@
 		<fs_game value="" />
 	</game>
   <ui>
+  	<commandsystem>
+		<binds>
+			<bind name="SelectNudgeLeft" value="NudgeSelected left" readonly="1" />
+			<bind name="SelectNudgeRight" value="NudgeSelected right" readonly="1" />
+			<bind name="SelectNudgeUp" value="NudgeSelected up" readonly="1" />
+			<bind name="SelectNudgeDown" value="NudgeSelected down" readonly="1" />
+		</binds>
+	</commandsystem>
 	<map>
 		<numMRU value="5" />
 		<loadLastMap value="0" />
@@ -42,6 +50,7 @@
 	<rotationPivotIsOrigin value="0" />
 	<dragResizeEntitiesSymmetrically value="1" />
 	<transientComponentSelection value="1" />
+	<offsetClonedObjects value="1" />
 	<transformDialog>
 		<window xPosition="150" yPosition="200" width="280" height="242" />
 		<rotXStep value="45" />
@@ -202,6 +211,7 @@
 			<toggletoolbutton name="freemodelrotation" action="ToggleFreeModelRotation" tooltip="Rotate Models independently" icon="free_model_rotation.png" />
 			<toggletoolbutton name="togglerotationpivot" action="ToggleRotationPivot" tooltip="Rotate func_* Entities around origin" icon="rotation_pivot_origin.png" />
 			<toggletoolbutton name="dragresizesymm" action="ToggleDragResizeEntitiesSymmetrically" tooltip="Drag-resize entities symmetrically (leave origin unchanged)" icon="dragresize_symm.png" />
+			<toggletoolbutton name="offsetclones" action="ToggleOffsetClones" tooltip="Offset cloned objects by one grid unit to the right and downwards." icon="offset_clone.png" />
 		<separator/>
 			<toolbutton name="createDecals" action="CreateDecalsForFaces" tooltip="Create Decals for selected Faces" icon="create_decals.png"/>
 	</toolbar>
