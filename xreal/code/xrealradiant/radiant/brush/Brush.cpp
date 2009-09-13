@@ -23,9 +23,6 @@ Brush::Brush(const Callback& evaluateTransform, const Callback& boundsChanged) :
 	_faceCentroidPoints(GL_POINTS),
 	_uniqueVertexPoints(GL_POINTS),
 	_uniqueEdgePoints(GL_POINTS),
-	//m_render_faces(m_faceCentroidPoints, GL_POINTS),
-	//m_render_vertices(m_uniqueVertexPoints, GL_POINTS),
-	//m_render_edges(m_uniqueEdgePoints, GL_POINTS),
 	m_evaluateTransform(evaluateTransform),
 	m_boundsChanged(boundsChanged),
 	m_planeChanged(false),
@@ -40,9 +37,6 @@ Brush::Brush(const Brush& other, const Callback& evaluateTransform, const Callba
 	_faceCentroidPoints(GL_POINTS),
 	_uniqueVertexPoints(GL_POINTS),
 	_uniqueEdgePoints(GL_POINTS),
-	//m_render_faces(m_faceCentroidPoints, GL_POINTS),
-	//m_render_vertices(m_uniqueVertexPoints, GL_POINTS),
-	//m_render_edges(m_uniqueEdgePoints, GL_POINTS),
 	m_evaluateTransform(evaluateTransform),
 	m_boundsChanged(boundsChanged),
 	m_planeChanged(false),
@@ -53,7 +47,6 @@ Brush::Brush(const Brush& other, const Callback& evaluateTransform, const Callba
 
 Brush::Brush(const Brush& other) :
 	IBrush(other),
-	TransformNode(other),
 	Bounded(other),
 	Cullable(other),
 	Snappable(other),
@@ -65,9 +58,6 @@ Brush::Brush(const Brush& other) :
 	_faceCentroidPoints(GL_POINTS),
 	_uniqueVertexPoints(GL_POINTS),
 	_uniqueEdgePoints(GL_POINTS),
-	//m_render_faces(	, GL_POINTS),
-	//m_render_vertices(m_uniqueVertexPoints, GL_POINTS),
-	//m_render_edges(m_uniqueEdgePoints, GL_POINTS),
 	m_planeChanged(false),
 	m_transformChanged(false)
 {
@@ -194,10 +184,6 @@ void Brush::evaluateTransform() {
 		revertTransform();
 		m_evaluateTransform();
 	}
-}
-
-const Matrix4& Brush::localToParent() const {
-	return Matrix4::getIdentity();
 }
 
 void Brush::aabbChanged() {
@@ -482,13 +468,12 @@ void Brush::windingForClipPlane(Winding& winding, const Plane3& plane) const {
 void Brush::update_wireframe(RenderableWireframe& wire, const bool* faces_visible) const
 {
 	wire.m_faceVertex.resize(_edgeIndices.size());
-	wire.m_vertices = &_uniqueVertexPoints.front();
+	wire.m_vertices = _uniqueVertexPoints.size() > 0 ? &_uniqueVertexPoints.front() : NULL;
 	wire.m_size = 0;
 
-	for(std::size_t i = 0; i < _edgeFaces.size(); ++i)
+	for (std::size_t i = 0; i < _edgeFaces.size(); ++i)
 	{
-		if (faces_visible[_edgeFaces[i].first]
-			|| faces_visible[_edgeFaces[i].second])
+		if (faces_visible[_edgeFaces[i].first] || faces_visible[_edgeFaces[i].second])
 		{
 			wire.m_faceVertex[wire.m_size++] = _edgeIndices[i];
 		}

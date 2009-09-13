@@ -5,12 +5,12 @@
 #include "iuimanager.h"
 #include "igroupdialog.h"
 #include "imainframe.h"
+#include "ientityinspector.h"
 
 #include "gtkutil/FramedWidget.h"
 #include "gtkutil/Paned.h"
 
 #include "camera/GlobalCamera.h"
-#include "ui/einspector/EntityInspector.h"
 #include "ui/texturebrowser/TextureBrowser.h"
 #include "xyview/GlobalXYWnd.h"
 
@@ -47,18 +47,30 @@ void RegularLayout::activate() {
 	);
 
 	// Now pack those widgets into the paned widgets
+	gtkutil::Paned texCamPane(gtkutil::Paned::Vertical);
 
 	// First, pack the texwindow and the camera
-    _regular.texCamPane = gtkutil::Paned(camWindow, texWindow, false);
+	texCamPane.setFirstChild(camWindow, true); // allow shrinking
+	texCamPane.setSecondChild(texWindow, true); // allow shrinking
+
+	_regular.texCamPane = texCamPane.getWidget();
     
     // Depending on the viewstyle, pack the xy left or right
-    if (_regularLeft) {
-    	_regular.horizPane = gtkutil::Paned(_regular.texCamPane, xyView, true);
+	gtkutil::Paned horizPane(gtkutil::Paned::Horizontal);
+
+    if (_regularLeft)
+	{
+		horizPane.setFirstChild(_regular.texCamPane, true); // allow shrinking
+		horizPane.setSecondChild(xyView, true); // allow shrinking
     }
-    else {
-    	// This is "regular", put the xyview to the left
-    	_regular.horizPane = gtkutil::Paned(xyView, _regular.texCamPane, true);
+    else
+	{
+		// This is "regular", put the xyview to the left
+		horizPane.setFirstChild(xyView, true); // allow shrinking
+		horizPane.setSecondChild(_regular.texCamPane, true); // allow shrinking
     }
+
+	_regular.horizPane = horizPane.getWidget();
     
 	// Retrieve the main container of the main window
 	GtkWidget* mainContainer = GlobalMainFrame().getMainContainer();
@@ -89,7 +101,7 @@ void RegularLayout::activate() {
 
 	// greebo: Now that the dialog is shown, tell the Entity Inspector to reload 
 	// the position info from the Registry once again.
-	ui::EntityInspector::getInstance().restoreSettings();
+	GlobalEntityInspector().restoreSettings();
 
 	GlobalGroupDialog().hideDialogWindow();
 

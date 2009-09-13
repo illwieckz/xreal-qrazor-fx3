@@ -10,12 +10,13 @@ namespace ui
 {
 
 // Blank ctor
-ColourPropertyEditor::ColourPropertyEditor() {}
+ColourPropertyEditor::ColourPropertyEditor()
+{}
 
 // Main ctor
 ColourPropertyEditor::ColourPropertyEditor(Entity* entity, 
 										   const std::string& name)
-: _entity(entity),
+: PropertyEditor(entity),
   _key(name)
 {
 	_widget = gtk_vbox_new(FALSE, 6);
@@ -65,7 +66,7 @@ std::string ColourPropertyEditor::getSelectedColour() {
 void ColourPropertyEditor::_onColorSet(GtkWidget* w, ColourPropertyEditor* self)
 {
 	// Set the new keyvalue on the entity
-	self->_entity->setKeyValue(self->_key, self->getSelectedColour());	
+	self->setKeyValue(self->_key, self->getSelectedColour());	
 }
 
 	

@@ -7,6 +7,7 @@
 #include "selectionlib.h"
 #include "UndoFileChangeTracker.h"
 #include "scenelib.h"
+#include "transformlib.h"
 
 namespace map {
 
@@ -82,9 +83,7 @@ typedef boost::shared_ptr<RootNode> RootNodePtr;
 } // namespace map
 
 inline scene::INodePtr NewMapRoot(const std::string& name) {
-	scene::INodePtr root(new map::RootNode(name));
-	root->setSelf(root);
-	return root;
+	return scene::INodePtr(new map::RootNode(name));
 }
 
 #endif /*MAPROOTNODE_H_*/

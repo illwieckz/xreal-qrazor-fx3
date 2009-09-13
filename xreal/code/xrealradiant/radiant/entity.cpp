@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "os/file.h"
 
 #include "gtkutil/filechooser.h"
+#include "ui/mainframe/ScreenUpdateBlocker.h"
 #include "selectionlib.h"
 #include "gtkmisc.h"
 #include "select.h"
@@ -82,6 +83,15 @@ void ReloadSkins(const cmd::ArgumentList& args) {
 	
 	// Refresh the ModelSelector too
 	ui::ModelSelector::refresh();
+}
+
+// This takes care of relading the entityDefs and refreshing the scenegraph
+void ReloadDefs(const cmd::ArgumentList& args)
+{
+	// Disable screen updates for the scope of this function
+	ui::ScreenUpdateBlocker blocker("Processing...", "Reloading Defs");
+
+	GlobalEntityClassManager().reloadDefs();
 }
 
 /*class EntitySetKeyValueSelected : public scene::Graph::Walker
@@ -140,10 +150,8 @@ scene::INodePtr changeEntityClassname(const scene::INodePtr& node, const std::st
 	// Remove the old entity node from the parent
 	scene::removeNodeFromParent(oldNode);
 
-	if (node_is_group(newNode)) {
-		// Traverse the child and reparent all primitives to the new entity node
-		parentBrushes(oldNode, newNode);
-	}
+	// Traverse the child and reparent all primitives to the new entity node
+	parentBrushes(oldNode, newNode);
 
 	// Insert the new entity to the parent
 	parent->addChildNode(newNode);
@@ -219,7 +227,7 @@ scene::INodePtr Entity_createFromSelection(const char* name, const Vector3& orig
     if (entityClass->isFixedSize() || (isModel && !primitivesSelected)) {
 		selection::algorithm::deleteSelection();
     
-        TransformablePtr transform = Node_getTransformable(node);
+        ITransformablePtr transform = Node_getTransformable(node);
     
         if (transform != 0) {
             transform->setType(TRANSFORM_PRIMITIVE);
@@ -323,7 +331,7 @@ void createCurve(const std::string& key) {
 		"3 ( 0 0 0  50 50 0  50 100 0 )"
 	);
 	
-	TransformablePtr transformable = Node_getTransformable(curve);
+	ITransformablePtr transformable = Node_getTransformable(curve);
 	if (transformable != NULL) {
 		// Translate the entity to the center of the current workzone
 		transformable->setTranslation(GlobalXYWnd().getActiveXY()->getOrigin());

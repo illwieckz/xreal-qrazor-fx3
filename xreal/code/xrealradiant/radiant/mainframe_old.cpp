@@ -39,7 +39,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ui/patch/PatchInspector.h"
 #include "textool/TexTool.h"
 #include "brushexport/BrushExportOBJ.h"
-#include "ui/einspector/EntityInspector.h"
 #include "ui/lightinspector/LightInspector.h"
 #include "ui/mediabrowser/MediaBrowser.h"
 #include "ui/menu/FiltersMenu.h"
@@ -163,26 +162,6 @@ void Exit(const cmd::ArgumentList& args) {
 	if (GlobalMap().askForSave("Exit Radiant")) {
 		gtk_main_quit();
 	}
-}
-
-void Undo(const cmd::ArgumentList& args)
-{
-  GlobalUndoSystem().undo();
-  SceneChangeNotify();
-  ui::SurfaceInspector::Instance().update();
-  ui::PatchInspector::Instance().update();
-  ui::LightInspector::Instance().update();
-  GlobalShaderClipboard().clear();
-}
-
-void Redo(const cmd::ArgumentList& args)
-{
-  GlobalUndoSystem().redo();
-  SceneChangeNotify();
-  ui::SurfaceInspector::Instance().update();
-  ui::PatchInspector::Instance().update();
-  ui::LightInspector::Instance().update();
-  GlobalShaderClipboard().clear();
 }
 
 void Map_ExportSelected(std::ostream& ostream) {
@@ -368,67 +347,6 @@ void ToggleFaceMode() {
 	ModeChangeNotify();
 }
 
-enum ENudgeDirection
-{
-  eNudgeUp = 1,
-  eNudgeDown = 3,
-  eNudgeLeft = 0,
-  eNudgeRight = 2,
-};
-
-struct AxisBase
-{
-  Vector3 x;
-  Vector3 y;
-  Vector3 z;
-  AxisBase(const Vector3& x_, const Vector3& y_, const Vector3& z_)
-    : x(x_), y(y_), z(z_)
-  {
-  }
-};
-
-AxisBase AxisBase_forViewType(EViewType viewtype)
-{
-  switch(viewtype)
-  {
-  case XY:
-    return AxisBase(g_vector3_axis_x, g_vector3_axis_y, g_vector3_axis_z);
-  case XZ:
-    return AxisBase(g_vector3_axis_x, g_vector3_axis_z, g_vector3_axis_y);
-  case YZ:
-    return AxisBase(g_vector3_axis_y, g_vector3_axis_z, g_vector3_axis_x);
-  }
-
-  ERROR_MESSAGE("invalid viewtype");
-  return AxisBase(Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0));
-}
-
-Vector3 AxisBase_axisForDirection(const AxisBase& axes, ENudgeDirection direction)
-{
-  switch (direction)
-  {
-  case eNudgeLeft:
-    return -axes.x;
-  case eNudgeUp:
-    return axes.y;
-  case eNudgeRight:
-    return axes.x;
-  case eNudgeDown:
-    return -axes.y;
-  }
-
-  ERROR_MESSAGE("invalid direction");
-  return Vector3(0, 0, 0);
-}
-
-void NudgeSelection(ENudgeDirection direction, float fAmount, EViewType viewtype)
-{
-  AxisBase axes(AxisBase_forViewType(viewtype));
-  Vector3 view_direction(-axes.z);
-  Vector3 nudge(AxisBase_axisForDirection(axes, direction) * fAmount);
-  GlobalSelectionSystem().NudgeManipulator(nudge, view_direction);
-}
-
 // called when the escape key is used (either on the main window or on an inspector)
 void Selection_Deselect(const cmd::ArgumentList& args)
 {
@@ -455,30 +373,6 @@ void Selection_Deselect(const cmd::ArgumentList& args)
       GlobalSelectionSystem().setSelectedAll(false);
     }
   }
-}
-
-void Selection_NudgeUp(const cmd::ArgumentList& args)
-{
-  UndoableCommand undo("nudgeSelectedUp");
-  NudgeSelection(eNudgeUp, GlobalGrid().getGridSize(), GlobalXYWnd().getActiveViewType());
-}
-
-void Selection_NudgeDown(const cmd::ArgumentList& args)
-{
-  UndoableCommand undo("nudgeSelectedDown");
-  NudgeSelection(eNudgeDown, GlobalGrid().getGridSize(), GlobalXYWnd().getActiveViewType());
-}
-
-void Selection_NudgeLeft(const cmd::ArgumentList& args)
-{
-  UndoableCommand undo("nudgeSelectedLeft");
-  NudgeSelection(eNudgeLeft, GlobalGrid().getGridSize(), GlobalXYWnd().getActiveViewType());
-}
-
-void Selection_NudgeRight(const cmd::ArgumentList& args)
-{
-  UndoableCommand undo("nudgeSelectedRight");
-  NudgeSelection(eNudgeRight, GlobalGrid().getGridSize(), GlobalXYWnd().getActiveViewType());
 }
 
 void ToolChanged() {  
@@ -685,16 +579,13 @@ void CallBrushExportOBJ(const cmd::ArgumentList& args) {
 	}
 }
 
-#include "stringio.h"
-
 void MainFrame_Construct()
 {
 	DragMode();
 
 	GlobalCommandSystem().addCommand("Exit", Exit);
-	GlobalCommandSystem().addCommand("Undo", Undo);
-	GlobalCommandSystem().addCommand("Redo", Redo);
 	GlobalCommandSystem().addCommand("ReloadSkins", ReloadSkins);
+	GlobalCommandSystem().addCommand("ReloadDefs", ReloadDefs);
 	GlobalCommandSystem().addCommand("ProjectSettings", ui::PrefDialog::showProjectSettings);
 	GlobalCommandSystem().addCommand("Copy", Copy);
 	GlobalCommandSystem().addCommand("Paste", Paste);
@@ -716,7 +607,6 @@ void MainFrame_Construct()
 	GlobalCommandSystem().addCommand("Preferences", ui::PrefDialog::toggle);
 	GlobalCommandSystem().addCommand("ToggleConsole", ui::Console::toggle);
 
-	GlobalCommandSystem().addCommand("ToggleEntityInspector", ui::EntityInspector::toggle);
 	GlobalCommandSystem().addCommand("ToggleMediaBrowser", ui::MediaBrowser::toggle);
 	GlobalCommandSystem().addCommand("ToggleLightInspector", ui::LightInspector::toggleInspector);
 	GlobalCommandSystem().addCommand("SurfaceInspector", ui::SurfaceInspector::toggle);
@@ -757,6 +647,9 @@ void MainFrame_Construct()
 	GlobalCommandSystem().addCommand("TexScale", selection::algorithm::scaleTexture, cmd::ARGTYPE_VECTOR2|cmd::ARGTYPE_STRING);
 	GlobalCommandSystem().addCommand("TexShift", selection::algorithm::shiftTextureCmd, cmd::ARGTYPE_VECTOR2|cmd::ARGTYPE_STRING);
 
+	// Add the nudge commands (one general, four specialised ones)
+	GlobalCommandSystem().addCommand("NudgeSelected", selection::algorithm::nudgeSelectedCmd, cmd::ARGTYPE_STRING);
+
 	GlobalCommandSystem().addCommand("NormaliseTexture", selection::algorithm::normaliseTexture);
 
 	GlobalCommandSystem().addCommand("CopyShader", selection::algorithm::pickShaderFromSelection);
@@ -769,11 +662,6 @@ void MainFrame_Construct()
 	GlobalCommandSystem().addCommand("MoveSelectionDOWN", Selection_MoveDown);
 	GlobalCommandSystem().addCommand("MoveSelectionUP", Selection_MoveUp);
 	
-	GlobalCommandSystem().addCommand("SelectNudgeLeft", Selection_NudgeLeft);
-	GlobalCommandSystem().addCommand("SelectNudgeRight", Selection_NudgeRight);
-	GlobalCommandSystem().addCommand("SelectNudgeUp", Selection_NudgeUp);
-	GlobalCommandSystem().addCommand("SelectNudgeDown", Selection_NudgeDown);
-
 	GlobalCommandSystem().addCommand("CurveAppendControlPoint", selection::algorithm::appendCurveControlPoint);
 	GlobalCommandSystem().addCommand("CurveRemoveControlPoint", selection::algorithm::removeCurveControlPoints);
 	GlobalCommandSystem().addCommand("CurveInsertControlPoint", selection::algorithm::insertCurveControlPoints);
@@ -791,9 +679,8 @@ void MainFrame_Construct()
 	// ----------------------- Bind Events ---------------------------------------
 
 	GlobalEventManager().addCommand("Exit", "Exit");
-	GlobalEventManager().addCommand("Undo", "Undo");
-	GlobalEventManager().addCommand("Redo", "Redo");
 	GlobalEventManager().addCommand("ReloadSkins", "ReloadSkins");
+	GlobalEventManager().addCommand("ReloadDefs", "ReloadDefs");
 	GlobalEventManager().addCommand("ProjectSettings", "ProjectSettings");
 	
 	GlobalEventManager().addCommand("Copy", "Copy");
@@ -818,8 +705,6 @@ void MainFrame_Construct()
 	
 	GlobalEventManager().addCommand("ToggleConsole", "ToggleConsole");
 	
-	// Entity inspector (part of Group Dialog)
-	GlobalEventManager().addCommand("ToggleEntityInspector", "ToggleEntityInspector");
 	GlobalEventManager().addCommand("ToggleMediaBrowser", "ToggleMediaBrowser");
 	GlobalEventManager().addCommand("ToggleLightInspector",	"ToggleLightInspector");
 	GlobalEventManager().addCommand("SurfaceInspector", "SurfaceInspector");
@@ -903,6 +788,7 @@ void MainFrame_Construct()
 	GlobalEventManager().addCommand("SelectNudgeDown", "SelectNudgeDown");
 
 	GlobalEventManager().addRegistryToggle("ToggleRotationPivot", "user/ui/rotationPivotIsOrigin");
+	GlobalEventManager().addRegistryToggle("ToggleOffsetClones", selection::algorithm::RKEY_OFFSET_CLONED_OBJECTS);
 	
 	GlobalEventManager().addCommand("CurveAppendControlPoint", "CurveAppendControlPoint");
 	GlobalEventManager().addCommand("CurveRemoveControlPoint", "CurveRemoveControlPoint");

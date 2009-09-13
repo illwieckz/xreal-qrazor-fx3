@@ -20,9 +20,6 @@ class TexturePropertyEditor
 	// Texture prefixes we are interested in
 	const std::string _prefixes;
 	
-	// Entity to edit
-	Entity* _entity;
-	
 	// Keyval to set
 	std::string _key;
 	
@@ -51,7 +48,7 @@ public:
 	TexturePropertyEditor() {}
 
 	// Create a new TexturePropertyEditor
-    virtual PropertyEditorPtr createNew(Entity* entity, 
+    virtual IPropertyEditorPtr createNew(Entity* entity, 
     									const std::string& name, 
     									const std::string& options) 
 	{

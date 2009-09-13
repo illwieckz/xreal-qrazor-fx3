@@ -15,9 +15,6 @@ class SoundPropertyEditor
 	// Main widget
 	GtkWidget* _widget;
 	
-	// Entity to edit
-	Entity* _entity;
-	
 	// Keyvalue to set
 	std::string _key;
 	
@@ -45,7 +42,7 @@ public:
 					    const std::string& options);
 					   
 	// Clone method for virtual construction
-	PropertyEditorPtr createNew(Entity* entity,
+	IPropertyEditorPtr createNew(Entity* entity,
 								const std::string& name,
 							  	const std::string& options)
 	{

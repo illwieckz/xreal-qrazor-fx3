@@ -24,20 +24,26 @@ class PropertyEditorFactory
    // Mapping from classnames to PropertyEditor child instances. The child
    // instance's createNew() function will be used to create a new object of
    // the correct type.
-   typedef std::map<std::string, PropertyEditorPtr> PropertyEditorMap;
-   static PropertyEditorMap _peMap; 
+   typedef std::map<std::string, IPropertyEditorPtr> PropertyEditorMap;
+   static PropertyEditorMap _peMap;
+
+   // A mapping between (regex) keys and custom editors (registered by plug-ins, etc.)
+   static PropertyEditorMap _customEditors;
     
 public:
 
     // Create a new PropertyEditor with the provided classname to manage the
     // given Entity object and key name.
-    static PropertyEditorPtr create(const std::string& className, 
+    static IPropertyEditorPtr create(const std::string& className, 
     								Entity* entity,
     								const std::string& key,
     								const std::string& options);
 
     // Register the classes
     static void registerClasses();
+
+	// Associate a specific property editor for the given key (regex)
+	static void registerPropertyEditor(const std::string& key, const IPropertyEditorPtr& editor);
     
     // Return the GdkPixbuf that corresponds to the provided PropertyEditor
     // type.

@@ -12,11 +12,14 @@
 namespace ui
 {
 
+ModelPropertyEditor::ModelPropertyEditor()
+{}
+
 // Main constructor
 ModelPropertyEditor::ModelPropertyEditor(Entity* entity,
 									     const std::string& name,
 									     const std::string& options)
-: _entity(entity),
+: PropertyEditor(entity),
   _key(name)
 {
 	_widget = gtk_vbox_new(FALSE, 6);
@@ -70,7 +73,7 @@ void ModelPropertyEditor::_onModelButton(GtkWidget* w,
 	);
 
 	if (!result.model.empty()) {
-		self->_entity->setKeyValue(self->_key, result.model);
+		self->setKeyValue(self->_key, result.model);
 	}
 }
 
@@ -82,7 +85,7 @@ void ModelPropertyEditor::_onParticleButton(GtkWidget* w,
 	std::string particle = ParticlesChooser::chooseParticle(currentSelection);
 	
 	if (!particle.empty()) {
-		self->_entity->setKeyValue(self->_key, particle);
+		self->setKeyValue(self->_key, particle);
 	}
 }
 

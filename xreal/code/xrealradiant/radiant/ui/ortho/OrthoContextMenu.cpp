@@ -28,11 +28,11 @@
 
 namespace ui
 {
-	
+
 namespace {
 
     /* CONSTANTS */
-    
+
     const char* LIGHT_CLASSNAME = "light";
     const char* MODEL_CLASSNAME = "func_static";
     const char* SPEAKER_CLASSNAME = "speaker";
@@ -209,7 +209,7 @@ void OrthoContextMenu::show(const Vector3& point) {
 	checkConvertStatic(); // enable or disable the convert-to-static command
 	checkRevertToWorldspawn();
 	checkMonsterClip(); // enable the "Add MonsterClip" entry only if one or more model is selected
-	checkPlayerStart(); // change the "Add PlayerStart" entry if an info_player_start is already existant 
+	checkPlayerStart(); // change the "Add PlayerStart" entry if an info_player_start is already existant
 	checkAddOptions(); // disable the "Add *" command if an entity is already selected
 	checkMakeVisportal(); // enable or disable the make visportal command
 	repopulateLayerMenus(); // refresh the layer menus
@@ -243,7 +243,7 @@ void OrthoContextMenu::checkMakeVisportal() {
 	const SelectionInfo& info = GlobalSelectionSystem().getSelectionInfo();
 
 	gtk_widget_set_sensitive(
-		_widgets[WIDGET_MAKE_VISPORTAL], 
+		_widgets[WIDGET_MAKE_VISPORTAL],
 		(info.totalCount > 0 && info.totalCount == info.brushCount) ? TRUE : FALSE
 	);
 }
@@ -251,12 +251,12 @@ void OrthoContextMenu::checkMakeVisportal() {
 // Check if the convert to static command should be enabled
 void OrthoContextMenu::checkConvertStatic() {
 	const SelectionInfo& info = GlobalSelectionSystem().getSelectionInfo();
-	
+
 	// Command should be enabled if there is at least one selected
 	// primitive and no non-primitive selections.
 	gtk_widget_set_sensitive(
-		_widgets[WIDGET_CONVERT_STATIC], 
-		(info.entityCount == 0 && info.componentCount == 0 && info.totalCount > 0) 
+		_widgets[WIDGET_CONVERT_STATIC],
+		(info.entityCount == 0 && info.componentCount == 0 && info.totalCount > 0)
 	);
 }
 
@@ -267,31 +267,31 @@ void OrthoContextMenu::checkMonsterClip() {
 
 	// enable the "Add MonsterClip" entry only if one or more model is selected
 	gtk_widget_set_sensitive(
-		_widgets[WIDGET_ADD_MONSTERCLIP], 
+		_widgets[WIDGET_ADD_MONSTERCLIP],
 		!visitor.empty() && visitor.onlyModels()
 	);
 }
 
 void OrthoContextMenu::checkAddOptions() {
 	const SelectionInfo& info = GlobalSelectionSystem().getSelectionInfo();
-	
+
 	// Add entity, playerStart and light commands are disabled if an entity is selected
 	gtk_widget_set_sensitive(_widgets[WIDGET_ADD_ENTITY], info.entityCount == 0 ? TRUE : FALSE);
 	gtk_widget_set_sensitive(_widgets[WIDGET_ADD_PLAYERSTART], info.entityCount == 0 ? TRUE : FALSE);
 	gtk_widget_set_sensitive(_widgets[WIDGET_MOVE_PLAYERSTART], info.entityCount == 0 ? TRUE : FALSE);
 	gtk_widget_set_sensitive(_widgets[WIDGET_ADD_LIGHT], info.entityCount == 0 ? TRUE : FALSE);
-		
+
 	// Add speaker/model is disabled if anything is selected
 	gtk_widget_set_sensitive(_widgets[WIDGET_ADD_SPEAKER], info.totalCount == 0 ? TRUE : FALSE);
 	gtk_widget_set_sensitive(_widgets[WIDGET_ADD_MODEL], info.totalCount == 0 ? TRUE : FALSE);
 }
 
-void OrthoContextMenu::checkPlayerStart() 
+void OrthoContextMenu::checkPlayerStart()
 {
 	// Check if a playerStart already exists
 	EntityNodeFindByClassnameWalker walker(PLAYERSTART_CLASSNAME);
 	Node_traverseSubgraph(GlobalSceneGraph().root(), walker);
-	
+
 	if (walker.getEntity() == NULL) {
 		gtk_widget_hide(_widgets[WIDGET_MOVE_PLAYERSTART]);
 		gtk_widget_show(_widgets[WIDGET_ADD_PLAYERSTART]);
@@ -304,14 +304,14 @@ void OrthoContextMenu::checkPlayerStart()
 
 void OrthoContextMenu::checkRevertToWorldspawn() {
 	const SelectionInfo& info = GlobalSelectionSystem().getSelectionInfo();
-	
+
 	bool sensitive = false;
-	
+
 	// Only entities are allowed to be selected, but they have to be groupnodes
 	if (info.totalCount > 0 && info.totalCount == info.entityCount) {
 
 		// Check the selection using a local walker
-		class GroupNodeChecker : 
+		class GroupNodeChecker :
 			public SelectionSystem::Visitor
 		{
 			mutable bool _onlyGroups;
@@ -330,13 +330,13 @@ void OrthoContextMenu::checkRevertToWorldspawn() {
 				return _onlyGroups;
 			}
 		};
-		
+
 		GroupNodeChecker walker;
 		GlobalSelectionSystem().foreachSelected(walker);
 
 		sensitive = walker.onlyGroupsAreSelected();
 	}
-	
+
 	if (sensitive) {
 		gtk_widget_set_sensitive(_widgets[WIDGET_REVERT_WORLDSPAWN], TRUE);
 		gtk_widget_show_all(_widgets[WIDGET_REVERT_WORLDSPAWN]);
@@ -356,7 +356,7 @@ void OrthoContextMenu::checkRevertToWorldspawn() {
 		scene::INodePtr node = GlobalSelectionSystem().ultimateSelected();
 
 		// Only allow revert partial if the parent node is a groupnode
-		if (node != NULL && Node_isPrimitive(node) && 
+		if (node != NULL && Node_isPrimitive(node) &&
 			node->getParent() != NULL && node_is_group(node->getParent()))
 		{
 			Entity* parent = Node_getEntity(node->getParent());
@@ -365,7 +365,7 @@ void OrthoContextMenu::checkRevertToWorldspawn() {
 			}
 		}
 	}
-	
+
 	if (partialSensitive) {
 		gtk_widget_show_all(_widgets[WIDGET_REVERT_PARTIAL]);
 
@@ -379,16 +379,16 @@ void OrthoContextMenu::checkRevertToWorldspawn() {
 
 /* GTK CALLBACKS */
 
-void OrthoContextMenu::callbackAddEntity(GtkMenuItem* item, 
-										 OrthoContextMenu* self) 
+void OrthoContextMenu::callbackAddEntity(GtkMenuItem* item,
+										 OrthoContextMenu* self)
 {
 	UndoableCommand command("createEntity");
 
 	// Display the chooser to select an entity classname
 	std::string cName = EntityClassChooser::chooseEntityClass();
-	
+
 	if (!cName.empty()) {
-		// Create the entity. We might get an EntityCreationException if the 
+		// Create the entity. We might get an EntityCreationException if the
 		// wrong number of brushes is selected.
 		try {
 			Entity_createFromSelection(cName.c_str(), self->_lastPoint);
@@ -399,11 +399,11 @@ void OrthoContextMenu::callbackAddEntity(GtkMenuItem* item,
 	}
 }
 
-void OrthoContextMenu::callbackAddPlayerStart(GtkMenuItem* item, OrthoContextMenu* self) 
+void OrthoContextMenu::callbackAddPlayerStart(GtkMenuItem* item, OrthoContextMenu* self)
 {
-	UndoableCommand command("addPlayerStart");	
+	UndoableCommand command("addPlayerStart");
 
-	try 
+	try
     {
         // Create the player start entity
 		scene::INodePtr playerStartNode = Entity_createFromSelection(
@@ -421,19 +421,19 @@ void OrthoContextMenu::callbackAddPlayerStart(GtkMenuItem* item, OrthoContextMen
 
 void OrthoContextMenu::callbackMovePlayerStart(GtkMenuItem* item, OrthoContextMenu* self) {
 	UndoableCommand _cmd("movePlayerStart");
-	
+
 	EntityNodeFindByClassnameWalker walker(PLAYERSTART_CLASSNAME);
 	Node_traverseSubgraph(GlobalSceneGraph().root(), walker);
-	
+
 	Entity* playerStart = walker.getEntity();
-	
+
 	if (playerStart != NULL) {
 		playerStart->setKeyValue("origin", self->_lastPoint);
 	}
 }
 
 void OrthoContextMenu::callbackAddMonsterClip(GtkMenuItem* item, OrthoContextMenu* self) {
-	UndoableCommand command("addMonsterclip");	
+	UndoableCommand command("addMonsterclip");
 
 	// create a ModelFinder and retrieve the modelList
 	selection::algorithm::ModelFinder visitor;
@@ -441,7 +441,7 @@ void OrthoContextMenu::callbackAddMonsterClip(GtkMenuItem* item, OrthoContextMen
 
 	// Retrieve the list with all the found models from the visitor
 	selection::algorithm::ModelFinder::ModelList list = visitor.getList();
-	
+
 	selection::algorithm::ModelFinder::ModelList::iterator iter;
 	for (iter = list.begin(); iter != list.end(); ++iter) {
 		// one of the models in the SelectionStack
@@ -455,7 +455,7 @@ void OrthoContextMenu::callbackAddMonsterClip(GtkMenuItem* item, OrthoContextMen
 
 		if (brushNode != NULL) {
 			scene::addNodeToContainer(brushNode, GlobalMap().findOrInsertWorldspawn());
-			
+
 			Brush* theBrush = Node_getBrush(brushNode);
 
 			std::string clipShader = GlobalRegistry().get(RKEY_MONSTERCLIP_SHADER);
@@ -466,7 +466,7 @@ void OrthoContextMenu::callbackAddMonsterClip(GtkMenuItem* item, OrthoContextMen
 }
 
 void OrthoContextMenu::callbackAddLight(GtkMenuItem* item, OrthoContextMenu* self) {
-	UndoableCommand command("addLight");	
+	UndoableCommand command("addLight");
 
     try {
     	Entity_createFromSelection(LIGHT_CLASSNAME, self->_lastPoint);
@@ -483,16 +483,16 @@ void OrthoContextMenu::callbackAddPrefab(GtkMenuItem* item, OrthoContextMenu* se
 }
 
 void OrthoContextMenu::callbackAddSpeaker(GtkMenuItem* item, OrthoContextMenu* self) {
-	UndoableCommand command("addSpeaker");	
+	UndoableCommand command("addSpeaker");
 
     // Cancel all selection
     GlobalSelectionSystem().setSelectedAll(false);
 
-    try 
+    try
     {
         scene::INodePtr spkNode = Entity_createFromSelection(
             SPEAKER_CLASSNAME, self->_lastPoint
-        );	
+        );
 
         // Display the Sound Chooser to get a sound shader from the user
         SoundChooser sChooser;
@@ -501,7 +501,7 @@ void OrthoContextMenu::callbackAddSpeaker(GtkMenuItem* item, OrthoContextMenu* s
         // Set the keyvalue
         Entity* entity = Node_getEntity(spkNode);
         assert(entity);
-        entity->setKeyValue("s_shader", soundShader);
+        entity->setKeyValue("s_sound", soundShader);
     }
     catch (EntityCreationException e) {
         gtkutil::errorDialog("Unable to create speaker, classname not found.",
@@ -512,23 +512,23 @@ void OrthoContextMenu::callbackAddSpeaker(GtkMenuItem* item, OrthoContextMenu* s
 }
 
 void OrthoContextMenu::callbackAddModel(GtkMenuItem* item, OrthoContextMenu* self) {
-	UndoableCommand command("addModel");	
+	UndoableCommand command("addModel");
 
 	const SelectionInfo& info = GlobalSelectionSystem().getSelectionInfo();
-	
+
 	// To create a model we need EITHER nothing selected OR exactly one brush selected.
 	if (info.totalCount == 0 || info.brushCount == 1) {
 		// Display the model selector and block waiting for a selection (may be empty)
 		ModelSelectorResult ms = ui::ModelSelector::chooseModel("", true, true);
-		
+
 		// If a model was selected, create the entity and set its model key
 		if (!ms.model.empty()) {
 			try {
 				scene::INodePtr modelNode = Entity_createFromSelection(
-					MODEL_CLASSNAME, 
+					MODEL_CLASSNAME,
 					self->_lastPoint
 				);
-			
+
 				//Node_getTraversable(GlobalSceneGraph().root())->insert(modelNode);
 				Node_getEntity(modelNode)->setKeyValue("model", ms.model);
 				Node_getEntity(modelNode)->setKeyValue("skin", ms.skin);
@@ -537,7 +537,7 @@ void OrthoContextMenu::callbackAddModel(GtkMenuItem* item, OrthoContextMenu* sel
 				if (ms.createClip) {
 					// retrieve the AABB
 					AABB brushAABB(modelNode->worldAABB()); // TODO: Check if worldAABB() is ok
-	
+
 					// create the brush
 					scene::INodePtr brushNode(GlobalBrushCreator().createBrush());
 					scene::addNodeToContainer(brushNode, GlobalMap().findOrInsertWorldspawn());
@@ -551,7 +551,7 @@ void OrthoContextMenu::callbackAddModel(GtkMenuItem* item, OrthoContextMenu* sel
                                      GlobalRadiant().getMainWindow());
             }
 		}
-		
+
 	}
 	else {
 		gtkutil::errorDialog(
@@ -563,11 +563,11 @@ void OrthoContextMenu::callbackAddModel(GtkMenuItem* item, OrthoContextMenu* sel
 }
 
 void OrthoContextMenu::callbackConvertToStatic(GtkMenuItem* item, OrthoContextMenu* self) {
-	UndoableCommand command("convertToStatic");	
+	UndoableCommand command("convertToStatic");
 
 	// Create a func_static entity. Only brushes can be selected if this menu item is
 	// enabled.
-	Entity_createFromSelection(MODEL_CLASSNAME, self->_lastPoint);	
+	Entity_createFromSelection(MODEL_CLASSNAME, self->_lastPoint);
 }
 
 void OrthoContextMenu::callbackAddToLayer(int layerID) {

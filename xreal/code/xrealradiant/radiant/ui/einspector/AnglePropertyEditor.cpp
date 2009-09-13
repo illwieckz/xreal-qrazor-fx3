@@ -2,6 +2,7 @@
 
 #include "iradiant.h"
 #include "ientity.h"
+#include "string/string.h"
 
 #include "gtkutil/IconTextButton.h"
 
@@ -10,9 +11,14 @@
 namespace ui
 {
 
+	namespace
+	{
+		const char* const GLIB_ANGLE_KEY = "dr_angle_value";
+	}
+
 // Constructor
 AnglePropertyEditor::AnglePropertyEditor(Entity* entity, const std::string& key)
-: _entity(entity),
+: PropertyEditor(entity),
   _key(key)
 {
     // Construct a 3x3 table to contain the directional buttons
@@ -39,105 +45,40 @@ AnglePropertyEditor::AnglePropertyEditor(Entity* entity, const std::string& key)
     gtk_box_pack_start(GTK_BOX(_widget), hbx, FALSE, FALSE, 0);
 }
 
+GtkWidget* AnglePropertyEditor::constructAngleButton(
+	const std::string& icon, int angleValue)
+{
+	GtkWidget* w = gtkutil::IconTextButton(
+        "", GlobalRadiant().getLocalPixbuf(icon), false
+    );
+
+    g_signal_connect(G_OBJECT(w), "clicked", G_CALLBACK(_onButtonClick), this);
+	g_object_set_data(G_OBJECT(w), GLIB_ANGLE_KEY, gpointer(angleValue));
+
+	return w;
+}
+
 // Construct the buttons
 void AnglePropertyEditor::constructButtons()
 {
-    _nButton = gtkutil::IconTextButton(
-        "", GlobalRadiant().getLocalPixbuf("arrow_n24.png"), false
-    );
-    g_signal_connect(
-        G_OBJECT(_nButton), "clicked", G_CALLBACK(_onButtonClick), this
-    );
-
-    _neButton = gtkutil::IconTextButton(
-        "", GlobalRadiant().getLocalPixbuf("arrow_ne24.png"), false
-    );
-    g_signal_connect(
-        G_OBJECT(_neButton), "clicked", G_CALLBACK(_onButtonClick), this
-    );
-    
-    _eButton = gtkutil::IconTextButton(
-        "", GlobalRadiant().getLocalPixbuf("arrow_e24.png"), false
-    );
-    g_signal_connect(
-        G_OBJECT(_eButton), "clicked", G_CALLBACK(_onButtonClick), this
-    );
-
-    _seButton = gtkutil::IconTextButton(
-        "", GlobalRadiant().getLocalPixbuf("arrow_se24.png"), false
-    );
-    g_signal_connect(
-        G_OBJECT(_seButton), "clicked", G_CALLBACK(_onButtonClick), this
-    );
-
-    _sButton = gtkutil::IconTextButton(
-        "", GlobalRadiant().getLocalPixbuf("arrow_s24.png"), false
-    );
-    g_signal_connect(
-        G_OBJECT(_sButton), "clicked", G_CALLBACK(_onButtonClick), this
-    );
-
-    _swButton = gtkutil::IconTextButton(
-        "", GlobalRadiant().getLocalPixbuf("arrow_sw24.png"), false
-    );
-    g_signal_connect(
-        G_OBJECT(_swButton), "clicked", G_CALLBACK(_onButtonClick), this
-    );
-
-    _wButton = gtkutil::IconTextButton(
-        "", GlobalRadiant().getLocalPixbuf("arrow_w24.png"), false
-    );
-    g_signal_connect(
-        G_OBJECT(_wButton), "clicked", G_CALLBACK(_onButtonClick), this
-    );
-
-    _nwButton = gtkutil::IconTextButton(
-        "", GlobalRadiant().getLocalPixbuf("arrow_nw24.png"), false
-    );
-    g_signal_connect(
-        G_OBJECT(_nwButton), "clicked", G_CALLBACK(_onButtonClick), this
-    );
+    _nButton = constructAngleButton("arrow_n24.png", 90);
+    _neButton = constructAngleButton("arrow_ne24.png", 45);
+	_eButton = constructAngleButton("arrow_e24.png", 0);
+	_seButton = constructAngleButton("arrow_se24.png", 315);
+	_sButton = constructAngleButton("arrow_s24.png", 270);
+	_swButton = constructAngleButton("arrow_sw24.png", 225);
+	_wButton = constructAngleButton("arrow_w24.png", 180);
+	_nwButton = constructAngleButton("arrow_nw24.png", 135);
 }
 
 // GTK button callback
 void AnglePropertyEditor::_onButtonClick(GtkButton* button,
                                          AnglePropertyEditor* self)
 {
-    // Set the numerical value based on which button was clicked
-    if (button == GTK_BUTTON(self->_nButton))
-    {
-        self->_entity->setKeyValue(self->_key, "90");
-    }
-    else if (button == GTK_BUTTON(self->_neButton))
-    {
-        self->_entity->setKeyValue(self->_key, "45");
-    }
-    else if (button == GTK_BUTTON(self->_eButton))
-    {
-        self->_entity->setKeyValue(self->_key, "0");
-    }
-    else if (button == GTK_BUTTON(self->_seButton))
-    {
-        self->_entity->setKeyValue(self->_key, "315");
-    }
-    else if (button == GTK_BUTTON(self->_sButton))
-    {
-        self->_entity->setKeyValue(self->_key, "270");
-    }
-    else if (button == GTK_BUTTON(self->_swButton))
-    {
-        self->_entity->setKeyValue(self->_key, "225");
-    }
-    else if (button == GTK_BUTTON(self->_wButton))
-    {
-        self->_entity->setKeyValue(self->_key, "180");
-    }
-    else if (button == GTK_BUTTON(self->_nwButton))
-    {
-        self->_entity->setKeyValue(self->_key, "135");
-    }
+    // Get the numerical value off the button
+	gint angle = gint(g_object_get_data(G_OBJECT(button), GLIB_ANGLE_KEY));
+
+	self->setKeyValue(self->_key, intToStr(angle));
 }
 
-
-
-}
+} // namespace ui

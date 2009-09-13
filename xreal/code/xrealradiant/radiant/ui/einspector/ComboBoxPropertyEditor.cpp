@@ -14,13 +14,12 @@ namespace ui
 // Blank ctor
 ComboBoxPropertyEditor::ComboBoxPropertyEditor() :
 	_comboBox(NULL),
-	_entity(NULL),
 	_key("")
 {}
 
 // Constructor. Create the GTK widgets here
 ComboBoxPropertyEditor::ComboBoxPropertyEditor(Entity* entity, const std::string& name) :
-	_entity(entity),
+	PropertyEditor(entity),
 	_key(name)
 {
 	_widget = gtk_vbox_new(FALSE, 6);
@@ -68,7 +67,7 @@ ComboBoxPropertyEditor::ComboBoxPropertyEditor(Entity* entity, const std::string
 void ComboBoxPropertyEditor::onApply(GtkWidget *widget, 
 									 ComboBoxPropertyEditor* self) 
 {
-	self->_entity->setKeyValue(
+	self->setKeyValue(
 		self->_key, 
 		gtk_combo_box_get_active_text(GTK_COMBO_BOX(self->_comboBox))
 	);

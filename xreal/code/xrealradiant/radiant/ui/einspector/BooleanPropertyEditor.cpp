@@ -8,12 +8,13 @@ namespace ui
 {
 
 // Blank ctor
-BooleanPropertyEditor::BooleanPropertyEditor() {}
+BooleanPropertyEditor::BooleanPropertyEditor()
+{}
 
 // Constructor. Create the GTK widgets here
 BooleanPropertyEditor::BooleanPropertyEditor(Entity* entity, 
 											 const std::string& name)
-: _entity(entity),
+: PropertyEditor(entity),
   _key(name)
 {
 	_widget = gtk_vbox_new(FALSE, 6);
@@ -44,9 +45,9 @@ void BooleanPropertyEditor::_onToggle(GtkWidget* w, BooleanPropertyEditor* self)
 	gboolean state = 
 		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(self->_checkBox));
 	if (state)
-		self->_entity->setKeyValue(self->_key, "1");
+		self->setKeyValue(self->_key, "1");
 	else
-		self->_entity->setKeyValue(self->_key, "0");
+		self->setKeyValue(self->_key, "0");
 	
 }
 

@@ -3,6 +3,7 @@
 
 #include "PropertyEditor.h"
 
+#include "ientityinspector.h"
 #include "iradiant.h"
 #include "icommandsystem.h"
 #include "iselection.h"
@@ -10,6 +11,7 @@
 #include "iundo.h"
 
 #include "gtkutil/menu/PopupMenu.h"
+#include "gtkutil/Paned.h"
 #include "gtkutil/PanedPosition.h"
 
 #include <gtk/gtkliststore.h>
@@ -18,6 +20,7 @@
 #include <gtk/gtktogglebutton.h>
 #include <gtk/gtktreeviewcolumn.h>
 #include <map>
+#include <boost/enable_shared_from_this.hpp>
 
 /* FORWARD DECLS */
 
@@ -26,34 +29,20 @@ class Selectable;
 
 namespace ui {
 
-namespace {
-
-	// Data structure to store the type (vector3, text etc) and the options
-	// string for a single property.
-	struct PropertyParms
-	{
-		std::string type;
-		std::string options;
-	};
-
-	// Map of property names to PropertyParms, mapped like this: regex => parms
-	typedef std::map<std::string, PropertyParms> PropertyParmMap;
-
-}
-
 class EntityInspector;
 typedef boost::shared_ptr<EntityInspector> EntityInspectorPtr;
-
 
 /* The EntityInspector class represents the GTK dialog for editing properties
  * on the selected game entity. The class is implemented as a singleton and
  * contains a method to return the current instance.
  */
 class EntityInspector :
+	public IEntityInspector,
  	public SelectionSystem::Observer,
 	public RadiantEventListener,
     public Entity::Observer,
-	public UndoSystem::Observer
+	public UndoSystem::Observer,
+	public boost::enable_shared_from_this<EntityInspector>
 {
 	// Currently selected entity, this pointer is only non-NULL if the
 	// current entity selection includes exactly 1 entity.
@@ -85,14 +74,17 @@ class EntityInspector :
 	GtkWidget* _keyEntry;
 	GtkWidget* _valEntry;
 
+	// The pane dividing the treeview and the property editors
+	gtkutil::PanedPtr _paned;
+
 	// An object tracking the divider position of the paned view
 	gtkutil::PanedPosition _panedPosition;
 
 	// Context menu
-	gtkutil::PopupMenu _contextMenu;
+	gtkutil::PopupMenuPtr _contextMenu;
 
 	// Currently displayed PropertyEditor
-	PropertyEditorPtr _currentPropertyEditor;
+	IPropertyEditorPtr _currentPropertyEditor;
 
 	// The clipboard for spawnargs
 	struct ClipBoard
@@ -105,11 +97,22 @@ class EntityInspector :
 		}
 	} _clipBoard;
 
+	// Data structure to store the type (vector3, text etc) and the options
+	// string for a single property.
+	struct PropertyParms
+	{
+		std::string type;
+		std::string options;
+	};
+
+	// Map of property names to PropertyParms, mapped like this: regex => parms
+	typedef std::map<std::string, PropertyParms> PropertyParmMap;
 	PropertyParmMap _propertyTypes;
 
 private:
 
     // Utility functions to construct the Gtk components
+	void construct();
 
     GtkWidget* createPropertyEditorPane(); // bottom widget pane
     GtkWidget* createTreeViewPane(); // tree view for selecting attributes
@@ -175,24 +178,18 @@ private:
     void updateGUIElements();
 
 protected:
-
-	// Constructor
-    EntityInspector();
-
-	// Holds the static shared_ptr
-	static EntityInspectorPtr& getInstancePtr();
+	// Get the Gtk Widget for display in the main application
+    GtkWidget* _getWidget() const;
 
 public:
-
-    // Return or create the singleton instance
-    static EntityInspector& getInstance();
-
-    // Get the Gtk Widget for display in the main application
-    GtkWidget* getWidget();
+	// Constructor
+    EntityInspector();
 
 	/** greebo: Gets called by the RadiantSelectionSystem upon selection change.
 	 */
 	void selectionChanged(const scene::INodePtr& node, bool isComponent);
+
+	void registerPropertyEditor(const std::string& key, const IPropertyEditorPtr& editor);
 
 	// RadiantEventListener implementation, gets called right before shutdown
 	void onRadiantShutdown();
@@ -214,6 +211,11 @@ public:
 	 * greebo: Static command target for toggling the Entity Inspector in the GroupDialog.
 	 */
 	static void toggle(const cmd::ArgumentList& args);
+
+	// RegisterableModule implementation
+	virtual const std::string& getName() const;
+	virtual const StringSet& getDependencies() const;
+	virtual void initialiseModule(const ApplicationContext& ctx);
 };
 
 } // namespace ui

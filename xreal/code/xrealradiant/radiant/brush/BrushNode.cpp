@@ -9,7 +9,6 @@
 BrushNode::BrushNode() :
 	BrushTokenImporter(m_brush),
 	BrushTokenExporter(m_brush),
-	TransformModifier(Brush::TransformChangedCaller(m_brush), ApplyTransformCaller(*this)),
 	m_brush(EvaluateTransformCaller(*this), Node::BoundsChangedCaller(*this)),
 	_selectable(SelectedChangedCaller(*this)),
 	m_render_selected(GL_POINTS),
@@ -30,7 +29,6 @@ BrushNode::BrushNode(const BrushNode& other) :
 	scene::Cloneable(other),
 	Nameable(other),
 	Snappable(other),
-	TransformNode(other),
 	BrushDoom3(other),
 	BrushTokenImporter(m_brush),
 	BrushTokenExporter(m_brush),
@@ -46,7 +44,7 @@ BrushNode::BrushNode(const BrushNode& other) :
 	Renderable(other),
 	Cullable(other),
 	Bounded(other),
-	TransformModifier(Brush::TransformChangedCaller(m_brush), ApplyTransformCaller(*this)),
+	Transformable(other),
 	m_brush(other.m_brush, EvaluateTransformCaller(*this), Node::BoundsChangedCaller(*this)),
 	_selectable(SelectedChangedCaller(*this)),
 	m_render_selected(GL_POINTS),
@@ -85,11 +83,6 @@ void BrushNode::snapComponents(float snap) {
 	for (FaceInstances::iterator i = m_faceInstances.begin(); i != m_faceInstances.end(); ++i) {
 		i->snapComponents(snap);
 	}
-}
-
-// TransformNode implementation
-const Matrix4& BrushNode::localToParent() const {
-	return m_brush.localToParent();
 }
 
 bool BrushNode::isSelected() const {
@@ -261,9 +254,7 @@ void BrushNode::translateDoom3Brush(const Vector3& translation) {
 }
 
 scene::INodePtr BrushNode::clone() const {
-	scene::INodePtr clone(new BrushNode(*this));
-	clone->setSelf(clone);
-	return clone;
+	return scene::INodePtr(new BrushNode(*this));
 }
 
 void BrushNode::instantiate(const scene::Path& path) {
@@ -506,12 +497,6 @@ void BrushNode::transformComponents(const Matrix4& matrix) {
 	}
 }
 
-void BrushNode::applyTransform() {
-	m_brush.revertTransform();
-	evaluateTransform();
-	m_brush.freezeTransform();
-}
-
 void BrushNode::setClipPlane(const Plane3& plane) {
 	m_clipPlane.setPlane(m_brush, plane);
 }
@@ -521,6 +506,18 @@ const BrushInstanceVisitor& BrushNode::forEachFaceInstance(const BrushInstanceVi
 		visitor.visit(*i);
 	}
 	return visitor;
+}
+
+void BrushNode::_onTransformationChanged()
+{
+	m_brush.transformChanged();
+}
+
+void BrushNode::_applyTransformation()
+{
+	m_brush.revertTransform();
+	evaluateTransform();
+	m_brush.freezeTransform();
 }
 
 ShaderPtr BrushNode::m_state_selpoint;

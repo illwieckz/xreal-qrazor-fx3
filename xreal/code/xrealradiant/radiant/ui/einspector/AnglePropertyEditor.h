@@ -31,8 +31,7 @@ class AnglePropertyEditor
     GtkWidget* _wButton;
     GtkWidget* _nwButton;
 
-    // Entity and key to edit
-    Entity* _entity;
+    // Key to edit
     std::string _key;
 
 private:
@@ -68,14 +67,16 @@ public:
     AnglePropertyEditor(Entity* entity, const std::string& key);
 
     /* PropertyEditor implementation */
-    PropertyEditorPtr createNew(Entity* entity, 
+    IPropertyEditorPtr createNew(Entity* entity, 
                                 const std::string& key,
                                 const std::string& options)
     {
         return PropertyEditorPtr(new AnglePropertyEditor(entity, key));
     }
 
-
+private:
+	// Helper method to construct an angle button
+	GtkWidget* constructAngleButton(const std::string& icon, int angleValue);
 };
 
 }

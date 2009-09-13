@@ -22,9 +22,6 @@ class ColourPropertyEditor
 	// The GtkColorButton
 	GtkWidget* _colorButton;
 	
-	// Entity to edit
-	Entity* _entity;
-	
 	// Name of keyval
 	std::string _key;
 	
@@ -56,7 +53,7 @@ public:
 	ColourPropertyEditor();
 	
 	/// Create a new ColourPropertyEditor
-    virtual PropertyEditorPtr createNew(Entity* entity, 
+    virtual IPropertyEditorPtr createNew(Entity* entity, 
     									const std::string& name, 
     									const std::string& options) 
 	{

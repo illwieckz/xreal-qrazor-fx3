@@ -22,9 +22,6 @@ class FloatPropertyEditor
 	// Slider widget
 	GtkWidget* _scale;
 	
-	// Entity to edit
-	Entity* _entity;
-	
 	// Name of key
 	std::string _key;
 	
@@ -46,7 +43,7 @@ public:
 	/**
 	 * Default constructor for creation in the map.
 	 */
-	FloatPropertyEditor() { }
+	FloatPropertyEditor();
 	
 	/**
 	 * Construct with Entity, key name and options.
@@ -56,7 +53,7 @@ public:
 	/**
 	 * Virtual PropertyEditor clone method.
 	 */
-	PropertyEditorPtr createNew(Entity* entity, 
+	IPropertyEditorPtr createNew(Entity* entity, 
     							const std::string& name, 
     							const std::string& options)
 	{

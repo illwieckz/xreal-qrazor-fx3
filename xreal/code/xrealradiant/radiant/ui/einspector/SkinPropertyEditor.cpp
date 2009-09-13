@@ -12,7 +12,7 @@ namespace ui
 SkinPropertyEditor::SkinPropertyEditor(Entity* entity,
 									   const std::string& name,
 									   const std::string& options)
-: _entity(entity),
+: PropertyEditor(entity),
   _key(name)
 {
 	_widget = gtk_vbox_new(FALSE, 6);
@@ -54,7 +54,7 @@ void SkinPropertyEditor::_onBrowseButton(GtkWidget* w,
 	std::string skin = SkinChooser::chooseSkin(modelName, prevSkin);
 	
 	// Apply the key to the entity
-	self->_entity->setKeyValue(self->_key, skin);
+	self->setKeyValue(self->_key, skin);
 }
 
 }

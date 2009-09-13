@@ -15,11 +15,14 @@
 namespace ui
 {
 
+FloatPropertyEditor::FloatPropertyEditor()
+{}
+
 // Main constructor
 FloatPropertyEditor::FloatPropertyEditor(Entity* entity,
 										 const std::string& key,
 										 const std::string& options)
-: _entity(entity),
+: PropertyEditor(entity),
   _key(key)
 {
 	_widget = gtk_vbox_new(FALSE, 6);
@@ -70,7 +73,7 @@ FloatPropertyEditor::FloatPropertyEditor(Entity* entity,
 
 void FloatPropertyEditor::_onApply(GtkWidget* w, FloatPropertyEditor* self) {
 	float value = gtk_range_get_value(GTK_RANGE(self->_scale));
-	self->_entity->setKeyValue(
+	self->setKeyValue(
 		self->_key, 
 		boost::lexical_cast<std::string>(value)
 	);

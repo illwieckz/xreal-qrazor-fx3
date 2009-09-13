@@ -68,7 +68,7 @@ namespace {
 /**
  * Visitor class to enumerate sound files and add them to the tree store.
  */
-class SoundFileFinder
+class SoundFileFinder : public SoundFileVisitor
 {
 	gtkutil::VFSTreePopulator &_pop;
 
@@ -80,8 +80,8 @@ public:
 	{ }
 
 	// Functor operator
-	void operator() (const ISoundFile& sound) {
-		_pop.addPath(sound.getName());
+	void visit(const ISoundFilePtr& sound) {
+		_pop.addPath(sound->getName());
 	}
 
 };

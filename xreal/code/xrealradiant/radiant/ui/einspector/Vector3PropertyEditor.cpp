@@ -18,7 +18,7 @@ Vector3PropertyEditor::Vector3PropertyEditor() {}
 // Constructor. Create the GTK widgets here
 Vector3PropertyEditor::Vector3PropertyEditor(Entity* entity, 
 											 const std::string& name)
-: _entity(entity),
+: PropertyEditor(entity),
   _key(name)
 {
 	_widget = gtk_vbox_new(FALSE, 6);
@@ -100,7 +100,7 @@ void Vector3PropertyEditor::_onApply(GtkWidget* w,
 			gtk_spin_button_get_value(GTK_SPIN_BUTTON(self->_zValue)));
 	
 	// Set the key on the entity
-	self->_entity->setKeyValue(self->_key, value);
+	self->setKeyValue(self->_key, value);
 }
 
 }

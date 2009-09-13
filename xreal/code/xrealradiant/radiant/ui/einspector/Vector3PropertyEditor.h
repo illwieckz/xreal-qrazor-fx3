@@ -23,9 +23,6 @@ class Vector3PropertyEditor:
     GtkWidget* _yValue;
     GtkWidget* _zValue;
     
-    // Entity to edit
-    Entity* _entity;
-    
     // Name of key
     std::string _key;
     
@@ -54,7 +51,7 @@ public:
 	Vector3PropertyEditor();
 	
 	// Create a new TextPropertyEditor
-    virtual PropertyEditorPtr createNew(Entity* entity, 
+    virtual IPropertyEditorPtr createNew(Entity* entity, 
     									const std::string& name, 
     									const std::string& options) 
 	{
