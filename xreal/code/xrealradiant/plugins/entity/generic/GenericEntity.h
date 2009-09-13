@@ -12,9 +12,8 @@
 #include "../origin.h"
 #include "../angle.h"
 #include "../rotation.h"
-#include "../namedentity.h"
-#include "../keyobservers.h"
 #include "../Doom3Entity.h"
+#include "transformlib.h"
 
 #include "RenderableArrow.h"
 
@@ -27,9 +26,9 @@ class GenericEntity :
 	public Bounded,
 	public Snappable
 {
+	GenericEntityNode& _owner;
+
 	Doom3Entity& m_entity;
-	KeyObserverMap m_keyObservers;
-	MatrixTransform m_transform;
 
 	OriginKey m_originKey;
 	Vector3 m_origin;
@@ -46,15 +45,12 @@ class GenericEntity :
 	// This is the "working copy" of the rotation value
 	Float9 m_rotation;
 
-	NamedEntity m_named;
-
 	AABB m_aabb_local;
 	Ray m_ray;
 
 	RenderableArrow m_arrow;
 	RenderableSolidAABB m_aabb_solid;
 	RenderableWireframeAABB m_aabb_wire;
-	RenderableNamedEntity m_renderName;
 
 	Callback m_transformChanged;
 	Callback m_evaluateTransform;
@@ -65,26 +61,14 @@ class GenericEntity :
 public:
 	// Constructor
 	GenericEntity(GenericEntityNode& node, 
-				  const Callback& transformChanged, 
-				  const Callback& evaluateTransform);
+				  const Callback& transformChanged);
 	
 	// Copy constructor
 	GenericEntity(const GenericEntity& other, 
 				  GenericEntityNode& node, 
-				  const Callback& transformChanged, 
-				  const Callback& evaluateTransform);
+				  const Callback& transformChanged);
 
-	InstanceCounter m_instanceCounter;
-	void instanceAttach(const scene::Path& path);
-	void instanceDetach(const scene::Path& path);
-
-	Doom3Entity& getEntity();
-	const Doom3Entity& getEntity() const;
-
-	NamedEntity& getNameable();
-	const NamedEntity& getNameable() const;
-	TransformNode& getTransformNode();
-	const TransformNode& getTransformNode() const;
+	~GenericEntity();
 
 	const AABB& localAABB() const;
 
@@ -103,12 +87,11 @@ public:
 	
 	void revertTransform();
 	void freezeTransform();
-	void transformChanged();
-	typedef MemberCaller<GenericEntity, &GenericEntity::transformChanged> TransformChangedCaller;
 
 public:
 
 	void construct();
+	void destroy();
 
 	void updateTransform();
 	typedef MemberCaller<GenericEntity, &GenericEntity::updateTransform> UpdateTransformCaller;

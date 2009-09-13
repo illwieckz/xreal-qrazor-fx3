@@ -54,9 +54,6 @@ private:
   int m_nFlags;
   float m_fTrans;
 
-  // alphafunc stuff
-  Material::EAlphaFunc m_AlphaFunc;
-  float m_AlphaRef;
   // cull stuff
   Material::ECull m_Cull;
 
@@ -111,16 +108,6 @@ public:
 	float getTrans() {
 		if (!_parsed) parseDefinition();
 		return m_fTrans;
-	}
-
-	Material::EAlphaFunc getAlphaFunc() {
-		if (!_parsed) parseDefinition();
-		return m_AlphaFunc;
-	}
-
-	float getAlphaRef() {
-		if (!_parsed) parseDefinition();
-		return m_AlphaRef;
 	}
 
 	Material::ECull getCull() {
@@ -185,7 +172,7 @@ private:
 	void parseBlendShortcuts(parser::DefTokeniser&, const std::string&);
 	void parseBlendType(parser::DefTokeniser&, const std::string&);
 	void parseBlendMaps(parser::DefTokeniser&, const std::string&);
-    void parseColourModulation(parser::DefTokeniser&, const std::string&);
+    void parseStageModifiers(parser::DefTokeniser&, const std::string&);
 
 	bool saveLayer();
   

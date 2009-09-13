@@ -1,18 +1,17 @@
 #include "LightNode.h"
 
+#include "../EntitySettings.h"
+
 namespace entity {
 
 // --------- LightNode implementation ------------------------------------
 
-LightNode::LightNode(const IEntityClassConstPtr& eclass) :
+LightNode::LightNode(const IEntityClassPtr& eclass) :
 	EntityNode(eclass),
-	TransformModifier(Light::TransformChangedCaller(_light), ApplyTransformCaller(*this)),
-	TargetableNode(_entity, *this),
 	_light(_entity,
 		   *this,
            Node::TransformChangedCaller(*this), 
-           Node::BoundsChangedCaller(*this), 
-           EvaluateTransformCaller(*this)),
+           Node::BoundsChangedCaller(*this)),
 	_lightCenterInstance(VertexInstance(_light.getDoom3Radius().m_centerTransformed, SelectedChangedComponentCaller(*this))),
 	_lightTargetInstance(VertexInstance(_light.targetTransformed(), SelectedChangedComponentCaller(*this))),
 	_lightRightInstance(VertexInstanceRelative(_light.rightTransformed(), _light.targetTransformed(), SelectedChangedComponentCaller(*this))),
@@ -21,25 +20,18 @@ LightNode::LightNode(const IEntityClassConstPtr& eclass) :
 	_lightEndInstance(VertexInstance(_light.endTransformed(), SelectedChangedComponentCaller(*this))),
 	m_dragPlanes(SelectedChangedComponentCaller(*this))
 {
-	TargetableNode::construct();
-
 	// greebo: Connect the lightChanged() member method to the "light changed" callback
 	_light.setLightChangedCallback(LightChangedCaller(*this));
 }
 
 LightNode::LightNode(const LightNode& other) :
 	EntityNode(other),
-	SelectableNode(other),
-	scene::Cloneable(other),
-	TransformModifier(Light::TransformChangedCaller(_light), ApplyTransformCaller(*this)),
 	scene::SelectableLight(other),
-	TargetableNode(_entity, *this),
 	_light(other._light,
 		   *this,
            _entity,
            Node::TransformChangedCaller(*this), 
-           Node::BoundsChangedCaller(*this), 
-           EvaluateTransformCaller(*this)),
+           Node::BoundsChangedCaller(*this)),
 	_lightCenterInstance(VertexInstance(_light.getDoom3Radius().m_centerTransformed, SelectedChangedComponentCaller(*this))),
 	_lightTargetInstance(VertexInstance(_light.targetTransformed(), SelectedChangedComponentCaller(*this))),
 	_lightRightInstance(VertexInstanceRelative(_light.rightTransformed(), _light.targetTransformed(), SelectedChangedComponentCaller(*this))),
@@ -48,16 +40,17 @@ LightNode::LightNode(const LightNode& other) :
 	_lightEndInstance(VertexInstance(_light.endTransformed(), SelectedChangedComponentCaller(*this))),
 	m_dragPlanes(SelectedChangedComponentCaller(*this))
 {
-	TargetableNode::construct();
-
 	// greebo: Connect the lightChanged() member method to the "light changed" callback
 	_light.setLightChangedCallback(LightChangedCaller(*this));
 }
 
+void LightNode::construct()
+{
+	_light.construct();
+}
+
 LightNode::~LightNode() {
 	_light.setLightChangedCallback(Callback());
-
-	TargetableNode::destruct();
 }
 
 const Matrix4& LightNode::getLocalPivot() const {
@@ -85,17 +78,13 @@ void LightNode::lightChanged() {
 	GlobalRenderSystem().lightChanged(*this);
 }
 
-// TransformNode implementation
-const Matrix4& LightNode::localToParent() const {
-	return _light.getTransformNode().localToParent();
-}
-
 Entity& LightNode::getEntity() {
-	return _light.getEntity();
+	return _entity;
 }
 
 void LightNode::refreshModel() {
-	// Nothing to do
+	// Simulate a "model" key change
+	_light._modelKey.modelChanged(_entity.getKeyValue("model"));
 }
 
 const AABB& LightNode::localAABB() const {
@@ -252,35 +241,12 @@ void LightNode::selectReversedPlanes(Selector& selector, const SelectedPlanes& s
 	m_dragPlanes.selectReversedPlanes(localLightAABB, selector, selectedPlanes, rotation());
 }
 
-scene::INodePtr LightNode::clone() const {
-	scene::INodePtr clone(new LightNode(*this));
-	clone->setSelf(clone);
-	return clone;
-}
-
-void LightNode::instantiate(const scene::Path& path)
+scene::INodePtr LightNode::clone() const
 {
-	_light.instanceAttach(path);
-	Node::instantiate(path);
-}
+	LightNodePtr node(new LightNode(*this));
+	node->construct();
 
-void LightNode::uninstantiate(const scene::Path& path)
-{
-	_light.instanceDetach(path);
-	Node::uninstantiate(path);
-}
-
-// Nameable implementation
-std::string LightNode::name() const {
-	return _light.getNameable().name();
-}
-
-void LightNode::attach(const NameCallback& callback) {
-	_light.getNameable().attach(callback);
-}
-
-void LightNode::detach(const NameCallback& callback) {
-	_light.getNameable().detach(callback);
+	return node;
 }
 
 void LightNode::selectedChangedComponent(const Selectable& selectable) {
@@ -291,12 +257,18 @@ void LightNode::selectedChangedComponent(const Selectable& selectable) {
 /* greebo: This is the method that gets called by renderer.h. It passes the call 
  * on to the Light class render methods. 
  */
-void LightNode::renderSolid(RenderableCollector& collector, const VolumeTest& volume) const {
+void LightNode::renderSolid(RenderableCollector& collector, const VolumeTest& volume) const
+{
+	EntityNode::renderSolid(collector, volume);
+
 	// Pass through to wireframe render
 	renderWireframe(collector, volume);
 }
   
-void LightNode::renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const {
+void LightNode::renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const
+{
+	EntityNode::renderWireframe(collector, volume);
+
 	const bool lightIsSelected = isSelected();
 	_light.renderWireframe(
 		collector, volume, localToWorld(), lightIsSelected
@@ -344,14 +316,16 @@ void LightNode::renderComponents(RenderableCollector& collector, const VolumeTes
 	}
 }
 
-void LightNode::renderInactiveComponents(RenderableCollector& collector, const VolumeTest& volume, const bool selected) const {
+void LightNode::renderInactiveComponents(RenderableCollector& collector, const VolumeTest& volume, const bool selected) const
+{
 	// greebo: We are not in component selection mode (and the light is still selected), 
 	// check if we should draw the center of the light anyway
 	if (selected 
 		&& GlobalSelectionSystem().ComponentMode() != SelectionSystem::eVertex
-		&& GlobalRegistry().get("user/ui/alwaysShowLightVertices") == "1") 
+		&& EntitySettings::InstancePtr()->alwaysShowLightVertices())
 	{
-		if (_light.isProjected()) {
+		if (_light.isProjected())
+		{
 			// Cache registry values to reduce number of queries
 			Vector3 colourStartEndInactive = ColourSchemes().getColour("light_startend_deselected");
 			Vector3 colourVertexInactive = ColourSchemes().getColour("light_vertex_normal");
@@ -365,7 +339,8 @@ void LightNode::renderInactiveComponents(RenderableCollector& collector, const V
 			// Render the projection points
 			_light.renderProjectionPoints(collector, volume, localToWorld());
 		} 
-		else {
+		else
+		{
 			const_cast<Light&>(_light).getDoom3Radius().setCenterColour(ColourSchemes().getColour("light_vertex_normal"));
 			_light.renderLightCentre(collector, volume, localToWorld());
 		}
@@ -433,13 +408,6 @@ void LightNode::evaluateTransform() {
 	}
 }
 
-void LightNode::applyTransform() {
-	_light.revertTransform();
-	evaluateTransform();
-	_light.freezeTransform();
-}
-
-
 Vector3 LightNode::worldOrigin() const
 {
     return _light.worldOrigin();
@@ -468,6 +436,20 @@ const Vector3& LightNode::colour() const {
 
 const Matrix4& LightNode::rotation() const {
 	return _light.rotation();
+}
+
+void LightNode::_onTransformationChanged()
+{
+	_light.revertTransform();
+	evaluateTransform();
+	_light.updateOrigin();
+}
+
+void LightNode::_applyTransformation()
+{
+	_light.revertTransform();
+	evaluateTransform();
+	_light.freezeTransform();
 }
 
 } // namespace entity

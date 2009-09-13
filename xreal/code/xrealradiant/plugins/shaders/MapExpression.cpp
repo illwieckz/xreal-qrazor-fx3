@@ -40,7 +40,6 @@ MapExpressionPtr MapExpression::createForToken(DefTokeniser& token) {
 	// Switch on the first keyword, to determine what kind of expression this
 	// is.
 	// Tr3B: don't convert image names to lower because Unix filesystems are case sensitive
-	//std::string type = boost::algorithm::to_lower_copy(token.nextToken());
 	std::string type = token.nextToken();
 
 	if (boost::iequals(type, "heightmap")) {

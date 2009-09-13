@@ -5,8 +5,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-namespace sound
-{
+namespace sound {
 
 /**
  * Representation of a single sound file.
@@ -16,13 +15,17 @@ class SoundFile
 {
 	// Name of the shader
 	std::string _name;
+
+	// The modname (ModResource implementation)
+	std::string _modName;
 public:
 
 	/**
 	 * Constructor.
 	 */
-	SoundFile(const std::string& name)
-	: _name(name)
+	SoundFile(const std::string& name, const std::string& modName = "base"):
+	_name(name),
+	_modName(modName)
 	{
 	}
 
@@ -31,6 +34,10 @@ public:
 	 */
 	std::string getName() const {
 		return _name;
+	}
+
+	std::string getModName() const {
+		return _modName;
 	}
 };
 

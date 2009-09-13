@@ -9,6 +9,7 @@
 #include "transformlib.h"
 #include "irenderable.h"
 #include "selectionlib.h"
+#include "dragplanes.h"
 #include "../target/TargetableNode.h"
 #include "../EntityNode.h"
 
@@ -18,34 +19,30 @@ namespace entity {
 
 class SpeakerNode :
 	public EntityNode,
-	public SelectableNode,
-	public scene::Cloneable,
-	public Nameable,
 	public Snappable,
-	public TransformNode,
 	public SelectionTestable,
-	public Renderable,
 	public Cullable,
 	public Bounded,
-	public TransformModifier,
-	public TargetableNode
+	public PlaneSelectable,
+	public ComponentSelectionTestable
 {
 	friend class Speaker;
 
     // The Speaker class itself
 	Speaker _speaker;
 
+	// dragplanes for resizing using mousedrag
+	DragPlanes _dragPlanes;
+
 public:
-	SpeakerNode(const IEntityClassConstPtr& eclass);
+	SpeakerNode(const IEntityClassPtr& eclass);
 	SpeakerNode(const SpeakerNode& other);
 
-	virtual ~SpeakerNode();
+	// Called after the constructor is done
+	void construct();
 
 	// Snappable implementation
 	virtual void snapto(float snap);
-
-	// TransformNode implementation
-	virtual const Matrix4& localToParent() const;
 
 	// EntityNode implementation
 	virtual Entity& getEntity();
@@ -58,34 +55,40 @@ public:
 	virtual VolumeIntersectionValue intersectVolume(
 	    const VolumeTest& test, const Matrix4& localToWorld) const;
 
-	// Namespaced implementation
-	//virtual void setNamespace(INamespace& space);
+	// PlaneSelectable implementation
+	void selectPlanes(Selector& selector, SelectionTest& test, const PlaneCallback& selectedPlaneCallback);
+	void selectReversedPlanes(Selector& selector, const SelectedPlanes& selectedPlanes);
+
+	// ComponentSelectionTestable implementation
+	bool isSelectedComponents() const;
+	void setSelectedComponents(bool selected, SelectionSystem::EComponentMode mode);
+	void testSelectComponents(Selector& selector, SelectionTest& test, SelectionSystem::EComponentMode mode);
 
 	// SelectionTestable implementation
 	void testSelect(Selector& selector, SelectionTest& test);
 
 	scene::INodePtr clone() const;
 
-	// scene::Instantiable implementation
-	virtual void instantiate(const scene::Path& path);
-	virtual void uninstantiate(const scene::Path& path);
-
-	// Nameable implementation
-	virtual std::string name() const;
-	
-	virtual void attach(const NameCallback& callback);
-	virtual void detach(const NameCallback& callback);
-
 	// Renderable implementation
 	void renderSolid(RenderableCollector& collector, const VolumeTest& volume) const;
 	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const;
 
+	void selectedChangedComponent(const Selectable& selectable);
+	typedef MemberCaller1<SpeakerNode, const Selectable&, &SpeakerNode::selectedChangedComponent> SelectedChangedComponentCaller;
+
+protected:
+	// Gets called by the Transformable implementation whenever
+	// scale, rotation or translation is changed.
+	void _onTransformationChanged();
+
+	// Called by the Transformable implementation before freezing
+	// or when reverting transformations.
+	void _applyTransformation();
+
+private:
 	void evaluateTransform();
-	typedef MemberCaller<SpeakerNode, &SpeakerNode::evaluateTransform> EvaluateTransformCaller;
-	
-	void applyTransform();
-	typedef MemberCaller<SpeakerNode, &SpeakerNode::applyTransform> ApplyTransformCaller;
 };
+typedef boost::shared_ptr<SpeakerNode> SpeakerNodePtr;
 
 } // namespace entity
 

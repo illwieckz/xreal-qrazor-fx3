@@ -152,7 +152,7 @@ public:
 	/**
 	 * Return the entity class object for this entity.
 	 */
-	virtual IEntityClassConstPtr getEntityClass() const = 0;
+	virtual IEntityClassPtr getEntityClass() const = 0;
   
 	/**
 	 * Enumerate key values on this entity using a Entity::Visitor class.
@@ -303,7 +303,7 @@ public:
      * \brief
      * Create an entity node with the given entity class.
      */
-    virtual scene::INodePtr createEntity(const IEntityClassConstPtr& eclass) = 0;
+    virtual scene::INodePtr createEntity(const IEntityClassPtr& eclass) = 0;
 
     /**
      * \brief

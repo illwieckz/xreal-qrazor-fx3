@@ -39,7 +39,7 @@ TargetPtr TargetManager::getTarget(const std::string name) {
 	return target;
 }
 
-void TargetManager::associateTarget(const std::string& name, const scene::INodePtr& node) {
+void TargetManager::associateTarget(const std::string& name, const scene::INode& node) {
 	if (name.empty()) {
 		return; // don't associate empty names
 	}
@@ -53,29 +53,28 @@ void TargetManager::associateTarget(const std::string& name, const scene::INodeP
 		}
 		else {
 			// Non-empty target!
-			globalErrorStream() << "TargetManager: Target " << name << " already associated!\n";
+			// greebo: Skip that warning, these things happen regularly when cloning entities
+			// and are hard to avoid.
+			//globalErrorStream() << "TargetManager: Target " << name << " already associated!\n";
 		}
 
 		return;
 	}
 
-	// Doesn't exist yet, create a new target
-	TargetPtr target(new Target);
-
-	// Associate the target
-	target->setNode(node);
+	// Doesn't exist yet, create a new target and associate it
+	TargetPtr target(new Target(node));
 
 	// Insert into the local map and return
 	_targets.insert(TargetList::value_type(name, target));
 }
 
-void TargetManager::clearTarget(const std::string& name, const scene::INodePtr& node) {
+void TargetManager::clearTarget(const std::string& name, const scene::INode& node) {
 	// Locate and clear the named target
 	TargetList::iterator found = _targets.find(name);
 
 	if (found != _targets.end()) {
 		// Found, check the pointer if the request is ok
-		if (found->second->getNode() == node) {
+		if (found->second->getNode() == &node) {
 			// Yes, the node is matching too, clear the target
 			found->second->clear();
 		}

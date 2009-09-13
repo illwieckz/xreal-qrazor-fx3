@@ -9,13 +9,11 @@
 #include "render.h"
 #include "irenderable.h"
 #include "math/frustum.h"
+#include "transformlib.h"
 
-#include "../keyobservers.h"
 #include "../origin.h"
 #include "../rotation.h"
 #include "../colour.h"
-#include "../namedentity.h"
-#include "../entity.h"
 #include "../ModelKey.h"
 #include "../Doom3Entity.h"
 
@@ -64,11 +62,12 @@ class Light :
 	public Editable,
 	public Snappable
 {
+	friend class LightNode;
+
+	LightNode& _owner;
+
     // The parent entity object that uses this light
 	Doom3Entity& _entity;
-
-  KeyObserverMap m_keyObservers;
-  MatrixTransform m_transform;
 
 	OriginKey m_originKey;
 	// The "working" version of the origin
@@ -77,8 +76,6 @@ class Light :
   RotationKey m_rotationKey;
   Float9 m_rotation;
   Colour m_colour;
-
-  NamedEntity m_named;
 
 	ModelKey _modelKey;
 
@@ -96,10 +93,9 @@ class Light :
 	
 	RenderableLightTarget _rStart;
 	RenderableLightTarget _rEnd;
-	RenderableNamedEntity m_renderName;
 
-  	Float9 m_lightRotation;
-  	bool m_useLightRotation;
+  Float9 m_lightRotation;
+  bool m_useLightRotation;
 
 	// These are the vectors that define a projected light
 	Vector3 _lightTarget;
@@ -148,6 +144,7 @@ class Light :
   Callback m_evaluateTransform;
 
 	void construct();
+	void destroy();
 
 private:
 
@@ -157,9 +154,9 @@ private:
     // Update the bounds of the renderable radius box
 	void updateRenderableRadius() const;
 
-	void updateOrigin();
-
 public:
+
+	void updateOrigin();
 
 	void originChanged();
 	typedef MemberCaller<Light, &Light::originChanged> OriginChangedCaller;
@@ -190,8 +187,7 @@ public:
 	Light(Doom3Entity& entity,
 		  LightNode& owner,
           const Callback& transformChanged,
-          const Callback& boundsChanged,
-          const Callback& evaluateTransform);
+          const Callback& boundsChanged);
 	
 	/**
      * \brief
@@ -201,22 +197,10 @@ public:
 		  LightNode& owner,
           Doom3Entity& entity,
           const Callback& transformChanged,
-          const Callback& boundsChanged,
-          const Callback& evaluateTransform);
+          const Callback& boundsChanged);
+
+	~Light();
 	
-	InstanceCounter m_instanceCounter;
-	void instanceAttach(const scene::Path& path);
-	void instanceDetach(const scene::Path& path);
-
-	Doom3Entity& getEntity();
-	const Doom3Entity& getEntity() const;
-
-	//Namespaced& getNamespaced();
-	NamedEntity& getNameable();
-	const NamedEntity& getNameable() const;
-	TransformNode& getTransformNode();
-	const TransformNode& getTransformNode() const;
-
 	void render(const RenderInfo& info) const;
 
 	VolumeIntersectionValue intersectVolume(const VolumeTest& volume, const Matrix4& localToWorld) const;
@@ -253,9 +237,7 @@ public:
 	void transformLightRadius(const Matrix4& transform);
 	void revertTransform();
 	void freezeTransform();
-	void transformChanged();
-	typedef MemberCaller<Light, &Light::transformChanged> TransformChangedCaller;
-
+	
 	// note: move this
 	mutable Matrix4 m_localPivot;
 	const Matrix4& getLocalPivot() const;

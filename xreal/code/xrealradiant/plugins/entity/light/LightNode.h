@@ -6,30 +6,22 @@
 #include "Light.h"
 #include "dragplanes.h"
 #include "../VertexInstance.h"
-#include "../target/TargetableNode.h"
 #include "../EntityNode.h"
 
 namespace entity {
 
 class LightNode :
 	public EntityNode,
-	public SelectableNode,
-	public scene::Cloneable,
-	public Nameable,
 	public Snappable,
 	public Editable,
-	public TransformNode,
 	public SelectionTestable,
 	public ComponentSelectionTestable,
 	public ComponentEditable,
 	public ComponentSnappable,
 	public PlaneSelectable,
-	public Renderable,
 	public Bounded,
-	public TransformModifier,
 	public RendererLight,
-	public scene::SelectableLight,
-	public TargetableNode
+	public scene::SelectableLight
 {
 	friend class Light;
 
@@ -50,8 +42,10 @@ class LightNode :
 	mutable AABB m_aabb_component;
 	
 public:
-	LightNode(const IEntityClassConstPtr& eclass);
+	LightNode(const IEntityClassPtr& eclass);
 	LightNode(const LightNode& other);
+
+	void construct();
 
 	virtual ~LightNode();
 	
@@ -65,9 +59,6 @@ public:
 	// override scene::Inode methods to deselect the child components
 	virtual void onInsertIntoScene();
 	virtual void onRemoveFromScene();
-
-	// TransformNode implementation
-	virtual const Matrix4& localToParent() const;
 
 	// Editable implementation
 	virtual const Matrix4& getLocalPivot() const;
@@ -118,17 +109,8 @@ public:
 
 	scene::INodePtr clone() const;
 
-	// scene::Instantiable implementation
-	virtual void instantiate(const scene::Path& path);
-	virtual void uninstantiate(const scene::Path& path);
-
 	void selectedChangedComponent(const Selectable& selectable);
 	typedef MemberCaller1<LightNode, const Selectable&, &LightNode::selectedChangedComponent> SelectedChangedComponentCaller;
-
-	// Nameable implementation
-	virtual std::string name() const;
-	virtual void attach(const NameCallback& callback);
-	virtual void detach(const NameCallback& callback);
 
 	// Renderable implementation
 	void renderSolid(RenderableCollector& collector, const VolumeTest& volume) const;  
@@ -136,12 +118,7 @@ public:
   	// Renders the components of this light instance 
 	void renderComponents(RenderableCollector& collector, const VolumeTest& volume) const;
 
-	void evaluateTransform();
-	typedef MemberCaller<LightNode, &LightNode::evaluateTransform> EvaluateTransformCaller;
-	void applyTransform();
-	typedef MemberCaller<LightNode, &LightNode::applyTransform> ApplyTransformCaller;
-
-    /* RendererLight implementation */
+	// RendererLight implementation
     Vector3 worldOrigin() const;
     Matrix4 getLightTextureTransformation() const;
 	ShaderPtr getShader() const;
@@ -151,10 +128,22 @@ public:
 	const Matrix4& rotation() const;
 	const Vector3& colour() const;
 
+protected:
+	// Gets called by the Transformable implementation whenever
+	// scale, rotation or translation is changed.
+	void _onTransformationChanged();
+
+	// Called by the Transformable implementation before freezing
+	// or when reverting transformations.
+	void _applyTransformation();
+
 private:
 	void renderInactiveComponents(RenderableCollector& collector, const VolumeTest& volume, const bool selected) const;	
 
+	void evaluateTransform();
+
 }; // class LightNode
+typedef boost::shared_ptr<LightNode> LightNodePtr;
 
 } // namespace entity
 

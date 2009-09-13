@@ -18,33 +18,23 @@ namespace entity {
 
 class GenericEntityNode :
 	public EntityNode,
-	public SelectableNode,
-	public scene::Cloneable,
-	public Nameable,
 	public Snappable,
-	public TransformNode,
 	public SelectionTestable,
-	public Renderable,
 	public Cullable,
-	public Bounded,
-	public TransformModifier,
-	public TargetableNode
+	public Bounded
 {
 	friend class GenericEntity;
 
 	GenericEntity m_contained;
 
 public:
-	GenericEntityNode(const IEntityClassConstPtr& eclass);
+	GenericEntityNode(const IEntityClassPtr& eclass);
 	GenericEntityNode(const GenericEntityNode& other);
 
-	virtual ~GenericEntityNode();
+	void construct();
 
 	// Snappable implementation
 	virtual void snapto(float snap);
-
-	// TransformNode implementation
-	virtual const Matrix4& localToParent() const;
 
 	// EntityNode implementation
 	virtual Entity& getEntity();
@@ -62,25 +52,20 @@ public:
 
 	scene::INodePtr clone() const;
 
-	// scene::Instantiable implementation
-	virtual void instantiate(const scene::Path& path);
-	virtual void uninstantiate(const scene::Path& path);
-
-	// Nameable implementation
-	virtual std::string name() const;
-	
-	virtual void attach(const NameCallback& callback);
-	virtual void detach(const NameCallback& callback);
-
 	// Renderable implementation
 	void renderSolid(RenderableCollector& collector, const VolumeTest& volume) const;
 	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const;
 
-	void evaluateTransform();
-	typedef MemberCaller<GenericEntityNode, &GenericEntityNode::evaluateTransform> EvaluateTransformCaller;
-	void applyTransform();
-	typedef MemberCaller<GenericEntityNode, &GenericEntityNode::applyTransform> ApplyTransformCaller;
+protected:
+	// Gets called by the Transformable implementation whenever
+	// scale, rotation or translation is changed.
+	void _onTransformationChanged();
+
+	// Called by the Transformable implementation before freezing
+	// or when reverting transformations.
+	void _applyTransformation();
 };
+typedef boost::shared_ptr<GenericEntityNode> GenericEntityNodePtr;
 
 } // namespace entity
 

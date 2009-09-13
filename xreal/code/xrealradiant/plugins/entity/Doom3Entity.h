@@ -24,7 +24,7 @@ namespace entity {
 class Doom3Entity :
 	public Entity
 {
-	IEntityClassConstPtr _eclass;
+	IEntityClassPtr _eclass;
 
 	typedef boost::shared_ptr<KeyValue> KeyValuePtr;
 	
@@ -35,7 +35,7 @@ class Doom3Entity :
 	typedef std::vector<KeyValuePair> KeyValues;
 	KeyValues _keyValues;
 
-	typedef std::vector<Observer*> Observers;
+	typedef std::set<Observer*> Observers;
 	Observers _observers;
 
 	ObservedUndoableObject<KeyValues> _undo;
@@ -47,11 +47,11 @@ class Doom3Entity :
 
 public:
 	// Constructor, pass the according entity class
-	Doom3Entity(const IEntityClassConstPtr& eclass);
+	Doom3Entity(const IEntityClassPtr& eclass);
 	
 	// Copy constructor
 	Doom3Entity(const Doom3Entity& other);
-	
+
 	void importState(const KeyValues& keyValues);
 	typedef MemberCaller1<Doom3Entity, const KeyValues&, &Doom3Entity::importState> UndoImportCaller;
 
@@ -64,7 +64,7 @@ public:
 
 	/** Return the EntityClass associated with this entity.
 	 */
-	IEntityClassConstPtr getEntityClass() const;
+	IEntityClassPtr getEntityClass() const;
 
 	void forEachKeyValue(Visitor& visitor) const;
 	void forEachKeyValue(KeyValueVisitor& visitor);

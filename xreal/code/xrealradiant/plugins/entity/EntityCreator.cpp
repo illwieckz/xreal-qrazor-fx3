@@ -4,6 +4,7 @@
 #include "iundo.h"
 #include "imap.h"
 #include "iscenegraph.h"
+#include "ieventmanager.h"
 #include "inamespace.h"
 #include "ifilter.h"
 #include "ipreferencesystem.h"
@@ -18,6 +19,7 @@
 #include "speaker/SpeakerNode.h"
 #include "generic/GenericEntityNode.h"
 #include "eclassmodel/EclassModelNode.h"
+#include "target/RenderableTargetInstances.h"
 #include "Doom3Entity.h"
 
 namespace entity {
@@ -28,7 +30,7 @@ namespace entity {
 		}
 	}
 
-scene::INodePtr Doom3EntityCreator::getEntityForEClass(const IEntityClassConstPtr& eclass) {
+scene::INodePtr Doom3EntityCreator::getEntityForEClass(const IEntityClassPtr& eclass) {
 	
 	// Null entityclass check
 	if (!eclass) {
@@ -40,32 +42,46 @@ scene::INodePtr Doom3EntityCreator::getEntityForEClass(const IEntityClassConstPt
 	
 	// Otherwise create the correct entity subclass based on the entity class
 	// parameters.
-	scene::INodePtr node;
+	scene::INodePtr returnValue;
 
 	if (eclass->isLight()) {
-		node = scene::INodePtr(new LightNode(eclass));
+		LightNodePtr node(new LightNode(eclass));
+		node->construct();
+
+		returnValue = node;
 	}
 	else if (!eclass->isFixedSize()) {
 		// Variable size entity
-		node = scene::INodePtr(new entity::Doom3GroupNode(eclass));
+		Doom3GroupNodePtr node(new Doom3GroupNode(eclass));
+		node->construct();
+
+		returnValue = node;
 	}
 	else if (!eclass->getAttribute("model").value.empty()) {
 		// Fixed size, has model path
-		node = scene::INodePtr(new EclassModelNode(eclass));
+		EclassModelNodePtr node(new EclassModelNode(eclass));
+		node->construct();
+
+		returnValue = node;
 	}
 	else if (eclass->getName() == "speaker") {
-		node = scene::INodePtr(new SpeakerNode(eclass));
+		SpeakerNodePtr node(new SpeakerNode(eclass));
+		node->construct();
+
+		returnValue = node;
 	}
 	else {
 		// Fixed size, no model path
-		node = scene::INodePtr(new GenericEntityNode(eclass));
+		GenericEntityNodePtr node(new GenericEntityNode(eclass));
+		node->construct();
+
+		returnValue = node;
 	}
 
-	node->setSelf(node);
-	return node;
+	return returnValue;
 }
 
-scene::INodePtr Doom3EntityCreator::createEntity(const IEntityClassConstPtr& eclass) {
+scene::INodePtr Doom3EntityCreator::createEntity(const IEntityClassPtr& eclass) {
 	scene::INodePtr node = getEntityForEClass(eclass);
 	Entity* entity = Node_getEntity(node);
 	assert(entity != NULL);
@@ -162,16 +178,33 @@ const StringSet& Doom3EntityCreator::getDependencies() const {
 	return _dependencies;
 }
 
-void Doom3EntityCreator::initialiseModule(const ApplicationContext& ctx) {
-	globalOutputStream() << "Doom3EntityCreator::initialiseModule called.\n";
+void Doom3EntityCreator::initialiseModule(const ApplicationContext& ctx)
+{
+	globalOutputStream() << "Doom3EntityCreator::initialiseModule called." << std::endl;
 	
-	constructStatic();
+	LightShader::m_defaultShader = GlobalRegistry().get("game/defaults/lightShader");
+
+	// Construct Doom3Group stuff
+	CurveEditInstance::StaticShaders::instance().controlsShader = GlobalRenderSystem().capture("$POINT");
+	CurveEditInstance::StaticShaders::instance().selectedShader = GlobalRenderSystem().capture("$SELPOINT");
+
+	RenderablePivot::StaticShader::instance() = GlobalRenderSystem().capture("$PIVOT");
+
+	GlobalRenderSystem().attachRenderable(RenderableTargetInstances::Instance());
+
+	GlobalEventManager().addRegistryToggle("ToggleShowAllLightRadii", RKEY_SHOW_ALL_LIGHT_RADII);
+	GlobalEventManager().addRegistryToggle("ToggleShowAllSpeakerRadii", RKEY_SHOW_ALL_SPEAKER_RADII);
+	GlobalEventManager().addRegistryToggle("ToggleDragResizeEntitiesSymmetrically", RKEY_DRAG_RESIZE_SYMMETRICALLY);
 }
 
-void Doom3EntityCreator::shutdownModule() {
-	globalOutputStream() << "Doom3EntityCreator::shutdownModule called.\n";
+void Doom3EntityCreator::shutdownModule()
+{
+	globalOutputStream() << "Doom3EntityCreator::shutdownModule called." << std::endl;
 	
-	destroyStatic();
+	GlobalRenderSystem().detachRenderable(RenderableTargetInstances::Instance());
+
+	// Destroy the settings instance
+	EntitySettings::destroy();
 }
 
 } // namespace entity

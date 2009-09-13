@@ -34,16 +34,15 @@ void light_vertices(const AABB& aabb_light, Vector3 points[6]) {
 /* greebo: light_draw() gets called by the render() function of the Light class.
  * It basically draws the small diamond representing the light origin 
  */
-void light_draw(const AABB& aabb_light, RenderStateFlags state) {
-  Vector3 points[6];
+void light_draw(const AABB& aabb_light, RenderStateFlags state)
+{
+	Vector3 points[6];
   
-  // Revert the light "diamond" to default extents for drawing
-  AABB tempAABB;
-  tempAABB.origin = aabb_light.origin;
-  tempAABB.extents = Vector3(8,8,8);
+	// Revert the light "diamond" to default extents for drawing
+	AABB tempAABB(aabb_light.origin, Vector3(8,8,8));
    
-   // Calculate the light vertices of this bounding box and store them into <points>
-  light_vertices(tempAABB, points);
+	// Calculate the light vertices of this bounding box and store them into <points>
+	light_vertices(tempAABB, points);
 
   	// greebo: Draw the small cube representing the light origin.
     typedef unsigned int index_t;
@@ -67,15 +66,14 @@ void light_draw(const AABB& aabb_light, RenderStateFlags state) {
 Light::Light(Doom3Entity& entity,
 			 LightNode& owner,
              const Callback& transformChanged,
-             const Callback& boundsChanged,
-             const Callback& evaluateTransform) 
+             const Callback& boundsChanged) 
 :
+	_owner(owner),
 	_entity(entity),
 	m_originKey(OriginChangedCaller(*this)),
 	_originTransformed(ORIGINKEY_IDENTITY),
 	m_rotationKey(RotationChangedCaller(*this)),
 	m_colour(Callback()),
-	m_named(_entity),
 	_modelKey(owner),
 	_renderableRadius(_lightBox.origin),
 	_renderableFrustum(_lightBox.origin, _lightStartTransformed, _frustum),
@@ -85,28 +83,23 @@ Light::Light(Doom3Entity& entity,
 	_rRight(_lightRightTransformed, _lightTargetTransformed, _lightBox.origin, _colourLightRight),
 	_rStart(_lightStartTransformed, _lightBox.origin, _colourLightStart),
 	_rEnd(_lightEndTransformed, _lightBox.origin, _colourLightEnd),
-	m_renderName(m_named, _lightBox.origin),
 	m_useLightRotation(false),
 	m_transformChanged(transformChanged),
-	m_boundsChanged(boundsChanged),
-	m_evaluateTransform(evaluateTransform)
-{
-	construct();
-}
+	m_boundsChanged(boundsChanged)
+{}
 
 // Copy Constructor
 Light::Light(const Light& other,
 			 LightNode& owner,
              Doom3Entity& entity,
              const Callback& transformChanged,
-             const Callback& boundsChanged,
-             const Callback& evaluateTransform) 
-: _entity(entity),
+             const Callback& boundsChanged) 
+: _owner(owner),
+  _entity(entity),
   m_originKey(OriginChangedCaller(*this)),
   _originTransformed(ORIGINKEY_IDENTITY),
   m_rotationKey(RotationChangedCaller(*this)),
   m_colour(Callback()),
-  m_named(_entity),
   _modelKey(owner),
   _renderableRadius(_lightBox.origin),
   _renderableFrustum(_lightBox.origin, _lightStartTransformed, _frustum),
@@ -116,13 +109,14 @@ Light::Light(const Light& other,
   _rRight(_lightRightTransformed, _lightTargetTransformed, _lightBox.origin, _colourLightRight),
   _rStart(_lightStartTransformed, _lightBox.origin, _colourLightStart),
   _rEnd(_lightEndTransformed, _lightBox.origin, _colourLightEnd),
-  m_renderName(m_named, _lightBox.origin),
   m_useLightRotation(false),
   m_transformChanged(transformChanged),
-  m_boundsChanged(boundsChanged),
-  m_evaluateTransform(evaluateTransform)
+  m_boundsChanged(boundsChanged)
+{}
+
+Light::~Light()
 {
-	construct();
+	destroy();
 }
 
 /* greebo: This sets up the keyObservers so that the according classes get notified when any
@@ -141,21 +135,20 @@ void Light::construct() {
 	_lightBox.extents = Vector3(8, 8, 8);
 	_originTransformed = ORIGINKEY_IDENTITY;
 
-	m_keyObservers.insert("name", NamedEntity::IdentifierChangedCaller(m_named));
-	m_keyObservers.insert("_color", Colour::ColourChangedCaller(m_colour));
-	m_keyObservers.insert("origin", OriginKey::OriginChangedCaller(m_originKey));
+	_owner.addKeyObserver("_color", Colour::ColourChangedCaller(m_colour));
+	_owner.addKeyObserver("origin", OriginKey::OriginChangedCaller(m_originKey));
 
-	m_keyObservers.insert("angle", RotationKey::AngleChangedCaller(m_rotationKey));
-	m_keyObservers.insert("rotation", RotationKey::RotationChangedCaller(m_rotationKey));
-	m_keyObservers.insert("light_radius", Doom3LightRadius::LightRadiusChangedCaller(m_doom3Radius));
-	m_keyObservers.insert("light_center", Doom3LightRadius::LightCenterChangedCaller(m_doom3Radius));
-	m_keyObservers.insert("light_rotation", Light::LightRotationChangedCaller(*this));
-	m_keyObservers.insert("light_target", Light::LightTargetChangedCaller(*this));
-	m_keyObservers.insert("light_up", Light::LightUpChangedCaller(*this));
-	m_keyObservers.insert("light_right", Light::LightRightChangedCaller(*this));
-	m_keyObservers.insert("light_start", Light::LightStartChangedCaller(*this));
-	m_keyObservers.insert("light_end", Light::LightEndChangedCaller(*this));
-	m_keyObservers.insert("texture", LightShader::ValueChangedCaller(m_shader));
+	_owner.addKeyObserver("angle", RotationKey::AngleChangedCaller(m_rotationKey));
+	_owner.addKeyObserver("rotation", RotationKey::RotationChangedCaller(m_rotationKey));
+	_owner.addKeyObserver("light_radius", Doom3LightRadius::LightRadiusChangedCaller(m_doom3Radius));
+	_owner.addKeyObserver("light_center", Doom3LightRadius::LightCenterChangedCaller(m_doom3Radius));
+	_owner.addKeyObserver("light_rotation", Light::LightRotationChangedCaller(*this));
+	_owner.addKeyObserver("light_target", Light::LightTargetChangedCaller(*this));
+	_owner.addKeyObserver("light_up", Light::LightUpChangedCaller(*this));
+	_owner.addKeyObserver("light_right", Light::LightRightChangedCaller(*this));
+	_owner.addKeyObserver("light_start", Light::LightStartChangedCaller(*this));
+	_owner.addKeyObserver("light_end", Light::LightEndChangedCaller(*this));
+	_owner.addKeyObserver("texture", LightShader::ValueChangedCaller(m_shader));
 	m_useLightTarget = m_useLightUp = m_useLightRight = m_useLightStart = m_useLightEnd = false;
 	m_doom3ProjectionChanged = true;
 
@@ -169,7 +162,28 @@ void Light::construct() {
 	m_shader.valueChanged(_entity.getKeyValue("texture"));
 
 	// Hook the "model" spawnarg to the ModelKey class
-	m_keyObservers.insert("model", ModelKey::ModelChangedCaller(_modelKey));
+	_owner.addKeyObserver("model", ModelKey::ModelChangedCaller(_modelKey));
+}
+
+void Light::destroy()
+{
+	_owner.removeKeyObserver("_color", Colour::ColourChangedCaller(m_colour));
+	_owner.removeKeyObserver("origin", OriginKey::OriginChangedCaller(m_originKey));
+
+	_owner.removeKeyObserver("angle", RotationKey::AngleChangedCaller(m_rotationKey));
+	_owner.removeKeyObserver("rotation", RotationKey::RotationChangedCaller(m_rotationKey));
+	_owner.removeKeyObserver("light_radius", Doom3LightRadius::LightRadiusChangedCaller(m_doom3Radius));
+	_owner.removeKeyObserver("light_center", Doom3LightRadius::LightCenterChangedCaller(m_doom3Radius));
+	_owner.removeKeyObserver("light_rotation", Light::LightRotationChangedCaller(*this));
+	_owner.removeKeyObserver("light_target", Light::LightTargetChangedCaller(*this));
+	_owner.removeKeyObserver("light_up", Light::LightUpChangedCaller(*this));
+	_owner.removeKeyObserver("light_right", Light::LightRightChangedCaller(*this));
+	_owner.removeKeyObserver("light_start", Light::LightStartChangedCaller(*this));
+	_owner.removeKeyObserver("light_end", Light::LightEndChangedCaller(*this));
+	_owner.removeKeyObserver("texture", LightShader::ValueChangedCaller(m_shader));
+
+	// Hook the "model" spawnarg to the ModelKey class
+	_owner.removeKeyObserver("model", ModelKey::ModelChangedCaller(_modelKey));
 }
 
 void Light::updateOrigin() {
@@ -182,9 +196,9 @@ void Light::updateOrigin() {
         projectionChanged();
 
 	// Update the transformation matrix
-	m_transform.localToParent() = Matrix4::getIdentity();
-	m_transform.localToParent().translateBy(worldOrigin());
-	m_transform.localToParent().multiplyBy(m_rotation.getMatrix4());
+	_owner.localToParent() = Matrix4::getIdentity();
+	_owner.localToParent().translateBy(worldOrigin());
+	_owner.localToParent().multiplyBy(m_rotation.getMatrix4());
 
 	// Notify all child nodes
 	m_transformChanged();
@@ -201,36 +215,49 @@ void Light::originChanged()
 
 void Light::lightTargetChanged(const std::string& value) {
 	m_useLightTarget = (!value.empty());
-	if (m_useLightTarget) {
-		read_origin(_lightTarget, value);
+
+	if (m_useLightTarget)
+	{
+		_lightTarget = Vector3(value);
 	}
+
 	_lightTargetTransformed = _lightTarget;
 	projectionChanged();
 }
 
 void Light::lightUpChanged(const std::string& value) {
 	m_useLightUp = (!value.empty());
-	if (m_useLightUp) {
-		read_origin(_lightUp, value);
+
+	if (m_useLightUp)
+	{
+		_lightUp = Vector3(value);
 	}
+
 	_lightUpTransformed = _lightUp;
 	projectionChanged();
 }
 
-void Light::lightRightChanged(const std::string& value) {
+void Light::lightRightChanged(const std::string& value)
+{
 	m_useLightRight = (!value.empty());
-	if (m_useLightRight) {
-		read_origin(_lightRight, value);
+
+	if (m_useLightRight)
+	{
+		_lightRight = Vector3(value);
 	}
+
 	_lightRightTransformed = _lightRight;
 	projectionChanged();
 }
 
 void Light::lightStartChanged(const std::string& value) {
 	m_useLightStart = (!value.empty());
-	if (m_useLightStart) {
-		read_origin(_lightStart, value);
+
+	if (m_useLightStart)
+	{
+		_lightStart = Vector3(value);
 	}
+
 	_lightStartTransformed = _lightStart;
 	
 	// If the light_end key is still unused, set it to a reasonable value
@@ -243,8 +270,10 @@ void Light::lightStartChanged(const std::string& value) {
 
 void Light::lightEndChanged(const std::string& value) {
 	m_useLightEnd = (!value.empty());
-	if (m_useLightEnd) {
-		read_origin(_lightEnd, value);
+
+	if (m_useLightEnd)
+	{
+		_lightEnd = Vector3(value);
 	}
 	
 	_lightEndTransformed = _lightEnd;
@@ -331,20 +360,6 @@ void Light::updateRenderableRadius() const
 	_renderableRadius.m_points[7] += _lightBox.origin;
 }
 
-void Light::instanceAttach(const scene::Path& path) {
-	if(++m_instanceCounter.m_count == 1) {
-		_entity.instanceAttach(path_find_mapfile(path.begin(), path.end()));
-		_entity.attachObserver(&m_keyObservers);
-	}
-}
-
-void Light::instanceDetach(const scene::Path& path) {
-	if(--m_instanceCounter.m_count == 0) {
-		_entity.detachObserver(&m_keyObservers);
-		_entity.instanceDetach(path_find_mapfile(path.begin(), path.end()));
-	}
-}
-
 /* greebo: Snaps the current light origin to the grid. 
  * 
  * Note: This gets called when the light as a whole is selected, NOT in vertex editing mode
@@ -397,7 +412,7 @@ void Light::revertTransform()
 	_lightEndTransformed = _lightEnd;
 }
 
-void Light::freezeTransform()
+void Light::freezeTransform() 
 {
     m_originKey.m_origin = _originTransformed;
     m_originKey.write(&_entity);
@@ -447,28 +462,9 @@ void Light::freezeTransform()
 
 	if (!isProjected()) {
 		m_doom3Radius.m_radius = m_doom3Radius.m_radiusTransformed;
-		write_origin(m_doom3Radius.m_radius, &_entity, "light_radius");
+
+		_entity.setKeyValue("light_radius", m_doom3Radius.m_radius);
 	}
-}
-
-entity::Doom3Entity& Light::getEntity() {
-	return _entity;
-}
-const entity::Doom3Entity& Light::getEntity() const {
-	return _entity;
-}
-
-const NamedEntity& Light::getNameable() const {
-	return m_named;
-}
-NamedEntity& Light::getNameable() {
-	return m_named;
-}
-TransformNode& Light::getTransformNode() {
-	return m_transform;
-}
-const TransformNode& Light::getTransformNode() const {
-	return m_transform;
 }
 
 // Backend render function (GL calls)
@@ -531,16 +527,23 @@ void Light::renderWireframe(RenderableCollector& collector,
 {
 	// Main render, submit the diamond that represents the light entity
 	collector.SetState(
-		_entity.getEntityClass()->getWireShader(), RenderableCollector::eWireframeOnly
+		m_colour.getWireShader(), RenderableCollector::eWireframeOnly
 	);
 	collector.SetState(
-		_entity.getEntityClass()->getWireShader(), RenderableCollector::eFullMaterials
+		m_colour.getWireShader(), RenderableCollector::eFullMaterials
 	);
 	collector.addRenderable(*this, localToWorld);
 
 	// Render bounding box if selected or the showAllLighRadii flag is set
 	if (selected || EntitySettings::InstancePtr()->showAllLightRadii()) 
     {
+		collector.SetState(
+			_entity.getEntityClass()->getWireShader(), RenderableCollector::eWireframeOnly
+		);
+		collector.SetState(
+			_entity.getEntityClass()->getWireShader(), RenderableCollector::eFullMaterials
+		);
+
 		if (isProjected()) 
         {
             // greebo: This is not much of an performance impact as the
@@ -554,11 +557,6 @@ void Light::renderWireframe(RenderableCollector& collector,
 			collector.addRenderable(_renderableRadius, localToWorld);
 		}
 	}
-
-	// Render the name
-	if (EntitySettings::InstancePtr()->renderEntityNames()) {
-		collector.addRenderable(m_renderName, localToWorld);
-	}
 }
 
 void Light::testSelect(Selector& selector, SelectionTest& test, const Matrix4& localToWorld) {
@@ -571,8 +569,9 @@ void Light::testSelect(Selector& selector, SelectionTest& test, const Matrix4& l
 	}
 }
 
-void Light::translate(const Vector3& translation) {
-	_originTransformed = origin_translated(_originTransformed, translation);
+void Light::translate(const Vector3& translation)
+{
+	_originTransformed += translation;
 }
 
 /* greebo: This translates the light start with the given <translation>
@@ -656,12 +655,6 @@ void Light::rotate(const Quaternion& rotation) {
 	else {
 		m_rotation.rotate(rotation);
 	}
-}
-
-void Light::transformChanged() {
-	revertTransform();
-	m_evaluateTransform();
-	updateOrigin();
 }
 
 const Matrix4& Light::getLocalPivot() const {

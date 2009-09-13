@@ -2,46 +2,68 @@
 #define ISOUND_H_
 
 #include "imodule.h"
+#include "ModResource.h"
+
 #include <vector>
 #include <boost/function.hpp>
 
 // A list of sound files associated to a shader
 //typedef std::vector<std::string> SoundFileList;
 
-// The min and max radii of a sound speaker
+const float METERS_PER_UNIT = 0.0254f;
+const float UNITS_PER_METER = 1/METERS_PER_UNIT;
+
+// The min and max radii of a sound shader
 class SoundRadii {
 	float minRad, maxRad;
 	public:
 	//set sound radii either in metres or in inch on initialization might cause a conversion
 	SoundRadii (float min = 0, float max = 0, bool inMetres = false) {
 		if (inMetres) {
-			minRad = min/0.0254f;
-			maxRad = max/0.0254f;
+			minRad = min * UNITS_PER_METER;
+			maxRad = max * UNITS_PER_METER;
 		}
 		else {
 			minRad = min;
 			maxRad = max;
 		}
 	}
-	// set the sound radii in metres or in inch, might cause a conversion
-	inline void setMin (float min, bool inMetres = false) {
-		if (inMetres) minRad = min/0.0254f;
-		else minRad = min;
-	}
-	inline void setMax (float max, bool inMetres = false) {
-		if (inMetres) maxRad = max/0.0254f;
-		else maxRad = max;
-	}
-	inline float getMin () const { return minRad; }
-	inline float getMax () const { return maxRad; }
-};
 
+	// set the sound radii in metres or in inch, might cause a conversion
+	void setMin(float min, bool inMetres = false) {
+		if (inMetres) {
+			minRad = min * UNITS_PER_METER;
+		}
+		else {
+			minRad = min;
+		}
+	}
+
+	void setMax (float max, bool inMetres = false) {
+		if (inMetres) {
+			maxRad = max * UNITS_PER_METER;
+		}
+		else {
+			maxRad = max;
+		}
+	}
+
+	float getMin(bool inMetres = false) const {
+		return (inMetres) ? minRad * METERS_PER_UNIT : minRad;
+	}
+
+	float getMax(bool inMetres = false) const {
+		return (inMetres) ? maxRad * METERS_PER_UNIT : maxRad;
+	}
+};
 
 /**
  * Representation of a single sound or sound shader.
  */
-struct ISoundFile {
-
+class ISoundFile :
+	public ModResource
+{
+public:
 	/**
 	 * Get the name of the shader.
 	 */
@@ -62,7 +84,11 @@ typedef boost::shared_ptr<ISoundFile> ISoundFilePtr;
 /**
  * Sound shader visitor function typedef.
  */
-typedef boost::function< void (const ISoundFile&) > SoundFileVisitor;
+class SoundFileVisitor
+{
+public:
+	virtual void visit(const ISoundFilePtr& soundFile) = 0;
+};
 
 const std::string MODULE_SOUNDMANAGER("SoundManager");
 
@@ -76,12 +102,12 @@ public:
 	/**
 	 * Enumerate each of the sound shaders.
 	 */
-	virtual void forEachSoundFile(SoundFileVisitor visitor) const = 0;
+	virtual void forEachSoundFile(SoundFileVisitor& visitor) const = 0;
 
 	/** greebo: Tries to lookup the SoundShader with the given name,
 	 * 			returns a soundshader with an empty name, if the lookup failed.
 	 */
-	virtual const ISoundFile& getSoundFile(const std::string& fileName) = 0;
+	virtual const ISoundFilePtr getSoundFile(const std::string& fileName) = 0;
 
 	/** greebo: Plays the given sound file (defined by its VFS path).
 	 *

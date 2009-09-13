@@ -9,13 +9,13 @@ namespace entity {
 
 /**
  * greebo: This is an abstract representation of a target.
- *         In Doom3 maps, a Target can be any map entity, that's
- *         why this object encapsulates a reference to an actual 
- *         scene::INodePtr. 
+ * In Doom3 maps, a Target can be any map entity, that's
+ * why this object encapsulates a reference to an actual 
+ * scene::INode. 
  *
  * Note: Such a Target object can be empty. That's the case for 
- *       entities referring to non-existing entities in their 
- *       "target" spawnarg.
+ * entities referring to non-existing entities in their 
+ * "target" spawnarg.
  *
  * All Targets are owned by the TargetManager class.
  *
@@ -24,14 +24,22 @@ namespace entity {
 class Target
 {
 	// The actual node this Target refers to (can be NULL)
-	scene::INodeWeakPtr _node;
+	const scene::INode* _node;
+
 public:
-	scene::INodePtr getNode() const {
-		return _node.lock();
+	Target()
+	{}
+
+	Target(const scene::INode& node) :
+		_node(&node)
+	{}
+
+	const scene::INode* getNode() const {
+		return _node;
 	}
 
-	void setNode(const scene::INodePtr& node) {
-		_node = node;
+	void setNode(const scene::INode& node) {
+		_node = &node;
 	}
 
 	bool isEmpty() const {
@@ -39,12 +47,13 @@ public:
 	}
 
 	void clear() {
-		_node = scene::INodePtr();
+		_node = NULL;
 	}
 
 	// greebo: Returns the position of this target or <0,0,0> if empty
-	Vector3 getPosition() const {
-		scene::INodePtr node = getNode();
+	Vector3 getPosition() const
+	{
+		const scene::INode* node = getNode();
 
 		if (node == NULL) {
 			return Vector3(0,0,0);

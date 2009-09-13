@@ -5,11 +5,15 @@
 
 namespace entity {
 
-TargetableNode::TargetableNode(Doom3Entity& entity, const scene::Node& node) :
+TargetableNode::TargetableNode(Doom3Entity& entity, scene::Node& node) :
 	_d3entity(entity),
 	_renderableLines(_targetKeys),
 	_node(node)
-{}
+{
+	// Note: don't do anything with _d3Entity here,
+	// the structure is not fully constructed yet at this point.
+	// Execute initialisation code in construct()
+}
 
 void TargetableNode::construct() {
 	_d3entity.attachObserver(this);
@@ -40,7 +44,7 @@ void TargetableNode::targetnameChanged(const std::string& name) {
 	if (!_targetName.empty()) {
 		// Old name is not empty
 		// Tell the Manager to disassociate us from the target
-		TargetManager::Instance().clearTarget(_targetName, _node.getSelf());
+		TargetManager::Instance().clearTarget(_targetName, _node);
 	}
 	
 	// Store the new name, in any case
@@ -51,8 +55,8 @@ void TargetableNode::targetnameChanged(const std::string& name) {
 		return;
 	}
 
-	// Tell the TargetManager to associate the name with this scene::INodePtr here
-	TargetManager::Instance().associateTarget(_targetName, _node.getSelf());
+	// Tell the TargetManager to associate the name with this scene::INode here
+	TargetManager::Instance().associateTarget(_targetName, _node);
 }
 
 // Entity::Observer implementation, gets called on key insert

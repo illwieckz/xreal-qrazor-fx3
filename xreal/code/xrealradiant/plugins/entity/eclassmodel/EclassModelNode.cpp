@@ -2,54 +2,38 @@
 
 namespace entity {
 
-EclassModelNode::EclassModelNode(const IEntityClassConstPtr& eclass) :
+EclassModelNode::EclassModelNode(const IEntityClassPtr& eclass) :
 	EntityNode(eclass),
-	TransformModifier(EclassModel::TransformChangedCaller(m_contained), 
-					  ApplyTransformCaller(*this)),
-	TargetableNode(_entity, *this),
 	m_contained(*this, // pass <self> as scene::INode&
-				Node::TransformChangedCaller(*this), 
-				EvaluateTransformCaller(*this)),
+				Node::TransformChangedCaller(*this)),
 	_updateSkin(true)
-{
-	TargetableNode::construct();
-	construct();
-}
+{}
 
 EclassModelNode::EclassModelNode(const EclassModelNode& other) :
 	EntityNode(other),
-	SelectableNode(other),
-	scene::Cloneable(other),
-	Nameable(other),
 	Snappable(other),
-	TransformNode(other),
-	Renderable(other),
-	TransformModifier(EclassModel::TransformChangedCaller(m_contained), 
-					  ApplyTransformCaller(*this)),
-	TargetableNode(_entity, *this),
 	m_contained(other.m_contained, 
 				*this, // pass <self> as scene::INode&
-				Node::TransformChangedCaller(*this), 
-				EvaluateTransformCaller(*this)),
+				Node::TransformChangedCaller(*this)),
 	_updateSkin(true)
-{
-	TargetableNode::construct();
-	construct();
-}
+{}
 
 EclassModelNode::~EclassModelNode() {
 	destroy();
-	TargetableNode::destruct();
 }
 
-void EclassModelNode::construct() {
+void EclassModelNode::construct()
+{
+	m_contained.construct();
+
 	// Attach the InstanceSet as Traversable::Observer to the nodeset
 	Node::attachTraverseObserver(this);
-	m_contained.addKeyObserver("skin", SkinChangedCaller(*this));
+	addKeyObserver("skin", SkinChangedCaller(*this));
 }
 
-void EclassModelNode::destroy() {
-	m_contained.removeKeyObserver("skin", SkinChangedCaller(*this));
+void EclassModelNode::destroy()
+{
+	removeKeyObserver("skin", SkinChangedCaller(*this));
 	Node::detachTraverseObserver(this);
 }
 
@@ -58,36 +42,29 @@ void EclassModelNode::snapto(float snap) {
 	m_contained.snapto(snap);
 }
 
-// TransformNode implementation
-const Matrix4& EclassModelNode::localToParent() const {
-	return m_contained.getTransformNode().localToParent();
-}
-
 // EntityNode implementation
 Entity& EclassModelNode::getEntity() {
-	return m_contained.getEntity();
+	return _entity;
 }
 
 void EclassModelNode::refreshModel() {
 	// Simulate a "model" key change
-	m_contained.modelChanged(m_contained.getEntity().getKeyValue("model"));
+	m_contained.modelChanged(_entity.getKeyValue("model"));
 
 	// Trigger a skin change
-	skinChanged(m_contained.getEntity().getKeyValue("skin"));
+	skinChanged(_entity.getKeyValue("skin"));
 }
 
-// Namespaced implementation
-/*void EclassModelNode::setNamespace(INamespace& space) {
-	m_contained.getNamespaced().setNamespace(space);
-}*/
+void EclassModelNode::renderSolid(RenderableCollector& collector, const VolumeTest& volume) const
+{
+	EntityNode::renderSolid(collector, volume);
 
-void EclassModelNode::renderSolid(RenderableCollector& collector, const VolumeTest& volume) const {
 	// greebo: Check if the skin needs updating before rendering.
 	if (_updateSkin) {
 		// Instantiate a walker class equipped with the new value
-		SkinChangedWalker walker(m_contained.getEntity().getKeyValue("skin"));
+		SkinChangedWalker walker(_entity.getKeyValue("skin"));
 		// Update all children
-		Node_traverseSubgraph(Node::getSelf(), walker);
+		traverse(walker);
 
 		_updateSkin = false;
 	}
@@ -95,57 +72,52 @@ void EclassModelNode::renderSolid(RenderableCollector& collector, const VolumeTe
 	m_contained.renderSolid(collector, volume, localToWorld(), isSelected());
 }
 
-void EclassModelNode::renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const {
+void EclassModelNode::renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const
+{
+	EntityNode::renderWireframe(collector, volume);
+
 	m_contained.renderWireframe(collector, volume, localToWorld(), isSelected());
 }
 
-scene::INodePtr EclassModelNode::clone() const {
-	scene::INodePtr clone(new EclassModelNode(*this));
-	clone->setSelf(clone);
-	return clone;
-}
+scene::INodePtr EclassModelNode::clone() const
+{
+	EclassModelNodePtr node(new EclassModelNode(*this));
+	node->construct();
 
-void EclassModelNode::instantiate(const scene::Path& path) {
-	m_contained.instanceAttach(path);
-	Node::instantiate(path);
-}
-
-void EclassModelNode::uninstantiate(const scene::Path& path) {
-	m_contained.instanceDetach(path);
-	Node::uninstantiate(path);
-}
-
-// Nameable implementation
-std::string EclassModelNode::name() const {
-	return m_contained.getNameable().name();
-}
-
-void EclassModelNode::attach(const NameCallback& callback) {
-	m_contained.getNameable().attach(callback);
-}
-
-void EclassModelNode::detach(const NameCallback& callback) {
-	m_contained.getNameable().detach(callback);
-}
-
-void EclassModelNode::evaluateTransform() {
-	if (getType() == TRANSFORM_PRIMITIVE) {
-		m_contained.translate(getTranslation());
-		m_contained.rotate(getRotation());
-	}
-}
-
-void EclassModelNode::applyTransform() {
-	m_contained.revertTransform();
-	evaluateTransform();
-	m_contained.freezeTransform();
+	return node;
 }
 
 void EclassModelNode::skinChanged(const std::string& value) {
 	// Instantiate a walker class equipped with the new value
 	SkinChangedWalker walker(value);
 	// Update all children
-	Node_traverseSubgraph(Node::getSelf(), walker);
+	traverse(walker);
+}
+
+void EclassModelNode::_onTransformationChanged()
+{
+	if (getType() == TRANSFORM_PRIMITIVE)
+	{
+		m_contained.revertTransform();
+		
+		m_contained.translate(getTranslation());
+		m_contained.rotate(getRotation());
+
+		m_contained.updateTransform();
+	}
+}
+
+void EclassModelNode::_applyTransformation()
+{
+	if (getType() == TRANSFORM_PRIMITIVE)
+	{
+		m_contained.revertTransform();
+
+		m_contained.translate(getTranslation());
+		m_contained.rotate(getRotation());
+
+		m_contained.freezeTransform();
+	}
 }
 
 } // namespace entity

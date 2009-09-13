@@ -1175,10 +1175,6 @@
 					RelativePath="..\..\radiant\patch\PatchTesselation.h"
 					>
 				</File>
-				<File
-					RelativePath="..\..\radiant\patch\PatchXMLState.h"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="render"
@@ -1876,6 +1872,10 @@
 					</File>
 					<File
 						RelativePath="..\..\radiant\ui\einspector\ModelPropertyEditor.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\einspector\PropertyEditor.cpp"
 						>
 					</File>
 					<File

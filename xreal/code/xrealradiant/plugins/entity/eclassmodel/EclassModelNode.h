@@ -19,14 +19,7 @@ namespace entity {
 
 class EclassModelNode :
 	public EntityNode,
-	public SelectableNode,
-	public scene::Cloneable,
-	public Nameable,
-	public Snappable,
-	public TransformNode,
-	public Renderable,
-	public TransformModifier,
-	public TargetableNode
+	public Snappable
 {
 	friend class EclassModel;
 
@@ -36,7 +29,7 @@ class EclassModelNode :
 
 public:
 	// Constructor
-	EclassModelNode(const IEntityClassConstPtr& eclass);
+	EclassModelNode(const IEntityClassPtr& eclass);
 	// Copy Constructor
 	EclassModelNode(const EclassModelNode& other);
 
@@ -45,43 +38,33 @@ public:
 	// Snappable implementation
 	virtual void snapto(float snap);
 
-	// TransformNode implementation
-	virtual const Matrix4& localToParent() const;
-
 	// EntityNode implementation
 	virtual Entity& getEntity();
 	virtual void refreshModel();
 
-	// Namespaced implementation
-	//virtual void setNamespace(INamespace& space);
-
 	scene::INodePtr clone() const;
-
-	// scene::Instantiable implementation
-	virtual void instantiate(const scene::Path& path);
-	virtual void uninstantiate(const scene::Path& path);
 
 	// Renderable implementation
 	void renderSolid(RenderableCollector& collector, const VolumeTest& volume) const;
 	void renderWireframe(RenderableCollector& collector, const VolumeTest& volume) const;
 
-	// Nameable implementation
-	virtual std::string name() const;
-	virtual void attach(const NameCallback& callback);
-	virtual void detach(const NameCallback& callback);
-
-	void evaluateTransform();
-	typedef MemberCaller<EclassModelNode, &EclassModelNode::evaluateTransform> EvaluateTransformCaller;
-	void applyTransform();
-	typedef MemberCaller<EclassModelNode, &EclassModelNode::applyTransform> ApplyTransformCaller;
-
 	void skinChanged(const std::string& value);
 	typedef MemberCaller1<EclassModelNode, const std::string&, &EclassModelNode::skinChanged> SkinChangedCaller;
 
-private:
+protected:
+	// Gets called by the Transformable implementation whenever
+	// scale, rotation or translation is changed.
+	void _onTransformationChanged();
+
+	// Called by the Transformable implementation before freezing
+	// or when reverting transformations.
+	void _applyTransformation();
+
+public:
 	void construct();
 	void destroy();
 };
+typedef boost::shared_ptr<EclassModelNode> EclassModelNodePtr;
 
 } // namespace entity
 

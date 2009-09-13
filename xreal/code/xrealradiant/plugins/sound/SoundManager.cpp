@@ -15,14 +15,14 @@ namespace sound
 
 // Constructor
 SoundManager::SoundManager() :
-	_emptySound("")
+	_emptySound(new SoundFile("", ""))
 {}
 
 // Enumerate shaders
-void SoundManager::forEachSoundFile(SoundFileVisitor visitor) const {
+void SoundManager::forEachSoundFile(SoundFileVisitor& visitor) const {
 	for (SoundFileMap::const_iterator i = _soundFiles.begin(); i != _soundFiles.end(); ++i)
 	{
-		visitor(*(i->second));
+		visitor.visit(i->second);
 	}
 }
 
@@ -74,66 +74,29 @@ void SoundManager::stopSound() {
 	_soundPlayer.stop();
 }
 
-// Accept a string of shaders to parse
-/*
-void SoundManager::parseShadersFrom(std::istream& contents) {
-
-	// Construct a DefTokeniser to tokenise the string into sound shader decls
-	parser::BasicDefTokeniser<std::istream> tok(contents);
-	while (tok.hasMoreTokens())
-		parseSoundShader(tok);
-}
-*/
-
-const ISoundFile& SoundManager::getSoundFile(const std::string& fileName) {
+const ISoundFilePtr SoundManager::getSoundFile(const std::string& fileName) {
 	SoundFileMap::const_iterator found = _soundFiles.find(fileName);
 
 	// If the name was found, return it, otherwise return an empty shader object
-	return (found != _soundFiles.end()) ? *found->second : _emptySound;
+	return (found != _soundFiles.end()) ? found->second : _emptySound;
 }
 
 void SoundManager::addSoundFile(const std::string& fileName) {
-	_soundFiles[fileName] = SoundFilePtr(new SoundFile(fileName));
-}
 
-// Parse a single sound shader from a token stream
-/*
-void SoundManager::parseSoundShader(parser::DefTokeniser& tok) {
+	//_soundFiles[fileName] = SoundFilePtr(new SoundFile(fileName, modName));
 
-	// Get the shader name
-	std::string name = tok.nextToken();
+	std::pair<SoundFileMap::iterator, bool> result = _soundFiles.insert(
+				SoundFileMap::value_type(
+					fileName,
+					SoundFilePtr(new SoundFile(fileName))
+				)
+			);
 
-	// Create a new shader with this name
-	_shaders[name] = ShaderPtr(new SoundShader(name));
-
-	// A definition block must start here
-	tok.assertNextToken("{");
-
-	std::string nextToken = tok.nextToken();
-	float min = 0;
-	float max = 0;
-	while (nextToken != "}") {
-		// Watch out for sound file definitions and min/max radii
-		if (boost::algorithm::starts_with(nextToken, "sound/")) {
-			// Add this to the list
-			_shaders[name]->addSoundFile(nextToken);
-		}
-		if (nextToken == "minDistance") {
-			nextToken = tok.nextToken();
-
-			min = strToFloat(nextToken);
-		}
-		if (nextToken == "maxDistance") {
-			nextToken = tok.nextToken();
-			max = strToFloat(nextToken);
-		}
-		nextToken = tok.nextToken();
+	if (!result.second) {
+		globalErrorStream() << "[SoundManager]: SoundFile with name "
+			<< fileName << " already exists." << std::endl;
 	}
-	// we need to parse in metres
-	SoundRadii soundRadii(min, max, true);
-	_shaders[name]->setSoundRadii(soundRadii);
 }
-*/
 
 const std::string& SoundManager::getName() const {
 	static std::string _name(MODULE_SOUNDMANAGER);

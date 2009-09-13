@@ -138,7 +138,23 @@ public:
 	 * Example: "atdm:ai_base" | "atdm:ai_humanoid" | "atdm:ai_builder_guard"
 	 */ 
 	typedef std::list<std::string> InheritanceChain;
+
+	// An EntityClassObserver gets notified whenever the eclass contents 
+	// get changed, possibly due to a reload of the declarations in the .def files.
+	class Observer
+	{
+	public:
+		/**
+		 * greebo: Gets called as soon as the contents of the eclass
+		 * get changed, which is true for the "reloadDefs" command.
+		 */
+		virtual void OnEClassReload() = 0;
+	};
     
+	// Adds/removes an eclass observer
+	virtual void addObserver(Observer* observer) = 0;
+	virtual void removeObserver(Observer* observer) = 0;
+
 	/** 
 	 * Get this entity class' name.
 	 */
@@ -296,7 +312,9 @@ public:
  * 
  * \ingroup eclass
  */
-class IModelDef {
+class IModelDef :
+	public ModResource
+{
 public:
 	bool resolved;
 	
@@ -309,10 +327,18 @@ public:
 	
 	typedef std::map<std::string, std::string> Anims;
 	Anims anims;
+
+	std::string modName;
 	
 	IModelDef() : 
-		resolved(false)
+		resolved(false),
+		modName("base")
 	{}
+
+	std::string getModName() const
+	{
+		return modName;
+	}
 };
 typedef boost::shared_ptr<IModelDef> IModelDefPtr;
 
@@ -365,6 +391,15 @@ public:
 
 	virtual void realise() = 0;
 	virtual void unrealise() = 0;
+
+	/**
+	 * greebo: This reloads the entityDefs and modelDefs from all files. Does not
+	 * change the scenegraph, only the contents of the EClass objects are
+	 * re-parsed. All IEntityClassPtrs remain valid, no entityDefs are removed.
+	 *
+	 * Note: This is NOT the same as unrealise + realise
+	 */ 
+	virtual void reloadDefs() = 0;
 	
 	/** greebo: Finds the model def with the given name. Might return NULL if not found.
 	 */

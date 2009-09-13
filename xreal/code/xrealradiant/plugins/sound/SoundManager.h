@@ -19,8 +19,8 @@ class SoundManager :
 {
 	typedef std::map<std::string, SoundFilePtr> SoundFileMap;
 	SoundFileMap _soundFiles;
-	
-	SoundFile _emptySound;
+
+	SoundFilePtr _emptySound;
 
 	// The helper class for playing the sounds
 	SoundPlayer _soundPlayer;
@@ -34,11 +34,11 @@ public:
 	/**
 	 * Enumerate sound shaders.
 	 */
-	void forEachSoundFile(SoundFileVisitor visitor) const;
+	void forEachSoundFile(SoundFileVisitor& visitor) const;
 
 	/** greebo: Returns the soundfile with the name <shaderName>
 	 */
-	const ISoundFile& getSoundFile(const std::string& shaderName);
+	const ISoundFilePtr getSoundFile(const std::string& shaderName);
 
 	/** greebo: Plays the sound file. Tries to resolve the filename's
 	 * 			extension by appending .ogg or .wav and such.
