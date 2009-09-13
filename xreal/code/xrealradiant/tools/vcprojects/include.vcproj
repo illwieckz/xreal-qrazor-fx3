@@ -156,6 +156,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\include\ientityinspector.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\ieventmanager.h"
 			>
 		</File>
@@ -229,6 +233,10 @@
 		</File>
 		<File
 			RelativePath="..\..\include\imodelcache.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\imodelpreview.h"
 			>
 		</File>
 		<File
@@ -313,6 +321,10 @@
 		</File>
 		<File
 			RelativePath="..\..\include\itoolbar.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\itransformable.h"
 			>
 		</File>
 		<File
