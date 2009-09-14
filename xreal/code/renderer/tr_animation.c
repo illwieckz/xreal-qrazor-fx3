@@ -1432,7 +1432,9 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 
 			QuatCopy(lerpedQuat, skel->bones[i].rotation);
 
+#if defined(REFBONE_NAMES)
 			Q_strncpyz(skel->bones[i].name, channel->name, sizeof(skel->bones[i].name));
+#endif
 		}
 
 		skel->numBones = anim->numChannels;
@@ -1496,7 +1498,9 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 
 			QuatCopy(lerpedQuat, skel->bones[i].rotation);
 
+#if defined(REFBONE_NAMES)
 			Q_strncpyz(skel->bones[i].name, refBone->name, sizeof(skel->bones[i].name));
+#endif
 
 			// calculate absolute values for the bounding box approximation
 			VectorCopy(skel->bones[i].origin, skeleton.bones[i].origin);

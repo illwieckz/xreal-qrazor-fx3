@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #define	MAX_REF_LIGHTS		1024
-#define	MAX_REF_ENTITIES	1023	// can't be increased without changing drawsurf bit packing
+#define	MAX_REF_ENTITIES	512	// can't be increased without changing drawsurf bit packing
 #define MAX_BONES      	 	120
 #define MAX_WEIGHTS			4	// GPU vertex skinning limit, never change this without rewriting many GLSL shaders
 
@@ -63,7 +63,7 @@ typedef struct
 typedef struct poly_s
 {
 	qhandle_t       hShader;
-	int             numVerts;
+	short           numVerts;
 	polyVert_t     *verts;
 } poly_t;
 
@@ -81,10 +81,18 @@ typedef enum
 	RT_MAX_REF_ENTITY_TYPE
 } refEntityType_t;
 
+
+// Tr3B: having bone names for each refEntity_t takes several MiBs
+// in backEndData_t so only use it for debugging and development
+// enabling this will show the bone names with r_showSkeleton 1
+#define REFBONE_NAMES 1
+
 typedef struct
 {
+#if defined(REFBONE_NAMES)
 	char			name[64];
-	int             parentIndex;	// parent index (-1 if root)
+#endif
+	short			parentIndex;	// parent index (-1 if root)
 	vec3_t          origin;
 	quat_t          rotation;
 } refBone_t;
@@ -100,7 +108,7 @@ typedef struct
 {
 	refSkeletonType_t type;		// skeleton has been reset
 
-	int             numBones;
+	short           numBones;
 	refBone_t       bones[MAX_BONES];
 
 	vec3_t          bounds[2];	// bounds of all applied animations
@@ -146,7 +154,7 @@ typedef struct
 	refSkeleton_t   skeleton;
 
 	// extra light interaction information
-	int             noShadowID;
+	short           noShadowID;
 } refEntity_t;
 
 
@@ -186,7 +194,7 @@ typedef struct
 	vec3_t			projEnd;
 
 	qboolean        noShadows;
-	int             noShadowID;	// don't cast shadows of all entities with this id
+	short           noShadowID;	// don't cast shadows of all entities with this id
 
 	qboolean        inverseShadows;	// don't cast light and draw shadows by darken the scene
 	// this is useful for drawing player shadows with shadow mapping

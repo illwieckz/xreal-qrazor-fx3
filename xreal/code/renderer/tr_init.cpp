@@ -1484,7 +1484,7 @@ void R_Register(void)
 	r_noShadowFrustums = ri.Cvar_Get("r_noShadowFrustums", "0", CVAR_CHEAT);
 	r_noLightFrustums = ri.Cvar_Get("r_noLightFrustums", "0", CVAR_CHEAT);
 
-	r_maxPolys = ri.Cvar_Get("r_maxpolys", "20000", 0);	// 600 in vanilla Q3A
+	r_maxPolys = ri.Cvar_Get("r_maxpolys", "10000", 0);	// 600 in vanilla Q3A
 	ri.Cvar_CheckRange(r_maxPolys, 600, 30000, qtrue);
 
 	r_maxPolyVerts = ri.Cvar_Get("r_maxpolyverts", "100000", 0);	// 3000 in vanilla Q3A

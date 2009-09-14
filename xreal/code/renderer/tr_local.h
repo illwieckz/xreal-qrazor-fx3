@@ -350,7 +350,7 @@ typedef struct trRefLight_s
 	vec3_t          worldBounds[2];
 	float           sphereRadius;	// calculated from localBounds
 
-	int             shadowLOD;	// Level of Detail for shadow mapping
+	int8_t          shadowLOD;	// Level of Detail for shadow mapping
 
 	// GL_EXT_depth_bounds_test
 	float           depthNear;
@@ -359,15 +359,15 @@ typedef struct trRefLight_s
 
 	qboolean        noOcclusionQueries;
 	uint32_t        occlusionQueryObject;
-	int             occlusionQuerySamples;
+	uint32_t        occlusionQuerySamples;
 	link_t			multiQuery;				// CHC++: list of all nodes that are used by the same occlusion query
 
 	frustum_t       frustum;
 	vec4_t			localFrustum[6];
 	struct VBO_s   *frustumVBO;
 	struct IBO_s   *frustumIBO;
-	int             frustumIndexes;
-	int            	frustumVerts;
+	uint16_t        frustumIndexes;
+	uint16_t       	frustumVerts;
 
 	screenRect_t    scissor;
 
@@ -382,9 +382,9 @@ typedef struct trRefLight_s
 	struct interaction_s *firstInteraction;
 	struct interaction_s *lastInteraction;
 
-	int             numInteractions;	// total interactions
-	int             numShadowOnlyInteractions;
-	int             numLightOnlyInteractions;
+	uint16_t        numInteractions;	// total interactions
+	uint16_t        numShadowOnlyInteractions;
+	uint16_t        numLightOnlyInteractions;
 	qboolean        noSort;		// don't sort interactions by material
 
 	link_t			leafs;
@@ -2102,13 +2102,13 @@ typedef struct interaction_s
 
 	byte            cubeSideBits;
 
-	int             scissorX, scissorY, scissorWidth, scissorHeight;
+	int16_t         scissorX, scissorY, scissorWidth, scissorHeight;
 
 	float           depthNear;	// for GL_EXT_depth_bounds_test
 	float           depthFar;
 	qboolean        noDepthBoundsTest;
 
-	int             occlusionQuerySamples;	// visible fragment count
+	uint32_t        occlusionQuerySamples;	// visible fragment count
 	qboolean        noOcclusionQueries;
 
 	struct interaction_s *next;
@@ -2757,15 +2757,13 @@ extern refimport_t ri;
 #define	MAX_MOD_KNOWN			1024
 #define	MAX_ANIMATIONFILES		4096
 
-//#define	MAX_DRAWIMAGES			4096
 #define	MAX_LIGHTMAPS			256
 #define	MAX_SKINS				1024
-
 
 #define	MAX_DRAWSURFS			0x10000
 #define	DRAWSURF_MASK			(MAX_DRAWSURFS-1)
 
-#define MAX_INTERACTIONS		MAX_DRAWSURFS*16
+#define MAX_INTERACTIONS		MAX_DRAWSURFS*8
 #define INTERACTION_MASK		(MAX_INTERACTIONS-1)
 
 extern int      gl_filter_min, gl_filter_max;

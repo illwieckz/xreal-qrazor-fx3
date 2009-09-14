@@ -8694,7 +8694,9 @@ static void RB_RenderDebugUtils()
 							skeleton.numBones = model->md5->numBones;
 							for(j = 0, bone = &skeleton.bones[0]; j < skeleton.numBones; j++, bone++)
 							{
+								#if defined(REFBONE_NAMES)
 								Q_strncpyz(bone->name, model->md5->bones[j].name, sizeof(bone->name));
+								#endif
 
 								bone->parentIndex = model->md5->bones[j].parentIndex;
 								VectorCopy(model->md5->bones[j].origin, bone->origin);
@@ -8768,7 +8770,7 @@ static void RB_RenderDebugUtils()
 				tess.numVertexes = 0;
 				tess.numIndexes = 0;
 
-				//if(r_showSkeleton->integer == 2)
+#if defined(REFBONE_NAMES)
 				{
 					GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 
@@ -8828,6 +8830,7 @@ static void RB_RenderDebugUtils()
 						tess.numIndexes = 0;
 					}
 				}
+#endif // REFBONE_NAMES
 			}
 
 			tess.numVertexes = 0;
