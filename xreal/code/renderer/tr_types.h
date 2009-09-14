@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #define	MAX_REF_LIGHTS		1024
-#define	MAX_REF_ENTITIES	512	// can't be increased without changing drawsurf bit packing
+#define	MAX_REF_ENTITIES	1023	// can't be increased without changing drawsurf bit packing
 #define MAX_BONES      	 	120
 #define MAX_WEIGHTS			4	// GPU vertex skinning limit, never change this without rewriting many GLSL shaders
 
