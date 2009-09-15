@@ -5491,7 +5491,9 @@ void R_LoadEntities(lump_t * l)
 	ri.Printf(PRINT_ALL, "%i total lights counted\n", numLights);
 
 	s_worldData.numLights = numLights;
-	s_worldData.lights = ri.Hunk_Alloc(s_worldData.numLights * sizeof(trRefLight_t), h_low);
+	
+	// Tr3B: FIXME add 1 dummy light so we don't trash the hunk memory system ...
+	s_worldData.lights = ri.Hunk_Alloc((s_worldData.numLights + 1) * sizeof(trRefLight_t), h_low);
 
 	// basic light setup
 	for(i = 0, light = s_worldData.lights; i < s_worldData.numLights; i++, light++)
