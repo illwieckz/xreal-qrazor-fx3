@@ -2373,7 +2373,7 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 static void Render_genericSingle(int stage)
 {
 	shaderStage_t  *pStage;
-	unsigned int 	attribBits = ATTR_POSITION | ATTR_TEXCOORD;
+	uint32_t 		attribBits = ATTR_POSITION | ATTR_TEXCOORD;
 
 	GLimp_LogComment("--- Render_genericSingle ---\n");
 
@@ -2468,8 +2468,8 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	vec3_t          ambientColor;
 	vec3_t          lightDir;
 	vec4_t          lightColor;
-	unsigned int 	attribBits = ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL;
-	unsigned int	stateBits;
+	uint32_t 		attribBits = ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL;
+	uint32_t		stateBits;
 
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -2585,7 +2585,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 static void Render_vertexLighting_DBS_world(int stage)
 {
 	vec3_t          viewOrigin;
-	unsigned int	stateBits;
+	uint32_t		stateBits;
 
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -2751,7 +2751,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 static void Render_lightMapping(int stage, qboolean asColorMap)
 {
 	shaderStage_t  *pStage;
-	unsigned long	stateBits;
+	uint32_t	    stateBits;
 
 	GLimp_LogComment("--- Render_lightMapping ---\n");
 
@@ -2800,7 +2800,7 @@ static void Render_deluxeMapping(int stage)
 {
 	vec3_t          viewOrigin;
 	shaderStage_t  *pStage;
-	unsigned long	stateBits;
+	uint32_t     	stateBits;
 
 	GLimp_LogComment("--- Render_deluxeMapping ---\n");
 
@@ -2899,7 +2899,7 @@ static void Render_deluxeMapping(int stage)
 static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
 {
 	shaderStage_t  *pStage;
-	unsigned long   stateBits;
+	uint32_t        stateBits;
 	vec3_t          viewOrigin;
 	vec4_t          ambientColor;
 
@@ -3021,7 +3021,7 @@ static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
 static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 {
 	shaderStage_t  *pStage;
-	unsigned        stateBits;
+	uint32_t        stateBits;
 	vec3_t          viewOrigin;
 	vec4_t          ambientColor;
 
@@ -3146,7 +3146,7 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 static void Render_depthFill(int stage, qboolean cmap2black)
 {
 	shaderStage_t  *pStage;
-	unsigned        stateBits;
+	uint32_t        stateBits;
 	vec4_t          ambientColor;
 
 	GLimp_LogComment("--- Render_depthFill ---\n");
@@ -3224,7 +3224,7 @@ static void Render_depthFill(int stage, qboolean cmap2black)
 static void Render_shadowFill(int stage)
 {
 	shaderStage_t  *pStage;
-	unsigned        stateBits;
+	uint32_t        stateBits;
 	vec3_t          lightOrigin;
 
 
@@ -3848,7 +3848,7 @@ static void Render_portal(int stage)
 
 static void Render_heatHaze(int stage)
 {
-	unsigned        stateBits;
+	uint32_t        stateBits;
 	float           deformMagnitude;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -3857,7 +3857,7 @@ static void Render_heatHaze(int stage)
 	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
 	{
 		FBO_t          *previousFBO;
-		unsigned        stateBits;
+		uint32_t        stateBits;
 
 		// capture current color buffer for u_CurrentMap
 		/*

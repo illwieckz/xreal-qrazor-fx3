@@ -489,14 +489,14 @@ typedef struct image_s
 	GLenum          type;
 	GLuint          texnum;		// gl texture binding
 #endif
-	int             width, height;	// source image
-	int             uploadWidth, uploadHeight;	// after power of two and picmip but not including clamp to MAX_TEXTURE_SIZE
+	uint16_t        width, height;	// source image
+	uint16_t        uploadWidth, uploadHeight;	// after power of two and picmip but not including clamp to MAX_TEXTURE_SIZE
 
 	int             frameUsed;	// for texture usage in frame statistics
 
-	int             internalFormat;
+	uint32_t        internalFormat;
 
-	unsigned        bits;
+	uint32_t        bits;
 	filterType_t    filterType;
 	wrapType_t      wrapType;	// GL_CLAMP or GL_REPEAT
 
@@ -603,13 +603,13 @@ typedef struct shaderTable_s
 {
 	char            name[MAX_QPATH];
 
-	int             index;
+	uint16_t        index;
 
 	qboolean        clamp;
 	qboolean        snap;
 
 	float          *values;
-	int             numValues;
+	uint16_t        numValues;
 
 	struct shaderTable_s *next;
 } shaderTable_t;
@@ -756,7 +756,7 @@ typedef struct
 typedef struct
 {
 	expOperation_t  ops[MAX_EXPRESSION_OPS];
-	int             numOps;
+	uint8_t         numOps;
 
 	qboolean        active;		// no parsing problems
 } expression_t;
@@ -851,11 +851,11 @@ enum
 
 typedef struct
 {
-	int				numImages;
+	uint8_t			numImages;
 	float           imageAnimationSpeed;
 	image_t        *image[MAX_IMAGE_ANIMATIONS];
 
-	int             numTexMods;
+	uint8_t         numTexMods;
 	texModInfo_t   *texMods;
 
 	int             videoMapHandle;
@@ -927,7 +927,7 @@ typedef struct
 
 	byte            constantColor[4];	// for CGEN_CONST and AGEN_CONST
 
-	unsigned        stateBits;	// GLS_xxxx mask
+	uint32_t        stateBits;	// GLS_xxxx mask
 
 	qboolean        overrideNoPicMip;	// for images that must always be full resolution
 	qboolean        overrideFilterType;	// for console fonts, 2D elements, etc.
@@ -1051,10 +1051,10 @@ typedef struct shader_s
 
 	qboolean        interactLight;	// this shader can interact with light shaders
 
-	int             numDeforms;
+	uint8_t         numDeforms;
 	deformStage_t   deforms[MAX_SHADER_DEFORMS];
 
-	int             numStages;
+	uint8_t         numStages;
 	shaderStage_t  *stages[MAX_SHADER_STAGES];
 
 	int             numStates;	// if non-zero this is a state shader
@@ -1228,7 +1228,7 @@ typedef struct shaderProgram_s
 	char            name[MAX_QPATH];
 
 	GLhandleARB     program;
-	unsigned int    attribs;	// vertex array attributes
+	uint32_t        attribs;	// vertex array attributes
 
 	// uniform parameters
 	GLint           u_ColorMap;
@@ -1446,7 +1446,7 @@ static ID_INLINE void GLSL_SetUniform_SpecularTextureMatrix(shaderProgram_t * pr
 }
 
 
-static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, unsigned long stateBits)
+static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, uint32_t stateBits)
 {
 	alphaTest_t			value;
 
@@ -2049,8 +2049,8 @@ typedef enum
 typedef struct drawSurf_s
 {
 	trRefEntity_t  *entity;
-	int             shaderNum;
-	int             lightmapNum;
+	uint32_t        shaderNum;
+	int16_t         lightmapNum;
 
 	surfaceType_t  *surface;	// any of surface*_t
 } drawSurf_t;
@@ -2140,7 +2140,7 @@ typedef struct srfPoly_s
 {
 	surfaceType_t   surfaceType;
 	qhandle_t       hShader;
-	int             numVerts;
+	int16_t         numVerts;
 	polyVert_t     *verts;
 } srfPoly_t;
 
@@ -2331,7 +2331,7 @@ typedef struct bspSurface_s
 	int             viewCount;	// if == tr.viewCount, already added
 	int             lightCount;
 	struct shader_s *shader;
-	int             lightmapNum;	// -1 = no lightmap
+	int16_t         lightmapNum;	// -1 = no lightmap
 
 	surfaceType_t  *data;		// any of srf*_t
 } bspSurface_t;
@@ -2412,10 +2412,10 @@ typedef struct
 {
 	vec3_t          bounds[2];	// for culling
 
-	int             numSurfaces;
+	uint32_t        numSurfaces;
 	bspSurface_t   *firstSurface;
 
-	int             numVBOSurfaces;
+	uint32_t        numVBOSurfaces;
 	srfVBOMesh_t  **vboSurfaces;
 } bspModel_t;
 
@@ -2431,7 +2431,7 @@ typedef struct
 	char            name[MAX_QPATH];	// ie: maps/tim_dm2.bsp
 	char            baseName[MAX_QPATH];	// ie: tim_dm2
 
-	int             dataSize;
+	uint32_t        dataSize;
 
 	int             numShaders;
 	dshader_t      *shaders;
@@ -2573,7 +2573,7 @@ MD5 MODELS - in memory representation
 
 typedef struct
 {
-	int             boneIndex;	// these are indexes into the boneReferences,
+	uint8_t         boneIndex;	// these are indexes into the boneReferences,
 	float           boneWeight;	// not the global per-frame bone list
 	vec3_t          offset;
 } md5Weight_t;
@@ -2586,8 +2586,8 @@ typedef struct
 	vec3_t          binormal;
 	vec3_t          normal;
 
-	int             firstWeight;
-	int             numWeights;
+	uint32_t        firstWeight;
+	uint16_t        numWeights;
 	md5Weight_t   **weights;
 } md5Vertex_t;
 
@@ -2607,13 +2607,13 @@ typedef struct
 	char            shader[MAX_QPATH];
 	int             shaderIndex;	// for in-game use
 
-	int             numVerts;
+	uint32_t        numVerts;
 	md5Vertex_t    *verts;
 
-	int             numTriangles;
+	uint32_t        numTriangles;
 	srfTriangle_t  *triangles;
 
-	int             numWeights;
+	uint32_t        numWeights;
 	md5Weight_t    *weights;
 
 	struct md5Model_s *model;
@@ -2622,7 +2622,7 @@ typedef struct
 typedef struct
 {
 	char            name[MAX_QPATH];
-	int             parentIndex;	// parent index (-1 if root)
+	int8_t          parentIndex;	// parent index (-1 if root)
 	vec3_t          origin;
 	quat_t          rotation;
 	matrix_t        inverseTransform;	// full inverse for tangent space transformation
@@ -2630,13 +2630,13 @@ typedef struct
 
 typedef struct md5Model_s
 {
-	int             numBones;
+	uint16_t        numBones;
 	md5Bone_t      *bones;
 
-	int             numSurfaces;
+	uint16_t        numSurfaces;
 	md5Surface_t   *surfaces;
 
-	int             numVBOSurfaces;
+	uint16_t        numVBOSurfaces;
 	srfVBOMD5Mesh_t **vboSurfaces;
 
 	vec3_t          bounds[2];
@@ -2663,10 +2663,10 @@ enum
 typedef struct
 {
 	char            name[MAX_QPATH];
-	int             parentIndex;
+	int8_t          parentIndex;
 
-	int             componentsBits;	// e.g. (COMPONENT_BIT_TX | COMPONENT_BIT_TY | COMPONENT_BIT_TZ)
-	int             componentsOffset;
+	uint8_t         componentsBits;	// e.g. (COMPONENT_BIT_TX | COMPONENT_BIT_TY | COMPONENT_BIT_TZ)
+	uint16_t        componentsOffset;
 
 	vec3_t          baseOrigin;
 	quat_t          baseQuat;
@@ -2680,15 +2680,15 @@ typedef struct
 
 typedef struct md5Animation_s
 {
-	int             numFrames;
+	uint16_t        numFrames;
 	md5Frame_t     *frames;
 
-	int             numChannels;	// same as numBones in model
+	uint8_t         numChannels;	// same as numBones in model
 	md5Channel_t   *channels;
 
-	int             frameRate;
+	int16_t        frameRate;
 
-	int             numAnimatedComponents;
+	uint32_t        numAnimatedComponents;
 } md5Animation_t;
 
 
@@ -2857,9 +2857,9 @@ typedef struct
 
 	qboolean        finishCalled;
 	int             faceCulling;	// FIXME redundant cullFace
-	unsigned long   glStateBits;
-	unsigned int	vertexAttribsState;
-	unsigned int	vertexAttribPointersSet;
+	uint32_t        glStateBits;
+	uint32_t		vertexAttribsState;
+	uint32_t		vertexAttribPointersSet;
 	shaderProgram_t *currentProgram;
 	FBO_t          *currentFBO;
 	VBO_t          *currentVBO;
@@ -3595,9 +3595,9 @@ void            GL_CheckErrors_(const char *filename, int line);
 
 #define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)
 
-void            GL_State(unsigned long stateVector);
-void            GL_VertexAttribsState(unsigned int stateBits);
-void			GL_VertexAttribPointers(unsigned int attribBits);
+void            GL_State(uint32_t stateVector);
+void            GL_VertexAttribsState(uint32_t stateBits);
+void			GL_VertexAttribPointers(uint32_t attribBits);
 void            GL_Cull(int cullType);
 #endif // !defined(USE_D3D10)
 
@@ -3733,10 +3733,10 @@ typedef struct shaderCommands_s
 
 	qboolean        skipTangentSpaces;
 	qboolean        shadowVolume;
-	int             lightmapNum;
+	int16_t         lightmapNum;
 
-	int             numIndexes;
-	int             numVertexes;
+	uint32_t        numIndexes;
+	uint32_t        numVertexes;
 
 	qboolean        vboVertexSkinning;
 	matrix_t        boneMatrices[MAX_BONES];
@@ -3795,7 +3795,7 @@ void			Tess_AddCube(const vec3_t position, const vec3_t minSize, const vec3_t ma
 void			Tess_AddCubeNormals(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
 
 void            Tess_InstantQuad(vec4_t quadVerts[4]);
-void            Tess_UpdateVBOs(unsigned int attribBits);
+void            Tess_UpdateVBOs(uint32_t attribBits);
 
 void            RB_ShowImages(void);
 
@@ -3951,7 +3951,7 @@ VERTEX BUFFER OBJECTS
 ============================================================
 */
 VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize, vboUsage_t usage);
-VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vertexes, unsigned int stateBits, vboUsage_t usage);
+VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vertexes, uint32_t stateBits, vboUsage_t usage);
 
 IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, vboUsage_t usage);
 IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t * triangles, vboUsage_t usage);

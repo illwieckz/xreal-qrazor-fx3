@@ -457,9 +457,9 @@ GL_State
 This routine is responsible for setting the most commonly changed state
 in Q3.
 */
-void GL_State(unsigned long stateBits)
+void GL_State(uint32_t stateBits)
 {
-	unsigned long   diff = stateBits ^ glState.glStateBits;
+	uint32_t diff = stateBits ^ glState.glStateBits;
 
 	if(!diff)
 	{
@@ -671,9 +671,9 @@ void GL_State(unsigned long stateBits)
 }
 
 
-void GL_VertexAttribsState(unsigned int stateBits)
+void GL_VertexAttribsState(uint32_t stateBits)
 {
-	unsigned int		diff;
+	uint32_t		diff;
 
 	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
 		stateBits |= (ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS);
@@ -909,7 +909,7 @@ void GL_VertexAttribsState(unsigned int stateBits)
 	glState.vertexAttribsState = stateBits;
 }
 
-void GL_VertexAttribPointers(unsigned int attribBits)
+void GL_VertexAttribPointers(uint32_t attribBits)
 {
 	if(!glState.currentVBO)
 	{
