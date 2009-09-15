@@ -387,7 +387,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 					 "#ifndef r_precomputedLighting\n#define r_precomputedLighting 1\n#endif\n");
 		}
 
-		if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
+		if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_heatHazeFix\n#define r_heatHazeFix 1\n#endif\n");
 		}
@@ -1560,7 +1560,7 @@ void GLSL_InitGPUShaders(void)
 	tr.heatHazeShader.u_NormalMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalMap");
 	tr.heatHazeShader.u_CurrentMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_CurrentMap");
 	tr.heatHazeShader.u_NormalTextureMatrix = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalTextureMatrix");
-	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
+	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 	{
 		tr.heatHazeShader.u_ContrastMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ContrastMap");
 	}
@@ -1582,7 +1582,7 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.heatHazeShader.program);
 	qglUniform1iARB(tr.heatHazeShader.u_NormalMap, 0);
 	qglUniform1iARB(tr.heatHazeShader.u_CurrentMap, 1);
-	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
+	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 	{
 		qglUniform1iARB(tr.heatHazeShader.u_ContrastMap, 2);
 	}
@@ -3854,7 +3854,7 @@ static void Render_heatHaze(int stage)
 
 	GLimp_LogComment("--- Render_heatHaze ---\n");
 
-	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
+	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 	{
 		FBO_t          *previousFBO;
 		uint32_t        stateBits;
@@ -4019,7 +4019,7 @@ static void Render_heatHaze(int stage)
 	}
 
 	// bind u_ContrastMap
-	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
+	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 	{
 		GL_SelectTexture(2);
 		GL_Bind(tr.occlusionRenderFBOImage);
