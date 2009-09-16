@@ -139,7 +139,9 @@ rendererGL_src = [
 
 
 rendererGL_env = env.Clone()
-#rendererGL_env.Append(CCFLAGS='-DQAGAME')
+
+if env['compatq3a'] == 1:
+	rendererGL_env.Append(CCFLAGS='-DCOMPAT_Q3A')
 
 if env['arch'] == 'linux-i386':
 	rendererGL_env.ParseConfig('sdl-config --cflags --libs')
