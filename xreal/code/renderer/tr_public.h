@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_types.h"
 
-#define	REF_API_VERSION		14
+#define	REF_API_VERSION		15
 
 // *INDENT-OFF*
 
@@ -160,6 +160,7 @@ typedef struct
 
 	// visualization for debugging collision detection
 	byte           *(*CM_ClusterPVS)(int cluster);
+	int             (*CM_PointContents)(const vec3_t p, clipHandle_t model);
 	void            (*CM_DrawDebugSurface) (void (*drawPoly) (int color, int numPoints, float *points));
 
 	// a -1 return means the file does not exist

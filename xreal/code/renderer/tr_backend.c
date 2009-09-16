@@ -587,11 +587,11 @@ void GL_State(uint32_t stateBits)
 	{
 		if(stateBits & GLS_DEPTHMASK_TRUE)
 		{
-			qglDepthMask(GL_TRUE);
+			GL_DepthMask(GL_TRUE);
 		}
 		else
 		{
-			qglDepthMask(GL_FALSE);
+			GL_DepthMask(GL_FALSE);
 		}
 	}
 
@@ -3694,7 +3694,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	int             cubeSide;
 
 	int				splitFrustumIndex;
-	float			splitFrustumFar;
 	const matrix_t	bias = {	0.5, 0.0, 0.0, 0.0,
 								0.0, 0.5, 0.0, 0.0,
 								0.0, 0.0, 0.5, 0.0,
@@ -3742,7 +3741,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 
-if(DS_PREPASS_LIGHTING_ENABLED())
+	if(DS_PREPASS_LIGHTING_ENABLED())
 	{
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
 		R_BindFBO(tr.lightRenderFBO);
@@ -4033,7 +4032,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 								CrossProduct(side, lightDirection, up);
 								VectorNormalize(up);
 
-#if 1
+#if 0
 								VectorToAngles(lightDirection, angles);
 								MatrixFromAngles(rotationMatrix, angles[PITCH], angles[YAW], angles[ROLL]);
 								AngleVectors(angles, forward, side, up);
@@ -4188,7 +4187,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 									MatrixTransformPoint2(transformMatrix, C);
 #endif
 
-#if 0
+#if 1
 									MatrixLookAtRH(light->viewMatrix, C, lightDirection, up);
 #else
 									VectorInverse(up);
@@ -4224,7 +4223,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 										m[3] = 0;	m[7] = 1;	m[11] = 0;	m[15] = 0;
 
 										//MatrixPerspectiveProjectionRH(lispMatrix, -1, 1, n, f, -1, 1);
-										MatrixPerspectiveProjection(lispMatrix, -1, 1, -1, 1, n, f);
+										//MatrixPerspectiveProjection(lispMatrix, -1, 1, -1, 1, n, f);
 										//MatrixInverse(lispMatrix);
 
 										//MatrixPerspectiveProjectionLH(lispMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], cropBounds[0][2], cropBounds[1][2]);
@@ -4331,11 +4330,11 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 
 								//MatrixOrthogonalProjectionLH(cropMatrix, -1024, 1024, -1024, 1024, cropBounds[0][2], cropBounds[1][2]);
 
-								MatrixIdentity(light->projectionMatrix);
-								//MatrixCopy(flipZMatrix, light->projectionMatrix);
+								//MatrixIdentity(light->projectionMatrix);
+								MatrixCopy(flipZMatrix, light->projectionMatrix);
 
 								//MatrixMultiply2(light->projectionMatrix, switchToArticle);
-								//MatrixMultiply2(light->projectionMatrix, cropMatrix);
+								MatrixMultiply2(light->projectionMatrix, cropMatrix);
 								MatrixMultiply2(light->projectionMatrix, lispMatrix);
 
 								GL_LoadProjectionMatrix(light->projectionMatrix);
@@ -4347,7 +4346,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 								VectorInverse(lightDirection);
 
 								// Quake -> OpenGL view matrix from light perspective
-#if 0
+#if 1
 								VectorToAngles(lightDirection, angles);
 								MatrixFromAngles(rotationMatrix, angles[PITCH], angles[YAW], angles[ROLL]);
 								MatrixSetupTransformFromRotation(transformMatrix, rotationMatrix, backEnd.viewParms.orientation.origin);
@@ -4369,7 +4368,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_NEAR], splitFrustumCorners[2]);
 								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_NEAR], splitFrustumCorners[3]);
 
-								#if 1
+								#if 0
 								ri.Printf(PRINT_ALL, "split frustum %i: near = %5.3f, far = %5.3f\n", splitFrustumIndex, splitFrustum[FRUSTUM_NEAR][3], splitFrustum[FRUSTUM_FAR][3]);
 								ri.Printf(PRINT_ALL, "pyramid nearCorners\n");
 								for(j = 0; j < 4; j++)
@@ -4383,7 +4382,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_FAR], splitFrustumCorners[6]);
 								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_FAR], splitFrustumCorners[7]);
 
-								#if 1
+								#if 0
 								ri.Printf(PRINT_ALL, "pyramid farCorners\n");
 								for(j = 4; j < 8; j++)
 								{
@@ -5222,9 +5221,8 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 					}
 				}
 
-#if 0
 				// draw split frustum shadow maps
-				if(light->l.rlType == RL_DIRECTIONAL)
+				if(r_showShadowMaps->integer && light->l.rlType == RL_DIRECTIONAL)
 				{
 					float		x, y, w, h;
 
@@ -5244,10 +5242,10 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 					GL_SelectTexture(0);
 					GL_Bind(tr.shadowMapFBOImage[splitFrustumIndex]);
 
-					w = 128;
-					h = 128;
+					w = 256;
+					h = 256;
 
-					x = 130 * splitFrustumIndex;
+					x = 260 * splitFrustumIndex;
 					y = 70;
 
 					VectorSet4(quadVerts[0], x, y, 0, 1);
@@ -5257,7 +5255,6 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 
 					Tess_InstantQuad(quadVerts);
 				}
-#endif
 
 				// end of lighting
 				GL_PopMatrix();
@@ -5308,7 +5305,8 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 				case RL_PROJ:
 				case RL_DIRECTIONAL:
 				{
-					if(light == oldLight && entity == oldEntity && (alphaTest ? shader == oldShader : alphaTest == oldAlphaTest))
+#if 1
+					if((iaCount != iaFirst) && light == oldLight && entity == oldEntity && (alphaTest ? shader == oldShader : alphaTest == oldAlphaTest))
 					{
 						if(r_logFile->integer)
 						{
@@ -5322,6 +5320,7 @@ if(DS_PREPASS_LIGHTING_ENABLED())
 						goto nextInteraction;
 					}
 					else
+#endif
 					{
 						if(oldLight)
 						{
@@ -8965,6 +8964,7 @@ static void RB_RenderDebugUtils()
 
 		// enable shader, set arrays
 		GL_BindProgram(&tr.reflectionShader_C);
+		GL_State(0);
 		GL_Cull(CT_FRONT_SIDED);
 
 		// set uniforms
@@ -8972,7 +8972,7 @@ static void RB_RenderDebugUtils()
 		GLSL_SetUniform_ViewOrigin(&tr.reflectionShader_C, viewOrigin);
 		if(glConfig.vboVertexSkinningAvailable)
 		{
-			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
+			GLSL_SetUniform_VertexSkinning(&tr.reflectionShader_C, qfalse);
 		}
 
 		for(j = 0; j < tr.cubeProbes.currentElements; j++)

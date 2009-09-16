@@ -207,6 +207,7 @@ cvar_t         *r_showTris;
 cvar_t         *r_showSky;
 cvar_t         *r_showShadowVolumes;
 cvar_t         *r_showShadowLod;
+cvar_t         *r_showShadowMaps;
 cvar_t         *r_showSkeleton;
 cvar_t         *r_showEntityTransforms;
 cvar_t         *r_showLightTransforms;
@@ -1071,7 +1072,7 @@ void GL_SetDefaultState(void)
 	 */
 
 	GL_PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	qglDepthMask(GL_TRUE);
+	GL_DepthMask(GL_TRUE);
 	qglDisable(GL_DEPTH_TEST);
 	qglEnable(GL_SCISSOR_TEST);
 	qglDisable(GL_BLEND);
@@ -1494,6 +1495,7 @@ void R_Register(void)
 	r_showSky = ri.Cvar_Get("r_showSky", "0", CVAR_CHEAT);
 	r_showShadowVolumes = ri.Cvar_Get("r_showShadowVolumes", "0", CVAR_CHEAT);
 	r_showShadowLod = ri.Cvar_Get("r_showShadowLod", "0", CVAR_CHEAT);
+	r_showShadowMaps = ri.Cvar_Get("r_showShadowMaps", "0", CVAR_CHEAT);
 	r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
 	r_showEntityTransforms = ri.Cvar_Get("r_showEntityTransforms", "0", CVAR_CHEAT);
 	r_showLightTransforms = ri.Cvar_Get("r_showLightTransforms", "0", CVAR_CHEAT);

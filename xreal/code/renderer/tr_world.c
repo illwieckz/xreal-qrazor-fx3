@@ -2520,10 +2520,12 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 
 	if(r_vboShadows->integer || r_vboLighting->integer)
 	{
+		interactionCache_t *iaCache;
 		interactionVBO_t *iaVBO;
 		srfVBOMesh_t   *srf;
 		srfVBOShadowVolume_t *shadowSrf;
 		shader_t       *shader;
+		bspSurface_t   *surface;
 
 		if(r_shadows->integer == 3)
 		{
@@ -2583,6 +2585,33 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 
 				R_AddLightInteraction(light, (void *)srf, shader, iaVBO->cubeSideBits, IA_SHADOWONLY);
 			}
+		}
+
+		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+		{
+			if(iaCache->redundant)
+				continue;
+
+			if(iaCache->mergedIntoVBO)
+				continue;
+
+			surface = iaCache->surface;
+
+			// Tr3B - this surface is maybe not in this view but it may still cast a shadow
+			// into this view
+			if(surface->viewCount != tr.viewCountNoReset)
+			{
+				if(r_shadows->integer <= 3 || light->l.noShadows)
+					continue;
+				else
+					iaType = IA_SHADOWONLY;
+			}
+			else
+			{
+				iaType = iaCache->type;
+			}
+
+			R_AddLightInteraction(light, surface->data, surface->shader, iaCache->cubeSideBits, iaType);
 		}
 	}
 	else

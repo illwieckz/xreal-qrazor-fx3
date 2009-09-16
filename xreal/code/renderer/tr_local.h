@@ -1397,6 +1397,15 @@ typedef struct shaderProgram_s
 //
 // Tr3B: these are fire wall functions to avoid expensive redundant glUniform* calls
 #define USE_UNIFORM_FIREWALL 1
+#define LOG_GLSL_UNIFORMS 1
+
+#if defined(LOG_GLSL_UNIFORMS)
+extern cvar_t  *r_logFile;		// number of frames to emit GL logs
+void            GLimp_LogComment(char *comment);
+#endif
+
+// *INDENT-OFF*
+
 static ID_INLINE void GLSL_SetUniform_ColorTextureMatrix(shaderProgram_t * program, const matrix_t m)
 {
 #if defined(USE_UNIFORM_FIREWALL)
@@ -1446,6 +1455,8 @@ static ID_INLINE void GLSL_SetUniform_SpecularTextureMatrix(shaderProgram_t * pr
 }
 
 
+void            GLimp_LogComment(char *comment);
+
 static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, uint32_t stateBits)
 {
 	alphaTest_t			value;
@@ -1466,7 +1477,17 @@ static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, uint3
 
 		default:
 			value = ATEST_NONE;
+			break;
 	}
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va("--- GLSL_SetUniformAlphaTest( program = %s, value = %i ) ---\n", program->name, value));
+	}
+#endif
 
 #if defined(USE_UNIFORM_FIREWALL)
 	if(program->t_AlphaTest == value)
@@ -1487,6 +1508,13 @@ static ID_INLINE void GLSL_SetUniform_ViewOrigin(shaderProgram_t * program, cons
 	VectorCopy(v, program->t_ViewOrigin);
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_ViewOrigin( program = %s, viewOrigin = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
+	}
+#endif
+
 	qglUniform3fARB(program->u_ViewOrigin, v[0], v[1], v[2]);
 }
 
@@ -1497,6 +1525,13 @@ static ID_INLINE void GLSL_SetUniform_TCGen_Environment(shaderProgram_t * progra
 		return;
 
 	program->t_TCGen_Environment = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_TCGen_Environment( program = %s, value = %i ) ---\n", program->name, value));
+	}
 #endif
 
 	qglUniform1iARB(program->u_TCGen_Environment, value);
@@ -1536,6 +1571,13 @@ static ID_INLINE void GLSL_SetUniform_ColorGen(shaderProgram_t * program, colorG
 		return;
 
 	program->t_ColorGen = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_ColorGen( program = %s, value = %i ) ---\n", program->name, value));
+	}
 #endif
 
 	qglUniform1iARB(program->u_ColorGen, value);
@@ -1579,6 +1621,13 @@ static ID_INLINE void GLSL_SetUniform_AlphaGen(shaderProgram_t * program, alphaG
 	program->t_AlphaGen = value;
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_AlphaGen( program = %s, value = %i ) ---\n", program->name, value));
+	}
+#endif
+
 	qglUniform1iARB(program->u_AlphaGen, value);
 #endif
 }
@@ -1590,6 +1639,13 @@ static ID_INLINE void GLSL_SetUniform_Color(shaderProgram_t * program, const vec
 		return;
 
 	VectorCopy4(v, program->t_Color);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_Color( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+	}
 #endif
 
 	qglUniform4fARB(program->u_Color, v[0], v[1], v[2], v[3]);
@@ -1604,6 +1660,13 @@ static ID_INLINE void GLSL_SetUniform_AmbientColor(shaderProgram_t * program, co
 	VectorCopy(v, program->t_AmbientColor);
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_AmbientColor( program = %s, color = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
+	}
+#endif
+
 	qglUniform3fARB(program->u_AmbientColor, v[0], v[1], v[2]);
 }
 
@@ -1614,6 +1677,13 @@ static ID_INLINE void GLSL_SetUniform_LightDir(shaderProgram_t * program, const 
 		return;
 
 	VectorCopy(v, program->t_LightDir);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_LightDir( program = %s, direction = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
+	}
 #endif
 
 	qglUniform3fARB(program->u_LightDir, v[0], v[1], v[2]);
@@ -1628,6 +1698,13 @@ static ID_INLINE void GLSL_SetUniform_LightOrigin(shaderProgram_t * program, con
 	VectorCopy(v, program->t_LightOrigin);
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_LightOrigin( program = %s, origin = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
+	}
+#endif
+
 	qglUniform3fARB(program->u_LightOrigin, v[0], v[1], v[2]);
 }
 
@@ -1638,6 +1715,13 @@ static ID_INLINE void GLSL_SetUniform_LightColor(shaderProgram_t * program, cons
 		return;
 
 	VectorCopy(v, program->t_LightColor);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_LightColor( program = %s, color = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
+	}
 #endif
 
 	qglUniform3fARB(program->u_LightColor, v[0], v[1], v[2]);
@@ -1652,6 +1736,13 @@ static ID_INLINE void GLSL_SetUniform_LightRadius(shaderProgram_t * program, flo
 	program->t_LightRadius = value;
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_LightRadius( program = %s, value = %f ) ---\n", program->name, value));
+	}
+#endif
+
 	qglUniform1fARB(program->u_LightRadius, value);
 }
 
@@ -1664,10 +1755,42 @@ static ID_INLINE void GLSL_SetUniform_LightParallel(shaderProgram_t * program, q
 	program->t_LightParallel = value;
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_LightParallel( program = %s, value = %i ) ---\n", program->name, value));
+	}
+#endif
+
 	qglUniform1iARB(program->u_LightParallel, value);
 }
 
+static ID_INLINE void GLSL_SetUniform_LightScale(shaderProgram_t * program, float value)
+{
+#if 0
+	if(DS_PREPASS_LIGHTING_ENABLED())
+	{
+		value -= (r_lightScale->value -1);
+		value = Q_max(value, 0);
+	}
+#endif
 
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_LightScale == value)
+		return;
+
+	program->t_LightScale = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_LightScale( program = %s, value = %f ) ---\n", program->name, value));
+	}
+#endif
+
+	qglUniform1fARB(program->u_LightScale, value);
+}
 
 static ID_INLINE void GLSL_SetUniform_LightAttenuationMatrix(shaderProgram_t * program, const matrix_t m)
 {
@@ -1716,6 +1839,13 @@ static ID_INLINE void GLSL_SetUniform_ShadowCompare(shaderProgram_t * program, q
 	program->t_ShadowCompare = value;
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_ShadowCompare( program = %s, value = %i ) ---\n", program->name, value));
+	}
+#endif
+
 	qglUniform1iARB(program->u_ShadowCompare, value);
 }
 
@@ -1726,6 +1856,13 @@ static ID_INLINE void GLSL_SetUniform_ShadowTexelSize(shaderProgram_t * program,
 		return;
 
 	program->t_ShadowTexelSize = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_ShadowTexelSize( program = %s, value = %f ) ---\n", program->name, value));
+	}
 #endif
 
 	qglUniform1fARB(program->u_ShadowTexelSize, value);
@@ -1740,6 +1877,13 @@ static ID_INLINE void GLSL_SetUniform_ShadowBlur(shaderProgram_t * program, floa
 	program->t_ShadowBlur = value;
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_ShadowBlur( program = %s, value = %f ) ---\n", program->name, value));
+	}
+#endif
+
 	qglUniform1fARB(program->u_ShadowBlur, value);
 }
 
@@ -1750,6 +1894,13 @@ static ID_INLINE void GLSL_SetUniform_RefractionIndex(shaderProgram_t * program,
 		return;
 
 	program->t_RefractionIndex = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_RefractionIndex( program = %s, value = %f ) ---\n", program->name, value));
+	}
 #endif
 
 	qglUniform1fARB(program->u_RefractionIndex, value);
@@ -1764,6 +1915,13 @@ static ID_INLINE void GLSL_SetUniform_ParallaxMapping(shaderProgram_t * program,
 	program->t_ParallaxMapping = value;
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_ParallaxMapping( program = %s, value = %i ) ---\n", program->name, value));
+	}
+#endif
+
 	qglUniform1iARB(program->u_ParallaxMapping, value);
 }
 
@@ -1774,6 +1932,13 @@ static ID_INLINE void GLSL_SetUniform_DepthScale(shaderProgram_t * program, floa
 		return;
 
 	program->t_DepthScale = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_DepthScale( program = %s, value = %f ) ---\n", program->name, value));
+	}
 #endif
 
 	qglUniform1fARB(program->u_DepthScale, value);
@@ -1788,6 +1953,13 @@ static ID_INLINE void GLSL_SetUniform_PortalClipping(shaderProgram_t * program, 
 	program->t_PortalClipping = value;
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_PortalClipping( program = %s, value = %i ) ---\n", program->name, value));
+	}
+#endif
+
 	qglUniform1iARB(program->u_PortalClipping, value);
 }
 
@@ -1798,6 +1970,13 @@ static ID_INLINE void GLSL_SetUniform_PortalPlane(shaderProgram_t * program, con
 		return;
 
 	VectorCopy(v, program->t_PortalPlane);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_PortalPlane( program = %s, plane = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+	}
 #endif
 
 	qglUniform4fARB(program->u_PortalPlane, v[0], v[1], v[2], v[3]);
@@ -1812,6 +1991,13 @@ static ID_INLINE void GLSL_SetUniform_PortalRange(shaderProgram_t * program, flo
 	program->t_PortalRange = value;
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_PortalRange( program = %s, value = %f ) ---\n", program->name, value));
+	}
+#endif
+
 	qglUniform1fARB(program->u_PortalRange, value);
 }
 
@@ -1822,6 +2008,23 @@ static ID_INLINE void GLSL_SetUniform_ModelMatrix(shaderProgram_t * program, con
 		return;
 
 	MatrixCopy(m, program->t_ModelMatrix);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_ModelMatrix( program = %s, "
+							"matrix = \n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
+							program->name,
+							m[0], m[4], m[8], m[12],
+							m[1], m[5], m[9], m[13],
+							m[2], m[6], m[10], m[14],
+							m[3], m[7], m[11], m[15]));
+	}
 #endif
 
 	qglUniformMatrix4fvARB(program->u_ModelMatrix, 1, GL_FALSE, m);
@@ -1884,6 +2087,23 @@ static ID_INLINE void GLSL_SetUniform_ModelViewProjectionMatrix(shaderProgram_t 
 	MatrixCopy(m, program->t_ModelViewProjectionMatrix);
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_ModelViewProjectionMatrix( program = %s, "
+							"matrix = \n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
+							program->name,
+							m[0], m[4], m[8], m[12],
+							m[1], m[5], m[9], m[13],
+							m[2], m[6], m[10], m[14],
+							m[3], m[7], m[11], m[15]));
+	}
+#endif
+
 	qglUniformMatrix4fvARB(program->u_ModelViewProjectionMatrix, 1, GL_FALSE, m);
 }
 
@@ -1908,8 +2128,17 @@ static ID_INLINE void GLSL_SetUniform_VertexSkinning(shaderProgram_t * program, 
 	program->t_VertexSkinning = value;
 #endif
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_VertexSkinning( program = %s, value = %i ) ---\n", program->name, value));
+	}
+#endif
+
 	qglUniform1iARB(program->u_VertexSkinning, value);
 }
+
+// *INDENT-ON*
 
 #endif // #if !defined(USE_D3D10)
 
@@ -2071,6 +2300,7 @@ typedef struct interactionCache_s
 
 	byte            cubeSideBits;
 	qboolean        redundant;
+	qboolean		mergedIntoVBO;
 
 	struct interactionCache_s *next;
 } interactionCache_t;
@@ -3397,6 +3627,7 @@ extern cvar_t  *r_showTris;		// enables wireframe rendering of the world
 extern cvar_t  *r_showSky;		// forces sky in front of all surfaces
 extern cvar_t  *r_showShadowVolumes;
 extern cvar_t  *r_showShadowLod;
+extern cvar_t  *r_showShadowMaps;
 extern cvar_t  *r_showSkeleton;
 extern cvar_t  *r_showEntityTransforms;
 extern cvar_t  *r_showLightTransforms;
@@ -3464,28 +3695,6 @@ extern cvar_t  *r_bloomBlur;
 extern cvar_t  *r_bloomPasses;
 extern cvar_t  *r_rotoscope;
 extern cvar_t  *r_cameraPostFX;
-
-#if !defined(USE_D3D10)
-static ID_INLINE void GLSL_SetUniform_LightScale(shaderProgram_t * program, float value)
-{
-#if 0
-	if(DS_PREPASS_LIGHTING_ENABLED())
-	{
-		value -= (r_lightScale->value -1);
-		value = Q_max(value, 0);
-	}
-#endif
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_LightScale == value)
-		return;
-
-	program->t_LightScale = value;
-#endif
-
-	qglUniform1fARB(program->u_LightScale, value);
-}
-#endif
 
 //====================================================================
 
@@ -3684,6 +3893,7 @@ void            GLimp_FrontEndSleep(void);
 void            GLimp_WakeRenderer(void *data);
 
 void            GLimp_LogComment(char *comment);
+
 
 // NOTE TTimo linux works with float gamma value, not the gamma table
 //   the params won't be used, getting the r_gamma cvar directly

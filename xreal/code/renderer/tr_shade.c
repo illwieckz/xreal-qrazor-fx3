@@ -3225,7 +3225,6 @@ static void Render_shadowFill(int stage)
 {
 	shaderStage_t  *pStage;
 	uint32_t        stateBits;
-	vec3_t          lightOrigin;
 
 
 	GLimp_LogComment("--- Render_shadowFill ---\n");
@@ -3262,10 +3261,8 @@ static void Render_shadowFill(int stage)
 	{
 		GLSL_SetUniform_LightParallel(&tr.shadowFillShader, qfalse);
 
-		VectorCopy(backEnd.currentLight->origin, lightOrigin);	// in world space
-
 		GLSL_SetUniform_LightRadius(&tr.shadowFillShader, backEnd.currentLight->sphereRadius);
-		GLSL_SetUniform_LightOrigin(&tr.shadowFillShader, lightOrigin);
+		GLSL_SetUniform_LightOrigin(&tr.shadowFillShader, backEnd.currentLight->origin);
 	}
 
 	GLSL_SetUniform_ModelMatrix(&tr.shadowFillShader, backEnd.orientation.transformMatrix);
@@ -3282,7 +3279,7 @@ static void Render_shadowFill(int stage)
 	// bind u_ColorMap
 	GL_SelectTexture(0);
 
-	if(pStage->stateBits & GLS_ATEST_BITS)
+	if((pStage->stateBits & GLS_ATEST_BITS) != 0)
 	{
 		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 		GLSL_SetUniform_ColorTextureMatrix(&tr.shadowFillShader, tess.svars.texMatrices[TB_COLORMAP]);

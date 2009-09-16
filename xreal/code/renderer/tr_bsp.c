@@ -5491,7 +5491,7 @@ void R_LoadEntities(lump_t * l)
 	ri.Printf(PRINT_ALL, "%i total lights counted\n", numLights);
 
 	s_worldData.numLights = numLights;
-	
+
 	// Tr3B: FIXME add 1 dummy light so we don't trash the hunk memory system ...
 	s_worldData.lights = ri.Hunk_Alloc((s_worldData.numLights + 1) * sizeof(trRefLight_t), h_low);
 
@@ -6576,6 +6576,12 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 		if(!surface->shader->interactLight)
 			continue;
 
+		if(surface->shader->isPortal)
+			continue;
+
+		if(surface->shader->numDeforms)
+			continue;
+
 		numCaches++;
 	}
 
@@ -6593,6 +6599,12 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 		if(!surface->shader->interactLight)
 			continue;
 
+		if(surface->shader->isPortal)
+			continue;
+
+		if(surface->shader->numDeforms)
+			continue;
+
 		iaCachesSorted[numCaches] = iaCache;
 		numCaches++;
 	}
@@ -6607,6 +6619,8 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 	for(k = 0; k < numCaches; k++)
 	{
 		iaCache = iaCachesSorted[k];
+
+		iaCache->mergedIntoVBO = qtrue;
 
 		shader = iaCache->surface->shader;
 
@@ -6853,6 +6867,12 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 		if(surface->shader->sort > SS_OPAQUE)
 			continue;
+			
+		if(surface->shader->isPortal)
+			continue;
+
+		if(surface->shader->numDeforms)
+			continue;
 
 		numCaches++;
 	}
@@ -6879,6 +6899,12 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 		if(surface->shader->sort > SS_OPAQUE)
 			continue;
+			
+		if(surface->shader->isPortal)
+			continue;
+
+		if(surface->shader->numDeforms)
+			continue;
 
 		iaCachesSorted[numCaches] = iaCache;
 		numCaches++;
@@ -6898,6 +6924,8 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 			iaCache = iaCachesSorted[k];
 			shader = iaCache->surface->shader;
 			alphaTest = shader->alphaTest;
+
+			iaCache->mergedIntoVBO = qtrue;
 
 			//if(!(iaCache->cubeSideBits & (1 << cubeSide)))
 			//  continue;
@@ -7942,7 +7970,7 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
 #endif
 }
 
-/*static void R_BuildCubeMaps(void)
+static void R_BuildCubeMaps(void)
 {
 #if 1
 	int             i, j, k;
@@ -8053,7 +8081,7 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
 					VectorAdd(posFloat, tr.world->lightGridOrigin, posFloat);
 
 					// check to see if this is a shit location
-					if(CM_PointContents(posFloat, 0) == CONTENTS_SOLID)
+					if(ri.CM_PointContents(posFloat, 0) == CONTENTS_SOLID)
 						continue;
 
 					if(FindVertexInHashTable(tr.cubeHashTable, posFloat, 256) == NULL)
@@ -8375,7 +8403,7 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
 			  (endTime - startTime) / 1000.0);
 
 #endif
-}*/
+}
 
 /*
 =================
