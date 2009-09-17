@@ -4406,7 +4406,7 @@ static void R_CreateSubModelVBOs()
 			if(shader->isPortal)
 				continue;
 
-			if(shader->numDeforms)
+			if(ShaderRequiresCPUDeforms(shader))
 				continue;
 
 			numSurfaces++;
@@ -4430,7 +4430,7 @@ static void R_CreateSubModelVBOs()
 			if(shader->isPortal)
 				continue;
 
-			if(shader->numDeforms)
+			if(ShaderRequiresCPUDeforms(shader))
 				continue;
 
 			surfacesSorted[numSurfaces] = surface;
@@ -6579,7 +6579,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 		if(surface->shader->isPortal)
 			continue;
 
-		if(surface->shader->numDeforms)
+		if(ShaderRequiresCPUDeforms(surface->shader))
 			continue;
 
 		numCaches++;
@@ -6602,7 +6602,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 		if(surface->shader->isPortal)
 			continue;
 
-		if(surface->shader->numDeforms)
+		if(ShaderRequiresCPUDeforms(surface->shader))
 			continue;
 
 		iaCachesSorted[numCaches] = iaCache;
@@ -6867,11 +6867,11 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 		if(surface->shader->sort > SS_OPAQUE)
 			continue;
-			
+
 		if(surface->shader->isPortal)
 			continue;
 
-		if(surface->shader->numDeforms)
+		if(ShaderRequiresCPUDeforms(surface->shader))
 			continue;
 
 		numCaches++;
@@ -6899,11 +6899,11 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 		if(surface->shader->sort > SS_OPAQUE)
 			continue;
-			
+
 		if(surface->shader->isPortal)
 			continue;
 
-		if(surface->shader->numDeforms)
+		if(ShaderRequiresCPUDeforms(surface->shader))
 			continue;
 
 		iaCachesSorted[numCaches] = iaCache;

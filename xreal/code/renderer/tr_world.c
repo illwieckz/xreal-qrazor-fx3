@@ -296,7 +296,7 @@ static void R_AddInteractionSurface(bspSurface_t * surf, trRefLight_t * light)
 	}
 	surf->lightCount = tr.lightCount;
 
-	if(r_vboDynamicLighting->integer && !surf->shader->isSky && !surf->shader->isPortal && !surf->shader->numDeforms)
+	if(r_vboDynamicLighting->integer && !surf->shader->isSky && !surf->shader->isPortal && !ShaderRequiresCPUDeforms(surf->shader))
 		return;
 
 	//  skip all surfaces that don't matter for lighting only pass
@@ -356,7 +356,7 @@ static void R_AddWorldSurface(bspSurface_t * surf)
 		((r_mergeClusterFaces->integer && *surf->data == SF_FACE) ||
 		(r_mergeClusterCurves->integer && *surf->data == SF_GRID) ||
 		(r_mergeClusterTriangles->integer && *surf->data == SF_TRIANGLES)) &&
-		!shader->isSky && !shader->isPortal && !shader->numDeforms)
+		!shader->isSky && !shader->isPortal && !ShaderRequiresCPUDeforms(shader))
 		return;
 
 	// try to cull before lighting or adding
@@ -839,7 +839,7 @@ static void R_UpdateClusterSurfaces()
 		if(shader->isPortal)
 			continue;
 
-		if(shader->numDeforms)
+		if(ShaderRequiresCPUDeforms(shader))
 			continue;
 
 		numSurfaces++;
@@ -863,7 +863,7 @@ static void R_UpdateClusterSurfaces()
 		if(shader->isPortal)
 			continue;
 
-		if(shader->numDeforms)
+		if(ShaderRequiresCPUDeforms(shader))
 			continue;
 
 		surfacesSorted[numSurfaces] = surface;
@@ -1782,6 +1782,7 @@ static void R_CoherentHierachicalCulling()
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	}
+	GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 	// set up the transformation matrix

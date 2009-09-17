@@ -649,6 +649,32 @@ typedef enum
 	DEFORM_FLARE
 } deform_t;
 
+// deformVertexes types that can be handled by the GPU
+typedef enum
+{
+	// do not edit: same as genFunc_t
+
+	DGEN_NONE,
+	DGEN_WAVE_SIN,
+	DGEN_WAVE_SQUARE,
+	DGEN_WAVE_TRIANGLE,
+	DGEN_WAVE_SAWTOOTH,
+	DGEN_WAVE_INVERSE_SAWTOOTH,
+	DGEN_WAVE_NOISE,
+
+	// do not edit until this line
+
+	DGEN_BULGE,
+	DGEN_MOVE
+} deformGen_t;
+
+typedef enum
+{
+	DEFORM_TYPE_NONE,
+	DEFORM_TYPE_CPU,
+	DEFORM_TYPE_GPU,
+} deformType_t;
+
 typedef enum
 {
 	AGEN_IDENTITY,
@@ -1070,6 +1096,26 @@ typedef struct shader_s
 	struct shader_s *next;
 } shader_t;
 
+static ID_INLINE qboolean ShaderRequiresCPUDeforms(const shader_t * shader)
+{
+	if(shader->numDeforms)
+	{
+		const deformStage_t *ds = &shader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+			case DEFORM_BULGE:
+				return qfalse;
+
+			default:
+				return qtrue;
+		}
+	}
+
+	return qfalse;
+}
+
 typedef struct shaderState_s
 {
 	char            shaderName[MAX_QPATH];	// name of shader this state belongs to
@@ -1271,6 +1317,18 @@ typedef struct shaderProgram_s
 	GLint           u_TCGen_Environment;
 	qboolean		t_TCGen_Environment;
 
+	GLint           u_DeformGen;
+	deformGen_t		t_DeformGen;
+
+	GLint           u_DeformWave;
+	vec4_t			t_DeformWave;
+
+	GLint           u_DeformBulge;
+	vec3_t			t_DeformBulge;
+
+	GLint           u_DeformSpread;
+	float			t_DeformSpread;
+
 	GLint           u_ColorGen;
 	colorGen_t		t_ColorGen;
 
@@ -1392,6 +1450,9 @@ typedef struct shaderProgram_s
 	qboolean		t_VertexSkinning;
 
 	GLint           u_BoneMatrix;
+
+	GLint           u_Time;
+	float			t_Time;
 } shaderProgram_t;
 
 //
@@ -1535,6 +1596,90 @@ static ID_INLINE void GLSL_SetUniform_TCGen_Environment(shaderProgram_t * progra
 #endif
 
 	qglUniform1iARB(program->u_TCGen_Environment, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_DeformGen(shaderProgram_t * program, deformGen_t value)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_DeformGen == value)
+		return;
+
+	program->t_DeformGen = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_DeformGen( program = %s, value = %i ) ---\n", program->name, value));
+	}
+#endif
+
+	qglUniform1iARB(program->u_DeformGen, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_DeformWave(shaderProgram_t * program, const waveForm_t * wf)
+{
+	vec4_t v;
+
+	VectorSet4(v, wf->base, wf->amplitude, wf->phase, wf->frequency);
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare4(program->t_DeformWave, v))
+		return;
+
+	VectorCopy4(v, program->t_DeformWave);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_DeformWave( program = %s, wave form = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+	}
+#endif
+
+	qglUniform4fARB(program->u_DeformWave, v[0], v[1], v[2], v[3]);
+}
+
+static ID_INLINE void GLSL_SetUniform_DeformBulge(shaderProgram_t * program, const deformStage_t * ds)
+{
+	vec3_t v;
+
+	VectorSet(v, ds->bulgeWidth, ds->bulgeHeight, ds->bulgeSpeed);
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare(program->t_DeformBulge, v))
+		return;
+
+	VectorCopy(v, program->t_DeformBulge);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_DeformBulge( program = %s, bulge = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
+	}
+#endif
+
+	qglUniform3fARB(program->u_DeformBulge, v[0], v[1], v[2]);
+}
+
+static ID_INLINE void GLSL_SetUniform_DeformSpread(shaderProgram_t * program, float value)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_DeformSpread == value)
+		return;
+
+	program->t_DeformSpread = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_DeformSpread( program = %s, value = %f ) ---\n", program->name, value));
+	}
+#endif
+
+	qglUniform1fARB(program->u_DeformSpread, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_ColorGen(shaderProgram_t * program, colorGen_t value)
@@ -2136,6 +2281,25 @@ static ID_INLINE void GLSL_SetUniform_VertexSkinning(shaderProgram_t * program, 
 #endif
 
 	qglUniform1iARB(program->u_VertexSkinning, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_Time(shaderProgram_t * program, float value)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_Time == value)
+		return;
+
+	program->t_Time = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_Time( program = %s, value = %f ) ---\n", program->name, value));
+	}
+#endif
+
+	qglUniform1fARB(program->u_Time, value);
 }
 
 // *INDENT-ON*

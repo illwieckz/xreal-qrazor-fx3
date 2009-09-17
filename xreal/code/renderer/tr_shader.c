@@ -2544,6 +2544,10 @@ static void ParseDeform(char **text)
 		ri.Printf(PRINT_WARNING, "WARNING: MAX_SHADER_DEFORMS in '%s'\n", shader.name);
 		return;
 	}
+	else if(shader.numDeforms)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: more than one deformVertexes command in shader '%s'\n", shader.name);
+	}
 
 	ds = &shader.deforms[shader.numDeforms];
 	shader.numDeforms++;

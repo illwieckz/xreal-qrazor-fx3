@@ -938,6 +938,12 @@ void Tess_DeformGeometry(void)
 	}
 #endif
 
+	if(!ShaderRequiresCPUDeforms(tess.surfaceShader))
+	{
+		// we don't need the following CPU deforms
+		return;
+	}
+
 	for(i = 0; i < tess.surfaceShader->numDeforms; i++)
 	{
 		ds = &tess.surfaceShader->deforms[i];

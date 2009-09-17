@@ -162,6 +162,29 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		//Q_strcat(bufferExtra, sizeof(bufferExtra),
 		//       va("#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
 
+
+		Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef M_PI\n#define M_PI 3.14159265358979323846f\n#endif\n");
+
+
+		Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef deformGen_t\n"
+							"#define deformGen_t\n"
+							"#define DGEN_WAVE_SIN %i\n"
+							"#define DGEN_WAVE_SQUARE %i\n"
+							"#define DGEN_WAVE_TRIANGLE %i\n"
+							"#define DGEN_WAVE_SAWTOOTH %i\n"
+							"#define DGEN_WAVE_INVERSE_SAWTOOTH %i\n"
+							"#define DGEN_BULGE %i\n"
+							"#define DGEN_MOVE %i\n"
+							"#endif\n",
+							DGEN_WAVE_SIN,
+							DGEN_WAVE_SQUARE,
+							DGEN_WAVE_TRIANGLE,
+							DGEN_WAVE_SAWTOOTH,
+							DGEN_WAVE_INVERSE_SAWTOOTH,
+							DGEN_BULGE,
+							DGEN_MOVE));
+
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 						 va("#ifndef colorGen_t\n"
 							"#define colorGen_t\n"
@@ -208,8 +231,6 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		}
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 				 va("#ifndef r_NPOTScale\n#define r_NPOTScale vec2(%f, %f)\n#endif\n", npotWidthScale, npotHeightScale));
-
-
 
 		if(glConfig.driverType == GLDRV_MESA)
 		{
@@ -652,8 +673,12 @@ void GLSL_InitGPUShaders(void)
 	tr.genericSingleShader.u_Color = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_Color");
 	tr.genericSingleShader.u_AlphaTest = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_AlphaTest");
 	tr.genericSingleShader.u_ViewOrigin = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ViewOrigin");
-	tr.genericSingleShader.u_TCGen_Environment =
-			qglGetUniformLocationARB(tr.genericSingleShader.program, "u_TCGen_Environment");
+	tr.genericSingleShader.u_TCGen_Environment = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_TCGen_Environment");
+	tr.genericSingleShader.u_DeformGen = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_DeformGen");
+	tr.genericSingleShader.u_DeformWave = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_DeformWave");
+	tr.genericSingleShader.u_DeformBulge = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_DeformBulge");
+	tr.genericSingleShader.u_DeformSpread = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_DeformSpread");
+	tr.genericSingleShader.u_Time = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_Time");
 	tr.genericSingleShader.u_PortalClipping = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_PortalClipping");
 	tr.genericSingleShader.u_PortalPlane = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_PortalPlane");
 	tr.genericSingleShader.u_ModelMatrix = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ModelMatrix");
@@ -755,6 +780,12 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_SpecularTextureMatrix");
 	tr.vertexLightingShader_DBS_world.u_AlphaTest =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_AlphaTest");
+	tr.vertexLightingShader_DBS_world.u_DeformGen =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_DeformGen");
+	tr.vertexLightingShader_DBS_world.u_DeformWave =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_DeformWave");
+	tr.vertexLightingShader_DBS_world.u_DeformSpread =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_DeformSpread");
 	tr.vertexLightingShader_DBS_world.u_ColorGen =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ColorGen");
 	tr.vertexLightingShader_DBS_world.u_AlphaGen =
@@ -773,6 +804,8 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_PortalPlane");
 	tr.vertexLightingShader_DBS_world.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ModelViewProjectionMatrix");
+	tr.vertexLightingShader_DBS_world.u_Time =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_Time");
 
 	qglUseProgramObjectARB(tr.vertexLightingShader_DBS_world.program);
 	qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_DiffuseMap, 0);
@@ -796,6 +829,11 @@ void GLSL_InitGPUShaders(void)
 	tr.lightMappingShader.u_DiffuseTextureMatrix =
 		qglGetUniformLocationARB(tr.lightMappingShader.program, "u_DiffuseTextureMatrix");
 	tr.lightMappingShader.u_AlphaTest = qglGetUniformLocationARB(tr.lightMappingShader.program, "u_AlphaTest");
+	tr.lightMappingShader.u_DeformGen = qglGetUniformLocationARB(tr.lightMappingShader.program, "u_DeformGen");
+	tr.lightMappingShader.u_DeformWave = qglGetUniformLocationARB(tr.lightMappingShader.program, "u_DeformWave");
+	tr.lightMappingShader.u_DeformBulge = qglGetUniformLocationARB(tr.lightMappingShader.program, "u_DeformBulge");
+	tr.lightMappingShader.u_DeformSpread = qglGetUniformLocationARB(tr.lightMappingShader.program, "u_DeformSpread");
+	tr.lightMappingShader.u_Time = qglGetUniformLocationARB(tr.lightMappingShader.program, "u_Time");
 
 	qglUseProgramObjectARB(tr.lightMappingShader.program);
 	qglUniform1iARB(tr.lightMappingShader.u_DiffuseMap, 0);
@@ -833,6 +871,11 @@ void GLSL_InitGPUShaders(void)
 		tr.deluxeMappingShader.u_ModelMatrix = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelMatrix");
 		tr.deluxeMappingShader.u_ModelViewProjectionMatrix =
 			qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelViewProjectionMatrix");
+		tr.deluxeMappingShader.u_DeformGen = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DeformGen");
+		tr.deluxeMappingShader.u_DeformWave = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DeformWave");
+		tr.deluxeMappingShader.u_DeformBulge = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DeformBulge");
+		tr.deluxeMappingShader.u_DeformSpread = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DeformSpread");
+		tr.deluxeMappingShader.u_Time = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_Time");
 
 		qglUseProgramObjectARB(tr.deluxeMappingShader.program);
 		qglUniform1iARB(tr.deluxeMappingShader.u_DiffuseMap, 0);
@@ -880,6 +923,12 @@ void GLSL_InitGPUShaders(void)
 			tr.geometricFillShader_DBS.u_BoneMatrix =
 				qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_BoneMatrix");
 		}
+
+		tr.geometricFillShader_DBS.u_DeformGen = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_DeformGen");
+		tr.geometricFillShader_DBS.u_DeformWave = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_DeformWave");
+		tr.geometricFillShader_DBS.u_DeformBulge = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_DeformBulge");
+		tr.geometricFillShader_DBS.u_DeformSpread = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_DeformSpread");
+		tr.geometricFillShader_DBS.u_Time = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_Time");
 
 		qglUseProgramObjectARB(tr.geometricFillShader_DBS.program);
 		qglUniform1iARB(tr.geometricFillShader_DBS.u_DiffuseMap, 0);
@@ -1059,7 +1108,7 @@ void GLSL_InitGPUShaders(void)
 	}
 
 	// black depth fill rendering with textures
-	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", ATTR_POSITION | ATTR_NORMAL | ATTR_TEXCOORD | ATTR_COLOR, qtrue);
 
 	tr.depthFillShader.u_ColorMap = qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorMap");
 	tr.depthFillShader.u_ColorTextureMatrix = qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorTextureMatrix");
@@ -1072,6 +1121,11 @@ void GLSL_InitGPUShaders(void)
 		tr.depthFillShader.u_VertexSkinning = qglGetUniformLocationARB(tr.depthFillShader.program, "u_VertexSkinning");
 		tr.depthFillShader.u_BoneMatrix = qglGetUniformLocationARB(tr.depthFillShader.program, "u_BoneMatrix");
 	}
+	tr.depthFillShader.u_DeformGen = qglGetUniformLocationARB(tr.depthFillShader.program, "u_DeformGen");
+	tr.depthFillShader.u_DeformWave = qglGetUniformLocationARB(tr.depthFillShader.program, "u_DeformWave");
+	tr.depthFillShader.u_DeformBulge = qglGetUniformLocationARB(tr.depthFillShader.program, "u_DeformBulge");
+	tr.depthFillShader.u_DeformSpread = qglGetUniformLocationARB(tr.depthFillShader.program, "u_DeformSpread");
+	tr.depthFillShader.u_Time = qglGetUniformLocationARB(tr.depthFillShader.program, "u_Time");
 
 	qglUseProgramObjectARB(tr.depthFillShader.program);
 	qglUniform1iARB(tr.depthFillShader.u_ColorMap, 0);
@@ -1130,7 +1184,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// shadowmap distance compression
-	GLSL_InitGPUShader(&tr.shadowFillShader, "shadowFill", ATTR_POSITION | ATTR_TEXCOORD, qtrue);
+	GLSL_InitGPUShader(&tr.shadowFillShader, "shadowFill", ATTR_POSITION | ATTR_NORMAL | ATTR_TEXCOORD, qtrue);
 
 	tr.shadowFillShader.u_ColorMap = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ColorMap");
 	tr.shadowFillShader.u_ColorTextureMatrix = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ColorTextureMatrix");
@@ -1146,6 +1200,11 @@ void GLSL_InitGPUShaders(void)
 		tr.shadowFillShader.u_VertexSkinning = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_VertexSkinning");
 		tr.shadowFillShader.u_BoneMatrix = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_BoneMatrix");
 	}
+	tr.shadowFillShader.u_DeformGen = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_DeformGen");
+	tr.shadowFillShader.u_DeformWave = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_DeformWave");
+	tr.shadowFillShader.u_DeformBulge = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_DeformBulge");
+	tr.shadowFillShader.u_DeformSpread = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_DeformSpread");
+	tr.shadowFillShader.u_Time = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_Time");
 
 	qglUseProgramObjectARB(tr.shadowFillShader.program);
 	qglUniform1iARB(tr.shadowFillShader.u_ColorMap, 0);
@@ -2285,6 +2344,40 @@ static void DrawTris()
 		if(tess.vboVertexSkinning)
 			qglUniformMatrix4fvARB(tr.genericSingleShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
+
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.genericSingleShader, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.genericSingleShader, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.genericSingleShader, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.genericSingleShader, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.genericSingleShader, ds);
+				GLSL_SetUniform_Time(&tr.genericSingleShader, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
+	}
+
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 	// bind u_ColorMap
@@ -2432,6 +2525,41 @@ static void Render_genericSingle(int stage)
 
 		if(tess.vboVertexSkinning)
 			qglUniformMatrix4fvARB(tr.genericSingleShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
+
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.genericSingleShader, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.genericSingleShader, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.genericSingleShader, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.genericSingleShader, backEnd.refdef.floatTime);
+				attribBits |= ATTR_NORMAL;
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.genericSingleShader, ds);
+				GLSL_SetUniform_Time(&tr.genericSingleShader, backEnd.refdef.floatTime);
+				attribBits |= ATTR_NORMAL;
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 	}
 
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, pStage->stateBits);
@@ -2606,6 +2734,34 @@ static void Render_vertexLighting_DBS_world(int stage)
 	// set uniforms
 	VectorCopy(backEnd.orientation.viewOrigin, viewOrigin);
 
+	GL_CheckErrors();
+
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.vertexLightingShader_DBS_world, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.vertexLightingShader_DBS_world, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.vertexLightingShader_DBS_world, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.vertexLightingShader_DBS_world, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.vertexLightingShader_DBS_world, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.vertexLightingShader_DBS_world, DGEN_NONE);
+	}
+
 #if defined(COMPAT_Q3A)
 	// u_ColorGen
 	switch (pStage->rgbGen)
@@ -2771,6 +2927,39 @@ static void Render_lightMapping(int stage, qboolean asColorMap)
 	GL_BindProgram(&tr.lightMappingShader);
 	GL_VertexAttribsState(tr.lightMappingShader.attribs);
 
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.lightMappingShader, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.lightMappingShader, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.lightMappingShader, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.lightMappingShader, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.lightMappingShader, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.lightMappingShader, ds);
+				GLSL_SetUniform_Time(&tr.lightMappingShader, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.lightMappingShader, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.lightMappingShader, DGEN_NONE);
+	}
+
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.lightMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	GLSL_SetUniform_AlphaTest(&tr.lightMappingShader, pStage->stateBits);
@@ -2829,6 +3018,39 @@ static void Render_deluxeMapping(int stage)
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deluxeMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	GLSL_SetUniform_AlphaTest(&tr.deluxeMappingShader, pStage->stateBits);
+
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.deluxeMappingShader, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.deluxeMappingShader, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.deluxeMappingShader, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.deluxeMappingShader, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.deluxeMappingShader, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.deluxeMappingShader, ds);
+				GLSL_SetUniform_Time(&tr.deluxeMappingShader, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.deluxeMappingShader, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.deluxeMappingShader, DGEN_NONE);
+	}
 
 	if(r_parallaxMapping->integer)
 	{
@@ -3081,6 +3303,38 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 			qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
 
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.geometricFillShader_DBS, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.geometricFillShader_DBS, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.geometricFillShader_DBS, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.geometricFillShader_DBS, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.geometricFillShader_DBS, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.geometricFillShader_DBS, ds);
+				GLSL_SetUniform_Time(&tr.geometricFillShader_DBS, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.geometricFillShader_DBS, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.geometricFillShader_DBS, DGEN_NONE);
+	}
+
 	if(r_parallaxMapping->integer)
 	{
 		float           depthScale;
@@ -3184,6 +3438,38 @@ static void Render_depthFill(int stage, qboolean cmap2black)
 
 	GLSL_SetUniform_AlphaTest(&tr.depthFillShader, pStage->stateBits);
 
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.depthFillShader, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.depthFillShader, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.depthFillShader, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.depthFillShader, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.depthFillShader, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.depthFillShader, ds);
+				GLSL_SetUniform_Time(&tr.depthFillShader, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.depthFillShader, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.depthFillShader, DGEN_NONE);
+	}
 
 	if(r_precomputedLighting->integer)
 	{
@@ -3274,6 +3560,38 @@ static void Render_shadowFill(int stage)
 
 		if(tess.vboVertexSkinning)
 			qglUniformMatrix4fvARB(tr.shadowFillShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
+
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.shadowFillShader, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.shadowFillShader, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.shadowFillShader, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.shadowFillShader, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.shadowFillShader, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.shadowFillShader, ds);
+				GLSL_SetUniform_Time(&tr.shadowFillShader, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.shadowFillShader, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.shadowFillShader, DGEN_NONE);
 	}
 
 	// bind u_ColorMap

@@ -733,6 +733,7 @@ void RB_DrawSun(void)
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	}
+	GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, -1.0);
 
 	MatrixSetupTranslation(transformMatrix, backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1],

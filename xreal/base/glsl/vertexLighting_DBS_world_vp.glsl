@@ -35,6 +35,12 @@ uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
 uniform int			u_InverseVertexColor;
 uniform mat4		u_ModelViewProjectionMatrix;
+
+uniform int			u_DeformGen;
+uniform vec4		u_DeformWave;	// [base amplitude phase freq]
+uniform float		u_DeformSpread;
+uniform float		u_Time;
+
 uniform int			u_ColorGen;
 uniform int			u_AlphaGen;
 uniform vec4		u_Color;
@@ -50,13 +56,84 @@ varying vec3		var_Tangent;
 varying vec3		var_Binormal;
 varying vec3		var_Normal;
 
+
+// for construction of a triangle wave
+float triangle(float x)
+{
+	return max(1.0 - abs(x), 0);
+}
+
+float sawtooth(float x)
+{
+	return x - floor(x);
+}
+
+vec4 DeformPosition(const vec4 pos, const vec3 normal)
+{
+	vec4 deformed = pos;
+	
+	/*
+		define	WAVEVALUE( table, base, amplitude, phase, freq ) \
+			((base) + table[ Q_ftol( ( ( (phase) + backEnd.refdef.floatTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
+	*/
+
+	if(u_DeformGen == DGEN_WAVE_SIN)
+	{
+		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
+		float scale = u_DeformWave.x  + sin(off + u_DeformWave.z + (u_Time * u_DeformWave.w)) * u_DeformWave.y;
+		vec3 offset = normal * scale;
+
+		deformed.xyz += offset;
+	}
+	
+	if(u_DeformGen == DGEN_WAVE_SQUARE)
+	{
+		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
+		float scale = u_DeformWave.x  + sign(sin(off + u_DeformWave.z + (u_Time * u_DeformWave.w))) * u_DeformWave.y;
+		vec3 offset = normal * scale;
+
+		deformed.xyz += offset;
+	}
+	
+	if(u_DeformGen == DGEN_WAVE_TRIANGLE)
+	{
+		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
+		float scale = u_DeformWave.x  + triangle(off + u_DeformWave.z + (u_Time * u_DeformWave.w)) * u_DeformWave.y;
+		vec3 offset = normal * scale;
+
+		deformed.xyz += offset;
+	}
+	
+	if(u_DeformGen == DGEN_WAVE_SAWTOOTH)
+	{
+		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
+		float scale = u_DeformWave.x  + sawtooth(off + u_DeformWave.z + (u_Time * u_DeformWave.w)) * u_DeformWave.y;
+		vec3 offset = normal * scale;
+
+		deformed.xyz += offset;
+	}
+	
+	if(u_DeformGen == DGEN_WAVE_INVERSE_SAWTOOTH)
+	{
+		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
+		float scale = u_DeformWave.x + (1.0 - sawtooth(off + u_DeformWave.z + (u_Time * u_DeformWave.w))) * u_DeformWave.y;
+		vec3 offset = normal * scale;
+
+		deformed.xyz += offset;
+	}
+
+	return deformed;
+}
+
 void	main()
 {
+	vec4 position = DeformPosition(attr_Position, attr_Normal);
+
 	// transform vertex position into homogenous clip-space
-	gl_Position = u_ModelViewProjectionMatrix * attr_Position;
+	gl_Position = u_ModelViewProjectionMatrix * position;
 	
 	// assign position in object space
-	var_Position = attr_Position.xyz;
+	var_Position = position.xyz;
 	
 	// transform diffusemap texcoords
 	var_TexDiffuseNormal.st = (u_DiffuseTextureMatrix * attr_TexCoord0).st;

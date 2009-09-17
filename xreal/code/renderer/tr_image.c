@@ -2051,9 +2051,8 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 			{
 				if(orgNameFailed)
 				{
-					ri.Printf(PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n", token, altName);
+					//ri.Printf(PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n", token, altName);
 				}
-
 				break;
 			}
 		}

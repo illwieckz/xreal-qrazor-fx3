@@ -995,7 +995,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 	}
 	else
 	{
-		if(r_vboFaces->integer && srf->vbo && srf->ibo)
+		if(r_vboFaces->integer && srf->vbo && srf->ibo && !ShaderRequiresCPUDeforms(tess.surfaceShader))
 		{
 			Tess_EndBegin();
 
@@ -1229,7 +1229,7 @@ static void Tess_SurfaceGrid(srfGridMesh_t * srf)
 	}
 	else
 	{
-		if(r_vboCurves->integer && srf->vbo && srf->ibo)
+		if(r_vboCurves->integer && srf->vbo && srf->ibo && !ShaderRequiresCPUDeforms(tess.surfaceShader))
 		{
 			Tess_EndBegin();
 
@@ -1464,7 +1464,7 @@ static void Tess_SurfaceTriangles(srfTriangles_t * srf)
 	else
 	{
 
-		if(r_vboTriangles->integer && srf->vbo && srf->ibo)
+		if(r_vboTriangles->integer && srf->vbo && srf->ibo && !ShaderRequiresCPUDeforms(tess.surfaceShader))
 		{
 			Tess_EndBegin();
 

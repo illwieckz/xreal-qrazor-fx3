@@ -779,6 +779,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	}
+	GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
@@ -1142,6 +1143,7 @@ void RB_ShowImages(void)
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	}
+	GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 	GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
 

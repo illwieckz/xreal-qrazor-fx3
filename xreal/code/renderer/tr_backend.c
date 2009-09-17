@@ -2119,6 +2119,7 @@ static void RB_RenderInteractionsShadowMapped()
 	surfaceType_t  *surface;
 	qboolean        depthRange, oldDepthRange;
 	qboolean        alphaTest, oldAlphaTest;
+	deformType_t	deformType, oldDeformType;
 	vec3_t          tmp;
 	matrix_t        modelToLight;
 	qboolean        drawShadows;
@@ -2146,6 +2147,7 @@ static void RB_RenderInteractionsShadowMapped()
 	oldShader = NULL;
 	oldDepthRange = depthRange = qfalse;
 	oldAlphaTest = alphaTest = qfalse;
+	oldDeformType = deformType = DEFORM_TYPE_NONE;
 	drawShadows = qtrue;
 	cubeSide = 0;
 
@@ -2160,6 +2162,15 @@ static void RB_RenderInteractionsShadowMapped()
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 		alphaTest = shader->alphaTest;
+
+		if(shader->numDeforms)
+		{
+			deformType = ShaderRequiresCPUDeforms(shader) ? DEFORM_TYPE_CPU : DEFORM_TYPE_GPU;
+		}
+		else
+		{
+			deformType = DEFORM_TYPE_NONE;
+		}
 
 		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
@@ -2505,7 +2516,7 @@ static void RB_RenderInteractionsShadowMapped()
 				case RL_PROJ:
 				case RL_DIRECTIONAL:
 				{
-					if(light == oldLight && entity == oldEntity && (alphaTest ? shader == oldShader : alphaTest == oldAlphaTest))
+					if(light == oldLight && entity == oldEntity && (alphaTest ? shader == oldShader : alphaTest == oldAlphaTest) && deformType == oldDeformType)
 					{
 						if(r_logFile->integer)
 						{
@@ -2722,6 +2733,7 @@ static void RB_RenderInteractionsShadowMapped()
 		oldEntity = entity;
 		oldShader = shader;
 		oldAlphaTest = alphaTest;
+		oldDeformType = deformType;
 
 	  skipInteraction:
 		if(!ia->next)
@@ -3071,6 +3083,7 @@ void RB_RenderInteractionsDeferred()
 				{
 					GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 				}
+				GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 				GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 				// bind u_ColorMap
@@ -3690,6 +3703,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	surfaceType_t  *surface;
 	qboolean        depthRange, oldDepthRange;
 	qboolean        alphaTest, oldAlphaTest;
+	deformType_t	deformType, oldDeformType;
 	qboolean        drawShadows;
 	int             cubeSide;
 
@@ -3728,6 +3742,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	oldShader = NULL;
 	oldDepthRange = depthRange = qfalse;
 	oldAlphaTest = alphaTest = qfalse;
+	oldDeformType = deformType = DEFORM_TYPE_NONE;
 	drawShadows = qtrue;
 	cubeSide = 0;
 
@@ -3778,6 +3793,15 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 		alphaTest = shader->alphaTest;
+
+		if(shader->numDeforms)
+		{
+			deformType = ShaderRequiresCPUDeforms(shader) ? DEFORM_TYPE_CPU : DEFORM_TYPE_GPU;
+		}
+		else
+		{
+			deformType = DEFORM_TYPE_NONE;
+		}
 
 		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
@@ -4538,6 +4562,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				{
 					GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 				}
+				GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 				GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 				// bind u_ColorMap
@@ -5306,7 +5331,11 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				case RL_DIRECTIONAL:
 				{
 #if 1
-					if((iaCount != iaFirst) && light == oldLight && entity == oldEntity && (alphaTest ? shader == oldShader : alphaTest == oldAlphaTest))
+					if((iaCount != iaFirst) &&
+						light == oldLight &&
+						entity == oldEntity &&
+						(alphaTest ? shader == oldShader : alphaTest == oldAlphaTest) &&
+						(deformType == oldDeformType))
 					{
 						if(r_logFile->integer)
 						{
@@ -5445,6 +5474,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 		oldEntity = entity;
 		oldShader = shader;
 		oldAlphaTest = alphaTest;
+		oldDeformType = deformType;
 
 	  skipInteraction:
 		if(!ia->next)
@@ -7619,6 +7649,7 @@ void RB_RenderLightOcclusionQueries()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
+		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// bind u_ColorMap
@@ -7878,6 +7909,7 @@ void RB_RenderBspOcclusionQueries()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
+		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// set up the transformation matrix
@@ -8030,16 +8062,10 @@ void RB_CollectBspOcclusionQueries()
 }
 #endif
 
-/*
-some debug utilities for displaying entity AABBs and so on
-FIXME rewrite this to use the genericSingle GLSL shader
-this fixed function pipeline stuff is broken
-*/
 static void RB_RenderDebugUtils()
 {
 	GLimp_LogComment("--- RB_RenderDebugUtils ---\n");
 
-#if 1
 	if(r_showLightTransforms->integer || r_showShadowLod->integer)
 	{
 		interaction_t  *ia;
@@ -8064,6 +8090,7 @@ static void RB_RenderDebugUtils()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
+		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// bind u_ColorMap
@@ -8373,9 +8400,7 @@ static void RB_RenderDebugUtils()
 		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
-#endif
 
-#if 0
 	if(r_showLightInteractions->integer)
 	{
 		int             i;
@@ -8387,10 +8412,25 @@ static void RB_RenderDebugUtils()
 		surfaceType_t  *surface;
 		vec4_t          lightColor;
 
-		GL_BindProgram(NULL);
-		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+		GL_BindProgram(&tr.genericSingleShader);
+		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
+		GL_Cull(CT_TWO_SIDED);
+
+		// set uniforms
+		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
+		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
+		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
+		if(glConfig.vboVertexSkinningAvailable)
+		{
+			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
+		}
+		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
+		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
+
+		// bind u_ColorMap
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
+		GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
 
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
@@ -8409,6 +8449,7 @@ static void RB_RenderDebugUtils()
 			}
 
 			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 			if(r_shadows->integer >= 4 && light->l.rlType == RL_OMNI)
 			{
@@ -8467,37 +8508,45 @@ static void RB_RenderDebugUtils()
 			lightColor[2] *= 0.5f;
 			//lightColor[3] *= 0.2f;
 
+			tess.numVertexes = 0;
+			tess.numIndexes = 0;
+
 			if(*surface == SF_FACE)
 			{
 				srfSurfaceFace_t *face;
 
 				face = (srfSurfaceFace_t *) surface;
-				R_DebugBoundingBox(vec3_origin, face->bounds[0], face->bounds[1], lightColor);
+				Tess_AddCube(vec3_origin, face->bounds[0], face->bounds[1], lightColor);
 			}
 			else if(*surface == SF_GRID)
 			{
 				srfGridMesh_t  *grid;
 
 				grid = (srfGridMesh_t *) surface;
-				R_DebugBoundingBox(vec3_origin, grid->meshBounds[0], grid->meshBounds[1], lightColor);
+				Tess_AddCube(vec3_origin, grid->meshBounds[0], grid->meshBounds[1], lightColor);
 			}
 			else if(*surface == SF_TRIANGLES)
 			{
 				srfTriangles_t *tri;
 
 				tri = (srfTriangles_t *) surface;
-				R_DebugBoundingBox(vec3_origin, tri->bounds[0], tri->bounds[1], lightColor);
+				Tess_AddCube(vec3_origin, tri->bounds[0], tri->bounds[1], lightColor);
 			}
 			else if(*surface == SF_VBO_MESH)
 			{
 				srfVBOMesh_t   *srf = (srfVBOMesh_t *) surface;
-
-				R_DebugBoundingBox(vec3_origin, srf->bounds[0], srf->bounds[1], lightColor);
+				Tess_AddCube(vec3_origin, srf->bounds[0], srf->bounds[1], lightColor);
 			}
 			else if(*surface == SF_MDX)
 			{
-				R_DebugBoundingBox(vec3_origin, entity->localBounds[0], entity->localBounds[1], lightColor);
+				Tess_AddCube(vec3_origin, entity->localBounds[0], entity->localBounds[1], lightColor);
 			}
+
+			Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
+			Tess_DrawElements();
+
+			tess.numIndexes = 0;
+			tess.numVertexes = 0;
 
 			if(!ia->next)
 			{
@@ -8525,9 +8574,7 @@ static void RB_RenderDebugUtils()
 		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
-#endif
 
-#if 1
 	if(r_showEntityTransforms->integer)
 	{
 		trRefEntity_t  *ent;
@@ -8546,6 +8593,7 @@ static void RB_RenderDebugUtils()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
+		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// bind u_ColorMap
@@ -8623,9 +8671,7 @@ static void RB_RenderDebugUtils()
 		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
-#endif
 
-#if 1
 	if(r_showSkeleton->integer)
 	{
 		int             i, j, k, parentIndex;
@@ -8649,6 +8695,7 @@ static void RB_RenderDebugUtils()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
+		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// bind u_ColorMap
@@ -8836,7 +8883,6 @@ static void RB_RenderDebugUtils()
 			tess.numIndexes = 0;
 		}
 	}
-#endif
 
 	if(r_showLightScissors->integer)
 	{
@@ -8857,6 +8903,7 @@ static void RB_RenderDebugUtils()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
+		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// bind u_ColorMap
@@ -9065,6 +9112,7 @@ static void RB_RenderDebugUtils()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
+		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// set up the transformation matrix
@@ -9217,6 +9265,7 @@ static void RB_RenderDebugUtils()
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 		}
+		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 
 		// set up the transformation matrix
@@ -10271,6 +10320,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	}
+	GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
@@ -10630,6 +10680,7 @@ void RB_ShowImages(void)
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
 	}
+	GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
 	GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
 	GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
 
