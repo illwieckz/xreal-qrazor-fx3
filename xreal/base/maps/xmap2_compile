@@ -40,11 +40,11 @@ map_debugsurfaces() {
 }
 
 map_fastvis() {
-	if ! $COMPILE -vis -fast $VISOPTS $MAP; then exit 1; fi
+	if ! $COMPILE -vis -threads $THREADS -fast $VISOPTS $MAP; then exit 1; fi
 }
 
 map_vis() {
-	if ! $COMPILE -vis $VISOPTS $MAP; then exit 1; fi
+	if ! $COMPILE -vis -threads $THREADS $VISOPTS $MAP; then exit 1; fi
 }
 
 map_light() {
