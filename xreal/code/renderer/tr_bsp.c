@@ -8324,6 +8324,10 @@ static void R_BuildCubeMaps(void)
 			}
 		}
 
+#if defined(USE_D3D10)
+		// TODO
+		continue;
+#else
 		// build the cubemap
 		//cubeProbe->cubemap = R_CreateCubeImage(va("_autoCube%d", j), (const byte **)tr.cubeTemp, REF_CUBEMAP_SIZE, REF_CUBEMAP_SIZE, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP);
 		cubeProbe->cubemap = R_AllocImage(va("_autoCube%d", j), qfalse);
@@ -8344,6 +8348,7 @@ static void R_BuildCubeMaps(void)
 		R_UploadImage((const byte **)tr.cubeTemp, 6, cubeProbe->cubemap);
 
 		qglBindTexture(cubeProbe->cubemap->type, 0);
+#endif
 	}
 	ri.Printf(PRINT_ALL, "\n");
 
