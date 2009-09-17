@@ -150,12 +150,15 @@ You need the following dependencies in order to compile XreaL with all features:
  * FreeType >= 2.3.5
  * OpenAL >= 0.0.8 (if compiled with scons openal=1)
  * libcURL >= 7.15.5 (if compiled with scons curl=compile)
- * GTK+ >= 2.4.0 (if compiled with scons radiant=1 or scons xmap=1, requires glib, atk, pango, iconv, etc)
- * gtkglext >= 1.0.0 (if compiled with scons radiant=1)
  * libxml2 >= 2.0.0 (if compiled with scons radiant=1 or scons xmap=1)
  * zlib >= 1.2.0 (if compiled with scons radiant=1 or scons xmap=1)
+ * GTK+ >= 2.4.0 (if compiled with scons radiant=1 or scons xmap=1, requires glib, atk, pango, iconv, etc)
+ * gtkglext >= 1.0.0 (if compiled with scons radiant=1)
+ * gtksourceview >= 2.0.0 (if compiled with scons radiant=1)
  * GLEW >= 1.5.0 (if compiled with scons radiant=1)
  * boost >= 1.3.4 (if compiled with scons radiant=1)
+ * vorbis >= 1.2.0 (if compiled with scons radiant=1)
+ 
 
 Compile XreaL for x86 processors:
 	>scons arch=linux-i386
