@@ -1,6 +1,6 @@
 blend2xmap
 bja_mapobject
-cardigan_skies
+#cardigan_skies
 common
 #common_lights
 #common_misc
@@ -18,7 +18,7 @@ fabz0r
 #gw_dm1_tower
 #gw_dm1_tree
 #gw_city_mapobjects
-gw_dm2
+#gw_dm2
 gw_mapobject
 hipshot_sky
 #incubation
@@ -26,7 +26,7 @@ kat_mapobject
 kat_q4dm3
 #lights
 #megatexture
-method
+#method
 mic_mapobject
 mic_textures
 mikebart_mapobject
@@ -47,7 +47,7 @@ reflex_mapobject
 #reflex_sfx
 reflex_skies
 reflex_special
-reflex_trim
+#reflex_trim
 reflex_ugly
 sfx
 #sky
