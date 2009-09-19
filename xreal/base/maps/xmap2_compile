@@ -23,7 +23,7 @@ GAME='xreal'
 
 # DO NOT EDIT THIS LINE OR THE FOLLOWING LINES. DOING SO MAY RESULT IN
 # UNEXPECTED SCRIPT BEHAVIOR.
-MAP="$2"
+MAP="`basename $2 .map`.map"
 THREADS=`grep processor /proc/cpuinfo | awk '{a++} END {print a}'`
 
 # map_ convention used to prevent possible binary name collision
