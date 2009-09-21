@@ -4636,23 +4636,23 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 								if(r_logFile->integer)
 								{
 									vec3_t	rayIntersectionNear, rayIntersectionFar;
-									float	near, far;
+									float	zNear, zFar;
 
 									// don't just call LogComment, or we will get
 									// a call to va() every frame!
 									//GLimp_LogComment(va("----- Skipping shadowCube side: %i -----\n", cubeSide));
 
 									PlaneIntersectRay(viewOrigin, viewDirection, splitFrustum[FRUSTUM_FAR], rayIntersectionFar);
-									far = Distance(viewOrigin, rayIntersectionFar);
+									zFar = Distance(viewOrigin, rayIntersectionFar);
 
 									VectorInverse(viewDirection);
 
 									PlaneIntersectRay(rayIntersectionFar, viewDirection,splitFrustum[FRUSTUM_NEAR], rayIntersectionNear);
-									near = Distance(viewOrigin, rayIntersectionNear);
+									zNear = Distance(viewOrigin, rayIntersectionNear);
 
 									VectorInverse(viewDirection);
 
-									GLimp_LogComment(va("split frustum %i: near = %5.3f, far = %5.3f\n", splitFrustumIndex, near, far));
+									GLimp_LogComment(va("split frustum %i: near = %5.3f, far = %5.3f\n", splitFrustumIndex, zNear, zFar));
 									GLimp_LogComment(va("pyramid nearCorners\n"));
 									for(j = 0; j < 4; j++)
 									{
