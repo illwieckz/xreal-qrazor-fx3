@@ -3771,7 +3771,7 @@ static int MergeInteractionBounds(const matrix_t lightViewProjectionMatrix, inte
 			//Tess_AddCube(vec3_origin, entity->localBounds[0], entity->localBounds[1], lightColor);
 		}
 
-#if 0
+#if 1
 		// use the frustum planes to cut off shadow casters beyond the split frustum
 		for(i = 0; i < 4; i++)
 		{
@@ -3790,7 +3790,7 @@ static int MergeInteractionBounds(const matrix_t lightViewProjectionMatrix, inte
 			numCasters++;
 		}
 
-#if 0
+#if 1
 		for(j = 0; j < 8; j++)
 		{
 			point[0] = worldBounds[j & 1][0];
@@ -4673,7 +4673,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 								}
 
 
-#if 1
+#if 0
 								// find the bounding box of the current split in the light's view space
 								ClearBounds(splitFrustumViewBounds[0], splitFrustumViewBounds[1]);
 								numCasters = MergeInteractionBounds(light->viewMatrix, ia, iaCount, splitFrustumViewBounds, qtrue);
@@ -4749,12 +4749,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 									AddPointToBounds(transf, cropBounds[0], cropBounds[1]);
 								}
 
-								//MatrixCrop(projectionMatrix, cropBounds[0], cropBounds[1]);
-								//MatrixScaleTranslateToUnitCube(projectionMatrix, cropBounds[0], cropBounds[1]);
-								MatrixOrthogonalProjectionRH(projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], cropBounds[0][2], cropBounds[1][2]);
-								//MatrixOrthogonalProjectionRH(projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], -cropBounds[1][2], -cropBounds[0][2]);
-								//MatrixOrthogonalProjectionRH(projectionMatrix, -1, 1, -1, 1, -cropBounds[1][2], -cropBounds[0][2]);
-								//MatrixOrthogonalProjectionRH(projectionMatrix, -1, 1, -1, 1, 0, 1);
+								MatrixOrthogonalProjectionRH(projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], -cropBounds[1][2], -cropBounds[0][2]);
 
 								MatrixMultiply(projectionMatrix, light->viewMatrix, viewProjectionMatrix);
 
@@ -4795,29 +4790,17 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 								}
 
 								// scene-dependent bounding volume
-#if 1
 								cropBounds[0][0] = Q_max(Q_max(casterBounds[0][0], receiverBounds[0][0]), splitFrustumClipBounds[0][0]);
 								cropBounds[0][1] = Q_max(Q_max(casterBounds[0][1], receiverBounds[0][1]), splitFrustumClipBounds[0][1]);
 
 								cropBounds[1][0] = Q_min(Q_min(casterBounds[1][0], receiverBounds[1][0]), splitFrustumClipBounds[1][0]);
 								cropBounds[1][1] = Q_min(Q_min(casterBounds[1][1], receiverBounds[1][1]), splitFrustumClipBounds[1][1]);
 
-								cropBounds[0][2] = Q_min(casterBounds[0][2], splitFrustumClipBounds[0][2]);
-								//cropBounds[0][2] = casterBounds[0][2];
+								//cropBounds[0][2] = Q_min(casterBounds[0][2], splitFrustumClipBounds[0][2]);
+								cropBounds[0][2] = casterBounds[0][2];
 								//cropBounds[0][2] = splitFrustumClipBounds[0][2];
 								cropBounds[1][2] = Q_min(receiverBounds[1][2], splitFrustumClipBounds[1][2]);
 								//cropBounds[1][2] = splitFrustumClipBounds[1][2];
-#else
-								cropBounds[0][0] = splitFrustumClipBounds[0][0];
-								cropBounds[0][1] = splitFrustumClipBounds[0][1];
-
-								cropBounds[1][0] = splitFrustumClipBounds[1][0];
-								cropBounds[1][1] = splitFrustumClipBounds[1][1];
-
-								cropBounds[0][2] = Q_min(casterBounds[0][2], splitFrustumClipBounds[0][2]);
-								//cropBounds[0][2] = splitFrustumClipBounds[0][2];
-								cropBounds[1][2] = splitFrustumClipBounds[1][2];
-#endif
 
 								if(numCasters == 0)
 								{
@@ -4829,13 +4812,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 #endif
 
 
-#if 0
-								MatrixCopy(flipZMatrix, light->projectionMatrix);
-								MatrixMultiply2(light->projectionMatrix, cropMatrix);
-								MatrixMultiply2(light->projectionMatrix, projectionMatrix);
-#else
 								MatrixMultiply(cropMatrix, projectionMatrix, light->projectionMatrix);
-#endif
+
 								GL_LoadProjectionMatrix(light->projectionMatrix);
 							}
 							else
@@ -4881,10 +4859,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 								MatrixScaleTranslateToUnitCube(projectionMatrix, cropBounds[0], cropBounds[1]);
 								MatrixMultiply(flipZMatrix, projectionMatrix, light->projectionMatrix);
 #else
-								//MatrixOrthogonalProjectionRH(light->projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], cropBounds[0][2], cropBounds[1][2]);
 								MatrixOrthogonalProjectionRH(light->projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], -cropBounds[1][2], -cropBounds[0][2]);
-								//MatrixOrthogonalProjectionRH(light->projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], 0, fabs(cropBounds[1][2] -cropBounds[0][2]));
-								//MatrixOrthogonalProjectionRH(light->projectionMatrix, -1, 1, -1, 1, -cropBounds[1][2], -cropBounds[0][2]);
 #endif
 								GL_LoadProjectionMatrix(light->projectionMatrix);
 							}
