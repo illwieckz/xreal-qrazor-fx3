@@ -2519,7 +2519,7 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 
 	tr.currentEntity = &tr.worldEntity;
 
-	if(r_vboShadows->integer || r_vboLighting->integer)
+	if((r_vboShadows->integer || r_vboLighting->integer) && light->l.rlType != RL_DIRECTIONAL)
 	{
 		interactionCache_t *iaCache;
 		interactionVBO_t *iaVBO;

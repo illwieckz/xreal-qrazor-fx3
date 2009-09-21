@@ -1611,7 +1611,7 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 	float           fovX, fovY;
 	float          *proj;
 	vec3_t          angles;
-	matrix_t        tmpMatrix, rotationMatrix, transformMatrix, viewMatrix, modelViewMatrix, projectionMatrix;
+	matrix_t        tmpMatrix, rotationMatrix, transformMatrix, viewMatrix, projectionMatrix, viewProjectionMatrix;
 	frustum_t       frustum;
 	cplane_t       *clipPlane;
 	int             r;
@@ -1692,7 +1692,6 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 		// convert from our coordinate system (looking down X)
 		// to OpenGL's coordinate system (looking down -Z)
 		MatrixMultiply(quakeToOpenGLMatrix, tmpMatrix, viewMatrix);
-		MatrixCopy(viewMatrix, modelViewMatrix); // because world transform is the identity matrix
 
 		// OpenGL projection matrix
 		fovX = 90;
@@ -1718,7 +1717,8 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 		proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
 
 		// calculate frustum planes using the modelview projection matrix
-		R_SetupFrustum2(frustum, modelViewMatrix, projectionMatrix);
+		MatrixMultiply(projectionMatrix, viewMatrix, viewProjectionMatrix);
+		R_SetupFrustum2(frustum, viewProjectionMatrix);
 
 		// use the frustum planes to cut off shadowmaps beyond the light volume
 		anyClip = qfalse;

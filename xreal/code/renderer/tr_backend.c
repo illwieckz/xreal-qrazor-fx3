@@ -187,7 +187,7 @@ void GL_SelectTexture(int unit)
 		return;
 	}
 
-	if(unit >= 0 && unit <= 7)
+	if(unit >= 0 && unit <= 31)
 	{
 		qglActiveTextureARB(GL_TEXTURE0_ARB + unit);
 
@@ -1368,7 +1368,7 @@ static void Render_lightVolume(interaction_t * ia)
 			GLSL_SetUniform_LightScale(&tr.lightVolumeShader_omni, light->l.scale);
 			GLSL_SetUniform_LightAttenuationMatrix(&tr.lightVolumeShader_omni, light->attenuationMatrix2);
 
-			GLSL_SetUniform_ShadowMatrix(&tr.lightVolumeShader_omni, light->attenuationMatrix);
+			// FIXME GLSL_SetUniform_ShadowMatrix(&tr.lightVolumeShader_omni, light->attenuationMatrix);
 			GLSL_SetUniform_ShadowCompare(&tr.lightVolumeShader_omni, shadowCompare);
 
 			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.lightVolumeShader_omni, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -3692,6 +3692,206 @@ void RB_RenderInteractionsDeferred()
 }
 
 
+static int MergeInteractionBounds(const matrix_t lightViewProjectionMatrix, interaction_t * ia, int iaCount, vec3_t bounds[2], qboolean shadowCasters)
+{
+	int				i, j;
+	surfaceType_t  *surface;
+	vec4_t			point;
+	vec4_t			transf;
+	vec3_t			worldBounds[2];
+	vec3_t			viewBounds[2];
+	vec3_t			center;
+	float			radius;
+	int				numCasters;
+
+	frustum_t       frustum;
+	cplane_t       *clipPlane;
+	int             r;
+
+	numCasters = 0;
+	ClearBounds(bounds[0], bounds[1]);
+
+	// calculate frustum planes using the modelview projection matrix
+	R_SetupFrustum2(frustum, lightViewProjectionMatrix);
+
+	while(iaCount < backEnd.viewParms.numInteractions)
+	{
+		surface = ia->surface;
+
+		if(shadowCasters)
+		{
+			if(ia->type == IA_LIGHTONLY)
+			{
+				goto skipInteraction;
+			}
+		}
+		else
+		{
+			// we only merge shadow receivers
+			if(ia->type == IA_SHADOWONLY)
+			{
+				goto skipInteraction;
+			}
+		}
+
+		if(*surface == SF_FACE)
+		{
+			srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface;
+
+			VectorCopy(face->bounds[0], worldBounds[0]);
+			VectorCopy(face->bounds[1], worldBounds[1]);
+		}
+		else if(*surface == SF_GRID)
+		{
+			srfGridMesh_t  *grid = (srfGridMesh_t *) surface;
+
+			VectorCopy(grid->meshBounds[0], worldBounds[0]);
+			VectorCopy(grid->meshBounds[1], worldBounds[1]);
+		}
+		else if(*surface == SF_TRIANGLES)
+		{
+			srfTriangles_t *tri = (srfTriangles_t *) surface;
+
+			//ri.Printf(PRINT_ALL, "merging triangle bounds\n");
+
+			VectorCopy(tri->bounds[0], worldBounds[0]);
+			VectorCopy(tri->bounds[1], worldBounds[1]);
+		}
+		else if(*surface == SF_VBO_MESH)
+		{
+			srfVBOMesh_t   *srf = (srfVBOMesh_t *) surface;
+
+			//ri.Printf(PRINT_ALL, "merging vbo mesh bounds\n");
+
+			VectorCopy(srf->bounds[0], worldBounds[0]);
+			VectorCopy(srf->bounds[1], worldBounds[1]);
+		}
+		else if(*surface == SF_MDX)
+		{
+			//Tess_AddCube(vec3_origin, entity->localBounds[0], entity->localBounds[1], lightColor);
+		}
+
+#if 0
+		// use the frustum planes to cut off shadow casters beyond the split frustum
+		for(i = 0; i < 4; i++)
+		{
+			clipPlane = &frustum[i];
+
+			r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], clipPlane);
+			if(r == 2)
+			{
+				goto skipInteraction;
+			}
+		}
+#endif
+
+		if(shadowCasters && ia->type != IA_LIGHTONLY)
+		{
+			numCasters++;
+		}
+
+#if 0
+		for(j = 0; j < 8; j++)
+		{
+			point[0] = worldBounds[j & 1][0];
+			point[1] = worldBounds[(j >> 1) & 1][1];
+			point[2] = worldBounds[(j >> 2) & 1][2];
+			point[3] = 1;
+
+			MatrixTransform4(lightViewProjectionMatrix, point, transf);
+			transf[0] /= transf[3];
+			transf[1] /= transf[3];
+			transf[2] /= transf[3];
+
+			AddPointToBounds(transf, bounds[0], bounds[1]);
+		}
+#elif 0
+		ClearBounds(viewBounds[0], viewBounds[1]);
+		for(j = 0; j < 8; j++)
+		{
+			point[0] = worldBounds[j & 1][0];
+			point[1] = worldBounds[(j >> 1) & 1][1];
+			point[2] = worldBounds[(j >> 2) & 1][2];
+			point[3] = 1;
+
+			MatrixTransform4(lightViewProjectionMatrix, point, transf);
+			transf[0] /= transf[3];
+			transf[1] /= transf[3];
+			transf[2] /= transf[3];
+
+			AddPointToBounds(transf, viewBounds[0], viewBounds[1]);
+		}
+
+		// get sphere of AABB
+		VectorAdd(viewBounds[0], viewBounds[1], center);
+		VectorScale(center, 0.5, center);
+
+		radius = RadiusFromBounds(viewBounds[0], viewBounds[1]);
+
+		for(j = 0; j < 3; j++)
+		{
+			if((transf[j] - radius) < bounds[0][j])
+			{
+				bounds[0][j] = transf[i] - radius;
+			}
+
+			if((transf[j] + radius) > bounds[1][j])
+			{
+				bounds[1][j] = transf[i] + radius;
+			}
+		}
+#else
+
+		ClearBounds(viewBounds[0], viewBounds[1]);
+		for(j = 0; j < 8; j++)
+		{
+			point[0] = worldBounds[j & 1][0];
+			point[1] = worldBounds[(j >> 1) & 1][1];
+			point[2] = worldBounds[(j >> 2) & 1][2];
+			point[3] = 1;
+
+			MatrixTransform4(lightViewProjectionMatrix, point, transf);
+			//transf[0] /= transf[3];
+			//transf[1] /= transf[3];
+			//transf[2] /= transf[3];
+
+			AddPointToBounds(transf, viewBounds[0], viewBounds[1]);
+		}
+
+		// get sphere of AABB
+		VectorAdd(viewBounds[0], viewBounds[1], center);
+		VectorScale(center, 0.5, center);
+
+		//MatrixTransform4(lightViewProjectionMatrix, center, transf);
+		//transf[0] /= transf[3];
+		//transf[1] /= transf[3];
+		//transf[2] /= transf[3];
+
+		radius = RadiusFromBounds(viewBounds[0], viewBounds[1]);
+
+		if((transf[2] + radius) > bounds[1][2])
+		{
+			bounds[1][2] = transf[2] + radius;
+		}
+#endif
+
+	skipInteraction:
+		if(!ia->next)
+		{
+			// this is the last interaction of the current light
+			break;
+		}
+		else
+		{
+			// just continue
+			ia = ia->next;
+			iaCount++;
+		}
+	}
+
+	return numCasters;
+}
+
 static void RB_RenderInteractionsDeferredShadowMapped()
 {
 	interaction_t  *ia;
@@ -3745,6 +3945,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	oldDeformType = deformType = DEFORM_TYPE_NONE;
 	drawShadows = qtrue;
 	cubeSide = 0;
+	splitFrustumIndex = 0;
 
 	GL_State(GLS_DEFAULT);
 
@@ -3986,20 +4187,25 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						case RL_DIRECTIONAL:
 						{
 							vec3_t			angles;
+							vec4_t			forward, side, up;
+							vec3_t			viewOrigin, viewDirection;
 							matrix_t        rotationMatrix, transformMatrix, viewMatrix, projectionMatrix, viewProjectionMatrix;
 							matrix_t		cropMatrix;
-							matrix_t		lispMatrix;
 							vec4_t			splitFrustum[6];
 							vec3_t			splitFrustumCorners[8];
 							vec3_t			splitFrustumBounds[2];
+							vec3_t			splitFrustumViewBounds[2];
+							vec3_t			splitFrustumClipBounds[2];
 							float			splitFrustumRadius;
+							int				numCasters;
+							vec3_t			casterBounds[2];
+							vec3_t			receiverBounds[2];
 							vec3_t			cropBounds[2];
 							vec4_t			point;
 							vec4_t			transf;
 
 							GLimp_LogComment("--- Rendering directional shadowMap ---\n");
 
-							splitFrustumIndex = 0;
 							R_BindFBO(tr.shadowMapFBO[splitFrustumIndex]);
 							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[splitFrustumIndex]->texnum, 0);
 							if(!r_ignoreGLErrors->integer)
@@ -4027,6 +4233,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 								vec3_t			viewOrigin, viewDirection;
 								vec4_t			forward, side, up;
 								matrix_t		lispMatrix;
+								matrix_t		postMatrix;
 								matrix_t		projectionCenter;
 
 								const matrix_t switchToArticle = {
@@ -4045,9 +4252,11 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 								// original light direction is from surface to light
 								VectorInverse(lightDirection);
+								VectorNormalize(lightDirection);
 
 								VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
 								VectorCopy(backEnd.viewParms.orientation.axis[0], viewDirection);
+								VectorNormalize(viewDirection);
 
 								// calculate new up dir
 								CrossProduct(lightDirection, viewDirection, side);
@@ -4135,8 +4344,21 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 									AddPointToBounds(transf, cropBounds[0], cropBounds[1]);
 								}
 
-								MatrixScaleTranslateToFit(cropMatrix, cropBounds[0], cropBounds[1]);
-								MatrixCopy(cropMatrix, projectionMatrix);
+
+#if 0
+								MatrixOrthogonalProjection(projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], cropBounds[0][2], cropBounds[1][2]);
+								MatrixMultiply(projectionMatrix, light->viewMatrix, viewProjectionMatrix);
+								MatrixMultiply(viewProjectionMatrix, backEnd.viewParms.world.viewMatrix, postMatrix);
+
+								VectorSet(viewOrigin, 0, 0, 0);
+								MatrixTransformPoint2(viewOrigin);
+
+								VectorSet(viewDirection, 0, 0, -1);
+								MatrixTransformPoint2(viewDirection);
+
+								VectorSet(up, 0, 1, 0);
+								MatrixTransformPoint2(viewDirection);
+#endif
 
 #if 0
 								ri.Printf(PRINT_ALL, "light space crop bounds (%5.3f, %5.3f, %5.3f) (%5.3f, %5.3f, %5.3f)\n",
@@ -4174,20 +4396,21 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 #endif
 
 									depth = fabs(cropBounds[1][1] - cropBounds[0][1]); //perspective transform depth //light space y extents
-									depth = fabs(cropBounds[0][2]) + fabs(cropBounds[1][2]);
+									//depth = fabs(cropBounds[0][2]) + fabs(cropBounds[1][2]);
 
-#if 0
+#if 1
 									zNear = backEnd.viewParms.zNear / sinGamma;
 									zFar = zNear + depth * sinGamma;
 									n = (zNear + sqrt(zFar * zNear)) / sinGamma;
 #elif 0
-									zNear = backEnd.viewParms.zNear / sinGamma;
-									zFar = backEnd.viewParms.zFar + depth * sinGamma;
+									zNear = backEnd.viewParms.zNear;
+									zFar = backEnd.viewParms.zFar;
 
 									n = (zNear + sqrt(zFar * zNear)) / sinGamma;
 #else
 									zNear = backEnd.viewParms.zNear;
-									n = (zNear + sqrt(zNear * (zNear + depth * sinGamma))) / sinGamma;
+									zFar = zNear + depth * sinGamma;
+									n = (zNear + sqrt(zFar * zNear)) / sinGamma;
 #endif
 									f = n + depth;
 
@@ -4195,7 +4418,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 									// new observer point n-1 behind eye position:  pos = eyePos-up*(n-nearDist)
 #if 1
-									VectorMA(viewOrigin, -(n - backEnd.viewParms.zNear), up, C);
+									VectorMA(viewOrigin, -(n - zNear), up, C);
 									//VectorMA(C, depth * 0.5f, lightDirection, C);
 #else
 									// get the coordinates of the near camera point in light space
@@ -4328,7 +4551,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 										AddPointToBounds(transf, cropBounds[0], cropBounds[1]);
 									}
 
-									MatrixScaleTranslateToFit(cropMatrix, cropBounds[0], cropBounds[1]);
+									MatrixScaleTranslateToUnitCube(cropMatrix, cropBounds[0], cropBounds[1]);
+									//MatrixOrthogonalProjection(cropMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], cropBounds[0][2], cropBounds[1][2]);
 #endif
 								}
 
@@ -4365,6 +4589,256 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							}
 							else
 #endif
+							if(r_parallelShadowSplits->integer)
+							{
+								// original light direction is from surface to light
+								VectorInverse(lightDirection);
+								VectorNormalize(lightDirection);
+
+								VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
+								VectorCopy(backEnd.viewParms.orientation.axis[0], viewDirection);
+								VectorNormalize(viewDirection);
+
+#if 1
+								// calculate new up dir
+								CrossProduct(lightDirection, viewDirection, side);
+								VectorNormalize(side);
+
+								CrossProduct(side, lightDirection, up);
+								VectorNormalize(up);
+
+								VectorToAngles(lightDirection, angles);
+								MatrixFromAngles(rotationMatrix, angles[PITCH], angles[YAW], angles[ROLL]);
+								AngleVectors(angles, forward, side, up);
+
+								MatrixLookAtRH(light->viewMatrix, viewOrigin, lightDirection, up);
+#else
+								MatrixLookAtRH(light->viewMatrix, viewOrigin, lightDirection, viewDirection);
+#endif
+
+								for(j = 0; j < 6; j++)
+								{
+									VectorCopy(backEnd.viewParms.frustums[1 + splitFrustumIndex][j].normal, splitFrustum[j]);
+									splitFrustum[j][3] = backEnd.viewParms.frustums[1 + splitFrustumIndex][j].dist;
+								}
+
+								// calculate split frustum corner points
+								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_NEAR], splitFrustumCorners[0]);
+								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_NEAR], splitFrustumCorners[1]);
+								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_NEAR], splitFrustumCorners[2]);
+								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_NEAR], splitFrustumCorners[3]);
+
+								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_FAR], splitFrustumCorners[4]);
+								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_FAR], splitFrustumCorners[5]);
+								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_FAR], splitFrustumCorners[6]);
+								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_FAR], splitFrustumCorners[7]);
+
+								if(r_logFile->integer)
+								{
+									vec3_t	rayIntersectionNear, rayIntersectionFar;
+									float	near, far;
+
+									// don't just call LogComment, or we will get
+									// a call to va() every frame!
+									//GLimp_LogComment(va("----- Skipping shadowCube side: %i -----\n", cubeSide));
+
+									PlaneIntersectRay(viewOrigin, viewDirection, splitFrustum[FRUSTUM_FAR], rayIntersectionFar);
+									far = Distance(viewOrigin, rayIntersectionFar);
+
+									VectorInverse(viewDirection);
+
+									PlaneIntersectRay(rayIntersectionFar, viewDirection,splitFrustum[FRUSTUM_NEAR], rayIntersectionNear);
+									near = Distance(viewOrigin, rayIntersectionNear);
+
+									VectorInverse(viewDirection);
+
+									GLimp_LogComment(va("split frustum %i: near = %5.3f, far = %5.3f\n", splitFrustumIndex, near, far));
+									GLimp_LogComment(va("pyramid nearCorners\n"));
+									for(j = 0; j < 4; j++)
+									{
+										GLimp_LogComment(va("(%5.3f, %5.3f, %5.3f)\n", splitFrustumCorners[j][0], splitFrustumCorners[j][1], splitFrustumCorners[j][2]));
+									}
+
+									GLimp_LogComment(va("pyramid farCorners\n"));
+									for(j = 4; j < 8; j++)
+									{
+										GLimp_LogComment(va("(%5.3f, %5.3f, %5.3f)\n", splitFrustumCorners[j][0], splitFrustumCorners[j][1], splitFrustumCorners[j][2]));
+									}
+								}
+
+								ClearBounds(splitFrustumBounds[0], splitFrustumBounds[1]);
+								for(i = 0; i < 8; i++)
+								{
+									AddPointToBounds(splitFrustumCorners[i], splitFrustumBounds[0], splitFrustumBounds[1]);
+								}
+
+
+#if 1
+								// find the bounding box of the current split in the light's view space
+								ClearBounds(splitFrustumViewBounds[0], splitFrustumViewBounds[1]);
+								numCasters = MergeInteractionBounds(light->viewMatrix, ia, iaCount, splitFrustumViewBounds, qtrue);
+								for(j = 0; j < 8; j++)
+								{
+									VectorCopy(splitFrustumCorners[j], point);
+									point[3] = 1;
+#if 0
+									MatrixTransform4(light->viewMatrix, point, transf);
+									transf[0] /= transf[3];
+									transf[1] /= transf[3];
+									transf[2] /= transf[3];
+#else
+									MatrixTransformPoint(light->viewMatrix, point, transf);
+#endif
+
+									AddPointToBounds(transf, splitFrustumViewBounds[0], splitFrustumViewBounds[1]);
+								}
+
+								//MatrixScaleTranslateToUnitCube(projectionMatrix, splitFrustumViewBounds[0], splitFrustumViewBounds[1]);
+								MatrixOrthogonalProjectionRH(projectionMatrix, -1, 1, -1, 1, -splitFrustumViewBounds[1][2], -splitFrustumViewBounds[0][2]);
+
+								MatrixMultiply(projectionMatrix, light->viewMatrix, viewProjectionMatrix);
+
+								// find the bounding box of the current split in the light's clip space
+								ClearBounds(splitFrustumClipBounds[0], splitFrustumClipBounds[1]);
+								for(j = 0; j < 8; j++)
+								{
+									VectorCopy(splitFrustumCorners[j], point);
+									point[3] = 1;
+
+									MatrixTransform4(viewProjectionMatrix, point, transf);
+									transf[0] /= transf[3];
+									transf[1] /= transf[3];
+									transf[2] /= transf[3];
+
+									AddPointToBounds(transf, splitFrustumClipBounds[0], splitFrustumClipBounds[1]);
+								}
+								splitFrustumClipBounds[0][2] = 0;
+								splitFrustumClipBounds[1][2] = 1;
+
+								MatrixCrop(cropMatrix, splitFrustumClipBounds[0], splitFrustumClipBounds[1]);
+								//MatrixIdentity(cropMatrix);
+
+								if(r_logFile->integer)
+								{
+									GLimp_LogComment(va("split frustum light view space bounds (%5.3f, %5.3f, %5.3f) (%5.3f, %5.3f, %5.3f)\n",
+														splitFrustumViewBounds[0][0], splitFrustumViewBounds[0][1], splitFrustumViewBounds[0][2],
+														splitFrustumViewBounds[1][0], splitFrustumViewBounds[1][1], splitFrustumViewBounds[1][2]));
+
+									GLimp_LogComment(va("split frustum light clip space bounds (%5.3f, %5.3f, %5.3f) (%5.3f, %5.3f, %5.3f)\n",
+														splitFrustumClipBounds[0][0], splitFrustumClipBounds[0][1], splitFrustumClipBounds[0][2],
+														splitFrustumClipBounds[1][0], splitFrustumClipBounds[1][1], splitFrustumClipBounds[1][2]));
+								}
+
+#else
+
+								// find the bounding box of the current split in the light's view space
+								ClearBounds(cropBounds[0], cropBounds[1]);
+								for(j = 0; j < 8; j++)
+								{
+									VectorCopy(splitFrustumCorners[j], point);
+									point[3] = 1;
+#if 1
+									MatrixTransform4(light->viewMatrix, point, transf);
+									transf[0] /= transf[3];
+									transf[1] /= transf[3];
+									transf[2] /= transf[3];
+#else
+									MatrixTransformPoint(light->viewMatrix, point, transf);
+#endif
+
+									AddPointToBounds(transf, cropBounds[0], cropBounds[1]);
+								}
+
+								//MatrixCrop(projectionMatrix, cropBounds[0], cropBounds[1]);
+								//MatrixScaleTranslateToUnitCube(projectionMatrix, cropBounds[0], cropBounds[1]);
+								MatrixOrthogonalProjectionRH(projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], cropBounds[0][2], cropBounds[1][2]);
+								//MatrixOrthogonalProjectionRH(projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], -cropBounds[1][2], -cropBounds[0][2]);
+								//MatrixOrthogonalProjectionRH(projectionMatrix, -1, 1, -1, 1, -cropBounds[1][2], -cropBounds[0][2]);
+								//MatrixOrthogonalProjectionRH(projectionMatrix, -1, 1, -1, 1, 0, 1);
+
+								MatrixMultiply(projectionMatrix, light->viewMatrix, viewProjectionMatrix);
+
+								numCasters = MergeInteractionBounds(viewProjectionMatrix, ia, iaCount, casterBounds, qtrue);
+								MergeInteractionBounds(viewProjectionMatrix, ia, iaCount, receiverBounds, qfalse);
+
+								// find the bounding box of the current split in the light's clip space
+								ClearBounds(splitFrustumClipBounds[0], splitFrustumClipBounds[1]);
+								for(j = 0; j < 8; j++)
+								{
+									VectorCopy(splitFrustumCorners[j], point);
+									point[3] = 1;
+
+									MatrixTransform4(viewProjectionMatrix, point, transf);
+									transf[0] /= transf[3];
+									transf[1] /= transf[3];
+									transf[2] /= transf[3];
+
+									AddPointToBounds(transf, splitFrustumClipBounds[0], splitFrustumClipBounds[1]);
+								}
+
+
+								if(r_logFile->integer)
+								{
+									GLimp_LogComment(va("shadow casters = %i\n", numCasters));
+
+									GLimp_LogComment(va("split frustum light space clip bounds (%5.3f, %5.3f, %5.3f) (%5.3f, %5.3f, %5.3f)\n",
+														splitFrustumClipBounds[0][0], splitFrustumClipBounds[0][1], splitFrustumClipBounds[0][2],
+														splitFrustumClipBounds[1][0], splitFrustumClipBounds[1][1], splitFrustumClipBounds[1][2]));
+
+									GLimp_LogComment(va("shadow caster light space clip bounds (%5.3f, %5.3f, %5.3f) (%5.3f, %5.3f, %5.3f)\n",
+														casterBounds[0][0], casterBounds[0][1], casterBounds[0][2],
+														casterBounds[1][0], casterBounds[1][1], casterBounds[1][2]));
+
+									GLimp_LogComment(va("light receiver light space clip bounds (%5.3f, %5.3f, %5.3f) (%5.3f, %5.3f, %5.3f)\n",
+														receiverBounds[0][0], receiverBounds[0][1], receiverBounds[0][2],
+														receiverBounds[1][0], receiverBounds[1][1], receiverBounds[1][2]));
+								}
+
+								// scene-dependent bounding volume
+#if 1
+								cropBounds[0][0] = Q_max(Q_max(casterBounds[0][0], receiverBounds[0][0]), splitFrustumClipBounds[0][0]);
+								cropBounds[0][1] = Q_max(Q_max(casterBounds[0][1], receiverBounds[0][1]), splitFrustumClipBounds[0][1]);
+
+								cropBounds[1][0] = Q_min(Q_min(casterBounds[1][0], receiverBounds[1][0]), splitFrustumClipBounds[1][0]);
+								cropBounds[1][1] = Q_min(Q_min(casterBounds[1][1], receiverBounds[1][1]), splitFrustumClipBounds[1][1]);
+
+								cropBounds[0][2] = Q_min(casterBounds[0][2], splitFrustumClipBounds[0][2]);
+								//cropBounds[0][2] = casterBounds[0][2];
+								//cropBounds[0][2] = splitFrustumClipBounds[0][2];
+								cropBounds[1][2] = Q_min(receiverBounds[1][2], splitFrustumClipBounds[1][2]);
+								//cropBounds[1][2] = splitFrustumClipBounds[1][2];
+#else
+								cropBounds[0][0] = splitFrustumClipBounds[0][0];
+								cropBounds[0][1] = splitFrustumClipBounds[0][1];
+
+								cropBounds[1][0] = splitFrustumClipBounds[1][0];
+								cropBounds[1][1] = splitFrustumClipBounds[1][1];
+
+								cropBounds[0][2] = Q_min(casterBounds[0][2], splitFrustumClipBounds[0][2]);
+								//cropBounds[0][2] = splitFrustumClipBounds[0][2];
+								cropBounds[1][2] = splitFrustumClipBounds[1][2];
+#endif
+
+								if(numCasters == 0)
+								{
+									VectorCopy(splitFrustumClipBounds[0], cropBounds[0]);
+									VectorCopy(splitFrustumClipBounds[1], cropBounds[1]);
+								}
+
+								MatrixCrop(cropMatrix, cropBounds[0], cropBounds[1]);
+#endif
+
+
+#if 0
+								MatrixCopy(flipZMatrix, light->projectionMatrix);
+								MatrixMultiply2(light->projectionMatrix, cropMatrix);
+								MatrixMultiply2(light->projectionMatrix, projectionMatrix);
+#else
+								MatrixMultiply(cropMatrix, projectionMatrix, light->projectionMatrix);
+#endif
+								GL_LoadProjectionMatrix(light->projectionMatrix);
+							}
+							else
 							{
 								// original light direction is from surface to light
 								VectorInverse(lightDirection);
@@ -4380,48 +4854,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 								MatrixLookAtRH(light->viewMatrix, backEnd.viewParms.orientation.origin, lightDirection, backEnd.viewParms.orientation.axis[0]);
 #endif
 
-#if 0
-								for(j = 0; j < 6; j++)
-								{
-									VectorCopy(backEnd.viewParms.frustums[1 + splitFrustumIndex][j].normal, splitFrustum[j]);
-									splitFrustum[j][3] = backEnd.viewParms.frustums[1 + splitFrustumIndex][j].dist;
-								}
-
-								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_NEAR], splitFrustumCorners[0]);
-								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_NEAR], splitFrustumCorners[1]);
-								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_NEAR], splitFrustumCorners[2]);
-								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_NEAR], splitFrustumCorners[3]);
-
-								#if 0
-								ri.Printf(PRINT_ALL, "split frustum %i: near = %5.3f, far = %5.3f\n", splitFrustumIndex, splitFrustum[FRUSTUM_NEAR][3], splitFrustum[FRUSTUM_FAR][3]);
-								ri.Printf(PRINT_ALL, "pyramid nearCorners\n");
-								for(j = 0; j < 4; j++)
-								{
-									ri.Printf(PRINT_ALL, "(%5.3f, %5.3f, %5.3f)\n", splitFrustumCorners[j][0], splitFrustumCorners[j][1], splitFrustumCorners[j][2]);
-								}
-								#endif
-
-								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_FAR], splitFrustumCorners[4]);
-								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_FAR], splitFrustumCorners[5]);
-								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_FAR], splitFrustumCorners[6]);
-								PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_FAR], splitFrustumCorners[7]);
-
-								#if 0
-								ri.Printf(PRINT_ALL, "pyramid farCorners\n");
-								for(j = 4; j < 8; j++)
-								{
-									ri.Printf(PRINT_ALL, "(%5.3f, %5.3f, %5.3f)\n", splitFrustumCorners[j][0], splitFrustumCorners[j][1], splitFrustumCorners[j][2]);
-								}
-								#endif
-#endif
-
 								ClearBounds(splitFrustumBounds[0], splitFrustumBounds[1]);
-#if 0
-								for(i = 0; i < 8; i++)
-								{
-									AddPointToBounds(splitFrustumCorners[i], splitFrustumBounds[0], splitFrustumBounds[1]);
-								}
-#endif
 								//BoundsAdd(splitFrustumBounds[0], splitFrustumBounds[1], backEnd.viewParms.visBounds[0], backEnd.viewParms.visBounds[1]);
 								BoundsAdd(splitFrustumBounds[0], splitFrustumBounds[1], light->worldBounds[0], light->worldBounds[1]);
 
@@ -4432,10 +4865,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 									point[1] = splitFrustumBounds[(j >> 1) & 1][1];
 									point[2] = splitFrustumBounds[(j >> 2) & 1][2];
 									point[3] = 1;
-
 #if 1
 									MatrixTransform4(light->viewMatrix, point, transf);
-
 									transf[0] /= transf[3];
 									transf[1] /= transf[3];
 									transf[2] /= transf[3];
@@ -4445,54 +4876,18 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 									AddPointToBounds(transf, cropBounds[0], cropBounds[1]);
 								}
 
-								// find the extends of the frustum slice as projected in light's homogeneous coordinates
-								//MatrixOrthogonalProjection(projectionMatrix, -1, 1, -1, 1, -maxZ, -minZ);
-								//MatrixMultiply(projectionMatrix, light->viewMatrix, viewProjectionMatrix);
-
-								//MatrixOrthogonalProjection(projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], 0, cropBounds[1][2]);
-
-								//MatrixOrthogonalProjection(projectionMatrix, -1, 1, -1, 1, 1, -1);
-								//MatrixScaleTranslateToFit(crop, cropBounds[0], cropBounds[1]);
-								//MatrixMultiply(crop, projectionMatrix, light->projectionMatrix);
-								//MatrixMultiplyScale(light->projectionMatrix, 1, 1, -1);
-
-								//cropBounds[1][2] = fabs(cropBounds[0][2]) + fabs(cropBounds[1][2]);
-								//cropBounds[0][2] = 0;
-
-								MatrixScaleTranslateToFit(cropMatrix, cropBounds[0], cropBounds[1]);
-								//MatrixPerspectiveProjection(projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], cropBounds[0][2], cropBounds[1][2]);
-								//MatrixPerspectiveProjectionFovXYRH(projectionMatrix, 90, 90, cropBounds[0][2], cropBounds[1][2]);
-								//MatrixInverse(cropMatrix);
-
-								//MatrixOrthogonalProjection(cropMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], cropBounds[0][2], cropBounds[1][2]);
-
 								// transform from OpenGL's right handed into D3D's left handed coordinate system
-								MatrixMultiply(flipZMatrix, cropMatrix, light->projectionMatrix);
-
-								//MatrixCopy(flipZMatrix, light->projectionMatrix);
-								//MatrixMultiply2(light->projectionMatrix, projectionMatrix);
-								//MatrixMultiply2(light->projectionMatrix, cropMatrix);
-
-
-
-								//MatrixScaleTranslateToFit(light->projectionMatrix, splitFrustumBounds[0], splitFrustumBounds[1]);
-								//MatrixScaleTranslateToFit(light->projectionMatrix, light->worldBounds[0], light->worldBounds[1]);
-								//MatrixOrthogonalProjection(light->projectionMatrix, -1, 1, -1, 1, -99999, 99999);
-								//MatrixOrthogonalProjection(projectionMatrix, 0, shadowMapResolutions[splitFrustumIndex], 0, shadowMapResolutions[splitFrustumIndex], -99999, 99999);
-
-#if 1
-								GL_LoadProjectionMatrix(light->projectionMatrix);
+#if 0
+								MatrixScaleTranslateToUnitCube(projectionMatrix, cropBounds[0], cropBounds[1]);
+								MatrixMultiply(flipZMatrix, projectionMatrix, light->projectionMatrix);
 #else
-								//MatrixCopy(bias, projectionMatrix);
-								//MatrixSetupTranslation(projectionMatrix, 0.5, 0.5, 0.5);
-								//MatrixMultiplyScale(projectionMatrix, 0.5, 0.5, 0.5);
-								//MatrixMultiply2(projectionMatrix, crop);
-								//MatrixMultiply2(projectionMatrix, light->projectionMatrix);
-
-								GL_LoadProjectionMatrix(projectionMatrix);
+								//MatrixOrthogonalProjectionRH(light->projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], cropBounds[0][2], cropBounds[1][2]);
+								MatrixOrthogonalProjectionRH(light->projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], -cropBounds[1][2], -cropBounds[0][2]);
+								//MatrixOrthogonalProjectionRH(light->projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], 0, fabs(cropBounds[1][2] -cropBounds[0][2]));
+								//MatrixOrthogonalProjectionRH(light->projectionMatrix, -1, 1, -1, 1, -cropBounds[1][2], -cropBounds[0][2]);
 #endif
+								GL_LoadProjectionMatrix(light->projectionMatrix);
 							}
-
 
 							break;
 						}
@@ -4712,6 +5107,9 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					}
 				}
 
+				// render in world space
+				//backEnd.orientation = backEnd.viewParms.world;
+
 				if(r_showShadowVolumes->integer)
 				{
 					GL_State(GLS_DEPTHFUNC_LESS | GLS_POLYMODE_LINE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
@@ -4828,9 +5226,11 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 						// build the attenuation matrix
 						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
+
+						MatrixCopy(light->attenuationMatrix, light->shadowMatrices[0]);
 						break;
 					}
 
@@ -4841,16 +5241,14 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));
 						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
 						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
+
+						MatrixCopy(light->attenuationMatrix, light->shadowMatrices[0]);
 						break;
 					}
 
 					case RL_DIRECTIONAL:
 					{
 						matrix_t        viewMatrix, projectionMatrix;
-
-						MatrixCopy(bias, light->shadowMatrix);
-						MatrixMultiply2(light->shadowMatrix, light->projectionMatrix);
-						MatrixMultiply2(light->shadowMatrix, light->viewMatrix);
 
 						// build same attenuation matrix as for box lights so we can clip pixels outside of the light volume
 						MatrixAffineInverse(light->transformMatrix, viewMatrix);
@@ -5015,7 +5413,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							GLSL_SetUniform_LightRadius(&tr.deferredShadowingShader_proj, light->sphereRadius);
 							GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix2);
 
-							GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix);
+							// FIXME GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix);
 							GLSL_SetUniform_ShadowCompare(&tr.deferredShadowingShader_proj, shadowCompare);
 
 							GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredShadowingShader_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -5078,7 +5476,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_proj, light->l.scale);
 							GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix2);
 
-							GLSL_SetUniform_ShadowMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix);
+							GLSL_SetUniform_ShadowMatrix(&tr.deferredLightingShader_DBS_proj, light->shadowMatrices);
 							GLSL_SetUniform_ShadowCompare(&tr.deferredLightingShader_DBS_proj, shadowCompare);
 
 							GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -5176,11 +5574,13 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_directional, light->l.scale);
 						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_directional, light->attenuationMatrix2);
 
-						GLSL_SetUniform_ShadowMatrix(&tr.deferredLightingShader_DBS_directional, light->shadowMatrix);
+						GLSL_SetUniform_ShadowMatrix(&tr.deferredLightingShader_DBS_directional, light->shadowMatricesBiased);
 						GLSL_SetUniform_ShadowCompare(&tr.deferredLightingShader_DBS_directional, shadowCompare);
+						GLSL_SetUniform_ShadowParallelSplitDistances(&tr.deferredLightingShader_DBS_directional, backEnd.viewParms.parallelSplitDistances);
 
 						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_directional, glState.modelViewProjectionMatrix[glState.stackIndex]);
 						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_directional, backEnd.viewParms.unprojectionMatrix);
+						GLSL_SetUniform_ViewMatrix(&tr.deferredLightingShader_DBS_directional, backEnd.viewParms.world.viewMatrix);
 
 						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_directional, backEnd.viewParms.isPortal);
 						if(backEnd.viewParms.isPortal)
@@ -5226,11 +5626,35 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						GL_SelectTexture(5);
 						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
-						// bind u_ShadowMap
+						// bind shadow maps
 						if(shadowCompare)
 						{
 							GL_SelectTexture(6);
-							GL_Bind(tr.shadowMapFBOImage[splitFrustumIndex]);
+							GL_Bind(tr.shadowMapFBOImage[0]);
+
+							if(r_parallelShadowSplits->integer >= 1)
+							{
+								GL_SelectTexture(7);
+								GL_Bind(tr.shadowMapFBOImage[1]);
+							}
+
+							if(r_parallelShadowSplits->integer >= 2)
+							{
+								GL_SelectTexture(8);
+								GL_Bind(tr.shadowMapFBOImage[2]);
+							}
+
+							if(r_parallelShadowSplits->integer >= 3)
+							{
+								GL_SelectTexture(9);
+								GL_Bind(tr.shadowMapFBOImage[3]);
+							}
+
+							if(r_parallelShadowSplits->integer >= 4)
+							{
+								GL_SelectTexture(10);
+								GL_Bind(tr.shadowMapFBOImage[4]);
+							}
 						}
 
 #if 0
@@ -5249,6 +5673,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				// draw split frustum shadow maps
 				if(r_showShadowMaps->integer && light->l.rlType == RL_DIRECTIONAL)
 				{
+					int			frustumIndex;
 					float		x, y, w, h;
 
 					GL_Viewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
@@ -5257,28 +5682,177 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 							   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
-					GL_BindProgram(&tr.debugShadowMapShader);
-					GL_Cull(CT_TWO_SIDED);
-					GL_State(GLS_DEPTHTEST_DISABLE);
+					for(frustumIndex = 0; frustumIndex <= r_parallelShadowSplits->integer; frustumIndex++)
+					{
+						GL_BindProgram(&tr.debugShadowMapShader);
+						GL_Cull(CT_TWO_SIDED);
+						GL_State(GLS_DEPTHTEST_DISABLE);
 
-					// set uniforms
-					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.debugShadowMapShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						// set uniforms
+						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.debugShadowMapShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-					GL_SelectTexture(0);
-					GL_Bind(tr.shadowMapFBOImage[splitFrustumIndex]);
+						GL_SelectTexture(0);
+						GL_Bind(tr.shadowMapFBOImage[frustumIndex]);
 
-					w = 256;
-					h = 256;
+						w = 200;
+						h = 200;
 
-					x = 260 * splitFrustumIndex;
-					y = 70;
+						x = 205 * frustumIndex;
+						y = 70;
 
-					VectorSet4(quadVerts[0], x, y, 0, 1);
-					VectorSet4(quadVerts[1], x + w, y, 0, 1);
-					VectorSet4(quadVerts[2], x + w, y + h, 0, 1);
-					VectorSet4(quadVerts[3], x, y + h, 0, 1);
+						VectorSet4(quadVerts[0], x, y, 0, 1);
+						VectorSet4(quadVerts[1], x + w, y, 0, 1);
+						VectorSet4(quadVerts[2], x + w, y + h, 0, 1);
+						VectorSet4(quadVerts[3], x, y + h, 0, 1);
 
-					Tess_InstantQuad(quadVerts);
+						Tess_InstantQuad(quadVerts);
+
+						{
+							int				j;
+							vec4_t			splitFrustum[6];
+							vec3_t          farCorners[4];
+							vec3_t          nearCorners[4];
+
+							GL_Viewport(x, y, w, h);
+							GL_Scissor(x, y, w, h);
+
+							GL_PushMatrix();
+
+							GL_BindProgram(&tr.genericSingleShader);
+							GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
+							GL_Cull(CT_TWO_SIDED);
+
+							// set uniforms
+							GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
+							GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_VERTEX);
+							GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_VERTEX);
+							if(glConfig.vboVertexSkinningAvailable)
+							{
+								GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
+							}
+							GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
+							GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
+
+							// bind u_ColorMap
+							GL_SelectTexture(0);
+							GL_Bind(tr.whiteImage);
+							GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
+
+							GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, light->shadowMatrices[frustumIndex]);
+
+							tess.numIndexes = 0;
+							tess.numVertexes = 0;
+
+#if 1
+							for(j = 0; j < 6; j++)
+							{
+								VectorCopy(backEnd.viewParms.frustums[1 + frustumIndex][j].normal, splitFrustum[j]);
+								splitFrustum[j][3] = backEnd.viewParms.frustums[1 + frustumIndex][j].dist;
+							}
+#else
+							for(j = 0; j < 6; j++)
+							{
+								VectorCopy(backEnd.viewParms.frustums[0][j].normal, splitFrustum[j]);
+								splitFrustum[j][3] = backEnd.viewParms.frustums[0][j].dist;
+							}
+#endif
+
+							// calculate split frustum corner points
+							PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_NEAR], nearCorners[0]);
+							PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_NEAR], nearCorners[1]);
+							PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_NEAR], nearCorners[2]);
+							PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_NEAR], nearCorners[3]);
+
+							PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_FAR], farCorners[0]);
+							PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_FAR], farCorners[1]);
+							PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_FAR], farCorners[2]);
+							PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_FAR], farCorners[3]);
+
+							// draw outer surfaces
+#if 1
+							for(j = 0; j < 4; j++)
+							{
+								VectorSet4(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
+								VectorSet4(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
+								VectorSet4(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
+								VectorSet4(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
+								Tess_AddQuadStamp2(quadVerts, colorCyan);
+							}
+
+							// draw far cap
+							VectorSet4(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+							VectorSet4(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+							VectorSet4(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+							VectorSet4(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+							Tess_AddQuadStamp2(quadVerts, colorBlue);
+
+							// draw near cap
+							VectorSet4(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
+							VectorSet4(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
+							VectorSet4(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
+							VectorSet4(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
+							Tess_AddQuadStamp2(quadVerts, colorGreen);
+#else
+
+							// draw pyramid
+							for(j = 0; j < 4; j++)
+							{
+								VectorCopy(farCorners[j], tess.xyz[tess.numVertexes]);
+								VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+								tess.indexes[tess.numIndexes++] = tess.numVertexes;
+								tess.numVertexes++;
+
+								VectorCopy(farCorners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
+								VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+								tess.indexes[tess.numIndexes++] = tess.numVertexes;
+								tess.numVertexes++;
+
+								VectorCopy(backEnd.viewParms.orientation.origin, tess.xyz[tess.numVertexes]);
+								VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+								tess.indexes[tess.numIndexes++] = tess.numVertexes;
+								tess.numVertexes++;
+							}
+
+							VectorSet4(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+							VectorSet4(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+							VectorSet4(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+							VectorSet4(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+							Tess_AddQuadStamp2(quadVerts, colorRed);
+#endif
+
+							Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
+							Tess_DrawElements();
+
+							// draw light volume
+							if(light->isStatic && light->frustumVBO && light->frustumIBO)
+							{
+								GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_CUSTOM_RGB);
+								GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_CUSTOM);
+								GLSL_SetUniform_Color(&tr.genericSingleShader, colorYellow);
+
+								R_BindVBO(light->frustumVBO);
+								R_BindIBO(light->frustumIBO);
+
+								GL_VertexAttribsState(ATTR_POSITION);
+
+								tess.numVertexes = light->frustumVerts;
+								tess.numIndexes = light->frustumIndexes;
+
+								Tess_DrawElements();
+							}
+
+							tess.numIndexes = 0;
+							tess.numVertexes = 0;
+
+							GL_PopMatrix();
+
+							GL_Viewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+										backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+
+							GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+									   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+						}
+					}
 				}
 
 				// end of lighting
@@ -5515,12 +6089,46 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					}
 
 					case RL_PROJ:
-					case RL_DIRECTIONAL:
 					{
 						// jump back to first interaction of this light and start lighting
 						ia = &backEnd.viewParms.interactions[iaFirst];
 						iaCount = iaFirst;
 						drawShadows = qfalse;
+						break;
+					}
+
+					case RL_DIRECTIONAL:
+					{
+						// set shadow matrix including scale + offset
+						MatrixCopy(bias, light->shadowMatricesBiased[splitFrustumIndex]);
+						MatrixMultiply2(light->shadowMatricesBiased[splitFrustumIndex], light->projectionMatrix);
+						MatrixMultiply2(light->shadowMatricesBiased[splitFrustumIndex], light->viewMatrix);
+
+						MatrixMultiply(light->projectionMatrix, light->viewMatrix, light->shadowMatrices[splitFrustumIndex]);
+
+						if(r_parallelShadowSplits->integer)
+						{
+							if(splitFrustumIndex == r_parallelShadowSplits->integer)
+							{
+								splitFrustumIndex = 0;
+								drawShadows = qfalse;
+							}
+							else
+							{
+								splitFrustumIndex++;
+							}
+
+							// jump back to first interaction of this light
+							ia = &backEnd.viewParms.interactions[iaFirst];
+							iaCount = iaFirst;
+						}
+						else
+						{
+							// jump back to first interaction of this light and start lighting
+							ia = &backEnd.viewParms.interactions[iaFirst];
+							iaCount = iaFirst;
+							drawShadows = qfalse;
+						}
 						break;
 					}
 
@@ -6034,7 +6642,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 						GLSL_SetUniform_LightRadius(&tr.deferredShadowingShader_proj, light->sphereRadius);
 						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix2);
 
-						GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix);
+						GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->shadowMatrices);
 						GLSL_SetUniform_ShadowCompare(&tr.deferredShadowingShader_proj, shadowCompare);
 
 						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredShadowingShader_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -8508,6 +9116,8 @@ static void RB_RenderDebugUtils()
 			lightColor[2] *= 0.5f;
 			//lightColor[3] *= 0.2f;
 
+			VectorCopy4(colorWhite, lightColor);
+
 			tess.numVertexes = 0;
 			tess.numIndexes = 0;
 
@@ -9232,158 +9842,6 @@ static void RB_RenderDebugUtils()
 		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
-
-#if 0
-	if(r_showParallelShadowSplits->integer)
-	{
-		int				i, j;
-		bspNode_t      *node;
-		link_t		   *l, *sentinel;
-		vec3_t          farCorners[4];
-		vec3_t          nearCorners[4];
-		vec4_t			frustum[6];
-		vec4_t          quadVerts[4];
-		vec4_t			frustumColor;
-		float			lambda;
-		float			ratio;
-		float			zNear;
-
-		if(tr.refdef.rdflags & (RDF_NOWORLDMODEL))
-		{
-			return;
-		}
-
-		GL_BindProgram(&tr.genericSingleShader);
-		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
-		GL_Cull(CT_TWO_SIDED);
-
-		// set uniforms
-		GLSL_SetUniform_TCGen_Environment(&tr.genericSingleShader,  qfalse);
-		GLSL_SetUniform_ColorGen(&tr.genericSingleShader, CGEN_CUSTOM_RGB);
-		GLSL_SetUniform_AlphaGen(&tr.genericSingleShader, AGEN_CUSTOM);
-		if(glConfig.vboVertexSkinningAvailable)
-		{
-			GLSL_SetUniform_VertexSkinning(&tr.genericSingleShader, qfalse);
-		}
-		GLSL_SetUniform_DeformGen(&tr.genericSingleShader, DGEN_NONE);
-		GLSL_SetUniform_AlphaTest(&tr.genericSingleShader, 0);
-
-		// set up the transformation matrix
-		backEnd.orientation = backEnd.viewParms.world;
-		GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericSingleShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-
-		// bind u_ColorMap
-		GL_SelectTexture(0);
-		GL_Bind(tr.whiteImage);
-		GLSL_SetUniform_ColorTextureMatrix(&tr.genericSingleShader, matrixIdentity);
-
-		GL_CheckErrors();
-
-		if(r_dynamicBspOcclusionCulling->integer)
-		{
-			//sentinel = &tr.occlusionQueryList;
-			sentinel = &tr.traversalStack;
-		}
-		else
-		{
-			sentinel = &tr.traversalStack;
-		}
-
-		lambda = r_parallelShadowSplitWeight->value;
-		ratio = backEnd.viewParms.zFar / backEnd.viewParms.zNear;
-
-		for(i = 0; i < r_parallelShadowSplits->integer; i++)
-		{
-			tess.numIndexes = 0;
-			tess.numVertexes = 0;
-
-			VectorCopy4(g_color_table[i % 8], frustumColor);
-
-			for(j = 0; j < 6; j++)
-			{
-				VectorCopy(backEnd.viewParms.frustums[1 + splitFrustumIndex][j].normal, splitFrustum[j]);
-				splitFrustum[j][3] = backEnd.viewParms.frustum[1 + splitFrustumIndex][j].dist;
-			}
-
-			if(i >= 1)
-			{
-				float si = i / (float)r_parallelShadowSplits->integer;
-
-				if(i >= 2 && i < (r_parallelShadowSplits->integer - 1))
-				{
-					frustum[FRUSTUM_FAR][3] = zNear * 1.005f;
-				}
-				frustum[FRUSTUM_NEAR][3] = zNear = lambda * (backEnd.viewParms.zNear * powf(ratio, si)) + (1 - lambda) * (backEnd.viewParms.zNear + (backEnd.viewParms.zFar - backEnd.viewParms.zNear) * si);
-			}
-
-			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[0]);
-			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[1]);
-			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[2]);
-			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[3]);
-
-#if 1
-			ri.Printf(PRINT_ALL, "split frustum %i\n", i);
-			ri.Printf(PRINT_ALL, "pyramid nearCorners\n");
-			for(j = 0; j < 4; j++)
-			{
-				ri.Printf(PRINT_ALL, "(%5.3f, %5.3f, %5.3f)\n", nearCorners[j][0], nearCorners[j][1], nearCorners[j][2]);
-			}
-#endif
-
-			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
-			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
-			PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[2]);
-			PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[3]);
-
-#if 1
-			ri.Printf(PRINT_ALL, "pyramid farCorners\n");
-			for(j = 0; j < 4; j++)
-			{
-				ri.Printf(PRINT_ALL, "(%5.3f, %5.3f, %5.3f)\n", farCorners[j][0], farCorners[j][1], farCorners[j][2]);
-			}
-#endif
-
-			tess.numVertexes = 0;
-			tess.numIndexes = 0;
-
-			// draw outer surfaces
-			for(j = 0; j < 4; j++)
-			{
-				VectorSet4(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
-				VectorSet4(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
-				VectorSet4(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
-				VectorSet4(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
-				Tess_AddQuadStamp2(quadVerts, frustumColor);
-			}
-
-			// draw far cap
-			VectorSet4(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
-			VectorSet4(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
-			VectorSet4(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
-			VectorSet4(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
-			Tess_AddQuadStamp2(quadVerts, frustumColor);
-
-			// draw near cap
-			VectorSet4(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
-			VectorSet4(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
-			VectorSet4(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
-			VectorSet4(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
-			Tess_AddQuadStamp2(quadVerts, frustumColor);
-
-
-			Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
-			Tess_DrawElements();
-
-			tess.numIndexes = 0;
-			tess.numVertexes = 0;
-		}
-
-		// go back to the world modelview matrix
-		backEnd.orientation = backEnd.viewParms.world;
-		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
-	}
-#endif
 
 	GL_CheckErrors();
 }

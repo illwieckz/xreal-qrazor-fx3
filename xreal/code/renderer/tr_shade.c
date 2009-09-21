@@ -250,93 +250,69 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GLHW_NV_DX10\n#define GLHW_NV_DX10 1\n#endif\n");
 		}
 
-		if(r_shadows->integer >= 4 && r_shadows->integer <= 5 && glConfig.textureFloatAvailable &&
-		   glConfig.framebufferObjectAvailable)
+		if(r_shadows->integer >= 4 && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
 		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
-
-			if(glConfig.hardwareType == GLHW_ATI)
+			if(r_shadows->integer == 6)
 			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_CLAMP\n#define VSM_CLAMP 1\n#endif\n");
-			}
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ESM\n#define ESM 1\n#endif\n");
 
-			if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 5)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.000001\n#endif\n");
+				if(r_debugShadowMaps->integer)
+				{
+					Q_strcat(bufferExtra, sizeof(bufferExtra),
+							 va("#ifndef DEBUG_ESM\n#define DEBUG_ESM %i\n#endif\n", r_debugShadowMaps->integer));
+				}
+
+				if(r_lightBleedReduction->value)
+				{
+					Q_strcat(bufferExtra, sizeof(bufferExtra),
+							 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
+								r_lightBleedReduction->value));
+				}
+
+				if(r_overDarkeningFactor->value)
+				{
+					Q_strcat(bufferExtra, sizeof(bufferExtra),
+							 va("#ifndef r_OverDarkeningFactor\n#define r_OverDarkeningFactor %f\n#endif\n",
+								r_overDarkeningFactor->value));
+				}
+
+				if(r_shadowMapDepthScale->value)
+				{
+					Q_strcat(bufferExtra, sizeof(bufferExtra),
+							 va("#ifndef r_ShadowMapDepthScale\n#define r_ShadowMapDepthScale %f\n#endif\n",
+								r_shadowMapDepthScale->value));
+				}
 			}
 			else
 			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.0001\n#endif\n");
-			}
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
 
-			if(r_debugShadowMaps->integer)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra),
-						 va("#ifndef DEBUG_VSM\n#define DEBUG_VSM %i\n#endif\n", r_debugShadowMaps->integer));
-			}
+				if(glConfig.hardwareType == GLHW_ATI)
+				{
+					Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_CLAMP\n#define VSM_CLAMP 1\n#endif\n");
+				}
 
-			if(r_lightBleedReduction->value)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra),
-						 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
-							r_lightBleedReduction->value));
-			}
+				if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 5)
+				{
+					Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.000001\n#endif\n");
+				}
+				else
+				{
+					Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.0001\n#endif\n");
+				}
 
-			if(r_softShadows->integer == 1)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_2X2\n#define PCF_2X2 1\n#endif\n");
-			}
-			else if(r_softShadows->integer == 2)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_3X3\n#define PCF_3X3 1\n#endif\n");
-			}
-			else if(r_softShadows->integer == 3)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_4X4\n#define PCF_4X4 1\n#endif\n");
-			}
-			else if(r_softShadows->integer == 4)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_5X5\n#define PCF_5X5 1\n#endif\n");
-			}
-			else if(r_softShadows->integer == 5)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_6X6\n#define PCF_6X6 1\n#endif\n");
-			}
-			else if(r_softShadows->integer == 6)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCSS\n#define PCSS 1\n#endif\n");
-			}
-		}
+				if(r_debugShadowMaps->integer)
+				{
+					Q_strcat(bufferExtra, sizeof(bufferExtra),
+							 va("#ifndef DEBUG_VSM\n#define DEBUG_VSM %i\n#endif\n", r_debugShadowMaps->integer));
+				}
 
-		if(r_shadows->integer == 6 && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ESM\n#define ESM 1\n#endif\n");
-
-			if(r_debugShadowMaps->integer)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra),
-						 va("#ifndef DEBUG_ESM\n#define DEBUG_ESM %i\n#endif\n", r_debugShadowMaps->integer));
-			}
-
-			if(r_lightBleedReduction->value)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra),
-						 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
-							r_lightBleedReduction->value));
-			}
-
-			if(r_overDarkeningFactor->value)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra),
-						 va("#ifndef r_OverDarkeningFactor\n#define r_OverDarkeningFactor %f\n#endif\n",
-							r_overDarkeningFactor->value));
-			}
-
-			if(r_shadowMapDepthScale->value)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra),
-						 va("#ifndef r_ShadowMapDepthScale\n#define r_ShadowMapDepthScale %f\n#endif\n",
-							r_shadowMapDepthScale->value));
+				if(r_lightBleedReduction->value)
+				{
+					Q_strcat(bufferExtra, sizeof(bufferExtra),
+							 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
+								r_lightBleedReduction->value));
+				}
 			}
 
 			if(r_softShadows->integer == 1)
@@ -363,6 +339,20 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCSS\n#define PCSS 1\n#endif\n");
 			}
+
+			if(r_parallelShadowSplits->integer)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef r_ParallelShadowSplits_%i\n#define r_ParallelShadowSplits_%i\n#endif\n", r_parallelShadowSplits->integer, r_parallelShadowSplits->integer));
+			}
+
+			if(r_showParallelShadowSplits->integer)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_ShowParallelShadowSplits\n#define r_ShowParallelShadowSplits 1\n#endif\n");
+			}
+
+			Q_strcat(bufferExtra, sizeof(bufferExtra),
+					 va("#ifndef MAX_SHADOWMAPS\n#define MAX_SHADOWMAPS %i\n#endif\n", MAX_SHADOWMAPS));
 		}
 
 		if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
@@ -1065,8 +1055,16 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_AttenuationMapXY");
 		tr.deferredLightingShader_DBS_directional.u_AttenuationMapZ =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_AttenuationMapZ");
-		tr.deferredLightingShader_DBS_directional.u_ShadowMap =
-			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ShadowMap");
+		tr.deferredLightingShader_DBS_directional.u_ShadowMap0 =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ShadowMap0");
+		tr.deferredLightingShader_DBS_directional.u_ShadowMap1 =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ShadowMap1");
+		tr.deferredLightingShader_DBS_directional.u_ShadowMap2 =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ShadowMap2");
+		tr.deferredLightingShader_DBS_directional.u_ShadowMap3 =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ShadowMap3");
+		tr.deferredLightingShader_DBS_directional.u_ShadowMap4 =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ShadowMap4");
 		tr.deferredLightingShader_DBS_directional.u_ViewOrigin =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ViewOrigin");
 		tr.deferredLightingShader_DBS_directional.u_LightDir =
@@ -1083,6 +1081,8 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ShadowMatrix");
 		tr.deferredLightingShader_DBS_directional.u_ShadowCompare =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ShadowCompare");
+		tr.deferredLightingShader_DBS_directional.u_ShadowParallelSplitDistances =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ShadowParallelSplitDistances");
 		tr.deferredLightingShader_DBS_directional.u_PortalClipping =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_PortalClipping");
 		tr.deferredLightingShader_DBS_directional.u_PortalPlane =
@@ -1091,6 +1091,8 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ModelViewProjectionMatrix");
 		tr.deferredLightingShader_DBS_directional.u_UnprojectMatrix =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_UnprojectMatrix");
+		tr.deferredLightingShader_DBS_directional.u_ViewMatrix =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_directional.program, "u_ViewMatrix");
 
 		qglUseProgramObjectARB(tr.deferredLightingShader_DBS_directional.program);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_directional.u_DiffuseMap, 0);
@@ -1099,7 +1101,11 @@ void GLSL_InitGPUShaders(void)
 		qglUniform1iARB(tr.deferredLightingShader_DBS_directional.u_DepthMap, 3);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_directional.u_AttenuationMapXY, 4);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_directional.u_AttenuationMapZ, 5);
-		qglUniform1iARB(tr.deferredLightingShader_DBS_directional.u_ShadowMap, 6);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_directional.u_ShadowMap0, 6);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_directional.u_ShadowMap1, 7);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_directional.u_ShadowMap2, 8);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_directional.u_ShadowMap3, 9);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_directional.u_ShadowMap4, 10);
 		qglUseProgramObjectARB(0);
 
 		GLSL_ValidateProgram(tr.deferredLightingShader_DBS_directional.program);
@@ -3797,7 +3803,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	GLSL_SetUniform_ShadowCompare(&tr.forwardLightingShader_DBS_proj, shadowCompare);
 	if(shadowCompare)
 	{
-		GLSL_SetUniform_ShadowMatrix(&tr.forwardLightingShader_DBS_proj, light->attenuationMatrix);
+		GLSL_SetUniform_ShadowMatrix(&tr.forwardLightingShader_DBS_proj, light->shadowMatrices);
 		GLSL_SetUniform_ShadowTexelSize(&tr.forwardLightingShader_DBS_proj, shadowTexelSize);
 		GLSL_SetUniform_ShadowBlur(&tr.forwardLightingShader_DBS_proj, r_shadowBlur->value);
 	}

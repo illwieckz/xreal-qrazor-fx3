@@ -38,7 +38,7 @@ uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
 //uniform int			u_InverseVertexColor;
 uniform mat4		u_LightAttenuationMatrix;
-uniform mat4		u_ShadowMatrix;
+uniform mat4		u_ShadowMatrix[MAX_SHADOWMAPS];
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
@@ -93,7 +93,7 @@ void	main()
 		var_TexAtten = u_LightAttenuationMatrix * vertex;
 	
 		// calc shadow attenuation in light space
-		vec4 texShadow = u_ShadowMatrix * vertex;
+		vec4 texShadow = u_ShadowMatrix[0] * vertex;
 	
 		// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
 		var_Position.w = texShadow.s;
@@ -121,7 +121,7 @@ void	main()
 		var_TexAtten = u_LightAttenuationMatrix * attr_Position;
 	
 		// calc shadow attenuation in light space
-		vec4 texShadow = u_ShadowMatrix * attr_Position;
+		vec4 texShadow = u_ShadowMatrix[0] * attr_Position;
 	
 		// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
 		var_Position.w = texShadow.s;

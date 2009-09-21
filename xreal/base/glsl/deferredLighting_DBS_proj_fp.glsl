@@ -33,7 +33,7 @@ uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform mat4		u_LightAttenuationMatrix;
-uniform mat4		u_ShadowMatrix;
+uniform mat4		u_ShadowMatrix[MAX_SHADOWMAPS];
 uniform int			u_ShadowCompare;
 uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
@@ -83,7 +83,7 @@ void	main()
 		float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
 		
 		// no filter
-		vec4 texShadow = u_ShadowMatrix * vec4(P.xyz, 1.0);
+		vec4 texShadow = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
 		vec4 shadowMoments = texture2DProj(u_ShadowMap, texShadow.xyw);
 		//vec4 shadowMoments = texture2DProj(u_ShadowMap, SP.xyw);
 	
@@ -135,7 +135,7 @@ void	main()
 		vec3 I = P.xyz - u_LightOrigin;
 		
 		// no filter
-		vec4 texShadow = u_ShadowMatrix * vec4(P.xyz, 1.0);
+		vec4 texShadow = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
 		vec4 shadowMoments = texture2DProj(u_ShadowMap, texShadow.xyw);
 		
 		const float	SHADOW_BIAS = 0.001;

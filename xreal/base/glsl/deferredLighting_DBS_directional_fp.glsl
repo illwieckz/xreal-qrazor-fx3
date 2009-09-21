@@ -26,7 +26,11 @@ uniform sampler2D	u_SpecularMap;
 uniform sampler2D	u_DepthMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
-uniform sampler2D	u_ShadowMap;
+uniform sampler2D	u_ShadowMap0;
+uniform sampler2D	u_ShadowMap1;
+uniform sampler2D	u_ShadowMap2;
+uniform sampler2D	u_ShadowMap3;
+uniform sampler2D	u_ShadowMap4;
 uniform vec3		u_ViewOrigin;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightDir;
@@ -34,10 +38,12 @@ uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform mat4		u_LightAttenuationMatrix;
-uniform mat4		u_ShadowMatrix;
+uniform mat4		u_ShadowMatrix[MAX_SHADOWMAPS];
 uniform int			u_ShadowCompare;
+uniform vec4		u_ShadowParallelSplitDistances;
 uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
+uniform mat4		u_ViewMatrix;
 uniform mat4		u_UnprojectMatrix;
 
 
@@ -104,6 +110,9 @@ void	main()
 	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
 	P.xyz /= P.w;
 	
+	// transform to camera space
+	vec4 Pcam = u_ViewMatrix * vec4(P.xyz, 1.0);
+	
 	if(bool(u_PortalClipping))
 	{
 		float dist = dot(P.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
@@ -128,8 +137,171 @@ void	main()
 #if defined(VSM)
 	if(bool(u_ShadowCompare))
 	{
-		vec4 shadowVert = u_ShadowMatrix * vec4(P.xyz, 1.0);
-		vec4 shadowMoments = texture2DProj(u_ShadowMap, shadowVert.xyw);
+		vec4 shadowVert;
+		
+		float vertexDistanceToCamera = -Pcam.z;
+		
+		vec4 shadowMoments;
+#if defined(r_ParallelShadowSplits_1)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+		}
+#elif defined(r_ParallelShadowSplits_2)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+			
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[2] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+			#endif
+		}
+#elif defined(r_ParallelShadowSplits_3)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+			
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[2] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+			#endif
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[3] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap3, shadowVert.xyw);
+			#endif
+		}
+#elif defined(r_ParallelShadowSplits_4)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+			
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[2] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.w)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[3] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap3, shadowVert.xyw);
+			#endif
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[4] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap4, shadowVert.xyw);
+			#endif
+		}
+#else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+#endif
+
+		shadowVert.xyz /= shadowVert.w;
 		
 		const float	SHADOW_BIAS = 0.001;
 		float vertexDistance = shadowVert.z - SHADOW_BIAS;
@@ -178,13 +350,175 @@ void	main()
 #elif defined(ESM)
 	if(bool(u_ShadowCompare))
 	{
-		// no filter
-		vec4 shadowVert = u_ShadowMatrix * vec4(P.xyz, 1.0);
-		vec4 shadowMoments = texture2DProj(u_ShadowMap, shadowVert.xyw);
+		vec4 shadowVert;
+		
+		float vertexDistanceToCamera = -Pcam.z;
+		
+		vec4 shadowMoments;
+#if defined(r_ParallelShadowSplits_1)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+		}
+#elif defined(r_ParallelShadowSplits_2)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+			
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[2] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+			#endif
+		}
+#elif defined(r_ParallelShadowSplits_3)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+			
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[2] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+			#endif
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[3] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap3, shadowVert.xyw);
+			#endif
+		}
+#elif defined(r_ParallelShadowSplits_4)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+			
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[2] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.w)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[3] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap3, shadowVert.xyw);
+			#endif
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[4] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap4, shadowVert.xyw);
+			#endif
+		}
+#else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+#endif
+
+		shadowVert.xyz /= shadowVert.w;
 		
 		const float	SHADOW_BIAS = 0.001;
 		float vertexDistance = shadowVert.z;// * r_ShadowMapDepthScale;
-		vertexDistance /= shadowVert.w;
+		//vertexDistance /= shadowVert.w;
 		
 		float shadowDistance = shadowMoments.a;
 		

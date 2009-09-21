@@ -487,6 +487,18 @@ qboolean PlanesGetIntersectionPoint(const vec4_t plane1, const vec4_t plane2, co
 	return qtrue;
 }
 
+void PlaneIntersectRay(const vec3_t rayPos, const vec3_t rayDir, const vec4_t plane, vec3_t res)
+{
+	vec3_t          dir;
+	float           sect;
+
+	VectorNormalize2(rayDir, dir);
+
+	sect = -(DotProduct(plane, rayPos) - plane[3]) / DotProduct(plane, rayDir);
+	VectorScale(dir, sect, dir);
+	VectorAdd(rayPos, dir, res);
+}
+
 /*
 ===============
 RotatePointAroundVector
@@ -2906,14 +2918,10 @@ see glspec30.pdf chapter 2.12 Coordinate Transformations
 */
 void MatrixOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
 {
-#if 1
 	m[0] = 2 / (right - left);	m[4] = 0;					m[8] = 0;					m[12] = -(right + left) / (right - left);
 	m[1] = 0;					m[5] = 2 / (top - bottom);	m[9] = 0;					m[13] = -(top + bottom) / (top - bottom);
 	m[2] = 0;					m[6] = 0;					m[10] = -2 / (far - near);	m[14] = -(far + near) / (far - near);
 	m[3] = 0;					m[7] = 0;					m[11] = 0;					m[15] = 1;
-#else
-	MatrixOrthogonalProjectionLH(m, left, right, bottom, top, near, far);
-#endif
 }
 
 /*
@@ -2926,6 +2934,19 @@ void MatrixOrthogonalProjectionLH(matrix_t m, vec_t left, vec_t right, vec_t bot
 	m[0] = 2 / (right - left);	m[4] = 0;					m[8] = 0;					m[12] = (left + right) / (left - right);
 	m[1] = 0;					m[5] = 2 / (top - bottom);	m[9] = 0;					m[13] = (top + bottom) / (bottom - top);
 	m[2] = 0;					m[6] = 0;					m[10] = 1 / (far - near);	m[14] = near / (near - far);
+	m[3] = 0;					m[7] = 0;					m[11] = 0;					m[15] = 1;
+}
+
+/*
+same as D3DXMatrixOrthoOffCenterRH
+
+http://msdn.microsoft.com/en-us/library/bb205348(VS.85).aspx
+*/
+void MatrixOrthogonalProjectionRH(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
+{
+	m[0] = 2 / (right - left);	m[4] = 0;					m[8] = 0;					m[12] = (left + right) / (left - right);
+	m[1] = 0;					m[5] = 2 / (top - bottom);	m[9] = 0;					m[13] = (top + bottom) / (bottom - top);
+	m[2] = 0;					m[6] = 0;					m[10] = 1 / (near - far);	m[14] = near / (near - far);
 	m[3] = 0;					m[7] = 0;					m[11] = 0;					m[15] = 1;
 }
 
@@ -2977,9 +2998,8 @@ void MatrixLookAtRH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t
 	m[ 3] = 0;			m[ 7] = 0;				m[11] = 0;				m[15] = 1;
 }
 
-void MatrixScaleTranslateToFit(matrix_t m, const vec3_t mins, const vec3_t maxs)
+void MatrixScaleTranslateToUnitCube(matrix_t m, const vec3_t mins, const vec3_t maxs)
 {
-#if 1
 	m[ 0] = 2/(maxs[0]-mins[0]);
 	m[ 4] = 0;
 	m[ 8] = 0;
@@ -2999,7 +3019,10 @@ void MatrixScaleTranslateToFit(matrix_t m, const vec3_t mins, const vec3_t maxs)
 	m[ 7] = 0;
 	m[11] = 0;
 	m[15] = 1;
-#else
+}
+
+void MatrixCrop(matrix_t m, const vec3_t mins, const vec3_t maxs)
+{
 	float			scaleX, scaleY, scaleZ;
 	float			offsetX, offsetY, offsetZ;
 
@@ -3009,21 +3032,14 @@ void MatrixScaleTranslateToFit(matrix_t m, const vec3_t mins, const vec3_t maxs)
 	offsetX = -0.5f * (maxs[0] + mins[0]) * scaleX;
 	offsetY = -0.5f * (maxs[1] + mins[1]) * scaleY;
 
-#if 1
 	scaleZ = 1.0f / (maxs[2] - mins[2]);
 	offsetZ = -mins[2] * scaleZ;
-#else
-	scaleZ = 1.0f / maxs[2];
-	offsetZ = 0;
-#endif
 
 	m[ 0] = scaleX;		m[ 4] = 0;			m[ 8] = 0;      	m[12] = offsetX;
 	m[ 1] = 0;			m[ 5] = scaleY;		m[ 9] = 0;      	m[13] = offsetY;
 	m[ 2] = 0;			m[ 6] = 0;      	m[10] = scaleZ;		m[14] = offsetZ;
 	m[ 3] = 0;			m[ 7] = 0;			m[11] = 0;			m[15] = 1;
-#endif
 }
-
 
 
 // *INDENT-ON*

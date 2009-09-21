@@ -6690,7 +6690,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			vboSurf->numIndexes = numTriangles * 3;
 			vboSurf->numVerts = numVerts;
 			vboSurf->lightmapNum = -1;
-			ZeroBounds(vboSurf->bounds[0], vboSurf->bounds[1]);	// FIXME: merge surface bounding boxes
+			ZeroBounds(vboSurf->bounds[0], vboSurf->bounds[1]);
 
 			// create arrays
 			triangles = ri.Hunk_AllocateTempMemory(numTriangles * sizeof(srfTriangle_t));

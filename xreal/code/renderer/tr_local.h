@@ -85,7 +85,7 @@ typedef unsigned short glIndex_t;
 #define MAX_SHADOWMAPS			5
 
 #if !defined(USE_D3D10)
-#define VOLUMETRIC_LIGHTING 1
+//#define VOLUMETRIC_LIGHTING 1
 #endif
 
 #define DEBUG_OPTIMIZEVERTICES 0
@@ -341,7 +341,8 @@ typedef struct trRefLight_s
 
 	float			falloffLength;
 
-	matrix_t		shadowMatrix;
+	matrix_t		shadowMatrices[MAX_SHADOWMAPS];
+	matrix_t		shadowMatricesBiased[MAX_SHADOWMAPS];
 	matrix_t        attenuationMatrix;	// attenuation * (light view * entity transform)
 	matrix_t        attenuationMatrix2;	// attenuation * tcMod matrices
 
@@ -1292,6 +1293,11 @@ typedef struct shaderProgram_s
 	GLint           u_AttenuationMapXY;
 	GLint           u_AttenuationMapZ;
 	GLint           u_ShadowMap;
+	GLint           u_ShadowMap0;
+	GLint           u_ShadowMap1;
+	GLint           u_ShadowMap2;
+	GLint           u_ShadowMap3;
+	GLint           u_ShadowMap4;
 
 	GLint           u_GrainMap;
 	GLint           u_VignetteMap;
@@ -1378,10 +1384,11 @@ typedef struct shaderProgram_s
 	GLint           u_ShadowBlur;
 	float			t_ShadowBlur;
 
+	GLint			u_ShadowParallelSplitDistances;
+	vec4_t			t_ShadowParallelSplitDistances;
 
 	GLint           u_RefractionIndex;
 	float			t_RefractionIndex;
-
 
 	GLint           u_FresnelPower;
 	GLint           u_FresnelScale;
@@ -1425,8 +1432,8 @@ typedef struct shaderProgram_s
 	GLint           u_ModelMatrix;	// model -> world
 	matrix_t		t_ModelMatrix;
 
-//	GLint           u_ViewMatrix;	// world -> camera
-//	matrix_t		t_ViewMatrix;
+	GLint           u_ViewMatrix;	// world -> camera
+	matrix_t		t_ViewMatrix;
 
 	GLint           u_ModelViewMatrix;	// model -> camera
 	matrix_t		t_ModelViewMatrix;
@@ -1963,16 +1970,18 @@ static ID_INLINE void GLSL_SetUniform_LightFrustum(shaderProgram_t * program, ve
 */
 
 
-static ID_INLINE void GLSL_SetUniform_ShadowMatrix(shaderProgram_t * program, const matrix_t m)
+static ID_INLINE void GLSL_SetUniform_ShadowMatrix(shaderProgram_t * program, matrix_t m[MAX_SHADOWMAPS])
 {
+/*
 #if defined(USE_UNIFORM_FIREWALL)
-	if(MatrixCompare(program->t_ShadowMatrix, m))
+	if(MatrixCompare(program->t_ShadowMatrix[index], m))
 		return;
 
-	MatrixCopy(m, program->t_ShadowMatrix);
+	MatrixCopy(m, program->t_ShadowMatrix[index]);
 #endif
+*/
 
-	qglUniformMatrix4fvARB(program->u_ShadowMatrix, 1, GL_FALSE, m);
+	qglUniformMatrix4fvARB(program->u_ShadowMatrix, MAX_SHADOWMAPS, GL_FALSE, &m[0][0]);
 }
 
 static ID_INLINE void GLSL_SetUniform_ShadowCompare(shaderProgram_t * program, qboolean value)
@@ -2030,6 +2039,25 @@ static ID_INLINE void GLSL_SetUniform_ShadowBlur(shaderProgram_t * program, floa
 #endif
 
 	qglUniform1fARB(program->u_ShadowBlur, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_ShadowParallelSplitDistances(shaderProgram_t * program, const vec4_t v)
+{
+#if 0//defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare4(program->t_ShadowParallelSplitDistances, v))
+		return;
+
+	VectorCopy4(v, program->t_ShadowParallelSplitDistances);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_ShadowParallelSplitDistances( program = %s, distances = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+	}
+#endif
+
+	qglUniform4fARB(program->u_ShadowParallelSplitDistances, v[0], v[1], v[2], v[3]);
 }
 
 static ID_INLINE void GLSL_SetUniform_RefractionIndex(shaderProgram_t * program, float value)
@@ -2173,6 +2201,18 @@ static ID_INLINE void GLSL_SetUniform_ModelMatrix(shaderProgram_t * program, con
 #endif
 
 	qglUniformMatrix4fvARB(program->u_ModelMatrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_ViewMatrix(shaderProgram_t * program, const matrix_t m)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(MatrixCompare(program->t_ViewMatrix, m))
+		return;
+
+	MatrixCopy(m, program->t_ViewMatrix);
+#endif
+
+	qglUniformMatrix4fvARB(program->u_ViewMatrix, 1, GL_FALSE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_ModelViewMatrix(shaderProgram_t * program, const matrix_t m)
@@ -2394,6 +2434,8 @@ typedef struct
 	float           fovX, fovY;
 	matrix_t        projectionMatrix;
 	matrix_t        unprojectionMatrix;	// transform pixel window space -> world space
+
+	float			parallelSplitDistances[MAX_SHADOWMAPS + 1];	// distances in camera space
 
 	frustum_t       frustums[MAX_SHADOWMAPS + 1];	// first frustum is the default one with complete zNear - zFar range
 													// and the other ones are for PSSM
@@ -3894,7 +3936,7 @@ void            R_RotateEntityForViewParms(const trRefEntity_t * ent, const view
 void            R_RotateEntityForLight(const trRefEntity_t * ent, const trRefLight_t * light, orientationr_t * orien);
 void            R_RotateLightForViewParms(const trRefLight_t * ent, const viewParms_t * viewParms, orientationr_t * orien);
 
-void            R_SetupFrustum2(frustum_t frustum, const float *modelViewMatrix, const float *projectionMatrix);
+void            R_SetupFrustum2(frustum_t frustum, const matrix_t modelViewProjectionMatrix);
 
 qboolean        R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkst);
 void            R_CalcNormalForTriangle(vec3_t normal, const vec3_t v0, const vec3_t v1, const vec3_t v2);

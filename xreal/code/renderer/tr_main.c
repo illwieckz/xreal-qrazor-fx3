@@ -1560,50 +1560,46 @@ Setup that culling frustum planes for the current view
 =================
 */
 // *INDENT-OFF*
-void R_SetupFrustum2(frustum_t frustum, const float *modelViewMatrix, const float *projectionMatrix)
+void R_SetupFrustum2(frustum_t frustum, const matrix_t mvp)
 {
-#if 1
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 	int				i;
-	matrix_t        m;
-
-	MatrixMultiply(projectionMatrix, modelViewMatrix, m);
 
 	// left
-	frustum[FRUSTUM_LEFT].normal[0]		=  m[ 3] + m[ 0];
-	frustum[FRUSTUM_LEFT].normal[1]		=  m[ 7] + m[ 4];
-	frustum[FRUSTUM_LEFT].normal[2]		=  m[11] + m[ 8];
-	frustum[FRUSTUM_LEFT].dist			=-(m[15] + m[12]);
+	frustum[FRUSTUM_LEFT].normal[0]		=  mvp[ 3] + mvp[ 0];
+	frustum[FRUSTUM_LEFT].normal[1]		=  mvp[ 7] + mvp[ 4];
+	frustum[FRUSTUM_LEFT].normal[2]		=  mvp[11] + mvp[ 8];
+	frustum[FRUSTUM_LEFT].dist			=-(mvp[15] + mvp[12]);
 
 	// right
-	frustum[FRUSTUM_RIGHT].normal[0]	=  m[ 3] - m[ 0];
-	frustum[FRUSTUM_RIGHT].normal[1]	=  m[ 7] - m[ 4];
-	frustum[FRUSTUM_RIGHT].normal[2]	=  m[11] - m[ 8];
-	frustum[FRUSTUM_RIGHT].dist			=-(m[15] - m[12]);
+	frustum[FRUSTUM_RIGHT].normal[0]	=  mvp[ 3] - mvp[ 0];
+	frustum[FRUSTUM_RIGHT].normal[1]	=  mvp[ 7] - mvp[ 4];
+	frustum[FRUSTUM_RIGHT].normal[2]	=  mvp[11] - mvp[ 8];
+	frustum[FRUSTUM_RIGHT].dist			=-(mvp[15] - mvp[12]);
 
 	// bottom
-	frustum[FRUSTUM_BOTTOM].normal[0]	=  m[ 3] + m[ 1];
-	frustum[FRUSTUM_BOTTOM].normal[1]	=  m[ 7] + m[ 5];
-	frustum[FRUSTUM_BOTTOM].normal[2]	=  m[11] + m[ 9];
-	frustum[FRUSTUM_BOTTOM].dist		=-(m[15] + m[13]);
+	frustum[FRUSTUM_BOTTOM].normal[0]	=  mvp[ 3] + mvp[ 1];
+	frustum[FRUSTUM_BOTTOM].normal[1]	=  mvp[ 7] + mvp[ 5];
+	frustum[FRUSTUM_BOTTOM].normal[2]	=  mvp[11] + mvp[ 9];
+	frustum[FRUSTUM_BOTTOM].dist		=-(mvp[15] + mvp[13]);
 
 	// top
-	frustum[FRUSTUM_TOP].normal[0]		=  m[ 3] - m[ 1];
-	frustum[FRUSTUM_TOP].normal[1]		=  m[ 7] - m[ 5];
-	frustum[FRUSTUM_TOP].normal[2]		=  m[11] - m[ 9];
-	frustum[FRUSTUM_TOP].dist			=-(m[15] - m[13]);
+	frustum[FRUSTUM_TOP].normal[0]		=  mvp[ 3] - mvp[ 1];
+	frustum[FRUSTUM_TOP].normal[1]		=  mvp[ 7] - mvp[ 5];
+	frustum[FRUSTUM_TOP].normal[2]		=  mvp[11] - mvp[ 9];
+	frustum[FRUSTUM_TOP].dist			=-(mvp[15] - mvp[13]);
 
 	// near
-	frustum[FRUSTUM_NEAR].normal[0]		=  m[ 3] + m[ 2];
-	frustum[FRUSTUM_NEAR].normal[1]		=  m[ 7] + m[ 6];
-	frustum[FRUSTUM_NEAR].normal[2]		=  m[11] + m[10];
-	frustum[FRUSTUM_NEAR].dist			=-(m[15] + m[14]);
+	frustum[FRUSTUM_NEAR].normal[0]		=  mvp[ 3] + mvp[ 2];
+	frustum[FRUSTUM_NEAR].normal[1]		=  mvp[ 7] + mvp[ 6];
+	frustum[FRUSTUM_NEAR].normal[2]		=  mvp[11] + mvp[10];
+	frustum[FRUSTUM_NEAR].dist			=-(mvp[15] + mvp[14]);
 
 	// far
-	frustum[FRUSTUM_FAR].normal[0]		=  m[ 3] - m[ 2];
-	frustum[FRUSTUM_FAR].normal[1]		=  m[ 7] - m[ 6];
-	frustum[FRUSTUM_FAR].normal[2]		=  m[11] - m[10];
-	frustum[FRUSTUM_FAR].dist			=-(m[15] - m[14]);
+	frustum[FRUSTUM_FAR].normal[0]		=  mvp[ 3] - mvp[ 2];
+	frustum[FRUSTUM_FAR].normal[1]		=  mvp[ 7] - mvp[ 6];
+	frustum[FRUSTUM_FAR].normal[2]		=  mvp[11] - mvp[10];
+	frustum[FRUSTUM_FAR].dist			=-(mvp[15] - mvp[14]);
 
 	for(i = 0; i < 6; i++)
 	{
@@ -1624,16 +1620,6 @@ void R_SetupFrustum2(frustum_t frustum, const float *modelViewMatrix, const floa
 
 		SetPlaneSignbits(&frustum[i]);
 	}
-#else
-	vec3_t			planeOrigin;
-
-	tr.viewParms.frustums[0][FRUSTUM_FAR].type = PLANE_NON_AXIAL;
-	VectorNegate(tr.viewParms.orientation.axis[0], tr.viewParms.frustums[0][FRUSTUM_FAR].normal);
-
-	VectorMA(tr.viewParms.orientation.origin, tr.viewParms.zFar, tr.viewParms.frustums[0][FRUSTUM_FAR].normal, planeOrigin);
-	tr.viewParms.frustums[0][FRUSTUM_FAR].dist = DotProduct(planeOrigin, tr.viewParms.frustums[0][FRUSTUM_FAR].normal);
-	SetPlaneSignbits(&tr.viewParms.frustums[0][FRUSTUM_FAR]);
-#endif
 }
 // *INDENT-ON*
 
@@ -1661,38 +1647,43 @@ static void R_SetupSplitFrustums(void)
 	lambda = r_parallelShadowSplitWeight->value;
 	ratio = tr.viewParms.zFar / tr.viewParms.zNear;
 
-	for(i = 0; i < r_parallelShadowSplits->integer; i++)
+	for(j = 0; j < 5; j++)
 	{
-		float si = (i + 1) / (float)r_parallelShadowSplits->integer;
+		CopyPlane(&tr.viewParms.frustums[0][j], &tr.viewParms.frustums[1][j]);
+	}
 
-		zFar = lambda * (tr.viewParms.zNear * powf(ratio, si)) + (1 - lambda) * (tr.viewParms.zNear + (tr.viewParms.zFar - tr.viewParms.zNear) * si);
+	for(i = 1; i <= (r_parallelShadowSplits->integer + 1); i++)
+	{
+		float si = i / (float)(r_parallelShadowSplits->integer + 1);
 
-		if(i == 0)
+		zFar = 1.005f * lambda * (tr.viewParms.zNear * powf(ratio, si)) + (1 - lambda) * (tr.viewParms.zNear + (tr.viewParms.zFar - tr.viewParms.zNear) * si);
+
+		if(i <= r_parallelShadowSplits->integer)
 		{
-			CopyPlane(&tr.viewParms.frustums[0][FRUSTUM_NEAR], &tr.viewParms.frustums[i + 1][FRUSTUM_NEAR]);
+			tr.viewParms.parallelSplitDistances[i - 1] = zFar;
 		}
-		else if(i >= 1 && i < (r_parallelShadowSplits->integer - 1))
-		{
-			zNear = zFar * 0.995f;
 
+		tr.viewParms.frustums[i][FRUSTUM_FAR].type = PLANE_NON_AXIAL;
+		VectorNegate(tr.viewParms.orientation.axis[0], tr.viewParms.frustums[i][FRUSTUM_FAR].normal);
+
+		VectorMA(tr.viewParms.orientation.origin, zFar, tr.viewParms.orientation.axis[0], planeOrigin);
+		tr.viewParms.frustums[i][FRUSTUM_FAR].dist = DotProduct(planeOrigin, tr.viewParms.frustums[i][FRUSTUM_FAR].normal);
+		SetPlaneSignbits(&tr.viewParms.frustums[i][FRUSTUM_FAR]);
+
+		if(i <= (r_parallelShadowSplits->integer))
+		{
+			zNear = zFar - (zFar * 0.005f);
 			tr.viewParms.frustums[i + 1][FRUSTUM_NEAR].type = PLANE_NON_AXIAL;
 			VectorCopy(tr.viewParms.orientation.axis[0], tr.viewParms.frustums[i + 1][FRUSTUM_NEAR].normal);
 
-			VectorMA(tr.viewParms.orientation.origin, zNear, tr.viewParms.frustums[i + 1][FRUSTUM_NEAR].normal, planeOrigin);
+			VectorMA(tr.viewParms.orientation.origin, zNear, tr.viewParms.orientation.axis[0], planeOrigin);
 			tr.viewParms.frustums[i + 1][FRUSTUM_NEAR].dist = DotProduct(planeOrigin, tr.viewParms.frustums[i + 1][FRUSTUM_NEAR].normal);
 			SetPlaneSignbits(&tr.viewParms.frustums[i + 1][FRUSTUM_NEAR]);
 		}
 
-		tr.viewParms.frustums[i + 1][FRUSTUM_FAR].type = PLANE_NON_AXIAL;
-		VectorNegate(tr.viewParms.orientation.axis[0], tr.viewParms.frustums[i + 1][FRUSTUM_FAR].normal);
-
-		VectorMA(tr.viewParms.orientation.origin, zFar, tr.viewParms.frustums[i + 1][FRUSTUM_FAR].normal, planeOrigin);
-		tr.viewParms.frustums[i + 1][FRUSTUM_FAR].dist = DotProduct(planeOrigin, tr.viewParms.frustums[i + 1][FRUSTUM_FAR].normal);
-		SetPlaneSignbits(&tr.viewParms.frustums[i + 1][FRUSTUM_FAR]);
-
 		for(j = 0; j < 4; j++)
 		{
-			CopyPlane(&tr.viewParms.frustums[0][j], &tr.viewParms.frustums[i + 1][j]);
+			CopyPlane(&tr.viewParms.frustums[0][j], &tr.viewParms.frustums[i][j]);
 		}
 	}
 }
@@ -3112,6 +3103,7 @@ void R_RenderView(viewParms_t * parms)
 {
 	int             firstDrawSurf;
 	int             firstInteraction;
+	matrix_t		mvp;
 
 	if(parms->viewportWidth <= 0 || parms->viewportHeight <= 0)
 	{
@@ -3162,7 +3154,8 @@ void R_RenderView(viewParms_t * parms)
 
 	// set camera frustum planes in world space again, but this time including the far plane
 	tr.orientation = tr.viewParms.world;
-	R_SetupFrustum2(tr.viewParms.frustums[0], tr.orientation.modelViewMatrix, tr.viewParms.projectionMatrix);
+	MatrixMultiply(tr.viewParms.projectionMatrix, tr.orientation.modelViewMatrix, mvp);
+	R_SetupFrustum2(tr.viewParms.frustums[0], mvp);
 
 	// for parallel split shadow mapping
 	R_SetupSplitFrustums();

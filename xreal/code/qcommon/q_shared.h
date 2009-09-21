@@ -1111,6 +1111,7 @@ qboolean        PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, co
  * Returns <0,0,0> if no intersection point could be found, otherwise returns the coordinates of the intersection point
  * (this may also be 0,0,0) */
 qboolean		PlanesGetIntersectionPoint(const vec4_t plane1, const vec4_t plane2, const vec4_t plane3, vec3_t out);
+void			PlaneIntersectRay(const vec3_t rayPos, const vec3_t rayDir, const vec4_t plane, vec3_t res);
 
 void            ProjectPointOnPlane(vec3_t dst, const vec3_t p, const vec3_t normal);
 void            RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, float degrees);
@@ -1128,7 +1129,6 @@ void            PerpendicularVector(vec3_t dst, const vec3_t src);
 
 void            GetPerpendicularViewVector(const vec3_t point, const vec3_t p1, const vec3_t p2, vec3_t up);
 void            ProjectPointOntoVector(vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj);
-float           VectorDistance(vec3_t v1, vec3_t v2);
 
 float           pointToLineDistance(const vec3_t point, const vec3_t p1, const vec3_t p2);
 float           VectorMinComponent(vec3_t v);
@@ -1192,10 +1192,12 @@ void            MatrixPerspectiveProjectionFovXYInfiniteRH(matrix_t m, vec_t fov
 void            MatrixOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
 
 void			MatrixOrthogonalProjectionLH(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
+void			MatrixOrthogonalProjectionRH(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
 
 void            MatrixLookAtLH(matrix_t output, const vec3_t pos, const vec3_t dir, const vec3_t up);
 void            MatrixLookAtRH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up);
-void            MatrixScaleTranslateToFit(matrix_t output, const vec3_t vMin, const vec3_t vMax);
+void            MatrixScaleTranslateToUnitCube(matrix_t m, const vec3_t mins, const vec3_t maxs);
+void            MatrixCrop(matrix_t m, const vec3_t mins, const vec3_t maxs);
 
 static ID_INLINE void AnglesToMatrix(const vec3_t angles, matrix_t m)
 {
