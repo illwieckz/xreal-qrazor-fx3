@@ -37,9 +37,9 @@ void	main()
 	vec4 color = original;
 
 	// calculate chromatic aberration
-	vec2 redOffset = vec2(1.0, 0.5);
+	vec2 redOffset = vec2(0.5, 0.25);
 	vec2 greenOffset = vec2(0.0, 0.0);
-	vec2 blueOffset = vec2(-1.0, -0.5);
+	vec2 blueOffset = vec2(-0.5, -0.25);
 	
 	color.r = texture2D(u_CurrentMap, st + redOffset * r_FBufScale).r;
 	color.g = texture2D(u_CurrentMap, st + greenOffset * r_FBufScale).g;
@@ -50,8 +50,8 @@ void	main()
 	color.rgb *= vignette.rgb; 
 	
 	// add grain
-	vec4 grain = texture2D(u_GrainMap, st * vec2(2.0, 2.0));
-	color.rgb += ((color.rgb + (grain.rgb * vec3(0.025, 0.05, 0.1))) * 0.5) + ((color.rgb * (grain.rgb * vec3(0.025, 0.05, 0.1))) * 0.5);
+	vec4 grain = texture2D(u_GrainMap, st * vec2(3.0, 3.0));
+	color.rgb = (color.rgb + (grain.rgb * vec3(0.035, 0.065, 0.09))) + (color.rgb * (grain.rgb * vec3(0.035, 0.065, 0.09)));
 
 	gl_FragColor = color;
 }
