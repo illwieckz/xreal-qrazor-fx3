@@ -165,6 +165,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 		Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef M_PI\n#define M_PI 3.14159265358979323846f\n#endif\n");
 
+		Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef MAX_SHADOWMAPS\n#define MAX_SHADOWMAPS %i\n#endif\n", MAX_SHADOWMAPS));
 
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 						 va("#ifndef deformGen_t\n"
@@ -350,9 +351,6 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_ShowParallelShadowSplits\n#define r_ShowParallelShadowSplits 1\n#endif\n");
 			}
-
-			Q_strcat(bufferExtra, sizeof(bufferExtra),
-					 va("#ifndef MAX_SHADOWMAPS\n#define MAX_SHADOWMAPS %i\n#endif\n", MAX_SHADOWMAPS));
 		}
 
 		if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
