@@ -6536,7 +6536,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 
 	int             numVerts;
 
-	int             numTriangles;
+	int             numTriangles, numLitTriangles;
 	srfTriangle_t  *triangles;
 	srfTriangle_t  *tri;
 
@@ -6551,6 +6551,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 	bspSurface_t   *surface;
 
 	srfVBOMesh_t   *vboSurf;
+	vec3_t			bounds[2];
 
 	if(!r_vboLighting->integer)
 		return;
@@ -6632,6 +6633,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			numVerts = 0;
 			numTriangles = 0;
 
+			ClearBounds(bounds[0], bounds[1]);
 			for(l = k; l < numCaches; l++)
 			{
 				iaCache2 = iaCachesSorted[l];
@@ -6646,9 +6648,15 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 					srfSurfaceFace_t *srf = (srfSurfaceFace_t *) surface->data;
 
 					if(srf->numTriangles)
-						numTriangles +=
-							UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle,
-												 surface->shader, light);
+					{
+						numLitTriangles = UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle, surface->shader, light);
+						if(numLitTriangles)
+						{
+							BoundsAdd(bounds[0], bounds[1], srf->bounds[0], srf->bounds[1]);
+						}
+
+						numTriangles += numLitTriangles;
+					}
 
 					if(srf->numVerts)
 						numVerts += srf->numVerts;
@@ -6658,9 +6666,15 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 					srfGridMesh_t  *srf = (srfGridMesh_t *) surface->data;
 
 					if(srf->numTriangles)
-						numTriangles +=
-							UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle,
-												 surface->shader, light);
+					{
+						numLitTriangles = UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle, surface->shader, light);
+						if(numLitTriangles)
+						{
+							BoundsAdd(bounds[0], bounds[1], srf->meshBounds[0], srf->meshBounds[1]);
+						}
+
+						numTriangles += numLitTriangles;
+					}
 
 					if(srf->numVerts)
 						numVerts += srf->numVerts;
@@ -6670,9 +6684,15 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 					srfTriangles_t *srf = (srfTriangles_t *) surface->data;
 
 					if(srf->numTriangles)
-						numTriangles +=
-							UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle,
-												 surface->shader, light);
+					{
+						numLitTriangles = UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle, surface->shader, light);
+						if(numLitTriangles)
+						{
+							BoundsAdd(bounds[0], bounds[1], srf->bounds[0], srf->bounds[1]);
+						}
+
+						numTriangles += numLitTriangles;
+					}
 
 					if(srf->numVerts)
 						numVerts += srf->numVerts;
@@ -6690,7 +6710,9 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			vboSurf->numIndexes = numTriangles * 3;
 			vboSurf->numVerts = numVerts;
 			vboSurf->lightmapNum = -1;
-			ZeroBounds(vboSurf->bounds[0], vboSurf->bounds[1]);
+
+			VectorCopy(bounds[0], vboSurf->bounds[0]);
+			VectorCopy(bounds[1], vboSurf->bounds[1]);
 
 			// create arrays
 			triangles = ri.Hunk_AllocateTempMemory(numTriangles * sizeof(srfTriangle_t));
