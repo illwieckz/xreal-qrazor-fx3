@@ -1046,6 +1046,27 @@ void CL_PlayDemo_f(void)
 
 /*
 ====================
+CL_BenchmarkDemo_f
+
+benchmark <demoname>
+
+====================
+*/
+static void CL_BenchmarkDemo_f(void)
+{
+	if(Cmd_Argc() != 2)
+	{
+		Com_Printf("benchmark <demoname>\n");
+		return;
+	}
+
+	Cvar_Set("timedemo", "1");
+
+	CL_PlayDemo_f();
+}
+
+/*
+====================
 CL_StartDemoLoop
 
 Closing the main menu will restart the demo loop
@@ -3221,6 +3242,7 @@ void CL_InitRef(void)
 	ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
 
 	ri.CM_ClusterPVS = CM_ClusterPVS;
+	ri.CM_PointContents = CM_PointContents;
 	ri.CM_DrawDebugSurface = CM_DrawDebugSurface;
 
 	ri.FS_ReadFile = FS_ReadFile;
@@ -3591,8 +3613,13 @@ void CL_Init(void)
 	Cmd_AddCommand("vid_restart", CL_Vid_Restart_f);
 	Cmd_AddCommand("disconnect", CL_Disconnect_f);
 	Cmd_AddCommand("record", CL_Record_f);
+
 	Cmd_AddCommand("demo", CL_PlayDemo_f);
 	Cmd_SetCommandCompletionFunc("demo", CL_CompleteDemoName);
+
+	Cmd_AddCommand("benchmark", CL_BenchmarkDemo_f);
+	Cmd_SetCommandCompletionFunc("benchmark", CL_CompleteDemoName);
+
 	Cmd_AddCommand("cinematic", CL_PlayCinematic_f);
 	Cmd_AddCommand("stoprecord", CL_StopRecord_f);
 	Cmd_AddCommand("connect", CL_Connect_f);
