@@ -713,13 +713,15 @@ qhandle_t RE_RegisterAnimation(const char *name)
 
 	if(!name || !name[0])
 	{
-		Com_Printf("Empty name passed to RE_RegisterAnimation\n");
+		ri.Printf(PRINT_WARNING, "Empty name passed to RE_RegisterAnimation\n");
 		return 0;
 	}
 
+	//ri.Printf(PRINT_ALL, "RE_RegisterAnimation(%s)\n", name);
+
 	if(strlen(name) >= MAX_QPATH)
 	{
-		Com_Printf("Animation name exceeds MAX_QPATH\n");
+		ri.Printf(PRINT_WARNING, "Animation name exceeds MAX_QPATH\n");
 		return 0;
 	}
 
@@ -741,7 +743,9 @@ qhandle_t RE_RegisterAnimation(const char *name)
 			const char *animName;
 
 			animName = strstr(name, "::");
-			if(animName && *(animName + 2) && !Q_stricmp(anim->psa->info.name, animName))
+
+			//ri.Printf(PRINT_ALL, "animName = '%s'\n", animName ? (animName + 2) : NULL);
+			if(animName && *(animName + 2) && !Q_stricmp(anim->psa->info.name, (animName + 2)))
 			{
 				return hAnim;
 			}
