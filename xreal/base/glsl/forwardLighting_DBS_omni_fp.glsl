@@ -33,6 +33,7 @@ uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
+uniform	float		u_LightWrapAround;
 uniform int			u_ShadowCompare;
 uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
@@ -264,10 +265,17 @@ void	main()
 		else
 			N = normalize(var_Normal.xyz);
 #endif
+
+		// compute the light term
+#if defined(r_WrapAroundLighting)
+		float NL = clamp(dot(N, L) + u_LightWrapAround, 0.0, 1.0) / clamp(1.0 + u_LightWrapAround, 0.0, 1.0);
+#else
+		float NL = clamp(dot(N, L), 0.0, 1.0);
+#endif
 	
 		// compute the diffuse term
 		vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse.st);
-		diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
+		diffuse.rgb *= u_LightColor * NL;
 	
 #if defined(r_NormalMapping)
 		// compute the specular term

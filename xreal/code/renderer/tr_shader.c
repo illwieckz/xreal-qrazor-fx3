@@ -2423,6 +2423,11 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		{
 			ParseExpression(text, &stage->blurMagnitudeExp);
 		}
+		// wrapAroundLighting <arithmetic expression>
+		else if(!Q_stricmp(token, "wrapAroundLighting"))
+		{
+			ParseExpression(text, &stage->wrapAroundLightingExp);
+		}
 		// fragmentProgram <prog>
 		else if(!Q_stricmp(token, "fragmentProgram"))
 		{

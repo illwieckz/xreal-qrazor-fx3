@@ -29,6 +29,7 @@ uniform int			u_ParallaxMapping;
 uniform float		u_DepthScale;
 uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
+uniform	float		u_LightWrapAround;
 
 varying vec3		var_Position;
 varying vec4		var_TexDiffuseNormal;
@@ -192,7 +193,12 @@ void	main()
 	vec3 H = normalize(L + V);
 	
 	// compute the light term
-	vec3 light = var_LightColor.rgb * clamp(dot(N, L), 0.0, 1.0);
+#if defined(r_WrapAroundLighting)
+	float NL = clamp(dot(N, L) + u_LightWrapAround, 0.0, 1.0) / clamp(1.0 + u_LightWrapAround, 0.0, 1.0);
+#else
+	float NL = clamp(dot(N, L), 0.0, 1.0);
+#endif
+	vec3 light = var_LightColor.rgb * NL;
 	
 	// compute the specular term
 	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb * var_LightColor.rgb * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;

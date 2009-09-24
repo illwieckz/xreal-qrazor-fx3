@@ -10742,11 +10742,13 @@ static void RB_RenderView(void)
 
 		GL_CheckErrors();
 
-		RB_RenderDrawSurfacesIntoGeometricBuffer();
-
+#if defined(DEFERRED_SHADING_Z_PREPASS)
 		// draw everything that is opaque
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderDrawSurfaces(qtrue, qfalse);
+#endif
+
+		RB_RenderDrawSurfacesIntoGeometricBuffer();
 
 		// try to cull bsp nodes for the next frame using hardware occlusion queries
 		/*

@@ -794,6 +794,8 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ModelViewProjectionMatrix");
 	tr.vertexLightingShader_DBS_world.u_Time =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_Time");
+	tr.vertexLightingShader_DBS_world.u_LightWrapAround =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_LightWrapAround");
 
 	qglUseProgramObjectARB(tr.vertexLightingShader_DBS_world.program);
 	qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_DiffuseMap, 0);
@@ -1256,6 +1258,8 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightRadius");
 	tr.forwardLightingShader_DBS_omni.u_LightScale =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightScale");
+	tr.forwardLightingShader_DBS_omni.u_LightWrapAround =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightWrapAround");
 	tr.forwardLightingShader_DBS_omni.u_LightAttenuationMatrix =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightAttenuationMatrix");
 	tr.forwardLightingShader_DBS_omni.u_ShadowCompare =
@@ -1343,6 +1347,8 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_LightRadius");
 	tr.forwardLightingShader_DBS_proj.u_LightScale =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_LightScale");
+	tr.forwardLightingShader_DBS_proj.u_LightWrapAround =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_LightWrapAround");
 	tr.forwardLightingShader_DBS_proj.u_LightAttenuationMatrix =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_LightAttenuationMatrix");
 	tr.forwardLightingShader_DBS_proj.u_ShadowMatrix =
@@ -1442,6 +1448,8 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_LightRadius");
 	tr.forwardLightingShader_DBS_directional.u_LightScale =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_LightScale");
+	tr.forwardLightingShader_DBS_directional.u_LightWrapAround =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_LightWrapAround");
 	tr.forwardLightingShader_DBS_directional.u_LightAttenuationMatrix =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_LightAttenuationMatrix");
 	tr.forwardLightingShader_DBS_directional.u_ShadowMatrix =
@@ -3024,6 +3032,8 @@ static void Render_vertexLighting_DBS_world(int stage)
 	// u_Color
 	GLSL_SetUniform_Color(&tr.vertexLightingShader_DBS_world, tess.svars.color);
 
+	GLSL_SetUniform_LightWrapAround(&tr.vertexLightingShader_DBS_world, RB_EvalExpression(&pStage->wrapAroundLightingExp, 0));
+
 //	qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_InverseVertexColor, pStage->inverseVertexColor);
 	GLSL_SetUniform_ViewOrigin(&tr.vertexLightingShader_DBS_world, viewOrigin);
 	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.vertexLightingShader_DBS_world, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -3877,6 +3887,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	GLSL_SetUniform_LightColor(&tr.forwardLightingShader_DBS_omni, lightColor);
 	GLSL_SetUniform_LightRadius(&tr.forwardLightingShader_DBS_omni, light->sphereRadius);
 	GLSL_SetUniform_LightScale(&tr.forwardLightingShader_DBS_omni, light->l.scale);
+	GLSL_SetUniform_LightWrapAround(&tr.forwardLightingShader_DBS_omni, RB_EvalExpression(&diffuseStage->wrapAroundLightingExp, 0));
 	GLSL_SetUniform_LightAttenuationMatrix(&tr.forwardLightingShader_DBS_omni, light->attenuationMatrix2);
 
 	GLSL_SetUniform_ShadowCompare(&tr.forwardLightingShader_DBS_omni, shadowCompare);
@@ -4045,6 +4056,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	GLSL_SetUniform_LightColor(&tr.forwardLightingShader_DBS_proj, lightColor);
 	GLSL_SetUniform_LightRadius(&tr.forwardLightingShader_DBS_proj, light->sphereRadius);
 	GLSL_SetUniform_LightScale(&tr.forwardLightingShader_DBS_proj, light->l.scale);
+	GLSL_SetUniform_LightWrapAround(&tr.forwardLightingShader_DBS_proj, RB_EvalExpression(&diffuseStage->wrapAroundLightingExp, 0));
 	GLSL_SetUniform_LightAttenuationMatrix(&tr.forwardLightingShader_DBS_proj, light->attenuationMatrix2);
 
 	GLSL_SetUniform_ShadowCompare(&tr.forwardLightingShader_DBS_proj, shadowCompare);
@@ -4219,6 +4231,8 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 	GLSL_SetUniform_LightColor(&tr.forwardLightingShader_DBS_directional, lightColor);
 	GLSL_SetUniform_LightRadius(&tr.forwardLightingShader_DBS_directional, light->sphereRadius);
 	GLSL_SetUniform_LightScale(&tr.forwardLightingShader_DBS_directional, light->l.scale);
+	GLSL_SetUniform_LightWrapAround(&tr.forwardLightingShader_DBS_directional, RB_EvalExpression(&diffuseStage->wrapAroundLightingExp, 0));
+//	GLSL_SetUniform_LightWrapAround(&tr.forwardLightingShader_DBS_directional, r_wrapAroundLighting->value);
 	GLSL_SetUniform_LightAttenuationMatrix(&tr.forwardLightingShader_DBS_directional, light->attenuationMatrix2);
 
 	GLSL_SetUniform_ShadowCompare(&tr.forwardLightingShader_DBS_directional, shadowCompare);
@@ -4325,14 +4339,6 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 		}
 		GLSL_SetUniform_SpecularTextureMatrix(&tr.forwardLightingShader_DBS_directional, tess.svars.texMatrices[TB_SPECULARMAP]);
 	}
-
-	// bind u_AttenuationMapXY
-	GL_SelectTexture(3);
-	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-
-	// bind u_AttenuationMapZ
-	GL_SelectTexture(4);
-	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
 	// bind u_ShadowMap
 	if(shadowCompare)
@@ -5609,7 +5615,7 @@ void Tess_StageIteratorGBuffer()
 		{
 			case ST_COLORMAP:
 			{
-#if 0
+#if !defined(DEFERRED_SHADING_Z_PREPASS)
 				R_BindFBO(tr.deferredRenderFBO);
 				Render_genericSingle(stage);
 #endif
@@ -5639,33 +5645,36 @@ void Tess_StageIteratorGBuffer()
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:
 			{
-#if 0
-				R_BindFBO(tr.deferredRenderFBO);
-				if(r_precomputedLighting->integer || r_vertexLighting->integer)
+#if !defined(DEFERRED_SHADING_Z_PREPASS)
+				if(r_deferredShading->integer == DS_STANDARD)
 				{
-					if(!r_vertexLighting->integer && tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+					R_BindFBO(tr.deferredRenderFBO);
+					if(r_precomputedLighting->integer || r_vertexLighting->integer)
 					{
-						if(tr.worldDeluxeMapping && r_normalMapping->integer)
+						if(!r_vertexLighting->integer && tess.lightmapNum >= 0 && (tess.lightmapNum / 2) < tr.lightmaps.currentElements)
 						{
-							Render_deluxeMapping(stage);
+							if(tr.worldDeluxeMapping && r_normalMapping->integer)
+							{
+								Render_deluxeMapping(stage);
+							}
+							else
+							{
+								Render_lightMapping(stage, qfalse);
+							}
+						}
+						else if(backEnd.currentEntity != &tr.worldEntity)
+						{
+							Render_vertexLighting_DBS_entity(stage);
 						}
 						else
 						{
-							Render_lightMapping(stage, qfalse);
+							Render_vertexLighting_DBS_world(stage);
 						}
-					}
-					else if(backEnd.currentEntity != &tr.worldEntity)
-					{
-						Render_vertexLighting_DBS_entity(stage);
 					}
 					else
 					{
-						Render_vertexLighting_DBS_world(stage);
+						Render_depthFill(stage, qfalse);
 					}
-				}
-				else
-				{
-					Render_depthFill(stage, qfalse);
 				}
 #endif
 
@@ -5685,67 +5694,95 @@ void Tess_StageIteratorGBuffer()
 				break;
 			}
 
-#if 0
+#if !defined(DEFERRED_SHADING_Z_PREPASS)
 			case ST_COLLAPSE_reflection_CB:
 			{
-				R_BindFBO(tr.deferredRenderFBO);
-				Render_reflection_CB(stage);
+				if(r_deferredShading->integer == DS_STANDARD)
+				{
+					R_BindFBO(tr.deferredRenderFBO);
+					Render_reflection_CB(stage);
+				}
 				break;
 			}
 
 			case ST_REFLECTIONMAP:
 			{
-				R_BindFBO(tr.deferredRenderFBO);
-				Render_reflection_C(stage);
+				if(r_deferredShading->integer == DS_STANDARD)
+				{
+					R_BindFBO(tr.deferredRenderFBO);
+					Render_reflection_C(stage);
+				}
 				break;
 			}
 
 			case ST_REFRACTIONMAP:
 			{
-				R_BindFBO(tr.deferredRenderFBO);
-				Render_refraction_C(stage);
+				if(r_deferredShading->integer == DS_STANDARD)
+				{
+
+					R_BindFBO(tr.deferredRenderFBO);
+					Render_refraction_C(stage);
+				}
 				break;
 			}
 
 			case ST_DISPERSIONMAP:
 			{
-				R_BindFBO(tr.deferredRenderFBO);
-				Render_dispersion_C(stage);
+				if(r_deferredShading->integer == DS_STANDARD)
+				{
+					R_BindFBO(tr.deferredRenderFBO);
+					Render_dispersion_C(stage);
+				}
 				break;
 			}
 
 			case ST_SKYBOXMAP:
 			{
-				R_BindFBO(tr.deferredRenderFBO);
-				Render_skybox(stage);
+				if(r_deferredShading->integer == DS_STANDARD)
+				{
+					R_BindFBO(tr.deferredRenderFBO);
+					Render_skybox(stage);
+				}
 				break;
 			}
 
 			case ST_SCREENMAP:
 			{
-				R_BindFBO(tr.deferredRenderFBO);
-				Render_screen(stage);
+				if(r_deferredShading->integer == DS_STANDARD)
+				{
+					R_BindFBO(tr.deferredRenderFBO);
+					Render_screen(stage);
+				}
 				break;
 			}
 
 			case ST_PORTALMAP:
 			{
-				R_BindFBO(tr.deferredRenderFBO);
-				Render_portal(stage);
+				if(r_deferredShading->integer == DS_STANDARD)
+				{
+					R_BindFBO(tr.deferredRenderFBO);
+					Render_portal(stage);
+				}
 				break;
 			}
 
 			case ST_HEATHAZEMAP:
 			{
-				R_BindFBO(tr.deferredRenderFBO);
-				Render_heatHaze(stage);
+				if(r_deferredShading->integer == DS_STANDARD)
+				{
+					R_BindFBO(tr.deferredRenderFBO);
+					Render_heatHaze(stage);
+				}
 				break;
 			}
 
 			case ST_LIQUIDMAP:
 			{
-				R_BindFBO(tr.deferredRenderFBO);
-				Render_liquid(stage);
+				if(r_deferredShading->integer == DS_STANDARD)
+				{
+					R_BindFBO(tr.deferredRenderFBO);
+					Render_liquid(stage);
+				}
 				break;
 			}
 #endif

@@ -93,6 +93,8 @@ typedef unsigned short glIndex_t;
 
 #define OFFSCREEN_PREPASS_LIGHTING 1
 
+//#define DEFERRED_SHADING_Z_PREPASS 1
+
 typedef enum
 {
 	DS_DISABLED,				// traditional Doom 3 style rendering
@@ -987,6 +989,8 @@ typedef struct
 	expression_t    deformMagnitudeExp;
 
 	expression_t    blurMagnitudeExp;
+
+	expression_t    wrapAroundLightingExp;
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -1364,6 +1368,9 @@ typedef struct shaderProgram_s
 
 	GLint           u_LightScale;
 	float			t_LightScale;
+
+	GLint           u_LightWrapAround;
+	float			t_LightWrapAround;
 
 	GLint           u_LightAttenuationMatrix;
 	matrix_t		t_LightAttenuationMatrix;
@@ -1942,6 +1949,25 @@ static ID_INLINE void GLSL_SetUniform_LightScale(shaderProgram_t * program, floa
 #endif
 
 	qglUniform1fARB(program->u_LightScale, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_LightWrapAround(shaderProgram_t * program, float value)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_LightWrapAround == value)
+		return;
+
+	program->t_LightWrapAround = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_LightWrapAround( program = %s, value = %f ) ---\n", program->name, value));
+	}
+#endif
+
+	qglUniform1fARB(program->u_LightWrapAround, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_LightAttenuationMatrix(shaderProgram_t * program, const matrix_t m)
