@@ -1279,6 +1279,16 @@ void GLSL_InitGPUShaders(void)
 		tr.forwardLightingShader_DBS_omni.u_BoneMatrix =
 			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_BoneMatrix");
 	}
+	tr.forwardLightingShader_DBS_omni.u_DeformGen =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DeformGen");
+	tr.forwardLightingShader_DBS_omni.u_DeformWave =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DeformWave");
+	tr.forwardLightingShader_DBS_omni.u_DeformBulge =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DeformBulge");
+	tr.forwardLightingShader_DBS_omni.u_DeformSpread =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DeformSpread");
+	tr.forwardLightingShader_DBS_omni.u_Time =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_Time");
 
 	qglUseProgramObjectARB(tr.forwardLightingShader_DBS_omni.program);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_DiffuseMap, 0);
@@ -1358,6 +1368,16 @@ void GLSL_InitGPUShaders(void)
 		tr.forwardLightingShader_DBS_proj.u_BoneMatrix =
 			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_BoneMatrix");
 	}
+	tr.forwardLightingShader_DBS_proj.u_DeformGen =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_DeformGen");
+	tr.forwardLightingShader_DBS_proj.u_DeformWave =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_DeformWave");
+	tr.forwardLightingShader_DBS_proj.u_DeformBulge =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_DeformBulge");
+	tr.forwardLightingShader_DBS_proj.u_DeformSpread =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_DeformSpread");
+	tr.forwardLightingShader_DBS_proj.u_Time =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_Time");
 
 	qglUseProgramObjectARB(tr.forwardLightingShader_DBS_proj.program);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_DiffuseMap, 0);
@@ -1451,6 +1471,16 @@ void GLSL_InitGPUShaders(void)
 		tr.forwardLightingShader_DBS_directional.u_BoneMatrix =
 			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_BoneMatrix");
 	}
+	tr.forwardLightingShader_DBS_directional.u_DeformGen =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_DeformGen");
+	tr.forwardLightingShader_DBS_directional.u_DeformWave =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_DeformWave");
+	tr.forwardLightingShader_DBS_directional.u_DeformBulge =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_DeformBulge");
+	tr.forwardLightingShader_DBS_directional.u_DeformSpread =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_DeformSpread");
+	tr.forwardLightingShader_DBS_directional.u_Time =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_Time");
 
 	qglUseProgramObjectARB(tr.forwardLightingShader_DBS_directional.program);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_directional.u_DiffuseMap, 0);
@@ -1473,7 +1503,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 
-
+	// forward shading using the light buffer as in pre pass deferred lighting
 	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_post, "forwardLighting_DBS_post",
 							   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL, qtrue);
 
@@ -1505,6 +1535,16 @@ void GLSL_InitGPUShaders(void)
 		tr.forwardLightingShader_DBS_post.u_BoneMatrix =
 			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_BoneMatrix");
 	}
+	tr.forwardLightingShader_DBS_post.u_DeformGen =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_DeformGen");
+	tr.forwardLightingShader_DBS_post.u_DeformWave =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_DeformWave");
+	tr.forwardLightingShader_DBS_post.u_DeformBulge =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_DeformBulge");
+	tr.forwardLightingShader_DBS_post.u_DeformSpread =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_DeformSpread");
+	tr.forwardLightingShader_DBS_post.u_Time =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_post.program, "u_Time");
 
 	qglUseProgramObjectARB(tr.forwardLightingShader_DBS_post.program);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_post.u_LightMap, 0);
@@ -2750,6 +2790,39 @@ static void Render_vertexLighting_DBS_entity(int stage)
 		}
 	}
 
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.vertexLightingShader_DBS_entity, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.vertexLightingShader_DBS_entity, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.vertexLightingShader_DBS_entity, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.vertexLightingShader_DBS_entity, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.vertexLightingShader_DBS_entity, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.vertexLightingShader_DBS_entity, ds);
+				GLSL_SetUniform_Time(&tr.vertexLightingShader_DBS_entity, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.vertexLightingShader_DBS_entity, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.vertexLightingShader_DBS_entity, DGEN_NONE);
+	}
+
 	GLSL_SetUniform_AlphaTest(&tr.vertexLightingShader_DBS_entity, pStage->stateBits);
 
 	if(r_parallaxMapping->integer)
@@ -2843,6 +2916,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 
 	GL_CheckErrors();
 
+	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
 	{
 		deformStage_t  *ds;
@@ -2856,6 +2930,12 @@ static void Render_vertexLighting_DBS_world(int stage)
 				GLSL_SetUniform_DeformGen(&tr.vertexLightingShader_DBS_world, ds->deformationWave.func);
 				GLSL_SetUniform_DeformWave(&tr.vertexLightingShader_DBS_world, &ds->deformationWave);
 				GLSL_SetUniform_DeformSpread(&tr.vertexLightingShader_DBS_world, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.vertexLightingShader_DBS_world, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.vertexLightingShader_DBS_world, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.vertexLightingShader_DBS_world, ds);
 				GLSL_SetUniform_Time(&tr.vertexLightingShader_DBS_world, backEnd.refdef.floatTime);
 				break;
 
@@ -3282,6 +3362,39 @@ static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
 
 		if(tess.vboVertexSkinning)
 			qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_post.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
+
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_post, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.forwardLightingShader_DBS_post, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.forwardLightingShader_DBS_post, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.forwardLightingShader_DBS_post, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_post, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.forwardLightingShader_DBS_post, ds);
+				GLSL_SetUniform_Time(&tr.forwardLightingShader_DBS_post, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_post, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_post, DGEN_NONE);
 	}
 
 	if(r_parallaxMapping->integer)
@@ -3784,6 +3897,39 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 			qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
 
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_omni, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.forwardLightingShader_DBS_omni, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.forwardLightingShader_DBS_omni, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.forwardLightingShader_DBS_omni, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_omni, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.forwardLightingShader_DBS_omni, ds);
+				GLSL_SetUniform_Time(&tr.forwardLightingShader_DBS_omni, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_omni, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_omni, DGEN_NONE);
+	}
+
 	GLSL_SetUniform_PortalClipping(&tr.forwardLightingShader_DBS_omni, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
 	{
@@ -3918,6 +4064,39 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 
 		if(tess.vboVertexSkinning)
 			qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
+
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_proj, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.forwardLightingShader_DBS_proj, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.forwardLightingShader_DBS_proj, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.forwardLightingShader_DBS_proj, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_proj, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.forwardLightingShader_DBS_proj, ds);
+				GLSL_SetUniform_Time(&tr.forwardLightingShader_DBS_proj, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_proj, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_proj, DGEN_NONE);
 	}
 
 	GLSL_SetUniform_PortalClipping(&tr.forwardLightingShader_DBS_proj, backEnd.viewParms.isPortal);
@@ -4062,6 +4241,39 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 
 		if(tess.vboVertexSkinning)
 			qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_directional.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
+
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_directional, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(&tr.forwardLightingShader_DBS_directional, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(&tr.forwardLightingShader_DBS_directional, ds->deformationSpread);
+				GLSL_SetUniform_Time(&tr.forwardLightingShader_DBS_directional, backEnd.refdef.floatTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_directional, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(&tr.forwardLightingShader_DBS_directional, ds);
+				GLSL_SetUniform_Time(&tr.forwardLightingShader_DBS_directional, backEnd.refdef.floatTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_directional, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_directional, DGEN_NONE);
 	}
 
 	GLSL_SetUniform_PortalClipping(&tr.forwardLightingShader_DBS_directional, backEnd.viewParms.isPortal);

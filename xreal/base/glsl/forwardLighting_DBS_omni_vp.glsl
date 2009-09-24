@@ -41,6 +41,12 @@ uniform mat4		u_LightAttenuationMatrix;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
+uniform int			u_DeformGen;
+uniform vec4		u_DeformWave;	// [base amplitude phase freq]
+uniform vec3		u_DeformBulge;	// [width height speed]
+uniform float		u_DeformSpread;
+uniform float		u_Time;
+
 varying vec3		var_Position;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
@@ -55,12 +61,96 @@ varying vec4		var_Binormal;
 varying vec4		var_Normal;
 //varying vec4		var_Color;	// Tr3B - maximum vars reached
 
+float triangle(float x)
+{
+	return max(1.0 - abs(x), 0);
+}
+
+float sawtooth(float x)
+{
+	return x - floor(x);
+}
+
+vec4 DeformPosition(const vec4 pos, const vec3 normal, const vec2 st)
+{
+	vec4 deformed = pos;
+	
+	/*
+		define	WAVEVALUE( table, base, amplitude, phase, freq ) \
+			((base) + table[ Q_ftol( ( ( (phase) + backEnd.refdef.floatTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
+	*/
+
+	if(u_DeformGen == DGEN_WAVE_SIN)
+	{
+		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
+		float scale = u_DeformWave.x  + sin(off + u_DeformWave.z + (u_Time * u_DeformWave.w)) * u_DeformWave.y;
+		vec3 offset = normal * scale;
+
+		deformed.xyz += offset;
+	}
+	
+	if(u_DeformGen == DGEN_WAVE_SQUARE)
+	{
+		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
+		float scale = u_DeformWave.x  + sign(sin(off + u_DeformWave.z + (u_Time * u_DeformWave.w))) * u_DeformWave.y;
+		vec3 offset = normal * scale;
+
+		deformed.xyz += offset;
+	}
+	
+	if(u_DeformGen == DGEN_WAVE_TRIANGLE)
+	{
+		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
+		float scale = u_DeformWave.x  + triangle(off + u_DeformWave.z + (u_Time * u_DeformWave.w)) * u_DeformWave.y;
+		vec3 offset = normal * scale;
+
+		deformed.xyz += offset;
+	}
+	
+	if(u_DeformGen == DGEN_WAVE_SAWTOOTH)
+	{
+		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
+		float scale = u_DeformWave.x  + sawtooth(off + u_DeformWave.z + (u_Time * u_DeformWave.w)) * u_DeformWave.y;
+		vec3 offset = normal * scale;
+
+		deformed.xyz += offset;
+	}
+	
+	if(u_DeformGen == DGEN_WAVE_INVERSE_SAWTOOTH)
+	{
+		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
+		float scale = u_DeformWave.x + (1.0 - sawtooth(off + u_DeformWave.z + (u_Time * u_DeformWave.w))) * u_DeformWave.y;
+		vec3 offset = normal * scale;
+
+		deformed.xyz += offset;
+	}
+	
+	if(u_DeformGen == DGEN_BULGE)
+	{
+		float bulgeWidth = u_DeformBulge.x;
+		float bulgeHeight = u_DeformBulge.y;
+		float bulgeSpeed = u_DeformBulge.z;
+	
+		float now = u_Time * bulgeSpeed;
+
+		float off = (M_PI * 0.25) * st.x * bulgeWidth + now; 
+		float scale = sin(off) * bulgeHeight;
+		vec3 offset = normal * scale;
+
+		deformed.xyz += offset;
+	}
+
+	return deformed;
+}
+
 void	main()
 {
+	vec4 position;
+
 #if defined(r_VertexSkinning)
 	if(bool(u_VertexSkinning))
 	{
-		vec4 vertex = vec4(0.0);
+		position = vec4(0.0);
 		vec3 tangent = vec3(0.0);
 		vec3 binormal = vec3(0.0);
 		vec3 normal = vec3(0.0);
@@ -71,18 +161,20 @@ void	main()
 			float boneWeight = attr_BoneWeights[i];
 			mat4  boneMatrix = u_BoneMatrix[boneIndex];
 			
-			vertex += (boneMatrix * attr_Position) * boneWeight;
+			position += (boneMatrix * attr_Position) * boneWeight;
 		
 			tangent += (boneMatrix * vec4(attr_Tangent, 0.0)).xyz * boneWeight;
 			binormal += (boneMatrix * vec4(attr_Binormal, 0.0)).xyz * boneWeight;
 			normal += (boneMatrix * vec4(attr_Normal, 0.0)).xyz * boneWeight;
 		}
+		
+		position = DeformPosition(position, attr_Normal, attr_TexCoord0.st);
 
 		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * vertex;
+		gl_Position = u_ModelViewProjectionMatrix * position;
 		
 		// transform position into world space
-		var_Position = (u_ModelMatrix * vertex).xyz;
+		var_Position = (u_ModelMatrix * position).xyz;
 		
 		#if defined(r_NormalMapping)
 		var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
@@ -92,13 +184,15 @@ void	main()
 		var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
 		
 		// calc light xy,z attenuation in light space
-		var_TexAttenXYZ = (u_LightAttenuationMatrix * vertex).xyz;
+		var_TexAttenXYZ = (u_LightAttenuationMatrix * position).xyz;
 	}
 	else
 #endif
 	{
+		position = DeformPosition(attr_Position, attr_Normal, attr_TexCoord0.st);
+	
 		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
+		gl_Position = u_ModelViewProjectionMatrix * position;
 		
 		// transform position into world space
 		var_Position = (u_ModelMatrix * attr_Position).xyz;
@@ -111,7 +205,7 @@ void	main()
 		var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 		
 		// calc light xy,z attenuation in light space
-		var_TexAttenXYZ = (u_LightAttenuationMatrix * attr_Position).xyz;
+		var_TexAttenXYZ = (u_LightAttenuationMatrix * position).xyz;
 	}
 		
 	// transform diffusemap texcoords
