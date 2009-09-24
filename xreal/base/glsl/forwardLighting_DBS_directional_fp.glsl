@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -25,16 +25,23 @@ uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
-uniform sampler2D	u_ShadowMap;
+uniform sampler2D	u_ShadowMap0;
+uniform sampler2D	u_ShadowMap1;
+uniform sampler2D	u_ShadowMap2;
+uniform sampler2D	u_ShadowMap3;
+uniform sampler2D	u_ShadowMap4;
 uniform vec3		u_ViewOrigin;
-uniform vec3		u_LightOrigin;
+uniform vec3		u_LightDir;
 uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float		u_LightScale;
 uniform int			u_ShadowCompare;
+uniform mat4		u_ShadowMatrix[MAX_SHADOWMAPS];
+uniform vec4		u_ShadowParallelSplitDistances;
 uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
 uniform mat4		u_ModelMatrix;
+uniform mat4		u_ViewMatrix;
 uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
 
@@ -97,7 +104,7 @@ float EstimatePenumbra(float vertexDistance, float blocker)
 }
 #endif
 
-#if defined(VSM) || defined(ESM)
+#if 0 //defined(VSM) || defined(ESM)
 vec4 PCF(vec4 shadowVert, float filterWidth, float samples)
 {
 	// compute step size for iterating through the kernel
@@ -237,12 +244,13 @@ void	main()
 		p = smoothstep(r_LightBleedReduction, 1.0, p);
 		#endif
 	
-		#if defined(DEBUG_VSM)
+		#if 1 // defined(DEBUG_VSM)
 		#extension GL_EXT_gpu_shader4 : enable
-		gl_FragColor.r = (DEBUG_VSM & 1) != 0 ? variance : 0.0;
-		gl_FragColor.g = (DEBUG_VSM & 2) != 0 ? mD_2 : 0.0;
-		gl_FragColor.b = (DEBUG_VSM & 4) != 0 ? p : 0.0;
-		gl_FragColor.a = 1.0;
+		gl_FragColor = vec4(vertexDistance, 0.0, 0.0, 1.0);
+		//gl_FragColor.r = (DEBUG_VSM & 1) != 0 ? variance : 0.0;
+		//gl_FragColor.g = (DEBUG_VSM & 2) != 0 ? mD_2 : 0.0;
+		//gl_FragColor.b = (DEBUG_VSM & 4) != 0 ? p : 0.0;
+		//gl_FragColor.a = 1.0;
 		return;
 		#else
 		shadow = max(shadow, p);
@@ -258,18 +266,7 @@ void	main()
 #elif defined(ESM)
 	if(bool(u_ShadowCompare))
 	{
-		vec4 shadowVert;	// shadow point in shadow space
-		shadowVert.x = var_Position.w;
-		shadowVert.y = var_Tangent.w;
-		shadowVert.z = var_Binormal.w;
-		shadowVert.w = var_Normal.w;
-		
-		// compute incident ray
-		vec3 I = var_Position.xyz - u_LightOrigin;
-		
-		const float	SHADOW_BIAS = 0.001;
-		float vertexDistance = (length(I) / u_LightRadius) * r_ShadowMapDepthScale; // - SHADOW_BIAS;
-		
+		/*
 		#if defined(PCF_2X2)
 		vec4 shadowMoments = PCF(shadowVert, u_ShadowTexelSize * u_ShadowBlur, 2.0);
 		#elif defined(PCF_3X3)
@@ -284,6 +281,178 @@ void	main()
 		// no filter
 		vec4 shadowMoments = texture2DProj(u_ShadowMap, shadowVert.xyw);
 		#endif
+		*/
+		
+		vec4 shadowVert;
+		vec4 shadowMoments;
+		
+		// transform to camera space
+		vec4 Pcam = u_ViewMatrix * vec4(var_Position.xyz, 1.0);
+		float vertexDistanceToCamera = -Pcam.z;
+		
+#if defined(r_ParallelShadowSplits_1)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+		}
+#elif defined(r_ParallelShadowSplits_2)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+			
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[2] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+			#endif
+		}
+#elif defined(r_ParallelShadowSplits_3)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+			
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[2] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+			#endif
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[3] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap3, shadowVert.xyw);
+			#endif
+		}
+#elif defined(r_ParallelShadowSplits_4)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+			#endif
+			
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[2] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+			#endif
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.w)
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[3] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap3, shadowVert.xyw);
+			#endif
+		}
+		else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[4] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap4, shadowVert.xyw);
+			#endif
+		}
+#else
+		{
+			#if defined(r_ShowParallelShadowSplits)
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			return;
+			#else
+			shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+			shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+			#endif
+		}
+#endif
+
+		//shadowVert.xyz /= shadowVert.w;
+		
+		const float	SHADOW_BIAS = 0.001;
+		float vertexDistance = shadowVert.z - SHADOW_BIAS;
 		
 		float shadowDistance = shadowMoments.a;
 		
@@ -311,7 +480,7 @@ void	main()
 #endif
 	{
 		// compute light direction in world space
-		vec3 L = normalize(u_LightOrigin - var_Position.xyz);
+		vec3 L = u_LightDir;
 	
 #if defined(r_NormalMapping)
 		// compute view direction in world space
@@ -361,8 +530,8 @@ void	main()
 #if defined(r_NormalMapping)
 		color.rgb += specular;
 #endif
-		color.rgb *= attenuationXY;
-		color.rgb *= attenuationZ;
+		//color.rgb *= attenuationXY;
+		//color.rgb *= attenuationZ;
 		color.rgb *= u_LightScale;
 		color.rgb *= shadow;
 	

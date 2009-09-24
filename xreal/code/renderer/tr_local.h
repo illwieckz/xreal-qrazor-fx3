@@ -1981,6 +1981,29 @@ static ID_INLINE void GLSL_SetUniform_ShadowMatrix(shaderProgram_t * program, ma
 #endif
 */
 
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		int			i;
+
+		for(i = 0; i < MAX_SHADOWMAPS; i++)
+		{
+			GLimp_LogComment(va("--- GLSL_SetUniform_ShadowMatrix( program = %s, "
+							"matrix(%i) = \n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							"( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
+							program->name,
+							i,
+							m[i][0], m[i][4], m[i][8], m[i][12],
+							m[i][1], m[i][5], m[i][9], m[i][13],
+							m[i][2], m[i][6], m[i][10], m[i][14],
+							m[i][3], m[i][7], m[i][11], m[i][15]));
+		}
+	}
+#endif
+
 	qglUniformMatrix4fvARB(program->u_ShadowMatrix, MAX_SHADOWMAPS, GL_FALSE, &m[0][0]);
 }
 
@@ -2043,7 +2066,7 @@ static ID_INLINE void GLSL_SetUniform_ShadowBlur(shaderProgram_t * program, floa
 
 static ID_INLINE void GLSL_SetUniform_ShadowParallelSplitDistances(shaderProgram_t * program, const vec4_t v)
 {
-#if 0//defined(USE_UNIFORM_FIREWALL)
+#if defined(USE_UNIFORM_FIREWALL)
 	if(VectorCompare4(program->t_ShadowParallelSplitDistances, v))
 		return;
 
@@ -3535,6 +3558,7 @@ typedef struct
 	// Doom3 style omni-directional multi-pass lighting
 	shaderProgram_t forwardLightingShader_DBS_omni;
 	shaderProgram_t forwardLightingShader_DBS_proj;
+	shaderProgram_t forwardLightingShader_DBS_directional;
 
 	// forward shading using the pre pass light buffer
 	shaderProgram_t forwardLightingShader_DBS_post;

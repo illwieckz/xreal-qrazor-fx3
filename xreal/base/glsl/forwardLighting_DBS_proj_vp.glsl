@@ -93,13 +93,13 @@ void	main()
 		var_TexAtten = u_LightAttenuationMatrix * vertex;
 	
 		// calc shadow attenuation in light space
-		vec4 texShadow = u_ShadowMatrix[0] * vertex;
+		vec4 shadowVert = u_ShadowMatrix[0] * vertex;
 	
 		// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
-		var_Position.w = texShadow.s;
-		var_Tangent.w = texShadow.t;
-		var_Binormal.w = texShadow.p;
-		var_Normal.w = texShadow.q;
+		var_Position.w = shadowVert.s;
+		var_Tangent.w = shadowVert.t;
+		var_Binormal.w = shadowVert.p;
+		var_Normal.w = shadowVert.q;
 	}
 	else
 #endif
@@ -121,13 +121,13 @@ void	main()
 		var_TexAtten = u_LightAttenuationMatrix * attr_Position;
 	
 		// calc shadow attenuation in light space
-		vec4 texShadow = u_ShadowMatrix[0] * attr_Position;
+		vec4 shadowVert = u_ShadowMatrix[0] * attr_Position;
 	
 		// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
-		var_Position.w = texShadow.s;
-		var_Tangent.w = texShadow.t;
-		var_Binormal.w = texShadow.p;
-		var_Normal.w = texShadow.q;
+		var_Position.w = shadowVert.s;
+		var_Tangent.w = shadowVert.t;
+		var_Binormal.w = shadowVert.p;
+		var_Normal.w = shadowVert.q;
 	}
 	
 	// transform diffusemap texcoords

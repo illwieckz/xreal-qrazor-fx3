@@ -331,9 +331,10 @@ void	main()
 		p = smoothstep(0.0, 1.0, p);
 	
 		#if defined(DEBUG_VSM)
-		gl_FragColor.r = DEBUG_VSM & 1 ? variance : 0.0;
-		gl_FragColor.g = DEBUG_VSM & 2 ? mD_2 : 0.0;
-		gl_FragColor.b = DEBUG_VSM & 4 ? p : 0.0;
+		#extension GL_EXT_gpu_shader4 : enable
+		gl_FragColor.r = (DEBUG_VSM & 1) != 0 ? variance : 0.0;
+		gl_FragColor.g = (DEBUG_VSM & 2) != 0 ? mD_2 : 0.0;
+		gl_FragColor.b = (DEBUG_VSM & 4) != 0 ? p : 0.0;
 		gl_FragColor.a = 1.0;
 		return;
 		#else
@@ -577,8 +578,8 @@ void	main()
 #endif // r_NormalMapping
 	
 		// compute attenuation
-		vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb;
-		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(0.5 + texAtten.z, 0.0)).rgb; // FIXME
+		//vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb;
+		//vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(0.5 + texAtten.z, 0.0)).rgb; // FIXME
 	
 		// compute final color
 #if defined(r_DeferredLighting)

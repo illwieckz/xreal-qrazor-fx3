@@ -1377,6 +1377,103 @@ void GLSL_InitGPUShaders(void)
 
 
 
+	// directional sun lighting ( Doom3 style )
+	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_directional, "forwardLighting_DBS_directional",
+					   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR, qtrue);
+
+	tr.forwardLightingShader_DBS_directional.u_DiffuseMap =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_DiffuseMap");
+	tr.forwardLightingShader_DBS_directional.u_NormalMap =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_NormalMap");
+	tr.forwardLightingShader_DBS_directional.u_SpecularMap =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_SpecularMap");
+	tr.forwardLightingShader_DBS_directional.u_AttenuationMapXY =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_AttenuationMapXY");
+	tr.forwardLightingShader_DBS_directional.u_AttenuationMapZ =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_AttenuationMapZ");
+	if(r_shadows->integer >= 4)
+	{
+		tr.forwardLightingShader_DBS_directional.u_ShadowMap0 =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ShadowMap0");
+		tr.forwardLightingShader_DBS_directional.u_ShadowMap1 =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ShadowMap1");
+		tr.forwardLightingShader_DBS_directional.u_ShadowMap2 =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ShadowMap2");
+		tr.forwardLightingShader_DBS_directional.u_ShadowMap3 =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ShadowMap3");
+		tr.forwardLightingShader_DBS_directional.u_ShadowMap4 =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ShadowMap4");
+	}
+	tr.forwardLightingShader_DBS_directional.u_DiffuseTextureMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_DiffuseTextureMatrix");
+	tr.forwardLightingShader_DBS_directional.u_NormalTextureMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_NormalTextureMatrix");
+	tr.forwardLightingShader_DBS_directional.u_SpecularTextureMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_SpecularTextureMatrix");
+	tr.forwardLightingShader_DBS_directional.u_ViewOrigin =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ViewOrigin");
+//	tr.forwardLightingShader_DBS_directional.u_InverseVertexColor =
+//		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_InverseVertexColor");
+	tr.forwardLightingShader_DBS_directional.u_LightDir =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_LightDir");
+	tr.forwardLightingShader_DBS_directional.u_LightColor =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_LightColor");
+	tr.forwardLightingShader_DBS_directional.u_LightRadius =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_LightRadius");
+	tr.forwardLightingShader_DBS_directional.u_LightScale =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_LightScale");
+	tr.forwardLightingShader_DBS_directional.u_LightAttenuationMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_LightAttenuationMatrix");
+	tr.forwardLightingShader_DBS_directional.u_ShadowMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ShadowMatrix");
+	tr.forwardLightingShader_DBS_directional.u_ShadowCompare =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ShadowCompare");
+	tr.forwardLightingShader_DBS_directional.u_ShadowParallelSplitDistances =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ShadowParallelSplitDistances");
+	tr.forwardLightingShader_DBS_directional.u_ShadowTexelSize =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ShadowTexelSize");
+	tr.forwardLightingShader_DBS_directional.u_ShadowBlur =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ShadowBlur");
+	tr.forwardLightingShader_DBS_directional.u_PortalClipping =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_PortalClipping");
+	tr.forwardLightingShader_DBS_directional.u_PortalPlane =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_PortalPlane");
+	tr.forwardLightingShader_DBS_directional.u_ModelMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ModelMatrix");
+	tr.forwardLightingShader_DBS_directional.u_ViewMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ViewMatrix");
+	tr.forwardLightingShader_DBS_directional.u_ModelViewProjectionMatrix =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_ModelViewProjectionMatrix");
+	if(glConfig.vboVertexSkinningAvailable)
+	{
+		tr.forwardLightingShader_DBS_directional.u_VertexSkinning =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_VertexSkinning");
+		tr.forwardLightingShader_DBS_directional.u_BoneMatrix =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_directional.program, "u_BoneMatrix");
+	}
+
+	qglUseProgramObjectARB(tr.forwardLightingShader_DBS_directional.program);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_directional.u_DiffuseMap, 0);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_directional.u_NormalMap, 1);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_directional.u_SpecularMap, 2);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_directional.u_AttenuationMapXY, 3);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_directional.u_AttenuationMapZ, 4);
+	if(r_shadows->integer >= 4)
+	{
+		qglUniform1iARB(tr.forwardLightingShader_DBS_directional.u_ShadowMap0, 5);
+		qglUniform1iARB(tr.forwardLightingShader_DBS_directional.u_ShadowMap1, 6);
+		qglUniform1iARB(tr.forwardLightingShader_DBS_directional.u_ShadowMap2, 7);
+		qglUniform1iARB(tr.forwardLightingShader_DBS_directional.u_ShadowMap3, 8);
+		qglUniform1iARB(tr.forwardLightingShader_DBS_directional.u_ShadowMap4, 9);
+	}
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.forwardLightingShader_DBS_directional.program);
+	GLSL_ShowProgramUniforms(tr.forwardLightingShader_DBS_directional.program);
+	GL_CheckErrors();
+
+
+
 	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_post, "forwardLighting_DBS_post",
 							   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL, qtrue);
 
@@ -2039,6 +2136,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.forwardLightingShader_DBS_proj.program);
 		Com_Memset(&tr.forwardLightingShader_DBS_proj, 0, sizeof(shaderProgram_t));
+	}
+
+	if(tr.forwardLightingShader_DBS_directional.program)
+	{
+		qglDeleteObjectARB(tr.forwardLightingShader_DBS_directional.program);
+		Com_Memset(&tr.forwardLightingShader_DBS_directional, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.forwardLightingShader_DBS_post.program)
@@ -3880,6 +3983,174 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	{
 		GL_SelectTexture(5);
 		GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
+	}
+
+	Tess_DrawElements();
+
+	GL_CheckErrors();
+}
+
+static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
+											shaderStage_t * attenuationXYStage,
+											shaderStage_t * attenuationZStage, trRefLight_t * light)
+{
+	vec3_t          viewOrigin;
+	vec3_t          lightDirection;
+	vec4_t          lightColor;
+	float           shadowTexelSize;
+	qboolean        shadowCompare;
+
+	GLimp_LogComment("--- Render_fowardLighting_DBS_directional ---\n");
+
+	// enable shader, set arrays
+	GL_BindProgram(&tr.forwardLightingShader_DBS_directional);
+
+	/*
+	if(diffuseStage->vertexColor || diffuseStage->inverseVertexColor)
+	{
+		GL_VertexAttribsState(tr.forwardLightingShader_DBS_directional.attribs);
+	}
+	else
+	*/
+	{
+		GL_VertexAttribsState(tr.forwardLightingShader_DBS_directional.attribs & ~(ATTR_COLOR));
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+	}
+
+	// set uniforms
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
+	VectorCopy(tess.svars.color, lightColor);
+
+#if 1
+	VectorCopy(tr.sunDirection, lightDirection);
+#else
+	VectorCopy(light->direction, lightDirection);
+#endif
+
+	shadowCompare = r_shadows->integer >= 4 && !light->l.noShadows && light->shadowLOD >= 0;
+
+	if(shadowCompare)
+		shadowTexelSize = 1.0f / shadowMapResolutions[light->shadowLOD];
+	else
+		shadowTexelSize = 1.0f;
+
+	GLSL_SetUniform_ViewOrigin(&tr.forwardLightingShader_DBS_directional, viewOrigin);
+//	GLSL_SetUniform_InverseVertexColor(&tr.forwardLightingShader_DBS_directional, diffuseStage->inverseVertexColor);
+	GLSL_SetUniform_LightDir(&tr.forwardLightingShader_DBS_directional, lightDirection);
+	GLSL_SetUniform_LightColor(&tr.forwardLightingShader_DBS_directional, lightColor);
+	GLSL_SetUniform_LightRadius(&tr.forwardLightingShader_DBS_directional, light->sphereRadius);
+	GLSL_SetUniform_LightScale(&tr.forwardLightingShader_DBS_directional, light->l.scale);
+	GLSL_SetUniform_LightAttenuationMatrix(&tr.forwardLightingShader_DBS_directional, light->attenuationMatrix2);
+
+	GLSL_SetUniform_ShadowCompare(&tr.forwardLightingShader_DBS_directional, shadowCompare);
+	if(shadowCompare)
+	{
+		GLSL_SetUniform_ShadowMatrix(&tr.forwardLightingShader_DBS_directional, light->shadowMatricesBiased);
+		GLSL_SetUniform_ShadowParallelSplitDistances(&tr.forwardLightingShader_DBS_directional, backEnd.viewParms.parallelSplitDistances);
+		GLSL_SetUniform_ShadowTexelSize(&tr.forwardLightingShader_DBS_directional, shadowTexelSize);
+		GLSL_SetUniform_ShadowBlur(&tr.forwardLightingShader_DBS_directional, r_shadowBlur->value);
+	}
+
+	GLSL_SetUniform_ModelMatrix(&tr.forwardLightingShader_DBS_directional, backEnd.orientation.transformMatrix);
+	GLSL_SetUniform_ViewMatrix(&tr.forwardLightingShader_DBS_directional, backEnd.viewParms.world.viewMatrix);
+//	GLSL_SetUniform_ModelViewMatrix(&tr.forwardLightingShader_DBS_directional, glState.modelViewMatrix[glState.stackIndex]);
+	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.forwardLightingShader_DBS_directional, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	if(glConfig.vboVertexSkinningAvailable)
+	{
+		GLSL_SetUniform_VertexSkinning(&tr.forwardLightingShader_DBS_directional, tess.vboVertexSkinning);
+
+		if(tess.vboVertexSkinning)
+			qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_directional.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
+
+	GLSL_SetUniform_PortalClipping(&tr.forwardLightingShader_DBS_directional, backEnd.viewParms.isPortal);
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		GLSL_SetUniform_PortalPlane(&tr.forwardLightingShader_DBS_directional, plane);
+	}
+
+	// bind u_DiffuseMap
+	GL_SelectTexture(0);
+	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
+	GLSL_SetUniform_DiffuseTextureMatrix(&tr.forwardLightingShader_DBS_directional, tess.svars.texMatrices[TB_DIFFUSEMAP]);
+
+	if(r_normalMapping->integer)
+	{
+		// bind u_NormalMap
+		GL_SelectTexture(1);
+		if(diffuseStage->bundle[TB_NORMALMAP].image[0])
+		{
+			GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.flatImage);
+		}
+		GLSL_SetUniform_NormalTextureMatrix(&tr.forwardLightingShader_DBS_directional, tess.svars.texMatrices[TB_NORMALMAP]);
+
+		// bind u_SpecularMap
+		GL_SelectTexture(2);
+		if(r_forceSpecular->integer)
+		{
+			GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
+		}
+		else if(diffuseStage->bundle[TB_SPECULARMAP].image[0])
+		{
+			GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.blackImage);
+		}
+		GLSL_SetUniform_SpecularTextureMatrix(&tr.forwardLightingShader_DBS_directional, tess.svars.texMatrices[TB_SPECULARMAP]);
+	}
+
+	// bind u_AttenuationMapXY
+	GL_SelectTexture(3);
+	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+
+	// bind u_AttenuationMapZ
+	GL_SelectTexture(4);
+	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+
+	// bind u_ShadowMap
+	if(shadowCompare)
+	{
+		GL_SelectTexture(5);
+		GL_Bind(tr.shadowMapFBOImage[0]);
+
+		if(r_parallelShadowSplits->integer >= 1)
+		{
+			GL_SelectTexture(6);
+			GL_Bind(tr.shadowMapFBOImage[1]);
+		}
+
+		if(r_parallelShadowSplits->integer >= 2)
+		{
+			GL_SelectTexture(7);
+			GL_Bind(tr.shadowMapFBOImage[2]);
+		}
+
+		if(r_parallelShadowSplits->integer >= 3)
+		{
+			GL_SelectTexture(8);
+			GL_Bind(tr.shadowMapFBOImage[3]);
+		}
+
+		if(r_parallelShadowSplits->integer >= 4)
+		{
+			GL_SelectTexture(9);
+			GL_Bind(tr.shadowMapFBOImage[4]);
+		}
 	}
 
 	Tess_DrawElements();
@@ -5775,9 +6046,9 @@ void Tess_StageIteratorStencilLighting()
 					{
 						Render_forwardLighting_DBS_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
 					}
-					else
+					else if(light->l.rlType == RL_DIRECTIONAL)
 					{
-						// TODO ?
+						Render_forwardLighting_DBS_directional(diffuseStage, attenuationXYStage, attenuationZStage, light);
 					}
 					break;
 
@@ -5907,9 +6178,12 @@ void Tess_StageIteratorLighting()
 							Render_forwardLighting_DBS_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
 						}
 					}
-					else
+					else if(light->l.rlType == RL_DIRECTIONAL)
 					{
-						// TODO ?
+						//if(!light->l.inverseShadows)
+						{
+							Render_forwardLighting_DBS_directional(diffuseStage, attenuationXYStage, attenuationZStage, light);
+						}
 					}
 					break;
 

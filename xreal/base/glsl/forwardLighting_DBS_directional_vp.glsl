@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -36,31 +36,34 @@ uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
 uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
-//uniform int		u_InverseVertexColor;
+//uniform int			u_InverseVertexColor;
 uniform mat4		u_LightAttenuationMatrix;
+uniform int			u_ShadowCompare;
+uniform mat4		u_ShadowMatrix[MAX_SHADOWMAPS];
+uniform vec4		u_ShadowParallelSplitDistances;
 uniform mat4		u_ModelMatrix;
+uniform mat4		u_ModelViewMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-varying vec3		var_Position;
+varying vec4		var_Position;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
 #if defined(r_NormalMapping)
 varying vec2		var_TexSpecular;
 #endif
-varying vec3		var_TexAttenXYZ;
-#if defined(r_NormalMapping)
+varying vec4		var_TexAtten;
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
-#endif
 varying vec4		var_Normal;
-//varying vec4		var_Color;	// Tr3B - maximum vars reached
 
 void	main()
 {
+	vec4 position;
+
 #if defined(r_VertexSkinning)
 	if(bool(u_VertexSkinning))
 	{
-		vec4 vertex = vec4(0.0);
+		position = vec4(0.0); 
 		vec3 tangent = vec3(0.0);
 		vec3 binormal = vec3(0.0);
 		vec3 normal = vec3(0.0);
@@ -71,7 +74,7 @@ void	main()
 			float boneWeight = attr_BoneWeights[i];
 			mat4  boneMatrix = u_BoneMatrix[boneIndex];
 			
-			vertex += (boneMatrix * attr_Position) * boneWeight;
+			position += (boneMatrix * attr_Position) * boneWeight;
 		
 			tangent += (boneMatrix * vec4(attr_Tangent, 0.0)).xyz * boneWeight;
 			binormal += (boneMatrix * vec4(attr_Binormal, 0.0)).xyz * boneWeight;
@@ -79,10 +82,10 @@ void	main()
 		}
 
 		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * vertex;
+		gl_Position = u_ModelViewProjectionMatrix * position;
 		
 		// transform position into world space
-		var_Position = (u_ModelMatrix * vertex).xyz;
+		var_Position = u_ModelMatrix * position;
 		
 		#if defined(r_NormalMapping)
 		var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
@@ -91,17 +94,19 @@ void	main()
 		
 		var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
 		
-		// calc light xy,z attenuation in light space
-		var_TexAttenXYZ = (u_LightAttenuationMatrix * vertex).xyz;
+		// calc light attenuation in light space
+		var_TexAtten = u_LightAttenuationMatrix * position;
 	}
 	else
 #endif
 	{
+		position = attr_Position;
+	
 		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
+		gl_Position = u_ModelViewProjectionMatrix * position;
 		
 		// transform position into world space
-		var_Position = (u_ModelMatrix * attr_Position).xyz;
+		var_Position = u_ModelMatrix * position;
 	
 		#if defined(r_NormalMapping)
 		var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
@@ -110,16 +115,100 @@ void	main()
 		
 		var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 		
-		// calc light xy,z attenuation in light space
-		var_TexAttenXYZ = (u_LightAttenuationMatrix * attr_Position).xyz;
+		// calc light attenuation in light space
+		var_TexAtten = u_LightAttenuationMatrix * position;
 	}
+	
+	
+#if 0 //defined(VSM) || defined(ESM)
+	if(bool(u_ShadowCompare))
+	{
+		vec4 shadowVert;
 		
+		// transform to camera space
+		vec4 positionC = u_ModelViewMatrix * vec4(position.xyz, 1.0);
+		float vertexDistanceToCamera = -positionC.z;
+		
+#if defined(r_ParallelShadowSplits_1)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			shadowVert = u_ShadowMatrix[0] * vec4(position.xyz, 1.0);
+		}
+		else
+		{
+			shadowVert = u_ShadowMatrix[1] * vec4(position.xyz, 1.0);
+		}
+#elif defined(r_ParallelShadowSplits_2)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			shadowVert = u_ShadowMatrix[0] * vec4(position.xyz, 1.0);
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			shadowVert = u_ShadowMatrix[1] * vec4(position.xyz, 1.0);
+		}
+		else
+		{
+			shadowVert = u_ShadowMatrix[2] * vec4(position.xyz, 1.0);
+		}
+#elif defined(r_ParallelShadowSplits_3)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			shadowVert = u_ShadowMatrix[0] * vec4(position.xyz, 1.0);
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			shadowVert = u_ShadowMatrix[1] * vec4(position.xyz, 1.0);
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
+		{
+			shadowVert = u_ShadowMatrix[2] * vec4(position.xyz, 1.0);
+		}
+		else
+		{
+			shadowVert = u_ShadowMatrix[3] * vec4(position.xyz, 1.0);
+		}
+#elif defined(r_ParallelShadowSplits_4)
+		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+		{
+			shadowVert = u_ShadowMatrix[0] * vec4(position.xyz, 1.0);
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+		{
+			shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
+		{
+			shadowVert = u_ShadowMatrix[2] * vec4(position.xyz, 1.0);
+		}
+		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.w)
+		{
+			shadowVert = u_ShadowMatrix[3] * vec4(position.xyz, 1.0);
+		}
+		else
+		{
+			shadowVert = u_ShadowMatrix[4] * vec4(position.xyz, 1.0);
+		}
+#else
+		shadowVert = u_ShadowMatrix[0] * vec4(position.xyz, 1.0);
+#endif
+
+		//shadowVert.xyz /= shadowVert.w;
+	
+		// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
+		var_Position.w = shadowVert.s;
+		var_Tangent.w = shadowVert.t;
+		var_Binormal.w = shadowVert.p;
+		var_Normal.w = shadowVert.q;
+	}
+#endif
+	
 	// transform diffusemap texcoords
-	var_TexDiffuse.xy = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
+	var_TexDiffuse.st = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	
 #if defined(r_NormalMapping)
 	// transform normalmap texcoords
-	var_TexNormal.xy = (u_NormalTextureMatrix * attr_TexCoord0).st;
+	var_TexNormal.st = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
 	// transform specularmap texture coords
 	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
