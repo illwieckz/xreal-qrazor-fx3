@@ -4675,7 +4675,7 @@ const void     *RB_TakeVideoFrameCmd(const void *data);
 void            RE_TakeVideoFrame(int width, int height, byte * captureBuffer, byte * encodeBuffer, qboolean motionJpeg);
 
 // cubemap reflections stuff
-//void            R_BuildCubeMaps(void);
+void            R_BuildCubeMaps(void);
 
 void            FreeVertexHashTable(vertexHash_t ** hashTable);
 

@@ -6478,7 +6478,7 @@ static int UpdateLightTriangles(const srfVert_t * verts, int numTriangles, srfTr
 	numFacing = 0;
 	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
 	{
-#if 0
+#if 1
 		vec3_t          pos[3];
 		float           d;
 
@@ -6490,16 +6490,41 @@ static int UpdateLightTriangles(const srfVert_t * verts, int numTriangles, srfTr
 		{
 			tri->degenerated = qfalse;
 
-			// check if light origin is behind triangle
-			d = DotProduct(tri->plane, light->origin) - tri->plane[3];
-
-			if(surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && surfaceShader->cullType != CT_BACK_SIDED))
+			if(light->l.rlType == RL_DIRECTIONAL)
 			{
-				tri->facingLight = qtrue;
+				vec3_t		lightDirection;
+
+				// light direction is from surface to light
+				#if 1
+				VectorCopy(tr.sunDirection, lightDirection);
+				#else
+				VectorCopy(light->direction, lightDirection);
+				#endif
+
+				d = DotProduct(tri->plane, lightDirection);
+
+				if(surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && surfaceShader->cullType != CT_BACK_SIDED))
+				{
+					tri->facingLight = qtrue;
+				}
+				else
+				{
+					tri->facingLight = qfalse;
+				}
 			}
 			else
 			{
-				tri->facingLight = qfalse;
+				// check if light origin is behind triangle
+				d = DotProduct(tri->plane, light->origin) - tri->plane[3];
+
+				if(surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && surfaceShader->cullType != CT_BACK_SIDED))
+				{
+					tri->facingLight = qtrue;
+				}
+				else
+				{
+					tri->facingLight = qfalse;
+				}
 			}
 		}
 		else
@@ -6815,6 +6840,359 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			iaVBO->vboLightMesh = (struct srfVBOMesh_s *)vboSurf;
 
 			c_vboLightSurfaces++;
+		}
+	}
+
+	ri.Hunk_FreeTempMemory(iaCachesSorted);
+#endif
+}
+
+/*
+===============
+R_CreateVBOShadowMeshes
+===============
+*/
+static void R_CreateVBOShadowMeshes(trRefLight_t * light)
+{
+#if 1
+	int             i, j, k, l;
+
+	int             numVerts;
+
+	int             numTriangles, numLitTriangles;
+	srfTriangle_t  *triangles;
+	srfTriangle_t  *tri;
+
+	interactionVBO_t *iaVBO;
+
+	interactionCache_t *iaCache, *iaCache2;
+	interactionCache_t **iaCachesSorted;
+	int             numCaches;
+
+	shader_t       *shader, *oldShader;
+	qboolean        alphaTest, oldAlphaTest;
+
+	bspSurface_t   *surface;
+
+	srfVBOMesh_t   *vboSurf;
+	vec3_t			bounds[2];
+
+	if(!r_vboShadows->integer)
+		return;
+
+	if(r_shadows->integer < 4)
+		return;
+
+	if(!light->firstInteractionCache)
+	{
+		// this light has no interactions precached
+		return;
+	}
+
+	if(light->l.noShadows)
+		return;
+
+	if(light->l.rlType != RL_DIRECTIONAL)
+		return;
+
+	// count number of interaction caches
+	numCaches = 0;
+	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+	{
+		if(iaCache->redundant)
+			continue;
+
+		surface = iaCache->surface;
+
+		if(!surface->shader->interactLight)
+			continue;
+
+		if(surface->shader->isSky)
+			continue;
+
+		if(surface->shader->noShadows)
+			continue;
+
+		if(surface->shader->sort > SS_OPAQUE)
+			continue;
+
+		if(surface->shader->isPortal)
+			continue;
+
+		if(ShaderRequiresCPUDeforms(surface->shader))
+			continue;
+
+		numCaches++;
+	}
+
+	// build interaction caches list
+	iaCachesSorted = ri.Hunk_AllocateTempMemory(numCaches * sizeof(iaCachesSorted[0]));
+
+	numCaches = 0;
+	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+	{
+		if(iaCache->redundant)
+			continue;
+
+		surface = iaCache->surface;
+
+		if(!surface->shader->interactLight)
+			continue;
+
+		if(surface->shader->isSky)
+			continue;
+
+		if(surface->shader->noShadows)
+			continue;
+
+		if(surface->shader->sort > SS_OPAQUE)
+			continue;
+
+		if(surface->shader->isPortal)
+			continue;
+
+		if(ShaderRequiresCPUDeforms(surface->shader))
+			continue;
+
+		iaCachesSorted[numCaches] = iaCache;
+		numCaches++;
+	}
+
+
+	// sort interaction caches by shader
+	qsort(iaCachesSorted, numCaches, sizeof(iaCachesSorted), InteractionCacheCompare);
+
+	// create a VBO for each shader
+	shader = oldShader = NULL;
+	oldAlphaTest = alphaTest = -1;
+
+	for(k = 0; k < numCaches; k++)
+	{
+		iaCache = iaCachesSorted[k];
+
+		iaCache->mergedIntoVBO = qtrue;
+
+		shader = iaCache->surface->shader;
+		alphaTest = shader->alphaTest;
+
+		iaCache->mergedIntoVBO = qtrue;
+
+		if(alphaTest ? shader != oldShader : alphaTest != oldAlphaTest)
+		{
+			oldShader = shader;
+			oldAlphaTest = alphaTest;
+
+			// count vertices and indices
+			numVerts = 0;
+			numTriangles = 0;
+
+			ClearBounds(bounds[0], bounds[1]);
+			for(l = k; l < numCaches; l++)
+			{
+				iaCache2 = iaCachesSorted[l];
+
+				surface = iaCache2->surface;
+
+#if 0
+				if(surface->shader != shader)
+					break;
+#else
+				if(alphaTest)
+				{
+					if(surface->shader != shader)
+						break;
+				}
+				else
+				{
+					if(surface->shader->alphaTest != alphaTest)
+						break;
+				}
+#endif
+
+				if(*surface->data == SF_FACE)
+				{
+					srfSurfaceFace_t *srf = (srfSurfaceFace_t *) surface->data;
+
+					if(srf->numTriangles)
+					{
+						numLitTriangles = UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle, surface->shader, light);
+						if(numLitTriangles)
+						{
+							BoundsAdd(bounds[0], bounds[1], srf->bounds[0], srf->bounds[1]);
+						}
+
+						numTriangles += numLitTriangles;
+					}
+
+					if(srf->numVerts)
+						numVerts += srf->numVerts;
+				}
+				else if(*surface->data == SF_GRID)
+				{
+					srfGridMesh_t  *srf = (srfGridMesh_t *) surface->data;
+
+					if(srf->numTriangles)
+					{
+						numLitTriangles = UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle, surface->shader, light);
+						if(numLitTriangles)
+						{
+							BoundsAdd(bounds[0], bounds[1], srf->meshBounds[0], srf->meshBounds[1]);
+						}
+
+						numTriangles += numLitTriangles;
+					}
+
+					if(srf->numVerts)
+						numVerts += srf->numVerts;
+				}
+				else if(*surface->data == SF_TRIANGLES)
+				{
+					srfTriangles_t *srf = (srfTriangles_t *) surface->data;
+
+					if(srf->numTriangles)
+					{
+						numLitTriangles = UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle, surface->shader, light);
+						if(numLitTriangles)
+						{
+							BoundsAdd(bounds[0], bounds[1], srf->bounds[0], srf->bounds[1]);
+						}
+
+						numTriangles += numLitTriangles;
+					}
+
+					if(srf->numVerts)
+						numVerts += srf->numVerts;
+				}
+			}
+
+			if(!numVerts || !numTriangles)
+				continue;
+
+			//ri.Printf(PRINT_ALL, "...calculating light mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum, indexesNum / 3);
+
+			// create surface
+			vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
+			vboSurf->surfaceType = SF_VBO_MESH;
+			vboSurf->numIndexes = numTriangles * 3;
+			vboSurf->numVerts = numVerts;
+			vboSurf->lightmapNum = -1;
+
+			VectorCopy(bounds[0], vboSurf->bounds[0]);
+			VectorCopy(bounds[1], vboSurf->bounds[1]);
+
+			// create arrays
+			triangles = ri.Hunk_AllocateTempMemory(numTriangles * sizeof(srfTriangle_t));
+			numTriangles = 0;
+
+			// build triangle indices
+			for(l = k; l < numCaches; l++)
+			{
+				iaCache2 = iaCachesSorted[l];
+
+				surface = iaCache2->surface;
+
+#if 0
+				if(surface->shader != shader)
+					break;
+#else
+				if(alphaTest)
+				{
+					if(surface->shader != shader)
+						break;
+				}
+				else
+				{
+					if(surface->shader->alphaTest != alphaTest)
+						break;
+				}
+#endif
+
+				if(*surface->data == SF_FACE)
+				{
+					srfSurfaceFace_t *srf = (srfSurfaceFace_t *) surface->data;
+
+					for(i = 0, tri = s_worldData.triangles + srf->firstTriangle; i < srf->numTriangles; i++, tri++)
+					{
+						if(tri->facingLight)
+						{
+							for(j = 0; j < 3; j++)
+							{
+								triangles[numTriangles].indexes[j] = tri->indexes[j];
+							}
+
+							numTriangles++;
+						}
+					}
+				}
+				else if(*surface->data == SF_GRID)
+				{
+					srfGridMesh_t  *srf = (srfGridMesh_t *) surface->data;
+
+					for(i = 0, tri = s_worldData.triangles + srf->firstTriangle; i < srf->numTriangles; i++, tri++)
+					{
+						if(tri->facingLight)
+						{
+							for(j = 0; j < 3; j++)
+							{
+								triangles[numTriangles].indexes[j] = tri->indexes[j];
+							}
+
+							numTriangles++;
+						}
+					}
+				}
+				else if(*surface->data == SF_TRIANGLES)
+				{
+					srfTriangles_t *srf = (srfTriangles_t *) surface->data;
+
+					for(i = 0, tri = s_worldData.triangles + srf->firstTriangle; i < srf->numTriangles; i++, tri++)
+					{
+						if(tri->facingLight)
+						{
+							for(j = 0; j < 3; j++)
+							{
+								triangles[numTriangles].indexes[j] = tri->indexes[j];
+							}
+
+							numTriangles++;
+						}
+					}
+				}
+			}
+
+			/*
+			   numVerts = OptimizeVertices(numVerts, verts, numTriangles, triangles, optimizedVerts, CompareLightVert);
+			   if(c_redundantVertexes)
+			   {
+			   ri.Printf(PRINT_DEVELOPER,
+			   "...removed %i redundant vertices from staticLightMesh %i ( %s, %i verts %i tris )\n",
+			   c_redundantVertexes, c_vboLightSurfaces, shader->name, numVerts, numTriangles);
+			   }
+
+			   vboSurf->vbo = R_CreateVBO2(va("staticLightMesh_vertices %i", c_vboLightSurfaces), numVerts, optimizedVerts,
+			   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL |
+			   ATTR_COLOR, VBO_USAGE_STATIC);
+			 */
+
+#if CALC_REDUNDANT_SHADOWVERTS
+			OptimizeTrianglesLite(s_worldData.redundantShadowVerts, numTriangles, triangles);
+			if(c_redundantVertexes)
+			{
+				ri.Printf(PRINT_DEVELOPER, "...removed %i redundant vertices from staticLightMesh %i ( %s, %i verts %i tris )\n",
+						  c_redundantVertexes, c_vboLightSurfaces, shader->name, numVerts, numTriangles);
+			}
+#endif
+			vboSurf->vbo = s_worldData.vbo;
+			vboSurf->ibo = R_CreateIBO2(va("staticShadowMesh_IBO %i", c_vboLightSurfaces), numTriangles, triangles, VBO_USAGE_STATIC);
+
+			ri.Hunk_FreeTempMemory(triangles);
+
+			// add everything needed to the light
+			iaVBO = R_CreateInteractionVBO(light);
+			iaVBO->shader = (struct shader_s *)shader;
+			iaVBO->vboShadowMesh = (struct srfVBOMesh_s *)vboSurf;
+
+			c_vboShadowSurfaces++;
 		}
 	}
 
@@ -7744,6 +8122,9 @@ void R_PrecacheInteractions()
 		// create a static VBO surface for each light geometry batch
 		R_CreateVBOLightMeshes(light);
 
+		// create a static VBO surface for each shadow geometry batch
+		R_CreateVBOShadowMeshes(light);
+
 		// calculate pyramid bits for each interaction in omni-directional lights
 		R_CalcInteractionCubeSideBits(light);
 
@@ -7992,7 +8373,7 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
 #endif
 }
 
-static void R_BuildCubeMaps(void)
+void R_BuildCubeMaps(void)
 {
 #if 1
 	int             i, j, k;
