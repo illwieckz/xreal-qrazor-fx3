@@ -2569,11 +2569,11 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 						break;
 
 					case RL_DIRECTIONAL:
+					case RL_PROJ:
 						R_AddLightInteraction(light, (void *)srf, shader, CUBESIDE_CLIPALL, IA_LIGHTONLY);
 						break;
 
 					default:
-					case RL_PROJ:
 						R_AddLightInteraction(light, (void *)srf, shader, CUBESIDE_CLIPALL, IA_DEFAULT);
 						break;
 				}

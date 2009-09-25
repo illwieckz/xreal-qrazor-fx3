@@ -6892,8 +6892,18 @@ static void R_CreateVBOShadowMeshes(trRefLight_t * light)
 	if(light->l.noShadows)
 		return;
 
-	if(light->l.rlType != RL_DIRECTIONAL)
-		return;
+	switch (light->l.rlType)
+	{
+		case RL_OMNI:
+			return;
+
+		case RL_DIRECTIONAL:
+		case RL_PROJ:
+			break;
+
+		default:
+			return;
+	}
 
 	// count number of interaction caches
 	numCaches = 0;
