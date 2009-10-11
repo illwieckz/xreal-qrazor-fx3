@@ -192,7 +192,11 @@ void	main()
 	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 	
 	// compute the light term
-#if defined(r_WrapAroundLighting)
+#if defined(r_halfLambertLighting)
+	// http://developer.valvesoftware.com/wiki/Half_Lambert
+	float NL = clamp(dot(N, L), 0.0, 1.0) * 0.5 + 0.5;
+	NL *= NL;
+#elif defined(r_WrapAroundLighting)
 	float NL = clamp(dot(N, L) + r_WrapAroundLighting, 0.0, 1.0) / clamp(1.0 + r_WrapAroundLighting, 0.0, 1.0);
 #else
 	float NL = clamp(dot(N, L), 0.0, 1.0);

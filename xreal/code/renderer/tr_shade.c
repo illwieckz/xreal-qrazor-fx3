@@ -471,6 +471,11 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 									 r_wrapAroundLighting->value));
 		}
 
+		if(r_halfLambertLighting->integer)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_halfLambertLighting\n#define r_halfLambertLighting 1\n#endif\n");
+		}
+
 		/*
 		   if(glConfig.textureFloatAvailable)
 		   {
