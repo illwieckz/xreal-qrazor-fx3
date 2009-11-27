@@ -2400,7 +2400,7 @@ void CM_TransformedBoxTrace(trace_t * results, const vec3_t start, const vec3_t 
 		//       However this is correct for capsules since a capsule itself is rotated too.
 		MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
 		MatrixSetupTransformFromRotation(transform, rotation, origin);
-		MatrixAffineInverse(rotation, inverse);
+		MatrixAffineInverse(transform, inverse);
 
 		// transform trace line into the clipModel's space
 		MatrixTransformPoint(inverse, start_l, startRotated);
