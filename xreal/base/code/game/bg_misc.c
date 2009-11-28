@@ -903,7 +903,9 @@ Only in CTF games
 /* sounds */ "sound/weapons/proxmine/wstbtick.wav "
 	 "sound/weapons/proxmine/wstbactv.wav "
 	 "sound/weapons/proxmine/wstbimpl.wav "
-	 "sound/weapons/proxmine/wstbimpm.wav " "sound/weapons/proxmine/wstbimpd.wav " "sound/weapons/proxmine/wstbactv.wav"}
+	 "sound/weapons/proxmine/wstbimpm.wav "
+	 "sound/weapons/proxmine/wstbimpd.wav "
+	 "sound/weapons/proxmine/wstbactv.wav"}
 	,
 
 /*QUAKED weapon_chaingun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended

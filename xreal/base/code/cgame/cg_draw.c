@@ -1444,8 +1444,8 @@ void CG_DrawStatusBarNew(void)
 		vec3_t          angles;
 		vec3_t          origin;
 		qhandle_t       model;
-		qhandle_t		skin;
-		qhandle_t		icon;
+		qhandle_t       skin;
+		qhandle_t       icon;
 
 		origin[0] = 90;
 		origin[1] = 0;
@@ -1536,25 +1536,25 @@ static void CG_DrawSideBarItem(int x, int y, int i)
 	trap_R_SetColor(basecolor);
 
 	if(i == cg.weaponSelect)
-		CG_DrawPic(x, y , 72, 32, cgs.media.sideBarItemSelectShader);
+		CG_DrawPic(x, y, 72, 32, cgs.media.sideBarItemSelectShader);
 
-	CG_DrawPic(x, y , 72, 32, cgs.media.sideBarItemShader);
+	CG_DrawPic(x, y, 72, 32, cgs.media.sideBarItemShader);
 
 	trap_R_SetColor(NULL);
 
-	CG_DrawPic(x+4, y+4, 24, 24, cg_weapons[i].weaponIcon);
+	CG_DrawPic(x + 4, y + 4, 24, 24, cg_weapons[i].weaponIcon);
 
 	if(i == cg.weaponSelect)
 	{
-		CG_DrawHudString(x + 72, y+17, ammo, 0.35f, UI_RIGHT, colorActive);
+		CG_DrawHudString(x + 72, y + 17, ammo, 0.35f, UI_RIGHT, colorActive);
 	}
 	else
 	{
 
 		if(cg.snap->ps.ammo[i])
-			CG_DrawHudString(x + 72, y+17, ammo, 0.30f, UI_RIGHT, colorInActive);
+			CG_DrawHudString(x + 72, y + 17, ammo, 0.30f, UI_RIGHT, colorInActive);
 		else
-			CG_DrawHudString(x + 72, y+17, ammo, 0.30f, UI_RIGHT, colorEmpty);
+			CG_DrawHudString(x + 72, y + 17, ammo, 0.30f, UI_RIGHT, colorEmpty);
 	}
 
 
@@ -1569,7 +1569,7 @@ CG_DrawSideBarPowerup
 static void CG_DrawSideBarPowerup(int x, int y, int i)
 {
 	char           *time;
-	int				t;
+	int             t;
 	vec4_t          colorActive = { 1.0f, 1.0f, 1.0f, 0.7f };	// white
 	vec4_t          colorOver = { 1.0f, 0.0f, 0.0f, 0.7f };	// red
 	vec4_t          basecolor;
@@ -1588,19 +1588,19 @@ static void CG_DrawSideBarPowerup(int x, int y, int i)
 
 	time = va("%i", t);
 
-		if(!item)
-			return;
+	if(!item)
+		return;
 
 	trap_R_SetColor(basecolor);
-	CG_DrawPic(x-72, y , 72, 32, cgs.media.sideBarPowerupShader);
+	CG_DrawPic(x - 72, y, 72, 32, cgs.media.sideBarPowerupShader);
 	trap_R_SetColor(NULL);
 
 	if(t < 10)
-		CG_DrawHudString(x-60, y+16, time, 0.30f +(10-t)*0.05f , UI_LEFT, colorOver);
+		CG_DrawHudString(x - 60, y + 16, time, 0.30f + (10 - t) * 0.05f, UI_LEFT, colorOver);
 	else
-		CG_DrawHudString(x-60, y+17, time, 0.30f, UI_LEFT, colorActive);
+		CG_DrawHudString(x - 60, y + 17, time, 0.30f, UI_LEFT, colorActive);
 
-	CG_DrawPic(x+4-24-8, y+4, 24, 24, trap_R_RegisterShader(item->icon));
+	CG_DrawPic(x + 4 - 24 - 8, y + 4, 24, 24, trap_R_RegisterShader(item->icon));
 
 }
 
@@ -1623,11 +1623,11 @@ static void CG_DrawSideBarHoldable(int x, int y, int i)
 		VectorCopy4(baseTeamColor, basecolor);
 
 	trap_R_SetColor(basecolor);
-	CG_DrawPic(x-72, y , 72, 32, cgs.media.sideBarPowerupShader);
+	CG_DrawPic(x - 72, y, 72, 32, cgs.media.sideBarPowerupShader);
 	trap_R_SetColor(NULL);
 
 	CG_RegisterItemVisuals(value);
-	CG_DrawPic(x+4-24-8, y+4, 24, 24, cg_items[value].icon);
+	CG_DrawPic(x + 4 - 24 - 8, y + 4, 24, 24, cg_items[value].icon);
 
 
 }
@@ -1782,7 +1782,7 @@ static float CG_DrawSnapshot(float y)
 
 	s = va("time:%i snap:%i cmd:%i", cg.snap->serverTime, cg.latestSnapshotNum, cgs.serverCommandSequence);
 
-	CG_Text_PaintAligned(635, y+4 , s, 0.2f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+	CG_Text_PaintAligned(635, y + 4, s, 0.2f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 
 	return y + 16;
@@ -1833,7 +1833,7 @@ static float CG_DrawFPS(float y)
 		CG_Text_PaintAligned(635, y, s, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 	}
 
-		return y + 16;
+	return y + 16;
 }
 
 /*
@@ -1859,7 +1859,7 @@ static float CG_DrawTimer(float y)
 	//w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 
 	//CG_DrawBigString(635 - w, y + 2, s, 1.0F);
-	CG_Text_PaintAligned(635, y , s, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+	CG_Text_PaintAligned(635, y, s, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 	return y + 16;
 
@@ -2305,7 +2305,7 @@ CG_DrawPowerups
 ================
 */
 #ifndef MISSIONPACK
-void CG_DrawPowerups( void )
+void CG_DrawPowerups(void)
 {
 /*	int             sorted[MAX_POWERUPS];
 	int             sortedTime[MAX_POWERUPS];
@@ -2761,7 +2761,7 @@ static void CG_DrawDisconnect(void)
 	y = 480 - 120;
 
 	trap_R_SetColor(baseTeamColor);
-	CG_DrawPic(x-8, y-8, 48+16, 48+16, cgs.media.lagometer_lagShader);
+	CG_DrawPic(x - 8, y - 8, 48 + 16, 48 + 16, cgs.media.lagometer_lagShader);
 	trap_R_SetColor(NULL);
 
 	// blink the icon
@@ -2789,7 +2789,7 @@ static void CG_DrawLagometer(void)
 	float           ax, ay, aw, ah, mid, range;
 	int             color;
 	float           vscale;
-	qboolean		lag = qfalse;
+	qboolean        lag = qfalse;
 	vec4_t          basecolor;
 	vec4_t          fadecolor;
 
@@ -2800,7 +2800,7 @@ static void CG_DrawLagometer(void)
 	cent = &cg_entities[cg.snap->ps.clientNum];
 
 	// Tr3B: even draw the lagometer when connected to a local server
-	if(!cg_lagometer.integer /*|| cgs.localServer*/)
+	if(!cg_lagometer.integer /*|| cgs.localServer */ )
 	{
 		CG_DrawDisconnect();
 		return;
@@ -2830,7 +2830,7 @@ static void CG_DrawLagometer(void)
 
 
 	trap_R_SetColor(basecolor);
-	CG_DrawPic(x-8, y-8, 48+16, 48+16, cgs.media.lagometerShader);
+	CG_DrawPic(x - 8, y - 8, 48 + 16, 48 + 16, cgs.media.lagometerShader);
 	trap_R_SetColor(NULL);
 
 
@@ -2902,7 +2902,7 @@ static void CG_DrawLagometer(void)
 				{
 					color = 5;	// YELLOW for rate delay
 					VectorCopy4(g_color_table[ColorIndex(COLOR_YELLOW)], fadecolor);
-				fadecolor[3] = (float)((aw - a) / aw);
+					fadecolor[3] = (float)((aw - a) / aw);
 					trap_R_SetColor(fadecolor);
 				}
 			}
@@ -2912,7 +2912,7 @@ static void CG_DrawLagometer(void)
 				{
 					color = 3;
 					VectorCopy4(g_color_table[ColorIndex(COLOR_GREEN)], fadecolor);
-					fadecolor[3] = (float)((aw - a) / aw)*0.5f;
+					fadecolor[3] = (float)((aw - a) / aw) * 0.5f;
 					trap_R_SetColor(fadecolor);
 				}
 			}
@@ -3882,7 +3882,7 @@ static void CG_Draw2D(void)
 			CG_DrawStatusBar();
 
 			CG_DrawSideBar();
-			CG_DrawPowerups ();
+			CG_DrawPowerups();
 
 			CG_DrawAmmoWarning();
 

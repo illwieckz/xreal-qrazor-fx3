@@ -755,7 +755,7 @@ void ACEMV_Attack(gentity_t * self)
 	// don't attack too much
 	if(random() < 0.8 && ACEMV_CheckShot(self, target))
 	{
-		switch(self->client->pers.cmd.weapon)
+		switch (self->client->pers.cmd.weapon)
 		{
 			case WP_FLAK_CANNON:
 			case WP_ROCKET_LAUNCHER:

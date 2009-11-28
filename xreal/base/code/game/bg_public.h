@@ -871,20 +871,20 @@ qboolean        BG_RotateAxis(vec3_t surfNormal, vec3_t inAxis[3], vec3_t outAxi
 typedef enum
 {
 	ENTMAT_NONE,
-	ENTMAT_WOOD,	//chunks, thin shards
-	ENTMAT_GLASS,	//large flat shards
+	ENTMAT_WOOD,				//chunks, thin shards
+	ENTMAT_GLASS,				//large flat shards
 	ENTMAT_METAL,
-	ENTMAT_GIBS,	//blood, small chunks
-	ENTMAT_BODY,	//head, arms, legs
-	ENTMAT_BRICK,	//rectangular chunks
-	ENTMAT_STONE,	//rough chunks
-	ENTMAT_TILES,	//small square chunks
-	ENTMAT_PLASTER,	//thin like riped paper chunks
-	ENTMAT_FIBERS,	//thin wires
-	ENTMAT_SPRITE,	//sprites, down
-	ENTMAT_SMOKE,	//sprites, up
-	ENTMAT_GAS,		//sprites, every direction
-	ENTMAT_FIRE,		//many polys on random angles
+	ENTMAT_GIBS,				//blood, small chunks
+	ENTMAT_BODY,				//head, arms, legs
+	ENTMAT_BRICK,				//rectangular chunks
+	ENTMAT_STONE,				//rough chunks
+	ENTMAT_TILES,				//small square chunks
+	ENTMAT_PLASTER,				//thin like riped paper chunks
+	ENTMAT_FIBERS,				//thin wires
+	ENTMAT_SPRITE,				//sprites, down
+	ENTMAT_SMOKE,				//sprites, up
+	ENTMAT_GAS,					//sprites, every direction
+	ENTMAT_FIRE,				//many polys on random angles
 	ENTMAT_NUMBER
 } entityMaterial_t;
 

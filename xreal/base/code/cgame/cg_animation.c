@@ -281,5 +281,3 @@ void CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int ne
 		}
 	}
 }
-
-

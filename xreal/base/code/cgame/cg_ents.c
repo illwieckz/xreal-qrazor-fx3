@@ -648,7 +648,7 @@ static void CG_Projectile(centity_t * cent)
 
 #if defined(USE_JAVA)
 	{
-		vec3_t angles;
+		vec3_t          angles;
 
 		//VectorToAngles(s1->pos.trDelta, angles);
 		//AnglesToAxis(angles, ent.axis);
@@ -734,7 +734,8 @@ static void CG_Projectile2(centity_t * cent)
 	if(weapon->projectileLight2)
 	{
 		trap_R_AddLightToScene(cent->lerpOrigin, weapon->projectileLight,
-							   weapon->projectileLightColor2[0], weapon->projectileLightColor2[1], weapon->projectileLightColor2[2]);
+							   weapon->projectileLightColor2[0], weapon->projectileLightColor2[1],
+							   weapon->projectileLightColor2[2]);
 	}
 
 	// add missile sound
@@ -818,7 +819,7 @@ static void CG_Grapple(centity_t * cent)
 	refEntity_t     ent;
 	entityState_t  *s1;
 	const weaponInfo_t *weapon;
-	matrix_t		rotation;
+	matrix_t        rotation;
 
 	s1 = &cent->currentState;
 	if(s1->weapon > WP_NUM_WEAPONS)
@@ -1129,8 +1130,8 @@ static void CG_Physics_Box(centity_t * cent)
 	vec3_t          maxs;
 	float           extx, exty, extz;
 	vec3_t          corners[8];
-	matrix_t		rotation;
-	matrix_t		transform;
+	matrix_t        rotation;
+	matrix_t        transform;
 
 	{
 		int             x, zd, zu;

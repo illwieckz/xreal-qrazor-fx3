@@ -1266,7 +1266,7 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 
 		f = (lf->frameTime - lf->animationStartTime) / anim->frameTime;
 		f *= lf->animationScale;
-		f *= speedScale;	// adjust for haste, etc
+		f *= speedScale;		// adjust for haste, etc
 
 		//CG_Printf("CG_RunWeaponLerpFrame: lf->frameTime=%i anim->frameTime=%i startTime=%i frame=%i weapon=%i\n", lf->frameTime, anim->frameTime, lf->animationStartTime, f, weaponNumber);
 
@@ -1527,7 +1527,7 @@ JUHOX: CG_LightningBolt (new version)
 static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 {
 #if 0
-refEntity_t     beam;
+	refEntity_t     beam;
 	vec3_t          startPoint, endPoint;
 	vec3_t          forward;
 	vec3_t          right;
@@ -1621,8 +1621,8 @@ refEntity_t     beam;
 	refEntity_t     beam;
 	vec3_t          forward, right, up;
 	vec3_t          muzzlePoint, endPoint;
-	vec3_t			surfNormal;
-	int				anim;
+	vec3_t          surfNormal;
+	int             anim;
 
 	if(cent->currentState.weapon != WP_LIGHTNING)
 		return;
@@ -1738,7 +1738,7 @@ refEntity_t     beam;
 	else
 	{
 #if 0
-		matrix_t	rot;
+		matrix_t        rot;
 
 		// we did hit anything so let the lightning bolt play crazy
 		randomAngles[PITCH] = crandom() * 10;

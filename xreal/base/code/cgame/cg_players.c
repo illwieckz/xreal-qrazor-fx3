@@ -1293,6 +1293,7 @@ static void CG_RunPlayerLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAn
 		}
 	}
 }
+
 /*
 ===============
 CG_ClearLerpFrame
@@ -1819,7 +1820,7 @@ void CG_DustTrail(centity_t * cent)
 	end[2] -= 16;
 
 	VectorSet(vel, 0, 0, -30);
-	dust = CG_SmokePuff(end, vel, 24, .8f, .8f, 0.7f, 0.33f, 500, cg.time, 0, 0, cgs.media.shotgunSmokePuffShader); //cgs.media.dustPuffShader);
+	dust = CG_SmokePuff(end, vel, 24, .8f, .8f, 0.7f, 0.33f, 500, cg.time, 0, 0, cgs.media.shotgunSmokePuffShader);	//cgs.media.dustPuffShader);
 }
 
 
@@ -1863,7 +1864,7 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * body)
 	int             legsAnim, flagAnim, updateangles;
 	float           angle, d;
 	vec3_t          axis[3];
-	int				boneIndex;
+	int             boneIndex;
 
 	// show the flag model
 	memset(&flag, 0, sizeof(flag));
@@ -1983,7 +1984,7 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * body)
 		boneIndex = trap_R_BoneIndex(body->hModel, "upper_torso");
 		if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 		{
-			matrix_t	bodyToBone, inverse;
+			matrix_t        bodyToBone, inverse;
 
 			MatrixSetupTransformFromQuat(bodyToBone, body->skeleton.bones[boneIndex].rotation, body->skeleton.bones[boneIndex].origin);
 			MatrixAffineInverse(bodyToBone, inverse);
@@ -2259,7 +2260,7 @@ static void CG_PlayerFloatSprite(centity_t * cent, qhandle_t shader)
 {
 	int             rf;
 	refEntity_t     ent;
-	vec3_t			surfNormal;
+	vec3_t          surfNormal;
 
 	if(cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
 	{
@@ -2437,12 +2438,13 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 	// fade the shadow out with height
 	alpha = 1.0 - trace.fraction;
 
-#if 0 // FIXME
+#if 0							// FIXME
 	if((cg_shadows.integer >= 4 && cg_shadows.integer <= 6) && cg_precomputedLighting.integer)
 	{
 		refLight_t      light;
 		vec3_t          angles;
-		//float			angle;
+
+		//float         angle;
 		vec3_t          projectionEnd;
 
 		vec3_t          ambientLight;
@@ -2766,7 +2768,7 @@ void CG_Player(centity_t * cent)
 	vec3_t          torsoAngles;
 	vec3_t          headAngles;
 
-	matrix_t		bodyRotation;
+	matrix_t        bodyRotation;
 	quat_t          torsoQuat;
 	quat_t          headQuat;
 
@@ -2778,7 +2780,7 @@ void CG_Player(centity_t * cent)
 	int             lastTorsoBone;
 
 	vec3_t          surfNormal = { 0.0f, 0.0f, 1.0f };
-	vec3_t			playerOrigin;
+	vec3_t          playerOrigin;
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -2872,7 +2874,7 @@ void CG_Player(centity_t * cent)
 
 		cent->pe.deathScale = 1.0f - (1.0f / DEATHANIM_TIME * time);
 		if(cent->pe.deathScale >= 1.0f)
-				return;
+			return;
 
 		body.shaderTime = -cent->pe.deathScale;
 	}
@@ -3378,7 +3380,7 @@ void CG_DrawPlayerCollision(centity_t * cent, const vec3_t bodyOrigin, const mat
 	vec3_t          maxs;
 	float           extx, exty, extz;
 	vec3_t          corners[8];
-	matrix_t		transform;
+	matrix_t        transform;
 
 	if(!cg_drawPlayerCollision.integer)
 	{

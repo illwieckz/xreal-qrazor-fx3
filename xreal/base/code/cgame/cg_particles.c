@@ -572,7 +572,7 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, vec4_t color)
 	}
 	else if(p->type == P_SPARK || p->type == P_BLOOD)
 	{
-		axis_t				axis;
+		axis_t          axis;
 
 		time = cg.time - p->time;
 		time2 = p->endTime - p->time;
@@ -658,8 +658,8 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, vec4_t color)
 	}
 	else if(p->type == P_LIGHTSPARK)
 	{
-		axis_t				axis;
-		vec_t				speed;
+		axis_t          axis;
+		vec_t           speed;
 
 		time = cg.time - p->time;
 		time2 = p->endTime - p->time;
@@ -672,8 +672,8 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, vec4_t color)
 		speed = VectorNormalize(axis[1]);
 		VectorNormalize(axis[2]);
 
-		width = Q_min(p->width * speed, p->width);// + (ratio * (p->endWidth - p->width));
-		height = p->height;// * speed;// + (ratio * (p->endHeight - p->height));
+		width = Q_min(p->width * speed, p->width);	// + (ratio * (p->endWidth - p->width));
+		height = p->height;		// * speed;// + (ratio * (p->endHeight - p->height));
 
 		// find normal
 		CrossProduct(axis[1], axis[2], axis[0]);
@@ -1651,6 +1651,7 @@ void CG_ParticleBlood(vec3_t org, vec3_t dir, int count)
 {
 	int             i, j;
 	cparticle_t    *p;
+
 	//float           d;
 	int             r;
 
@@ -2312,8 +2313,8 @@ void CG_ParticleGibEffect(const vec3_t origin)
 				p->endWidth = p->height * 0.2;
 
 				// add some gravity/randomness
-				p->accel[0] = 0; //crandom() * 3;
-				p->accel[1] = 0; //crandom() * 3;
+				p->accel[0] = 0;	//crandom() * 3;
+				p->accel[1] = 0;	//crandom() * 3;
 				p->accel[2] = -PARTICLE_GRAVITY * 3;
 
 				p->rotate = qtrue;
@@ -2329,8 +2330,8 @@ void CG_ParticleGibEffect(const vec3_t origin)
 				p->endHeight = 1.3f;
 				p->endWidth = 10;
 
-				p->accel[0] = 0; //crandom() * 3;
-				p->accel[1] = 0; //crandom() * 3;
+				p->accel[0] = 0;	//crandom() * 3;
+				p->accel[1] = 0;	//crandom() * 3;
 				p->accel[2] = -PARTICLE_GRAVITY * 20;
 #endif
 
@@ -2610,6 +2611,6 @@ void CG_TestParticles_f(void)
 //  CG_ParticleRocketFire(start, end);
 //  CG_ParticleSparks2(start, cg.refdef.viewaxis[1], 50);
 //  CG_ParticleRick(start, cg.refdef.viewaxis[1]);
-//	CG_ParticleBlood(start, cg.refdef.viewaxis[1], 3);
+//  CG_ParticleBlood(start, cg.refdef.viewaxis[1], 3);
 	CG_ParticleGibEffect(start);
 }

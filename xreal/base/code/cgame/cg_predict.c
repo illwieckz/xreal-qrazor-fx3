@@ -340,7 +340,7 @@ static void CG_InterpolatePlayerState(qboolean grabAngles)
 		out->velocity[i] = prev->ps.velocity[i] + f * (next->ps.velocity[i] - prev->ps.velocity[i]);
 	}
 
-#if 0 //defined(USE_JAVA)
+#if 0							//defined(USE_JAVA)
 	CG_Printf("client origin:      (%i %i %i)\n", (int)out->origin[0], (int)out->origin[1], (int)out->origin[2]);
 	CG_Printf("client velocity:    (%i %i %i)\n", (int)out->velocity[0], (int)out->velocity[1], (int)out->velocity[2]);
 	CG_Printf("client view angles: (%i %i %i)\n", (int)out->viewangles[0], (int)out->viewangles[1], (int)out->viewangles[2]);
@@ -476,7 +476,7 @@ static void CG_TouchTriggerPrediction(void)
 		BG_EvaluateTrajectory(&cent->currentState.pos, cg.physicsTime, origin);
 
 		trap_CM_TransformedCapsuleTrace(&trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
-									cg_pmove.mins, cg_pmove.maxs, cmodel, -1, origin, angles);
+										cg_pmove.mins, cg_pmove.maxs, cmodel, -1, origin, angles);
 
 		if(!trace.startsolid)
 		{
@@ -569,7 +569,7 @@ void CG_PredictPlayerState(void)
 
 	// prepare for pmove
 	cg_pmove.ps = &cg.predictedPlayerState;
-	cg_pmove.trace = CG_CapTrace; // FIXME CG_CapTrace;
+	cg_pmove.trace = CG_CapTrace;	// FIXME CG_CapTrace;
 	cg_pmove.pointcontents = CG_PointContents;
 	if(cg_pmove.ps->pm_type == PM_DEAD)
 	{

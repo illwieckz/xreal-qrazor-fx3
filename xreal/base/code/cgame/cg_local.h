@@ -150,7 +150,7 @@ typedef struct
 	float           blendtime;
 
 	int             weaponNumber;
-	int				old_weaponNumber;
+	int             old_weaponNumber;
 } lerpFrame_t;
 
 // debugging values:
@@ -461,7 +461,7 @@ typedef struct weaponInfo_s
 
 	float           flashLight;
 	vec3_t          flashLightColor;
-	sfxHandle_t     flashSound[10];		// fast firing weapons randomly choose
+	sfxHandle_t     flashSound[10];	// fast firing weapons randomly choose
 
 	float           flashLight2;
 	vec3_t          flashLightColor2;
@@ -473,7 +473,7 @@ typedef struct weaponInfo_s
 	qhandle_t       ammoModel;
 
 	qhandle_t       projectileModel;
-	qhandle_t		projectileSkin;
+	qhandle_t       projectileSkin;
 	sfxHandle_t     projectileSound;
 	void            (*projectileTrailFunc) (centity_t *, const struct weaponInfo_s * wi);
 	float           projectileLight;
@@ -918,7 +918,7 @@ typedef struct
 
 	qhandle_t       flagModel;
 	animation_t     flagAnimations[MAX_FLAG_ANIMATIONS];
-	qhandle_t		redFlagSkin;
+	qhandle_t       redFlagSkin;
 	qhandle_t       blueFlagSkin;
 	qhandle_t       neutralFlagSkin;
 
@@ -956,12 +956,12 @@ typedef struct
 
 	// func_explosive debris
 	qhandle_t       debrisModels[ENTMAT_NUMBER][3][2];
-	qhandle_t		debrisBit;
-	qhandle_t		debrisPlaster;
+	qhandle_t       debrisBit;
+	qhandle_t       debrisPlaster;
 
-	qhandle_t		fire;
-	qhandle_t		fireLight;
-	qhandle_t		flames[2];
+	qhandle_t       fire;
+	qhandle_t       fireLight;
+	qhandle_t       flames[2];
 
 	// gib explosions
 	qhandle_t       gibAbdomen;
@@ -1167,7 +1167,7 @@ typedef struct
 	sfxHandle_t     sfx_railg;
 	sfxHandle_t     sfx_rockexp;
 	sfxHandle_t     sfx_plasmaexp;
-	sfxHandle_t		hookImpactSound;
+	sfxHandle_t     hookImpactSound;
 	sfxHandle_t     impactFlesh1Sound;
 	sfxHandle_t     impactFlesh2Sound;
 	sfxHandle_t     impactFlesh3Sound;
@@ -1585,11 +1585,11 @@ void            CG_BuildSpectatorString();
 //
 // cg_animation.c
 //
-qboolean		CG_RegisterAnimation(animation_t * anim, const char *filename,
-										   qboolean loop, qboolean reversed, qboolean clearOrigin);
+qboolean        CG_RegisterAnimation(animation_t * anim, const char *filename,
+									 qboolean loop, qboolean reversed, qboolean clearOrigin);
 
-void			CG_SetLerpFrameAnimation(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation);
-void			CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation, float speedScale);
+void            CG_SetLerpFrameAnimation(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation);
+void            CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation, float speedScale);
 
 
 //
@@ -1664,7 +1664,8 @@ void            CG_Text_PaintChar(float x, float y, float width, float height, f
 								  qhandle_t hShader);
 void            CG_Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit,
 							  int style, const fontInfo_t * font);
-void            CG_Text_PaintAligned(int x, int y, const char *s, float scale, int style, const vec4_t color, const fontInfo_t * font);
+void            CG_Text_PaintAligned(int x, int y, const char *s, float scale, int style, const vec4_t color,
+									 const fontInfo_t * font);
 
 void            CG_AddLagometerFrameInfo(void);
 void            CG_AddLagometerSnapshotInfo(snapshot_t * snap);
@@ -1705,7 +1706,7 @@ void            CG_ResetPlayerEntity(centity_t * cent);
 void            CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int team);
 void            CG_NewClientInfo(int clientNum);
 sfxHandle_t     CG_CustomSound(int clientNum, const char *soundName);
-void			CG_DrawPlayerCollision(centity_t * cent, const vec3_t bodyOrigin, const matrix_t bodyRotation);
+void            CG_DrawPlayerCollision(centity_t * cent, const vec3_t bodyOrigin, const matrix_t bodyRotation);
 
 //
 // cg_predict.c
@@ -1715,9 +1716,9 @@ int             CG_PointContents(const vec3_t point, int passEntityNum);
 void            CG_Trace(trace_t * result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 						 int skipNumber, int mask);
 void            CG_CapTrace(trace_t * result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-						int skipNumber, int mask);
-void			CG_BiSphereTrace(trace_t * result, const vec3_t start, const vec3_t end,
-					  const float startRadius, const float endRadius, int skipNumber, int mask);
+							int skipNumber, int mask);
+void            CG_BiSphereTrace(trace_t * result, const vec3_t start, const vec3_t end,
+								 const float startRadius, const float endRadius, int skipNumber, int mask);
 void            CG_PredictPlayerState(void);
 void            CG_LoadDeferredPlayers(void);
 
@@ -1829,8 +1830,8 @@ void            CG_ExplosiveExplode(centity_t * cent);
 
 void            CG_FireEffect(vec3_t org, vec3_t mins, vec3_t maxs, float flameSize, int particles, float intensity);
 
-void			CG_Fire(centity_t * cent);
-void			CG_AddFire(localEntity_t *le);
+void            CG_Fire(centity_t * cent);
+void            CG_AddFire(localEntity_t * le);
 
 localEntity_t  *CG_MakeExplosion(vec3_t origin, vec3_t dir, qhandle_t hModel, qhandle_t shader, int msec, qboolean isSprite);
 
@@ -1877,7 +1878,7 @@ void            CG_TransitionPlayerState(playerState_t * ps, playerState_t * ops
 void            CG_CheckChangedPredictableEvents(playerState_t * ps);
 
 
-#ifdef LUA
+#ifdef CG_LUA
 //
 // cg_lua.c
 //
@@ -1947,7 +1948,7 @@ void            CG_ParticleRailRick(vec3_t org, vec3_t dir, vec3_t clientColor);
 void            CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir);
 void            CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
 void            CG_ParticleTeleportEffect(const vec3_t origin);
-void 			CG_ParticleGibEffect(const vec3_t origin);
+void            CG_ParticleGibEffect(const vec3_t origin);
 int             CG_NewParticleArea(int num);
 void            CG_TestParticles_f(void);
 
@@ -1955,8 +1956,8 @@ void            CG_SwingAngles(float destination, float swingTolerance, float cl
 							   float speed, float *angle, qboolean * swinging);
 void            CG_AddPainTwitch(centity_t * cent, vec3_t torsoAngles);
 
-void			CG_PlayerTokens(centity_t * cent, int renderfx);
-void			CG_BreathPuffs(centity_t * cent, const vec3_t headOrigin, const vec3_t headDirection);
+void            CG_PlayerTokens(centity_t * cent, int renderfx);
+void            CG_BreathPuffs(centity_t * cent, const vec3_t headOrigin, const vec3_t headDirection);
 
 void            CG_PlayerSprites(centity_t * cent);
 void            CG_PlayerSplash(centity_t * cent);
@@ -1981,7 +1982,7 @@ void            CG_OSDInput(void);
 //
 // cg_animation.c
 //
-void			CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation, float speedScale);
+void            CG_RunLerpFrame(lerpFrame_t * lf, animation_t * anims, int animsNum, int newAnimation, float speedScale);
 
 
 
@@ -2116,7 +2117,7 @@ void            trap_R_DrawStretchPic(float x, float y, float w, float h,
 void            trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs);
 int             trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame,
 							   float frac, const char *tagName);
-int				trap_R_CheckSkeleton(refSkeleton_t * skel, qhandle_t hModel, qhandle_t hAnim);
+int             trap_R_CheckSkeleton(refSkeleton_t * skel, qhandle_t hModel, qhandle_t hAnim);
 int             trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
 									 qboolean clearOrigin);
 int             trap_R_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
