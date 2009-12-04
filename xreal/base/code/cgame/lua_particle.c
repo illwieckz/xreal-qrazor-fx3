@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-#ifdef LUA
+#ifdef CG_LUA
 
 #include <lua.h>
 #include <lauxlib.h>

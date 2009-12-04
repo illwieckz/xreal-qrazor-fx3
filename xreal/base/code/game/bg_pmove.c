@@ -22,9 +22,10 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
+//
 // bg_pmove.c -- both games player movement code
 // takes a playerstate and a usercmd as input and returns a modifed playerstate
+
 #include "../../../code/qcommon/q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
@@ -247,7 +248,7 @@ static void PM_Friction(void)
 	speed = VectorLength(vec);
 
 
-	if(speed < 1)// && pm->ps->pm_type != PM_SPECTATOR && pm->ps->pm_type != PM_NOCLIP)
+	if(speed < 1)				// && pm->ps->pm_type != PM_SPECTATOR && pm->ps->pm_type != PM_NOCLIP)
 	{
 		vel[0] = 0;
 		vel[1] = 0;				// allow sinking underwater
@@ -973,7 +974,7 @@ static void PM_ClimbMove(void)
 	}
 
 
-	if(PM_CheckJump())// || PM_CheckPounce())
+	if(PM_CheckJump())			// || PM_CheckPounce())
 	{
 		// jumped away
 		if(pm->waterlevel > 1)
@@ -1087,7 +1088,7 @@ static void PM_WalkMove(void)
 	}
 
 
-	if(PM_CheckJump())// || PM_CheckPounce())
+	if(PM_CheckJump())			// || PM_CheckPounce())
 	{
 		// jumped away
 		if(pm->waterlevel > 1)
@@ -1198,8 +1199,8 @@ static void PM_WalkMove(void)
 	}
 
 	/*
-		commenting these out prevents overbounces
-	    see: http://www.quakedev.com/forums/index.php?topic=1221.0
+	   commenting these out prevents overbounces
+	   see: http://www.quakedev.com/forums/index.php?topic=1221.0
 
 	   // don't decrease velocity when going up or down a slope
 	   VectorNormalize(pm->ps->velocity);

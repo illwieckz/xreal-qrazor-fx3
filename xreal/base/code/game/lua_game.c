@@ -21,13 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // lua_game.c -- qagame library for Lua
 
-#include "g_local.h"
+#include "g_lua.h"
 
-#ifdef LUA
-
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#if(defined(G_LUA))
 
 static int game_Print(lua_State * L)
 {
@@ -89,9 +85,27 @@ static int game_Broadcast(lua_State * L)
 	return 0;
 }
 
+// game.EndRound()
+static int game_EndRound(lua_State * L)
+{
+	//DEBUG_LUA("et_GameEnd: start: round ending");
+	trap_SendServerCommand(-1, "print \"Round Ended.\n\"");
+	LogExit("Round Ended.");
+	return 0;
+}
+
+// game.Leveltime()
+static int game_Leveltime(lua_State * L)
+{
+	lua_pushinteger(L, level.time);
+	return 1;
+}
+
 static const luaL_reg gamelib[] = {
 	{"Print", game_Print},
 	{"Broadcast", game_Broadcast},
+	{"EndRound", game_EndRound},
+	{"Leveltime", game_Leveltime},
 	{NULL, NULL}
 };
 

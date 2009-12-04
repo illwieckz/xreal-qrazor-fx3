@@ -181,8 +181,8 @@ void trap_Trace(trace_t * results, const vec3_t start, const vec3_t mins, const 
 	syscall(G_TRACE, results, start, mins, maxs, end, passEntityNum, contentmask);
 }
 
-void trap_TraceNoEnts(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum,
-				int contentmask)
+void trap_TraceNoEnts(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+					  int passEntityNum, int contentmask)
 {
 	syscall(G_TRACE, results, start, mins, maxs, end, -2, contentmask);
 }
@@ -194,7 +194,7 @@ void trap_TraceCapsule(trace_t * results, const vec3_t start, const vec3_t mins,
 }
 
 void trap_TraceCapsuleNoEnts(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					   int passEntityNum, int contentmask)
+							 int passEntityNum, int contentmask)
 {
 	syscall(G_TRACECAPSULE, results, start, mins, maxs, end, -2, contentmask);
 }

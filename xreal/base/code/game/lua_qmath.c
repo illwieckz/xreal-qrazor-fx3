@@ -21,13 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // lua_qmath.c -- qmath library for Lua
 
-#include "g_local.h"
+#include "g_lua.h"
 
-#ifdef LUA
-
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#if(defined(G_LUA) || defined(CG_LUA))
 
 static int qmath_abs(lua_State * L)
 {

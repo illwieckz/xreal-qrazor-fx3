@@ -608,6 +608,8 @@ void SetMoverState(gentity_t * ent, moverState_t moverState, int time)
 			VectorScale(delta, f, ent->s.pos.trDelta);
 			ent->s.pos.trType = TR_LINEAR_STOP;
 			break;
+		case MOVER_MISC:
+			break;
 	}
 	BG_EvaluateTrajectory(&ent->s.pos, level.time, ent->r.currentOrigin);
 	trap_LinkEntity(ent);
@@ -664,6 +666,21 @@ void Reached_BinaryMover(gentity_t * ent)
 	// stop the looping sound
 	ent->s.loopSound = ent->soundLoop;
 
+#ifdef G_LUA
+	// Lua API callbacks
+	if(ent->luaTrigger)
+	{
+		if(ent->activator)
+		{
+			G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, ent->activator->s.number);
+		}
+		else
+		{
+			G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, ENTITYNUM_WORLD);
+		}
+	}
+#endif
+
 	if(ent->moverState == MOVER_1TO2)
 	{
 		// reached pos2
@@ -703,6 +720,10 @@ void Reached_BinaryMover(gentity_t * ent)
 			trap_AdjustAreaPortalState(ent, qfalse);
 		}
 	}
+	else if(ent->moverState == MOVER_MISC)
+	{
+		//Movement was set by lua, its fine.
+	}
 	else
 	{
 		G_Error("Reached_BinaryMover: bad moverState");
@@ -728,6 +749,14 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 	}
 
 	ent->activator = activator;
+
+#ifdef G_LUA
+	// Lua API callbacks
+	if(ent->luaTrigger)
+	{
+		G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, activator->s.number);
+	}
+#endif
 
 	if(ent->moverState == MOVER_POS1)
 	{
@@ -1074,7 +1103,7 @@ void SP_func_door(gentity_t * ent)
 	vec3_t          size, sizeRotated;
 	float           lip;
 	matrix_t        rotation;
-	qboolean		start_open;
+	qboolean        start_open;
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.ogg");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.ogg");
@@ -1455,9 +1484,27 @@ void Reached_Train(gentity_t * ent)
 
 	// copy the apropriate values
 	next = ent->nextTrain;
+
 	if(!next || !next->nextTrain)
 	{
 		return;					// just stop
+	}
+
+#ifdef G_LUA
+	// Lua API callbacks
+	if(ent->luaTrigger)
+	{
+		G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, -1);
+	}
+	if(next->luaTrigger)
+	{
+		G_LuaHook_EntityTrigger(next->luaTrigger, next->s.number, ent->s.number);
+	}
+#endif
+
+	if(!ent->nextTrain)
+	{
+		return;					// check for stopped by lua
 	}
 
 	// fire all other targets
@@ -1504,24 +1551,14 @@ void Reached_Train(gentity_t * ent)
 	}
 }
 
-
 /*
 ===============
-Think_SetupTrainTargets
-
 Link all the corners together
 ===============
 */
-void Think_SetupTrainTargets(gentity_t * ent)
+void SetupTrainPath(gentity_t * ent, qboolean allowNoTarget)
 {
 	gentity_t      *path, *next, *start;
-
-	ent->nextTrain = G_Find(NULL, FOFS(name), ent->target);
-	if(!ent->nextTrain)
-	{
-		G_Printf("func_train at %s with an unfound target\n", vtos(ent->r.absmin));
-		return;
-	}
 
 	start = NULL;
 	for(path = ent->nextTrain; path != start; path = next)
@@ -1531,9 +1568,14 @@ void Think_SetupTrainTargets(gentity_t * ent)
 			start = path;
 		}
 
+		path->nextTrain = NULL;
+
 		if(!path->target)
 		{
-			G_Printf("Train corner at %s without a target\n", vtos(path->s.origin));
+			if(!allowNoTarget)
+			{
+				G_Printf("Train corner at %s without a target\n", vtos(path->s.origin));
+			}
 			return;
 		}
 
@@ -1546,13 +1588,33 @@ void Think_SetupTrainTargets(gentity_t * ent)
 			next = G_Find(next, FOFS(name), path->target);
 			if(!next)
 			{
-				G_Printf("Train corner at %s without a target path_corner\n", vtos(path->s.origin));
+				if(!allowNoTarget)
+				{
+					G_Printf("Train corner at %s without a target path_corner\n", vtos(path->s.origin));
+				}
 				return;
 			}
 		} while(strcmp(next->classname, "path_corner"));
 
 		path->nextTrain = next;
 	}
+}
+
+/*
+===============
+Think_SetupTrainTargets
+===============
+*/
+void Think_SetupTrainTargets(gentity_t * ent)
+{
+	ent->nextTrain = G_Find(NULL, FOFS(name), ent->target);
+	if(!ent->nextTrain)
+	{
+		G_Printf("func_train at %s with an unfound target\n", vtos(ent->r.absmin));
+		return;
+	}
+
+	SetupTrainPath(ent, qfalse);
 
 	// start the train moving from the first corner
 	Reached_Train(ent);
@@ -1683,8 +1745,8 @@ check either the X_AXIS or Y_AXIS box to change that.
 */
 void SP_func_rotating(gentity_t * ent)
 {
-	qboolean		x_axis;
-	qboolean		y_axis;
+	qboolean        x_axis;
+	qboolean        y_axis;
 
 	G_SpawnBoolean("x_axis", "0", &x_axis);
 	G_SpawnBoolean("y_axis", "0", &y_axis);
@@ -1748,8 +1810,8 @@ void SP_func_bobbing(gentity_t * ent)
 {
 	float           height;
 	float           phase;
-	qboolean		x_axis;
-	qboolean		y_axis;
+	qboolean        x_axis;
+	qboolean        y_axis;
 
 	G_SpawnFloat("speed", "4", &ent->speed);
 	G_SpawnFloat("height", "32", &height);
@@ -1851,13 +1913,6 @@ MOVER
 
 void Think_Mover(gentity_t * self)
 {
-#ifdef LUA
-	if(self->luaThink && self->luaThink[0])
-	{
-		G_RunLuaFunction(self->luaThink, "e>", self);
-	}
-#endif
-
 //  self->nextthink = level.time + FRAMETIME;
 }
 

@@ -513,6 +513,10 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	int             i;
 	char           *killerName, *obit;
 
+#ifdef G_LUA
+	char            customObit[MAX_STRING_CHARS] = "";
+#endif
+
 	if(self->client->ps.pm_type == PM_DEAD)
 	{
 		return;
@@ -577,6 +581,28 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 	G_LogPrintf("Kill: %i %i %i: %s killed %s by %s\n",
 				killer, self->s.number, meansOfDeath, killerName, self->client->pers.netname, obit);
+
+#ifdef G_LUA
+	// pheno: Lua API callbacks
+	if(G_LuaHook_Obituary(self->s.number, killer, meansOfDeath, customObit))
+	{
+		//xreal  && g_obituary.integer )
+		if(self->s.number < 0 || self->s.number >= MAX_CLIENTS)
+		{
+			G_Error("G_LuaHook_Obituary: target out of range");
+		}
+		/* 
+		xreal, skip custom obits for now
+		//TODO: reimplement custom obituaries
+		// broadcast the custom obituary to everyone
+		if ( g_logOptions.integer & LOGOPTS_OBIT_CHAT ) {
+			AP(va("chat \"%s\" -1", customObit));
+		} else {
+			trap_SendServerCommand(-1, va("cpm \"%s\n\"", customObit));
+		}
+		*/
+	}	
+#endif
 
 	// broadcast the death event to everyone
 	ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY);
@@ -957,7 +983,7 @@ return qtrue if the target was damaged
 */
 
 qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
-			  const vec3_t dir, const vec3_t point, int damage, int dflags, int mod)
+				  const vec3_t dir, const vec3_t point, int damage, int dflags, int mod)
 {
 	gclient_t      *client;
 	int             take;
@@ -968,6 +994,24 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 
 #ifdef MISSIONPACK
 	vec3_t          bouncedir, impactpoint;
+#endif
+
+	if(!inflictor)
+	{
+		inflictor = &g_entities[ENTITYNUM_WORLD];
+	}
+
+	if(!attacker)
+	{
+		attacker = &g_entities[ENTITYNUM_WORLD];
+	}
+
+#ifdef G_LUA
+	// Lua API callbacks
+	if(targ->luaHurt && !targ->client)
+	{
+		G_LuaHook_EntityHurt(targ->luaHurt, targ->s.number, inflictor->s.number, attacker->s.number);
+	}
 #endif
 
 	if(!targ->takedamage)
@@ -994,15 +1038,6 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		}
 	}
 #endif
-	if(!inflictor)
-	{
-		inflictor = &g_entities[ENTITYNUM_WORLD];
-	}
-
-	if(!attacker)
-	{
-		attacker = &g_entities[ENTITYNUM_WORLD];
-	}
 
 	// shootable doors / buttons don't actually have any health
 	if(targ->s.eType == ET_MOVER)
@@ -1049,7 +1084,7 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	}
 	else
 	{
-		VectorNormalize((float*)dir);
+		VectorNormalize((float *)dir);
 	}
 
 	knockback = damage;
@@ -1251,6 +1286,16 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 				targ->health = -999;
 
 			targ->enemy = attacker;
+
+
+#ifdef G_LUA
+			// Lua API callbacks
+			if(targ->luaDie && !targ->client)
+			{
+				G_LuaHook_EntityDie(targ->luaDie, targ->s.number, inflictor->s.number, attacker->s.number, take, mod);
+			}
+#endif
+
 			targ->die(targ, inflictor, attacker, take, mod);
 
 			return qfalse;

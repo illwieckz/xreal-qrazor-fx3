@@ -21,13 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // lua_entity.c -- entity library for Lua
 
-#include "g_local.h"
+#include "g_lua.h"
 
-#ifdef LUA
-
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#if(defined(G_LUA))
 
 static int entity_Target(lua_State * L)
 {
@@ -63,8 +59,34 @@ static int entity_Target(lua_State * L)
 	target->e = t;
 
 	return 1;
+}
 
+static int entity_FindNumber(lua_State * L)
+{
+	lua_Entity     *lent;
+	int             entnum;
+	gentity_t      *ent;
 
+	entnum = luaL_checkint(L, 1);
+	DEBUG_LUA("entity_FindNumber: start: ent=%d", entnum);
+
+	lent = lua_newuserdata(L, sizeof(lua_Entity));
+
+	luaL_getmetatable(L, "game.entity");
+	lua_setmetatable(L, -2);
+
+	lent->e = NULL;
+
+	ent = &g_entities[entnum];
+	if(ent)
+	{
+		if(ent->inuse)
+		{
+			lent->e = ent;
+			return 1;
+		}
+	}
+	return 0;
 }
 
 static int entity_Find(lua_State * L)
@@ -361,6 +383,7 @@ static const luaL_reg entity_ctor[] = {
 	{"Spawn", entity_Spawn},
 
 	{"Find", entity_Find},		//find an entity by name e.g ent = entity.Find("myentity");
+	{"FindNumber", entity_FindNumber},	//find an entity by number, ent = entity.FindNumber(entnum);
 	{"Target", entity_Target},	//find an entitys target, e.g target = entity.Target(ent);
 
 	{NULL, NULL}

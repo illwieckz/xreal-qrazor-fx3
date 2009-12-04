@@ -413,12 +413,11 @@ CopyToBodyQue
 
 A player is respawning, so make an entity that looks
 just like the existing corpse to leave behind.
-
-otty: remove this
 =============
 */
 void CopyToBodyQue(gentity_t * ent)
 {
+//otty: removed this
 /*
 #ifdef MISSIONPACK
 	gentity_t      *e;
@@ -1007,6 +1006,13 @@ void ClientUserinfoChanged(int clientNum)
 
 	trap_SetConfigstring(CS_PLAYERS + clientNum, userinfo);
 
+#ifdef G_LUA
+	// Lua API callbacks
+	// This only gets called when the ClientUserinfo is changed, replicating 
+	// ETPro's behaviour.
+	G_LuaHook_ClientUserinfoChanged(clientNum);
+#endif
+
 	// this is not the userinfo, more like the configstring actually
 	G_LogPrintf("ClientUserinfoChanged: %i %s\n", clientNum, s);
 }
@@ -1039,6 +1045,7 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 //  char        *areabits;
 	gclient_t      *client;
 	char            userinfo[MAX_INFO_STRING];
+	char            reason[MAX_STRING_CHARS] = "";
 	gentity_t      *ent;
 
 	ent = &g_entities[clientNum];
@@ -1067,6 +1074,14 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 			return "Invalid password";
 		}
 	}
+
+#ifdef G_LUA
+	// Lua API callbacks (check with Lua scripts)
+	if(G_LuaHook_ClientConnect(clientNum, firstTime, isBot, reason))
+	{
+		return "Connection Rejected by lua module.";
+	}
+#endif
 
 	// they can connect
 	ent->client = level.clients + clientNum;
@@ -1197,6 +1212,11 @@ void ClientBegin(int clientNum)
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
+
+#ifdef G_LUA
+	// Lua API callbacks
+	G_LuaHook_ClientBegin(clientNum);
+#endif
 }
 
 /*
@@ -1297,7 +1317,7 @@ void ClientSpawn(gentity_t * ent)
 	}
 	eventSequence = client->ps.eventSequence;
 
-	memset(client, 0, sizeof(*client));	// bk FIXME: Com_Memset?
+	Com_Memset(client, 0, sizeof(*client));
 
 	client->pers = saved;
 	client->sess = savedSess;
@@ -1407,6 +1427,13 @@ void ClientSpawn(gentity_t * ent)
 	{
 		// fire the targets of the spawn point
 		G_UseTargets(spawnPoint, ent);
+#ifdef G_LUA
+		// Lua API callbacks
+		if(spawnPoint && spawnPoint->luaTrigger)
+		{
+			G_LuaHook_EntityTrigger(spawnPoint->luaTrigger, spawnPoint->s.number, ent->s.number);
+		}
+#endif
 
 		// select the highest weapon number available, after any
 		// spawn given items have fired
@@ -1426,6 +1453,11 @@ void ClientSpawn(gentity_t * ent)
 	{
 		ACESP_SetupBotState(ent);
 	}
+#endif
+
+#ifdef G_LUA
+	// Lua API callbacks
+	G_LuaHook_ClientSpawn(ent->s.number);
 #endif
 
 	// run a client frame to drop exactly to the floor,
@@ -1479,6 +1511,11 @@ void ClientDisconnect(int clientNum)
 	{
 		return;
 	}
+
+#ifdef G_LUA
+	// Lua API callbacks
+	G_LuaHook_ClientDisconnect(clientNum);
+#endif
 
 	// stop any following clients
 	for(i = 0; i < level.maxclients; i++)

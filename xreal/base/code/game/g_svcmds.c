@@ -478,11 +478,11 @@ char           *ConcatArgs(int start);
 Svcmd_LuaRestart_f
 =================
 */
-#ifdef LUA
+#ifdef G_LUA
 static void Svcmd_LuaRestart_f(void)
 {
-	G_ShutdownLua();
-	G_InitLua();
+	G_LuaShutdown();
+	G_LuaInit();
 }
 #endif
 
@@ -497,6 +497,26 @@ qboolean ConsoleCommand(void)
 	char            cmd[MAX_TOKEN_CHARS];
 
 	trap_Argv(0, cmd, sizeof(cmd));
+
+#ifdef G_LUA
+	if(Q_stricmp(cmd, "lua_status") == 0)
+	{
+		G_LuaStatus(NULL);
+		return qtrue;
+	}
+
+	if(Q_stricmp(cmd, "lua_restart") == 0)
+	{
+		Svcmd_LuaRestart_f();
+		return qtrue;
+	}
+
+	// Lua API callbacks
+	if(G_LuaHook_ConsoleCommand(cmd))
+	{
+		return qtrue;
+	}
+#endif
 
 	if(Q_stricmp(cmd, "entitylist") == 0)
 	{
@@ -623,14 +643,6 @@ qboolean ConsoleCommand(void)
 	if(Q_stricmp(cmd, "savenodes") == 0)
 	{
 		ACEND_SaveNodes();
-		return qtrue;
-	}
-#endif
-
-#ifdef LUA
-	if(Q_stricmp(cmd, "restartLuaGameVM") == 0)
-	{
-		Svcmd_LuaRestart_f();
 		return qtrue;
 	}
 #endif

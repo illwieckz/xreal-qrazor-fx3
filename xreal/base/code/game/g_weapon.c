@@ -868,9 +868,9 @@ set muzzle location relative to pivoting eye
 */
 void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint, int weapon, qboolean secondary)
 {
-	vec3_t			surfNormal;
-	vec3_t			offset;
-	vec3_t			end;
+	vec3_t          surfNormal;
+	vec3_t          offset;
+	vec3_t          end;
 
 	if(ent->client)
 	{
@@ -916,12 +916,12 @@ void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, v
 		default:
 			AngleVectors(ent->client->ps.viewangles, forward, right, up);
 
-			#if 0
+#if 0
 			VectorMA(muzzlePoint, 1, forward, muzzlePoint);
 			VectorMA(muzzlePoint, 1, right, muzzlePoint);
-			#else
+#else
 			VectorMA(muzzlePoint, 14, forward, muzzlePoint);
-			#endif
+#endif
 			break;
 	}
 
@@ -1115,11 +1115,11 @@ void FireWeapon2(gentity_t * ent)
 	// fire the specific weapon
 	switch (ent->s.weapon)
 	{
-	/*
+		/*
 		case WP_GAUNTLET:
 			Weapon_GrapplingHook_Fire(ent);
 			break;
-			*/
+		*/
 
 		case WP_FLAK_CANNON:
 			Weapon_FlakCannon_FireFlakGrenade(ent);
@@ -1376,7 +1376,7 @@ void G_StartKamikaze(gentity_t * ent)
 	explosion->s.eType = ET_EVENTS + EV_KAMIKAZE;
 	explosion->eventTime = level.time;
 
-	if(!ent->client)
+	if(ent->client)
 	{
 		VectorCopy(ent->s.pos.trBase, snapped);
 	}
@@ -1424,5 +1424,3 @@ void G_StartKamikaze(gentity_t * ent)
 	te->r.svFlags |= SVF_BROADCAST;
 	te->s.eventParm = GTS_KAMIKAZE;
 }
-
-

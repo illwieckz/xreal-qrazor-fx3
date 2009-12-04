@@ -75,11 +75,19 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 
 	G_UseTargets(ent, ent->activator);
 
-	// otty: added luaTouch support
-#ifdef LUA
-	if(ent->luaTouch && ent->luaTouch[0])
-		G_RunLuaFunction(ent->luaTouch, "ee>", ent, activator);
-
+#ifdef G_LUA
+	// Lua API callbacks
+	if(ent->luaTrigger)
+	{
+		if(activator)
+		{
+			G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, activator->s.number);
+		}
+		else
+		{
+			G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, ENTITYNUM_WORLD);
+		}
+	}
 #endif
 
 	if(ent->wait > 0)
@@ -151,6 +159,15 @@ trigger_always
 void trigger_always_think(gentity_t * ent)
 {
 	G_UseTargets(ent, ent);
+
+#ifdef G_LUA
+	// Lua API callbacks
+	if(ent->luaTrigger)
+	{
+		G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, ent->s.number);
+	}
+#endif
+
 	G_FreeEntity(ent);
 }
 
@@ -181,9 +198,12 @@ void trigger_push_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 		return;
 	}
 
-#ifdef LUA
-	if(self->luaTouch && self->luaTouch[0])
-		G_RunLuaFunction(self->luaTouch, "ee>", self, other);
+#ifdef G_LUA
+	// Lua API callbacks
+	if(self->luaTrigger)
+	{
+		G_LuaHook_EntityTrigger(self->luaTrigger, self->s.number, other->s.number);
+	}
 #endif
 
 	BG_TouchJumpPad(&other->client->ps, &self->s);
@@ -273,6 +293,14 @@ void Use_target_push(gentity_t * self, gentity_t * other, gentity_t * activator)
 		return;
 	}
 
+#ifdef G_LUA
+	// Lua API callbacks
+	if(self->luaTrigger)
+	{
+		G_LuaHook_EntityTrigger(self->luaTrigger, self->s.number, activator->s.number);
+	}
+#endif
+
 	VectorCopy(self->s.origin2, activator->client->ps.velocity);
 
 	// play fly sound every 1.5 seconds
@@ -290,7 +318,7 @@ if "bouncepad", play bounce noise instead of windfly
 */
 void SP_target_push(gentity_t * self)
 {
-	qboolean		bouncepad;
+	qboolean        bouncepad;
 
 	if(!self->speed)
 	{
@@ -352,6 +380,14 @@ void trigger_teleporter_touch(gentity_t * self, gentity_t * other, trace_t * tra
 		G_Printf("Couldn't find teleporter destination\n");
 		return;
 	}
+
+#ifdef G_LUA
+	// Lua API callbacks
+	if(self->luaTrigger)
+	{
+		G_LuaHook_EntityTrigger(self->luaTrigger, self->s.number, other->s.number);
+	}
+#endif
 
 	TeleportPlayer(other, dest->s.origin, dest->s.angles);
 }
@@ -451,6 +487,14 @@ void hurt_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 		G_Sound(other, CHAN_AUTO, self->soundIndex);
 	}
 
+#ifdef G_LUA
+	// Lua API callbacks
+	if(self->luaTrigger)
+	{
+		G_LuaHook_EntityTrigger(self->luaTrigger, self->s.number, other->s.number);
+	}
+#endif
+
 	if(self->no_protection)
 		dflags = DAMAGE_NO_PROTECTION;
 	else
@@ -515,6 +559,21 @@ so, the basic time between firing is a random time between
 void func_timer_think(gentity_t * self)
 {
 	G_UseTargets(self, self->activator);
+#ifdef G_LUA
+	// Lua API callbacks
+	if(self->luaTrigger)
+	{
+		if(self->activator)
+		{
+			G_LuaHook_EntityTrigger(self->luaTrigger, self->s.number, self->activator->s.number);
+		}
+		else
+		{
+			G_LuaHook_EntityTrigger(self->luaTrigger, self->s.number, self->s.number);
+		}
+	}
+#endif
+
 	// set time before next firing
 	self->nextthink = level.time + 1000 * (self->wait + crandom() * self->random);
 }
@@ -536,7 +595,7 @@ void func_timer_use(gentity_t * self, gentity_t * other, gentity_t * activator)
 
 void SP_func_timer(gentity_t * self)
 {
-	qboolean		start_on;
+	qboolean        start_on;
 
 	G_SpawnFloat("random", "1", &self->random);
 	G_SpawnFloat("wait", "1", &self->wait);

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 #include "g_local.h"
 
-#include "../ui/menudef.h"	// for the voice chats
+#include "../ui/menudef.h"		// for the voice chats
 
 /*
 ==================
@@ -1386,6 +1386,7 @@ Cmd_CallVote_f
 */
 void Cmd_CallVote_f(gentity_t * ent)
 {
+	char           *c;
 	int             i;
 	char            arg1[MAX_STRING_TOKENS];
 	char            arg2[MAX_STRING_TOKENS];
@@ -1416,10 +1417,19 @@ void Cmd_CallVote_f(gentity_t * ent)
 	trap_Argv(1, arg1, sizeof(arg1));
 	trap_Argv(2, arg2, sizeof(arg2));
 
-	if(strchr(arg1, ';') || strchr(arg2, ';'))
+	// check for command separators in arg2
+	for(c = arg2; *c; ++c)
 	{
-		trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string.\n\"");
-		return;
+		switch (*c)
+		{
+			case '\n':
+			case '\r':
+			case ';':
+				trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string.\n\"");
+				return;
+			default:
+				break;
+		}
 	}
 
 	if(!Q_stricmp(arg1, "map_restart"))
@@ -1859,12 +1869,28 @@ void ClientCommand(int clientNum)
 		return;					// not fully in game yet
 	}
 
+	trap_Argv(0, cmd, sizeof(cmd));
+
+#ifdef G_LUA
+
+	if(Q_stricmp(cmd, "lua_status") == 0)
+	{
+		G_LuaStatus(ent);
+		return;
+	}
+
+	// Lua API callbacks
+	if(G_LuaHook_ClientCommand(clientNum, cmd))
+	{
+		return;
+	}
+#endif
+
+
 #if defined(ACEBOT)
 	if(ACECM_Commands(ent))
 		return;
 #endif
-
-	trap_Argv(0, cmd, sizeof(cmd));
 
 	if(Q_stricmp(cmd, "say") == 0)
 	{

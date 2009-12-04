@@ -40,6 +40,21 @@ void func_explosive_die(gentity_t * self, gentity_t * inflictor, gentity_t * att
 	self->freeAfterEvent = qtrue;
 	self->s.solid = 0;
 
+#ifdef G_LUA
+	// Lua API callbacks
+	if(self->luaTrigger)
+	{
+		if(attacker)
+		{
+			G_LuaHook_EntityTrigger(self->luaTrigger, self->s.number, attacker->s.number);
+		}
+		else
+		{
+			G_LuaHook_EntityTrigger(self->luaTrigger, self->s.number, ENTITYNUM_WORLD);
+		}
+	}
+#endif
+
 	//If it takes more damage during the event, it would die again.
 	self->takedamage = qfalse;
 }
@@ -54,7 +69,8 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 */
 void SP_func_explosive(gentity_t * ent)
 {
-	char	*type;
+	char           *type;
+
 	trap_SetBrushModel(ent, ent->model);
 
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
@@ -77,30 +93,46 @@ void SP_func_explosive(gentity_t * ent)
 		ent->takedamage = qtrue;
 	}
 
-	if(G_SpawnString("type", "none", &type)) 
+	if(G_SpawnString("type", "none", &type))
 	{
-		if (!Q_stricmp(type,"wood"))		ent->materialType = ENTMAT_WOOD;
-		else if (!Q_stricmp(type,"glass"))	ent->materialType = ENTMAT_GLASS;
-		else if (!Q_stricmp(type,"metal"))	ent->materialType = ENTMAT_METAL;
-		else if (!Q_stricmp(type,"gibs"))	ent->materialType = ENTMAT_GIBS;
-		else if (!Q_stricmp(type,"brick"))	ent->materialType = ENTMAT_BRICK;
-		else if (!Q_stricmp(type,"rock"))	ent->materialType = ENTMAT_STONE;
-		else if (!Q_stricmp(type,"tiles"))	ent->materialType = ENTMAT_TILES;
-		else if (!Q_stricmp(type,"plaster"))	ent->materialType = ENTMAT_PLASTER;
-		else if (!Q_stricmp(type,"fibers"))	ent->materialType = ENTMAT_FIBERS;
-		else if (!Q_stricmp(type,"sprite"))	ent->materialType = ENTMAT_SPRITE;
-		else if (!Q_stricmp(type,"smoke"))	ent->materialType = ENTMAT_SMOKE;
-		else if (!Q_stricmp(type,"gas"))	ent->materialType = ENTMAT_GAS;
-		else if (!Q_stricmp(type,"fire"))	ent->materialType = ENTMAT_FIRE;
-		else ent->materialType = ENTMAT_NONE;
-	} else {
+		if(!Q_stricmp(type, "wood"))
+			ent->materialType = ENTMAT_WOOD;
+		else if(!Q_stricmp(type, "glass"))
+			ent->materialType = ENTMAT_GLASS;
+		else if(!Q_stricmp(type, "metal"))
+			ent->materialType = ENTMAT_METAL;
+		else if(!Q_stricmp(type, "gibs"))
+			ent->materialType = ENTMAT_GIBS;
+		else if(!Q_stricmp(type, "brick"))
+			ent->materialType = ENTMAT_BRICK;
+		else if(!Q_stricmp(type, "rock"))
+			ent->materialType = ENTMAT_STONE;
+		else if(!Q_stricmp(type, "tiles"))
+			ent->materialType = ENTMAT_TILES;
+		else if(!Q_stricmp(type, "plaster"))
+			ent->materialType = ENTMAT_PLASTER;
+		else if(!Q_stricmp(type, "fibers"))
+			ent->materialType = ENTMAT_FIBERS;
+		else if(!Q_stricmp(type, "sprite"))
+			ent->materialType = ENTMAT_SPRITE;
+		else if(!Q_stricmp(type, "smoke"))
+			ent->materialType = ENTMAT_SMOKE;
+		else if(!Q_stricmp(type, "gas"))
+			ent->materialType = ENTMAT_GAS;
+		else if(!Q_stricmp(type, "fire"))
+			ent->materialType = ENTMAT_FIRE;
+		else
+			ent->materialType = ENTMAT_NONE;
+	}
+	else
+	{
 		ent->materialType = ENTMAT_NONE;
 	}
 
 	ent->die = func_explosive_die;
 
 	//Put parameters in networked variables
-	ent->s.generic1 = ent->materialType; //Type
+	ent->s.generic1 = ent->materialType;	//Type
 
 	trap_LinkEntity(ent);
 }
@@ -131,7 +163,7 @@ gentity_t      *CreateFire(vec3_t org, int duration)
 	fire->think = G_FreeEntity;
 	fire->s.eType = ET_FIRE;
 	fire->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	fire->s.weapon = 20; //particles
+	fire->s.weapon = 20;		//particles
 	//fire->r.ownerNum = ;
 	//fire->parent = self;
 	//fire->damage = 10;

@@ -20,9 +20,11 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
+//
 // g_main.c
+
 #include "g_local.h"
+#include "g_lua.h"
 
 level_locals_t  level;
 
@@ -61,6 +63,7 @@ vmCvar_t        g_forcerespawn;
 vmCvar_t        g_inactivity;
 vmCvar_t        g_debugDamage;
 vmCvar_t        g_debugAlloc;
+vmCvar_t        g_debugLua;
 vmCvar_t        g_weaponRespawn;
 vmCvar_t        g_weaponTeamRespawn;
 vmCvar_t        g_motd;
@@ -89,6 +92,7 @@ vmCvar_t        g_obeliskRespawnDelay;
 vmCvar_t        g_cubeTimeout;
 vmCvar_t        g_enableDust;
 vmCvar_t        g_enableBreath;
+
 #ifdef MISSIONPACK
 vmCvar_t        g_proxMineTimeout;
 #endif
@@ -102,6 +106,9 @@ vmCvar_t        pm_airControl;
 vmCvar_t        pm_fastWeaponSwitches;
 vmCvar_t        pm_fixedPmove;
 vmCvar_t        pm_fixedPmoveFPS;
+
+vmCvar_t        lua_modules;
+vmCvar_t        lua_allowedModules;
 
 #if defined(ACEBOT)
 vmCvar_t        ace_debug;
@@ -170,6 +177,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_inactivity, "g_inactivity", "0", 0, 0, qtrue},
 	{&g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse},
 	{&g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse},
+	{&g_debugLua, "g_debugLua", "0", 0, 0, qfalse},
 	{&g_motd, "g_motd", "", 0, 0, qfalse},
 	{&g_blood, "com_blood", "1", 0, 0, qfalse},
 
@@ -207,6 +215,9 @@ static cvarTable_t gameCvarTable[] = {
 	{&pm_fastWeaponSwitches, "pm_fastWeaponSwitches", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pm_fixedPmove, "pm_fixedPmove", "1", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse},
+
+	{&lua_allowedModules, "lua_allowedModules", "", 0, 0, qfalse},
+	{&lua_modules, "lua_modules", "", 0, 0, qfalse},
 
 #if defined(ACEBOT)
 	{&ace_debug, "ace_debug", "0", 0, 0, qfalse},
@@ -296,7 +307,32 @@ void QDECL G_Printf(const char *fmt, ...)
 	Q_vsnprintf(text, sizeof(text), fmt, argptr);
 	va_end(argptr);
 
+#ifdef G_LUA
+	// Lua API callbacks
+	G_LuaHook_Print(text);
+#endif
+
 	trap_Printf(text);
+}
+
+/*
+ * Prints text to 1 client, ent
+ */
+void QDECL G_PrintfClient(gentity_t * ent, const char *fmt, ...)
+{
+	va_list         argptr;
+	char            text[1024];
+
+	if(!ent || !ent->client)
+	{
+		return;
+	}
+
+	va_start(argptr, fmt);
+	Q_vsnprintf(text, sizeof(text), fmt, argptr);
+	va_end(argptr);
+
+	trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", text));
 }
 
 void QDECL G_Error(const char *fmt, ...)
@@ -308,8 +344,8 @@ void QDECL G_Error(const char *fmt, ...)
 	Q_vsnprintf(text, sizeof(text), fmt, argptr);
 	va_end(argptr);
 
-#ifdef LUA
-	G_ShutdownLua();
+#ifdef G_LUA
+	G_LuaShutdown();
 #endif
 
 	trap_Error(text);
@@ -460,10 +496,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	G_InitMemory();
 
-#ifdef LUA
-	G_InitLua();
-#endif
-
 	// set some level globals
 	memset(&level, 0, sizeof(level));
 	level.time = levelTime;
@@ -497,6 +529,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	{
 		G_Printf("Not logging to disk.\n");
 	}
+
+#ifdef G_LUA
+	G_LuaInit();
+#endif
 
 	G_InitWorldSession();
 
@@ -564,6 +600,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	ACESP_InitBots(restart);
 #endif
 
+#ifdef G_LUA
+	// Lua API callbacks
+	G_LuaHook_InitGame(levelTime, randomSeed, restart);
+#endif
 }
 
 
@@ -576,6 +616,12 @@ G_ShutdownGame
 void G_ShutdownGame(int restart)
 {
 	G_Printf("==== ShutdownGame ====\n");
+
+#ifdef G_LUA
+	// quad - Lua API
+	G_LuaHook_ShutdownGame(restart);
+	G_LuaShutdown();
+#endif
 
 	if(level.logFile)
 	{
@@ -594,10 +640,6 @@ void G_ShutdownGame(int restart)
 	}
 #endif
 
-
-#ifdef LUA
-	G_ShutdownLua();
-#endif
 }
 
 //===================================================================
@@ -1273,6 +1315,7 @@ void LogExit(const char *string)
 {
 	int             i, numSorted;
 	gclient_t      *cl;
+
 #if 0
 	qboolean        won;
 #endif
@@ -2043,6 +2086,14 @@ void G_RunFrame(int levelTime)
 			continue;
 		}
 
+#ifdef G_LUA
+		// Lua API callbacks
+		if(ent->luaThink && !ent->client)
+		{
+			G_LuaHook_EntityThink(ent->luaThink, ent->s.number);
+		}
+#endif
+
 		// clear events that are too old
 		if(level.time - ent->eventTime > EVENT_VALID_MSEC)
 		{
@@ -2150,4 +2201,8 @@ void G_RunFrame(int levelTime)
 		}
 		trap_Cvar_Set("g_listEntity", "0");
 	}
+
+#ifdef G_LUA
+	G_LuaHook_RunFrame(levelTime);
+#endif
 }

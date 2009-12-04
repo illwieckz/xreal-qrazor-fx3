@@ -154,11 +154,20 @@ field_t         fields[] = {
 	{"targetShaderName", FOFS(targetShaderName), F_LSTRING},
 	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
 
-#ifdef LUA
+#ifdef G_LUA
 	{"luaThink", FOFS(luaThink), F_LSTRING},
 	{"luaTouch", FOFS(luaTouch), F_LSTRING},
 	{"luaUse", FOFS(luaUse), F_LSTRING},
 	{"luaHurt", FOFS(luaHurt), F_LSTRING},
+	{"luaDie", FOFS(luaDie), F_LSTRING},
+	{"luaFree", FOFS(luaFree), F_LSTRING},
+	{"luaTrigger", FOFS(luaTrigger), F_LSTRING},
+	{"luaSpawn", FOFS(luaSpawn), F_LSTRING},
+
+	{"luaParam1", FOFS(luaParam1), F_LSTRING},
+	{"luaParam2", FOFS(luaParam2), F_LSTRING},
+	{"luaParam3", FOFS(luaParam3), F_LSTRING},
+	{"luaParam4", FOFS(luaParam4), F_LSTRING},
 #endif
 
 	{NULL}
@@ -366,6 +375,14 @@ qboolean G_CallSpawn(gentity_t * ent)
 			}
 
 			G_SpawnItem(ent, item);
+
+#ifdef G_LUA
+			// Lua API callbacks
+			if(ent->luaSpawn)
+			{
+				G_LuaHook_EntitySpawn(ent->luaSpawn, ent->s.number);
+			}
+#endif
 			return qtrue;
 		}
 	}
@@ -385,6 +402,14 @@ qboolean G_CallSpawn(gentity_t * ent)
 				G_Printf("...spawning %s\n", ent->classname);
 			}
 			s->spawn(ent);
+
+#ifdef G_LUA
+			// Lua API callbacks
+			if(ent->luaSpawn)
+			{
+				G_LuaHook_EntitySpawn(ent->luaSpawn, ent->s.number);
+			}
+#endif
 			return qtrue;
 		}
 	}

@@ -108,6 +108,20 @@ void SP_target_remove_powerups(gentity_t * ent)
 */
 void Think_Target_Delay(gentity_t * ent)
 {
+#ifdef G_LUA
+	// Lua API callbacks
+	if(ent->luaTrigger)
+	{
+		if(ent->activator)
+		{
+			G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, ent->activator->s.number);
+		}
+		else
+		{
+			G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, ENTITYNUM_WORLD);
+		}
+	}
+#endif
 	G_UseTargets(ent, ent->activator);
 }
 
@@ -164,9 +178,9 @@ If "private", only the activator gets the message.  If no checks, all clients ge
 */
 void Use_Target_Print(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
-	qboolean		redteam;
-	qboolean		blueteam;
-	qboolean		private;
+	qboolean        redteam;
+	qboolean        blueteam;
+	qboolean        private;
 
 	G_SpawnBoolean("redteam", "0", &redteam);
 	G_SpawnBoolean("blueteam", "0", &blueteam);
@@ -385,7 +399,7 @@ void target_laser_use(gentity_t * self, gentity_t * other, gentity_t * activator
 void target_laser_start(gentity_t * self)
 {
 	gentity_t      *ent;
-	qboolean		start_on;
+	qboolean        start_on;
 
 	self->s.eType = ET_BEAM;
 
@@ -594,6 +608,14 @@ static void target_fx_use(gentity_t *self, gentity_t *other, gentity_t *activato
 
 static void target_fx_think(gentity_t * self)
 {
+#ifdef G_LUA
+	// Lua API callbacks
+	if(self->luaTrigger)
+	{
+		G_LuaHook_EntityTrigger(self->luaTrigger, self->s.number, self->s.number);
+	}
+#endif
+
 	G_AddEvent(self, EV_EFFECT, self->s.modelindex);
 
 	if(self->wait > 0)

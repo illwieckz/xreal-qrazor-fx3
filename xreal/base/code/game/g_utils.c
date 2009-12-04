@@ -351,6 +351,20 @@ void G_UseTargets(gentity_t * ent, gentity_t * activator)
 			if(t->use)
 			{
 				t->use(t, ent, activator);
+#ifdef G_LUA
+				// Lua API callbacks
+				if(t->luaUse)
+				{
+					if(activator)
+					{
+						G_LuaHook_EntityUse(t->luaUse, t->s.number, ent->s.number, activator->s.number);
+					}
+					else
+					{
+						G_LuaHook_EntityUse(t->luaUse, t->s.number, ent->s.number, ENTITYNUM_WORLD);
+					}
+				}
+#endif
 			}
 		}
 		if(!ent->inuse)
@@ -599,6 +613,14 @@ void G_FreeEntity(gentity_t * ed)
 	{
 		return;
 	}
+
+#ifdef G_LUA
+	// Lua API callbacks
+	if(ed->luaFree && !ed->client)
+	{
+		G_LuaHook_EntityFree(ed->luaFree, ed->s.number);
+	}
+#endif
 
 	memset(ed, 0, sizeof(*ed));
 	ed->classname = "freed";

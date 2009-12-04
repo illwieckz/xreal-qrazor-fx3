@@ -101,11 +101,11 @@ void G_ExplodeMissile(gentity_t * ent)
 	trap_LinkEntity(ent);
 }
 
-void G_ExplodeIntoNails(gentity_t *ent)
+void G_ExplodeIntoNails(gentity_t * ent)
 {
-	float			angle, angle2;
-	vec3_t			forward, forward2, up;
-	vec3_t			nailForward, nailRight, nailUp;
+	float           angle, angle2;
+	vec3_t          forward, forward2, up;
+	vec3_t          nailForward, nailRight, nailUp;
 	vec3_t          dir;
 	vec3_t          origin;
 
@@ -794,7 +794,7 @@ gentity_t      *fire_flakgrenade(gentity_t * self, vec3_t start, vec3_t dir)
 }
 
 
-gentity_t *fire_clustergrenade(gentity_t *self, vec3_t start, vec3_t dir)
+gentity_t      *fire_clustergrenade(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *bolt;
 
@@ -819,8 +819,8 @@ gentity_t *fire_clustergrenade(gentity_t *self, vec3_t start, vec3_t dir)
 
 	bolt->s.pos.trType = TR_GRAVITY;
 	bolt->s.pos.trAcceleration = g_gravity.value;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
-	VectorCopy(start, bolt->s.pos.trBase );
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
+	VectorCopy(start, bolt->s.pos.trBase);
 
 	VectorScale(dir, 800, bolt->s.pos.trDelta);
 	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
@@ -884,7 +884,7 @@ gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *bolt;
 	vec3_t          mins = { -8, -8, -8 };
-	vec3_t			maxs = { 8, 8, 8 };
+	vec3_t          maxs = { 8, 8, 8 };
 
 	VectorNormalize(dir);
 
@@ -944,8 +944,9 @@ void G_HomingMissile(gentity_t * ent)
 	vec3_t          dir, blipdir;
 	vec_t           angle;
 	qboolean        chaff;
+
 	//qboolean        ignorechaff = qfalse;
-	const int		HOMING_THINK_TIME = 60;
+	const int       HOMING_THINK_TIME = 60;
 
 	// explode after 15 seconds without a hit
 	if(ent->spawnTime + 15000 <= level.time)
@@ -1083,7 +1084,7 @@ gentity_t      *fire_homing(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *bolt;
 	vec3_t          mins = { -8, -8, -8 };
-	vec3_t			maxs = { 8, 8, 8 };
+	vec3_t          maxs = { 8, 8, 8 };
 
 	VectorNormalize(dir);
 
@@ -1495,12 +1496,13 @@ static void RailSphereDamage(gentity_t * self)
 {
 	//int             i;
 	float           t;
+
 	//gentity_t      *ent;
 	//vec3_t          newangles;
-	int				damage;
+	int             damage;
 
 	self->count += 100;
-	damage = 200; // FIXME * s_quadFactor;
+	damage = 200;				// FIXME * s_quadFactor;
 
 	if(self->count >= RAILGUN_SHOCKWAVE_STARTTIME)
 	{
@@ -1565,7 +1567,7 @@ RailSphere_Die
 static void RailSphere_Die(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, int damage, int mod)
 {
 	gentity_t      *explosion;
-	vec3_t			snapped;
+	vec3_t          snapped;
 
 	// start up the explosion logic
 	explosion = G_Spawn();
@@ -1602,7 +1604,7 @@ gentity_t      *fire_railsphere(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *bolt;
 	vec3_t          mins = { -16, -16, -16 };
-	vec3_t			maxs = { 16, 16, 16 };
+	vec3_t          maxs = { 16, 16, 16 };
 
 	VectorNormalize(dir);
 
@@ -1611,7 +1613,7 @@ gentity_t      *fire_railsphere(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->nextthink = level.time + 15000;
 //	bolt->think = RailSphereDamage;
 //	bolt->think = G_ExplodeMissile;
-	bolt->think = G_FreeEntity; // FIXME
+	bolt->think = G_FreeEntity;	// FIXME
 	bolt->s.eType = ET_PROJECTILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_RAILGUN;

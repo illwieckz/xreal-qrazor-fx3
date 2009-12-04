@@ -329,13 +329,15 @@ void G_OtherTouchTriggers(gentity_t * ent)
 		if(hit->touch)
 		{
 
-#ifdef LUA
-			if(hit->luaTouch && hit->luaTouch[0])
-				G_RunLuaFunction(hit->luaTouch, "ee>", hit, ent);
-			else
+#ifdef G_LUA
+			// Lua API callbacks
+			if(hit->luaTouch)
+			{
+				G_LuaHook_EntityTouch(hit->luaTouch, hit->s.number, ent->s.number);
+			}
 #endif
-				hit->touch(hit, ent, &trace);
 
+			hit->touch(hit, ent, &trace);
 		}
 	}
 }
@@ -383,6 +385,14 @@ void G_TouchTriggers(gentity_t * ent)
 	for(i = 0; i < num; i++)
 	{
 		hit = &g_entities[touch[i]];
+
+#ifdef G_LUA
+		// Lua API callbacks
+		if(hit->luaTouch)
+		{
+			G_LuaHook_EntityTouch(hit->luaTouch, hit->s.number, ent->s.number);
+		}
+#endif
 
 		if(!hit->touch && !ent->touch)
 		{
@@ -465,7 +475,7 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 		pm.ps = &client->ps;
 		pm.cmd = *ucmd;
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;	// spectators can fly through bodies
-		pm.trace = trap_TraceCapsuleNoEnts; // FIXME Capsule;
+		pm.trace = trap_TraceCapsuleNoEnts;	// FIXME Capsule;
 		pm.pointcontents = trap_PointContents;
 
 		// perform a pmove
@@ -1180,7 +1190,7 @@ void ClientThink_real(gentity_t * ent)
 
 	pm.ps = &client->ps;
 	pm.cmd = *ucmd;
-	pm.trace = trap_TraceCapsule; // FIXME Capsule;
+	pm.trace = trap_TraceCapsule;	// FIXME Capsule;
 
 	if(pm.ps->pm_type == PM_DEAD)
 	{

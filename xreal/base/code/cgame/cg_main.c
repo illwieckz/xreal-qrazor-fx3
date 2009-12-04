@@ -188,7 +188,7 @@ vmCvar_t        cg_noVoiceChats;
 vmCvar_t        cg_noVoiceText;
 vmCvar_t        cg_hudFiles;
 vmCvar_t        cg_scorePlum;
-vmCvar_t		cg_smoothClients;
+vmCvar_t        cg_smoothClients;
 vmCvar_t        cg_cameraMode;
 vmCvar_t        cg_cameraOrbit;
 vmCvar_t        cg_cameraOrbitDelay;
@@ -503,7 +503,7 @@ void QDECL CG_Error(const char *msg, ...)
 	Q_vsnprintf(text, sizeof(text), msg, argptr);
 	va_end(argptr);
 
-#ifdef LUA
+#ifdef CG_LUA
 	CG_ShutdownLua();
 #endif
 
@@ -1491,7 +1491,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	CG_InitConsoleCommands();
 
-#ifdef LUA
+#ifdef CG_LUA
 	CG_InitLua();
 #endif
 
@@ -1613,7 +1613,7 @@ void CG_Shutdown(void)
 
 	CG_Printf("------- CGame Shutdown -------\n");
 
-#ifdef LUA
+#ifdef CG_LUA
 	CG_ShutdownLua();
 #endif
 }

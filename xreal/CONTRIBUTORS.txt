@@ -27,6 +27,7 @@ Robert "BJA" Hodri - map objects: light models  http://www.bja-design.de
 Ken "kat" Beyer - map objects: jumppad, lantern, weapon marker http://www.quake3bits.com
 Lee David Ash - gauntlet weapon model
 gw - map objects: teleporter, fan models
+ratty redemption - debris models: wood, stone
 
 
 XreaL Team

@@ -68,7 +68,8 @@ typedef enum
 	MOVER_POS1,
 	MOVER_POS2,
 	MOVER_1TO2,
-	MOVER_2TO1
+	MOVER_2TO1,
+	MOVER_MISC
 } moverState_t;
 
 #define SP_PODIUM_MODEL		"models/meshes/ppodium.md5mesh"
@@ -136,7 +137,7 @@ struct gentity_s
 	char           *model;
 	char           *model2;
 
-	int				spawnTime;	// level.time when the object was spawned
+	int             spawnTime;	// level.time when the object was spawned
 	int             freeTime;	// level.time when the object was freed
 
 	int             eventTime;	// events will be cleared EVENT_VALID_MSEC after set
@@ -193,7 +194,7 @@ struct gentity_s
 	int             health;
 
 	qboolean        takedamage;
-	qboolean		crusher;		// doors that squeeze players
+	qboolean        crusher;	// doors that squeeze players
 	int             damage;
 	int             splashDamage;	// quad will increase this without increasing radius
 	int             splashRadius;
@@ -201,21 +202,21 @@ struct gentity_s
 	int             splashMethodOfDeath;
 
 	// explosive
-	int				materialType;
+	int             materialType;
 
 	// triggers / targets
-	qboolean		start_on;
-	qboolean		start_off;
-	qboolean		silent;
-	qboolean		no_protection;
-	qboolean		slow;
-	qboolean		red_only;
-	qboolean		blue_only;
+	qboolean        start_on;
+	qboolean        start_off;
+	qboolean        silent;
+	qboolean        no_protection;
+	qboolean        slow;
+	qboolean        red_only;
+	qboolean        blue_only;
 
 	// portal cameras
-	qboolean		slowrotate;
-	qboolean		fastrotate;
-	qboolean		swing;
+	qboolean        slowrotate;
+	qboolean        fastrotate;
+	qboolean        swing;
 
 	int             count;
 
@@ -241,10 +242,10 @@ struct gentity_s
 	float           wait;
 	float           random;
 
-	qboolean		suspended;	// item will spawn where it was placed in map and won't drop to the floor
+	qboolean        suspended;	// item will spawn where it was placed in map and won't drop to the floor
 	gitem_t        *item;		// for bonus items
 
-#ifdef LUA
+#if defined(G_LUA)
 	// Lua scripting
 	// like function pointers but pointing to
 	// function names inside the .lua file that is loaded
@@ -253,6 +254,15 @@ struct gentity_s
 	char           *luaTouch;
 	char           *luaUse;
 	char           *luaHurt;
+	char           *luaDie;
+	char           *luaFree;
+	char           *luaTrigger;
+	char           *luaSpawn;
+
+	char           *luaParam1;
+	char           *luaParam2;
+	char           *luaParam3;
+	char           *luaParam4;
 #endif
 
 #if defined(ACEBOT)
@@ -303,6 +313,8 @@ typedef struct
 	float           lastreturnedflag;
 	float           flagsince;
 	float           lastfraggedcarrier;
+
+	int             lastFlagEnt;
 } playerTeamState_t;
 
 // the auto following clients don't follow a specific client
@@ -530,6 +542,7 @@ void            StopFollowing(gentity_t * ent);
 void            BroadcastTeamChange(gclient_t * client, int oldTeam);
 void            SetTeam(gentity_t * ent, char *s);
 void            Cmd_FollowCycle_f(gentity_t * ent, int dir);
+char           *ConcatArgs(int start);
 
 //
 // g_items.c
@@ -565,7 +578,7 @@ void            G_KillBox(gentity_t * ent);
 void            G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
 gentity_t      *G_Find(gentity_t * from, int fieldofs, const char *match);
 gentity_t      *G_FindRadius(gentity_t * from, const vec3_t org, float rad);
-qboolean		G_IsVisible(const gentity_t * self, const vec3_t goal);
+qboolean        G_IsVisible(const gentity_t * self, const vec3_t goal);
 gentity_t      *G_PickTarget(char *name);
 void            G_UseTargets(gentity_t * ent, gentity_t * activator);
 void            G_SetMovedir(vec3_t angles, vec3_t movedir);
@@ -637,6 +650,9 @@ gentity_t      *fire_railsphere(gentity_t * self, vec3_t start, vec3_t aimdir);
 //
 void            G_RunMover(gentity_t * ent);
 void            Touch_DoorTrigger(gentity_t * ent, gentity_t * other, trace_t * trace);
+void            Reached_Train(gentity_t * ent);
+void            SetupTrainPath(gentity_t * ent, qboolean allowNoTarget);
+void            SetMoverState(gentity_t * ent, moverState_t moverState, int time);
 
 //
 // g_trigger.c
@@ -699,7 +715,7 @@ qboolean        G_FilterPacket(char *from);
 // g_weapon.c
 //
 void            FireWeapon(gentity_t * ent);
-void			FireWeapon2(gentity_t * ent);
+void            FireWeapon2(gentity_t * ent);
 
 void            G_StartKamikaze(gentity_t * ent);
 
@@ -730,6 +746,8 @@ void QDECL      G_LogPrintf(const char *fmt, ...);
 void            SendScoreboardMessageToAllClients(void);
 void QDECL      G_Printf(const char *fmt, ...);
 void QDECL      G_Error(const char *fmt, ...);
+void QDECL      G_PrintfClient(gentity_t * ent, const char *fmt, ...);
+void            LogExit(const char *string);
 
 //
 // g_client.c
@@ -820,47 +838,39 @@ void            BotAIDebug(void);	// brainworks
 #include "acebot.h"
 #endif
 
-#ifdef LUA
-//
-// g_lua.c
-//
-#include <lua.h>
-void            G_InitLua();
-void            G_ShutdownLua();
-void            G_LoadLuaScript(gentity_t * ent, const char *filename);
-void            G_RunLuaFunction(const char *func, const char *sig, ...);
-void            G_DumpLuaStack();
+#if defined(G_LUA)
 
 //
-// lua_entity.c
+// g_lua.c 
 //
-typedef struct
-{
-	gentity_t      *e;
-} lua_Entity;
+// Callbacks
+void            G_LuaHook_InitGame(int levelTime, int randomSeed, int restart);
+void            G_LuaHook_ShutdownGame(int restart);
+void            G_LuaHook_RunFrame(int levelTime);
+qboolean        G_LuaHook_ClientConnect(int clientNum, qboolean firstTime, qboolean isBot, char *reason);
+void            G_LuaHook_ClientDisconnect(int clientNum);
+void            G_LuaHook_ClientBegin(int clientNum);
+void            G_LuaHook_ClientUserinfoChanged(int clientNum);
+void            G_LuaHook_ClientSpawn(int clientNum);
+qboolean        G_LuaHook_ClientCommand(int clientNum, char *command);
+qboolean        G_LuaHook_ConsoleCommand(char *command);
+void            G_LuaHook_Print(char *text);
+qboolean        G_LuaHook_Obituary(int victim, int killer, int meansOfDeath, char *customObit);
+qboolean        G_LuaHook_EntityThink(char *function, int entity);
+qboolean        G_LuaHook_EntityTouch(char *function, int entity, int other);
+qboolean        G_LuaHook_EntityUse(char *function, int entity, int other, int activator);
+qboolean        G_LuaHook_EntityHurt(char *function, int entity, int inflictor, int attacker);
+qboolean        G_LuaHook_EntityDie(char *function, int entity, int inflictor, int attacker, int dmg, int mod);
+qboolean        G_LuaHook_EntityFree(char *function, int entity);
+qboolean        G_LuaHook_EntityTrigger(char *function, int entity, int other);
+qboolean        G_LuaHook_EntitySpawn(char *function, int entity);
 
-int             luaopen_entity(lua_State * L);
-void            lua_pushentity(lua_State * L, gentity_t * ent);
-lua_Entity     *lua_getentity(lua_State * L, int argNum);
+// Other
+void            G_LuaStatus(gentity_t * ent);
+qboolean        G_LuaInit();
+void            G_LuaShutdown();
 
-//
-// lua_game.c
-//
-int             luaopen_game(lua_State * L);
-
-//
-// lua_qmath.c
-//
-int             luaopen_qmath(lua_State * L);
-
-//
-// lua_vector.c
-//
-int             luaopen_vector(lua_State * L);
-void            lua_pushvector(lua_State * L, vec3_t v);
-vec_t          *lua_getvector(lua_State * L, int argNum);
-
-#endif							// LUA
+#endif							// G_LUA
 
 
 #include "g_team.h"				// teamplay specific stuff
@@ -894,6 +904,7 @@ extern vmCvar_t g_forcerespawn;
 extern vmCvar_t g_inactivity;
 extern vmCvar_t g_debugAlloc;
 extern vmCvar_t g_debugDamage;
+extern vmCvar_t g_debugLua;
 extern vmCvar_t g_weaponRespawn;
 extern vmCvar_t g_weaponTeamRespawn;
 extern vmCvar_t g_synchronousClients;
@@ -933,6 +944,8 @@ extern vmCvar_t pm_fastWeaponSwitches;
 extern vmCvar_t pm_fixedPmove;
 extern vmCvar_t pm_fixedPmoveFPS;
 
+extern vmCvar_t lua_allowedModules;
+extern vmCvar_t lua_modules;
 
 #if defined(ACEBOT)
 extern vmCvar_t ace_debug;
@@ -979,11 +992,11 @@ void            trap_SetBrushModel(gentity_t * ent, const char *name);
 void            trap_Trace(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 						   int passEntityNum, int contentmask);
 void            trap_TraceNoEnts(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-						   int passEntityNum, int contentmask);
-void			trap_TraceCapsule(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					   int passEntityNum, int contentmask);
-void			trap_TraceCapsuleNoEnts(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					   int passEntityNum, int contentmask);
+								 int passEntityNum, int contentmask);
+void            trap_TraceCapsule(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+								  int passEntityNum, int contentmask);
+void            trap_TraceCapsuleNoEnts(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs,
+										const vec3_t end, int passEntityNum, int contentmask);
 int             trap_PointContents(const vec3_t point, int passEntityNum);
 qboolean        trap_InPVS(const vec3_t p1, const vec3_t p2);
 qboolean        trap_InPVSIgnorePortals(const vec3_t p1, const vec3_t p2);
@@ -993,7 +1006,7 @@ void            trap_LinkEntity(gentity_t * ent);
 void            trap_UnlinkEntity(gentity_t * ent);
 int             trap_EntitiesInBox(const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount);
 qboolean        trap_EntityContact(const vec3_t mins, const vec3_t maxs, const gentity_t * ent);
-qboolean		trap_EntityContactCapsule(const vec3_t mins, const vec3_t maxs, const gentity_t * ent);
+qboolean        trap_EntityContactCapsule(const vec3_t mins, const vec3_t maxs, const gentity_t * ent);
 int             trap_BotAllocateClient(void);	// NO BOTLIB
 void            trap_BotFreeClient(int clientNum);	// NO BOTLIB
 int             trap_BotGetSnapshotEntity(int clientNum, int sequence);	// NO BOTLIB

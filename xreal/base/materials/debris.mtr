@@ -18,7 +18,7 @@ models/debris/plaster1
 
 models/debris/wood
 {
-	{
-		map models/debris/wood.png
-	}
+	diffuseMap		 models/debris/wood.png
+	//normalMap		 invertAlpha(textures/somefile.png)
+	//specularMap	 	 textures/somefile.png
 }

@@ -117,7 +117,10 @@ void QDECL PrintMsg(gentity_t * ent, const char *fmt, ...)
 	char           *p;
 
 	va_start(argptr, fmt);
-	Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
+	if(Q_vsnprintf(msg, sizeof(msg), fmt, argptr) > sizeof(msg))
+	{
+		G_Error("PrintMsg overrun");
+	}
 	va_end(argptr);
 
 	// double quotes are bad
@@ -459,9 +462,7 @@ void Team_FragBonuses(gentity_t * targ, gentity_t * inflictor, gentity_t * attac
 		}
 
 	}
-	else
-
-	if(g_gametype.integer == GT_HARVESTER)
+	else if(g_gametype.integer == GT_HARVESTER)
 	{
 		// find the center obelisk
 		c = "team_neutralobelisk";
@@ -829,6 +830,15 @@ int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 	if(!cl->ps.powerups[enemy_flag])
 		return 0;				// We don't have the flag
 
+#ifdef G_LUA
+	// Lua API callbacks
+	if(ent->luaUse)
+	{
+		//lua use function, cap point, flag origin ent, client
+		G_LuaHook_EntityUse(ent->luaUse, ent->s.number, cl->pers.teamState.lastFlagEnt, other->s.number);
+	}
+#endif
+
 	if(g_gametype.integer == GT_1FCTF)
 	{
 		PrintMsg(NULL, "%s" S_COLOR_WHITE " captured the flag!\n", cl->pers.netname);
@@ -943,8 +953,18 @@ int Team_TouchEnemyFlag(gentity_t * ent, gentity_t * other, int team)
 		Team_SetFlagStatus(team, FLAG_TAKEN);
 	}
 
+#ifdef G_LUA
+	// Lua API callbacks
+	if(ent->luaTrigger)
+	{
+		//lua trigger function, ent taken, client taking
+		G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, other->s.number);
+	}
+#endif
+
 	AddScore(other, ent->r.currentOrigin, CTF_FLAG_BONUS);
 	cl->pers.teamState.flagsince = level.time;
+	cl->pers.teamState.lastFlagEnt = ent->s.number;
 	Team_TakeFlagSound(ent, team);
 
 	return -1;					// Do not respawn this automatically, but do delete it if it was FL_DROPPED
@@ -975,15 +995,15 @@ int Pickup_Team(gentity_t * ent, gentity_t * other)
 	}
 
 	// figure out what team this flag is
-	if(strcmp(ent->classname, "team_CTF_redflag") == 0)
+	if(Q_stricmp(ent->classname, "team_CTF_redflag") == 0)
 	{
 		team = TEAM_RED;
 	}
-	else if(strcmp(ent->classname, "team_CTF_blueflag") == 0)
+	else if(Q_stricmp(ent->classname, "team_CTF_blueflag") == 0)
 	{
 		team = TEAM_BLUE;
 	}
-	else if(strcmp(ent->classname, "team_CTF_neutralflag") == 0)
+	else if(Q_stricmp(ent->classname, "team_CTF_neutralflag") == 0)
 	{
 		team = TEAM_FREE;
 	}
@@ -1672,5 +1692,3 @@ qboolean CheckObeliskAttack(gentity_t * obelisk, gentity_t * attacker)
 
 	return qfalse;
 }
-
-

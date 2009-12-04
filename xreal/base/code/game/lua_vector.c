@@ -21,9 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // lua_vector.c -- vector library for Lua
 
-#include "g_local.h"
+#include "g_lua.h"
 
-#ifdef LUA
+#if(defined(CG_LUA) || defined(G_LUA))
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -409,6 +409,21 @@ vec_t          *lua_getvector(lua_State * L, int argNum)
 	ud = luaL_checkudata(L, argNum, "vector");
 	luaL_argcheck(L, ud != NULL, argNum, "`vector' expected");
 	return (vec_t *) ud;
+}
+
+int lua_isvector(lua_State * L, int idx)
+{
+	void           *ud;
+
+	if(lua_isuserdata(L, idx))
+	{
+		if(lua_getmetatable(L, idx))
+		{
+			ud = luaL_checkudata(L, idx, "vector");
+			return (ud != NULL);
+		}
+	}
+	return 0;
 }
 
 #endif

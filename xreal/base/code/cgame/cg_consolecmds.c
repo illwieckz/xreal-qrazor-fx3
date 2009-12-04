@@ -503,7 +503,7 @@ static consoleCommand_t commands[] = {
 	{"startOrbit", CG_StartOrbit_f},
 #endif
 
-#ifdef LUA
+#ifdef CG_LUA
 	{"restartLuaCGameVM", CG_RestartLua_f},
 #endif
 	//{ "camera", CG_Camera_f },
@@ -587,8 +587,12 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("stats");
 	trap_AddCommand("teamtask");
 
+#ifdef G_LUA
+	trap_AddCommand("lua_status");
+	trap_AddCommand("lua_restart");
+#endif
+
 	// useful for development
-	trap_AddCommand("restartLuaGameVM");
 	trap_AddCommand("entitylist");
 
 	// for ACEBot
