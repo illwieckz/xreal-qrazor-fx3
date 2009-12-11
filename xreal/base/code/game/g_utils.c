@@ -460,6 +460,37 @@ void G_SetMovedir(vec3_t angles, vec3_t movedir)
 }
 
 
+/*
+================
+G_ActivateUse
+
+An activate function that calls the ent's use function.
+================
+*/
+void G_ActivateUse(gentity_t * ent, gentity_t * other, qboolean firstActivate)
+{
+	if(ent->use)
+	{
+		ent->use(ent, other, other);
+	}
+}
+
+/*
+================
+G_ActivateUseFirst
+
+An activate function that calls the ent's use function, but only on the first press.
+================
+*/
+void G_ActivateUseFirst(gentity_t * ent, gentity_t * other, qboolean firstActivate)
+{
+	if(ent->use && (firstActivate == qtrue))
+	{
+		ent->use(ent, other, other);
+	}
+}
+
+
 float vectoyaw(const vec3_t vec)
 {
 	float           yaw;

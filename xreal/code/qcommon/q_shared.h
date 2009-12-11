@@ -1867,10 +1867,11 @@ typedef struct playerState_s
 										// walking will use different animations and
 										// won't generate footsteps
 #define BUTTON_ATTACK2		32	// +/-button5
+#define BUTTON_ACTIVATE		64	// +/-button6
 
 //#if defined(MISSIONPACK)
 //#define BUTTON_AFFIRMATIVE	32
-#define	BUTTON_NEGATIVE		64
+//#define	BUTTON_NEGATIVE		64
 
 #define BUTTON_GETFLAG		128
 #define BUTTON_GUARDBASE	256

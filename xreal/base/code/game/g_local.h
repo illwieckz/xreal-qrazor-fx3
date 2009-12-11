@@ -186,6 +186,7 @@ struct gentity_s
 	void            (*use) (gentity_t * self, gentity_t * other, gentity_t * activator);
 	void            (*pain) (gentity_t * self, gentity_t * attacker, int damage);
 	void            (*die) (gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int mod);
+	void            (*activate) (gentity_t * self, gentity_t * other, qboolean firstActivate);
 
 	int             pain_debounce_time;
 	int             fly_sound_debounce_time;	// wind tunnel
@@ -401,6 +402,7 @@ struct gclient_s
 	int             lastkilled_client;	// last client that this client killed
 	int             lasthurt_client;	// last client that damaged this client
 	int             lasthurt_mod;	// type of damage the client did
+	int             lastused_ent;	// entity which was last +activated
 
 	// timers
 	int             respawnTime;	// can respawn when time > this, force after g_forcerespwan
@@ -582,6 +584,9 @@ qboolean        G_IsVisible(const gentity_t * self, const vec3_t goal);
 gentity_t      *G_PickTarget(char *name);
 void            G_UseTargets(gentity_t * ent, gentity_t * activator);
 void            G_SetMovedir(vec3_t angles, vec3_t movedir);
+
+void            G_ActivateUse(gentity_t * ent, gentity_t * other, qboolean firstActivate);
+void            G_ActivateUseFirst(gentity_t * ent, gentity_t * other, qboolean firstActivate);
 
 void            G_InitGentity(gentity_t * e);
 gentity_t      *G_Spawn(void);

@@ -59,6 +59,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	ITEM_RADIUS			15	// item sizes are needed for client side pickup detection
 
+#define ACTIVATE_LENGTH		64	// player reach for +activate
+
 #define	LIGHTNING_RANGE		768
 #define LIGHTNING_ALPHA_LIMIT 20	// JUHOX
 

@@ -1109,6 +1109,7 @@ void SP_func_door(gentity_t * ent)
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.ogg");
 
 	ent->blocked = Blocked_Door;
+	ent->activate = G_ActivateUseFirst;
 
 	// default speed of 400
 	if(!ent->speed)

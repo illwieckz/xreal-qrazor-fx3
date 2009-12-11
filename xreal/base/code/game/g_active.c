@@ -1020,6 +1020,44 @@ void SendPendingPredictableEvents(playerState_t * ps)
 
 /*
 ==============
+ClientActivate
+
+Calls Use of targeted entities
+*/
+void ClientActivate(gentity_t * ent)
+{
+	gentity_t      *traceEnt;
+	trace_t         trace;
+	vec3_t          muzzle, forward, right, up, end;
+
+	// find entity being activated
+	AngleVectors(ent->client->ps.viewangles, forward, right, up);
+	CalcMuzzlePoint(ent, forward, right, up, muzzle, WP_GAUNTLET, qfalse);
+	VectorMA(muzzle, ACTIVATE_LENGTH, forward, end);
+
+	trap_Trace(&trace, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+
+	// check trace result is valid
+	if(trace.entityNum < ENTITYNUM_MAX_NORMAL)
+	{
+		traceEnt = &g_entities[trace.entityNum];
+
+		if(traceEnt->activate)
+		{
+			traceEnt->activate(traceEnt, ent, (ent->client->lastused_ent != traceEnt->s.number));
+		}
+
+		ent->client->lastused_ent = traceEnt->s.number;
+	}
+	else
+	{
+		// no entity to activate
+		ent->client->lastused_ent = ENTITYNUM_NONE;
+	}
+}
+
+/*
+==============
 ClientThink
 
 This will be called once for each client frame, which will
@@ -1330,6 +1368,15 @@ void ClientThink_real(gentity_t * ent)
 			}
 		}
 		return;
+	}
+
+	if(client->buttons & BUTTON_ACTIVATE)
+	{
+		ClientActivate(ent);
+	}
+	else
+	{
+		client->lastused_ent = ENTITYNUM_NONE;
 	}
 
 	// perform once-a-second actions
