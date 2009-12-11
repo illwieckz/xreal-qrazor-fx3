@@ -484,7 +484,8 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 		// save results of pmove
 		VectorCopy(client->ps.origin, ent->s.origin);
 
-		G_TouchTriggers(ent);
+		// spectators don't touch.
+		//G_TouchTriggers(ent);
 		trap_UnlinkEntity(ent);
 	}
 
