@@ -1,4 +1,8 @@
 #!/bin/bash
+if [[ ! $BIN ]]; then
+	BIN='xreal'
+fi
+
 function check_file() {
 	if [ -e $BINARY ]; then
 		./$BINARY "$@"
@@ -10,15 +14,15 @@ function check_file() {
 
 case `uname -m` in
 	x86_64)
-		BINARY='xreal.x86_64'
+		BINARY="$BIN.x86_64"
 		check_file "$@";
 		;;
 	i386|i486|i586|i686)
-		BINARY='xreal.i386'
+		BINARY="$BIN.i386"
 		check_file "$@";
 		;;
 	powerpc|powerpc64)
-		BINARY='xreal.ppc'
+		BINARY="$BIN.ppc"
 		check_file "$@";
 		;;
 	"*")
