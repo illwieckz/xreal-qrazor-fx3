@@ -1433,7 +1433,7 @@ char           *eventnames[] = {
 	"EV_FALL_MEDIUM",
 	"EV_FALL_FAR",
 
-	"EV_JUMP_PAD",				// boing sound at origin", jump sound on player
+	"EV_JUMP_PAD",				// boing sound at origin, jump sound on player
 
 	"EV_JUMP",
 	"EV_WATER_TOUCH",			// foot touches
@@ -1505,7 +1505,9 @@ char           *eventnames[] = {
 	"EV_PROXIMITY_MINE_STICK",
 	"EV_PROXIMITY_MINE_TRIGGER",
 	"EV_KAMIKAZE",				// kamikaze explodes
+	"EV_RAILEXLOSION",
 	"EV_OBELISKEXPLODE",		// obelisk explodes
+	"EV_OBELISKPAIN",			// obelisk is in pain
 	"EV_INVUL_IMPACT",			// invulnerability sphere impact
 	"EV_JUICED",				// invulnerability juiced effect
 	"EV_LIGHTNINGBOLT",			// lightning bolt bounced of invulnerability sphere
@@ -1517,7 +1519,13 @@ char           *eventnames[] = {
 
 	"EV_DEBUG_LINE",
 	"EV_STOPLOOPINGSOUND",
-	"EV_TAUNT"
+	"EV_TAUNT",
+	"EV_TAUNT_YES",
+	"EV_TAUNT_NO",
+	"EV_TAUNT_FOLLOWME",
+	"EV_TAUNT_GETFLAG",
+	"EV_TAUNT_GUARDBASE",
+	"EV_TAUNT_PATROL"
 };
 
 /*
