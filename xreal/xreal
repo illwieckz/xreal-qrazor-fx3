@@ -11,15 +11,15 @@ function check_file() {
 case `uname -m` in
 	x86_64)
 		BINARY='xreal.x86_64'
-		check_file;
+		check_file "$@";
 		;;
 	i386|i486|i586|i686)
 		BINARY='xreal.i386'
-		check_file;
+		check_file "$@";
 		;;
 	powerpc|powerpc64)
 		BINARY='xreal.ppc'
-		check_file;
+		check_file "$@";
 		;;
 	"*")
 		echo "You are not running a supported platform for playing XreaL. If you would like to play XreaL on your platform, please visit http://www.xreal-project.net for contact information."
