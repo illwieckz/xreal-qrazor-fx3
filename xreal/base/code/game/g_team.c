@@ -1153,6 +1153,10 @@ gentity_t      *SelectRandomTeamSpawnPoint(int teamstate, team_t team)
 		{
 			continue;
 		}
+		if(!spot->r.linked)
+		{
+			continue;
+		}
 		spots[count] = spot;
 		if(++count == MAX_TEAM_SPAWN_POINTS)
 			break;

@@ -174,6 +174,7 @@ struct gentity_s
 	char           *targetShaderName;
 	char           *targetShaderNewName;
 	gentity_t      *target_ent;
+	int             group;
 
 	float           speed;
 	vec3_t          movedir;

@@ -85,6 +85,102 @@ static int game_Broadcast(lua_State * L)
 	return 0;
 }
 
+static int game_SpawnGroupRedDisable(lua_State * L)
+{
+	gentity_t      *next;
+	int             spawnGroup;
+
+	spawnGroup = luaL_checkint(L, 1);
+
+	next = NULL;
+	do
+	{
+		next = G_Find(next, FOFS(classname), "team_ctf_redspawn");
+		if(!next)
+		{
+			return 0;
+		}
+		if(next->group == spawnGroup)
+		{
+			trap_UnlinkEntity(next);
+		}
+	} while(!Q_stricmp(next->classname, "team_ctf_redspawn"));
+
+	return 0;
+}
+
+static int game_SpawnGroupBlueDisable(lua_State * L)
+{
+	gentity_t      *next;
+	int             spawnGroup;
+
+	spawnGroup = luaL_checkint(L, 1);
+
+	next = NULL;
+	do
+	{
+		next = G_Find(next, FOFS(classname), "team_ctf_bluespawn");
+		if(!next)
+		{
+			return 0;
+		}
+		if(next->group == spawnGroup)
+		{
+			trap_UnlinkEntity(next);
+		}
+	} while(!Q_stricmp(next->classname, "team_ctf_bluespawn"));
+
+	return 0;
+}
+
+static int game_SpawnGroupRedEnable(lua_State * L)
+{
+	gentity_t      *next;
+	int             spawnGroup;
+
+	spawnGroup = luaL_checkint(L, 1);
+
+	next = NULL;
+	do
+	{
+		next = G_Find(next, FOFS(classname), "team_ctf_redspawn");
+		if(!next)
+		{
+			return 0;
+		}
+		if(next->group == spawnGroup)
+		{
+			trap_LinkEntity(next);
+		}
+	} while(!Q_stricmp(next->classname, "team_ctf_redspawn"));
+
+	return 0;
+}
+
+static int game_SpawnGroupBlueEnable(lua_State * L)
+{
+	gentity_t      *next;
+	int             spawnGroup;
+
+	spawnGroup = luaL_checkint(L, 1);
+
+	next = NULL;
+	do
+	{
+		next = G_Find(next, FOFS(classname), "team_ctf_bluespawn");
+		if(!next)
+		{
+			return 0;
+		}
+		if(next->group == spawnGroup)
+		{
+			trap_LinkEntity(next);
+		}
+	} while(!Q_stricmp(next->classname, "team_ctf_bluespawn"));
+
+	return 0;
+}
+
 // game.EndRound()
 static int game_EndRound(lua_State * L)
 {
@@ -106,6 +202,10 @@ static const luaL_reg gamelib[] = {
 	{"Broadcast", game_Broadcast},
 	{"EndRound", game_EndRound},
 	{"Leveltime", game_Leveltime},
+	{"SpawnGroupRedDisable", game_SpawnGroupRedDisable},
+	{"SpawnGroupBlueDisable", game_SpawnGroupBlueDisable},
+	{"SpawnGroupRedEnable", game_SpawnGroupRedEnable},
+	{"SpawnGroupBlueEnable", game_SpawnGroupBlueEnable},
 	{NULL, NULL}
 };
 
