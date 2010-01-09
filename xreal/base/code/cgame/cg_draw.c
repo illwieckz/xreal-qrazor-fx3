@@ -301,6 +301,7 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 	refdef_t        refdef;
 	refEntity_t     ent;
 	refLight_t      light;
+	float           fov_x;
 
 	if(!cg_draw3dIcons.integer || !cg_drawIcons.integer)
 	{
@@ -340,18 +341,21 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 
 	light.rlType = RL_PROJ;
 
-	VectorMA(refdef.vieworg, -200, refdef.viewaxis[0], light.origin);
+	VectorCopy(cg.refdef.vieworg, light.origin);
 	light.origin[1] += 10;
 
-	QuatFromAngles(light.rotation, 0, 5, 0);
+	QuatClear(light.rotation);
 
 	light.color[0] = 0.8f;
 	light.color[1] = 0.8f;
 	light.color[2] = 0.8f;
 
-	VectorSet(light.projTarget, 500, 0, 0);
-	VectorSet(light.projRight, 100, 0, 0);
-	VectorSet(light.projUp, 100, 0, 0);
+	fov_x = tanf(DEG2RAD(cg.refdef.fov_x * 0.5f));
+	VectorCopy(cg.refdef.viewaxis[0], light.projTarget);
+	VectorScale(cg.refdef.viewaxis[1], -fov_x, light.projRight);
+	VectorScale(cg.refdef.viewaxis[2], fov_x, light.projUp);
+	VectorScale(cg.refdef.viewaxis[0], -200, light.projStart);
+	VectorScale(cg.refdef.viewaxis[0], 1000, light.projEnd);
 
 	trap_R_AddRefLightToScene(&light);
 
@@ -369,6 +373,7 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 	refdef_t        refdef;
 	refEntity_t     ent;
 	refLight_t      light;
+	float           fov_x;
 
 	if(!cg_draw3dIcons.integer || !cg_drawIcons.integer)
 	{
@@ -428,18 +433,21 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 
 	light.rlType = RL_PROJ;
 
-	VectorMA(refdef.vieworg, -30, refdef.viewaxis[0], light.origin);
+	VectorCopy(cg.refdef.vieworg, light.origin);
 	light.origin[1] += 10;
 
-	QuatFromAngles(light.rotation, 0, 5, 0);
+	QuatClear(light.rotation);
 
 	light.color[0] = 0.8f;
 	light.color[1] = 0.8f;
 	light.color[2] = 0.8f;
 
-	VectorSet(light.projTarget, 500, 0, 0);
-	VectorSet(light.projRight, 100, 0, 0);
-	VectorSet(light.projUp, 100, 0, 0);
+	fov_x = tanf(DEG2RAD(cg.refdef.fov_x * 0.5f));
+	VectorCopy(cg.refdef.viewaxis[0], light.projTarget);
+	VectorScale(cg.refdef.viewaxis[1], -fov_x, light.projRight);
+	VectorScale(cg.refdef.viewaxis[2], fov_x, light.projUp);
+	VectorScale(cg.refdef.viewaxis[0], -30, light.projStart);
+	VectorScale(cg.refdef.viewaxis[0], 1000, light.projEnd);
 
 	trap_R_AddRefLightToScene(&light);
 

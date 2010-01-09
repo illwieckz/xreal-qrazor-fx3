@@ -499,6 +499,8 @@ Creates a projective light in front of the current position, which can then be m
 */
 void CG_TestProjLight_f(void)
 {
+	float           fov_x;
+
 	memset(&cg.testLight, 0, sizeof(cg.testLight));
 	if(trap_Argc() < 2)
 	{
@@ -518,17 +520,20 @@ void CG_TestProjLight_f(void)
 	cg.testLight.rlType = RL_PROJ;
 //  cg.testLight.lightfx = LF_ROTATION;
 
-	VectorMA(cg.refdef.vieworg, 10, cg.refdef.viewaxis[0], cg.testLight.origin);
+	VectorCopy(cg.refdef.vieworg, cg.testLight.origin);
 
 	cg.testLight.color[0] = 1.0;
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
 
-	AnglesToQuat(cg.refdefViewAngles, cg.testLight.rotation);
+	QuatClear(cg.testLight.rotation);
 
-	VectorSet(cg.testLight.projTarget, 800, 0, 0);
-	VectorSet(cg.testLight.projRight, 100, 0, 0);
-	VectorSet(cg.testLight.projUp, 100, 0, 0);
+	fov_x = tanf(DEG2RAD(cg.refdef.fov_x * 0.5f));
+	VectorCopy(cg.refdef.viewaxis[0], cg.testLight.projTarget);
+	VectorScale(cg.refdef.viewaxis[1], -fov_x, cg.testLight.projRight);
+	VectorScale(cg.refdef.viewaxis[2], fov_x, cg.testLight.projUp);
+	VectorScale(cg.refdef.viewaxis[0], 10, cg.testLight.projStart);
+	VectorScale(cg.refdef.viewaxis[0], 1000, cg.testLight.projEnd);
 
 	cg.testFlashLight = qfalse;
 }
@@ -553,8 +558,7 @@ void CG_TestFlashLight_f(void)
 
 static void CG_AddTestLight(void)
 {
-
-//  int             i;
+	float           fov_x;
 
 	// re-register the model, because the level may have changed
 	cg.testLight.attenuationShader = trap_R_RegisterShaderLightAttenuation(cg.testLightName);
@@ -567,9 +571,14 @@ static void CG_AddTestLight(void)
 	// if testing a flashlight, set the projection direction reletive to the view direction
 	if(cg.testFlashLight)
 	{
-		VectorMA(cg.refdef.vieworg, 10, cg.refdef.viewaxis[0], cg.testLight.origin);
+		VectorCopy(cg.refdef.vieworg, cg.testLight.origin);
 
-		AnglesToQuat(cg.refdefViewAngles, cg.testLight.rotation);
+		fov_x = tanf(DEG2RAD(cg.refdef.fov_x * 0.5f));
+		VectorCopy(cg.refdef.viewaxis[0], cg.testLight.projTarget);
+		VectorScale(cg.refdef.viewaxis[1], -fov_x, cg.testLight.projRight);
+		VectorScale(cg.refdef.viewaxis[2], fov_x, cg.testLight.projUp);
+		VectorScale(cg.refdef.viewaxis[0], 10, cg.testLight.projStart);
+		VectorScale(cg.refdef.viewaxis[0], 1000, cg.testLight.projEnd);
 	}
 
 	trap_R_AddRefLightToScene(&cg.testLight);
