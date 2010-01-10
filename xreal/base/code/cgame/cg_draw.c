@@ -3711,14 +3711,14 @@ static int debugModel(int x, int y)
 {
 	y += 12;
 
-	CG_Text_Paint(x, y, 0.2, colorRed, "Model:", 0, 0, 0, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint(x, y, 0.2f, colorRed, "Model:", 0.0f, 0, 0, &cgs.media.freeSansBoldFont);
 	y += 10;
 
-	CG_Text_Paint(x + 10, y, 0.15, colorYellow, va("current anim: %i", debug_anim_current), 0, 0, 0, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint(x + 10, y, 0.15f, colorYellow, va("current anim: %i", debug_anim_current), 0.0f, 0, 0, &cgs.media.freeSansBoldFont);
 	y += 8;
-	CG_Text_Paint(x + 10, y, 0.15, colorYellow, va("old anim: %i", debug_anim_old), 0, 0, 0, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint(x + 10, y, 0.15f, colorYellow, va("old anim: %i", debug_anim_old), 0.0f, 0, 0, &cgs.media.freeSansBoldFont);
 	y += 8;
-	CG_Text_Paint(x + 10, y, 0.15, colorYellow, va("anim blend : %f", debug_anim_blend), 0, 0, 0, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint(x + 10, y, 0.15f, colorYellow, va("anim blend : %f", debug_anim_blend), 0.0f, 0, 0, &cgs.media.freeSansBoldFont);
 	y += 8;
 
 
@@ -3749,7 +3749,7 @@ static int debugSystem(int x, int y)
 	index++;
 
 
-	CG_Text_Paint(x, y, 0.2, colorRed, "System:", 0, 0, 0, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint(x, y, 0.2f, colorRed, "System:", 0.0f, 0, 0, &cgs.media.freeSansBoldFont);
 	y += 10;
 
 
@@ -3775,15 +3775,15 @@ static int debugSystem(int x, int y)
 			highPeak = fps;
 
 		s = va("Average FPS: %i ", fps);
-		CG_Text_Paint(x + 10, y, 0.15, colorYellow, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+		CG_Text_Paint(x + 10, y, 0.15f, colorYellow, s, 0.0f, 0, 0, &cgs.media.freeSansBoldFont);
 		y += 8;
 
 		s = va("HighPeak : %i ", highPeak);
-		CG_Text_Paint(x + 10, y, 0.15, colorYellow, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+		CG_Text_Paint(x + 10, y, 0.15f, colorYellow, s, 0.0f, 0, 0, &cgs.media.freeSansBoldFont);
 		y += 8;
 
 		s = va("LowPeak : %i ", lowPeak);
-		CG_Text_Paint(x + 10, y, 0.15, colorYellow, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+		CG_Text_Paint(x + 10, y, 0.15f, colorYellow, s, 0.0f, 0, 0, &cgs.media.freeSansBoldFont);
 		y += 8;
 
 	}
@@ -3799,7 +3799,7 @@ static int debugSystem(int x, int y)
 
 
 	s = va("Time : %i:%i%i", mins, tens, seconds);
-	CG_Text_Paint(x + 10, y, 0.15, colorYellow, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint(x + 10, y, 0.15f, colorYellow, s, 0.0f, 0, 0, &cgs.media.freeSansBoldFont);
 
 	return y;
 }
