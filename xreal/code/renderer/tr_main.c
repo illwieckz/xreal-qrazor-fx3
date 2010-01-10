@@ -2668,35 +2668,30 @@ void R_AddLightInteractions()
 					}
 				}
 			}
+
+			// look if we have to draw the light including its interactions
+			switch (R_CullLocalBox(light->localBounds))
+			{
+				case CULL_IN:
+				default:
+					tr.pc.c_box_cull_light_in++;
+					light->cull = CULL_IN;
+					break;
+
+				case CULL_CLIP:
+					tr.pc.c_box_cull_light_clip++;
+					light->cull = CULL_CLIP;
+					break;
+
+				case CULL_OUT:
+					// light is not visible so skip other light setup stuff to save speed
+					tr.pc.c_box_cull_light_out++;
+					light->cull = CULL_OUT;
+					continue;
+			}
 #endif
 		}
 		else
-		{
-			R_SetupLightLocalBounds(light);
-		}
-
-		// look if we have to draw the light including its interactions
-		switch (R_CullLocalBox(light->localBounds))
-		{
-			case CULL_IN:
-			default:
-				tr.pc.c_box_cull_light_in++;
-				light->cull = CULL_IN;
-				break;
-
-			case CULL_CLIP:
-				tr.pc.c_box_cull_light_clip++;
-				light->cull = CULL_CLIP;
-				break;
-
-			case CULL_OUT:
-				// light is not visible so skip other light setup stuff to save speed
-				tr.pc.c_box_cull_light_out++;
-				light->cull = CULL_OUT;
-				continue;
-		}
-
-		if(!light->isStatic)
 		{
 			// set up light transform matrix
 			MatrixSetupTransformFromQuat(light->transformMatrix, light->l.rotation, light->l.origin);
@@ -2709,6 +2704,30 @@ void R_AddLightInteractions()
 
 			// set up projection
 			R_SetupLightProjection(light);
+
+			// calc local bounds for culling
+			R_SetupLightLocalBounds(light);
+
+			// look if we have to draw the light including its interactions
+			switch (R_CullLocalBox(light->localBounds))
+			{
+				case CULL_IN:
+				default:
+					tr.pc.c_box_cull_light_in++;
+					light->cull = CULL_IN;
+					break;
+
+				case CULL_CLIP:
+					tr.pc.c_box_cull_light_clip++;
+					light->cull = CULL_CLIP;
+					break;
+
+				case CULL_OUT:
+					// light is not visible so skip other light setup stuff to save speed
+					tr.pc.c_box_cull_light_out++;
+					light->cull = CULL_OUT;
+					continue;
+			}
 
 			// setup world bounds for intersection tests
 			R_SetupLightWorldBounds(light);
@@ -2886,30 +2905,51 @@ void R_AddLightBoundsToVisBounds()
 					}
 				}
 			}
+
+			// look if we have to draw the light including its interactions
+			switch (R_CullLocalBox(light->localBounds))
+			{
+				case CULL_IN:
+				default:
+					break;
+
+				case CULL_CLIP:
+					break;
+
+				case CULL_OUT:
+					continue;
+			}
 		}
 		else
 		{
-			R_SetupLightLocalBounds(light);
-		}
-
-		// look if we have to draw the light including its interactions
-		switch (R_CullLocalBox(light->localBounds))
-		{
-			case CULL_IN:
-			default:
-				break;
-
-			case CULL_CLIP:
-				break;
-
-			case CULL_OUT:
-				continue;
-		}
-
-		if(!light->isStatic)
-		{
 			// set up light transform matrix
 			MatrixSetupTransformFromQuat(light->transformMatrix, light->l.rotation, light->l.origin);
+
+			// set up light origin for lighting and shadowing
+			R_SetupLightOrigin(light);
+
+			// set up model to light view matrix
+			R_SetupLightView(light);
+
+			// set up projection
+			R_SetupLightProjection(light);
+
+			// calc local bounds for culling
+			R_SetupLightLocalBounds(light);
+
+			// look if we have to draw the light including its interactions
+			switch (R_CullLocalBox(light->localBounds))
+			{
+				case CULL_IN:
+				default:
+					break;
+
+				case CULL_CLIP:
+					break;
+
+				case CULL_OUT:
+					continue;
+			}
 
 			// setup world bounds for intersection tests
 			R_SetupLightWorldBounds(light);
