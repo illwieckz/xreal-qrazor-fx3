@@ -369,11 +369,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\libs\gtkutil\filechooser.cpp"
+			RelativePath="..\..\libs\gtkutil\FileChooser.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\libs\gtkutil\filechooser.h"
+			RelativePath="..\..\libs\gtkutil\FileChooser.h"
 			>
 		</File>
 		<File
@@ -482,6 +482,14 @@
 		</File>
 		<File
 			RelativePath="..\..\libs\gtkutil\PanedPosition.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\libs\gtkutil\PathEntry.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\libs\gtkutil\PathEntry.h"
 			>
 		</File>
 		<File

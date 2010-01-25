@@ -67,6 +67,7 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/ui/layers/LayerControlDialog.cpp',
 'code/xrealradiant/radiant/ui/ortho/OrthoContextMenu.cpp',
 'code/xrealradiant/radiant/ui/about/AboutDialog.cpp',
+'code/xrealradiant/radiant/ui/brush/QuerySidesDialog.cpp',
 'code/xrealradiant/radiant/ui/einspector/TexturePropertyEditor.cpp',
 'code/xrealradiant/radiant/ui/einspector/EntityInspector.cpp',
 'code/xrealradiant/radiant/ui/einspector/SkinChooser.cpp',
@@ -120,15 +121,12 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/layers/LayerCommandTarget.cpp',
 'code/xrealradiant/radiant/layers/LayerSystem.cpp',
 'code/xrealradiant/radiant/referencecache.cpp',
-'code/xrealradiant/radiant/gtkmisc.cpp',
 'code/xrealradiant/radiant/view.cpp',
 'code/xrealradiant/radiant/modulesystem/DynamicLibrary.cpp',
 'code/xrealradiant/radiant/modulesystem/ApplicationContextImpl.cpp',
 'code/xrealradiant/radiant/modulesystem/DynamicLibraryLoader.cpp',
 'code/xrealradiant/radiant/modulesystem/ModuleLoader.cpp',
 'code/xrealradiant/radiant/modulesystem/ModuleRegistry.cpp',
-'code/xrealradiant/radiant/brushexport/BrushExportOBJ.cpp',
-'code/xrealradiant/radiant/gtkdlgs.cpp',
 'code/xrealradiant/radiant/select.cpp',
 'code/xrealradiant/radiant/selection/SelectedNodeList.cpp',
 'code/xrealradiant/radiant/selection/shaderclipboard/ShaderClipboard.cpp',
@@ -162,6 +160,7 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/patch/PatchNode.cpp',
 'code/xrealradiant/radiant/patch/PatchModule.cpp',
 'code/xrealradiant/radiant/patch/PatchBezier.cpp',
+'code/xrealradiant/radiant/patch/PatchRenderables.cpp',
 'code/xrealradiant/radiant/map/RootNode.cpp',
 'code/xrealradiant/radiant/map/MapPosition.cpp',
 'code/xrealradiant/radiant/map/FindMapElements.cpp',
@@ -223,11 +222,12 @@ gtkutil_src = [
 'code/xrealradiant/libs/gtkutil/ModalProgressDialog.cpp',
 'code/xrealradiant/libs/gtkutil/window.cpp',
 'code/xrealradiant/libs/gtkutil/clipboard.cpp',
-'code/xrealradiant/libs/gtkutil/filechooser.cpp',
+'code/xrealradiant/libs/gtkutil/FileChooser.cpp',
 'code/xrealradiant/libs/gtkutil/pointer.cpp',
 'code/xrealradiant/libs/gtkutil/SerialisableWidgets.cpp',
 'code/xrealradiant/libs/gtkutil/ConsoleView.cpp',
-'code/xrealradiant/libs/gtkutil/SourceView.cpp'
+'code/xrealradiant/libs/gtkutil/SourceView.cpp',
+'code/xrealradiant/libs/gtkutil/PathEntry.cpp'
 ]
 
 math_src = [
@@ -448,6 +448,11 @@ undo_src = [
 'code/xrealradiant/plugins/undo/UndoSystem.cpp'
 ]
 
+wavefront_src = [
+'code/xrealradiant/plugins/wavefront/WaveFrontModule.cpp',
+'code/xrealradiant/plugins/wavefront/WaveFrontExporter.cpp'
+]
+
 vfsq3_src = [
 'code/xrealradiant/plugins/vfspk3/vfspk3.cpp',
 'code/xrealradiant/plugins/vfspk3/Doom3FileSystem.cpp',
@@ -459,8 +464,6 @@ xmlregistry_src = [
 'code/xrealradiant/plugins/xmlregistry/XMLRegistry.cpp',
 'code/xrealradiant/plugins/xmlregistry/XMLRegistryModule.cpp'
 ]
-
-
 
 
 xrealradiant_env = env.Clone()
@@ -647,6 +650,11 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] =
 	undo_env.SharedLibrary('undo', undo_src)
 	undo_env.InstallAs('#xrealradiant/modules/undo.so', 'libundo.so')
 	
+	vawefront_env = module_env.Clone()
+	vawefront_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
+	vawefront_env.SharedLibrary('wavefront', wavefront_src)
+	vawefront_env.InstallAs('#xrealradiant/modules/wavefront.so', 'libwavefront.so')
+	
 	vfsq3_env = module_env.Clone()
 	vfsq3_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	vfsq3_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
@@ -659,7 +667,4 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] =
 	xmlregistry_env.Append(LIBS=['xmlutil'])
 	xmlregistry_env.SharedLibrary('xmlregistry', xmlregistry_src)
 	xmlregistry_env.InstallAs('#xrealradiant/modules/xmlregistry.so', 'libxmlregistry.so')
-	
-	
-	
 

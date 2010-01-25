@@ -19,6 +19,9 @@ typedef std::set<int> LayerList;
 class Layered
 {
 public:
+	// Destructor
+	virtual ~Layered() {}
+
 	/**
      * Add this object to the layer with the given ID.
      */
@@ -48,6 +51,7 @@ public:
 	// Visitor class for use with the foreachLayer() method
 	class Visitor {
 	public:
+	    virtual ~Visitor() {}
 		virtual void visit(int layerID, std::string layerName) = 0;
 	};
 

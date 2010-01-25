@@ -267,7 +267,7 @@ void _pico_first_token( char *str )
 	if( !str || !*str )
 		return;
 	while( *str && !isspace( *str ) )
-		*str++;
+		str++;
 	*str = '\0';
 }
 
@@ -351,7 +351,7 @@ void _pico_expand_bounds( picoVec3_t p, picoVec3_t mins, picoVec3_t maxs )
 	int i;
 	for (i=0; i<3; i++)
 	{
-		float value = p[i];
+		double value = p[i];
 		if (value < mins[i]) mins[i] = value;
 		if (value > maxs[i]) maxs[i] = value;
 	}
@@ -372,14 +372,14 @@ void _pico_zero_vec4( picoVec4_t vec )
 	vec[ 0 ] = vec[ 1 ] = vec[ 2 ] = vec[ 3 ] = 0;
 }
 
-void _pico_set_vec( picoVec3_t v, float a, float b, float c )
+void _pico_set_vec( picoVec3_t v, double a, double b, double c )
 {
 	v[ 0 ] = a;
 	v[ 1 ] = b;
 	v[ 2 ] = c;
 }
 
-void _pico_set_vec4( picoVec4_t v, float a, float b, float c, float d )
+void _pico_set_vec4( picoVec4_t v, double a, double b, double c, double d )
 {
 	v[ 0 ] = a;
 	v[ 1 ] = b;
@@ -762,8 +762,8 @@ picoParser_t *_pico_new_parser( picoByte_t *buffer, int bufSize )
 		return NULL;
 	}
 	/* setup */
-	p->buffer 	= buffer;
-	p->cursor 	= buffer;
+	p->buffer 	= (char*)buffer;
+	p->cursor 	= (char*)buffer;
 	p->bufSize	= bufSize;
 	p->max    	= p->buffer + bufSize;
 	p->curLine = 1; /* sea: new */

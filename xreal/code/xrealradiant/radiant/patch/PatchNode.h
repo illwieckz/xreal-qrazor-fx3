@@ -33,9 +33,7 @@ class PatchNode :
 	public Transformable,
 	public Patch::Observer
 {
-	Patch m_patch;
-	PatchDoom3TokenImporter m_importMap;
-	PatchDoom3TokenExporter m_exportMap;
+	DragPlanes m_dragPlanes;
 
 	// The attached selectable
 	ObservedSelectable _selectable;
@@ -44,10 +42,12 @@ class PatchNode :
 	typedef std::vector<PatchControlInstance> PatchControlInstances;
 	PatchControlInstances m_ctrl_instances;
 
-	DragPlanes m_dragPlanes;
-
 	// An array of renderable points
 	mutable RenderablePointVector m_render_selected;
+
+	Patch m_patch;
+	PatchDoom3TokenImporter m_importMap;
+	PatchDoom3TokenExporter m_exportMap;
 	
 	// An internal AABB variable to calculate the bounding box of the selected components (has to be mutable) 
 	mutable AABB m_aabb_component;
@@ -81,7 +81,8 @@ public:
 	virtual VolumeIntersectionValue intersectVolume(const VolumeTest& test, const Matrix4& localToWorld) const;
 
 	// IPatchNode implementation
-	virtual Patch& getPatch();
+	Patch& getPatchInternal();
+	IPatch& getPatch();
 
 	// Snappable implementation
 	virtual void snapto(float snap);

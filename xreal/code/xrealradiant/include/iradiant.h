@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "imodule.h"
 #include "imodelpreview.h"
+#include "ifilechooser.h"
 #include <boost/weak_ptr.hpp>
 
 // ========================================
@@ -86,6 +87,10 @@ enum CounterType {
  */
 class RadiantEventListener {
 public:
+    /** Destructor
+	 */
+	virtual ~RadiantEventListener() {}
+
 	/** This gets called AFTER the MainFrame window has been constructed.
 	 */
 	virtual void onRadiantStartup() {}
@@ -130,6 +135,21 @@ public:
 
 	// Creates a new model preview (GL view with draggable viewpoint, zoom and filter functionality)
 	virtual ui::IModelPreviewPtr createModelPreview() = 0;
+
+	/**
+	 * Acquire a new filechooser instance with the given parameters.
+	 *
+	 * @title: The dialog title.
+	 * @open: if TRUE this is asking for "Open" files, FALSE generates a "Save" dialog.
+	 * @browseFolders: if TRUE this is asking for folders, not files.
+	 * @pattern: the type "map", "prefab", this determines the file extensions.
+	 * @defaultExt: The default extension appended when the user enters 
+	 *              filenames without extension.
+ 	 */
+	virtual ui::IFileChooserPtr createFileChooser(const std::string& title, 
+												bool open, bool browseFolders, 
+												const std::string& pattern = "",
+												const std::string& defaultExt = "") = 0;
 	
 	// Registers/de-registers an event listener class
 	virtual void addEventListener(RadiantEventListenerPtr listener) = 0;

@@ -20,17 +20,6 @@
 #include "brush/FacePlane.h"
 #include "brush/Face.h"
 
-// This is thrown by the internal patch routines
-class GenericPatchException :
-	public std::runtime_error
-{
-public:
-	// Constructor
-	GenericPatchException(const std::string& what):
-		std::runtime_error(what) 
-	{}
-};
-
 /* greebo: The patch class itself, represented by control vertices. The basic rendering of the patch 
  * is handled here (unselected control points, tesselation lines, shader). 
  * 
@@ -38,6 +27,7 @@ public:
  */
 // parametric surface defined by quadratic bezier control curves
 class Patch :
+	public IPatch,
 	public Bounded,
 	public Cullable,
 	public Snappable,
@@ -48,6 +38,7 @@ public:
 	// to re-allocate the patch control instances.
 	class Observer {
 		public:
+		    virtual ~Observer() {}
 			virtual void allocate(std::size_t size) = 0;
 	};
 
@@ -123,9 +114,6 @@ public:
 
 	static int m_CycleCapIndex;// = 0;
 	
-	// The patch type
-	static EPatchType m_type;
-
 	// Constructor
 	Patch(scene::Node& node, const Callback& evaluateTransform, const Callback& boundsChanged);
 	
@@ -197,15 +185,11 @@ public:
 	// Renders the normals (indicated by lines) of this patch
 	void RenderNormals(RenderStateFlags state) const;
 
-	void popElement(const char* name);
-	
-	std::size_t write(const char* buffer, std::size_t length);
-
 	void UpdateCachedData();
 
 	// Gets the shader name or sets the shader to <name>
-	const std::string& GetShader() const;
-	void SetShader(const std::string& name);
+	const std::string& getShader() const;
+	void setShader(const std::string& name);
 	
 	// As the name states: get the shader flags of the m_state shader
 	int getShaderFlags() const;
@@ -228,6 +212,9 @@ public:
 	}
 
 	PatchTesselation& getTesselation();
+
+	// Returns a copy of the tesselated geometry
+	PatchMesh getTesselatedPatchMesh() const;
 
 	// Get the current control point array
 	PatchControlArray& getControlPoints();	
@@ -353,8 +340,8 @@ public:
 	void importState(const UndoMemento* state);
 
 	// Initialise the static member variables of this class, called from >> patchmodule.cpp
-	static void constructStatic(EPatchType type) {
-		Patch::m_type = type;
+	static void constructStatic()
+	{
 		Patch::m_state_ctrl = GlobalRenderSystem().capture("$POINT");
 		Patch::m_state_lattice = GlobalRenderSystem().capture("$LATTICE");
 	}
@@ -371,14 +358,14 @@ public:
 	
 	/** greebo: Returns the x,y subdivision values (for tesselation)
 	 */
-	BasicVector2<unsigned int> getSubdivisions() const;
+	Subdivisions getSubdivisions() const;
 	
 	/** greebo: Sets the subdivision of this patch
 	 * 
 	 * @isFixed: TRUE, if this patch should be a patchDef3 (fixed tesselation)
 	 * @divisions: a two-component vector containing the desired subdivisions
 	 */
-	void setFixedSubdivisions(bool isFixed, BasicVector2<unsigned int> divisions);
+	void setFixedSubdivisions(bool isFixed, const Subdivisions& divisions);
 
 private:
 	// This notifies the surfaceinspector/patchinspector about the texture change

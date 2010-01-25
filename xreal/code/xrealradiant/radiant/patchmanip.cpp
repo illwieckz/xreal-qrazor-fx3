@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "gdk/gdkkeysyms.h"
 #include "gtkutil/dialog.h"
-#include "gtkmisc.h"
-#include "gtkdlgs.h"
 #include "ui/texturebrowser/TextureBrowser.h"
 #include "select.h"
 #include "igrid.h"
@@ -56,7 +54,7 @@ void Scene_PatchConstructPrefab(scene::Graph& graph, const AABB& aabb, const std
   GlobalMap().findOrInsertWorldspawn()->addChildNode(node);
 
   Patch* patch = Node_getPatch(node);
-  patch->SetShader(shader);
+  patch->setShader(shader);
 
   patch->ConstructPrefab(aabb, eType, axis, width, height);
   patch->controlPointsChanged();
@@ -96,7 +94,7 @@ void Patch_makeCaps(Patch& patch, const scene::INodePtr& parent, EPatchCap type,
 	assert(capPatch != NULL);
 
     patch.MakeCap(capPatch, type, ROW, true);
-    capPatch->SetShader(shader);
+    capPatch->setShader(shader);
 
 	// greebo: Avoid creating "degenerate" patches (all vertices merged in one 3D point)
 	if (!capPatch->isDegenerate()) {
@@ -116,7 +114,7 @@ void Patch_makeCaps(Patch& patch, const scene::INodePtr& parent, EPatchCap type,
 	assert(capPatch != NULL);
     
     patch.MakeCap(capPatch, type, ROW, false);
-    capPatch->SetShader(shader);
+    capPatch->setShader(shader);
 
 	// greebo: Avoid creating "degenerate" patches (all vertices merged in one 3D point)
 	if (!capPatch->isDegenerate()) {
@@ -281,7 +279,7 @@ public:
   }
   void operator()(Patch& patch) const
   {
-    patch.SetShader(m_name);
+    patch.setShader(m_name);
   }
 };
 
@@ -306,7 +304,7 @@ public:
 
 		Patch* patch = Node_getPatch(node);
 
-		if (patch != NULL && shader_equal(patch->GetShader(), _name)) {
+		if (patch != NULL && shader_equal(patch->getShader(), _name)) {
 			Node_setSelected(node, true);
 			return false;
 		}
@@ -584,7 +582,7 @@ void thickenPatch(const PatchNodePtr& sourcePatch,
 	Patch* targetPatch = Node_getPatch(node);
 
 	// Create the opposite patch with the given thickness = distance
-	targetPatch->createThickenedOpposite(sourcePatch->getPatch(), thickness, axis);
+	targetPatch->createThickenedOpposite(sourcePatch->getPatchInternal(), thickness, axis);
 
 	// Select the newly created patch
 	Node_setSelected(node, true);
@@ -607,7 +605,7 @@ void thickenPatch(const PatchNodePtr& sourcePatch,
 			Patch* wallPatch = Node_getPatch(nodes[i]);
 			
 			// Create the wall patch by passing i as wallIndex
-			wallPatch->createThickenedWall(sourcePatch->getPatch(), *targetPatch, i);
+			wallPatch->createThickenedWall(sourcePatch->getPatchInternal(), *targetPatch, i);
 			
 			// Now select the newly created patch
 			Node_setSelected(nodes[i], true);
@@ -732,15 +730,16 @@ void bulgePatch(const cmd::ArgumentList& args) {
 			UndoableCommand cmd("BulgePatch");
 
 			// Cycle through all patches and apply the bulge algorithm
-			for (PatchPtrVector::iterator p = patches.begin(); p != patches.end(); p++) {
-				Patch& patch = (*p)->getPatch();
+			for (PatchPtrVector::iterator p = patches.begin(); p != patches.end(); ++p)
+			{
+				Patch& patch = (*p)->getPatchInternal();
 
 				patch.undoSave();
 
-				for (PatchControlIter i = patch.begin(); i != patch.end(); i++) {
+				for (PatchControlIter i = patch.begin(); i != patch.end(); ++i) {
 					PatchControl& control = *i;
 					int randomNumber = int(maxValue * (float(std::rand()) / float(RAND_MAX)));
-					control.m_vertex.set(control.m_vertex.x(), control.m_vertex.y(), control.m_vertex.z() + randomNumber);
+					control.vertex.set(control.vertex.x(), control.vertex.y(), control.vertex.z() + randomNumber);
 				}
 
 				patch.controlPointsChanged();

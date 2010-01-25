@@ -7,14 +7,15 @@
 
 // Construct a PatchNode with no arguments
 PatchNode::PatchNode(bool patchDef3) :
+	m_dragPlanes(SelectedChangedComponentCaller(*this)),
+	_selectable(SelectedChangedCaller(*this)),
+	m_render_selected(GL_POINTS),
 	m_patch(*this, 
 			EvaluateTransformCaller(*this), 
 			Node::BoundsChangedCaller(*this)), // create the m_patch member with the node parameters
 	m_importMap(m_patch),
 	m_exportMap(m_patch),
-	_selectable(SelectedChangedCaller(*this)),
-	m_dragPlanes(SelectedChangedComponentCaller(*this)),
-	m_render_selected(GL_POINTS)
+	m_lightList(NULL)
 {
 	m_patch.m_patchDef3 = patchDef3;
 	m_lightList = &GlobalRenderSystem().attach(*this);
@@ -47,13 +48,14 @@ PatchNode::PatchNode(const PatchNode& other) :
 	Bounded(other),
 	Transformable(other),
 	Patch::Observer(other),
+	m_dragPlanes(SelectedChangedComponentCaller(*this)),
+	_selectable(SelectedChangedCaller(*this)),
+	m_render_selected(GL_POINTS),
 	m_patch(other.m_patch, *this, EvaluateTransformCaller(*this), 
 		    Node::BoundsChangedCaller(*this)), // create the patch out of the <other> one
 	m_importMap(m_patch),
 	m_exportMap(m_patch),
-	_selectable(SelectedChangedCaller(*this)),
-	m_dragPlanes(SelectedChangedComponentCaller(*this)),
-	m_render_selected(GL_POINTS)
+	m_lightList(NULL)
 {
 	m_lightList = &GlobalRenderSystem().attach(*this);
 
@@ -97,7 +99,11 @@ VolumeIntersectionValue PatchNode::intersectVolume(
 	return m_patch.intersectVolume(test, localToWorld);
 }
 
-Patch& PatchNode::getPatch() {
+Patch& PatchNode::getPatchInternal() {
+	return m_patch;
+}
+
+IPatch& PatchNode::getPatch() {
 	return m_patch;
 }
 
@@ -230,7 +236,7 @@ const AABB& PatchNode::getSelectedComponentsBounds() const {
 	// Cycle through all the instances and extend the bounding box by using the selected control points
 	for (PatchControlInstances::const_iterator i = m_ctrl_instances.begin(); i != m_ctrl_instances.end(); ++i) {
 		if (i->m_selectable.isSelected()) {
-			m_aabb_component.includePoint(i->m_ctrl->m_vertex);
+			m_aabb_component.includePoint(i->m_ctrl->vertex);
 		}
 	}
 
@@ -367,7 +373,7 @@ void PatchNode::update_selected() const {
 		if (i->m_selectable.isSelected()) {
 			const Colour4b colour_selected(0, 0, 0, 255);
 			// Add this patch control instance to the render list
-			m_render_selected.push_back(PointVertex(reinterpret_cast<const Vertex3f&>(ctrl->m_vertex), colour_selected));
+			m_render_selected.push_back(PointVertex(reinterpret_cast<const Vertex3f&>(ctrl->vertex), colour_selected));
 		}
 	}
 }
@@ -413,7 +419,7 @@ void PatchNode::transformComponents(const Matrix4& matrix) {
 		// greebo: Have to investigate this further, why there are actually two iterators needed  
 		for (PatchNode::PatchControlInstances::iterator i = m_ctrl_instances.begin(); i != m_ctrl_instances.end(); ++i, ++ctrl) {
 			if (i->m_selectable.isSelected()) {
-				matrix4_transform_point(matrix, ctrl->m_vertex);
+				matrix4_transform_point(matrix, ctrl->vertex);
 			}
 		}
 		m_patch.UpdateCachedData();

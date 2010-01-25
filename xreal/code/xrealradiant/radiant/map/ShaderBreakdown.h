@@ -48,7 +48,7 @@ public:
 		Patch* patch = Node_getPatch(node);
 
 		if (patch != NULL) {
-			increaseShaderCount(patch->GetShader(), false);
+			increaseShaderCount(patch->getShader(), false);
 			return false;
 		}
 
@@ -64,7 +64,7 @@ public:
 
 	// Brushvisitor implementation
 	void visit(Face& face) const {
-		const_cast<ShaderBreakdown*>(this)->increaseShaderCount(face.GetShader(), true);
+		const_cast<ShaderBreakdown*>(this)->increaseShaderCount(face.getShader(), true);
 	}
 
 	// Accessor method to retrieve the shader breakdown map

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gtk/gtkwidget.h>
+#include <boost/shared_ptr.hpp>
 
 namespace gtkutil
 {
@@ -21,6 +22,12 @@ protected:
 
 public:
 
+    /**
+     * \brief
+     * Destructor
+     */
+    virtual ~Widget() {}
+
     /** 
      * \brief 
      * Return the GtkWidget for packing into the parent window.
@@ -36,6 +43,7 @@ public:
        return w;
     }
 };
+typedef boost::shared_ptr<Widget> WidgetPtr;
 
-}
+} // namespace gtkutil
 

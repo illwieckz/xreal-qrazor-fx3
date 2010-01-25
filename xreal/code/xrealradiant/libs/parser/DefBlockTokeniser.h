@@ -30,6 +30,9 @@ public:
 			contents.clear();
 		}
 	};
+
+    /** Destructor */
+	virtual ~BlockTokeniser() {}
 	
     /** 
      * Test if this DefTokeniser has more blocks to return.
@@ -63,7 +66,6 @@ class DefBlockTokeniserFunc {
     enum State {
         SEARCHING_NAME,	  // haven't found anything yet
 		TOKEN_STARTED,	  // first non-delimiter character found
-        BLOCK_NAME,       // found the start of a possible multi-char token
 		SEARCHING_BLOCK,  // searching for block opening char
 		BLOCK_CONTENT,	  // within a block
         FORWARDSLASH,     // forward slash found, possible comment coming

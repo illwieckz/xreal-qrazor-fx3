@@ -345,11 +345,11 @@ void PatchInspector::loadControlVertex() {
 		
 		_updateActive = true;
 		
-		gtk_entry_set_text(GTK_ENTRY(_coords["x"].value), floatToStr(ctrl.m_vertex[0]).c_str());
-		gtk_entry_set_text(GTK_ENTRY(_coords["y"].value), floatToStr(ctrl.m_vertex[1]).c_str());
-		gtk_entry_set_text(GTK_ENTRY(_coords["z"].value), floatToStr(ctrl.m_vertex[2]).c_str());
-		gtk_entry_set_text(GTK_ENTRY(_coords["s"].value), floatToStr(ctrl.m_texcoord[0]).c_str());
-		gtk_entry_set_text(GTK_ENTRY(_coords["t"].value), floatToStr(ctrl.m_texcoord[1]).c_str());
+		gtk_entry_set_text(GTK_ENTRY(_coords["x"].value), floatToStr(ctrl.vertex[0]).c_str());
+		gtk_entry_set_text(GTK_ENTRY(_coords["y"].value), floatToStr(ctrl.vertex[1]).c_str());
+		gtk_entry_set_text(GTK_ENTRY(_coords["z"].value), floatToStr(ctrl.vertex[2]).c_str());
+		gtk_entry_set_text(GTK_ENTRY(_coords["s"].value), floatToStr(ctrl.texcoord[0]).c_str());
+		gtk_entry_set_text(GTK_ENTRY(_coords["t"].value), floatToStr(ctrl.texcoord[1]).c_str());
 		
 		_updateActive = false;
 	}
@@ -383,15 +383,16 @@ void PatchInspector::_preShow()
 	// Restore the position
 	_windowPosition.applyPosition();
 
-	// Update the widget values
-	update();
+	// Check for selection changes before showing the dialog again
+	rescanSelection();
 }
 
 void PatchInspector::selectionChanged(const scene::INodePtr& node, bool isComponent) {
 	rescanSelection();
 }
 
-void PatchInspector::rescanSelection() {
+void PatchInspector::rescanSelection()
+{
 	// Check if there is one distinct patch selected
 	bool sensitive = (_selectionInfo.patchCount == 1);
 
@@ -426,14 +427,14 @@ void PatchInspector::rescanSelection() {
 		// Get the list of selected patches
 		PatchPtrVector list = selection::algorithm::getSelectedPatches();
 
-		BasicVector2<unsigned int> tess(UINT_MAX, UINT_MAX);
+		Subdivisions tess(UINT_MAX, UINT_MAX);
 		bool tessIsFixed = false;
 		bool tessIsSame = false;
 
 		// Try to find a pair of same tesselation values
 		for (PatchPtrVector::const_iterator i = list.begin(); i != list.end(); ++i) 
         {
-			Patch& p = (*i)->getPatch();
+			Patch& p = (*i)->getPatchInternal();
 
 			if (tess.x() == UINT_MAX) 
             {
@@ -444,7 +445,7 @@ void PatchInspector::rescanSelection() {
 			}
 			else {
 				// We already have a pair of divisions, compare
-				BasicVector2<unsigned int> otherTess = p.getSubdivisions();
+				Subdivisions otherTess = p.getSubdivisions();
 
 				if (tessIsFixed != p.subdivionsFixed() || otherTess != tess) {
 					// Our journey ends here, we cannot find a pair of tesselations 
@@ -479,7 +480,7 @@ void PatchInspector::rescanSelection() {
 		gtk_widget_set_sensitive(_tesselation.horizLabel, tessIsFixed);
 		
 		if (_selectionInfo.patchCount == 1) {
-			_patch = &(list[0]->getPatch());
+			_patch = &(list[0]->getPatchInternal());
 			_patchRows = _patch->getHeight();
 			_patchCols = _patch->getWidth();
 			
@@ -528,12 +529,12 @@ void PatchInspector::emitCoords()
 	// Retrieve the controlvertex
 	PatchControl& ctrl = _patch->ctrlAt(row, col);
 	
-	ctrl.m_vertex[0] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["x"].value)));
-	ctrl.m_vertex[1] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["y"].value)));
-	ctrl.m_vertex[2] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["z"].value)));
+	ctrl.vertex[0] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["x"].value)));
+	ctrl.vertex[1] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["y"].value)));
+	ctrl.vertex[2] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["z"].value)));
 	
-	ctrl.m_texcoord[0] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["s"].value)));
-	ctrl.m_texcoord[1] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["t"].value)));
+	ctrl.texcoord[0] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["s"].value)));
+	ctrl.texcoord[1] = strToFloat(gtk_entry_get_text(GTK_ENTRY(_coords["t"].value)));
 	
 	_patch->controlPointsChanged();
 }
@@ -541,7 +542,7 @@ void PatchInspector::emitCoords()
 void PatchInspector::emitTesselation() {
 	UndoableCommand setFixedTessCmd("patchSetFixedTesselation");
 
-	BasicVector2<unsigned int> tess(
+	Subdivisions tess(
 		gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(_tesselation.horiz)),
 		gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(_tesselation.vert))
 	);

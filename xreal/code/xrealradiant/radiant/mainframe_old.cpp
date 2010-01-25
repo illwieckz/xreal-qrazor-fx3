@@ -38,7 +38,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ui/prefdialog/PrefDialog.h"
 #include "ui/patch/PatchInspector.h"
 #include "textool/TexTool.h"
-#include "brushexport/BrushExportOBJ.h"
 #include "ui/lightinspector/LightInspector.h"
 #include "ui/mediabrowser/MediaBrowser.h"
 #include "ui/menu/FiltersMenu.h"
@@ -112,8 +111,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "brush/csg/CSG.h"
 #include "log/Console.h"
 #include "entity.h"
-#include "gtkdlgs.h"
-#include "gtkmisc.h"
 #include "patchmanip.h"
 #include "select.h"
 #include "ui/texturebrowser/TextureBrowser.h"
@@ -570,18 +567,45 @@ void RefreshShaders(const cmd::ArgumentList& args) {
 	GlobalMainFrame().updateAllWindows();
 }
 
-void CallBrushExportOBJ(const cmd::ArgumentList& args) {
-	if (GlobalSelectionSystem().countSelected() != 0) {
-		export_selected(GlobalRadiant().getMainWindow());
+#include "debugging/ScopedDebugTimer.h"
+
+void BenchmarkPatches(const cmd::ArgumentList& args) {
+	// Disable screen updates for the scope of this function
+	ui::ScreenUpdateBlocker blocker("Processing...", "Performing Patch Benchmark");
+	
+	scene::INodePtr node = GlobalPatchCreator(DEF2).createPatch();
+	Patch* patch = Node_getPatch(node);
+	GlobalMap().findOrInsertWorldspawn()->addChildNode(node);
+
+	patch->setDims(15, 15);
+
+	// Retrieve the boundaries 
+	AABB bounds(Vector3(-512, -512, 0), Vector3(512, 512, 0));
+	patch->ConstructPrefab(bounds, ePlane, GlobalXYWnd().getActiveViewType(), 15, 15);
+
+	for (PatchControlIter i = patch->begin(); i != patch->end(); ++i)
+	{
+		PatchControl& control = *i;
+		int randomNumber = int(250 * (float(std::rand()) / float(RAND_MAX)));
+		control.vertex.set(control.vertex.x(), control.vertex.y(), control.vertex.z() + randomNumber);
 	}
-	else {
-		gtk_MessageBox(GTK_WIDGET(GlobalRadiant().getMainWindow()), "No Brushes Selected!", "Error", eMB_OK, eMB_ICONERROR);
+
+	patch->controlPointsChanged();
+
+	{
+		ScopedDebugTimer timer("Benchmark");
+		for (std::size_t i = 0; i < 200; i++)
+		{
+			patch->UpdateCachedData();
+		}
 	}
 }
 
 void MainFrame_Construct()
 {
 	DragMode();
+
+	GlobalCommandSystem().addCommand("BenchmarkPatches", BenchmarkPatches);
 
 	GlobalCommandSystem().addCommand("Exit", Exit);
 	GlobalCommandSystem().addCommand("ReloadSkins", ReloadSkins);
@@ -667,7 +691,6 @@ void MainFrame_Construct()
 	GlobalCommandSystem().addCommand("CurveInsertControlPoint", selection::algorithm::insertCurveControlPoints);
 	GlobalCommandSystem().addCommand("CurveConvertType", selection::algorithm::convertCurveTypes);
 
-	GlobalCommandSystem().addCommand("BrushExportOBJ", CallBrushExportOBJ);
 	GlobalCommandSystem().addCommand("BrushExportCM", selection::algorithm::createCMFromSelection);
 	
 	GlobalCommandSystem().addCommand("CreateDecalsForFaces", selection::algorithm::createDecalsForSelectedFaces);
@@ -795,7 +818,6 @@ void MainFrame_Construct()
 	GlobalEventManager().addCommand("CurveInsertControlPoint", "CurveInsertControlPoint");
 	GlobalEventManager().addCommand("CurveConvertType", "CurveConvertType");
 	
-	GlobalEventManager().addCommand("BrushExportOBJ", "BrushExportOBJ");
 	GlobalEventManager().addCommand("BrushExportCM", "BrushExportCM");
 	
 	GlobalEventManager().addCommand("CreateDecalsForFaces", "CreateDecalsForFaces");

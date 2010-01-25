@@ -26,6 +26,7 @@ typedef std::vector<FacePtr> Faces;
 
 class FaceObserver {
 public:
+    virtual ~FaceObserver() {}
 	virtual void planeChanged() = 0;
 	virtual void connectivityChanged() = 0;
 	virtual void shaderChanged() = 0;
@@ -33,6 +34,7 @@ public:
 };
 
 class Face :
+	public IFace,
 	public OpenGLRenderable,
 	public Undoable,
 	public FaceShader::Observer,
@@ -46,12 +48,17 @@ class Face :
 			FaceTexdef::SavedState m_texdefState;
 			FaceShader::SavedState m_shaderState;
 
-		SavedState(const Face& face) : m_planeState(face.getPlane()), m_texdefState(face.getTexdef()), m_shaderState(face.getShader())
+		SavedState(const Face& face) : 
+			m_planeState(face.getPlane()), 
+			m_texdefState(face.getTexdef()), 
+			m_shaderState(face.getFaceShader())
 		{}
+
+		virtual ~SavedState() {}
 
 		void exportState(Face& face) const {
 			m_planeState.exportState(face.getPlane());
-			m_shaderState.exportState(face.getShader());
+			m_shaderState.exportState(face.getFaceShader());
 			m_texdefState.exportState(face.getTexdef());
 		}
 
@@ -93,7 +100,7 @@ public:
 	Face(const Face& other, FaceObserver* observer);
 	
 	// Destructor
-	~Face();
+	virtual ~Face();
 
 	void planeChanged();
 	
@@ -143,8 +150,8 @@ public:
 
 	void shaderChanged();
 
-	const std::string& GetShader() const;
-	void SetShader(const std::string& name);
+	const std::string& getShader() const;
+	void setShader(const std::string& name);
 
 	void revertTexdef();
 	void texdefChanged();
@@ -162,10 +169,10 @@ public:
 	void GetFlags(ContentsFlagsValue& flags) const;
 	void SetFlags(const ContentsFlagsValue& flags);
 	
-	void ShiftTexdef(float s, float t);
-	void ScaleTexdef(float s, float t);
-	void RotateTexdef(float angle);
-	void FitTexture(float s_repeat, float t_repeat);
+	void shiftTexdef(float s, float t);
+	void scaleTexdef(float s, float t);
+	void rotateTexdef(float angle);
+	void fitTexture(float s_repeat, float t_repeat);
 	void flipTexture(unsigned int flipAxis);
 	
 	/** greebo: This translates the texture as much towards 
@@ -189,8 +196,8 @@ public:
 	
 	FaceTexdef& getTexdef();
 	const FaceTexdef& getTexdef() const;
-	FaceShader& getShader();
-	const FaceShader& getShader() const;
+	FaceShader& getFaceShader();
+	const FaceShader& getFaceShader() const;
 	
 	bool contributes() const;
 	bool is_bounded() const;

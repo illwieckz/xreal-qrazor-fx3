@@ -4,7 +4,7 @@
 #include "ifiletypes.h"
 #include "modulesystem/ApplicationContextImpl.h"
 #include "iradiant.h"
-#include "gtkutil/filechooser.h"
+#include "gtkutil/FileChooser.h"
 #include "gtkutil/IConv.h"
 #include "os/path.h"
 #include "MapFileChooserPreview.h"
@@ -47,7 +47,7 @@ std::string MapFileManager::selectFile(bool open,
 	
 	// Display a file chooser dialog to get a new path
 	gtkutil::FileChooser fileChooser(GTK_WIDGET(GlobalRadiant().getMainWindow()),
-		title, open, type, defaultExt);
+		title, open, false, type, defaultExt);
 
 	fileChooser.setCurrentFile(defaultFile);
 	fileChooser.setCurrentPath(_lastDirs[type]);

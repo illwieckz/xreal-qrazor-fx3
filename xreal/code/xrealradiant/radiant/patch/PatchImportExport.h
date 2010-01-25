@@ -18,10 +18,10 @@ inline void Patch_importShader(Patch& patch, parser::DefTokeniser& tokeniser) {
 
     std::string texture = tokeniser.nextToken();
     if (texture == "NULL") {
-        patch.SetShader(texdef_name_default());
+        patch.setShader(texdef_name_default());
     }
     else {
-        patch.SetShader(GlobalTexturePrefix_get() + texture);
+        patch.setShader(GlobalTexturePrefix_get() + texture);
     }
 }
 
@@ -30,10 +30,10 @@ inline void PatchDoom3_importShader(Patch& patch,
 {
     std::string texture = tokeniser.nextToken();
     if (texture == "_default") {
-        patch.SetShader(texdef_name_default());
+        patch.setShader(texdef_name_default());
     }
     else {
-        patch.SetShader(texture);
+        patch.setShader(texture);
     }
 }
 
@@ -76,13 +76,13 @@ inline void Patch_importMatrix(Patch& patch, parser::DefTokeniser& tok)
             tok.assertNextToken("(");
     
             // Parse vertex coordinates
-            patch.ctrlAt(r, c).m_vertex[0] = strToDouble(tok.nextToken());
-            patch.ctrlAt(r, c).m_vertex[1] = strToDouble(tok.nextToken());
-            patch.ctrlAt(r, c).m_vertex[2] = strToDouble(tok.nextToken());
+            patch.ctrlAt(r, c).vertex[0] = strToDouble(tok.nextToken());
+            patch.ctrlAt(r, c).vertex[1] = strToDouble(tok.nextToken());
+            patch.ctrlAt(r, c).vertex[2] = strToDouble(tok.nextToken());
  
             // Parse texture coordinates
-            patch.ctrlAt(r, c).m_texcoord[0] = strToDouble(tok.nextToken());
-            patch.ctrlAt(r, c).m_texcoord[1] = strToDouble(tok.nextToken());
+            patch.ctrlAt(r, c).texcoord[0] = strToDouble(tok.nextToken());
+            patch.ctrlAt(r, c).texcoord[1] = strToDouble(tok.nextToken());
  
             tok.assertNextToken(")");
         }
@@ -150,7 +150,7 @@ inline void Patch_exportHeader(const Patch& patch, std::ostream& os)
 
 inline void PatchDoom3_exportShader(const Patch& patch, std::ostream& os)
 {
-	const std::string& shaderName = patch.GetShader();
+	const std::string& shaderName = patch.getShader();
 
     if (shaderName.empty()) {
         os << "\"_default\"";
@@ -195,15 +195,15 @@ inline void Patch_exportMatrix(const Patch& patch, std::ostream& os)
         os << "( ";
         for(std::size_t r=0; r<patch.getHeight(); r++) {
             os << "( ";
-            Patch_writeDouble(patch.ctrlAt(r,c).m_vertex[0], os); 
+            Patch_writeDouble(patch.ctrlAt(r,c).vertex[0], os); 
             os << " ";
-            Patch_writeDouble(patch.ctrlAt(r,c).m_vertex[1], os); 
+            Patch_writeDouble(patch.ctrlAt(r,c).vertex[1], os); 
             os << " ";
-            Patch_writeDouble(patch.ctrlAt(r,c).m_vertex[2], os); 
+            Patch_writeDouble(patch.ctrlAt(r,c).vertex[2], os); 
             os << " ";
-            Patch_writeDouble(patch.ctrlAt(r,c).m_texcoord[0], os); 
+            Patch_writeDouble(patch.ctrlAt(r,c).texcoord[0], os); 
             os << " ";
-            Patch_writeDouble(patch.ctrlAt(r,c).m_texcoord[1], os); 
+            Patch_writeDouble(patch.ctrlAt(r,c).texcoord[1], os); 
             os << " ";
             os << ") ";
         }

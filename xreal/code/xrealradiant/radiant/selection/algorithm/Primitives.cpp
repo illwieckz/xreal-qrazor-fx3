@@ -349,50 +349,59 @@ namespace {
 	 * scene.
 	 */
 
-	class CountSelectedPrimitives : public scene::Graph::Walker
+	class CountSelectedPrimitives : 
+		public scene::NodeVisitor
 	{
-	  int& m_count;
-	  mutable std::size_t m_depth;
+		int _count;
+		std::size_t _depth;
 	public:
-	  CountSelectedPrimitives(int& count) : m_count(count), m_depth(0)
-	  {
-	    m_count = 0;
-	  }
-	  bool pre(const scene::Path& path, const scene::INodePtr& node) const
-	  {
-	    if(++m_depth != 1 && node->isRoot())
-	    {
-	      return false;
-	    }
+		CountSelectedPrimitives() : 
+			_count(0), 
+			_depth(0)
+		{}
+
+		bool pre(const scene::INodePtr& node) 
+		{
+			if (++_depth != 1 && node->isRoot())
+			{
+				return false;
+			}
 		
-	    if (Node_isSelected(node) && Node_isPrimitive(node)) {
-			++m_count;
-	    }
-	    return true;
-	  }
-	  void post(const scene::Path& path, const scene::INodePtr& node) const
-	  {
-	    --m_depth;
-	  }
+			if (Node_isSelected(node) && Node_isPrimitive(node)) {
+				++_count;
+			}
+	    
+			return true;
+		}
+
+		void post(const scene::INodePtr& node)
+		{
+			--_depth;
+		}
+
+		int getCount() const
+		{
+			return _count;
+		}
 	};
 	
 	/** greebo: Counts the selected brushes in the scenegraph
 	 */
-	class BrushCounter : public scene::Graph::Walker
+	class BrushCounter : 
+		public scene::NodeVisitor
 	{
-		int& _count;
-		mutable std::size_t _depth;
+		int _count;
+		std::size_t _depth;
 	public:
-		BrushCounter(int& count) : 
-			_count(count), 
-			_depth(0) 
-		{
-			_count = 0;
-		}
+		BrushCounter() : 
+			_count(0), 
+			_depth(0)
+		{}
 		
-		bool pre(const scene::Path& path, const scene::INodePtr& node) const {
-			
-			if (++_depth != 1 && path.top()->isRoot()) {
+		bool pre(const scene::INodePtr& node)
+		{
+			if (++_depth != 1 && node->isRoot())
+			{
 				return false;
 			}
 			
@@ -404,8 +413,14 @@ namespace {
 			return true;
 		}
 		
-		void post(const scene::Path& path, const scene::INodePtr& node) const {
+		void post(const scene::INodePtr& node)
+		{
 			--_depth;
+		}
+
+		int getCount() const
+		{
+			return _count;
 		}
 	};
 
@@ -414,19 +429,21 @@ namespace {
 /* Return the number of selected primitives in the map, using the
  * CountSelectedPrimitives walker.
  */
-int countSelectedPrimitives() {
-	int count;
-	GlobalSceneGraph().traverse(CountSelectedPrimitives(count));
-	return count;
+int countSelectedPrimitives()
+{
+	CountSelectedPrimitives counter;
+	Node_traverseSubgraph(GlobalSceneGraph().root(), counter);
+	return counter.getCount();
 }
 
 /* Return the number of selected brushes in the map, using the
  * CountSelectedBrushes walker.
  */
-int countSelectedBrushes() {
-	int count;
-	GlobalSceneGraph().traverse(BrushCounter(count));
-	return count;
+int countSelectedBrushes()
+{
+	BrushCounter counter;
+	Node_traverseSubgraph(GlobalSceneGraph().root(), counter);
+	return counter.getCount();
 }
 
 /**
@@ -462,21 +479,21 @@ public:
 			
 			// Set the tesselation of that 3x3 patch
 			patch->setDims(3,3);
-			patch->setFixedSubdivisions(true, BasicVector2<unsigned int>(1,1));
+			patch->setFixedSubdivisions(true, Subdivisions(1,1));
 			
 			// Set the coordinates
-			patch->ctrlAt(0,0).m_vertex = winding[0].vertex;
-			patch->ctrlAt(2,0).m_vertex = winding[1].vertex;
-			patch->ctrlAt(1,0).m_vertex = (patch->ctrlAt(0,0).m_vertex + patch->ctrlAt(2,0).m_vertex)/2;
+			patch->ctrlAt(0,0).vertex = winding[0].vertex;
+			patch->ctrlAt(2,0).vertex = winding[1].vertex;
+			patch->ctrlAt(1,0).vertex = (patch->ctrlAt(0,0).vertex + patch->ctrlAt(2,0).vertex)/2;
 			
-			patch->ctrlAt(0,1).m_vertex = (winding[0].vertex + winding[3].vertex)/2;
-			patch->ctrlAt(2,1).m_vertex = (winding[1].vertex + winding[2].vertex)/2;
+			patch->ctrlAt(0,1).vertex = (winding[0].vertex + winding[3].vertex)/2;
+			patch->ctrlAt(2,1).vertex = (winding[1].vertex + winding[2].vertex)/2;
 			
-			patch->ctrlAt(1,1).m_vertex = (patch->ctrlAt(0,1).m_vertex + patch->ctrlAt(2,1).m_vertex)/2;
+			patch->ctrlAt(1,1).vertex = (patch->ctrlAt(0,1).vertex + patch->ctrlAt(2,1).vertex)/2;
 			
-			patch->ctrlAt(2,2).m_vertex = winding[2].vertex;
-			patch->ctrlAt(0,2).m_vertex = winding[3].vertex;
-			patch->ctrlAt(1,2).m_vertex = (patch->ctrlAt(2,2).m_vertex + patch->ctrlAt(0,2).m_vertex)/2;
+			patch->ctrlAt(2,2).vertex = winding[2].vertex;
+			patch->ctrlAt(0,2).vertex = winding[3].vertex;
+			patch->ctrlAt(1,2).vertex = (patch->ctrlAt(2,2).vertex + patch->ctrlAt(0,2).vertex)/2;
 
 			// Use the texture in the clipboard, if it's a decal texture
 			Texturable& clipboard = GlobalShaderClipboard().getSource();
@@ -485,7 +502,7 @@ public:
 			{
 				if (clipboard.getShader().find("decals") != std::string::npos)
 				{
-					patch->SetShader(clipboard.getShader());
+					patch->setShader(clipboard.getShader());
 				}
 			}
 
@@ -512,7 +529,7 @@ public:
 		const Winding& winding = faceInstance.getFace().getWinding();
 
 		// For now, only windings with four edges are supported
-		if (winding.numpoints == 4) {
+		if (winding.size() == 4) {
 			_faceInstances.push_back(&faceInstance);
 		}
 		else {
@@ -607,7 +624,7 @@ void makeVisportal(const cmd::ArgumentList& args) {
 		Brush& brush = brushes[i]->getBrush();
 
 		// don't allow empty brushes
-		if (brush.size() == 0) continue; 
+		if (brush.getNumFaces() == 0) continue; 
 		
 		// Set all faces to nodraw first
 		brush.setShader(GlobalRegistry().get(RKEY_NODRAW_SHADER));
@@ -616,7 +633,7 @@ void makeVisportal(const cmd::ArgumentList& args) {
 		LargestFaceFinder finder;
 		brush.forEachFace(finder);
 		
-		finder.getLargestFace().SetShader(GlobalRegistry().get(RKEY_VISPORTAL_SHADER));
+		finder.getLargestFace().setShader(GlobalRegistry().get(RKEY_VISPORTAL_SHADER));
 	}
 }
 

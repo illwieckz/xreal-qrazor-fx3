@@ -5,7 +5,7 @@
 
 #include "ui/common/MapPreview.h"
 
-#include "gtkutil/filechooser.h"
+#include "gtkutil/FileChooser.h"
 #include <boost/shared_ptr.hpp>
 
 namespace map {
@@ -30,6 +30,8 @@ class MapFileChooserPreview :
 public:
 	MapFileChooserPreview();
 
+	virtual ~MapFileChooserPreview() {}
+
 	// Retrieve the preview widget for packing into the dialog
 	GtkWidget* getPreviewWidget();
 
@@ -38,7 +40,7 @@ public:
 	 * Note: this method must call the setPreviewActive() method on the
 	 * FileChooser class to indicate whether the widget is active or not.
 	 */
-	void onFileSelectionChanged(const std::string& newFileName, gtkutil::FileChooser& fileChooser);
+	void onFileSelectionChanged(const std::string& newFileName, ui::IFileChooser& fileChooser);
 
 private:
 	// Updates the usage info based on the prefab's worldspawn spawnargs

@@ -61,6 +61,7 @@ struct EdgeFaces {
 
 class BrushObserver {
 public:
+    virtual ~BrushObserver() {}
 	virtual void reserve(std::size_t size) = 0;
 	virtual void clear() = 0;
 	virtual void push_back(Face& face) = 0;
@@ -79,6 +80,7 @@ public:
 
 class BrushVisitor {
 public:
+    virtual ~BrushVisitor() {}
 	virtual void visit(Face& face) const = 0;
 };
 
@@ -128,11 +130,15 @@ private:
 	mutable bool m_transformChanged; // transform evaluation required
 	// ----
 
+	// assignment not supported => private
+	Brush& operator=(const Brush& other);
+
 public:  
 	/// \brief The undo memento for a brush stores only the list of face references - the faces are not copied.
 	class BrushUndoMemento : public UndoMemento {
 	public:
 		BrushUndoMemento(const Faces& faces) : m_faces(faces) {}
+		virtual ~BrushUndoMemento() {}
 		
 		void release() {
 			delete this;
@@ -157,10 +163,9 @@ public:
 	Brush(const Brush& other);
 	
 	// Destructor
-	~Brush();
-	
-	// assignment not supported
-	Brush& operator=(const Brush& other);
+	virtual ~Brush();
+
+	virtual IFace& getFace(std::size_t index);
 	
 	/** greebo: This translates the brush about the given translation vector,
 	 * this is used by the Doom3Group entity to add/substract the origin from
@@ -250,7 +255,7 @@ public:
 
 	void clear();
 	
-	std::size_t size() const;
+	std::size_t getNumFaces() const;
 	
 	bool empty() const;
 
@@ -313,7 +318,7 @@ typedef std::vector<Brush*> BrushVector;
  * Stream insertion for Brush objects.
  */
 inline std::ostream& operator<< (std::ostream& os, const Brush& b) {
-    os << "Brush { size = " << b.size() << ", localAABB = " << b.localAABB()
+	os << "Brush { size = " << b.getNumFaces() << ", localAABB = " << b.localAABB()
        << " }";
     return os;
 }

@@ -14,6 +14,7 @@ class BrushSelectedVisitor :
 	const Functor& m_functor;
 public:
 	BrushSelectedVisitor(const Functor& functor) : m_functor(functor) {}
+	virtual ~BrushSelectedVisitor() {}
 
 	void visit(const scene::INodePtr& node) const {
 		BrushNodePtr brush = boost::dynamic_pointer_cast<BrushNode>(node);
@@ -72,6 +73,7 @@ class FaceInstanceVisitFace : public BrushInstanceVisitor {
 public:
 	FaceInstanceVisitFace(const Functor& functor)
 		: functor(functor) {}
+    virtual ~FaceInstanceVisitFace() {}
 	void visit(FaceInstance& face) const {
 		functor(face.getFace());
 	}
@@ -83,6 +85,7 @@ class FaceVisitAll : public BrushVisitor {
 public:
 	FaceVisitAll(const Functor& functor)
 		: functor(functor) {}
+    virtual ~FaceVisitAll() {}
 	void visit(Face& face) const {
 		functor(face);
 	}
@@ -120,7 +123,7 @@ inline const Functor& Brush_ForEachFaceInstance(BrushInstance& brush, const Func
 template<typename Functor>
 inline const Functor& Scene_forEachBrush(scene::Graph& graph, const Functor& functor) {
 	NodeWalker< InstanceApply<BrushNode, Functor> > walker(functor);
-	graph.traverse(walker);
+	Node_traverseSubgraph(graph.root(), walker);
 	return functor;
 }
 
@@ -132,6 +135,7 @@ public:
 	BrushVisitEachFace(const BrushInstanceVisitor& visitor) :
 		_visitor(visitor)
 	{}
+	virtual ~BrushVisitEachFace() {}
 
 	bool pre(const scene::INodePtr& node) {
 		BrushNodePtr brush = boost::dynamic_pointer_cast<BrushNode>(node);

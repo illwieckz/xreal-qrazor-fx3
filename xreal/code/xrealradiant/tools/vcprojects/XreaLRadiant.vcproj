@@ -441,22 +441,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\radiant\gtkdlgs.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\radiant\gtkdlgs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\radiant\gtkmisc.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\radiant\gtkmisc.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\radiant\main.cpp"
 				>
 			</File>
@@ -763,26 +747,6 @@
 						>
 					</File>
 				</Filter>
-			</Filter>
-			<Filter
-				Name="brushexport"
-				>
-				<File
-					RelativePath="..\..\radiant\brushexport\BrushExportOBJ.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\radiant\brushexport\BrushExportOBJ.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\radiant\brushexport\Exporter.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\radiant\brushexport\WaveFrontBrushVisitor.h"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="camera"
@@ -1157,6 +1121,10 @@
 				</File>
 				<File
 					RelativePath="..\..\radiant\patch\PatchNode.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\radiant\patch\PatchRenderables.cpp"
 					>
 				</File>
 				<File
@@ -2356,6 +2324,18 @@
 					</File>
 					<File
 						RelativePath="..\..\radiant\ui\mainframe\SplitPaneLayout.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="brush"
+					>
+					<File
+						RelativePath="..\..\radiant\ui\brush\QuerySidesDialog.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\brush\QuerySidesDialog.h"
 						>
 					</File>
 				</Filter>

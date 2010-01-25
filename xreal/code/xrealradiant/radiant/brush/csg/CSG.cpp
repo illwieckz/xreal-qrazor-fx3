@@ -147,7 +147,7 @@ BrushSplitType Brush_classifyPlane(const Brush& brush, const Plane3& plane) {
 bool Brush_subtract(const Brush& brush, const Brush& other, BrushVector& ret_fragments) {
 	if (aabb_intersects_aabb(brush.localAABB(), other.localAABB())) {
 		BrushVector fragments;
-		fragments.reserve(other.size());
+		fragments.reserve(other.getNumFaces());
 		Brush back(brush);
 
 		for (Brush::const_iterator i(other.begin()); i != other.end(); ++i) {
@@ -195,7 +195,7 @@ public:
 		_after(after)
 	{}
 
-	~SubtractBrushesFromUnselected() {
+	virtual ~SubtractBrushesFromUnselected() {
 		for (std::list<scene::INodePtr>::iterator i = _deleteList.begin();
 			 i != _deleteList.end(); i++)
 		{
@@ -348,8 +348,8 @@ bool Brush_merge(Brush& brush, const BrushPtrVector& in, bool onlyshape) {
 				if (face1.plane3() == face2.plane3()) {
 					// if the texture/shader references should be the same but are not
 					if (!onlyshape && !shader_equal(
-                            face1.getShader().getMaterialName(),
-                            face2.getShader().getMaterialName()
+                            face1.getFaceShader().getMaterialName(),
+                            face2.getFaceShader().getMaterialName()
                         )) 
                     {
 						return false;
@@ -450,6 +450,8 @@ public:
 	BrushSetClipPlane(const Plane3& plane) : 
 		_plane(plane)
 	{}
+
+	virtual ~BrushSetClipPlane() {}
 
 	void visit(const scene::INodePtr& node) const {
 		BrushNodePtr brush = boost::dynamic_pointer_cast<BrushNode>(node);

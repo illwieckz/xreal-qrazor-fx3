@@ -87,6 +87,7 @@ typedef boost::shared_ptr<ISoundFile> ISoundFilePtr;
 class SoundFileVisitor
 {
 public:
+	virtual ~SoundFileVisitor() {}
 	virtual void visit(const ISoundFilePtr& soundFile) = 0;
 };
 

@@ -58,6 +58,7 @@ class AABB;
  */
 class BrushDoom3 {
 public:
+    virtual ~BrushDoom3() {}
 	/** greebo: Translates the brush about the given <translation> vector.
 	 */
 	virtual void translateDoom3Brush(const Vector3& translation) = 0;
@@ -275,6 +276,7 @@ inline void addNodeToContainer(const scene::INodePtr& node, const scene::INodePt
 // cast an instance onto a light and identify it as such.
 class SelectableLight {
 public:
+    virtual ~SelectableLight() {}
 	/** greebo: Get the AABB of the Light "Diamond" representation.
 	 */
 	virtual AABB getSelectAABB() = 0;
@@ -285,7 +287,7 @@ typedef boost::shared_ptr<SelectableLight> SelectableLightPtr;
 
 template<typename Functor>
 class NodeWalker : 
-	public scene::Graph::Walker
+	public scene::NodeVisitor
 {
 	const Functor& m_functor;
 public:
@@ -293,7 +295,8 @@ public:
 		m_functor(functor)
 	{}
 
-	bool pre(const scene::Path& path, const scene::INodePtr& node) const {
+	bool pre(const scene::INodePtr& node)
+	{
 		m_functor(node);
 		return true;
 	}
@@ -460,7 +463,7 @@ inline std::string nodetype_get_name(ENodeType type) {
 	return "unknown";
 }
 
-inline ENodeType node_get_nodetype(scene::INodePtr node) {
+inline ENodeType node_get_nodetype(const scene::INodePtr& node) {
 	if (Node_isEntity(node)) {
 		return eNodeEntity;
 	}
@@ -494,7 +497,7 @@ public:
 	}
 };
 
-inline bool Node_selectedDescendant(scene::INodePtr node) {
+inline bool Node_selectedDescendant(const scene::INodePtr& node) {
 	bool selected;
 
 	SelectedDescendantWalker visitor(selected);
@@ -504,7 +507,7 @@ inline bool Node_selectedDescendant(scene::INodePtr node) {
 }
 
 class NodePathFinder :
-	public scene::Graph::Walker
+	public scene::NodeVisitor
 {
 	mutable scene::Path _path;
 
@@ -515,10 +518,15 @@ public:
 		_needle(needle)
 	{}
 
-	virtual bool pre(const scene::Path& path, const scene::INodePtr& node) const {
-		if (node == _needle) {
-			_path = path; // found!
+	bool pre(const scene::INodePtr& n)
+	{
+		boost::shared_ptr<scene::Node> node = boost::static_pointer_cast<scene::Node>(n);
+
+		if (node == _needle)
+		{
+			_path = node->getPath(); // found!
 		}
+
 		// Descend deeper if path is still empty
 		return _path.empty();
 	}
@@ -529,9 +537,10 @@ public:
 };
 
 // greebo: Returns the path for the given node (SLOW, traverses the scenegraph!)
-inline scene::Path findPath(const scene::INodePtr& node) {
+inline scene::Path findPath(const scene::INodePtr& node)
+{
 	NodePathFinder finder(node);
-	GlobalSceneGraph().traverse(finder);
+	Node_traverseSubgraph(GlobalSceneGraph().root(), finder);
 	return finder.getPath();
 }
 
