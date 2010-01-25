@@ -2041,6 +2041,15 @@ void G_RunThink(gentity_t * ent)
 	{
 		G_Error("NULL ent->think");
 	}
+
+#ifdef G_LUA
+	// Lua API callbacks
+	if(ent->luaThink && !ent->client)
+	{
+		G_LuaHook_EntityThink(ent->luaThink, ent->s.number);
+	}
+#endif
+
 	ent->think(ent);
 }
 
@@ -2085,14 +2094,6 @@ void G_RunFrame(int levelTime)
 		{
 			continue;
 		}
-
-#ifdef G_LUA
-		// Lua API callbacks
-		if(ent->luaThink && !ent->client)
-		{
-			G_LuaHook_EntityThink(ent->luaThink, ent->s.number);
-		}
-#endif
 
 		// clear events that are too old
 		if(level.time - ent->eventTime > EVENT_VALID_MSEC)
