@@ -369,7 +369,7 @@ textures/pk01/pk01_wall04a
 	qer_editorimage textures/pk01/pk01_wall04a_d.tga
 	diffusemap textures/pk01/pk01_wall04a_d.tga
 	specularmap textures/pk01/pk01_wall04_s.tga
-	bumpmap textures/pk01/pk01_wall04_local.tga
+	bumpmap textures/pk01/pk01_wall04a_local.tga
 }
 
 textures/pk01/pk01_wall04b
@@ -377,7 +377,7 @@ textures/pk01/pk01_wall04b
 	qer_editorimage textures/pk01/pk01_wall04b_d.tga
 	diffusemap textures/pk01/pk01_wall04b_d.tga
 	specularmap textures/pk01/pk01_wall04_s.tga
-	bumpmap textures/pk01/pk01_wall04_local.tga
+	bumpmap textures/pk01/pk01_wall04b_local.tga
 }
 
 textures/pk01/pk01_vent_wall01a

@@ -12,7 +12,7 @@ textures/hipshot_sky/grimmnight
 	sky
 	nolightmap
 	
-	xmap_sun 1 1 1 150 90 30
+	xmap_sun 1 1 1 150 75 45
 	
 	{
 		stage skyboxMap
