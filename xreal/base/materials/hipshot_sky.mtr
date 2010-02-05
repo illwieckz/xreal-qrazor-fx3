@@ -17,7 +17,49 @@ textures/hipshot_sky/grimmnight
 	{
 		stage skyboxMap
 		noPicMip
-		cubeMap	cubemaps/hipshot/grimmnight
+		cubeMap	cubemaps/hipshot/grimmnight/grimmnight
+	}
+}
+
+textures/hipshot_sky/interstellar
+{
+	qer_editorimage cubemaps/hipshot/interstellar/interstellar_nz.png
+
+	noFragment
+	noshadows
+	forceOpaque				
+	noimpact
+	sky
+	nolightmap
+
+//	xmap_sun	todo
+//	xmap_skylight	todo
+
+	{ 
+		stage skyboxMap
+		noPicMip
+		cubeMap cubemaps/hipshot/interstellar/interstellar
+	}
+}
+
+textures/hipshot_sky/miramar
+{
+	qer_editorimage cubemaps/hipshot/miramar/miramar_nz.png
+
+	noFragment
+	noshadows
+	forceOpaque				
+	noimpact
+	sky
+	nolightmap
+
+//	xmap_sun	todo
+//	xmap_skylight	todo
+
+	{ 
+		stage skyboxMap
+		noPicMip
+		cubeMap cubemaps/hipshot/miramar/miramar
 	}
 }
 
@@ -38,6 +80,27 @@ textures/hipshot_sky/stormydays
 	{ 
 		stage skyboxMap
 		noPicMip
-		cubeMap cubemaps/hipshot/stormydays
+		cubeMap cubemaps/hipshot/stormydays/stormydays
+	}
+}
+
+textures/hipshot_sky/violentdays
+{
+	qer_editorimage cubemaps/hipshot/violentdays/violentdays_nz.png
+
+	noFragment
+	noshadows
+	forceOpaque				
+	noimpact
+	sky
+	nolightmap
+
+//	xmap_sun	todo
+//	xmap_skylight	todo
+
+	{ 
+		stage skyboxMap
+		noPicMip
+		cubeMap cubemaps/hipshot/violentdays/violentdays
 	}
 }
