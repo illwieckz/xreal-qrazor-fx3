@@ -3,7 +3,7 @@
 
 textures/hipshot_sky/grimmnight
 {
-	qer_editorimage	cubemaps/hipshot/grimmnight_px.png
+	qer_editorimage	cubemaps/hipshot/grimmnight/grimmnight_px.png
 	
 	noFragment
 	noshadows
@@ -23,7 +23,7 @@ textures/hipshot_sky/grimmnight
 
 textures/hipshot_sky/stormydays
 {
-	qer_editorimage cubemaps/hipshot/stormydays_nz.png
+	qer_editorimage cubemaps/hipshot/stormydays/stormydays_nz.png
 
 	noFragment
 	noshadows
