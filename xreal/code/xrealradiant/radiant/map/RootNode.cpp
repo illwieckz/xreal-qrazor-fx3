@@ -7,9 +7,6 @@ RootNode::RootNode(const std::string& name) :
 {
 	// Apply root status to this node
 	setIsRoot(true);
-	// Attach ourselves as scene::Traversable::Observer 
-	// to the TraversableNodeset >> triggers instantiate calls.
-	attachTraverseObserver(this);
 
 	GlobalUndoSystem().trackerAttach(m_changeTracker);
 
@@ -22,9 +19,6 @@ RootNode::~RootNode() {
 	// Override the default release() method
 	GlobalUndoSystem().trackerDetach(m_changeTracker);
 	
-	// Remove ourselves as observer from the TraversableNodeSet
-	detachTraverseObserver(this);
-
 	// Remove all child nodes to trigger their destruction
 	removeAllChildNodes();
 }
@@ -67,31 +61,34 @@ void RootNode::setName(const std::string& name) {
 	_name = name;
 }
 
-void RootNode::onTraversableInsert(const scene::INodePtr& child)
+void RootNode::onChildAdded(const scene::INodePtr& child)
 {
 	// Insert this node into our namespace
 	_namespace->connect(child);
 
-	Node::onTraversableInsert(child);
+	Node::onChildAdded(child);
 }
 
-void RootNode::onTraversableErase(const scene::INodePtr& child)
+void RootNode::onChildRemoved(const scene::INodePtr& child)
 {
 	// Detach the node from our namespace
 	_namespace->disconnect(child);
 
-	Node::onTraversableErase(child);
+	Node::onChildRemoved(child);
 }
 
-void RootNode::instanceAttach(const scene::Path& path) {
+void RootNode::instanceAttach(MapFile* map)
+{
 	if (++m_instanceCounter.m_count == 1) {
-		Node::instanceAttach(path_find_mapfile(path.begin(), path.end()));
+		Node::instanceAttach(map);
 	}
 }
 
-void RootNode::instanceDetach(const scene::Path& path) {
-	if (--m_instanceCounter.m_count == 0) {
-		Node::instanceDetach(path_find_mapfile(path.begin(), path.end()));
+void RootNode::instanceDetach(MapFile* map)
+{
+	if (--m_instanceCounter.m_count == 0)
+	{
+		Node::instanceDetach(map);
 	}
 }
 
@@ -99,14 +96,18 @@ scene::INodePtr RootNode::clone() const {
 	return scene::INodePtr(new RootNode(*this));
 }
 
-void RootNode::instantiate(const scene::Path& path) {
-	Node::instantiate(path);
-	instanceAttach(path);
+void RootNode::onInsertIntoScene()
+{
+	Node::onInsertIntoScene();
+
+	instanceAttach(scene::findMapFile(getSelf()));
 }
 
-void RootNode::uninstantiate(const scene::Path& path) {
-	instanceDetach(path);
-	Node::uninstantiate(path);
+void RootNode::onRemoveFromScene()
+{
+	instanceDetach(scene::findMapFile(getSelf()));
+
+	Node::onRemoveFromScene();
 }
 
 } // namespace map

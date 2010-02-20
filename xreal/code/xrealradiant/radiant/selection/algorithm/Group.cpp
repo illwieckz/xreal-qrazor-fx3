@@ -2,6 +2,8 @@
 
 #include <set>
 #include "igroupnode.h"
+#include "imainframe.h"
+#include "itextstream.h"
 #include "selectionlib.h"
 #include "scenelib.h"
 #include "entitylib.h"
@@ -12,93 +14,9 @@ namespace selection {
 
 namespace algorithm {
 
-/**
- * greebo: This walker traverses a subgraph and reparents all
- * found primitives to the given parent node. After traversal
- * all parent nodes (old and new ones) are updated in terms of
- * their layer visibility state.
- */
-class ReparentToEntityWalker : 
-	public scene::NodeVisitor
+void revertGroupToWorldSpawn(const cmd::ArgumentList& args)
 {
-	// The new parent
-	scene::INodePtr _newParent;
-
-	// The old parent nodes are updated after rearrangement
-	std::set<scene::INodePtr> _nodesToUpdate;
-public:
-	ReparentToEntityWalker(scene::INodePtr parent) : 
-		_newParent(parent) 
-	{
-		// The new parent will be updated too
-		_nodesToUpdate.insert(_newParent);
-	}
-
-	~ReparentToEntityWalker() {
-		scene::UpdateNodeVisibilityWalker updater;
-		for (std::set<scene::INodePtr>::iterator i = _nodesToUpdate.begin();
-			 i != _nodesToUpdate.end(); i++)
-		{
-			Node_traverseSubgraph(*i, updater);
-		}
-	}
-	
-	bool pre(const scene::INodePtr& node) {
-		if (node != _newParent && Node_isPrimitive(node)) {
-			// Don't traverse the children, it's sufficient, if
-			// this node alone is re-parented 
-			return false;
-		}
-		return true;
-	}
-	
-	void post(const scene::INodePtr& node) {
-		if (node != _newParent && Node_isPrimitive(node)) {
-			// Retrieve the current parent of the visited node
-			scene::INodePtr parent = node->getParent();
-
-			// Check, if there is work to do in the first place 
-			if (parent != _newParent) {
-				// Copy the shared_ptr
-				scene::INodePtr child(node);
-
-				// Delete the node from the old parent
-				parent->removeChildNode(child);
-
-				// Mark this parent node for a visibility update
-				_nodesToUpdate.insert(parent);
-				
-				// and insert it as child of the given parent (passed in the constructor) 
-				_newParent->addChildNode(child);
-				
-				// Select the reparented child
-				Node_setSelected(child, true);
-			}
-		}
-	}
-};
-
-void revertGroupToWorldSpawn(const cmd::ArgumentList& args) {
 	UndoableCommand cmd("revertToWorldspawn");
-
-	typedef std::list<scene::INodePtr> GroupNodeList;
-
-	// Collect all groupnodes
-	class GroupNodeCollector : 
-		public SelectionSystem::Visitor
-	{
-		mutable GroupNodeList _groupNodes;
-	public:
-		void visit(const scene::INodePtr& node) const {
-			if (node_is_group(node)) {
-				_groupNodes.push_back(node);
-			}
-		}
-
-		const GroupNodeList& getList() const {
-			return _groupNodes;
-		}
-	}; 
 
 	GroupNodeCollector walker;
 	GlobalSelectionSystem().foreachSelected(walker);
@@ -118,7 +36,7 @@ void revertGroupToWorldSpawn(const cmd::ArgumentList& args) {
 		return; // worldspawn not an entity?
 	}
 
-	for (GroupNodeList::const_iterator i = walker.getList().begin(); 
+	for (GroupNodeCollector::GroupNodeList::const_iterator i = walker.getList().begin(); 
 		 i != walker.getList().end(); ++i)
 	{
 		const scene::INodePtr& groupNode = *i;
@@ -126,118 +44,152 @@ void revertGroupToWorldSpawn(const cmd::ArgumentList& args) {
 		Entity* parent = Node_getEntity(groupNode);
 	
 		if (parent == NULL) continue; // not an entity
-		
-		// Cycle through all the children and reparent them to the worldspawn node
-		ReparentToEntityWalker reparentor(worldspawnNode);
+
+		ParentPrimitivesToEntityWalker reparentor(worldspawnNode);
 		groupNode->traverse(reparentor);
 
-    	// At this point, all the child primitives have been selected by the walker
-    	
-    	// Check if the old parent entity node is empty
-		if (!groupNode->hasChildNodes()) {
-    		// Remove this node from its parent, it's not needed anymore
-			scene::removeNodeFromParent(groupNode);
-    	}
-    	else {
-    		globalErrorStream() << "Error while reparenting, cannot delete old parent (not empty)\n"; 
-    	}
+		// Perform the reparenting, this also checks for empty parent nodes
+		// being left behind after this operation
+		reparentor.reparent();
+
+		// Select the reparented primitives after moving them to worldspawn
+		reparentor.selectReparentedPrimitives();
 	}
 
 	// Flag the map as changed
 	GlobalMap().setModified(true);	
 }
 
-// Some helper methods
-bool contains_entity(scene::INodePtr node) {
-	return !Node_isBrush(node) && !Node_isPatch(node) && !Node_isEntity(node);
-}
-
-bool contains_primitive(scene::INodePtr node) {
-	return Node_isEntity(node) && Node_getEntity(node)->isContainer();
-}
-
-ENodeType node_get_contains(scene::INodePtr node) {
-	if (contains_entity(node)) {
-		return eNodeEntity;
-	}
-	if (contains_primitive(node)) {
-		return eNodePrimitive;
-	}
-	return eNodeUnknown;
-}
-
-class ParentSelectedBrushesToEntityWalker : 
-	public SelectionSystem::Visitor
+void ParentPrimitivesToEntityWalker::reparent()
 {
-	const scene::INodePtr _parent;
+	for (std::list<scene::INodePtr>::iterator i = _childrenToReparent.begin();
+		 i != _childrenToReparent.end(); i++)
+	{
+		// Remove this path from the old parent
+		scene::removeNodeFromParent(*i);
 
-	mutable std::list<scene::INodePtr> _childrenToReparent;
+		// Insert the child node into the parent node 
+		_parent->addChildNode(*i);
+	}
 
-	// Old parents will be checked for emptiness afterwards
-	mutable std::set<scene::INodePtr> _oldParents;
-public:
-	ParentSelectedBrushesToEntityWalker(const scene::INodePtr& parent) : 
-		_parent(parent)
-	{}
+	globalOutputStream() << "Reparented " << _childrenToReparent.size() 
+		<< " primitives." << std::endl;
 
-	~ParentSelectedBrushesToEntityWalker() {
-		for (std::list<scene::INodePtr>::iterator i = _childrenToReparent.begin();
-			 i != _childrenToReparent.end(); i++)
+	// Update parent node/subgraph visibility after reparenting
+	scene::UpdateNodeVisibilityWalker updater;
+
+	// Update the new parent too
+	Node_traverseSubgraph(_parent, updater);
+
+	for (std::set<scene::INodePtr>::iterator i = _oldParents.begin();
+		 i != _oldParents.end(); i++)
+	{
+		Node_traverseSubgraph(*i, updater);
+	}
+
+	// Now check if any parents were left behind empty
+	for (std::set<scene::INodePtr>::iterator i = _oldParents.begin();
+		 i != _oldParents.end(); i++)
+	{
+		if (!(*i)->hasChildNodes())
 		{
-			// Remove this path from the old parent
+			// Is empty, but make sure we're not removing the worldspawn
+			if (node_is_worldspawn(*i)) continue;
+
+			// Is empty now, remove it
 			scene::removeNodeFromParent(*i);
-
-			// Insert the child node into the parent node 
-			_parent->addChildNode(*i);
 		}
-
-		// Now check if any parents were left behind empty
-		for (std::set<scene::INodePtr>::iterator i = _oldParents.begin();
-			 i != _oldParents.end(); i++)
-		{
-			if (!(*i)->hasChildNodes()) {
-				// Is empty, but make sure we're not removing the worldspawn
-				if (Node_getEntity(*i) != NULL && 
-					Node_getEntity(*i)->getKeyValue("classname") == "worldspawn")
-				{
-					continue;
-				}
-
-				// Is empty now, remove it
-				scene::removeNodeFromParent(*i);
-			}
-		}
-
-		// Update the scene
-		SceneChangeNotify();
 	}
+
+	// Update the scene
+	SceneChangeNotify();
+}
+
+void ParentPrimitivesToEntityWalker::selectReparentedPrimitives()
+{
+	for (std::list<scene::INodePtr>::iterator i = _childrenToReparent.begin();
+		 i != _childrenToReparent.end(); i++)
+	{
+		Node_setSelected(*i, true);
+	}
+}
 	
-	void visit(const scene::INodePtr& node) const {
-		// Don't reparent instances to themselves
-		if (_parent == node) {
-			return;
-		}
+void ParentPrimitivesToEntityWalker::visit(const scene::INodePtr& node) const
+{
+	// Don't reparent instances to themselves
+	if (_parent == node) return;
 
-		// The type of the contained items
-		ENodeType contains = node_get_contains(_parent);
-		// The type of the child
-		ENodeType type = node_get_nodetype(node);
-		
-		if (contains != eNodeUnknown && contains == type) {
-			// Got a child, add it to the list
-			_childrenToReparent.push_back(node);
+	if (Node_isPrimitive(node))
+	{
+		// Got a child, add it to the list
+		_childrenToReparent.push_back(node);
 
-			_oldParents.insert(node->getParent());
-		}
-		else {
-			gtkutil::errorDialog(
-				"failed - " + nodetype_get_name(type) + " cannot be parented to " + 
-				nodetype_get_name(contains) + " container.\n", 
-				GlobalRadiant().getMainWindow()
-			);
+		// Mark the entity for later emptiness check
+		_oldParents.insert(node->getParent());
+	}
+}
+
+bool ParentPrimitivesToEntityWalker::pre(const scene::INodePtr& node)
+{
+	// Don't reparent nodes to themselves
+	if (_parent != node && Node_isPrimitive(node))
+	{
+		// Got a child, add it to the list
+		_childrenToReparent.push_back(node);
+
+		// Mark the entity for later emptiness check
+		_oldParents.insert(node->getParent());
+
+		return false; // don't traverse primitives any further
+	}
+
+	return true;
+}
+
+void GroupNodeCollector::visit(const scene::INodePtr& node) const
+{
+	if (node_is_group(node))
+	{
+		_groupNodes.push_back(node);
+	}
+}
+
+GroupNodeChecker::GroupNodeChecker() :
+	_onlyGroups(true),
+	_numGroups(0)
+{}
+
+void GroupNodeChecker::visit(const scene::INodePtr& node) const
+{
+	if (!node_is_group(node))
+	{
+		_onlyGroups = false;
+	}
+	else
+	{
+		_numGroups++;
+
+		if (_firstGroupNode == NULL)
+		{
+			_firstGroupNode = node;
 		}
 	}
-};
+}
+
+bool GroupNodeChecker::onlyGroupsAreSelected() const
+{
+	return _numGroups > 0 && _onlyGroups;
+}
+
+std::size_t GroupNodeChecker::selectedGroupCount() const
+{
+	return _numGroups;
+}
+
+scene::INodePtr GroupNodeChecker::getFirstSelectedGroupNode() const
+{
+	return _firstGroupNode;
+}
 
 // re-parents the selected brushes/patches
 void parentSelection(const cmd::ArgumentList& args) {
@@ -248,16 +200,17 @@ void parentSelection(const cmd::ArgumentList& args) {
 		UndoableCommand undo("parentSelectedPrimitives");
 		
 		// Take the last selected item (this should be an entity)
-		ParentSelectedBrushesToEntityWalker visitor(
+		ParentPrimitivesToEntityWalker visitor(
 			GlobalSelectionSystem().ultimateSelected()
 		);
 		GlobalSelectionSystem().foreachSelected(visitor);
+		visitor.reparent();
 	}
 	else {
 		gtkutil::errorDialog("Cannot reparent primitives to entity. "
 							 "Please select at least one brush/patch and exactly one entity."
 							 "(The entity has to be selected last.)", 
-							 GlobalRadiant().getMainWindow());
+							 GlobalMainFrame().getTopLevelWindow());
 	}
 }
 
@@ -268,8 +221,9 @@ void parentSelectionToWorldspawn(const cmd::ArgumentList& args) {
 	if (world == NULL) return;
 
 	// Take the last selected item (this should be an entity)
-	ParentSelectedBrushesToEntityWalker visitor(world);
+	ParentPrimitivesToEntityWalker visitor(world);
 	GlobalSelectionSystem().foreachSelected(visitor);
+	visitor.reparent();
 }
 
 class GroupNodeChildSelector :
@@ -359,6 +313,45 @@ public:
 void expandSelectionToEntities(const cmd::ArgumentList& args) {
 	ExpandSelectionToEntitiesWalker walker;
 	Node_traverseSubgraph(GlobalSceneGraph().root(), walker);
+}
+
+void mergeSelectedEntities(const cmd::ArgumentList& args)
+{
+	// Check the current selection, must consist of group nodes only
+	GroupNodeChecker walker;
+	GlobalSelectionSystem().foreachSelected(walker);
+
+	if (walker.onlyGroupsAreSelected() && walker.selectedGroupCount() > 1)
+	{
+		UndoableCommand cmd("mergeEntities");
+
+		scene::INodePtr newParent = walker.getFirstSelectedGroupNode();
+
+		// Gather all group nodes in the selection
+		GroupNodeCollector walker;
+		GlobalSelectionSystem().foreachSelected(walker);
+
+		// Traverse all group nodes using a ParentPrimitivesToEntityWalker
+		for (GroupNodeCollector::GroupNodeList::const_iterator i = walker.getList().begin(); 
+			 i != walker.getList().end(); ++i)
+		{
+			if (*i == newParent) continue;
+
+			ParentPrimitivesToEntityWalker reparentor(newParent);
+			(*i)->traverse(reparentor);
+
+			reparentor.reparent();
+		}
+
+		globalOutputStream() << walker.getList().size() << " group nodes merged." << std::endl;
+	}
+	else
+	{
+		gtkutil::errorDialog("Cannot merge entities, "
+							 "the selection must consist of func_* entities only.\n"
+							 "(The first selected entity will be preserved.)", 
+							 GlobalMainFrame().getTopLevelWindow());
+	}
 }
 
 } // namespace algorithm

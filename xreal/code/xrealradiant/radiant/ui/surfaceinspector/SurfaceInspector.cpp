@@ -3,6 +3,9 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include "ieventmanager.h"
+#include "itextstream.h"
+#include "iuimanager.h"
+#include "imainframe.h"
 
 #include "gtkutil/window/PersistentTransientWindow.h"
 #include "gtkutil/IconTextButton.h"
@@ -46,6 +49,12 @@ namespace ui {
 		
 		const char* LABEL_FIT_TEXTURE = "Fit Texture:";
 		const char* LABEL_FIT = "Fit";
+
+		const char* LABEL_ALIGN_TEXTURE = "Align Texture:";
+		const char* LABEL_ALIGN_TOP = "Top";
+		const char* LABEL_ALIGN_BOTTOM = "Bottom";
+		const char* LABEL_ALIGN_RIGHT = "Right";
+		const char* LABEL_ALIGN_LEFT = "Left";
 		
 		const char* LABEL_FLIP_TEXTURE = "Flip Texture:";
 		const char* LABEL_FLIPX = "Flip Horizontal";
@@ -74,7 +83,7 @@ namespace ui {
 	}
 
 SurfaceInspector::SurfaceInspector() 
-: gtkutil::PersistentTransientWindow(WINDOW_TITLE, GlobalRadiant().getMainWindow(), true),
+: gtkutil::PersistentTransientWindow(WINDOW_TITLE, GlobalMainFrame().getTopLevelWindow(), true),
   _callbackActive(false),
   _selectionInfo(GlobalSelectionSystem().getSelectionInfo())
 {
@@ -198,6 +207,11 @@ void SurfaceInspector::connectEvents() {
 	GlobalEventManager().findEvent("FlipTextureY")->connectWidget(_flipTexture.flipY);
 	GlobalEventManager().findEvent("TextureNatural")->connectWidget(_applyTex.natural);
 	GlobalEventManager().findEvent("NormaliseTexture")->connectWidget(_applyTex.normalise);
+
+	GlobalEventManager().findEvent("TexAlignTop")->connectWidget(_alignTexture.top);
+	GlobalEventManager().findEvent("TexAlignBottom")->connectWidget(_alignTexture.bottom);
+	GlobalEventManager().findEvent("TexAlignRight")->connectWidget(_alignTexture.right);
+	GlobalEventManager().findEvent("TexAlignLeft")->connectWidget(_alignTexture.left);
 	
 	GlobalEventManager().findEvent("TexShiftLeft")->connectWidget(*_manipulators[HSHIFT].smaller);
 	GlobalEventManager().findEvent("TexShiftRight")->connectWidget(*_manipulators[HSHIFT].larger);
@@ -215,11 +229,16 @@ void SurfaceInspector::connectEvents() {
 	g_signal_connect(G_OBJECT(_fitTexture.button), "clicked", G_CALLBACK(onFit), this);
 	g_signal_connect(G_OBJECT(_flipTexture.flipX), "clicked", G_CALLBACK(doUpdate), this);
 	g_signal_connect(G_OBJECT(_flipTexture.flipY), "clicked", G_CALLBACK(doUpdate), this);
+	g_signal_connect(G_OBJECT(_alignTexture.top), "clicked", G_CALLBACK(doUpdate), this);
+	g_signal_connect(G_OBJECT(_alignTexture.bottom), "clicked", G_CALLBACK(doUpdate), this);
+	g_signal_connect(G_OBJECT(_alignTexture.right), "clicked", G_CALLBACK(doUpdate), this);
+	g_signal_connect(G_OBJECT(_alignTexture.left), "clicked", G_CALLBACK(doUpdate), this);
 	g_signal_connect(G_OBJECT(_applyTex.natural), "clicked", G_CALLBACK(doUpdate), this);
 	g_signal_connect(G_OBJECT(_applyTex.normalise), "clicked", G_CALLBACK(doUpdate), this);
 	g_signal_connect(G_OBJECT(_defaultTexScale), "value-changed", G_CALLBACK(onDefaultScaleChanged), this);
 	
-	for (ManipulatorMap::iterator i = _manipulators.begin(); i != _manipulators.end(); i++) {
+	for (ManipulatorMap::iterator i = _manipulators.begin(); i != _manipulators.end(); ++i)
+	{
 		GtkWidget* smaller = *(i->second.smaller);
 		GtkWidget* larger = *(i->second.larger);
 		
@@ -257,25 +276,26 @@ void SurfaceInspector::keyChanged(const std::string& key, const std::string& val
 	_callbackActive = false;
 }
 
-void SurfaceInspector::populateWindow() {
+void SurfaceInspector::populateWindow()
+{
 	// Create the overall vbox
-	GtkWidget* dialogVBox = gtk_vbox_new(false, 6);
+	GtkWidget* dialogVBox = gtk_vbox_new(FALSE, 6);
 	gtk_container_add(GTK_CONTAINER(getWindow()), dialogVBox);
 	
 	// Create the title label (bold font)
 	GtkWidget* topLabel = gtkutil::LeftAlignedLabel(
     	std::string("<span weight=\"bold\">") + LABEL_PROPERTIES + "</span>"
     );
-    gtk_box_pack_start(GTK_BOX(dialogVBox), topLabel, true, true, 0);
+    gtk_box_pack_start(GTK_BOX(dialogVBox), topLabel, TRUE, TRUE, 0);
     
     // Setup the table with default spacings
-	GtkTable* table = GTK_TABLE(gtk_table_new(6, 2, false));
+	GtkTable* table = GTK_TABLE(gtk_table_new(6, 2, FALSE));
     gtk_table_set_col_spacings(table, 12);
     gtk_table_set_row_spacings(table, 6);
     
     // Pack it into an alignment so that it is indented
 	GtkWidget* alignment = gtkutil::LeftAlignment(GTK_WIDGET(table), 18, 1.0); 
-	gtk_box_pack_start(GTK_BOX(dialogVBox), GTK_WIDGET(alignment), true, true, 0);
+	gtk_box_pack_start(GTK_BOX(dialogVBox), GTK_WIDGET(alignment), TRUE, TRUE, 0);
 	
 	// Create the entry field and pack it into the first table row
 	GtkWidget* shaderLabel = gtkutil::LeftAlignedLabel(LABEL_SHADER);
@@ -285,14 +305,14 @@ void SurfaceInspector::populateWindow() {
 	g_signal_connect(G_OBJECT(_shaderEntry), "key-press-event", G_CALLBACK(onKeyPress), this);
 	
 	// Create the icon button to open the ShaderChooser
-	_selectShaderButton = gtkutil::IconTextButton("", GlobalRadiant().getLocalPixbuf(FOLDER_ICON), false);
+	_selectShaderButton = gtkutil::IconTextButton("", GlobalUIManager().getLocalPixbuf(FOLDER_ICON), false);
 	// Override the size request
 	gtk_widget_set_size_request(_selectShaderButton, -1, -1); 
 	g_signal_connect(G_OBJECT(_selectShaderButton), "clicked", G_CALLBACK(onShaderSelect), this);
 	
-	GtkWidget* hbox = gtk_hbox_new(false, 0);
-	gtk_box_pack_start(GTK_BOX(hbox), _shaderEntry, true, true, 0);
-	gtk_box_pack_start(GTK_BOX(hbox), _selectShaderButton, false, false, 0);
+	GtkWidget* hbox = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), _shaderEntry, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), _selectShaderButton, FALSE, FALSE, 0);
 	
 	gtk_table_attach_defaults(table, hbox, 1, 2, 0, 1);
 	
@@ -310,10 +330,10 @@ void SurfaceInspector::populateWindow() {
     	std::string("<span weight=\"bold\">") + LABEL_OPERATIONS + "</span>"
     );
     gtk_misc_set_padding(GTK_MISC(operLabel), 0, 2); // Small spacing to the top/bottom
-    gtk_box_pack_start(GTK_BOX(dialogVBox), operLabel, true, true, 0);
+    gtk_box_pack_start(GTK_BOX(dialogVBox), operLabel, TRUE, TRUE, 0);
     
     // Setup the table with default spacings
-	GtkTable* operTable = GTK_TABLE(gtk_table_new(4, 2, false));
+	GtkTable* operTable = GTK_TABLE(gtk_table_new(5, 2, FALSE));
     gtk_table_set_col_spacings(operTable, 12);
     gtk_table_set_row_spacings(operTable, 6);
     
@@ -321,15 +341,17 @@ void SurfaceInspector::populateWindow() {
 	GtkWidget* operAlignment = gtkutil::LeftAlignment(GTK_WIDGET(operTable), 18, 1.0);
     
     // Pack the table into the dialog
-	gtk_box_pack_start(GTK_BOX(dialogVBox), GTK_WIDGET(operAlignment), true, true, 0);
+	gtk_box_pack_start(GTK_BOX(dialogVBox), GTK_WIDGET(operAlignment), TRUE, TRUE, 0);
 	
 	// ------------------------ Fit Texture -----------------------------------
 	
+	int curLine = 0;
+
 	_fitTexture.hbox = gtk_hbox_new(false, 6);
 	
 	// Create the "Fit Texture" label
 	_fitTexture.label = gtkutil::LeftAlignedLabel(LABEL_FIT_TEXTURE);
-	gtk_table_attach_defaults(operTable, _fitTexture.label, 0, 1, 0, 1);
+	gtk_table_attach_defaults(operTable, _fitTexture.label, 0, 1, curLine, curLine+1);
 	
 	_fitTexture.widthAdj = gtk_adjustment_new(1.0f, 0.0f, 1000.0f, 1.0f, 1.0f, 0);
 	_fitTexture.heightAdj = gtk_adjustment_new(1.0f, 0.0f, 1000.0f, 1.0f, 1.0f, 0);
@@ -337,53 +359,79 @@ void SurfaceInspector::populateWindow() {
 	// Create the width entry field
 	_fitTexture.width = gtk_spin_button_new(GTK_ADJUSTMENT(_fitTexture.widthAdj), 1.0f, 4);
 	gtk_widget_set_size_request(_fitTexture.width, 55, -1);
-	gtk_box_pack_start(GTK_BOX(_fitTexture.hbox), _fitTexture.width, false, false, 0);
+	gtk_box_pack_start(GTK_BOX(_fitTexture.hbox), _fitTexture.width, FALSE, FALSE, 0);
 	
 	// Create the "x" label
 	GtkWidget* xLabel = gtk_label_new("x");
 	gtk_misc_set_alignment(GTK_MISC(xLabel), 0.5f, 0.5f);
-	gtk_box_pack_start(GTK_BOX(_fitTexture.hbox), xLabel, false, false, 0);
+	gtk_box_pack_start(GTK_BOX(_fitTexture.hbox), xLabel, FALSE, FALSE, 0);
 	
 	// Create the height entry field
 	_fitTexture.height = gtk_spin_button_new(GTK_ADJUSTMENT(_fitTexture.heightAdj), 1.0f, 4);
 	gtk_widget_set_size_request(_fitTexture.height, 55, -1);
-	gtk_box_pack_start(GTK_BOX(_fitTexture.hbox), _fitTexture.height, false, false, 0);
+	gtk_box_pack_start(GTK_BOX(_fitTexture.hbox), _fitTexture.height, FALSE, FALSE, 0);
 	
 	_fitTexture.button = gtk_button_new_with_label(LABEL_FIT);
 	gtk_widget_set_size_request(_fitTexture.button, 30, -1);
-	gtk_box_pack_start(GTK_BOX(_fitTexture.hbox), _fitTexture.button, true, true, 0);
+	gtk_box_pack_start(GTK_BOX(_fitTexture.hbox), _fitTexture.button, TRUE, TRUE, 0);
 		
-	gtk_table_attach_defaults(operTable, _fitTexture.hbox, 1, 2, 0, 1);
+	gtk_table_attach_defaults(operTable, _fitTexture.hbox, 1, 2, curLine, curLine+1);
 	
 	// ------------------------ Operation Buttons ------------------------------
+
+	curLine++;
+
+	// Create the "Align Texture" label
+	_alignTexture.label = gtkutil::LeftAlignedLabel(LABEL_ALIGN_TEXTURE);
+	gtk_table_attach_defaults(operTable, _alignTexture.label, 0, 1, curLine, curLine+1);
+	
+	_alignTexture.hbox = gtk_hbox_new(TRUE, 6); 
+
+	_alignTexture.top = gtk_button_new_with_label(LABEL_ALIGN_TOP);
+	_alignTexture.bottom = gtk_button_new_with_label(LABEL_ALIGN_BOTTOM);
+	_alignTexture.left = gtk_button_new_with_label(LABEL_ALIGN_LEFT);
+	_alignTexture.right = gtk_button_new_with_label(LABEL_ALIGN_RIGHT);
+
+	gtk_box_pack_start(GTK_BOX(_alignTexture.hbox), _alignTexture.top, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(_alignTexture.hbox), _alignTexture.bottom, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(_alignTexture.hbox), _alignTexture.left, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(_alignTexture.hbox), _alignTexture.right, TRUE, TRUE, 0);
+	
+	gtk_table_attach_defaults(operTable, _alignTexture.hbox, 1, 2, curLine, curLine+1);
+
+	curLine++;
 	
 	// Create the "Flip Texture" label
 	_flipTexture.label = gtkutil::LeftAlignedLabel(LABEL_FLIP_TEXTURE);
-	gtk_table_attach_defaults(operTable, _flipTexture.label, 0, 1, 1, 2);
+	gtk_table_attach_defaults(operTable, _flipTexture.label, 0, 1, curLine, curLine+1);
 	
-	_flipTexture.hbox = gtk_hbox_new(true, 6); 
+	_flipTexture.hbox = gtk_hbox_new(TRUE, 6); 
 	_flipTexture.flipX = gtk_button_new_with_label(LABEL_FLIPX);
 	_flipTexture.flipY = gtk_button_new_with_label(LABEL_FLIPY);
-	gtk_box_pack_start(GTK_BOX(_flipTexture.hbox), _flipTexture.flipX, true, true, 0);
-	gtk_box_pack_start(GTK_BOX(_flipTexture.hbox), _flipTexture.flipY, true, true, 0);
+	gtk_box_pack_start(GTK_BOX(_flipTexture.hbox), _flipTexture.flipX, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(_flipTexture.hbox), _flipTexture.flipY, TRUE, TRUE, 0);
 	
-	gtk_table_attach_defaults(operTable, _flipTexture.hbox, 1, 2, 1, 2);
+	gtk_table_attach_defaults(operTable, _flipTexture.hbox, 1, 2, curLine, curLine+1);
 	
+	curLine++;
+
 	// Create the "Apply Texture" label
 	_applyTex.label = gtkutil::LeftAlignedLabel(LABEL_APPLY_TEXTURE);
-	gtk_table_attach_defaults(operTable, _applyTex.label, 0, 1, 2, 3);
+	gtk_table_attach_defaults(operTable, _applyTex.label, 0, 1, curLine, curLine+1);
 	
-	_applyTex.hbox = gtk_hbox_new(true, 6); 
+	_applyTex.hbox = gtk_hbox_new(TRUE, 6); 
 	_applyTex.natural = gtk_button_new_with_label(LABEL_NATURAL);
 	_applyTex.normalise = gtk_button_new_with_label(LABEL_NORMALISE);
-	gtk_box_pack_start(GTK_BOX(_applyTex.hbox), _applyTex.natural, true, true, 0);
-	gtk_box_pack_start(GTK_BOX(_applyTex.hbox), _applyTex.normalise, true, true, 0);
+	gtk_box_pack_start(GTK_BOX(_applyTex.hbox), _applyTex.natural, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(_applyTex.hbox), _applyTex.normalise, TRUE, TRUE, 0);
 	
-	gtk_table_attach_defaults(operTable, _applyTex.hbox, 1, 2, 2, 3);
+	gtk_table_attach_defaults(operTable, _applyTex.hbox, 1, 2, curLine, curLine+1);
 	
+	curLine++;
+
 	// Default Scale
 	GtkWidget* defaultScaleLabel = gtkutil::LeftAlignedLabel(LABEL_DEFAULT_SCALE);
-	gtk_table_attach_defaults(operTable, defaultScaleLabel, 0, 1, 3, 4);
+	gtk_table_attach_defaults(operTable, defaultScaleLabel, 0, 1, curLine, curLine+1);
 	
 	GtkWidget* hbox2 = gtk_hbox_new(true, 6);
 	 
@@ -394,13 +442,13 @@ void SurfaceInspector::populateWindow() {
 	);
 	_defaultTexScale = gtk_spin_button_new(GTK_ADJUSTMENT(defaultAdj), 1.0f, 4);
 	gtk_widget_set_size_request(_defaultTexScale, 55, -1);
-	gtk_box_pack_start(GTK_BOX(hbox2), _defaultTexScale, true, true, 0);
+	gtk_box_pack_start(GTK_BOX(hbox2), _defaultTexScale, TRUE, TRUE, 0);
 	
 	// Texture Lock Toggle
 	_texLockButton = gtk_toggle_button_new_with_label(LABEL_TEXTURE_LOCK); 
-	gtk_box_pack_start(GTK_BOX(hbox2), _texLockButton, true, true, 0);
+	gtk_box_pack_start(GTK_BOX(hbox2), _texLockButton, TRUE, TRUE, 0);
 	
-	gtk_table_attach_defaults(operTable, hbox2, 1, 2, 3, 4);
+	gtk_table_attach_defaults(operTable, hbox2, 1, 2, curLine, curLine+1);
 }
 
 SurfaceInspector::ManipulatorRow SurfaceInspector::createManipulatorRow(
@@ -408,7 +456,7 @@ SurfaceInspector::ManipulatorRow SurfaceInspector::createManipulatorRow(
 {
 	ManipulatorRow manipRow;
 	
-	manipRow.hbox = gtk_hbox_new(false, 6);
+	manipRow.hbox = gtk_hbox_new(FALSE, 6);
 		
 	// Create the label
 	manipRow.label = gtkutil::LeftAlignedLabel(label);
@@ -421,53 +469,53 @@ SurfaceInspector::ManipulatorRow SurfaceInspector::createManipulatorRow(
 	manipRow.valueChangedHandler = 
 		g_signal_connect(G_OBJECT(manipRow.value), "key-press-event", G_CALLBACK(onValueKeyPress), this);
 	
-	gtk_box_pack_start(GTK_BOX(manipRow.hbox), manipRow.value, true, true, 0);
+	gtk_box_pack_start(GTK_BOX(manipRow.hbox), manipRow.value, TRUE, TRUE, 0);
 	
 	if (vertical) {
-		GtkWidget* vbox = gtk_vbox_new(true, 0);
+		GtkWidget* vbox = gtk_vbox_new(TRUE, 0);
 		
 		manipRow.larger = ControlButtonPtr(
-			new gtkutil::ControlButton(GlobalRadiant().getLocalPixbuf("arrow_up.png"))
+			new gtkutil::ControlButton(GlobalUIManager().getLocalPixbuf("arrow_up.png"))
 		);
 		gtk_widget_set_size_request(*manipRow.larger, 30, 12);
-		gtk_box_pack_start(GTK_BOX(vbox), *manipRow.larger, false, false, 0);
+		gtk_box_pack_start(GTK_BOX(vbox), *manipRow.larger, FALSE, FALSE, 0);
 		
 		manipRow.smaller = ControlButtonPtr(
-			new gtkutil::ControlButton(GlobalRadiant().getLocalPixbuf("arrow_down.png"))
+			new gtkutil::ControlButton(GlobalUIManager().getLocalPixbuf("arrow_down.png"))
 		);
 		gtk_widget_set_size_request(*manipRow.smaller, 30, 12);
-		gtk_box_pack_start(GTK_BOX(vbox), *manipRow.smaller, false, false, 0);
+		gtk_box_pack_start(GTK_BOX(vbox), *manipRow.smaller, FALSE, FALSE, 0);
 		
-		gtk_box_pack_start(GTK_BOX(manipRow.hbox), vbox, false, false, 0);
+		gtk_box_pack_start(GTK_BOX(manipRow.hbox), vbox, FALSE, FALSE, 0);
 	}
 	else {
-		GtkWidget* hbox = gtk_hbox_new(true, 0);
+		GtkWidget* hbox = gtk_hbox_new(TRUE, 0);
 		
 		manipRow.smaller = ControlButtonPtr(
-			new gtkutil::ControlButton(GlobalRadiant().getLocalPixbuf("arrow_left.png"))
+			new gtkutil::ControlButton(GlobalUIManager().getLocalPixbuf("arrow_left.png"))
 		);
 		gtk_widget_set_size_request(*manipRow.smaller, 15, 24);
-		gtk_box_pack_start(GTK_BOX(hbox), *manipRow.smaller, false, false, 0);
+		gtk_box_pack_start(GTK_BOX(hbox), *manipRow.smaller, FALSE, FALSE, 0);
 		
 		manipRow.larger = ControlButtonPtr(
-			new gtkutil::ControlButton(GlobalRadiant().getLocalPixbuf("arrow_right.png"))
+			new gtkutil::ControlButton(GlobalUIManager().getLocalPixbuf("arrow_right.png"))
 		);
 		gtk_widget_set_size_request(*manipRow.larger, 15, 24);
-		gtk_box_pack_start(GTK_BOX(hbox), *manipRow.larger, false, false, 0);
+		gtk_box_pack_start(GTK_BOX(hbox), *manipRow.larger, FALSE, FALSE, 0);
 		
-		gtk_box_pack_start(GTK_BOX(manipRow.hbox), hbox, false, false, 0);
+		gtk_box_pack_start(GTK_BOX(manipRow.hbox), hbox, FALSE, FALSE, 0);
 	}
 	
 	// Create the label
 	manipRow.steplabel = gtkutil::LeftAlignedLabel(LABEL_STEP); 
-	gtk_box_pack_start(GTK_BOX(manipRow.hbox), manipRow.steplabel, false, false, 0);
+	gtk_box_pack_start(GTK_BOX(manipRow.hbox), manipRow.steplabel, FALSE, FALSE, 0);
 	
 	// Create the entry field
 	manipRow.step = gtk_entry_new();
 	gtk_entry_set_width_chars(GTK_ENTRY(manipRow.step), 5);
 	g_signal_connect(G_OBJECT(manipRow.step), "changed", G_CALLBACK(onStepChanged), this);
 	
-	gtk_box_pack_start(GTK_BOX(manipRow.hbox), manipRow.step, false, false, 0);
+	gtk_box_pack_start(GTK_BOX(manipRow.hbox), manipRow.step, FALSE, FALSE, 0);
 		
 	// Pack the hbox into the table
 	gtk_table_attach_defaults(table, manipRow.hbox, 1, 2, row, row+1);
@@ -526,11 +574,11 @@ void SurfaceInspector::updateTexDef() {
 	}
 	
 	// Snap the floating point variables to the max resolution to avoid things like "1.45e-14"
-	texdef._shift[0] = float_snapped(static_cast<double>(texdef._shift[0]), MAX_FLOAT_RESOLUTION);
-	texdef._shift[1] = float_snapped(static_cast<double>(texdef._shift[1]), MAX_FLOAT_RESOLUTION);
-	texdef._scale[0] = float_snapped(static_cast<double>(texdef._scale[0]), MAX_FLOAT_RESOLUTION);
-	texdef._scale[1] = float_snapped(static_cast<double>(texdef._scale[1]), MAX_FLOAT_RESOLUTION);
-	texdef._rotate = float_snapped(static_cast<double>(texdef._rotate), MAX_FLOAT_RESOLUTION);
+	texdef._shift[0] = float_snapped(texdef._shift[0], MAX_FLOAT_RESOLUTION);
+	texdef._shift[1] = float_snapped(texdef._shift[1], MAX_FLOAT_RESOLUTION);
+	texdef._scale[0] = float_snapped(texdef._scale[0], MAX_FLOAT_RESOLUTION);
+	texdef._scale[1] = float_snapped(texdef._scale[1], MAX_FLOAT_RESOLUTION);
+	texdef._rotate = float_snapped(texdef._rotate, MAX_FLOAT_RESOLUTION);
 	
 	// Load the values into the widgets
 	gtk_entry_set_text(GTK_ENTRY(_manipulators[HSHIFT].value), floatToStr(texdef._shift[0]).c_str());
@@ -542,12 +590,25 @@ void SurfaceInspector::updateTexDef() {
 	gtk_entry_set_text(GTK_ENTRY(_manipulators[ROTATION].value), floatToStr(texdef._rotate).c_str());
 }
 
-void SurfaceInspector::update() {
-	
+void SurfaceInspector::onGtkIdle()
+{
+	// Perform the pending update
+	update();
+}
+
+void SurfaceInspector::queueUpdate()
+{
+	// Request an idle callback to perform the update when GTK is idle
+	requestIdleCallback();
+}
+
+void SurfaceInspector::update()
+{
 	bool valueSensitivity = false;
 	bool fitSensitivity = (_selectionInfo.totalCount > 0);
 	bool flipSensitivity = (_selectionInfo.totalCount > 0);
 	bool applySensitivity = (_selectionInfo.totalCount > 0);
+	bool alignSensitivity = (_selectionInfo.totalCount > 0);
 	
 	// If patches or entities are selected, the value entry fields have no meaning
 	valueSensitivity = (_selectionInfo.patchCount == 0 && 
@@ -564,6 +625,10 @@ void SurfaceInspector::update() {
 	// The fit widget sensitivity
 	gtk_widget_set_sensitive(_fitTexture.hbox, fitSensitivity);
 	gtk_widget_set_sensitive(_fitTexture.label, fitSensitivity);
+
+	// The align texture widget sensitivity
+	gtk_widget_set_sensitive(_alignTexture.hbox, alignSensitivity);
+	gtk_widget_set_sensitive(_alignTexture.label, alignSensitivity);
 	
 	// The flip texture widget sensitivity
 	gtk_widget_set_sensitive(_flipTexture.hbox, flipSensitivity);
@@ -576,13 +641,14 @@ void SurfaceInspector::update() {
 	std::string selectedShader = selection::algorithm::getShaderFromSelection();
 	gtk_entry_set_text(GTK_ENTRY(_shaderEntry), selectedShader.c_str());
 	
-	if (valueSensitivity) {
+	if (valueSensitivity)
+	{
 		updateTexDef();
 	}
 	
 	// Update the TexTool instance as well
 	ui::TexTool::Instance().draw();
-	ui::PatchInspector::Instance().update();
+	ui::PatchInspector::Instance().queueUpdate();
 }
 
 void SurfaceInspector::postUndo()

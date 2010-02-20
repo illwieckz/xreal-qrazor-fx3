@@ -2,10 +2,12 @@
 
 #include <gtk/gtk.h>
 #include "iregistry.h"
-#include "iradiant.h"
+#include "imainframe.h"
+#include "iuimanager.h"
 #include "ieventmanager.h"
 #include "gtkutil/window/PersistentTransientWindow.h"
 #include <iostream>
+#include <vector>
 
 namespace ui {
 	
@@ -17,7 +19,7 @@ namespace ui {
 	}
 
 GroupDialog::GroupDialog() : 
-	gtkutil::PersistentTransientWindow(WINDOW_TITLE, GlobalRadiant().getMainWindow(), true),
+	gtkutil::PersistentTransientWindow(WINDOW_TITLE, GlobalMainFrame().getTopLevelWindow(), true),
 	_currentPage(0)
 {
 	// Create all the widgets and pack them into the window
@@ -209,7 +211,7 @@ GtkWidget* GroupDialog::addPage(const std::string& name,
 	gtk_widget_show(_notebook);
 	
 	// Create the icon GtkImage and tab label
-	GtkWidget* icon = gtk_image_new_from_pixbuf(GlobalRadiant().getLocalPixbuf(tabIcon));
+	GtkWidget* icon = gtk_image_new_from_pixbuf(GlobalUIManager().getLocalPixbuf(tabIcon));
 	GtkWidget* label = gtk_label_new(tabLabel.c_str());
 
 	// Pack into an hbox to create the title widget	
@@ -223,16 +225,19 @@ GtkWidget* GroupDialog::addPage(const std::string& name,
 	
 	// Create the notebook page
 	gint position = -1;
+	Pages::iterator insertIter = _pages.end();
 
 	if (!insertBefore.empty())
 	{
 		// Find the page with that name
-		for (Pages::const_iterator i = _pages.begin(); i != _pages.end(); ++i) {
+		for (Pages::iterator i = _pages.begin(); i != _pages.end(); ++i) 
+        {
 			// Skip the wrong ones
 			if (i->name != insertBefore) continue;
 
 			// Found, extract the tab position and break the loop
 			position = gtk_notebook_page_num(GTK_NOTEBOOK(_notebook), i->page);
+			insertIter = i;
 			break;
 		}
 	}
@@ -248,7 +253,7 @@ GtkWidget* GroupDialog::addPage(const std::string& name,
 	newPage.page = notebookPage;
 	newPage.title = windowLabel;
 	
-	_pages.push_back(newPage);
+	_pages.insert(insertIter, newPage);
 
 	return notebookPage;
 }

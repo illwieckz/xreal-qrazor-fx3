@@ -49,7 +49,8 @@ void LightNode::construct()
 	_light.construct();
 }
 
-LightNode::~LightNode() {
+LightNode::~LightNode()
+{
 	_light.setLightChangedCallback(Callback());
 }
 
@@ -78,10 +79,6 @@ void LightNode::lightChanged() {
 	GlobalRenderSystem().lightChanged(*this);
 }
 
-Entity& LightNode::getEntity() {
-	return _entity;
-}
-
 void LightNode::refreshModel() {
 	// Simulate a "model" key change
 	_light._modelKey.modelChanged(_entity.getKeyValue("model"));
@@ -94,7 +91,7 @@ const AABB& LightNode::localAABB() const {
 void LightNode::onInsertIntoScene()
 {
 	// Call the base class first
-	SelectableNode::onInsertIntoScene();
+	EntityNode::onInsertIntoScene();
 
 	GlobalRenderSystem().attachLight(*this);
 }
@@ -102,7 +99,7 @@ void LightNode::onInsertIntoScene()
 void LightNode::onRemoveFromScene()
 {
 	// Call the base class first
-	SelectableNode::onRemoveFromScene();
+	EntityNode::onRemoveFromScene();
 
 	GlobalRenderSystem().detachLight(*this);
 

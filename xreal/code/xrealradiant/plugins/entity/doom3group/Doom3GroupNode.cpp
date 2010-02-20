@@ -56,14 +56,11 @@ Doom3GroupNode::~Doom3GroupNode() {
 
 	Callback cb;
 	m_contained.setTransformChanged(cb);
-	Node::detachTraverseObserver(this);
 }
 
 void Doom3GroupNode::construct()
 {
 	m_contained.construct();
-
-	Node::attachTraverseObserver(this);
 
 	// Attach the callback as keyobserver for the skin key
 	addKeyObserver("skin", SkinChangedCaller(*this));
@@ -163,14 +160,6 @@ void Doom3GroupNode::testSelectComponents(Selector& selector, SelectionTest& tes
 	}
 }
 
-void Doom3GroupNode::onRemoveFromScene() {
-	// Call the base class first
-	SelectableNode::onRemoveFromScene();
-
-	// De-select all child components as well
-	setSelectedComponents(false, SelectionSystem::eVertex);
-}
-
 const AABB& Doom3GroupNode::getSelectedComponentsBounds() const {
 	m_aabb_component = AABB();
 	
@@ -206,29 +195,33 @@ scene::INodePtr Doom3GroupNode::clone() const
 	return clone;
 }
 
-void Doom3GroupNode::instantiate(const scene::Path& path)
+void Doom3GroupNode::onInsertIntoScene()
 {
 	_instantiated = true;
 
-	Node::getTraversable().instanceAttach(path_find_mapfile(path.begin(), path.end()));
-	EntityNode::instantiate(path);
+	Node::getTraversable().instanceAttach(scene::findMapFile(getSelf()));
+
+	EntityNode::onInsertIntoScene();
 }
 
-void Doom3GroupNode::uninstantiate(const scene::Path& path)
+void Doom3GroupNode::onRemoveFromScene()
 {
+	// Call the base class first
+	SelectableNode::onRemoveFromScene();
+
+	// De-select all child components as well
+	setSelectedComponents(false, SelectionSystem::eVertex);
+
 	_instantiated = false;
 
-	Node::getTraversable().instanceDetach(path_find_mapfile(path.begin(), path.end()));
-	EntityNode::uninstantiate(path);
+	Node::getTraversable().instanceDetach(scene::findMapFile(getSelf()));
+
+	EntityNode::onRemoveFromScene();
 }
 
 // Snappable implementation
 void Doom3GroupNode::snapto(float snap) {
 	m_contained.snapto(snap);
-}
-
-Entity& Doom3GroupNode::getEntity() {
-	return _entity;
 }
 
 void Doom3GroupNode::testSelect(Selector& selector, SelectionTest& test) {

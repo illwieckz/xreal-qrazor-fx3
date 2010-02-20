@@ -4,6 +4,7 @@
 
 #include "RadiantModule.h"
 #include "iuimanager.h"
+#include "idialogmanager.h"
 #include "igroupdialog.h"
 #include "ieventmanager.h"
 #include "ipreferencesystem.h"
@@ -35,11 +36,12 @@
 #include "ui/mainframe/EmbeddedLayout.h"
 
 #include "modulesystem/StaticModule.h"
+#include <boost/bind.hpp>
 
 	namespace {
 		const std::string RKEY_WINDOW_LAYOUT = "user/ui/mainFrame/windowLayout";
 		const std::string RKEY_WINDOW_STATE = "user/ui/mainFrame/window";
-		const std::string RKEY_MULTIMON_START_PRIMARY = "user/ui/multiMonitor/startOnPrimaryMonitor";
+		const std::string RKEY_MULTIMON_START_MONITOR = "user/ui/multiMonitor/startMonitorNum";
 
 		const std::string RKEY_ACTIVE_LAYOUT = "user/ui/mainFrame/activeLayout";
 	}
@@ -66,25 +68,59 @@ const StringSet& MainFrame::getDependencies() const {
 		_dependencies.insert(MODULE_XMLREGISTRY);
 		_dependencies.insert(MODULE_PREFERENCESYSTEM);
 		_dependencies.insert(MODULE_EVENTMANAGER);
+		_dependencies.insert(MODULE_COMMANDSYSTEM);
 		_dependencies.insert(MODULE_UIMANAGER);
 	}
 	
 	return _dependencies;
 }
 
-void MainFrame::initialiseModule(const ApplicationContext& ctx) {
-	globalOutputStream() << "MainFrame::initialiseModule called.\n";
+void MainFrame::initialiseModule(const ApplicationContext& ctx)
+{
+	globalOutputStream() << "MainFrame::initialiseModule called." << std::endl;
 
 	// Add another page for Multi-Monitor stuff
 	PreferencesPagePtr page = GlobalPreferenceSystem().getPage("Settings/Multi Monitor");
-	page->appendCheckBox("", "Start on Primary Monitor", RKEY_MULTIMON_START_PRIMARY);
+
+	// Initialise the registry, if no key is set
+	if (GlobalRegistry().get(RKEY_MULTIMON_START_MONITOR).empty())
+	{
+		GlobalRegistry().set(RKEY_MULTIMON_START_MONITOR, "0");
+	}
+
+	ComboBoxValueList list;
+
+	for (int i = 0; i < gtkutil::MultiMonitor::getNumMonitors(); ++i)
+	{
+		GdkRectangle rect = gtkutil::MultiMonitor::getMonitor(i);
+
+		list.push_back("Monitor " + intToStr(i) + " (" + intToStr(rect.width) + "x" + intToStr(rect.height) + ")");
+	}
+
+	page->appendCombo("Start DarkRadiant on monitor", RKEY_MULTIMON_START_MONITOR, list);
+
+	// Add the toggle max/min command for floating windows
+	GlobalCommandSystem().addCommand("ToggleFullScreenCamera", 
+		boost::bind(&MainFrame::toggleFullscreenCameraView, this, _1)
+	);
+	GlobalEventManager().addCommand("ToggleFullScreenCamera", "ToggleFullScreenCamera");
 }
 
-void MainFrame::shutdownModule() {
-	globalOutputStream() << "MainFrame::shutdownModule called.\n";
+void MainFrame::shutdownModule()
+{
+	globalOutputStream() << "MainFrame::shutdownModule called." << std::endl;
 }
 
-void MainFrame::construct() {
+void MainFrame::toggleFullscreenCameraView(const cmd::ArgumentList& args)
+{
+	if (_currentLayout == NULL) return;
+
+	// Issue the call
+	_currentLayout->toggleFullscreenCameraView();
+}
+
+void MainFrame::construct()
+{
 	// Create the base window and the default widgets
 	create();
 
@@ -97,7 +133,8 @@ void MainFrame::construct() {
 	// Apply the layout
 	applyLayout(activeLayout);
 
-	if (_currentLayout == NULL) {
+	if (_currentLayout == NULL)
+	{
 		// Layout is still empty, this is not good
 		globalErrorStream() << "Could not restore layout " << activeLayout << std::endl;
 
@@ -114,7 +151,8 @@ void MainFrame::construct() {
     radiant::getGlobalRadiant()->broadcastStartupEvent();
 }
 
-void MainFrame::removeLayout() {
+void MainFrame::removeLayout()
+{
 	// Sanity check
 	if (_currentLayout == NULL) return;
 
@@ -149,24 +187,22 @@ GtkWidget* MainFrame::getMainContainer() {
 	return _mainContainer;
 }
 
-GtkWindow* MainFrame::createTopLevelWindow() {
+GtkWindow* MainFrame::createTopLevelWindow()
+{
 	// Destroy any previous toplevel window
-	if (_window != NULL) {
+	if (_window != NULL)
+	{
 		GlobalEventManager().disconnect(GTK_OBJECT(_window));
-
-		// Clear the module as well
-		radiant::getGlobalRadiant()->setMainWindow(NULL);
 
 		gtk_widget_hide(GTK_WIDGET(_window));
 		gtk_widget_destroy(GTK_WIDGET(_window));
+
+		_window = NULL;
 	}
 
 	// Create a new window
 	_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
 	
-	// Let the radiant module know about the new toplevel
-	radiant::getGlobalRadiant()->setMainWindow(_window);
-
 	// Tell the XYManager which window the xyviews should be transient for
 	GlobalXYWnd().setGlobalParentWindow(_window);
 
@@ -194,7 +230,8 @@ GtkWindow* MainFrame::createTopLevelWindow() {
 	return _window;
 }
 
-void MainFrame::restoreWindowPosition() {
+void MainFrame::restoreWindowPosition()
+{
 	// We start out maximised by default
 	int windowState = GDK_WINDOW_STATE_MAXIMIZED;
 
@@ -204,19 +241,19 @@ void MainFrame::restoreWindowPosition() {
 		_windowPosition.loadFromPath(RKEY_WINDOW_STATE);
 		windowState = strToInt(GlobalRegistry().getAttribute(RKEY_WINDOW_STATE, "state"));
 	}
-	
-#ifdef WIN32
-	// Do the settings say that we should start on the primary screen?
-	if (GlobalRegistry().get(RKEY_MULTIMON_START_PRIMARY) == "1") {
+
+	int startMonitor = GlobalRegistry().getInt(RKEY_MULTIMON_START_MONITOR);
+
+	if (startMonitor < gtkutil::MultiMonitor::getNumMonitors())
+	{
 		// Yes, connect the position tracker, this overrides the existing setting.
   		_windowPosition.connect(_window);
   		// Load the correct coordinates into the position tracker
-		_windowPosition.fitToScreen(gtkutil::MultiMonitor::getMonitor(0));
+		_windowPosition.fitToScreen(gtkutil::MultiMonitor::getMonitor(startMonitor), 0.8f, 0.8f);
 		// Apply the position
 		_windowPosition.applyPosition();
 	}
-	else
-#endif
+	
 	if (windowState & GDK_WINDOW_STATE_MAXIMIZED) {
 		gtk_window_maximize(_window);
 	}
@@ -226,9 +263,10 @@ void MainFrame::restoreWindowPosition() {
 	}
 }
 
-GtkWidget* MainFrame::createMenuBar() {
+GtkWidget* MainFrame::createMenuBar()
+{
 	// Create the Filter menu entries before adding the menu bar
-    FiltersMenu::addItems();
+    FiltersMenu::addItemsToMainMenu();
     
     // Return the "main" menubar from the UIManager
     return GlobalUIManager().getMenuManager().get("main");
@@ -376,7 +414,16 @@ void MainFrame::updateAllWindows() {
 	GlobalXYWnd().updateAllViews();
 }
 
-void MainFrame::applyLayout(const std::string& name) {
+void MainFrame::applyLayout(const std::string& name)
+{
+	if (getCurrentLayout() == name)
+	{
+		// nothing to do
+		globalOutputStream() << "MainFrame: Won't activate layout " << name 
+			<< ", is already active." << std::endl;
+		return;
+	}
+
 	// Set or clear?
 	if (!name.empty()) {
 		// Try to find that new layout

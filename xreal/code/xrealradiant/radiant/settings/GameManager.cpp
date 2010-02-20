@@ -1,6 +1,7 @@
 #include "GameManager.h"
 
 #include "iregistry.h"
+#include "itextstream.h"
 #include "ifilesystem.h"
 #include "settings/PreferenceSystem.h"
 #include "ui/prefdialog/PrefDialog.h"
@@ -9,7 +10,7 @@
 #include "os/path.h"
 #include "GameFileLoader.h"
 #include "gtkutil/dialog.h"
-#include "gtkutil/messagebox.h"
+#include "gtkutil/dialog/MessageBox.h"
 #include "Win32Registry.h"
 #include "modulesystem/StaticModule.h"
 #include "modulesystem/ApplicationContextImpl.h"
@@ -167,11 +168,15 @@ void Manager::constructPaths() {
 	_enginePath = os::standardPathWithSlash(_enginePath);
 
 	// Read command line parameters, these override any existing preference setting
-	const ApplicationContext& ctx = module::getRegistry().getApplicationContext();
-
-	for (std::size_t i = 0; i < ctx.getNumCmdLineArgs(); ++i) {
+    const ApplicationContext::ArgumentList& args(
+        module::getRegistry().getApplicationContext().getCmdLineArgs()
+    );
+    for (ApplicationContext::ArgumentList::const_iterator i = args.begin(); 
+         i != args.end(); 
+         ++i) 
+    {
 		// get the argument and investigate it
-		std::string arg = ctx.getCmdLineArg(i);
+		std::string arg = *i;
 
 		if (boost::algorithm::istarts_with(arg, "fs_game=")) {
 			GlobalRegistry().set(RKEY_FS_GAME, arg.substr(8));
@@ -258,7 +263,8 @@ void Manager::initEnginePath() {
 	constructPaths();
 	
 	// Check loop, continue, till the user specifies a valid setting
-	while (!settingsValid()) {
+	while (!settingsValid())
+	{
 		// Engine path doesn't exist, ask the user
 		ui::PrefDialog::showModal("Game");
 		
@@ -282,7 +288,11 @@ void Manager::initEnginePath() {
 			}
 
 			msg += "Do you want to correct these settings?";
-			if (gtk_MessageBox(0, msg.c_str(), "Invalid Settings", eMB_YESNO, eMB_ICONQUESTION) == eIDNO) {
+
+			gtkutil::MessageBox msgBox("Invalid Settings", msg, ui::IDialog::MESSAGE_ASK);
+
+			if (msgBox.run() == ui::IDialog::RESULT_NO)
+			{
 				break;
 			}
 		}

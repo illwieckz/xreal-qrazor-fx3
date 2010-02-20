@@ -60,7 +60,6 @@ class BrushNode :
 	public PlaneSelectable,
 	public LightCullable,
 	public Renderable,
-	public Cullable,
 	public Bounded,
 	public Transformable
 {
@@ -112,9 +111,6 @@ public:
 	// Bounded implementation
 	virtual const AABB& localAABB() const;
 
-	// Cullable implementation
-	virtual VolumeIntersectionValue intersectVolume(const VolumeTest& test, const Matrix4& localToWorld) const;
-	
 	// Selectable implementation
 	virtual bool isSelected() const;
 	virtual void setSelected(bool select);
@@ -129,6 +125,7 @@ public:
 	void testSelectComponents(Selector& selector, SelectionTest& test, SelectionSystem::EComponentMode mode);
 
 	// override scene::Inode::onRemoveFromScene to deselect the child components
+	virtual void onInsertIntoScene();
 	virtual void onRemoveFromScene();
 
 	// ComponentEditable implementation
@@ -159,10 +156,6 @@ public:
 
 	static void constructStatic();
 	static void destroyStatic();
-	
-	// scene::Instantiable implementation
-	virtual void instantiate(const scene::Path& path);
-	virtual void uninstantiate(const scene::Path& path);
 	
 	// BrushObserver implementation
 	void clear();

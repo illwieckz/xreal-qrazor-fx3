@@ -104,10 +104,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\cullable.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\include\editable.h"
 			>
 		</File>
@@ -145,6 +141,10 @@
 		</File>
 		<File
 			RelativePath="..\..\include\idatastream.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\idialogmanager.h"
 			>
 		</File>
 		<File
@@ -205,10 +205,6 @@
 		</File>
 		<File
 			RelativePath="..\..\include\iimage.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\iinstantiable.h"
 			>
 		</File>
 		<File
@@ -316,6 +312,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\include\ispacepartition.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\itexdef.h"
 			>
 		</File>
@@ -336,15 +336,15 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\itraversable.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\include\iuimanager.h"
 			>
 		</File>
 		<File
 			RelativePath="..\..\include\iundo.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\ivolumetest.h"
 			>
 		</File>
 		<File

@@ -3,6 +3,9 @@
 #include "string/string.h"
 
 #include <gtk/gtk.h>
+#include "TreeModel.h"
+#include "ComboBox.h"
+
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
@@ -22,7 +25,7 @@ void SerialisableAdjustment::importFromString(const std::string& str)
 
 std::string SerialisableAdjustment::exportToString() const
 {
-   return floatToStr(gtk_adjustment_get_value(GTK_ADJUSTMENT(_adjustment)));
+   return doubleToStr(gtk_adjustment_get_value(GTK_ADJUSTMENT(_adjustment)));
 }
 
 // Text entry
@@ -54,7 +57,7 @@ void SerialisableSpinButton::importFromString(const std::string& str)
 
 std::string SerialisableSpinButton::exportToString() const
 {
-   return floatToStr(gtk_spin_button_get_value(GTK_SPIN_BUTTON(_getWidget())));
+   return doubleToStr(gtk_spin_button_get_value(GTK_SPIN_BUTTON(_getWidget())));
 }
 
 // Scale widget
@@ -70,7 +73,7 @@ void SerialisableScaleWidget::importFromString(const std::string& str)
 
 std::string SerialisableScaleWidget::exportToString() const
 {
-   return floatToStr(gtk_range_get_value(GTK_RANGE(_getWidget())));
+   return doubleToStr(gtk_range_get_value(GTK_RANGE(_getWidget())));
 }
 
 // Toggle button
@@ -89,12 +92,8 @@ void SerialisableToggleButton::importFromString(const std::string& str)
 
 std::string SerialisableToggleButton::exportToString() const
 {
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(_getWidget())) == TRUE)
-      return "1";
-   else 
-      return "0";
+	return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(_getWidget())) ? "1" : "0";
 }
-
 
 // SerialisableComboBox_Index
 
@@ -137,19 +136,19 @@ void SerialisableComboBox_Text::importFromString(const std::string& str)
    GtkTreeIter iter;
    GtkTreeModel* model = gtk_combo_box_get_model(GTK_COMBO_BOX(_getWidget()));
    for (gboolean validIter = gtk_tree_model_get_iter_first(model, &iter);
-        validIter == TRUE;
+        validIter;
         validIter = gtk_tree_model_iter_next(model, &iter))
    {
-      // Get the string value
-      gchar* treeVal;
-      gtk_tree_model_get(model, &iter, 0, &treeVal, -1);
-
-      // Check if this is the right string
-      index++;
-      if (std::string(treeVal) == str)
-      {
-         break;
-      }
+	   // Get the string value
+	   std::string treeVal = TreeModel::getString(model, &iter, 0);
+      
+	   // Check if this is the right string
+	   index++;
+	   
+	   if (treeVal == str)
+	   {
+		   break;
+	   }
    };
 
    if (index == -1)
@@ -166,9 +165,7 @@ void SerialisableComboBox_Text::importFromString(const std::string& str)
 
 std::string SerialisableComboBox_Text::exportToString() const
 {
-   return gtk_combo_box_get_active_text(
-      GTK_COMBO_BOX(_getWidget())
-   );
+	return gtkutil::ComboBox::getActiveText(GTK_COMBO_BOX(_getWidget()));
 }
 
 }

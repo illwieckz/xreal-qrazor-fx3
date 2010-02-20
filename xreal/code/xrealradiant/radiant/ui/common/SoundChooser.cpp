@@ -1,7 +1,8 @@
 #include "SoundChooser.h"
 
-#include "iradiant.h"
+#include "iuimanager.h"
 #include "isound.h"
+#include "imainframe.h"
 #include "gtkutil/TextColumn.h"
 #include "gtkutil/ScrolledFrame.h"
 #include "gtkutil/RightAlignment.h"
@@ -35,7 +36,7 @@ SoundChooser::SoundChooser()
 : _widget(gtk_window_new(GTK_WINDOW_TOPLEVEL))
 {
 	// Set up the window
-	gtk_window_set_transient_for(GTK_WINDOW(_widget), GlobalRadiant().getMainWindow());
+	gtk_window_set_transient_for(GTK_WINDOW(_widget), GlobalMainFrame().getTopLevelWindow());
 	gtk_window_set_modal(GTK_WINDOW(_widget), TRUE);
 	gtk_window_set_title(GTK_WINDOW(_widget), "Choose sound");
     gtk_window_set_position(GTK_WINDOW(_widget), GTK_WIN_POS_CENTER_ON_PARENT);
@@ -106,8 +107,8 @@ public:
 
 		// Get the icon, either folder or skin
 		GdkPixbuf* pixBuf = isExplicit
-							? GlobalRadiant().getLocalPixbuf(SOUND_ICON)
-							: GlobalRadiant().getLocalPixbuf(FOLDER_ICON);
+							? GlobalUIManager().getLocalPixbuf(SOUND_ICON)
+							: GlobalUIManager().getLocalPixbuf(FOLDER_ICON);
 
 		//gtk_tree_store_append(store, it, NULL);
 		gtk_tree_store_set(store, it,
@@ -152,7 +153,7 @@ GtkWidget* SoundChooser::createTreeView() {
 	gtk_tree_store_set(_treeStore, &allSounds,
 					   DISPLAYNAME_COLUMN, "All sounds",
 					   SOUNDNAME_COLUMN, "",
-					   ICON_COLUMN, GlobalRadiant().getLocalPixbuf(FOLDER_ICON),
+					   ICON_COLUMN, GlobalUIManager().getLocalPixbuf(FOLDER_ICON),
 					   -1);
 
 	// Create a TreePopulator for the tree store and pass in each of the sound names.

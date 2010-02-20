@@ -2,9 +2,11 @@
 #define IMODULE_H_
 
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 
 #include <string>
 #include <set>
+#include <vector>
 
 /**
  * \defgroup module Module system
@@ -23,14 +25,25 @@ namespace {
 	const std::string RKEY_PREFAB_PATH = "user/paths/prefabPath";
 }
 
+// A function taking an error title and an error message string, invoked in debug builds
+// for things like ASSERT_MESSAGE and ERROR_MESSAGE
+typedef boost::function<void (const std::string&, const std::string&)> ErrorHandlingFunction;
+
 /**
  * Provider for various information that may be required by modules during
  * initialisation.
  * 
  * \ingroup module
  */
-class ApplicationContext {
+class ApplicationContext 
+{
 public:
+
+    /** 
+     * \brief
+     * Argument list type.
+     */
+    typedef std::vector<std::string> ArgumentList;
 
     /**
 	 * Destructor
@@ -53,22 +66,10 @@ public:
 	virtual const std::string& getBitmapsPath() const = 0;
 
 	/**
-	 * Returns the number of command line arguments specified at
-	 * application start (argc, argv). Note that the 0th argument 
-	 * (the executable path) is not included/counted here.
+     * \brief
+     * Return the list of command line arguments.
 	 */
-	virtual std::size_t getNumCmdLineArgs() const = 0;
-
-	/**
-	 * Returns the Nth command line argument as specified at
-	 * application start. Note that the 0th argument (the executable path)
-	 * is not accessible here.
-	 *
-	 * @index: zero-based index number, range = [0..numArguments)
-	 * 
-	 * @returns: the nth command line argument, or "" if the index is invalid.
-	 */
-	virtual std::string getCmdLineArg(std::size_t index) const = 0;
+	virtual const ArgumentList& getCmdLineArgs() const = 0;
 	
 	/**
 	 * Return the reference to the application's output/error streams.
@@ -81,6 +82,11 @@ public:
 	 * Sets up the paths and stores them into the registry.
 	 */
 	virtual void savePathsToRegistry() const = 0;
+
+	/**
+	 * Retrieve a function pointer which can handle assertions and runtime errors
+	 */
+	virtual const ErrorHandlingFunction& getErrorHandlingFunction() const = 0;
 };
 
 /**

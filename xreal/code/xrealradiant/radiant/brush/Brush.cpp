@@ -3,12 +3,14 @@
 #include "math/frustum.h"
 #include "signal/signal.h"
 #include "irenderable.h"
+#include "itextstream.h"
 #include "iuimanager.h"
 #include "shaderlib.h"
 
 #include "BrushModule.h"
 #include "Face.h"
 #include "FixedWinding.h"
+#include "ui/surfaceinspector/SurfaceInspector.h"
 
 namespace {
 	/// \brief Returns true if edge (\p x, \p y) is smaller than the epsilon used to classify winding points against a plane.
@@ -17,7 +19,8 @@ namespace {
 	}
 }
 
-Brush::Brush(const Callback& evaluateTransform, const Callback& boundsChanged) :
+Brush::Brush(BrushNode& owner, const Callback& evaluateTransform, const Callback& boundsChanged) :
+	_owner(owner),
 	m_undoable_observer(0),
 	m_map(0),
 	_faceCentroidPoints(GL_POINTS),
@@ -31,7 +34,8 @@ Brush::Brush(const Callback& evaluateTransform, const Callback& boundsChanged) :
 	planeChanged();
 }
 
-Brush::Brush(const Brush& other, const Callback& evaluateTransform, const Callback& boundsChanged) :
+Brush::Brush(BrushNode& owner, const Brush& other, const Callback& evaluateTransform, const Callback& boundsChanged) :
+	_owner(owner),
 	m_undoable_observer(0),
 	m_map(0),
 	_faceCentroidPoints(GL_POINTS),
@@ -45,27 +49,13 @@ Brush::Brush(const Brush& other, const Callback& evaluateTransform, const Callba
 	copy(other);
 }
 
-Brush::Brush(const Brush& other) :
-	IBrush(other),
-	Bounded(other),
-	Cullable(other),
-	Snappable(other),
-	Undoable(other),
-	FaceObserver(other),
-	BrushDoom3(other),
-	m_undoable_observer(0),
-	m_map(0),
-	_faceCentroidPoints(GL_POINTS),
-	_uniqueVertexPoints(GL_POINTS),
-	_uniqueEdgePoints(GL_POINTS),
-	m_planeChanged(false),
-	m_transformChanged(false)
-{
-	copy(other);
-}
-
 Brush::~Brush() {
 	ASSERT_MESSAGE(m_observers.empty(), "Brush::~Brush: observers still attached");
+}
+
+BrushNode& Brush::getBrushNode()
+{
+	return _owner;
 }
 
 IFace& Brush::getFace(std::size_t index)
@@ -119,23 +109,22 @@ void Brush::forEachFace_instanceDetach(MapFile* map) const {
 	}
 }
 
-void Brush::instanceAttach(const scene::Path& path) {
+void Brush::instanceAttach(MapFile* map)
+{
 	if(++m_instanceCounter.m_count == 1)
 	{
-		m_map = path_find_mapfile(path.begin(), path.end());
+		m_map = map;
 		m_undoable_observer = GlobalUndoSystem().observer(this);
 		forEachFace_instanceAttach(m_map);
 	}
-	else
-	{
-		ASSERT_MESSAGE(path_find_mapfile(path.begin(), path.end()) == m_map, "node is instanced across more than one file");
-	}
 }
 
-void Brush::instanceDetach(const scene::Path& path) {
-	if(--m_instanceCounter.m_count == 0) {
+void Brush::instanceDetach(MapFile* map)
+{
+	if(--m_instanceCounter.m_count == 0)
+	{
 		forEachFace_instanceDetach(m_map);
-		m_map = 0;
+		m_map = NULL;
 		m_undoable_observer = 0;
 		GlobalUndoSystem().release(this);
 	}
@@ -148,8 +137,12 @@ void Brush::planeChanged() {
 	m_lightsChanged();
 }
 
-void Brush::shaderChanged() {
+void Brush::shaderChanged()
+{
 	planeChanged();
+
+	// Queue an UI update of the texture tools
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 void Brush::setShader(const std::string& newShader) {
@@ -199,10 +192,6 @@ void Brush::aabbChanged() {
 const AABB& Brush::localAABB() const {
 	evaluateBRep();
 	return m_aabb_local;
-}
-
-VolumeIntersectionValue Brush::intersectVolume(const VolumeTest& test, const Matrix4& localToWorld) const {
-	return test.TestAABB(m_aabb_local, localToWorld);
 }
 
 void Brush::renderComponents(SelectionSystem::EComponentMode mode, RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const {
@@ -293,7 +282,7 @@ FacePtr Brush::addFace(const Face& face) {
 		return FacePtr();
 	}
 	undoSave();
-	push_back(FacePtr(new Face(face, this)));
+	push_back(FacePtr(new Face(*this, face, this)));
 	planeChanged();
 	return m_faces.back();
 }
@@ -304,7 +293,7 @@ FacePtr Brush::addPlane(const Vector3& p0, const Vector3& p1, const Vector3& p2,
 		return FacePtr();
 	}
 	undoSave();
-	push_back(FacePtr(new Face(p0, p1, p2, shader, projection, this)));
+	push_back(FacePtr(new Face(*this, p0, p1, p2, shader, projection, this)));
 	planeChanged();
 	return m_faces.back();
 }

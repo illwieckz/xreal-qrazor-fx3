@@ -20,6 +20,8 @@
 #include "GlobalCamera.h"
 #include "render/RenderStatistics.h"
 
+#include <boost/bind.hpp>
+
 class ObjectFinder :
 	public scene::NodeVisitor
 {
@@ -246,10 +248,9 @@ CamWnd::CamWnd() :
 	m_cameraview(m_Camera, &m_view, CamWndUpdate(*this)),
 	m_drawing(false),
 	m_bFreeMove(false),
-	m_gl_widget(true),
+	m_gl_widget(true, "CamWnd"),
 	_parentWidget(NULL),
 	m_window_observer(NewWindowObserver()),
-	m_XORRectangle(m_gl_widget),
 	m_deferredDraw(WidgetQueueDrawCaller(*m_gl_widget)),
 	m_deferred_motion(selection_motion, m_window_observer),
 	m_selection_button_press_handler(0),
@@ -260,7 +261,7 @@ CamWnd::CamWnd() :
 {
 	GtkWidget* glWidget = m_gl_widget;
 	
-	m_window_observer->setRectangleDrawCallback(updateXORRectangleCallback(*this));
+	m_window_observer->setRectangleDrawCallback(boost::bind(&CamWnd::updateSelectionBox, this, _1));
 	m_window_observer->setView(m_view);
 
 	gtk_widget_set_events(glWidget, GDK_DESTROY | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK);
@@ -302,9 +303,6 @@ CamWnd::~CamWnd() {
 	
 	// Disconnect self from EventManager
 	GlobalEventManager().disconnect(GTK_OBJECT(glWidget));
-	if (_parentWidget != NULL) {
-		GlobalEventManager().disconnect(GTK_OBJECT(_parentWidget));
-	}
 
 	GlobalMap().removeValidCallback(_mapValidHandle);
 	
@@ -341,9 +339,15 @@ void CamWnd::jumpToObject(SelectionTest& selectionTest) {
 	}
 }
 
-void CamWnd::updateXORRectangle(Rectangle area) {
-	if (GTK_WIDGET_VISIBLE(static_cast<GtkWidget*>(m_gl_widget))) {
-		m_XORRectangle.set(rectangle_from_area(area.min, area.max, m_Camera.width, m_Camera.height));
+void CamWnd::updateSelectionBox(const Rectangle& area)
+{
+	if (GTK_WIDGET_VISIBLE(static_cast<GtkWidget*>(m_gl_widget)))
+	{
+		// Get the rectangle and convert it to screen coordinates
+		_dragRectangle = area;
+		_dragRectangle.toScreenCoords(m_Camera.width, m_Camera.height);
+
+		queueDraw();
 	}
 }
 
@@ -444,10 +448,6 @@ bool CamWnd::freeMoveEnabled() const {
 
 void CamWnd::Cam_Draw() {
 	glViewport(0, 0, m_Camera.width, m_Camera.height);
-#if 0
-	GLint viewprt[4];
-	glGetIntegerv (GL_VIEWPORT, viewprt);
-#endif
 
 	// enable depth buffer writes
 	glDepthMask(GL_TRUE);
@@ -566,7 +566,7 @@ void CamWnd::Cam_Draw() {
 	{
 		CamRenderer renderer(allowedRenderFlags, m_state_select2, m_state_select1, m_view.getViewer());
 
-		Scene_Render(renderer, m_view);
+		render::collectRenderablesInScene(renderer, m_view);
 
 		renderer.render(m_Camera.modelview, m_Camera.projection);
 	}
@@ -591,17 +591,13 @@ void CamWnd::Cam_Draw() {
 	glDisable(GL_BLEND);
 
 	glMatrixMode(GL_PROJECTION);
-
 	glLoadIdentity();
-
 	glOrtho(0, (float)m_Camera.width, 0, (float)m_Camera.height, -100, 100);
 
 	glScalef(1, -1, 1);
-
 	glTranslatef(0, -(float)m_Camera.height, 0);
 
 	glMatrixMode(GL_MODELVIEW);
-
 	glLoadIdentity();
 
 	if (GLEW_VERSION_1_3) {
@@ -646,6 +642,49 @@ void CamWnd::Cam_Draw() {
 
 	GlobalOpenGL().drawString(Cull_GetStats());
 
+	// Draw the selection drag rectangle
+	if (!_dragRectangle.empty())
+	{
+		// Define the blend function for transparency
+		glEnable(GL_BLEND);
+		glBlendColor(0, 0, 0, 0.2f);
+		glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
+		
+		Vector3 dragBoxColour = ColourSchemes().getColour("drag_selection");
+		glColor3dv(dragBoxColour);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		// Correct the glScale and glTranslate calls above
+		Rectangle rect = _dragRectangle;
+
+		double width = rect.max.x() - rect.min.x();
+		double height = rect.max.y() - rect.min.y();
+
+		rect.min.y() = m_Camera.height - rect.min.y();
+		height *= -1;
+
+		// The transparent fill rectangle
+		glBegin(GL_QUADS);
+		glVertex2d(rect.min.x(), rect.min.y() + height);
+		glVertex2d(rect.min.x() + width, rect.min.y() + height);
+		glVertex2d(rect.min.x() + width, rect.min.y());
+		glVertex2d(rect.min.x(), rect.min.y());
+		glEnd();
+
+		// The solid borders
+		glColor3f(0.9f, 0.9f, 0.9f);
+		glBlendColor(0, 0, 0, 0.8f);
+
+		glBegin(GL_LINE_LOOP);
+		glVertex2d(rect.min.x(), rect.min.y() + height);
+		glVertex2d(rect.min.x() + width, rect.min.y() + height);
+		glVertex2d(rect.min.x() + width, rect.min.y());
+		glVertex2d(rect.min.x(), rect.min.y());
+		glEnd();
+
+		glDisable(GL_BLEND);
+	}
+
 	// bind back to the default texture so that we don't have problems
 	// elsewhere using/modifying texture maps between contexts
 	glBindTexture( GL_TEXTURE_2D, 0 );
@@ -661,8 +700,6 @@ void CamWnd::draw() {
 		GlobalOpenGL_debugAssertNoErrors();
 		Cam_Draw();
 		GlobalOpenGL_debugAssertNoErrors();
-
-		m_XORRectangle.set(rectangle_t());
 	}
 
 	m_drawing = false;

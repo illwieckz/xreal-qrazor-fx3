@@ -69,6 +69,11 @@ void EntityNode::removeKeyObserver(const std::string& key, const KeyObserver& ob
 	_keyObservers.erase(key, observer);
 }
 
+Entity& EntityNode::getEntity()
+{
+	return _entity;
+}
+
 std::string EntityNode::getName() const {
 	return _namespaceManager.getName();
 }
@@ -101,18 +106,18 @@ void EntityNode::changeName(const std::string& newName) {
 	_namespaceManager.changeName(newName);
 }
 
-void EntityNode::instantiate(const scene::Path& path)
+void EntityNode::onInsertIntoScene()
 {
-	_entity.instanceAttach(path_find_mapfile(path.begin(), path.end()));
+	_entity.instanceAttach(scene::findMapFile(getSelf()));
 
-	Node::instantiate(path);
+	SelectableNode::onInsertIntoScene();
 }
 
-void EntityNode::uninstantiate(const scene::Path& path)
+void EntityNode::onRemoveFromScene()
 {
-	Node::uninstantiate(path);
+	SelectableNode::onRemoveFromScene();
 
-	_entity.instanceDetach(path_find_mapfile(path.begin(), path.end()));
+	_entity.instanceDetach(scene::findMapFile(getSelf()));
 }
 
 std::string EntityNode::name() const

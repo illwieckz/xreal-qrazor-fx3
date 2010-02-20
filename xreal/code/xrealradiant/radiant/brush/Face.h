@@ -15,6 +15,7 @@
 #include "FacePlane.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
+#include "selection/algorithm/Shader.h"
 
 const double GRID_MIN = 0.125;
 
@@ -40,8 +41,6 @@ class Face :
 	public FaceShader::Observer,
 	public boost::noncopyable
 {
-	std::size_t m_refcount;
-
 	class SavedState : public UndoMemento {
 		public:
 			FacePlane::SavedState m_planeState;
@@ -73,6 +72,9 @@ public:
 	PlanePoints m_move_planepts;
 	PlanePoints m_move_planeptsTransformed;
 private:
+	// The parent brush
+	Brush& _owner;
+
 	FacePlane m_plane;
 	FacePlane m_planeTransformed;
 
@@ -92,15 +94,18 @@ private:
 public:
 
 	// Constructors
-	Face(FaceObserver* observer);
-	Face(const Vector3& p0, const Vector3& p1, const Vector3& p2,
+	Face(Brush& owner, FaceObserver* observer);
+	Face(Brush& owner, const Vector3& p0, const Vector3& p1, const Vector3& p2,
 		const std::string& shader, const TextureProjection& projection, FaceObserver* observer);
 		
 	// Copy Constructor
-	Face(const Face& other, FaceObserver* observer);
+	Face(Brush& owner, const Face& other, FaceObserver* observer);
 	
 	// Destructor
 	virtual ~Face();
+
+	// Get the parent brush object
+	Brush& getBrush();
 
 	void planeChanged();
 	
@@ -174,6 +179,7 @@ public:
 	void rotateTexdef(float angle);
 	void fitTexture(float s_repeat, float t_repeat);
 	void flipTexture(unsigned int flipAxis);
+	void alignTexture(EAlignType align);
 	
 	/** greebo: This translates the texture as much towards 
 	 * 	the origin as possible. The face appearance stays unchanged.  

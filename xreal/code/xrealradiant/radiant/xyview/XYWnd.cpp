@@ -32,6 +32,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
+#include <boost/bind.hpp>
 
 inline float Betwixt(float f1, float f2) {
 	return (f1 + f2) * 0.5f;
@@ -52,7 +53,7 @@ inline float normalised_to_world(float normalised, float world_origin, float nor
 // Constructors
 XYWnd::XYWnd(int id) :
 	_id(id),
-	_glWidget(false),
+	_glWidget(false, "XYWnd"),
 	m_gl_widget(static_cast<GtkWidget*>(_glWidget)),
 	m_deferredDraw(WidgetQueueDrawCaller(*m_gl_widget)),
 	m_deferred_motion(callbackMouseMotion, this),
@@ -72,15 +73,21 @@ XYWnd::XYWnd(int id) :
 	_width = 0;
 	_height = 0;
 
-	m_vOrigin[0] = 0;
-	m_vOrigin[1] = 20;
-	m_vOrigin[2] = 46;
-	m_fScale = 1;
+	// Try to retrieve a recently used origin and scale from the registry
+	std::string recentPath = RKEY_XYVIEW_ROOT + "/recent";
+	m_vOrigin = Vector3(GlobalRegistry().getAttribute(recentPath, "origin"));
+	m_fScale = strToDouble(GlobalRegistry().getAttribute(recentPath, "scale"));
+
+	if (m_fScale == 0)
+	{
+		m_fScale = 1;
+	}
+
 	m_viewType = XY;
 
 	m_entityCreate = false;
 
-	m_window_observer->setRectangleDrawCallback(MemberCaller1<XYWnd, Rectangle, &XYWnd::updateXORRectangle>(*this));
+	m_window_observer->setRectangleDrawCallback(boost::bind(&XYWnd::updateSelectionBox, this, _1));
 	m_window_observer->setView(m_view);
 		
 	gtk_widget_ref(m_gl_widget);
@@ -122,13 +129,20 @@ XYWnd::XYWnd(int id) :
 }
 
 // Destructor
-XYWnd::~XYWnd() {
+XYWnd::~XYWnd()
+{
 	// Destroy the widgets now, not all XYWnds are FloatingOrthoViews,
 	// which calls destroyXYView() in their _preDestroy event.
 	// Double-calls don't harm, so this is safe to do.
 	destroyXYView();
 
 	GlobalMap().removeValidCallback(_validCallbackHandle);
+
+	// Store the current position and scale to the registry, so that it may be
+	// picked up again when creating XYViews after switching layouts
+	std::string recentPath = RKEY_XYVIEW_ROOT + "/recent";
+	GlobalRegistry().setAttribute(recentPath, "origin", m_vOrigin);
+	GlobalRegistry().setAttribute(recentPath, "scale", doubleToStr(m_fScale));
 }
 
 void XYWnd::destroyXYView() {
@@ -539,14 +553,14 @@ void XYWnd::beginMove() {
 		endMove();
 	}
 	_moveStarted = true;
-	_freezePointer.freeze_pointer(_parent != 0 ? _parent : GlobalRadiant().getMainWindow(), callbackMoveDelta, this);
+	_freezePointer.freeze_pointer(_parent != 0 ? _parent : GlobalMainFrame().getTopLevelWindow(), callbackMoveDelta, this);
 	m_move_focusOut = g_signal_connect(G_OBJECT(m_gl_widget), "focus_out_event", G_CALLBACK(callbackMoveFocusOut), this);
 }
 
 
 void XYWnd::endMove() {
 	_moveStarted = false;
-	_freezePointer.unfreeze_pointer(_parent != 0 ? _parent : GlobalRadiant().getMainWindow());
+	_freezePointer.unfreeze_pointer(_parent != 0 ? _parent : GlobalMainFrame().getTopLevelWindow());
 	g_signal_handler_disconnect(G_OBJECT(m_gl_widget), m_move_focusOut);
 }
 
@@ -556,13 +570,13 @@ void XYWnd::beginZoom() {
 	}
 	_zoomStarted = true;
 	_dragZoom = 0;
-	_freezePointer.freeze_pointer(_parent != 0 ? _parent : GlobalRadiant().getMainWindow(), callbackZoomDelta, this);
+	_freezePointer.freeze_pointer(_parent != 0 ? _parent : GlobalMainFrame().getTopLevelWindow(), callbackZoomDelta, this);
 	m_zoom_focusOut = g_signal_connect(G_OBJECT(m_gl_widget), "focus_out_event", G_CALLBACK(callbackZoomFocusOut), this);
 }
 
 void XYWnd::endZoom() {
 	_zoomStarted = false;
-	_freezePointer.unfreeze_pointer(_parent != 0 ? _parent : GlobalRadiant().getMainWindow());
+	_freezePointer.unfreeze_pointer(_parent != 0 ? _parent : GlobalMainFrame().getTopLevelWindow());
 	g_signal_handler_disconnect(G_OBJECT(m_gl_widget), m_zoom_focusOut);
 }
 
@@ -1328,20 +1342,16 @@ void XYWnd::updateModelview() {
 	m_view.Construct(m_projection, m_modelview, _width, _height);
 }
 
-void XYWnd::draw() {
-	//
+void XYWnd::draw()
+{
 	// clear
-	//
 	glViewport(0, 0, _width, _height);
 	Vector3 colourGridBack = ColourSchemes().getColour("grid_background");
 	glClearColor (colourGridBack[0], colourGridBack[1], colourGridBack[2], 0);
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//
 	// set up viewpoint
-	//
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixd(m_projection);
 
@@ -1384,7 +1394,7 @@ void XYWnd::draw() {
 		XYRenderer renderer(globalstate, _selectedShader.get());
 
 		// First pass (scenegraph traversal)
-		Scene_Render(renderer, m_view);
+		render::collectRenderablesInScene(renderer, m_view);
 		
 		// Second pass (GL calls)
 		renderer.render(m_modelview, m_projection);
@@ -1420,8 +1430,7 @@ void XYWnd::draw() {
 
 	GlobalOpenGL_debugAssertNoErrors();
 
-
-	// greebo: Check, if the brush/patch size info should be displayed (if there are any items selected)
+	// greebo: Check, if the size info should be displayed (if there are any items selected)
 	if (GlobalXYWnd().showSizeInfo() && GlobalSelectionSystem().countSelected() != 0)
 	{
 		const selection::WorkZone& wz = GlobalSelectionSystem().getWorkZone();
@@ -1483,11 +1492,6 @@ void XYWnd::draw() {
 	}
 
 	// Draw the selection drag rectangle
-
-	const rectangle_t& rect = _dragRectangle;
-	globalOutputStream() << "Rectangle: x=" << 
-		rect.x << ", y=" << rect.y << " - w=" << rect.w << ",h=" << rect.h << std::endl;
-
 	if (!_dragRectangle.empty())
 	{
 		glMatrixMode (GL_PROJECTION);
@@ -1499,27 +1503,28 @@ void XYWnd::draw() {
 
 		// Define the blend function for transparency
 		glEnable(GL_BLEND);
-		glBlendColor(0,0,0,0.2f);
+		glBlendColor(0, 0, 0, 0.2f);
 		glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
 		
-		glColor3f(0.3f, 0, 0);
+		Vector3 dragBoxColour = ColourSchemes().getColour("drag_selection");
+		glColor3dv(dragBoxColour);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		// The transparent fill rectangle
 		glBegin(GL_QUADS);
-		glVertex2f(_dragRectangle.x, _dragRectangle.y);
-		glVertex2f(_dragRectangle.x + _dragRectangle.w, _dragRectangle.y); 
-		glVertex2f(_dragRectangle.x + _dragRectangle.w, _dragRectangle.y + _dragRectangle.h);
-		glVertex2f(_dragRectangle.x, _dragRectangle.y + _dragRectangle.h);
+		glVertex2f(_dragRectangle.min.x(), _dragRectangle.min.y());
+		glVertex2f(_dragRectangle.max.x(), _dragRectangle.min.y()); 
+		glVertex2f(_dragRectangle.max.x(), _dragRectangle.max.y());
+		glVertex2f(_dragRectangle.min.x(), _dragRectangle.max.y());
 		glEnd();
 
 		// The solid borders
-		glBlendColor(0,0,0,0.8f);
+		glBlendColor(0, 0, 0, 0.8f);
 		glBegin(GL_LINE_LOOP);
-		glVertex2f(_dragRectangle.x, _dragRectangle.y);
-		glVertex2f(_dragRectangle.x + _dragRectangle.w, _dragRectangle.y); 
-		glVertex2f(_dragRectangle.x + _dragRectangle.w, _dragRectangle.y + _dragRectangle.h);
-		glVertex2f(_dragRectangle.x, _dragRectangle.y + _dragRectangle.h);
+		glVertex2f(_dragRectangle.min.x(), _dragRectangle.min.y());
+		glVertex2f(_dragRectangle.max.x(), _dragRectangle.min.y()); 
+		glVertex2f(_dragRectangle.max.x(), _dragRectangle.max.y());
+		glVertex2f(_dragRectangle.min.x(), _dragRectangle.max.y());
 		glEnd();
 
 		glDisable(GL_BLEND);
@@ -1578,11 +1583,14 @@ void XYWnd::onEntityCreate(const std::string& item) {
 	Entity_createFromSelection(item.c_str(), point);
 }
 
-void XYWnd::updateXORRectangle(Rectangle area)
+void XYWnd::updateSelectionBox(const Rectangle& area)
 {
 	if(GTK_WIDGET_VISIBLE(getWidget()))
 	{
-		_dragRectangle = rectangle_from_area(area.min, area.max, getWidth(), getHeight());
+		// Take the rectangle and convert it to screen coordinates
+		_dragRectangle = area;
+		_dragRectangle.toScreenCoords(getWidth(), getHeight());
+
 		queueDraw();
 	}
 }

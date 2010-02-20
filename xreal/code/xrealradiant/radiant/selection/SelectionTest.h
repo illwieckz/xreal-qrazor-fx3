@@ -43,83 +43,105 @@ public:
 
 // --------------------------------------------------------------------------------
 
-class testselect_entity_visible : public scene::NodeVisitor {
-  Selector& _selector;
-  SelectionTest& _test;
-public:
-  testselect_entity_visible(Selector& selector, SelectionTest& test)
-    : _selector(selector), _test(test) {}
-
-  bool pre(const scene::INodePtr& node);  
-  void post(const scene::INodePtr& node);
-};
-
-class testselect_primitive_visible : public scene::NodeVisitor {
-  Selector& _selector;
-  SelectionTest& _test;
-	bool _selectChildPrimitives;
-public:
-	/** greebo: Set the selectChildPrimitives bool to TRUE if child primitives of entities like func_static
-	 * should be selected as well. This should be set to TRUE for Manipulator checks.
-	 */
-	testselect_primitive_visible(Selector& selector, SelectionTest& test, bool selectChildPrimitives) : 
-		_selector(selector), 
-		_test(test),
-		_selectChildPrimitives(selectChildPrimitives) 
-	{}
-
-  bool pre(const scene::INodePtr& node);
-  void post(const scene::INodePtr& node);
-};
-
-/** greebo: Tests for any primitives/entities matching the selectiontest
- */
-class testselect_any_visible : 
-	public scene::NodeVisitor 
+// Base class for SelectionTesters, provides some convenience methods
+class SelectionTestWalker :
+	public scene::Graph::Walker
 {
+protected:
+	void printNodeName(const scene::INodePtr& node);
+
+	// Returns non-NULL if the given node is an Entity
+	scene::INodePtr getEntityNode(const scene::INodePtr& node);
+
+	// Returns non-NULL if the given node's parent is a GroupNode
+	scene::INodePtr getParentGroupEntity(const scene::INodePtr& node);
+
+	// Returns true if the node is worldspawn
+	bool entityIsWorldspawn(const scene::INodePtr& node);
+};
+
+// A Selector which is testing for entities. This successfully
+// checks for selections of child primitives of func_* entities too.
+class EntitySelector :
+	public SelectionTestWalker
+{
+private:
 	Selector& _selector;
 	SelectionTest& _test;
-	bool _selectChildPrimitives;
+
 public:
-	testselect_any_visible(Selector& selector, SelectionTest& test, bool selectChildPrimitives) : 
-		_selector(selector), 
-		_test(test),
-		_selectChildPrimitives(selectChildPrimitives)
+	EntitySelector(Selector& selector, SelectionTest& test) :
+		_selector(selector),
+		_test(test)
 	{}
 
-	bool pre(const scene::INodePtr& node);  
-	void post(const scene::INodePtr& node);
+	bool visit(const scene::INodePtr& node);
 };
 
-class testselect_component_visible : public scene::NodeVisitor {
-  Selector& _selector;
-  SelectionTest& _test;
-  SelectionSystem::EComponentMode _mode;
+// A Selector looking for worldspawn primitives only. 
+class PrimitiveSelector :
+	public SelectionTestWalker
+{
+private:
+	Selector& _selector;
+	SelectionTest& _test;
+
 public:
-  testselect_component_visible(Selector& selector, SelectionTest& test, SelectionSystem::EComponentMode mode)
-    : _selector(selector), _test(test), _mode(mode) {}
-  
-  bool pre(const scene::INodePtr& node);
+	PrimitiveSelector(Selector& selector, SelectionTest& test) :
+		_selector(selector),
+		_test(test)
+	{}
+
+	bool visit(const scene::INodePtr& node);
 };
 
-class testselect_component_visible_selected : public scene::NodeVisitor {
-  Selector& _selector;
-  SelectionTest& _test;
-  SelectionSystem::EComponentMode _mode;
+// A selector testing for all kinds of selectable items, entities and primitives.
+// Worldspawn primitives are selected directly, for child primitives of func_* ents
+// the selection will be "relayed" to the parent entity.
+class AnySelector :
+	public SelectionTestWalker
+{
+private:
+	Selector& _selector;
+	SelectionTest& _test;
+
 public:
-  testselect_component_visible_selected(Selector& selector, SelectionTest& test, SelectionSystem::EComponentMode mode)
-    : _selector(selector), _test(test), _mode(mode) {}
-  
-  bool pre(const scene::INodePtr& node);
+	AnySelector(Selector& selector, SelectionTest& test) :
+		_selector(selector),
+		_test(test)
+	{}
+
+	bool visit(const scene::INodePtr& node);
 };
 
-// --------------------------------------------------------------------------------
+// A class seeking for components, can be used either to traverse the
+// selectionsystem or the scene graph as a whole.
+class ComponentSelector :
+	public SelectionTestWalker,
+	public SelectionSystem::Visitor
+{
+private:
+	Selector& _selector;
+	SelectionTest& _test;
+	SelectionSystem::EComponentMode _mode;
 
-void Scene_TestSelect_Primitive(Selector& selector, SelectionTest& test, const VolumeTest& volume, bool selectChildPrimitives = true);
-void Scene_TestSelect_Component(Selector& selector, SelectionTest& test, const VolumeTest& volume, SelectionSystem::EComponentMode componentMode);
-void Scene_TestSelect_Component_Selected(Selector& selector, SelectionTest& test, const VolumeTest& volume, SelectionSystem::EComponentMode componentMode);
+public:
+	ComponentSelector(Selector& selector, SelectionTest& test, 
+					  SelectionSystem::EComponentMode mode) :
+		_selector(selector), 
+		_test(test), 
+		_mode(mode)
+	{}
 
-inline void ConstructSelectionTest(View& view, const Rectangle selection_box) {
+	// scene::Graph::Walker implementation
+	bool visit(const scene::INodePtr& node);
+
+	// SelectionSystem::Visitor implementation
+	void visit(const scene::INodePtr& node) const;
+};
+
+inline void ConstructSelectionTest(View& view, const Rectangle& selection_box)
+{
 	view.EnableScissor(selection_box.min[0], selection_box.max[0], 
 					   selection_box.min[1], selection_box.max[1]);
 }

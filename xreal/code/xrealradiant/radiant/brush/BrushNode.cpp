@@ -1,5 +1,6 @@
 #include "BrushNode.h"
 
+#include "ivolumetest.h"
 #include "ifilter.h"
 #include "iradiant.h"
 #include "icounter.h"
@@ -9,7 +10,7 @@
 BrushNode::BrushNode() :
 	BrushTokenImporter(m_brush),
 	BrushTokenExporter(m_brush),
-	m_brush(EvaluateTransformCaller(*this), Node::BoundsChangedCaller(*this)),
+	m_brush(*this, EvaluateTransformCaller(*this), Node::BoundsChangedCaller(*this)),
 	_selectable(SelectedChangedCaller(*this)),
 	m_render_selected(GL_POINTS),
 	_faceCentroidPointsCulled(GL_POINTS),
@@ -42,10 +43,9 @@ BrushNode::BrushNode(const BrushNode& other) :
 	PlaneSelectable(other),
 	LightCullable(other),
 	Renderable(other),
-	Cullable(other),
 	Bounded(other),
 	Transformable(other),
-	m_brush(other.m_brush, EvaluateTransformCaller(*this), Node::BoundsChangedCaller(*this)),
+	m_brush(*this, other.m_brush, EvaluateTransformCaller(*this), Node::BoundsChangedCaller(*this)),
 	_selectable(SelectedChangedCaller(*this)),
 	m_render_selected(GL_POINTS),
 	_faceCentroidPointsCulled(GL_POINTS),
@@ -58,12 +58,6 @@ BrushNode::BrushNode(const BrushNode& other) :
 BrushNode::~BrushNode() {
 	GlobalRenderSystem().detach(*this);
 	m_brush.detach(*this); // BrushObserver
-}
-
-VolumeIntersectionValue BrushNode::intersectVolume(
-	const VolumeTest& test, const Matrix4& localToWorld) const
-{
-	return m_brush.intersectVolume(test, localToWorld);
 }
 
 void BrushNode::lightsChanged() {
@@ -189,16 +183,6 @@ void BrushNode::testSelectComponents(Selector& selector, SelectionTest& test, Se
 	}
 }
 
-void BrushNode::onRemoveFromScene() {
-	// De-select this node
-	setSelected(false);
-
-	// De-select all child components as well
-	setSelectedComponents(false, SelectionSystem::eVertex);
-	setSelectedComponents(false, SelectionSystem::eEdge);
-	setSelectedComponents(false, SelectionSystem::eFace);
-}
-
 const AABB& BrushNode::getSelectedComponentsBounds() const {
 	m_aabb_component = AABB();
 
@@ -257,18 +241,28 @@ scene::INodePtr BrushNode::clone() const {
 	return scene::INodePtr(new BrushNode(*this));
 }
 
-void BrushNode::instantiate(const scene::Path& path) {
-	m_brush.instanceAttach(path);
-	GlobalRadiant().getCounter(counterBrushes).increment();
+void BrushNode::onInsertIntoScene()
+{
+	m_brush.instanceAttach(scene::findMapFile(getSelf()));
+	GlobalCounters().getCounter(counterBrushes).increment();
 
-	Node::instantiate(path);
+	Node::onInsertIntoScene();
 }
 
-void BrushNode::uninstantiate(const scene::Path& path) {
-	GlobalRadiant().getCounter(counterBrushes).decrement();
-	m_brush.instanceDetach(path);
+void BrushNode::onRemoveFromScene()
+{
+	// De-select this node
+	setSelected(false);
 
-	Node::uninstantiate(path);
+	// De-select all child components as well
+	setSelectedComponents(false, SelectionSystem::eVertex);
+	setSelectedComponents(false, SelectionSystem::eEdge);
+	setSelectedComponents(false, SelectionSystem::eFace);
+
+	GlobalCounters().getCounter(counterBrushes).decrement();
+	m_brush.instanceDetach(scene::findMapFile(getSelf()));
+
+	Node::onRemoveFromScene();
 }
 
 void BrushNode::constructStatic() {

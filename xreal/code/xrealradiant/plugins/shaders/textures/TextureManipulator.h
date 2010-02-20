@@ -18,10 +18,10 @@ class TextureManipulator :
 	float _gamma;
 	
 	// Gets filled in by an OpenGL query
-	int _maxTextureSize;
+	std::size_t _maxTextureSize;
 	
 	// The image reduction indicator (3 = no reduction, 0 = 12.5%)
-	int _textureQuality;
+	std::size_t _textureQuality;
 
 protected:
 	// this is a singleton
@@ -42,28 +42,28 @@ public:
 	// Constructs the prefpage
 	void constructPreferences();
 
-	void resampleTexture(const void *indata, int inwidth, int inheight, 
-						 void *outdata, int outwidth, int outheight, int bytesperpixel);
+	void resampleTexture(const void *indata, std::size_t inwidth, std::size_t inheight, 
+						 void *outdata, std::size_t outwidth, std::size_t outheight, int bytesperpixel);
 
 	void mipReduce(byte *in, byte *out, 
-				   int width, int height, 
-				   int destwidth, int destheight);
+				   std::size_t width, std::size_t height, 
+				   std::size_t destwidth, std::size_t destheight);
 
 	/* greebo: Returns the readily fabricated pixel data, that passed
 	 * a bunch of stages (gamma calculation, mip reduction, stretching) 
 	 */
-	ImagePtr getProcessedImage(ImagePtr input);
+	ImagePtr getProcessedImage(const ImagePtr& input);
 
 	/* greebo: Performs a fast scan over the pixel data, taking every
 	 * 20th pixel to determine the representative flat shade colour 
 	 */
-	Colour3 getFlatshadeColour(ImagePtr input);
+	Colour3 getFlatshadeColour(const ImagePtr& input);
 
 private:
 
 	// Returns the gamma corrected image taken from <input>
 	// (Does not allocate new memory)
-	ImagePtr processGamma(ImagePtr input);
+	ImagePtr processGamma(const ImagePtr& input);
 	
 	/* greebo: This ensures that the image has dimensions that 
 	 * match a power of two. If it does not, the according length is
@@ -72,14 +72,14 @@ private:
 	 * Additionally, this ensures that the image is not larger
 	 * than the maximum texture size openGL can handle.
 	 */
-	ImagePtr getResized(ImagePtr input);
+	ImagePtr getResized(const ImagePtr& input);
 	
 	// Recalculates the gamma table according to the given gamma value
 	// This is called on first startup or if the user changes the value
 	void calculateGammaTable();
 	
 	void resampleTextureLerpLine(const byte *in, byte *out, 
-								 int inwidth, int outwidth, int bytesperpixel);
+								 std::size_t inwidth, std::size_t outwidth, int bytesperpixel);
 
 }; // class TextureManipulator
 

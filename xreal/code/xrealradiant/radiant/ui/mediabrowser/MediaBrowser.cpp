@@ -1,7 +1,7 @@
 #include "MediaBrowser.h"
 #include "TextureDirectoryLoader.h"
 
-#include "iradiant.h"
+#include "imainframe.h"
 #include "iuimanager.h"
 #include "igroupdialog.h"
 #include "ipreferencesystem.h"
@@ -123,7 +123,7 @@ MediaBrowser::MediaBrowser()
 	// Construct the popup context menu
 	_popupMenu.addItem(
 		gtkutil::IconTextMenuItem(
-			GlobalRadiant().getLocalPixbuf(LOAD_TEXTURE_ICON), 
+			GlobalUIManager().getLocalPixbuf(LOAD_TEXTURE_ICON), 
 			LOAD_TEXTURE_TEXT
 		), 
 		boost::bind(&MediaBrowser::_onLoadInTexView, this), 
@@ -131,7 +131,7 @@ MediaBrowser::MediaBrowser()
 	);
 	_popupMenu.addItem(
 		gtkutil::IconTextMenuItem(
-			GlobalRadiant().getLocalPixbuf(APPLY_TEXTURE_ICON), 
+			GlobalUIManager().getLocalPixbuf(APPLY_TEXTURE_ICON), 
 			APPLY_TEXTURE_TEXT
 		), 
 		boost::bind(&MediaBrowser::_onApplyToSel, this), 
@@ -139,7 +139,7 @@ MediaBrowser::MediaBrowser()
 	);
 	_popupMenu.addItem(
 		gtkutil::IconTextMenuItem(
-			GlobalRadiant().getLocalPixbuf(SHOW_SHADER_DEF_ICON), 
+			GlobalUIManager().getLocalPixbuf(SHOW_SHADER_DEF_ICON), 
 			SHOW_SHADER_DEF_TEXT
 		), 
 		boost::bind(&MediaBrowser::_onShowShaderDefinition, this), 
@@ -217,7 +217,7 @@ struct ShaderNameFunctor {
 		gtk_tree_store_set(_store, &iter, 
 						   DISPLAYNAME_COLUMN, thisDir.c_str(), 
 						   FULLNAME_COLUMN, pathName.c_str(),
-						   ICON_COLUMN, GlobalRadiant().getLocalPixbuf(FOLDER_ICON),
+						   ICON_COLUMN, GlobalUIManager().getLocalPixbuf(FOLDER_ICON),
 						   DIR_FLAG_COLUMN, TRUE,
 						   IS_OTHER_MATERIALS_FOLDER_COLUMN, isOtherMaterials ? TRUE : FALSE,
 						   -1);
@@ -252,7 +252,7 @@ struct ShaderNameFunctor {
 			gtk_tree_store_set(_store, &iter, 
 							   DISPLAYNAME_COLUMN, texName.c_str(), 
 							   FULLNAME_COLUMN, name,
-							   ICON_COLUMN, GlobalRadiant().getLocalPixbuf(TEXTURE_ICON),
+							   ICON_COLUMN, GlobalUIManager().getLocalPixbuf(TEXTURE_ICON),
 							   DIR_FLAG_COLUMN, FALSE,
 							   IS_OTHER_MATERIALS_FOLDER_COLUMN, FALSE,
 							   -1);
@@ -397,7 +397,7 @@ void MediaBrowser::_onShowShaderDefinition()
 	ShaderDefinitionView view;
 	view.setShader(shaderName);
 
-	GtkWidget* dialog = gtk_dialog_new_with_buttons("View Shader Definition", GlobalRadiant().getMainWindow(),
+	GtkWidget* dialog = gtk_dialog_new_with_buttons("View Shader Definition", GlobalMainFrame().getTopLevelWindow(),
                                          GTK_DIALOG_DESTROY_WITH_PARENT, 
                                          GTK_STOCK_CLOSE, GTK_RESPONSE_OK,
                                          NULL);
@@ -406,7 +406,7 @@ void MediaBrowser::_onShowShaderDefinition()
 
 	gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), view.getWidget());
 
-	GdkRectangle rect = gtkutil::MultiMonitor::getMonitorForWindow(GlobalRadiant().getMainWindow());
+	GdkRectangle rect = gtkutil::MultiMonitor::getMonitorForWindow(GlobalMainFrame().getTopLevelWindow());
 	gtk_window_set_default_size(
 		GTK_WINDOW(dialog), gint(rect.width/2), gint(2*rect.height/3)
 	);

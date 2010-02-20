@@ -102,7 +102,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "gtkutil/MultiMonitor.h"
 #include "gtkutil/widget.h"
 #include "gtkutil/FramedWidget.h"
-#include "gtkutil/messagebox.h"
 #include "gtkutil/dialog.h"
 
 #include "map/AutoSaver.h"
@@ -114,7 +113,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "patchmanip.h"
 #include "select.h"
 #include "ui/texturebrowser/TextureBrowser.h"
-#include "referencecache.h"
 #include "camera/GlobalCamera.h"
 #include "camera/CameraSettings.h"
 #include "xyview/GlobalXYWnd.h"
@@ -567,6 +565,7 @@ void RefreshShaders(const cmd::ArgumentList& args) {
 	GlobalMainFrame().updateAllWindows();
 }
 
+#if 0
 #include "debugging/ScopedDebugTimer.h"
 
 void BenchmarkPatches(const cmd::ArgumentList& args) {
@@ -600,12 +599,15 @@ void BenchmarkPatches(const cmd::ArgumentList& args) {
 		}
 	}
 }
+#endif
 
 void MainFrame_Construct()
 {
 	DragMode();
 
+#if 0
 	GlobalCommandSystem().addCommand("BenchmarkPatches", BenchmarkPatches);
+#endif
 
 	GlobalCommandSystem().addCommand("Exit", Exit);
 	GlobalCommandSystem().addCommand("ReloadSkins", ReloadSkins);
@@ -626,6 +628,7 @@ void MainFrame_Construct()
 	GlobalCommandSystem().addCommand("SelectTouching", selection::algorithm::selectTouching);
 	GlobalCommandSystem().addCommand("SelectCompleteTall", selection::algorithm::selectCompleteTall);
 	GlobalCommandSystem().addCommand("ExpandSelectionToEntities", selection::algorithm::expandSelectionToEntities);
+	GlobalCommandSystem().addCommand("MergeSelectedEntities", selection::algorithm::mergeSelectedEntities);
 	GlobalCommandSystem().addCommand("SelectChildren", selection::algorithm::selectChildren);
 
 	GlobalCommandSystem().addCommand("Preferences", ui::PrefDialog::toggle);
@@ -671,6 +674,8 @@ void MainFrame_Construct()
 	GlobalCommandSystem().addCommand("TexScale", selection::algorithm::scaleTexture, cmd::ARGTYPE_VECTOR2|cmd::ARGTYPE_STRING);
 	GlobalCommandSystem().addCommand("TexShift", selection::algorithm::shiftTextureCmd, cmd::ARGTYPE_VECTOR2|cmd::ARGTYPE_STRING);
 
+	GlobalCommandSystem().addCommand("TexAlign", selection::algorithm::alignTextureCmd, cmd::ARGTYPE_STRING);
+
 	// Add the nudge commands (one general, four specialised ones)
 	GlobalCommandSystem().addCommand("NudgeSelected", selection::algorithm::nudgeSelectedCmd, cmd::ARGTYPE_STRING);
 
@@ -714,6 +719,7 @@ void MainFrame_Construct()
 	GlobalEventManager().addCommand("DeleteSelection", "DeleteSelection");
 	GlobalEventManager().addCommand("ParentSelection", "ParentSelection");
 	GlobalEventManager().addCommand("ParentSelectionToWorldspawn", "ParentSelectionToWorldspawn");
+	GlobalEventManager().addCommand("MergeSelectedEntities", "MergeSelectedEntities");
 
 	GlobalEventManager().addCommand("UnSelectSelection", "UnSelectSelection");
 	GlobalEventManager().addCommand("InvertSelection", "InvertSelection");
@@ -792,6 +798,10 @@ void MainFrame_Construct()
 	GlobalEventManager().addCommand("TexShiftDown", "TexShiftDown");
 	GlobalEventManager().addCommand("TexShiftLeft", "TexShiftLeft");
 	GlobalEventManager().addCommand("TexShiftRight", "TexShiftRight");
+	GlobalEventManager().addCommand("TexAlignTop", "TexAlignTop");
+	GlobalEventManager().addCommand("TexAlignBottom", "TexAlignBottom");
+	GlobalEventManager().addCommand("TexAlignLeft", "TexAlignLeft");
+	GlobalEventManager().addCommand("TexAlignRight", "TexAlignRight");
 
 	GlobalEventManager().addCommand("NormaliseTexture", "NormaliseTexture");
 

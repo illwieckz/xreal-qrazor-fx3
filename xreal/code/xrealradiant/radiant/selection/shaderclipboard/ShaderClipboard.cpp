@@ -6,6 +6,9 @@
 #include "ui/mediabrowser/MediaBrowser.h"
 #include "ui/texturebrowser/TextureBrowser.h"
 
+#include "patch/PatchNode.h"
+#include "brush/BrushNode.h"
+
 namespace selection {
 
 ShaderClipboard::ShaderClipboard() :
@@ -33,18 +36,20 @@ void ShaderClipboard::clear() {
 
 void ShaderClipboard::postUndo()
 {
-	// Note: there's an issue on the bugtracker regarding this:
-	// it's probably over-cautious to clear the clipboard on undo,
-	// most of the time the user just applied the texture the wron way.
-	// This is just to prevent the brush pointers from ending up invalid
-	// Possible fix: Use scene::INodeWeakPtrs to reference the source,
-	// but this won't cut it for single brush faces.
-	clear();
+	// Check if the source is still valid
+	if (!_source.checkValid())
+	{
+		clear();
+	}
 }
 
 void ShaderClipboard::postRedo()
 {
-	clear();
+	// Check if the source is still valid
+	if (!_source.checkValid())
+	{
+		clear();
+	}
 }
 
 Texturable ShaderClipboard::getTexturable(SelectionTest& test) {
@@ -119,6 +124,7 @@ void ShaderClipboard::setSource(Patch& sourcePatch) {
 	
 	_source.clear();
 	_source.patch = &sourcePatch;
+	_source.node = sourcePatch.getPatchNode().shared_from_this();
 	
 	updateMediaBrowsers();
 }
@@ -128,6 +134,7 @@ void ShaderClipboard::setSource(Face& sourceFace) {
 	
 	_source.clear();
 	_source.face = &sourceFace;
+	_source.node = sourceFace.getBrush().getBrushNode().shared_from_this();
 	
 	updateMediaBrowsers();
 }

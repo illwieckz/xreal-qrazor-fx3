@@ -2,8 +2,10 @@
 
 #include "iregistry.h"
 #include "iuimanager.h"
+#include "imainframe.h"
 #include "shaderlib.h"
 #include "irenderable.h"
+#include "itextstream.h"
 #include "iselectable.h"
 #include "math/frustum.h"
 #include "texturelib.h"
@@ -14,6 +16,7 @@
 #include "ui/patch/PatchInspector.h"
 
 #include "PatchSavedState.h"
+#include "PatchNode.h"
 
 // ====== Helper Functions ==================================================================
 
@@ -50,8 +53,8 @@ int Patch::m_CycleCapIndex = 0;
 	}
 
 // Constructor
-Patch::Patch(scene::Node& node, const Callback& evaluateTransform, const Callback& boundsChanged) :
-	m_node(&node),
+Patch::Patch(PatchNode& node, const Callback& evaluateTransform, const Callback& boundsChanged) :
+	_node(node),
 	m_shader(texdef_name_default()),
 	m_undoable_observer(0),
 	m_map(0),
@@ -62,19 +65,19 @@ Patch::Patch(scene::Node& node, const Callback& evaluateTransform, const Callbac
 	m_render_lattice(GL_LINES, m_lattice_indices, m_ctrl_vertices),
 	m_transformChanged(false),
 	m_evaluateTransform(evaluateTransform),
-	m_boundsChanged(boundsChanged)
+	m_boundsChanged(boundsChanged),
+	_tesselationChanged(true)
 {
 	construct();
 }
 
 // Copy constructor	(create this patch from another patch)
-Patch::Patch(const Patch& other, scene::Node& node, const Callback& evaluateTransform, const Callback& boundsChanged) :
+Patch::Patch(const Patch& other, PatchNode& node, const Callback& evaluateTransform, const Callback& boundsChanged) :
 	IPatch(other),
 	Bounded(other),
-	Cullable(other),
 	Snappable(other),
 	Undoable(other),
-	m_node(&node),
+	_node(node),
 	m_shader(texdef_name_default()),
 	m_undoable_observer(0),
 	m_map(0),
@@ -85,42 +88,13 @@ Patch::Patch(const Patch& other, scene::Node& node, const Callback& evaluateTran
 	m_render_lattice(GL_LINES, m_lattice_indices, m_ctrl_vertices),
 	m_transformChanged(false),
 	m_evaluateTransform(evaluateTransform),
-	m_boundsChanged(boundsChanged)
+	m_boundsChanged(boundsChanged),
+	_tesselationChanged(true)
 {
 	// Initalise the default values
 	construct();
 
 	// Copy over the definitions from the <other> patch  
-	m_patchDef3 = other.m_patchDef3;
-	m_subdivisions_x = other.m_subdivisions_x;
-	m_subdivisions_y = other.m_subdivisions_y;
-	setDims(other.m_width, other.m_height);
-	copy_ctrl(m_ctrl.begin(), other.m_ctrl.begin(), other.m_ctrl.begin()+(m_width*m_height));
-	setShader(other.m_shader);
-	controlPointsChanged();
-}
-
-// Another copy constructor
-Patch::Patch(const Patch& other) :
-	IPatch(other),
-	Bounded(other),
-	Cullable(other),
-	Snappable(other),
-	Undoable(other),
-	m_undoable_observer(0),
-	m_map(0),
-	m_render_solid(m_tess),
-	m_render_wireframe(m_tess),
-	m_render_wireframe_fixed(m_tess),
-	m_render_ctrl(GL_POINTS, m_ctrl_vertices),
-	m_render_lattice(GL_LINES, m_lattice_indices, m_ctrl_vertices),
-	m_transformChanged(false),
-	m_evaluateTransform(other.m_evaluateTransform),
-	m_boundsChanged(other.m_boundsChanged)
-{
-	// Copy over the definitions from the other patch
-	m_bOverlay = false;
-
 	m_patchDef3 = other.m_patchDef3;
 	m_subdivisions_x = other.m_subdivisions_x;
 	m_subdivisions_y = other.m_subdivisions_y;
@@ -200,24 +174,25 @@ void Patch::setDims (std::size_t w, std::size_t h)
   }
 }
 
-void Patch::instanceAttach(const scene::Path& path) {
+PatchNode& Patch::getPatchNode()
+{
+	return _node;
+}
+
+void Patch::instanceAttach(MapFile* map) {
 	if (++m_instanceCounter.m_count == 1) {
 		// Notify the shader that one more instance is using this
 		m_state->incrementUsed();
 		
-		m_map = path_find_mapfile(path.begin(), path.end());
+		m_map = map;
 		
 		// Attach the UndoObserver to this patch
 		m_undoable_observer = GlobalUndoSystem().observer(this);
 	}
-	else {
-		// The counter is now >1, throw an error
-		ASSERT_MESSAGE(path_find_mapfile(path.begin(), path.end()) == m_map, "node is instanced across more than one file");
-	}
 }
 
 // Remove the attached instance and decrease the counters
-void Patch::instanceDetach(const scene::Path& path) {
+void Patch::instanceDetach(MapFile* map) {
 	if(--m_instanceCounter.m_count == 0) {
 		m_map = 0;
 		m_undoable_observer = 0;
@@ -226,23 +201,10 @@ void Patch::instanceDetach(const scene::Path& path) {
 	}
 }
 
-// Attaches an observer (doh!)
-void Patch::attach(Observer* observer) {
-	observer->allocate(m_width * m_height);
-	// Add this to the internal list
-	m_observers.insert(observer);
-}
-
-// Detach the previously attached observer
-void Patch::detach(Observer* observer) {
-	m_observers.erase(observer);
-}
-
 // Allocate callback: pass the allocate call to all the observers
-void Patch::onAllocate(std::size_t size) {
-	for (Observers::iterator i = m_observers.begin(); i != m_observers.end(); ++i) {
-		(*i)->allocate(size);
-	}
+void Patch::onAllocate(std::size_t size)
+{
+	_node.allocate(size);
 }
 
 // Return the interally stored AABB
@@ -250,19 +212,24 @@ const AABB& Patch::localAABB() const {
 	return m_aabb_local;
 }
 
-VolumeIntersectionValue Patch::intersectVolume(const VolumeTest& test, const Matrix4& localToWorld) const {
-	return test.TestAABB(m_aabb_local, localToWorld);
-}
-
 // Render functions: solid mode
-void Patch::render_solid(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const {
+void Patch::render_solid(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const
+{
+	// Defer the tesselation calculation to the last minute
+	const_cast<Patch&>(*this).updateTesselation();
+
 	collector.SetState(m_state, RenderableCollector::eFullMaterials);
 	collector.addRenderable(m_render_solid, localToWorld);
 }
 
 // Render functions for WireFrame rendering
-void Patch::render_wireframe(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const {
+void Patch::render_wireframe(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const
+{
+	// Defer the tesselation calculation to the last minute
+	const_cast<Patch&>(*this).updateTesselation();
+
 	collector.SetState(m_state, RenderableCollector::eFullMaterials);
+
 	if (m_patchDef3) {
 		collector.addRenderable(m_render_wireframe_fixed, localToWorld);
 	}
@@ -272,7 +239,11 @@ void Patch::render_wireframe(RenderableCollector& collector, const VolumeTest& v
 }
 
 // greebo: This renders the patch components, namely the lattice and the corner controls
-void Patch::render_component(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const {
+void Patch::render_component(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const
+{
+	// Defer the tesselation calculation to the last minute
+	const_cast<Patch&>(*this).updateTesselation();
+
 	collector.SetState(m_state_lattice, RenderableCollector::eWireframeOnly);
 	collector.SetState(m_state_lattice, RenderableCollector::eFullMaterials);
 	collector.addRenderable(m_render_lattice, localToWorld);
@@ -288,7 +259,11 @@ const ShaderPtr& Patch::getState() const {
 
 // Implementation of the abstract method of SelectionTestable
 // Called to test if the patch can be selected by the mouse pointer
-void Patch::testSelect(Selector& selector, SelectionTest& test) {
+void Patch::testSelect(Selector& selector, SelectionTest& test)
+{
+	// ensure the tesselation is up to date
+	updateTesselation();
+
 	SelectionIntersection best;
 	IndexPointer::index_type* pIndex = &m_tess.indices.front();
 	
@@ -303,7 +278,8 @@ void Patch::testSelect(Selector& selector, SelectionTest& test) {
 }
 
 // Transform this patch as defined by the transformation matrix <matrix>
-void Patch::transform(const Matrix4& matrix) {
+void Patch::transform(const Matrix4& matrix)
+{
 	// Cycle through all the patch control vertices and transform the points
 	for (PatchControlIter i = m_ctrlTransformed.begin(); 
 		 i != m_ctrlTransformed.end(); 
@@ -313,24 +289,29 @@ void Patch::transform(const Matrix4& matrix) {
 	}
 	
 	// Check the handedness of the matrix and invert it if needed
-	if(matrix4_handedness(matrix) == MATRIX4_LEFTHANDED) {
+	if(matrix4_handedness(matrix) == MATRIX4_LEFTHANDED)
+	{
 		PatchControlArray_invert(m_ctrlTransformed, m_width, m_height);
 	}
 	
-	UpdateCachedData();
+	// Mark this patch as changed
+	transformChanged();
 }
 
-// Called if the patch has changed, so that the scene graph can be updated
-void Patch::transformChanged() {
+// Called if the patch has changed, so that the dirty flags are set
+void Patch::transformChanged()
+{
 	m_transformChanged = true;
 	m_lightsChanged();
-	SceneChangeNotify();
+	_tesselationChanged = true;
 }
 
 // Called to evaluate the transform
-void Patch::evaluateTransform() {
+void Patch::evaluateTransform()
+{
 	// Only do something, if the patch really has changed
-	if (m_transformChanged) {
+	if (m_transformChanged)
+	{
 		m_transformChanged = false;
 		revertTransform();
 		m_evaluateTransform();
@@ -338,30 +319,32 @@ void Patch::evaluateTransform() {
 }
 
 // Revert the changes, fall back to the saved state in <m_ctrl>
-void Patch::revertTransform() {
+void Patch::revertTransform()
+{
 	m_ctrlTransformed = m_ctrl;
 }
 
 // Apply the transformed control array, save it into <m_ctrl> and overwrite the old values
-void Patch::freezeTransform() {
+void Patch::freezeTransform()
+{
 	undoSave();
 	evaluateTransform();
-	// Check if the sizes of the patch control arrays match
-	ASSERT_MESSAGE(m_ctrlTransformed.size() == m_ctrl.size(), "Patch::freeze: size mismatch");
-	
-	// Save the control array over <m_ctrl>
-	std::copy(m_ctrlTransformed.begin(), m_ctrlTransformed.end(), m_ctrl.begin());
+
+	// Save the transformed working set array over m_ctrl
+	m_ctrl = m_ctrlTransformed;
 }
 
 // callback for changed control points
-void Patch::controlPointsChanged() {
+void Patch::controlPointsChanged()
+{
 	transformChanged();
 	evaluateTransform();
-	UpdateCachedData();
+	updateTesselation();
 }
 
 // Snaps the control points to the grid
-void Patch::snapto(float snap) {
+void Patch::snapto(float snap)
+{
 	undoSave();
 
 	for(PatchControlIter i = m_ctrl.begin(); i != m_ctrl.end(); ++i) {
@@ -488,9 +471,6 @@ Patch::~Patch() {
 
 	// Release the shader
 	releaseShader();
-	
-	// Check if any observers for this patch remain
-	ASSERT_MESSAGE(m_observers.empty(), "Patch::~Patch: observers still attached");
 }
 
 bool Patch::isValid() const
@@ -541,8 +521,13 @@ bool Patch::isDegenerate() const {
 	return true;
 }
 
-void Patch::UpdateCachedData()
+void Patch::updateTesselation()
 {
+	// Only do something if the tesselation has actually changed
+	if (!_tesselationChanged) return;
+
+	_tesselationChanged = false;
+
   m_ctrl_vertices.clear();
   m_lattice_indices.clear();
 
@@ -565,7 +550,7 @@ void Patch::UpdateCachedData()
   BuildTesselationCurves(ROW);
   BuildTesselationCurves(COL);
   BuildVertexArray();
-  AccumulateBBox();
+  updateAABB();
 
   IndexBuffer ctrl_indices;
 
@@ -575,7 +560,7 @@ void Patch::UpdateCachedData()
     UniqueVertexBuffer<PointVertex> inserter(m_ctrl_vertices);
     for(PatchControlIter i = m_ctrlTransformed.begin(); i != m_ctrlTransformed.end(); ++i)
     {
-      ctrl_indices.insert(inserter.insert(pointvertex_quantised(PointVertex(reinterpret_cast<const Vertex3f&>((*i).vertex), colour_for_index(i - m_ctrlTransformed.begin(), m_width)))));
+      ctrl_indices.insert(inserter.insert(pointvertex_quantised(PointVertex(i->vertex, colour_for_index(i - m_ctrlTransformed.begin(), m_width)))));
     }
   }
   {
@@ -619,8 +604,6 @@ void Patch::UpdateCachedData()
 #endif
 
   m_render_solid.update();
-
-  SceneChangeNotify();
 }
 
 void Patch::InvertMatrix()
@@ -934,15 +917,15 @@ void Patch::RotateTexture(float angle)
 {
   undoSave();
 
-  const float s = static_cast<float>(sin(degrees_to_radians(angle)));
-  const float c = static_cast<float>(cos(degrees_to_radians(angle)));
+  const double s = sin(degrees_to_radians(angle));
+  const double c = cos(degrees_to_radians(angle));
     
   for(PatchControlIter i = m_ctrl.begin(); i != m_ctrl.end(); ++i)
   {
-    const float x = (*i).texcoord[0];
-    const float y = (*i).texcoord[1];
-    (*i).texcoord[0] = (x * c) - (y * s);
-    (*i).texcoord[1] = (y * c) + (x * s);
+    const double x = i->texcoord[0];
+    const double y = i->texcoord[1];
+    i->texcoord[0] = (x * c) - (y * s);
+    i->texcoord[1] = (y * c) + (x * s);
   }
 
   controlPointsChanged();
@@ -950,13 +933,8 @@ void Patch::RotateTexture(float angle)
 
 /* greebo: Tile the selected texture on the patch (s times t)
  */
-void Patch::SetTextureRepeat(float s, float t) {
-	std::size_t w, h;
-	float sIncr, tIncr, sc, tc;
-	
-	// The pointer to cycle through the control points
-	PatchControlIter pDest;
-
+void Patch::SetTextureRepeat(float s, float t)
+{
 	// Save the current patch state to the undoMemento
 	undoSave();
 
@@ -964,18 +942,24 @@ void Patch::SetTextureRepeat(float s, float t) {
 	 * If we have a 4x4 patch and want to tile it 3x3, the distance
 	 * from one control point to the next one has to cover 3/4 of a full texture,
 	 * hence texture_x_repeat/patch_width and texture_y_repeat/patch_height.*/ 
-	sIncr = s / (float)(m_width - 1);
-	tIncr = t / (float)(m_height - 1);
+	float sIncr = s / static_cast<float>(m_width - 1);
+	float tIncr = t / static_cast<float>(m_height - 1);
 
 	// Set the pointer to the first control point
-	pDest = m_ctrl.begin();
-	
+	PatchControlIter pDest = m_ctrl.begin();
+
+	float tc = 0;
+
 	// Cycle through the patch matrix (row per row)
 	// Increment the <tc> counter by <tIncr> increment
-	for (h=0, tc = 0.0f; h<m_height; h++, tc+=tIncr) {
+	for (std::size_t h=0; h < m_height; h++, tc += tIncr)
+	{
+		float sc = 0;
+
 		// Cycle through the row points: reset sc to zero 
 		// and increment it by sIncr at each step. 
-		for (w=0, sc = 0.0f; w<m_width; w++, sc+=sIncr) {
+		for (std::size_t w = 0; w < m_width; w++, sc += sIncr)
+		{
 			// Set the texture coordinates
 			pDest->texcoord[0] = sc;
 			pDest->texcoord[1] = tc;
@@ -987,22 +971,6 @@ void Patch::SetTextureRepeat(float s, float t) {
 	// Notify the patch
 	controlPointsChanged();
 }
-
-/*
-void Patch::SetTextureInfo(TexDef *pt)
-{
-  if(pt->getShift()[0] || pt->getShift()[1])
-    TranslateTexture (pt->getShift()[0], pt->getShift()[1]);
-  else if(pt->getScale()[0] || pt->getScale()[1])
-  {
-    if(pt->getScale()[0] == 0.0f) pt->setScale(0, 1.0f);
-    if(pt->getScale()[1] == 0.0f) pt->setScale(1, 1.0f);
-    ScaleTexture (pt->getScale()[0], pt->getScale()[1]);
-  }
-  else if(pt->rotate)
-    RotateTexture (pt->rotate);
-}
-*/
 
 inline int texture_axis(const Vector3& normal)
 {
@@ -1158,17 +1126,23 @@ void Patch::NaturalTexture() {
 	controlPointsChanged();
 }
 
-void Patch::AccumulateBBox()
+void Patch::updateAABB()
 {
-  m_aabb_local = AABB();
+	AABB aabb;
 
-  for(PatchControlIter i = m_ctrlTransformed.begin(); i != m_ctrlTransformed.end(); ++i)
-  {
-    m_aabb_local.includePoint(i->vertex);
-  }
+	for(PatchControlIter i = m_ctrlTransformed.begin(); i != m_ctrlTransformed.end(); ++i)
+	{
+		aabb.includePoint(i->vertex);
+	}
 
-  m_boundsChanged();
-  m_lightsChanged();
+	// greebo: Only trigger the callbacks if the bounds actually changed
+	if (m_aabb_local != aabb)
+	{
+		m_aabb_local = aabb;
+		
+		m_boundsChanged();
+		m_lightsChanged();
+	}
 }
 
 // Inserts two columns before and after the column having the index <colIndex>
@@ -1689,7 +1663,7 @@ void Patch::pasteTextureNatural(const Face* face) {
 
 		if (widthVector.getLength() == 0.0f || heightVector.getLength() == 0.0f) {
 			gtkutil::errorDialog("Sorry. Patch is not suitable for this kind of operation.",
-								 GlobalRadiant().getMainWindow());
+								 GlobalMainFrame().getTopLevelWindow());
 			return;
 		}
 		
@@ -1895,12 +1869,104 @@ void Patch::ProjectTexture(int nAxis) {
 	controlPointsChanged();
 }
 
-PatchTesselation& Patch::getTesselation() {
+void Patch::alignTexture(EAlignType align)
+{
+	if (isDegenerate()) return;
+
+	// A 5x3 patch has (5-1)x2 + (3-1)x2 edges at the border
+
+	// The edges in texture space, sorted the same as in the winding
+	std::vector<Vector2> texEdges;
+	std::vector<Vector2> texCoords;
+
+	// Calculate all edges in texture space
+	for (std::size_t h = 0; h < m_height-1; ++h)
+	{
+		for (std::size_t w = 0; w < m_width-1; ++w)
+		{
+			texEdges.push_back(ctrlAt(0, w).texcoord - ctrlAt(0, w+1).texcoord);
+			texCoords.push_back(ctrlAt(0,w).texcoord);
+
+			texEdges.push_back(ctrlAt(m_height-1, w+1).texcoord - ctrlAt(m_height-1, w).texcoord);
+			texCoords.push_back(ctrlAt(m_height-1, w+1).texcoord);
+		}
+
+		texEdges.push_back(ctrlAt(h, 0).texcoord - ctrlAt(h+1, 0).texcoord);
+		texCoords.push_back(ctrlAt(h, 0).texcoord);
+
+		texEdges.push_back(ctrlAt(h+1, m_width-1).texcoord - ctrlAt(h, m_width-1).texcoord);
+		texCoords.push_back(ctrlAt(h+1, m_width-1).texcoord);
+	}
+
+	// Find the edge which is nearest to the s,t base vector, to classify them as "top" or "left"
+	std::size_t bottomEdge = findBestEdgeForDirection(Vector2(1,0), texEdges);
+	std::size_t leftEdge = findBestEdgeForDirection(Vector2(0,1), texEdges);
+	std::size_t rightEdge = findBestEdgeForDirection(Vector2(0,-1), texEdges);
+	std::size_t topEdge = findBestEdgeForDirection(Vector2(-1,0), texEdges);
+
+	// The bottom edge is the one with the larger T texture coordinate
+	if (texCoords[topEdge].y() > texCoords[bottomEdge].y())
+	{
+		std::swap(topEdge, bottomEdge);
+	}
+
+	// The right edge is the one with the larger S texture coordinate
+	if (texCoords[rightEdge].x() < texCoords[leftEdge].x())
+	{
+		std::swap(rightEdge, leftEdge);
+	}
+
+	// Find the winding vertex index we're calculating the delta for
+	std::size_t coordIndex = 0;
+	// The dimension to move (1 for top/bottom, 0 for left right)
+	std::size_t dim = 0;
+	
+	switch (align)
+	{
+	case ALIGN_TOP: 
+		coordIndex = topEdge;
+		dim = 1;
+		break;
+	case ALIGN_BOTTOM:
+		coordIndex = bottomEdge;
+		dim = 1;
+		break;
+	case ALIGN_LEFT:
+		coordIndex = leftEdge;
+		dim = 0;
+		break;
+	case ALIGN_RIGHT:
+		coordIndex = rightEdge;
+		dim = 0;
+		break;
+	};
+
+	Vector2 snapped = texCoords[coordIndex];
+	
+	// Snap the dimension we're going to change only (s for left/right, t for top/bottom)
+	snapped[dim] = float_snapped(snapped[dim], 1.0);
+	
+	Vector2 delta = snapped - texCoords[coordIndex];
+
+	// Shift the texture such that we hit the snapped coordinate
+	translateTexCoords(delta);
+
+	controlPointsChanged();
+}
+
+PatchTesselation& Patch::getTesselation()
+{
+	// Ensure the tesselation is up to date
+	updateTesselation();
+
 	return m_tess;
 }
 
 PatchMesh Patch::getTesselatedPatchMesh() const
 {
+	// Ensure the tesselation is up to date
+	const_cast<Patch&>(*this).updateTesselation();
+
 	PatchMesh mesh;
 
 	mesh.width = m_tess.m_nArrayWidth;
@@ -1966,7 +2032,7 @@ void Patch::constructPlane(const AABB& aabb, int axis, std::size_t width, std::s
   NaturalTexture();
 }
 
-void Patch::ConstructPrefab(const AABB& aabb, EPatchPrefab eType, int axis, std::size_t width, std::size_t height)
+void Patch::ConstructPrefab(const AABB& aabb, EPatchPrefab eType, EViewType viewType, std::size_t width, std::size_t height)
 {
   Vector3 vPos[3];
     
@@ -1979,7 +2045,7 @@ void Patch::ConstructPrefab(const AABB& aabb, EPatchPrefab eType, int axis, std:
   
   if(eType == ePlane)
   {
-    constructPlane(aabb, axis, width, height);
+    constructPlane(aabb, viewType, width, height);
   }
   else if(eType == eSqCylinder
     || eType == eCylinder
@@ -2027,7 +2093,7 @@ void Patch::ConstructPrefab(const AABB& aabb, EPatchPrefab eType, int axis, std:
       return;
     }
 
-    for(std::size_t h=0; h<3; h++, pStart+=9)
+    for(std::size_t h=0; h<3; h++)
     {
       pIndex = pCylIndex;
       PatchControlIter pCtrl = pStart;
@@ -2038,6 +2104,10 @@ void Patch::ConstructPrefab(const AABB& aabb, EPatchPrefab eType, int axis, std:
         pCtrl->vertex[2] = vPos[h][2];
         pIndex+=2;
       }
+
+	  // Go to the next line, but only do that if we're not at the last one already
+	  // to not increment the pStart iterator beyond the end of the container
+	  if (h < 2) pStart+=9;
     }
 
     switch(eType)
@@ -2045,9 +2115,12 @@ void Patch::ConstructPrefab(const AABB& aabb, EPatchPrefab eType, int axis, std:
     case eSqCylinder:
       {
         PatchControlIter pCtrl = m_ctrl.begin();
-        for(std::size_t h=0; h<3; h++, pCtrl+=9)
+        for(std::size_t h=0; h<3; h++)
         {
           pCtrl[8].vertex = pCtrl[0].vertex;
+
+		  // Go to the next line
+		  if (h < 2) pCtrl+=9;
         }
       }
       break;
@@ -2056,18 +2129,23 @@ void Patch::ConstructPrefab(const AABB& aabb, EPatchPrefab eType, int axis, std:
     case eCylinder:
       {
         PatchControlIter pCtrl = m_ctrl.begin();
-        for (std::size_t h=0; h<3; h++, pCtrl+=9)
+        for (std::size_t h=0; h<3; h++)
         {
           pCtrl[0].vertex = pCtrl[8].vertex;
+
+		  // Go to the next line
+		  if (h < 2) pCtrl+=9;
         }
       }
       break;
     case eCone:
       {
         PatchControlIter pCtrl = m_ctrl.begin();
-        for (std::size_t h=0; h<2; h++, pCtrl+=9)
+        for (std::size_t h=0; h<2; h++)
         {
           pCtrl[0].vertex = pCtrl[8].vertex;
+		  // Go to the next line
+		  if (h < 1) pCtrl+=9;
         }
       }
       {
@@ -2083,9 +2161,11 @@ void Patch::ConstructPrefab(const AABB& aabb, EPatchPrefab eType, int axis, std:
     case eSphere:
       {
         PatchControlIter pCtrl = m_ctrl.begin() + 9;
-        for (std::size_t h=0; h<3; h++, pCtrl+=9)
+        for (std::size_t h=0; h<3; h++)
         {
           pCtrl[0].vertex = pCtrl[8].vertex;
+		  // Go to the next line
+		  if (h < 2) pCtrl+=9;
         }
       }
       {
@@ -2113,35 +2193,54 @@ void Patch::ConstructPrefab(const AABB& aabb, EPatchPrefab eType, int axis, std:
   }
 	else if  (eType == eBevel)
 	{
-		std::size_t pBevIndex[] =
+		std::size_t constDim = 0;
+		std::size_t dim1 = 0;
+		std::size_t dim2 = 0;
+
+		switch (viewType)
 		{
-			0, 0, // y and z mapping of first col
-			0, 2, // y and z mapping of second col
-			2, 2, // y and z mapping of third col
+		case YZ:
+			constDim = 1;	// y
+			dim1 = 2;		// z
+			dim2 = 0;		// x
+			break;
+		case XZ:
+			constDim = 0;	// x
+			dim1 = 2;		// z
+			dim2 = 1;		// y
+			break;
+		case XY:
+			constDim = 0;	// x
+			dim1 = 1;		// y
+			dim2 = 2;		// z
+			break;
 		};
+
+		std::size_t lowlowhigh[3] = { 0, 0, 2 }; 
+		std::size_t lowhighhigh[3] = { 0, 2, 2 }; 
 
 		setDims(3, 3);
 
-		PatchControlIter pCtrl = m_ctrl.begin();
+		PatchControlIter ctrl = m_ctrl.begin();
 
-		for (std::size_t h = 0; h < 3; h++)
+		for (std::size_t h = 0; h < 3; ++h)
 		{
-			std::size_t* pIndex = pBevIndex;
-			
-			for (std::size_t w = 0; w < 3; w++, pIndex += 2, pCtrl++)
+			for (std::size_t w = 0; w < 3; ++w, ++ctrl)
 			{
-				// The x coordinate stays the same for each row
-				pCtrl->vertex.x() = vPos[h].x();
+				// One of the dimensions stays constant per row
+				ctrl->vertex[constDim] = vPos[h][constDim];
 
-				// Use the same y coordinate for the first two columns
-				// The third column uses the highest y value
-				pCtrl->vertex.y() = vPos[pIndex[0]].y();
+				// One dimension goes like "low", "low", "high" in a row
+				ctrl->vertex[dim1] = vPos[ lowlowhigh[w] ][dim1];
 
-				// The first column is using the lowest z value
-				// the other two columns use the highest z value
-				// to create an upright bevel
-				pCtrl->vertex.z() = vPos[pIndex[1]].z();
+				// One dimension goes like "low", "high", "high" in a row
+				ctrl->vertex[dim2] = vPos[ lowhighhigh[w] ][dim2];
 			}
+		}
+
+		if (viewType == XZ)
+		{
+			InvertMatrix();
 		}
 	}
   else if(eType == eEndCap)
@@ -2187,6 +2286,8 @@ void Patch::ConstructPrefab(const AABB& aabb, EPatchPrefab eType, int axis, std:
 
 void Patch::RenderDebug(RenderStateFlags state) const
 {
+	const_cast<Patch&>(*this).updateTesselation();
+
   for (std::size_t i = 0; i<m_tess.m_numStrips; i++)
   {
     glBegin(GL_QUAD_STRIP);
@@ -3909,7 +4010,7 @@ bool Patch::subdivionsFixed() const {
 	return m_patchDef3;
 }
 
-void Patch::textureChanged() {
-	ui::SurfaceInspector::Instance().update(); // Triggers TexTool update
-	ui::PatchInspector::Instance().update();
+void Patch::textureChanged()
+{
+	ui::SurfaceInspector::Instance().queueUpdate(); // Triggers TexTool and PatchInspector update
 }

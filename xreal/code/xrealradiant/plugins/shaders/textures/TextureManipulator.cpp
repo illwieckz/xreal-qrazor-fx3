@@ -9,9 +9,9 @@
 
 namespace {
 	static byte *row1 = NULL, *row2 = NULL;
-	static int rowsize = 0;
+	static std::size_t rowsize = 0;
 	
-	const int MAX_TEXTURE_QUALITY = 3;
+	const std::size_t MAX_TEXTURE_QUALITY = 3;
 	
 	const std::string RKEY_TEXTURES_QUALITY = "user/ui/textures/quality";
 	const std::string RKEY_TEXTURES_GAMMA = "user/ui/textures/gamma";
@@ -53,9 +53,9 @@ void TextureManipulator::keyChanged(const std::string& key, const std::string& v
 	}
 }
 
-Colour3 TextureManipulator::getFlatshadeColour(ImagePtr input) {
+Colour3 TextureManipulator::getFlatshadeColour(const ImagePtr& input) {
 	// Calculate the number of pixels in this image
-	int numPixels = input->getWidth(0) * input->getHeight(0);
+	std::size_t numPixels = input->getWidth(0) * input->getHeight(0);
 	
 	// Calculate the pixel step value, ensuring it is greater than 0
 	int incr = static_cast<int>(static_cast<float>(numPixels) / 20.0f);
@@ -63,13 +63,14 @@ Colour3 TextureManipulator::getFlatshadeColour(ImagePtr input) {
 		incr = 1;
 	
 	// Set the pixel pointer to the very first pixel
-	unsigned char* pixels = input->getMipMapPixels(0);
+	byte* pixels = input->getMipMapPixels(0);
 	
 	Colour3 returnValue;
 	int pixelCount = 0;
 	
 	// Go over all the pixels and change their value accordingly
-	for (int i = 0; i < (numPixels*4); i += incr*4, pixelCount++) {
+	for (std::size_t i = 0; i < (numPixels*4); i += incr*4, pixelCount++)
+	{
 		// Sum up the RGBA values 
 		returnValue[0] += pixels[i];
 		returnValue[1] += (pixels + 1)[i];
@@ -85,7 +86,7 @@ Colour3 TextureManipulator::getFlatshadeColour(ImagePtr input) {
 	return returnValue;
 }
 
-ImagePtr TextureManipulator::getProcessedImage(ImagePtr input) {
+ImagePtr TextureManipulator::getProcessedImage(const ImagePtr& input) {
 	
 	ImagePtr output;
 	
@@ -98,20 +99,20 @@ ImagePtr TextureManipulator::getProcessedImage(ImagePtr input) {
 	return output;
 }
 
-ImagePtr TextureManipulator::getResized(ImagePtr input) {
+ImagePtr TextureManipulator::getResized(const ImagePtr& input) {
 	
-	int width = input->getWidth(0);
-	int height = input->getHeight(0);
-	unsigned char* sourcePixels = input->getMipMapPixels(0);
+	std::size_t width = input->getWidth(0);
+	std::size_t height = input->getHeight(0);
+	byte* sourcePixels = input->getMipMapPixels(0);
 	
 	ImagePtr output;
 	
 	// Determine the next larger power of two
-	int gl_width = 1;
+	std::size_t gl_width = 1;
 	while (gl_width < width)
 		gl_width <<= 1;
 	
-	int gl_height = 1;
+	std::size_t gl_height = 1;
 	while (gl_height < height)
 		gl_height <<= 1;
 	
@@ -131,8 +132,11 @@ ImagePtr TextureManipulator::getResized(ImagePtr input) {
 	}
 	
 	// Now retrieve the maximum texture size opengl can handle
-	if (_maxTextureSize == 0) {
-		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_maxTextureSize);
+	if (_maxTextureSize == 0)
+	{
+		int temp;
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &temp);
+		_maxTextureSize = temp;
 		
 		// If the value is still zero, fill it to some default value of 1024
 		if (_maxTextureSize == 0) {
@@ -141,13 +145,13 @@ ImagePtr TextureManipulator::getResized(ImagePtr input) {
 	}
 	
 	// Determine the target dimensions
-	int qualityReduction = MAX_TEXTURE_QUALITY - _textureQuality;
-	int targetWidth = std::min(gl_width >> qualityReduction, _maxTextureSize);
-	int targetHeight = std::min(gl_height >> qualityReduction, _maxTextureSize);
+	std::size_t qualityReduction = MAX_TEXTURE_QUALITY - _textureQuality;
+	std::size_t targetWidth = std::min(gl_width >> qualityReduction, _maxTextureSize);
+	std::size_t targetHeight = std::min(gl_height >> qualityReduction, _maxTextureSize);
 	
 	// Reduce the image to the next smaller power of two until it fits the openGL max texture size
-	while (gl_width > targetWidth || gl_height > targetHeight) {
-		
+	while (gl_width > targetWidth || gl_height > targetHeight)
+	{
 		mipReduce(output->getMipMapPixels(0), output->getMipMapPixels(0), 
 				  gl_width, gl_height, targetWidth, targetHeight);
 
@@ -161,7 +165,7 @@ ImagePtr TextureManipulator::getResized(ImagePtr input) {
 }
 
 // resample texture gamma according to user settings
-ImagePtr TextureManipulator::processGamma(ImagePtr input) {
+ImagePtr TextureManipulator::processGamma(const ImagePtr& input) {
 	
 	// Don't do unnecessary work here...
 	if (_gamma == 1.0f) {
@@ -169,13 +173,14 @@ ImagePtr TextureManipulator::processGamma(ImagePtr input) {
 	}
 	
 	// Calculate the number of pixels in this image
-	int numPixels = input->getWidth(0) * input->getHeight(0);
+	std::size_t numPixels = input->getWidth(0) * input->getHeight(0);
 	
 	// Set the pixel pointer to the very first pixel
-	unsigned char* pixels = input->getMipMapPixels(0);
+	byte* pixels = input->getMipMapPixels(0);
 	
 	// Go over all the pixels and change their value accordingly
-	for (int i = 0; i < (numPixels*4); i += 4) {
+	for (std::size_t i = 0; i < (numPixels*4); i += 4)
+	{
 		// Change the current RGB pixel value to the one in the gamma table 
 		pixels[i] = _gammaTable[pixels[i]];
 		(pixels + 1)[i] = _gammaTable[(pixels + 1)[i]];
@@ -216,13 +221,13 @@ void TextureManipulator::calculateGammaTable() {
 }
 
 void TextureManipulator::resampleTextureLerpLine(const byte *in, byte *out, 
-							 int inwidth, int outwidth, int bytesperpixel) 
+							 std::size_t inwidth, std::size_t outwidth, int bytesperpixel) 
 {
-	int   j, xi, oldx = 0, f, fstep, endx, lerp;
+	std::size_t j, xi, oldx = 0, f, lerp;
 #define LERPBYTE(i) out[i] = (byte) ((((row2[i] - row1[i]) * lerp) >> 16) + row1[i])
 
-	fstep = (int) (inwidth * 65536.0f / outwidth);
-	endx = (inwidth - 1);
+	std::size_t fstep = static_cast<std::size_t>(inwidth * 65536.0f / outwidth);
+	std::size_t endx = (inwidth - 1);
 	if (bytesperpixel == 4) {
 		for (j = 0,f = 0;j < outwidth;j++, f += fstep) {
 			xi = f >> 16;
@@ -279,8 +284,8 @@ void TextureManipulator::resampleTextureLerpLine(const byte *in, byte *out,
 R_ResampleTexture
 ================
 */
-void TextureManipulator::resampleTexture(const void *indata, int inwidth, int inheight, 
-										 void *outdata,  int outwidth, int outheight, int bytesperpixel) 
+void TextureManipulator::resampleTexture(const void *indata, std::size_t inwidth, std::size_t inheight, 
+										 void *outdata,  std::size_t outwidth, std::size_t outheight, int bytesperpixel) 
 {
 	if (rowsize < outwidth * bytesperpixel) {
 		if (row1)
@@ -294,7 +299,8 @@ void TextureManipulator::resampleTexture(const void *indata, int inwidth, int in
 	}
 
 	if (bytesperpixel == 4) {
-		int i, j, yi, oldy, f, fstep, lerp, endy = (inheight-1), inwidth4 = inwidth*4, outwidth4 = outwidth*4;
+		std::size_t i, yi, oldy, f, fstep, lerp, endy = (inheight-1), inwidth4 = inwidth*4, outwidth4 = outwidth*4;
+		long j;
 		byte *inrow, *out;
 		out = (byte *)outdata;
 		fstep = (int) (inheight * 65536.0f / outheight);
@@ -319,7 +325,7 @@ void TextureManipulator::resampleTexture(const void *indata, int inwidth, int in
 					resampleTextureLerpLine(inrow + inwidth4, row2, inwidth, outwidth, bytesperpixel);
 					oldy = yi;
 				}
-				j = outwidth - 4;
+				j = static_cast<long>(outwidth - 4);
 				while (j >= 0) {
 					LERPBYTE( 0);
 					LERPBYTE( 1);
@@ -382,7 +388,8 @@ void TextureManipulator::resampleTexture(const void *indata, int inwidth, int in
 		}
 	}
 	else if (bytesperpixel == 3) {
-		int i, j, yi, oldy, f, fstep, lerp, endy = (inheight-1), inwidth3 = inwidth * 3, outwidth3 = outwidth * 3;
+		std::size_t i, yi, oldy, f, fstep, lerp, endy = (inheight-1), inwidth3 = inwidth * 3, outwidth3 = outwidth * 3;
+		long j;
 		byte *inrow, *out;
 		out = (byte *)outdata;
 		fstep = (int) (inheight*65536.0f/outheight);
@@ -406,7 +413,7 @@ void TextureManipulator::resampleTexture(const void *indata, int inwidth, int in
 					resampleTextureLerpLine(inrow + inwidth3, row2, inwidth, outwidth, bytesperpixel);
 					oldy = yi;
 				}
-				j = outwidth - 4;
+				j = static_cast<long>(outwidth - 4);
 				while (j >= 0) {
 					LERPBYTE( 0);
 					LERPBYTE( 1);
@@ -468,10 +475,10 @@ void TextureManipulator::resampleTexture(const void *indata, int inwidth, int in
 
 // in can be the same as out
 void TextureManipulator::mipReduce(byte *in, byte *out, 
-								   int width, int height, 
-								   int destwidth, int destheight) 
+								   std::size_t width, std::size_t height, 
+								   std::size_t destwidth, std::size_t destheight) 
 {
-	int x, y, width2, height2, nextrow;
+	std::size_t x, y, width2, height2, nextrow;
 	if (width > destwidth) {
 		if (height > destheight) {
 			// reduce both

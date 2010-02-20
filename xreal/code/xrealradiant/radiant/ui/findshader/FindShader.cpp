@@ -1,7 +1,8 @@
 #include "FindShader.h"
 
 #include "ieventmanager.h"
-#include "iradiant.h"
+#include "imainframe.h"
+#include "iuimanager.h"
 
 #include "gtkutil/LeftAlignedLabel.h"
 #include "gtkutil/LeftAlignment.h"
@@ -31,7 +32,7 @@ namespace ui {
 	}
 
 FindAndReplaceShader::FindAndReplaceShader() :
-	gtkutil::BlockingTransientWindow(FINDDLG_WINDOW_TITLE, GlobalRadiant().getMainWindow())
+	gtkutil::BlockingTransientWindow(FINDDLG_WINDOW_TITLE, GlobalMainFrame().getTopLevelWindow())
 {
 	gtk_window_set_default_size(GTK_WINDOW(getWindow()), FINDDLG_DEFAULT_SIZE_X, FINDDLG_DEFAULT_SIZE_Y);
 	gtk_container_set_border_width(GTK_CONTAINER(getWindow()), 12);
@@ -84,11 +85,11 @@ void FindAndReplaceShader::populateWindow() {
 	gtk_box_pack_start(GTK_BOX(replaceHBox), _replaceEntry, TRUE, TRUE, 6);
 		
 	// Create the icon buttons to open the ShaderChooser and override the size request
-	_findSelectButton = gtkutil::IconTextButton("", GlobalRadiant().getLocalPixbuf(FOLDER_ICON), false);
+	_findSelectButton = gtkutil::IconTextButton("", GlobalUIManager().getLocalPixbuf(FOLDER_ICON), false);
 	gtk_widget_set_size_request(_findSelectButton, -1, -1); 
 	g_signal_connect(G_OBJECT(_findSelectButton), "clicked", G_CALLBACK(onChooseFind), this);
 	
-	_replaceSelectButton = gtkutil::IconTextButton("", GlobalRadiant().getLocalPixbuf(FOLDER_ICON), false);
+	_replaceSelectButton = gtkutil::IconTextButton("", GlobalUIManager().getLocalPixbuf(FOLDER_ICON), false);
 	gtk_widget_set_size_request(_replaceSelectButton, -1, -1); 
 	g_signal_connect(G_OBJECT(_replaceSelectButton), "clicked", G_CALLBACK(onChooseReplace), this);
 	

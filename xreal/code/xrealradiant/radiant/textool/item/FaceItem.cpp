@@ -4,24 +4,36 @@
 #include "brush/Face.h"
 #include "brush/Winding.h"
 
+#include "FaceVertexItem.h"
+
 namespace textool {
 
 FaceItem::FaceItem(Face& sourceFace) : 
 	_sourceFace(sourceFace),
 	_winding(sourceFace.getWinding())
-{}
+{
+	// Allocate a vertex item for each winding vertex
+	for (Winding::iterator i = _winding.begin(); i != _winding.end(); ++i)
+	{
+		_children.push_back(
+			TexToolItemPtr(new FaceVertexItem(_sourceFace, *i, *this))
+		);
+	}
+}
 
 AABB FaceItem::getExtents() {
 	AABB returnValue;
 	
-	for (Winding::iterator i = _winding.begin(); i != _winding.end(); i++) {
+	for (Winding::const_iterator i = _winding.begin(); i != _winding.end(); ++i)
+	{
 		returnValue.includePoint(Vector3(i->texcoord[0], i->texcoord[1], 0));
 	}
 	
 	return returnValue;
 }
 
-void FaceItem::render() {
+void FaceItem::render()
+{
 	glEnable(GL_BLEND);
 	glBlendColor(0,0,0, 0.3f);
 	glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
@@ -30,12 +42,13 @@ void FaceItem::render() {
 		glColor3f(1, 0.5f, 0);
 	}
 	else {
-		glColor3f(1, 1, 1);
+		glColor3f(0.8f, 0.8f, 0.8f);
 	}
 	
 	glBegin(GL_TRIANGLE_FAN);
 	
-	for (Winding::iterator i = _winding.begin(); i != _winding.end(); i++) {
+	for (Winding::const_iterator i = _winding.begin(); i != _winding.end(); ++i)
+	{
 		glVertex2f(i->texcoord[0], i->texcoord[1]);
 	}
 	
@@ -44,15 +57,19 @@ void FaceItem::render() {
 	
 	glPointSize(5);
 	glBegin(GL_POINTS);
-	for (Winding::iterator i = _winding.begin(); i != _winding.end(); i++) {
+	/*for (Winding::const_iterator i = _winding.begin(); i != _winding.end(); ++i)
+	{
 		glVertex2f(i->texcoord[0], i->texcoord[1]);
-	}
+	}*/
 	
 	glColor3f(1, 1, 1);
 	Vector2 centroid = getCentroid();
 	glVertex2f(centroid[0], centroid[1]);
 	
 	glEnd();
+
+	// Now invoke the default render method (calls render() on all children)
+	TexToolItem::render();
 }
 
 void FaceItem::transform(const Matrix4& matrix) {
@@ -73,7 +90,8 @@ void FaceItem::transform(const Matrix4& matrix) {
 Vector2 FaceItem::getCentroid() const {
 	Vector2 texCentroid;
 	 
-	for (Winding::iterator i = _winding.begin(); i != _winding.end(); i++) {
+	for (Winding::const_iterator i = _winding.begin(); i != _winding.end(); ++i)
+	{
 		texCentroid += i->texcoord;
 	}
 	
@@ -87,12 +105,12 @@ bool FaceItem::testSelect(const Rectangle& rectangle)
 {
 	Vector2 texCentroid;
 
-	for (Winding::iterator i = _winding.begin(); i != _winding.end(); ++i)
+	for (Winding::const_iterator i = _winding.begin(); i != _winding.end(); ++i)
 	{
-		if (rectangle.contains(i->texcoord))
+		/*if (rectangle.contains(i->texcoord))
 		{
 			return true;
-		}
+		}*/
 
 		// Otherwise, just continue summing up the texcoords for the centroid check
 		texCentroid += i->texcoord;
@@ -104,8 +122,10 @@ bool FaceItem::testSelect(const Rectangle& rectangle)
 	return rectangle.contains(texCentroid);
 }
 
-void FaceItem::snapSelectedToGrid(float grid) {
-	if (_selected) {
+void FaceItem::snapSelectedToGrid(float grid)
+{
+	if (_selected)
+	{
 		Vector2 centroid = getCentroid();
 		
 		Vector2 snapped(
@@ -122,6 +142,9 @@ void FaceItem::snapSelectedToGrid(float grid) {
 		// Do the transformation
 		transform(matrix);
 	}
+
+	// Let the base class call the method on our children
+	TexToolItem::snapSelectedToGrid(grid);
 }
 
 void FaceItem::flipSelected(const int& axis) {

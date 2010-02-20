@@ -53,6 +53,7 @@ public:
 	virtual void attach(const KeyObserver& observer) = 0;
 	virtual void detach(const KeyObserver& observer) = 0;
 };
+typedef boost::shared_ptr<EntityKeyValue> EntityKeyValuePtr;
 
 /**
  * Interface for a map entity. The Entity is the main building block of a
@@ -260,15 +261,19 @@ public:
 };
 typedef boost::shared_ptr<IEntityNode> IEntityNodePtr; 
 
-inline Entity* Node_getEntity(scene::INodePtr node) {
+inline Entity* Node_getEntity(const scene::INodePtr& node)
+{
 	IEntityNodePtr entityNode = boost::dynamic_pointer_cast<IEntityNode>(node);
+
 	if (entityNode != NULL) {
 		return &(entityNode->getEntity());
 	}
+
 	return NULL;
 }
 
-inline bool Node_isEntity(scene::INodePtr node) {
+inline bool Node_isEntity(const scene::INodePtr& node)
+{
 	return boost::dynamic_pointer_cast<IEntityNode>(node) != NULL;
 }
 

@@ -60,6 +60,9 @@ public:
 
 	virtual ~EntityNode();
 
+	// IEntityNode implementation
+	Entity& getEntity();
+
 	// Namespaced implementation
 	// Gets/sets the namespace of this named object
 	std::string getName() const;
@@ -72,9 +75,8 @@ public:
 	void attachNames();
 	void detachNames();
 
-	// scene::Instantiable implementation
-	virtual void instantiate(const scene::Path& path);
-	virtual void uninstantiate(const scene::Path& path);
+	virtual void onInsertIntoScene();
+	virtual void onRemoveFromScene();
 
 	// Nameable implementation
 	virtual std::string name() const;

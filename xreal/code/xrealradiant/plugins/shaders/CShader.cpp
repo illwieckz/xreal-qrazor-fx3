@@ -37,6 +37,16 @@ CShader::~CShader() {
 	GetTextureManager().checkBindings();
 }
 
+Material::SortRequest CShader::getSortRequest() const
+{
+    return _template->getSortRequest();
+}
+
+float CShader::getPolygonOffset() const
+{
+    return _template->getPolygonOffset();
+}
+
 TexturePtr CShader::getEditorImage() 
 {
     if (!_editorTexture) 
@@ -45,10 +55,6 @@ TexturePtr CShader::getEditorImage()
         _editorTexture = GetTextureManager().getBinding(
             _template->getEditorTexture()
         );
-        if (!_editorTexture)
-        {
-            _editorTexture = GetTextureManager().getShaderNotFound();
-        }
     }
 	
     return _editorTexture;
@@ -117,11 +123,6 @@ void CShader::SetInUse(bool bInUse) {
 // get the shader flags
 int CShader::getFlags() const {
 	return _template->getFlags();
-}
-
-// get the transparency value
-float CShader::getTrans() const {
-	return _template->getTrans();
 }
 
 // test if it's a true shader, or a default shader created to wrap around a texture

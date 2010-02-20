@@ -62,9 +62,9 @@ DefaultAllocator - Memory allocation using new/delete, compliant with std::alloc
 #include "ieventmanager.h"
 #include "iuimanager.h"
 #include "imainframe.h"
-#include "debugging/debugging.h"
 
 #include <gtk/gtkmain.h>
+#include <gtk/gtkgl.h>
 
 #include "os/file.h"
 #include "os/path.h"
@@ -95,78 +95,6 @@ void crt_init()
 #endif
 }
 
-class Lock
-{
-  bool m_locked;
-public:
-  Lock() : m_locked(false)
-  {
-  }
-  void lock()
-  {
-    m_locked = true;
-  }
-  void unlock()
-  {
-    m_locked = false;
-  }
-  bool locked() const
-  {
-    return m_locked;
-  }
-};
-
-class ScopedLock
-{
-  Lock& m_lock;
-public:
-  ScopedLock(Lock& lock) : m_lock(lock)
-  {
-    m_lock.lock();
-  }
-  ~ScopedLock()
-  {
-    m_lock.unlock();
-  }
-};
-
-class PopupDebugMessageHandler : public DebugMessageHandler
-{
-  std::ostringstream m_buffer;
-  Lock m_lock;
-public:
-  std::ostream& getOutputStream()
-  {
-    if(!m_lock.locked())
-    {
-      return m_buffer;
-    }
-    return globalErrorStream();
-  }
-  bool handleMessage()
-  {
-    getOutputStream() << "----------------\n";
-    globalErrorStream() << m_buffer.str();
-    if(!m_lock.locked())
-    {
-      ScopedLock lock(m_lock);
-#if defined _DEBUG
-      m_buffer << "Break into the debugger?\n";
-      bool handled = gtk_MessageBox(0, m_buffer.str().c_str(), "Radiant - Runtime Error", eMB_YESNO, eMB_ICONERROR) == eIDNO;
-      m_buffer.clear();
-      return handled;
-#else
-      m_buffer << "Please report this error to the developers\n";
-      gtk_MessageBox(0, m_buffer.str().c_str(), "Radiant - Runtime Error", eMB_OK, eMB_ICONERROR);
-      m_buffer.clear();
-#endif
-    }
-    return true;
-  }
-};
-
-typedef Static<PopupDebugMessageHandler> GlobalPopupDebugMessageHandler;
-
 /**
  * Main entry point for the application.
  */
@@ -188,12 +116,16 @@ int main (int argc, char* argv[]) {
 	gtk_disable_setlocale();
 	gtk_init(&argc, &argv);
 
+    // Initialise GTKGLExt
+    gtk_gl_init(&argc, &argv);
+
+	// Now that GTK is ready, activate the Popup Error Handler
+	module::ModuleRegistry::Instance().initErrorHandler();
+
 	{
 		// Create the radiant.pid file in the settings folder 
 		// (emits a warning if the file already exists (due to a previous startup failure)) 
 		applog::PIDFile pidFile(PID_FILENAME);
-
-		GlobalDebugMessageHandler::instance().setHandler(GlobalPopupDebugMessageHandler::instance());
 
 		ui::Splash::Instance().show();
 	

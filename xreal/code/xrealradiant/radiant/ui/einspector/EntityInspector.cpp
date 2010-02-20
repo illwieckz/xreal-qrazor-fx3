@@ -8,6 +8,7 @@
 #include "ieventmanager.h"
 #include "iuimanager.h"
 #include "igroupdialog.h"
+#include "imainframe.h"
 
 #include "modulesystem/StaticModule.h"
 #include "selectionlib.h"
@@ -208,7 +209,7 @@ void EntityInspector::onKeyChange(const std::string& key,
         PROPERTY_ICON_COLUMN, PropertyEditorFactory::getPixbufFor(parms.type),
         INHERITED_FLAG_COLUMN, "", // not inherited
         HELP_ICON_COLUMN, hasDescription 
-                          ? GlobalRadiant().getLocalPixbuf(HELP_ICON_NAME) 
+                          ? GlobalUIManager().getLocalPixbuf(HELP_ICON_NAME) 
                           : NULL,
         HAS_HELP_FLAG_COLUMN, hasDescription ? TRUE : FALSE,
         -1
@@ -407,7 +408,7 @@ GtkWidget* EntityInspector::createTreeViewPane()
 	gtk_tree_view_column_set_spacing(_helpColumn, 3);
 	gtk_tree_view_column_set_visible(_helpColumn, FALSE);
 
-	GdkPixbuf* helpIcon = GlobalRadiant().getLocalPixbuf(HELP_ICON_NAME);
+	GdkPixbuf* helpIcon = GlobalUIManager().getLocalPixbuf(HELP_ICON_NAME);
 	if (helpIcon != NULL) {
 		gtk_tree_view_column_set_fixed_width(_helpColumn, gdk_pixbuf_get_width(helpIcon));
 	}
@@ -626,7 +627,7 @@ void EntityInspector::applyKeyValueToSelection(const std::string& key, const std
             {
 				// name exists, cancel the change
 				gtkutil::errorDialog("The name " + val + " already exists in this map!",
-					GlobalRadiant().getMainWindow());
+					GlobalMainFrame().getTopLevelWindow());
 				return;
 			}
 		}
@@ -672,11 +673,18 @@ void EntityInspector::_onAddKey()
 	IEntityClassConstPtr ec = _selectedEntity->getEntityClass();
 
 	// Choose a property, and add to entity with a default value
-	std::string property = AddPropertyDialog::chooseProperty(_selectedEntity);
-    if (!property.empty()) 
-    {
-        // Add the keyvalue on the entity (triggering the refresh)
-		_selectedEntity->setKeyValue(property, "-");
+	AddPropertyDialog::PropertyList properties = AddPropertyDialog::chooseProperty(_selectedEntity);
+
+	for (std::size_t i = 0; i < properties.size(); ++i)
+	{
+		const std::string& key = properties[i];
+
+		// Add all keys, skipping existing ones to not overwrite any values on the entity
+		if (_selectedEntity->getKeyValue(key) == "" || _selectedEntity->isInherited(key))
+		{
+			// Add the keyvalue on the entity (triggering the refresh)
+			_selectedEntity->setKeyValue(key, "-");
+		}
     }
 }
 
@@ -966,7 +974,7 @@ void EntityInspector::addClassProperties()
 					PROPERTY_ICON_COLUMN, NULL,
 					INHERITED_FLAG_COLUMN, "1", // inherited
 					HELP_ICON_COLUMN, hasDescription 
-                                      ? GlobalRadiant().getLocalPixbuf(HELP_ICON_NAME)
+                                      ? GlobalUIManager().getLocalPixbuf(HELP_ICON_NAME)
                                       : NULL,
 					HAS_HELP_FLAG_COLUMN, hasDescription ? TRUE : FALSE,
 					-1);

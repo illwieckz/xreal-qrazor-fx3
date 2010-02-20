@@ -616,13 +616,14 @@ void DragManipulator::testSelect(const View& view, const Matrix4& pivot2world) {
     	// Find all entities
 		BooleanSelector entitySelector;
 
-		testselect_entity_visible selectionTest(entitySelector, test);
+		EntitySelector selectionTester(entitySelector, test);
+		GlobalSceneGraph().foreachVisibleNodeInVolume(view, selectionTester);
 
-		Scene_forEachVisible(GlobalSceneGraph(), view, selectionTest);
-    	
     	// Find all primitives that are selectable 
 		BooleanSelector booleanSelector;
-		Scene_TestSelect_Primitive(booleanSelector, test, view, true);
+
+		PrimitiveSelector primitiveTester(booleanSelector, test);
+		GlobalSceneGraph().foreachVisibleNodeInVolume(view, primitiveTester);
 
 		if (entitySelector.isSelected()) {
 			// Found a selectable entity
@@ -644,8 +645,8 @@ void DragManipulator::testSelect(const View& view, const Matrix4& pivot2world) {
 		BooleanSelector booleanSelector;
 	
 		// Find the visible entities
-		testselect_entity_visible tester(booleanSelector, test);
-		Scene_forEachVisible(GlobalSceneGraph(), view, tester);
+		EntitySelector selectionTester(booleanSelector, test);
+		GlobalSceneGraph().foreachVisibleNodeInVolume(view, selectionTester);
 
 		// Check, if an entity could be found
       	if (booleanSelector.isSelected()) {
@@ -655,24 +656,31 @@ void DragManipulator::testSelect(const View& view, const Matrix4& pivot2world) {
     }
     else
     {
-      BestSelector bestSelector;
-      Scene_TestSelect_Component_Selected(bestSelector, test, view, GlobalSelectionSystem().ComponentMode());
-      for(std::list<Selectable*>::iterator i = bestSelector.best().begin(); i != bestSelector.best().end(); ++i)
-      {
-      	/** greebo: Disabled this, it caused the currently selected patch vertices being deselected.
-      	 */
-      	if (GlobalRegistry().get(RKEY_TRANSIENT_COMPONENT_SELECTION) == "1") {
-      		if(!(*i)->isSelected()) {
-          		GlobalSelectionSystem().setSelectedAllComponents(false);
-      		}
-      	}
-        _selected = false;
-        selector.addSelectable(SelectionIntersection(0, 0), (*i));
-        _dragSelectable.setSelected(true);
-      }
-    }
+		BestSelector bestSelector;
 
-	for(SelectionPool::iterator i = selector.begin(); i != selector.end(); ++i) {
+		ComponentSelector selectionTester(bestSelector, test, GlobalSelectionSystem().ComponentMode());
+		GlobalSelectionSystem().foreachSelected(selectionTester);
+
+		for (std::list<Selectable*>::iterator i = bestSelector.best().begin(); 
+			 i != bestSelector.best().end(); ++i)
+		{
+			// greebo: Disabled this, it caused the currently selected patch vertices being deselected.
+			if (GlobalRegistry().get(RKEY_TRANSIENT_COMPONENT_SELECTION) == "1")
+			{
+				if (!(*i)->isSelected())
+				{
+					GlobalSelectionSystem().setSelectedAllComponents(false);
+				}
+			}
+		
+			_selected = false;
+			selector.addSelectable(SelectionIntersection(0, 0), (*i));
+			_dragSelectable.setSelected(true);
+		}
+	}
+
+	for (SelectionPool::iterator i = selector.begin(); i != selector.end(); ++i)
+	{
 		i->second->setSelected(true);
 	}
 }

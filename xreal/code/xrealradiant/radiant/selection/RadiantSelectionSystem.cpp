@@ -100,37 +100,49 @@ void RadiantSelectionSystem::notifyObservers(const scene::INodePtr& node, bool i
 	}
 }
 
-void RadiantSelectionSystem::Scene_TestSelect(SelectablesList& targetList, SelectionTest& test, const View& view, SelectionSystem::EMode mode, SelectionSystem::EComponentMode componentMode) {
+void RadiantSelectionSystem::testSelectScene(SelectablesList& targetList, SelectionTest& test, 
+											 const View& view, SelectionSystem::EMode mode, 
+											 SelectionSystem::EComponentMode componentMode)
+{
 	// The (temporary) storage pool
 	SelectionPool selector;
 	SelectionPool sel2;
-	switch(mode) {
+
+	switch(mode)
+	{
 		case eEntity:
 		{
-			testselect_entity_visible entityTest(selector, test);
+			// Instantiate a walker class which is specialised for selecting entities
+			EntitySelector entityTester(selector, test);
+			GlobalSceneGraph().foreachVisibleNodeInVolume(view, entityTester);
 
-			Scene_forEachVisible(GlobalSceneGraph(), view, entityTest);
-			for (SelectionPool::iterator i = selector.begin(); i != selector.end(); ++i) {
+			for (SelectionPool::iterator i = selector.begin(); i != selector.end(); ++i)
+			{
 				targetList.push_back(i->second);
 			}
 		}
 		break;
+
 		case ePrimitive:
+		{
 			// Do we have a camera view (filled rendering?)
-			if (view.fill() || !GlobalXYWnd().higherEntitySelectionPriority()) {
+			if (view.fill() || !GlobalXYWnd().higherEntitySelectionPriority())
+			{
 				// Test for any visible elements (primitives, entities), but don't select child primitives
-				testselect_any_visible anyVisible(selector, test, false);
-
-				Scene_forEachVisible(GlobalSceneGraph(), view, anyVisible); 
+				AnySelector anyTester(selector, test);
+				GlobalSceneGraph().foreachVisibleNodeInVolume(view, anyTester);
 			}
-			else {
+			else
+			{
 				// We have an orthoview, here, select entities first
-				// First, obtain all the selectable entities
-				testselect_entity_visible entityTest(selector, test);
 
-				Scene_forEachVisible(GlobalSceneGraph(), view, entityTest);
-				// Now, retrieve all the selectable primitives (and don't select child primitives (false)) 
-				Scene_TestSelect_Primitive(sel2, test, view, false);
+				// First, obtain all the selectable entities
+				EntitySelector entityTester(selector, test);
+				GlobalSceneGraph().foreachVisibleNodeInVolume(view, entityTester);
+
+				// Now retrieve all the selectable primitives 
+				PrimitiveSelector primitiveTester(sel2, test);
+				GlobalSceneGraph().foreachVisibleNodeInVolume(view, primitiveTester);
 			}
 		
 			// Add the first selection crop to the target vector
@@ -150,12 +162,19 @@ void RadiantSelectionSystem::Scene_TestSelect(SelectablesList& targetList, Selec
 					targetList.push_back(i->second);
 				}
 			}
+		}
 		break;
+
 		case eComponent:
-			Scene_TestSelect_Component_Selected(selector, test, view, componentMode);
-			for (SelectionPool::iterator i = selector.begin(); i != selector.end(); ++i) {
+		{
+			ComponentSelector selectionTester(selector, test, componentMode);
+			foreachSelected(selectionTester);
+
+			for (SelectionPool::iterator i = selector.begin(); i != selector.end(); ++i)
+			{
 				targetList.push_back(i->second);
 			}
+		}
 		break;
 	} // switch
 }
@@ -379,16 +398,18 @@ void RadiantSelectionSystem::startMove() {
 /* greebo: This is called by the ManipulateObserver class on the mouseDown event. It checks, if a manipulator
  * can be selected where the mouse is pointing to.
  */
-bool RadiantSelectionSystem::SelectManipulator(const View& view, const double device_point[2], const double device_epsilon[2]) {
-	if (!nothingSelected() || (ManipulatorMode() == eDrag && Mode() == eComponent)) {
-
+bool RadiantSelectionSystem::SelectManipulator(const View& view, const Vector2& device_point, const Vector2& device_epsilon)
+{
+	if (!nothingSelected() || (ManipulatorMode() == eDrag && Mode() == eComponent))
+	{
 		// Unselect any currently selected manipulators to be sure
 		_manipulator->setSelected(false);
 
 		// Test, if the current manipulator can be selected
-		if (!nothingSelected() || (ManipulatorMode() == eDrag && Mode() == eComponent)) {
+		if (!nothingSelected() || (ManipulatorMode() == eDrag && Mode() == eComponent))
+		{
 			View scissored(view);
-			ConstructSelectionTest(scissored, SelectionBoxForPoint(device_point, device_epsilon));
+			ConstructSelectionTest(scissored, Rectangle::ConstructFromPoint(device_point, device_epsilon));
 			
 			// The manipulator class checks on its own, if any of its components can be selected
 			_manipulator->testSelect(scissored, GetPivot2World());
@@ -437,8 +458,8 @@ void RadiantSelectionSystem::deselectAll() {
  * to the modifiers that are held down (Alt-Shift, etc.)
  */
 void RadiantSelectionSystem::SelectPoint(const View& view, 
-										 const double device_point[2], 
-										 const double device_epsilon[2], 
+										 const Vector2& device_point, 
+										 const Vector2& device_epsilon, 
 										 SelectionSystem::EModifier modifier, 
 										 bool face) 
 {
@@ -456,23 +477,28 @@ void RadiantSelectionSystem::SelectPoint(const View& view,
 	{
 		View scissored(view);
 		// Construct a selection test according to a small box with 2*epsilon edge length
-		ConstructSelectionTest(scissored, SelectionBoxForPoint(device_point, device_epsilon));
+		ConstructSelectionTest(scissored, Rectangle::ConstructFromPoint(device_point, device_epsilon));
 
 		// Create a new SelectionPool instance and fill it with possible candidates
 		SelectionVolume volume(scissored);
 		// The possible candidates are stored in the SelectablesSet
 		SelectablesList candidates;
-		if (face) {
+
+		if (face)
+		{
 			SelectionPool selector;
-			Scene_TestSelect_Component(selector, volume, scissored, eFace);
+
+			ComponentSelector selectionTester(selector, volume, eFace);
+			GlobalSceneGraph().foreachVisibleNodeInVolume(scissored, selectionTester);
 			
 			// Load them all into the vector
-			for (SelectionPool::iterator i = selector.begin(); i != selector.end(); i++) {
+			for (SelectionPool::iterator i = selector.begin(); i != selector.end(); ++i)
+			{
 				candidates.push_back(i->second);
 			}
 		}
 		else {
-			Scene_TestSelect(candidates, volume, scissored, Mode(), ComponentMode());
+			testSelectScene(candidates, volume, scissored, Mode(), ComponentMode());
 		}
 		
 		// Was the selection test successful (have we found anything to select)?
@@ -533,8 +559,8 @@ void RadiantSelectionSystem::SelectPoint(const View& view,
  * any of the selection modifiers. Possible selection candidates are determined and selected/deselected
  */
 void RadiantSelectionSystem::SelectArea(const View& view, 
-										const double device_point[2], 
-										const double device_delta[2], 
+										const Vector2& device_point, 
+										const Vector2& device_delta, 
 										SelectionSystem::EModifier modifier, bool face) 
 {
 	// If we are in replace mode, deselect all the components or previous selections
@@ -550,7 +576,7 @@ void RadiantSelectionSystem::SelectArea(const View& view,
 	{
 		// Construct the selection test according to the area the user covered with his drag
 		View scissored(view);
-		ConstructSelectionTest(scissored, SelectionBoxForArea(device_point, device_delta));
+		ConstructSelectionTest(scissored, Rectangle::ConstructFromArea(device_point, device_delta));
 		
 		SelectionVolume volume(scissored);
 		// The posssible candidates go here
@@ -558,16 +584,19 @@ void RadiantSelectionSystem::SelectArea(const View& view,
 		
 		SelectablesList candidates;
 		
-		if (face) {
-			Scene_TestSelect_Component(pool, volume, scissored, eFace);
-			
+		if (face)
+		{
+			ComponentSelector selectionTester(pool, volume, eFace);
+			GlobalSceneGraph().foreachVisibleNodeInVolume(scissored, selectionTester);
+
 			// Load them all into the vector
-			for (SelectionPool::iterator i = pool.begin(); i != pool.end(); i++) {
+			for (SelectionPool::iterator i = pool.begin(); i != pool.end(); ++i)
+			{
 				candidates.push_back(i->second);
 			}
 		}
 		else {
-			Scene_TestSelect(candidates, volume, scissored, Mode(), ComponentMode());
+			testSelectScene(candidates, volume, scissored, Mode(), ComponentMode());
 		}
 		
 		// Cycle through the selection pool and toggle the candidates, but only if we are in toggle mode
@@ -685,7 +714,8 @@ void RadiantSelectionSystem::scaleSelected(const Vector3& scaling) {
 /* greebo: This "moves" the current selection. It calculates the device manipulation matrix
  * and passes it to the currently active Manipulator.
  */
-void RadiantSelectionSystem::MoveSelected(const View& view, const double device_point[2]) {
+void RadiantSelectionSystem::MoveSelected(const View& view, const Vector2& devicePoint)
+{
 	// Check, if the active manipulator is selected in the first place
 	if (_manipulator->isSelected()) {
 		// Initalise the undo system, if not yet done
@@ -697,10 +727,11 @@ void RadiantSelectionSystem::MoveSelected(const View& view, const double device_
 		Matrix4 device2manip;
 		ConstructDevice2Manip(device2manip, _pivot2worldStart, view.GetModelview(), view.GetProjection(), view.GetViewport());
 		
-		Vector2 devicePoint(device_point[0], device_point[1]);
+		Vector2 constrainedDevicePoint(devicePoint);
 		
 		// Constrain the movement to the axes, if the modifier is held
-		if ((GlobalEventManager().getModifierState() & GDK_SHIFT_MASK) != 0) {
+		if ((GlobalEventManager().getModifierState() & GDK_SHIFT_MASK) != 0)
+		{
 			// Get the movement delta relative to the start point
 			Vector2 delta = devicePoint - _deviceStart;
 			
@@ -715,12 +746,12 @@ void RadiantSelectionSystem::MoveSelected(const View& view, const double device_
 			}
 			
 			// Add the modified delta to the start point, constrained to one axis 
-			devicePoint = _deviceStart + delta;
+			constrainedDevicePoint = _deviceStart + delta;
 		}
 		
 		// Get the manipulatable from the currently active manipulator (done by selection test)
 		// and call the Transform method (can be anything) 
-		_manipulator->GetManipulatable()->Transform(_manip2pivotStart, device2manip, devicePoint[0], devicePoint[1]);
+		_manipulator->GetManipulatable()->Transform(_manip2pivotStart, device2manip, constrainedDevicePoint[0], constrainedDevicePoint[1]);
 
 		_requestWorkZoneRecalculation = true;
 		_requestSceneGraphChange = true;

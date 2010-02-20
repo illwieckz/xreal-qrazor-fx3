@@ -28,10 +28,8 @@ class PatchNode :
 	public PlaneSelectable,
 	public LightCullable,
 	public Renderable,
-	public Cullable,
 	public Bounded,
-	public Transformable,
-	public Patch::Observer
+	public Transformable
 {
 	DragPlanes m_dragPlanes;
 
@@ -75,10 +73,7 @@ public:
 	typedef MemberCaller<PatchNode, &PatchNode::lightsChanged> LightsChangedCaller;
 
 	// Bounded implementation
-	virtual const AABB& localAABB() const;
-
-	// Cullable implementation
-	virtual VolumeIntersectionValue intersectVolume(const VolumeTest& test, const Matrix4& localToWorld) const;
+	const AABB& localAABB() const;
 
 	// IPatchNode implementation
 	Patch& getPatchInternal();
@@ -108,6 +103,7 @@ public:
 	void testSelectComponents(Selector& selector, SelectionTest& test, SelectionSystem::EComponentMode mode);
 
 	// override scene::Inode::onRemoveFromScene to deselect the child components
+	virtual void onInsertIntoScene();
 	virtual void onRemoveFromScene();
 
 	// Create the axis aligned bounding box of the selected components
@@ -127,10 +123,6 @@ public:
 	
 	// Clones this node, allocates a new Node on the heap and passes itself to the constructor of the new node
 	scene::INodePtr clone() const;
-
-	// scene::Instantiable implementation
-	virtual void instantiate(const scene::Path& path);
-	virtual void uninstantiate(const scene::Path& path);
 
 	// Set the selection status. As this is an ObservedSelectable, the onChanged callback is performed automatically.
 	virtual void setSelected(bool select);

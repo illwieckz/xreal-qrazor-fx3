@@ -23,8 +23,6 @@ PatchNode::PatchNode(bool patchDef3) :
 	m_patch.m_lightsChanged = LightsChangedCaller(*this);
 
 	Node::setTransformChangedCallback(LightsChangedCaller(*this));
-
-	m_patch.attach(this); // Patch::Observer
 }
   
 // Copy Constructor
@@ -44,10 +42,8 @@ PatchNode::PatchNode(const PatchNode& other) :
 	PlaneSelectable(other),
 	LightCullable(other),
 	Renderable(other),
-	Cullable(other),
 	Bounded(other),
 	Transformable(other),
-	Patch::Observer(other),
 	m_dragPlanes(SelectedChangedComponentCaller(*this)),
 	_selectable(SelectedChangedCaller(*this)),
 	m_render_selected(GL_POINTS),
@@ -62,13 +58,10 @@ PatchNode::PatchNode(const PatchNode& other) :
 	m_patch.m_lightsChanged = LightsChangedCaller(*this);
 
 	Node::setTransformChangedCallback(LightsChangedCaller(*this));
-
-	m_patch.attach(this); // Patch::Observer
 }
 
-PatchNode::~PatchNode() {
-	m_patch.detach(this); // Patch::Observer
-
+PatchNode::~PatchNode()
+{
 	GlobalRenderSystem().detach(*this);
 }
 
@@ -91,12 +84,6 @@ const AABB& PatchNode::localAABB() const {
 
 std::string PatchNode::name() const {
 	return "Patch";
-}
-
-VolumeIntersectionValue PatchNode::intersectVolume(
-	const VolumeTest& test, const Matrix4& localToWorld) const
-{
-	return m_patch.intersectVolume(test, localToWorld);
 }
 
 Patch& PatchNode::getPatchInternal() {
@@ -221,14 +208,6 @@ void PatchNode::testSelectComponents(Selector& selector, SelectionTest& test, Se
 	}
 }
 
-void PatchNode::onRemoveFromScene() {
-	// De-select this node
-	setSelected(false);
-
-	// De-select all child components as well
-	setSelectedComponents(false, SelectionSystem::eVertex);
-}
-
 const AABB& PatchNode::getSelectedComponentsBounds() const {
 	// Create a new axis aligned bounding box
 	m_aabb_component = AABB();
@@ -288,18 +267,27 @@ scene::INodePtr PatchNode::clone() const {
 	return scene::INodePtr(new PatchNode(*this));
 }
 
-void PatchNode::instantiate(const scene::Path& path) {
-	m_patch.instanceAttach(path);
-	GlobalRadiant().getCounter(counterPatches).increment();
+void PatchNode::onInsertIntoScene()
+{
+	m_patch.instanceAttach(scene::findMapFile(getSelf()));
+	GlobalCounters().getCounter(counterPatches).increment();
 
-	Node::instantiate(path);
+	Node::onInsertIntoScene();
 }
 
-void PatchNode::uninstantiate(const scene::Path& path) {
-	GlobalRadiant().getCounter(counterPatches).decrement();
-	m_patch.instanceDetach(path);
+void PatchNode::onRemoveFromScene()
+{
+	// De-select this node
+	setSelected(false);
 
-	Node::uninstantiate(path);
+	// De-select all child components as well
+	setSelectedComponents(false, SelectionSystem::eVertex);
+
+	GlobalCounters().getCounter(counterPatches).decrement();
+
+	m_patch.instanceDetach(scene::findMapFile(getSelf()));
+
+	Node::onRemoveFromScene();
 }
 
 bool PatchNode::testLight(const RendererLight& light) const {
@@ -398,35 +386,50 @@ void PatchNode::renderComponentsSelected(RenderableCollector& collector, const V
 	}
 }
 
-void PatchNode::evaluateTransform() {
-	Matrix4 matrix(calculateTransform());
+void PatchNode::evaluateTransform()
+{
+	Matrix4 matrix = calculateTransform();
 
-	if (getType() == TRANSFORM_PRIMITIVE) {
+	// Avoid transform calls when an identity matrix is passed,
+	// this equality check is cheaper than all the stuff going on in transform().
+	if (matrix == Matrix4::getIdentity()) return;
+
+	if (getType() == TRANSFORM_PRIMITIVE)
+	{
 		m_patch.transform(matrix);
 	}
-	else {
+	else
+	{
 		transformComponents(matrix);
 	}
 }
 
 void PatchNode::transformComponents(const Matrix4& matrix) {
 	// Are there any selected vertices?
-	if (selectedVertices()) {
+	if (selectedVertices())
+	{
 		// Set the iterator to the start of the (transformed) control points array 
 		PatchControlIter ctrl = m_patch.getControlPointsTransformed().begin();
 		
 		// Cycle through the patch control instances and transform the selected ones
 		// greebo: Have to investigate this further, why there are actually two iterators needed  
-		for (PatchNode::PatchControlInstances::iterator i = m_ctrl_instances.begin(); i != m_ctrl_instances.end(); ++i, ++ctrl) {
-			if (i->m_selectable.isSelected()) {
+		for (PatchNode::PatchControlInstances::iterator i = m_ctrl_instances.begin(); 
+			 i != m_ctrl_instances.end(); ++i, ++ctrl)
+		{
+			if (i->m_selectable.isSelected())
+			{
 				matrix4_transform_point(matrix, ctrl->vertex);
 			}
 		}
-		m_patch.UpdateCachedData();
+
+		// mark this patch transform as dirty
+		m_patch.transformChanged();
 	}
 
 	// Also, check if there are any drag planes selected
-	if (m_dragPlanes.isSelected()) { // this should only be true when the transform is a pure translation.
+	// this should only be true when the transform is a pure translation.
+	if (m_dragPlanes.isSelected())
+	{ 
 		m_patch.transform(m_dragPlanes.evaluateTransform(matrix.t().getVector3()));
 	}
 }

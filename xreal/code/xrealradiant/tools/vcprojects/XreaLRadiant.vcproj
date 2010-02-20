@@ -44,12 +44,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/EHsc"
+				AdditionalOptions="/EHsc /MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)/../../radiant&quot;;&quot;$(SolutionDir)/../../include&quot;;&quot;$(SolutionDir)/../../libs&quot;;&quot;$(SolutionDir)/../../w32deps/boost/include&quot;;&quot;$(SolutionDir)/../../w32deps/libxml2/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/gtk-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/atk-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/glib-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/cairo&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/pango-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/glib-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtk-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/glew/include&quot;;&quot;$(SolutionDir)/../../w32deps/win_iconv/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)/../../include&quot;;&quot;$(SolutionDir)/../../radiant&quot;;&quot;$(SolutionDir)/../../libs&quot;;&quot;$(SolutionDir)/../../w32deps/boost/include&quot;;&quot;$(SolutionDir)/../../w32deps/libxml2/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/gtk-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/atk-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/glib-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/cairo&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/pango-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/glib-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtk-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtkglext-1.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtkglext&quot;;&quot;$(SolutionDir)/../../w32deps/glew/include&quot;;&quot;$(SolutionDir)/../../w32deps/win_iconv/include&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;_DEBUG;_CONSOLE;RADIANT_USE_GLSL"
 				StringPooling="true"
-				MinimalRebuild="true"
+				MinimalRebuild="false"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
@@ -146,10 +146,9 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHsc /MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)/../../radiant&quot;;&quot;$(SolutionDir)/../../include&quot;;&quot;$(SolutionDir)/../../libs&quot;;&quot;$(SolutionDir)/../../w32deps/boost/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/gtk-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/atk-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/glib-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/cairo&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/pango-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/glib-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtk-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/glew/include&quot;;&quot;$(SolutionDir)/../../w32deps/win_iconv/include&quot;;&quot;$(SolutionDir)/../../w32deps/libxml2/include&quot;"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;_DEBUG;_CONSOLE;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)/../../radiant&quot;;&quot;$(SolutionDir)/../../include&quot;;&quot;$(SolutionDir)/../../libs&quot;;&quot;$(SolutionDir)/../../w32deps/boost/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/gtk-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/atk-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/glib-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/cairo&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/pango-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/glib-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtk-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtkglext-1.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtkglext&quot;;&quot;$(SolutionDir)/../../w32deps/glew/include&quot;;&quot;$(SolutionDir)/../../w32deps/win_iconv/include&quot;;&quot;$(SolutionDir)/../../w32deps/libxml2/include&quot;"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;_DEBUG;_CONSOLE;RADIANT_USE_GLSL"
 				StringPooling="true"
-				MinimalRebuild="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
@@ -244,11 +243,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/EHsc"
+				AdditionalOptions="/EHsc /MP"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)/../../include&quot;;&quot;$(SolutionDir)/../../radiant&quot;;&quot;$(SolutionDir)/../../libs&quot;;&quot;$(SolutionDir)/../../w32deps/boost/include&quot;;&quot;$(SolutionDir)/../../w32deps/libxml2/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/gtk-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/atk-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/glib-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/cairo&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/pango-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/glib-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtk-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/glew/include&quot;;&quot;$(SolutionDir)/../../w32deps/win_iconv/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)/../../include&quot;;&quot;$(SolutionDir)/../../radiant&quot;;&quot;$(SolutionDir)/../../libs&quot;;&quot;$(SolutionDir)/../../w32deps/boost/include&quot;;&quot;$(SolutionDir)/../../w32deps/libxml2/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/gtk-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/atk-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/glib-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/cairo&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/pango-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/glib-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtk-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtkglext-1.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtkglext&quot;;&quot;$(SolutionDir)/../../w32deps/glew/include&quot;;&quot;$(SolutionDir)/../../w32deps/win_iconv/include&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;NDEBUG;_CONSOLE;RADIANT_USE_GLSL"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -347,8 +346,9 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)/../../radiant&quot;;&quot;$(SolutionDir)/../../include&quot;;&quot;$(SolutionDir)/../../libs&quot;;&quot;$(SolutionDir)/../../w32deps/boost/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/gtk-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/atk-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/glib-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/cairo&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/pango-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/glib-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtk-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/glew/include&quot;;&quot;$(SolutionDir)/../../w32deps/win_iconv/include&quot;;&quot;$(SolutionDir)/../../w32deps/libxml2/include&quot;"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;NDEBUG;_CONSOLE"
+				WholeProgramOptimization="true"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)/../../radiant&quot;;&quot;$(SolutionDir)/../../include&quot;;&quot;$(SolutionDir)/../../libs&quot;;&quot;$(SolutionDir)/../../w32deps/boost/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/gtk-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/atk-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/glib-2.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/cairo&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/include/pango-1.0&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/glib-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtk-2.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtk2/lib/gtkglext-1.0/include&quot;;&quot;$(SolutionDir)/../../w32deps/gtkglext&quot;;&quot;$(SolutionDir)/../../w32deps/glew/include&quot;;&quot;$(SolutionDir)/../../w32deps/win_iconv/include&quot;;&quot;$(SolutionDir)/../../w32deps/libxml2/include&quot;"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;NDEBUG;_CONSOLE;RADIANT_USE_GLSL"
 				StringPooling="true"
 				ExceptionHandling="0"
 				RuntimeLibrary="2"
@@ -386,6 +386,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="1"
 				EntryPointSymbol="mainCRTStartup"
 				RandomizedBaseAddress="1"
 				FixedBaseAddress="0"
@@ -470,14 +471,6 @@
 			</File>
 			<File
 				RelativePath="..\..\radiant\RadiantModule.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\radiant\referencecache.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\radiant\referencecache.h"
 				>
 			</File>
 			<File
@@ -840,6 +833,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\radiant\map\CounterManager.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\radiant\map\CounterManager.h"
 					>
 				</File>
@@ -917,10 +914,6 @@
 				</File>
 				<File
 					RelativePath="..\..\radiant\map\ModelBreakdown.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\radiant\map\ParentSelectedPrimitivesToEntityWalker.h"
 					>
 				</File>
 				<File
@@ -1231,15 +1224,19 @@
 					Name="frontend"
 					>
 					<File
-						RelativePath="..\..\radiant\render\frontend\CullingWalker.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\radiant\render\frontend\ForEachVisible.h"
-						>
-					</File>
-					<File
 						RelativePath="..\..\radiant\render\frontend\RenderHighlighted.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="debug"
+					>
+					<File
+						RelativePath="..\..\radiant\render\debug\SpacePartitionRenderer.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\render\debug\SpacePartitionRenderer.h"
 						>
 					</File>
 				</Filter>
@@ -1603,6 +1600,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\radiant\textool\item\FaceVertexItem.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\textool\item\FaceVertexItem.h"
+						>
+					</File>
+					<File
 						RelativePath="..\..\radiant\textool\item\PatchItem.cpp"
 						>
 					</File>
@@ -1668,6 +1673,14 @@
 					</File>
 					<File
 						RelativePath="..\..\radiant\ui\common\CommandEntry.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\common\EntityChooser.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\common\EntityChooser.h"
 						>
 					</File>
 					<File
@@ -2112,6 +2125,14 @@
 					</File>
 					<File
 						RelativePath="..\..\radiant\ui\patch\BulgePatchDialog.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\patch\CapDialog.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\radiant\ui\patch\CapDialog.h"
 						>
 					</File>
 					<File
@@ -2569,6 +2590,10 @@
 				</File>
 				<File
 					RelativePath="..\..\radiant\log\PIDFile.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\radiant\log\PopupErrorHandler.h"
 					>
 				</File>
 				<File

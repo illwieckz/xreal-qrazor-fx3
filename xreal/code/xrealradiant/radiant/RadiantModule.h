@@ -22,10 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #if !defined(INCLUDED_PLUGIN_H)
 #define INCLUDED_PLUGIN_H
 
-#include "map/CounterManager.h"
 #include "iradiant.h"
-
-typedef struct _GdkPixbuf GdkPixbuf;
 
 namespace radiant {
 
@@ -35,43 +32,14 @@ namespace radiant {
 class RadiantModule :
 	public IRadiant
 {
-	map::CounterManager _counters;
-	
 	typedef std::set<RadiantEventListenerWeakPtr> EventListenerList;
 	EventListenerList _eventListeners;
 
-	typedef std::map<std::string, GdkPixbuf*> PixBufMap;
-	PixBufMap _localPixBufs;
-	PixBufMap _localPixBufsWithMask;
-
-	GtkWindow* _mainWindow;
-
 public:
-	RadiantModule();
+	ui::IModelPreviewPtr createModelPreview();
 	
-	virtual GtkWindow* getMainWindow();
-	// Sets the main window (may only be called by mainframe).
-	void setMainWindow(GtkWindow* mainWindow);
-	
-	virtual GdkPixbuf* getLocalPixbuf(const std::string& fileName);
-	
-	virtual GdkPixbuf* getLocalPixbufWithMask(const std::string& fileName);
-	
-	virtual ICounter& getCounter(CounterType counter);
-	
-	virtual void setStatusText(const std::string& statusText);
-	
-	virtual void updateAllWindows();
-
-	virtual ui::IModelPreviewPtr createModelPreview();
-	virtual ui::IFileChooserPtr createFileChooser(const std::string& title, 
-												bool open, bool browseFolders, 
-												const std::string& pattern = "",
-												const std::string& defaultExt = "");
-	
-	virtual void addEventListener(RadiantEventListenerPtr listener);
-	
-	virtual void removeEventListener(RadiantEventListenerPtr listener);
+	void addEventListener(RadiantEventListenerPtr listener);
+	void removeEventListener(RadiantEventListenerPtr listener);
 	
 	// Broadcasts a "shutdown" event to all the listeners, this also clears all listeners!
 	void broadcastShutdownEvent();
@@ -80,13 +48,10 @@ public:
 	void broadcastStartupEvent();
 	
 	// RegisterableModule implementation
-	virtual const std::string& getName() const;
-	
-	virtual const StringSet& getDependencies() const;
-	
-	virtual void initialiseModule(const ApplicationContext& ctx);
-	
-	virtual void shutdownModule();
+	const std::string& getName() const;
+	const StringSet& getDependencies() const;
+	void initialiseModule(const ApplicationContext& ctx);
+	void shutdownModule();
 };
 typedef boost::shared_ptr<RadiantModule> RadiantModulePtr;
 

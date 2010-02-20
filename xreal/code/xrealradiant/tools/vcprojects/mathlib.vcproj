@@ -40,6 +40,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions=" /MP"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)/../../include&quot;;&quot;$(SolutionDir)/../../libs&quot;;&quot;$(SolutionDir)/../../w32deps/boost/include&quot;"
 				PreprocessorDefinitions="WIN32;"
 				RuntimeLibrary="3"
@@ -157,8 +158,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions=" /MP"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)/../../include&quot;;&quot;$(SolutionDir)/../../libs&quot;;&quot;$(SolutionDir)/../../w32deps/boost/include&quot;"
-				PreprocessorDefinitions="WIN32"
+				PreprocessorDefinitions="NDEBUG;WIN32"
 				RuntimeLibrary="2"
 				ProgramDataBaseFileName="$(IntDir)\vc80.pdb"
 				WarningLevel="3"
@@ -217,7 +219,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)/../../include&quot;;&quot;$(SolutionDir)/../../libs&quot;;&quot;$(SolutionDir)/../../w32deps/boost/include&quot;"
-				PreprocessorDefinitions="WIN32"
+				PreprocessorDefinitions="NDEBUG;WIN32"
 				RuntimeLibrary="2"
 				ProgramDataBaseFileName="$(IntDir)\vc80.pdb"
 				WarningLevel="3"

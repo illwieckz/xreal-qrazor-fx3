@@ -1,5 +1,6 @@
 #include "MD5ModelNode.h"
 
+#include "ivolumetest.h"
 #include "imodelcache.h"
 
 namespace md5 {
@@ -55,21 +56,6 @@ const AABB& MD5ModelNode::localAABB() const {
 	return _model->localAABB();
 }
 
-void MD5ModelNode::instantiate(const scene::Path& path) {
-	Node::instantiate(path);
-}
-
-void MD5ModelNode::uninstantiate(const scene::Path& path) {
-	Node::uninstantiate(path);
-}
-
-// Cullable implementation
-VolumeIntersectionValue MD5ModelNode::intersectVolume(
-	const VolumeTest& test, const Matrix4& localToWorld) const
-{
-	return _model->intersectVolume(test, localToWorld);
-}
-
 std::string MD5ModelNode::name() const {
 	return _model->getFilename();
 }
@@ -122,7 +108,8 @@ void MD5ModelNode::render(RenderableCollector& collector, const VolumeTest& volu
 		 i != _model->end(); 
 		 ++i, ++j, ++k)
 	{
-		if ((*i)->intersectVolume(volume, localToWorld) != VOLUME_OUTSIDE) {
+		if (volume.TestAABB((*i)->localAABB(), localToWorld) != VOLUME_OUTSIDE)
+		{
 			collector.setLights(*j);
 			(*i)->render(collector, localToWorld, k->shader != NULL ? k->shader : (*i)->getState());
 		}

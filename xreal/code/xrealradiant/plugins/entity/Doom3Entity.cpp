@@ -3,6 +3,7 @@
 #include "iradiant.h"
 #include "icounter.h"
 #include "ieclass.h"
+#include "debugging/debugging.h"
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
@@ -106,7 +107,7 @@ void Doom3Entity::forEachKeyValue_instanceDetach(MapFile* map) {
 }
 
 void Doom3Entity::instanceAttach(MapFile* map) {
-	GlobalRadiant().getCounter(counterEntities).increment();
+	GlobalCounters().getCounter(counterEntities).increment();
 	
 	_instanced = true;
 	forEachKeyValue_instanceAttach(map);
@@ -114,7 +115,7 @@ void Doom3Entity::instanceAttach(MapFile* map) {
 }
 
 void Doom3Entity::instanceDetach(MapFile* map) {
-	GlobalRadiant().getCounter(counterEntities).decrement();
+	GlobalCounters().getCounter(counterEntities).decrement();
 
 	_undo.instanceDetach(map);
 	forEachKeyValue_instanceDetach(map);
@@ -191,6 +192,13 @@ Entity::KeyValuePairs Doom3Entity::getKeyValuePairs(const std::string& prefix) c
 	}
 
 	return list;
+}
+
+EntityKeyValuePtr Doom3Entity::getEntityKeyValue(const std::string& key)
+{
+	KeyValues::const_iterator found = find(key);
+
+	return (found != _keyValues.end()) ? found->second : EntityKeyValuePtr();
 }
 
 bool Doom3Entity::isContainer() const {

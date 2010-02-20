@@ -4,7 +4,6 @@
 #include "iscenegraph.h"
 #include "irender.h"
 #include "gtkutil/GLWidget.h"
-#include "gtkutil/xorrectangle.h"
 #include "gtkutil/WindowPosition.h"
 #include "selection/RadiantWindowObserver.h"
 
@@ -55,10 +54,10 @@ class CamWnd :
 
 	SignalHandlerId _mapValidHandle;
 
+	Rectangle _dragRectangle;
+
 public:
 	SelectionSystemWindowObserver* m_window_observer;
-
-	XORRectangle m_XORRectangle;
 
 	DeferredDraw m_deferredDraw;
 	DeferredMotion m_deferred_motion;
@@ -91,8 +90,7 @@ public:
 
 	Camera& getCamera();
 	
-	void updateXORRectangle(Rectangle area);
-	typedef MemberCaller1<CamWnd, Rectangle, &CamWnd::updateXORRectangle> updateXORRectangleCallback;
+	void updateSelectionBox(const Rectangle& area);
 	
 	Vector3 getCameraOrigin() const;
 	void setCameraOrigin(const Vector3& origin);
@@ -100,7 +98,7 @@ public:
 	Vector3 getCameraAngles() const;
 	void setCameraAngles(const Vector3& angles);
 
-	// greebo: This measures the rendering time during a 360� turn of the camera.
+	// greebo: This measures the rendering time during a 360° turn of the camera.
 	void benchmark();
 	
 	// This tries to find brushes above/below the current camera position and moves the view upwards/downwards

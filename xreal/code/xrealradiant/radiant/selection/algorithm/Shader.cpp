@@ -1,7 +1,9 @@
 #include "Shader.h"
 
+#include "imainframe.h"
 #include "iselection.h"
 #include "iscenegraph.h"
+#include "itextstream.h"
 #include "iselectable.h"
 #include "igroupnode.h"
 #include "selectionlib.h"
@@ -11,7 +13,7 @@
 #include "brush/BrushVisit.h"
 #include "brush/TextureProjection.h"
 #include "patch/PatchSceneWalk.h"
-#include "patch/Patch.h"
+#include "patch/PatchNode.h"
 #include "selection/algorithm/Primitives.h"
 #include "selection/shaderclipboard/ShaderClipboard.h"
 #include "ui/surfaceinspector/SurfaceInspector.h"
@@ -179,7 +181,7 @@ void applyShaderToSelection(const std::string& shaderName) {
 
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 /** greebo: Applies the shader from the clipboard's face to the given <target> face
@@ -301,7 +303,7 @@ void pasteShader(SelectionTest& test, bool projected, bool entireBrush) {
 	
 	if (target.isPatch() && entireBrush) {
 		gtkutil::errorDialog("Can't paste shader to entire brush.\nTarget is not a brush.",
-			GlobalRadiant().getMainWindow());
+			GlobalMainFrame().getTopLevelWindow());
 	}
 	else {
 		// Pass the call to the algorithm function taking care of all the IFs
@@ -310,7 +312,7 @@ void pasteShader(SelectionTest& test, bool projected, bool entireBrush) {
 	
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 void pasteTextureCoords(SelectionTest& test) {
@@ -336,25 +338,25 @@ void pasteTextureCoords(SelectionTest& test) {
 		}
 		else {
 			gtkutil::errorDialog("Can't paste Texture Coordinates.\nTarget patch dimensions must match.",
-					GlobalRadiant().getMainWindow());
+					GlobalMainFrame().getTopLevelWindow());
 		}
 	}
 	else {
 		if (source.isPatch()) {
 		 	// Nothing to do, this works for patches only
 		 	gtkutil::errorDialog("Can't paste Texture Coordinates from patches to faces.",
-							 GlobalRadiant().getMainWindow());
+							 GlobalMainFrame().getTopLevelWindow());
 		}
 		else {
 			// Nothing to do, this works for patches only
 		 	gtkutil::errorDialog("Can't paste Texture Coordinates from faces.",
-							 GlobalRadiant().getMainWindow());
+							 GlobalMainFrame().getTopLevelWindow());
 		}
 	}
 	
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 void pickShaderFromSelection(const cmd::ArgumentList& args) {
@@ -370,7 +372,7 @@ void pickShaderFromSelection(const cmd::ArgumentList& args) {
 		}
 		catch (InvalidSelectionException e) {
 			gtkutil::errorDialog("Can't copy Shader. Couldn't retrieve patch.",
-		 		GlobalRadiant().getMainWindow());
+		 		GlobalMainFrame().getTopLevelWindow());
 		}
 	}
 	else if (selectedFaceCount() == 1) {
@@ -380,13 +382,13 @@ void pickShaderFromSelection(const cmd::ArgumentList& args) {
 		}
 		catch (InvalidSelectionException e) {
 			gtkutil::errorDialog("Can't copy Shader. Couldn't retrieve face.",
-		 		GlobalRadiant().getMainWindow());
+		 		GlobalMainFrame().getTopLevelWindow());
 		}
 	}
 	else {
 		// Nothing to do, this works for patches only
 		gtkutil::errorDialog("Can't copy Shader. Please select a single face or patch.",
-			 GlobalRadiant().getMainWindow());
+			 GlobalMainFrame().getTopLevelWindow());
 	}
 }
 
@@ -404,6 +406,8 @@ public:
 	virtual void visit(Patch& patch) {
 		Texturable target;
 		target.patch = &patch;
+		target.node = patch.getPatchNode().shared_from_this();
+
 		// Apply the shader (projected, not to the entire brush)
 		applyClipboardToTexturable(target, !_natural, false);
 	}
@@ -411,6 +415,8 @@ public:
 	virtual void visit(Face& face) {
 		Texturable target;
 		target.face = &face;
+		target.node = face.getBrush().getBrushNode().shared_from_this();
+
 		// Apply the shader (projected, not to the entire brush)
 		applyClipboardToTexturable(target, !_natural, false);
 	}
@@ -429,7 +435,7 @@ void pasteShaderToSelection(const cmd::ArgumentList& args) {
 	
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 void pasteShaderNaturalToSelection(const cmd::ArgumentList& args) {
@@ -446,7 +452,7 @@ void pasteShaderNaturalToSelection(const cmd::ArgumentList& args) {
 
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 TextureProjection getSelectedTextureProjection() {
@@ -504,7 +510,7 @@ void fitTexture(const float& repeatS, const float& repeatT) {
 	
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 /** greebo: Flips the visited object about the axis given to the constructor.
@@ -586,7 +592,7 @@ void naturalTexture(const cmd::ArgumentList& args) {
 	
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 void applyTextureProjectionToFaces(TextureProjection& projection) {
@@ -598,7 +604,7 @@ void applyTextureProjectionToFaces(TextureProjection& projection) {
 
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 /** greebo: Translates the texture of the visited faces/patches
@@ -635,7 +641,7 @@ void shiftTexture(const Vector2& shift) {
 		
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 /** greebo: Scales the texture of the visited faces/patches
@@ -689,7 +695,7 @@ void scaleTexture(const Vector2& scale) {
 	
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 /** greebo: Rotates the texture of the visited faces/patches
@@ -725,7 +731,7 @@ void rotateTexture(const float& angle) {
 	
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 void shiftTextureLeft() {
@@ -845,6 +851,94 @@ void shiftTextureCmd(const cmd::ArgumentList& args) {
 	}
 }
 
+/** 
+ * greebo: Aligns the texture of the visited faces/patches
+ * to the given edge.
+ */
+class TextureAligner :
+	public PrimitiveVisitor
+{
+	const EAlignType _align;
+public:
+	TextureAligner(EAlignType align) : 
+		_align(align) 
+	{}
+	
+	void visit(Patch& patch)
+	{
+		patch.alignTexture(_align);
+	}
+
+	void visit(Face& face)
+	{
+		face.alignTexture(_align);
+	}
+};
+
+void alignTexture(EAlignType align)
+{
+	std::string command("alignTexture: ");
+	command += "edge=";
+
+	switch (align)
+	{
+	case ALIGN_TOP:
+		command += "top";
+		break;
+	case ALIGN_BOTTOM:
+		command += "bottom";
+		break;
+	case ALIGN_LEFT:
+		command += "left";
+		break;
+	case ALIGN_RIGHT:
+		command += "right";
+		break;
+	};
+	
+	UndoableCommand undo(command);
+	
+	// Instantiate an aligner class and traverse the selection
+	TextureAligner aligner(align);
+	forEachSelectedPrimitive(aligner);
+	
+	SceneChangeNotify();
+	// Update the Texture Tools
+	ui::SurfaceInspector::Instance().queueUpdate();
+}
+
+void alignTextureCmd(const cmd::ArgumentList& args)
+{
+	if (args.size() != 1)
+	{
+		globalOutputStream() << "Usage: TexAlign [top|bottom|left|right]" << std::endl;
+		return;
+	}
+
+	std::string arg = boost::algorithm::to_lower_copy(args[0].getString());
+	
+	if (arg == "top")
+	{
+		alignTexture(ALIGN_TOP);
+	}
+	else if (arg == "bottom")
+	{
+		alignTexture(ALIGN_BOTTOM);
+	}
+	if (arg == "left")
+	{
+		alignTexture(ALIGN_LEFT);
+	}
+	if (arg == "right")
+	{
+		alignTexture(ALIGN_RIGHT);
+	}
+	else
+	{
+		globalOutputStream() << "Usage: TexAlign [top|bottom|left|right]" << std::endl;
+	}
+}
+
 /** greebo: Normalises the texture of the visited faces/patches.
  */
 class TextureNormaliser :
@@ -868,7 +962,7 @@ void normaliseTexture(const cmd::ArgumentList& args) {
 	
 	SceneChangeNotify();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 /** greebo: This replaces the shader of the visited face/patch with <replace>

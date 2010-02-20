@@ -5,6 +5,7 @@
 #include <iostream>
 #include "ifiletypes.h"
 #include "ifilesystem.h"
+#include "imainframe.h"
 #include "iregistry.h"
 #include "map/Map.h"
 #include "map/RootNode.h"
@@ -12,13 +13,13 @@
 #include "gtkutil/dialog.h"
 #include "referencecache/NullModelLoader.h"
 #include "debugging/debugging.h"
-#include "referencecache.h"
 #include "os/path.h"
 #include "os/file.h"
 #include "MapImportInfo.h"
 #include "map/algorithm/Traverse.h"
 #include "stream/textfilestream.h"
 #include "referencecache/NullModelNode.h"
+#include "MapExportInfo.h"
 
 namespace map {
 
@@ -109,9 +110,10 @@ bool MapResource::save() {
 		
 		bool success = false;
 		
-		if (path_is_absolute(fullpath.c_str())) {
+		if (path_is_absolute(fullpath.c_str()))
+		{
 			// Save the actual file
-			success = MapResource_saveFile(*format, _mapRoot, map::traverse, fullpath.c_str());
+			success = saveFile(*format, _mapRoot, map::traverse, fullpath);
 		}
 		else {
 			globalErrorStream() << "Map path is not absolute: " << fullpath << "\n";
@@ -148,7 +150,7 @@ bool MapResource::saveBackup() {
 		else {
 			globalErrorStream() << "map path is not writeable: " << fullpath << "\n";
 			// File is write-protected
-			gtkutil::errorDialog(std::string("File is write-protected: ") + fullpath, GlobalRadiant().getMainWindow());
+			gtkutil::errorDialog(std::string("File is write-protected: ") + fullpath, GlobalMainFrame().getTopLevelWindow());
 			return false;
 		}
 	}
@@ -329,6 +331,7 @@ bool MapResource::loadFile(const MapFormat& format, scene::INodePtr root, const 
 	globalOutputStream() << "Open file " << filename.c_str() << " for read...";
 
 	TextFileInputStream file(filename);
+	std::istream mapStream(&file);
 
 	std::string infoFilename(filename.substr(0, filename.rfind('.')));
 	infoFilename += GlobalRegistry().get(RKEY_INFO_FILE_EXTENSION);
@@ -345,7 +348,7 @@ bool MapResource::loadFile(const MapFormat& format, scene::INodePtr root, const 
 		// Create an import information structure
 		if (infoFileStream.is_open()) {
 			// Infostream is open, call the MapFormat
-			MapImportInfo importInfo(file, infoFileStream);
+			MapImportInfo importInfo(mapStream, infoFileStream);
 			importInfo.root = root;
 
 			return format.readGraph(importInfo);
@@ -353,7 +356,7 @@ bool MapResource::loadFile(const MapFormat& format, scene::INodePtr root, const 
 		else {
 			// No active infostream, pass a dummy stream
 			std::istringstream emptyStream;
-			MapImportInfo importInfo(file, emptyStream);
+			MapImportInfo importInfo(mapStream, emptyStream);
 			importInfo.root = root;
 
 			return format.readGraph(importInfo);
@@ -361,6 +364,58 @@ bool MapResource::loadFile(const MapFormat& format, scene::INodePtr root, const 
 	}
 	else
 	{
+		globalErrorStream() << "failure\n";
+		return false;
+	}
+}
+
+bool MapResource::saveFile(const MapFormat& format, const scene::INodePtr& root, 
+						   GraphTraversalFunc traverse, const std::string& filename)
+{
+	globalOutputStream() << "Open file " << filename << " ";
+	
+	if (file_exists(filename.c_str()) && !file_writeable(filename.c_str()))
+	{
+		// File is write-protected
+		globalErrorStream() << "failure, file is write-protected." << std::endl;
+		gtkutil::errorDialog(std::string("File is write-protected: ") + filename, GlobalMainFrame().getTopLevelWindow());
+		return false;
+	}
+
+	// Open the stream to the output file
+	std::ofstream outfile(filename.c_str());
+
+	// Open the auxiliary file too
+	std::string auxFilename(filename);
+	auxFilename = auxFilename.substr(0, auxFilename.rfind('.'));
+	auxFilename += GlobalRegistry().get(map::RKEY_INFO_FILE_EXTENSION);
+
+	globalOutputStream() << "and auxiliary file " << auxFilename << " for write...";
+
+	if (file_exists(auxFilename.c_str()) && !file_writeable(auxFilename.c_str())) {
+		// File is write-protected
+		globalErrorStream() << "failure, file is write-protected." << std::endl;
+		gtkutil::errorDialog(std::string("File is write-protected: ") + auxFilename, GlobalMainFrame().getTopLevelWindow());
+		return false;
+	}
+
+	std::ofstream auxfile(auxFilename.c_str());
+
+	if (outfile.is_open() && auxfile.is_open()) {
+	    globalOutputStream() << "success\n";
+
+		map::MapExportInfo exportInfo(outfile, auxfile);
+		exportInfo.traverse = traverse;
+		exportInfo.root = root;
+	    
+		// Let the map exporter module do its job
+	    format.writeGraph(exportInfo);
+	    
+	    outfile.close();
+		auxfile.close();
+	    return true;
+	}
+	else {
 		globalErrorStream() << "failure\n";
 		return false;
 	}

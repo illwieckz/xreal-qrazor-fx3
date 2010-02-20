@@ -5,6 +5,7 @@
 #include "gtk/gtkwidget.h"
 #include "gtkutil/GLWidget.h"
 #include "gtkutil/WindowPosition.h"
+#include "gtkutil/event/SingleIdleCallback.h"
 #include "gtkutil/window/PersistentTransientWindow.h"
 #include "math/Vector3.h"
 #include "math/aabb.h"
@@ -18,7 +19,14 @@
 class Winding;
 class Patch;
 
-namespace ui {
+namespace ui
+{
+
+	namespace
+	{
+		const std::string RKEY_TEXTOOL_ROOT = "user/ui/textures/texTool/";
+		const std::string RKEY_FACE_VERTEX_SCALE_PIVOT_IS_CENTROID = RKEY_TEXTOOL_ROOT + "faceVertexScalePivotIsCentroid";
+	}
 
 class TexTool;
 typedef boost::shared_ptr<TexTool> TexToolPtr;
@@ -27,7 +35,8 @@ class TexTool
 : public gtkutil::PersistentTransientWindow,
   public RegistryKeyObserver,
   public SelectionSystem::Observer,
-  public RadiantEventListener
+  public RadiantEventListener,
+  public gtkutil::SingleIdleCallback
 {
 	// The window position tracker
 	gtkutil::WindowPosition _windowPosition;
@@ -140,11 +149,6 @@ private:
 	 */
 	void update();
 	
-	/** greebo: Removes all selectable items and rescans the scene
-	 * 			for selected brushes/faces/patches.
-	 */
-	void rescanSelection();
-	
 	/** greebo: Passes the given visitor to every Item in the hierarchy.
 	 */
 	void foreachItem(textool::ItemVisitor& visitor);
@@ -185,6 +189,7 @@ private:
 	static gboolean onDelete(GtkWidget* widget, GdkEvent* event, TexTool* self);
 	static gboolean onExpose(GtkWidget* widget, GdkEventExpose* event, TexTool* self);
 	static gboolean triggerRedraw(GtkWidget* widget, GdkEventFocus* event, TexTool* self);
+	static void onSizeAllocate(GtkWidget* widget, GtkAllocation* allocation, TexTool* self);
 	
 	// The callbacks for capturing the mouse events
 	static gboolean onMouseUp(GtkWidget* widget, GdkEventButton* event, TexTool* self);
@@ -219,11 +224,17 @@ public:
 	/** greebo: Updates the GL window
 	 */
 	void draw();
+
+	// Request a deferred update of the UI elements (is performed when GTK is idle)
+	void queueUpdate();
 	
 	/** greebo: Increases/Decreases the grid size.
 	 */
 	void gridUp();
 	void gridDown();
+
+	// Idle callback, used for deferred updates
+	void onGtkIdle();
 	
 	/** greebo: Snaps the current TexTool selection to the active grid.
 	 */

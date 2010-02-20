@@ -3,7 +3,6 @@
 
 #include "scenelib.h"
 #include "Bounded.h"
-#include "cullable.h"
 #include "irenderable.h"
 
 #include "NullModel.h"
@@ -18,7 +17,6 @@ class NullModelNode :
 	public SelectionTestable,
 	public Renderable,
 	public Bounded,
-	public Cullable,
 	public ModelNode
 {
 	NullModelPtr _nullModel;
@@ -32,9 +30,6 @@ public:
 	// Accessor to the singleton instance
 	static NullModelNodePtr InstancePtr();
 
-	virtual void instantiate(const scene::Path& path);
-	virtual void uninstantiate(const scene::Path& path);
-
 	virtual const IModel& getIModel() const;
 
 	void testSelect(Selector& selector, SelectionTest& test);
@@ -44,10 +39,6 @@ public:
 
 	// Bounded implementation
 	virtual const AABB& localAABB() const;
-
-	// Cullable implementation
-	virtual VolumeIntersectionValue intersectVolume(
-		const VolumeTest& test, const Matrix4& localToWorld) const;
 };
 
 } // namespace model

@@ -16,6 +16,7 @@ typedef boost::shared_ptr<SplitPaneLayout> SplitPaneLayoutPtr;
 class SplitPaneLayout :
 	public IMainFrameLayout
 {
+private:
 	// The camera view
 	CamWndPtr _camWnd;
 
@@ -34,9 +35,18 @@ public:
 	virtual std::string getName();
 	virtual void activate();
 	virtual void deactivate();
+	virtual void toggleFullscreenCameraView();
 
 	// The creation function, needed by the mainframe layout manager
 	static SplitPaneLayoutPtr CreateInstance();
+
+private:
+	void maximiseCameraSize();
+	void restorePanePositions();
+
+	// Saves the state of this window layout to the given XMLRegistry path (without trailing slash)
+	void restoreStateFromPath(const std::string& path);
+	void saveStateToPath(const std::string& path);
 };
 
 } // namespace ui

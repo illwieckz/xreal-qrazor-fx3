@@ -1,5 +1,8 @@
 #include "TextureProjection.h"
 
+#include "texturelib.h"
+#include <limits>
+
 // Assigns an <other> projection to this one
 void TextureProjection::assign(const TextureProjection& other) {
 	m_brushprimit_texdef = other.m_brushprimit_texdef;
@@ -209,6 +212,74 @@ void TextureProjection::flipTexture(unsigned int flipAxis) {
 	m_brushprimit_texdef = BrushPrimitTexDef(texdef);
 }
 
+void TextureProjection::alignTexture(EAlignType align, const Winding& winding)
+{
+	if (winding.empty()) return;
+
+	// The edges in texture space, sorted the same as in the winding
+	std::vector<Vector2> texEdges(winding.size());
+
+	// Calculate all edges in texture space
+	for (std::size_t i = 0, j = 1; i < winding.size(); ++i, j = winding.next(j))
+	{
+		texEdges[i] = winding[j].texcoord - winding[i].texcoord;
+	}
+
+	// Find the edge which is nearest to the s,t base vector, to classify them as "top" or "left"
+	std::size_t bottomEdge = findBestEdgeForDirection(Vector2(1,0), texEdges);
+	std::size_t leftEdge = findBestEdgeForDirection(Vector2(0,1), texEdges);
+	std::size_t rightEdge = findBestEdgeForDirection(Vector2(0,-1), texEdges);
+	std::size_t topEdge = findBestEdgeForDirection(Vector2(-1,0), texEdges);
+
+	// The bottom edge is the one with the larger T texture coordinate
+	if (winding[topEdge].texcoord.y() > winding[bottomEdge].texcoord.y())
+	{
+		std::swap(topEdge, bottomEdge);
+	}
+
+	// The right edge is the one with the larger S texture coordinate
+	if (winding[rightEdge].texcoord.x() < winding[leftEdge].texcoord.x())
+	{
+		std::swap(rightEdge, leftEdge);
+	}
+
+	// Find the winding vertex index we're calculating the delta for
+	std::size_t windingIndex = 0;
+	// The dimension to move (1 for top/bottom, 0 for left right)
+	std::size_t dim = 0;
+	
+	switch (align)
+	{
+	case ALIGN_TOP: 
+		windingIndex = topEdge;
+		dim = 1;
+		break;
+	case ALIGN_BOTTOM:
+		windingIndex = bottomEdge;
+		dim = 1;
+		break;
+	case ALIGN_LEFT:
+		windingIndex = leftEdge;
+		dim = 0;
+		break;
+	case ALIGN_RIGHT:
+		windingIndex = rightEdge;
+		dim = 0;
+		break;
+	};
+
+	Vector2 snapped = winding[windingIndex].texcoord;
+	
+	// Snap the dimension we're going to change only (s for left/right, t for top/bottom)
+	snapped[dim] = float_snapped(snapped[dim], 1.0);
+	
+	Vector2 delta = snapped - winding[windingIndex].texcoord;
+
+	// Shift the texture such that we hit the snapped coordinate
+	// be sure to invert the s coordinate
+	shift(-delta.x(), delta.y());
+}
+
 Matrix4 TextureProjection::getWorldToTexture(const Vector3& normal, const Matrix4& localToWorld) const {
 	// Get the transformation matrix, that contains the shift, scale and rotation 
 	// of the texture in "condensed" form (as matrix components).
@@ -218,11 +289,10 @@ Matrix4 TextureProjection::getWorldToTexture(const Vector3& normal, const Matrix
 	// to retrieve the final transformation that transforms vertex
 	// coordinates into the texture plane.   
 	{
-		Matrix4 xyz2st; 
 		// we don't care if it's not normalised...
 		
 		// Retrieve the basis vectors of the texture plane space, they are perpendicular to <normal>
-		xyz2st = getBasisForNormal(matrix4_transformed_direction(localToWorld, normal));
+		Matrix4 xyz2st = getBasisForNormal(matrix4_transformed_direction(localToWorld, normal));
 		
 		// Transform the basis vectors with the according texture scale, rotate and shift operations
 		// These are contained in the local2tex matrix, so the matrices have to be multiplied. 
@@ -257,11 +327,10 @@ void TextureProjection::emitTextureCoordinates(Winding& w, const Vector3& normal
 	// to retrieve the final transformation that transforms brush vertex
 	// coordinates into the texture plane.   
 	{
-		Matrix4 xyz2st; 
 		// we don't care if it's not normalised...
 		
 		// Retrieve the basis vectors of the texture plane space, they are perpendicular to <normal>
-		xyz2st = getBasisForNormal(matrix4_transformed_direction(localToWorld, normal));
+		Matrix4 xyz2st = getBasisForNormal(matrix4_transformed_direction(localToWorld, normal));
 		
 		// Transform the basis vectors with the according texture scale, rotate and shift operations
 		// These are contained in the local2tex matrix, so the matrices have to be multiplied. 

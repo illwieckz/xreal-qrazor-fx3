@@ -46,6 +46,7 @@ Node::Node() :
 	_state(eVisible),
 	_isRoot(false),
 	_id(getNewId()), // Get new auto-incremented ID
+	_children(*this),
 	_boundsChanged(true),
 	_boundsMutex(false),
 	_childBoundsChanged(true),
@@ -61,10 +62,10 @@ Node::Node() :
 
 Node::Node(const Node& other) :
 	INode(other),
-	Traversable::Observer(other),
 	_state(other._state),
 	_isRoot(other._isRoot),
 	_id(getNewId()),	// ID is incremented on copy
+	_children(*this),
 	_boundsChanged(true),
 	_boundsMutex(false),
 	_childBoundsChanged(true),
@@ -87,40 +88,49 @@ unsigned long Node::getNewId() {
 	return ++_maxNodeId;
 }
 
-bool Node::isRoot() const {
+bool Node::isRoot() const
+{
 	return _isRoot;
 }
 
-void Node::setIsRoot(bool isRoot) {
+void Node::setIsRoot(bool isRoot)
+{
 	_isRoot = isRoot;
 }
 
-void Node::enable(unsigned int state) {
+void Node::enable(unsigned int state)
+{
 	_state |= state;
 }
 
-void Node::disable(unsigned int state) {
+void Node::disable(unsigned int state)
+{
 	_state &= ~state;
 }
 
-bool Node::visible() const {
+bool Node::visible() const
+{
 	return _state == eVisible;
 }
 
-bool Node::excluded() const {
+bool Node::excluded() const
+{
 	return (_state & eExcluded) != 0;
 }
 
-void Node::addToLayer(int layerId) {
+void Node::addToLayer(int layerId)
+{
 	_layers.insert(layerId);
 }
 
-void Node::moveToLayer(int layerId) {
+void Node::moveToLayer(int layerId)
+{
 	_layers.clear();
 	_layers.insert(layerId);
 }
 
-void Node::removeFromLayer(int layerId) {
+void Node::removeFromLayer(int layerId)
+{
 	// Look up the layer ID and remove it from the list
 	LayerList::iterator found = _layers.find(layerId);
 
@@ -134,90 +144,85 @@ void Node::removeFromLayer(int layerId) {
 	}
 }
 
-LayerList Node::getLayers() const {
+LayerList Node::getLayers() const
+{
 	return _layers;
 }
 
-void Node::addChildNode(const INodePtr& node) {
+void Node::addChildNode(const INodePtr& node)
+{
 	// Add the node to the TraversableNodeSet, this triggers an 
-	// Node::onTraversableInsert() event
+	// Node::onChildAdded() event, where the parent of the new 
+	// child is set, among other things
 	_children.insert(node);
-
-	// Set the parent of this new node
-	node->setParent(shared_from_this());
-
-	// greebo: The bounds most probably change when child nodes are added
-	boundsChanged();
 }
 
-void Node::removeChildNode(const INodePtr& node) {
+void Node::removeChildNode(const INodePtr& node)
+{
 	// Remove the node from the TraversableNodeSet, this triggers an 
-	// Node::onTraversableErase() event
+	// Node::onChildRemoved() event
 	_children.erase(node);
 
-	// Set the parent of this node to NULL
-	node->setParent(scene::INodePtr());
-
-	// greebo: The bounds are likely to change when child nodes are removed
-	boundsChanged();
+	// Clear out the parent, this is not done in onChildRemoved().
+	node->setParent(INodePtr());
 }
 
-bool Node::hasChildNodes() const {
+bool Node::hasChildNodes() const
+{
 	return !_children.empty();
 }
 
-void Node::removeAllChildNodes() {
+void Node::removeAllChildNodes()
+{
 	_children.clear();
 }
 
 void Node::traverse(NodeVisitor& visitor) const
 {
-	_children.traverse(visitor);
+	if (!_children.empty())
+	{
+		_children.traverse(visitor);
+	}
 }
 
-// traverse observer
-// greebo: This gets called as soon as a scene::Node gets inserted into
-// the oberved Traversable. This triggers an instantiation call and ensures
-// that each inserted node is also instantiated.
-void Node::onTraversableInsert(const INodePtr& child) {
+void Node::onChildAdded(const INodePtr& child)
+{
+	// Double-check the parent of this new child node
+	if (child->getParent().get() != this)
+	{
+		child->setParent(shared_from_this());
+	}
+
+	// greebo: The bounds most probably change when child nodes are added
+	boundsChanged();
+
 	if (!_instantiated) return;
 
-	Path parentPath = getPath();
-	
-	child->setParent(parentPath.top());
-	
-	InstanceSubgraphWalker visitor(parentPath);
+	InstanceSubgraphWalker visitor;
 	Node_traverseSubgraph(child, visitor);
-
-	child->boundsChanged();
 }
 
-void Node::onTraversableErase(const INodePtr& child) {
+void Node::onChildRemoved(const INodePtr& child)
+{
+	// Don't change the parent node of the new child on erase
+		
+	// greebo: The bounds are likely to change when child nodes are removed
+	boundsChanged();
+	
 	if (!_instantiated) return;
 
-	Path childPath = getPath();
-	
-	UninstanceSubgraphWalker visitor(childPath);
+	UninstanceSubgraphWalker visitor;
 	Node_traverseSubgraph(child, visitor);
-
-	child->setParent(scene::INodePtr());
-	child->boundsChanged();
 }
 
-void Node::instantiate(const scene::Path& path) {
+void Node::onInsertIntoScene()
+{
 	_instantiated = true;
 }
 
-void Node::uninstantiate(const scene::Path& path) {
+void Node::onRemoveFromScene()
+{
 	_instantiated = false;
-}
-
-void Node::attachTraverseObserver(scene::Traversable::Observer* observer) {
-	_children.attach(observer);
-}
-
-void Node::detachTraverseObserver(scene::Traversable::Observer* observer) {
-	_children.detach(observer);
 }
 
 void Node::instanceAttach(MapFile* mapfile) {
@@ -240,8 +245,9 @@ scene::INodePtr Node::getParent() const {
 	return _parent.lock();
 }
 
-void Node::getPathRecursively(scene::Path& targetPath) {
-	scene::INodePtr parent = getParent();
+void Node::getPathRecursively(Path& targetPath)
+{
+	INodePtr parent = getParent();
 
 	assert(parent.get() != this); // avoid loopbacks
 
@@ -253,11 +259,11 @@ void Node::getPathRecursively(scene::Path& targetPath) {
 	targetPath.push(shared_from_this());
 }
 
-scene::Path Node::getPath()
+Path Node::getPath()
 {
-	scene::Path result;
+	Path result;
 
-	scene::INodePtr parent = getParent();
+	INodePtr parent = getParent();
 	if (parent != NULL) {
 		// We have a parent, walk up the ancestry
 		boost::static_pointer_cast<Node>(parent)->getPathRecursively(result);
@@ -274,8 +280,10 @@ const AABB& Node::worldAABB() const {
 	return _bounds;
 }
 
-void Node::evaluateBounds() const {
-	if(_boundsChanged) {
+void Node::evaluateBounds() const
+{
+	if (_boundsChanged)
+	{
 		ASSERT_MESSAGE(!_boundsMutex, "re-entering bounds evaluation");
 		_boundsMutex = true;
 
@@ -291,6 +299,9 @@ void Node::evaluateBounds() const {
 
 		_boundsMutex = false;
 		_boundsChanged = false;
+
+		// Now that our bounds are re-calculated, notify the scenegraph
+		GlobalSceneGraph().nodeBoundsChanged(const_cast<Node*>(this)->shared_from_this());
 	}
 }
 
@@ -310,7 +321,7 @@ void Node::evaluateChildBounds() const {
 		AABBAccumulateWalker accumulator(_childBounds);
 
 		// greebo: traverse the children of this node
-		const_cast<Node*>(this)->traverse(accumulator);
+		traverse(accumulator);
 		
 		_childBoundsMutex = false;
 		_childBoundsChanged = false;
@@ -321,7 +332,7 @@ void Node::boundsChanged() {
 	_boundsChanged = true;
 	_childBoundsChanged = true;
 
-	scene::INodePtr parent = _parent.lock();
+	INodePtr parent = _parent.lock();
 	if (parent != NULL) {
 		parent->boundsChanged();
 	}
@@ -344,7 +355,7 @@ void Node::evaluateTransform() const {
 		//ASSERT_MESSAGE(!_transformMutex, "re-entering transform evaluation");
 		_transformMutex = true;
 
-		scene::INodePtr parent = _parent.lock();
+		INodePtr parent = _parent.lock();
 		if (parent != NULL) {
 			parent->boundsChanged();
 		}

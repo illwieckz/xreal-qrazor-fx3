@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "inode.h"
 #include "iscenegraph.h"
 #include "iselection.h"
-#include "itraversable.h"
 #include "itransformnode.h"
 #include "itransformable.h"
 #include "ientity.h"
@@ -102,7 +101,8 @@ inline BoundedPtr Node_getBounded(const scene::INodePtr& node) {
 	return boost::dynamic_pointer_cast<Bounded>(node);
 }
 
-inline bool Node_isPrimitive(scene::INodePtr node) {
+inline bool Node_isPrimitive(const scene::INodePtr& node)
+{
 	return Node_isBrush(node) || Node_isPatch(node);
 }
 

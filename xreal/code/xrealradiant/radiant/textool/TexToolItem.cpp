@@ -2,7 +2,7 @@
 
 namespace textool {
 
-void TexToolItem::addChild(TexToolItemPtr child) {
+void TexToolItem::addChild(const TexToolItemPtr& child) {
 	_children.push_back(child);
 }
 
@@ -20,7 +20,7 @@ void TexToolItem::foreachItem(ItemVisitor& visitor) {
 	}
 }
 
-TexToolItemVec TexToolItem::getSelectableChilds(const Rectangle& rectangle) {
+TexToolItemVec TexToolItem::getSelectableChildren(const Rectangle& rectangle) {
 	TexToolItemVec returnVector;
 	
 	for (std::size_t i = 0; i < _children.size(); i++) {

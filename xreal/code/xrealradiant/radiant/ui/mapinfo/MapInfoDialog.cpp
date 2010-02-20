@@ -2,7 +2,8 @@
 
 #include <gtk/gtk.h>
 #include "ieventmanager.h"
-#include "iradiant.h"
+#include "imainframe.h"
+#include "iuimanager.h"
 
 namespace ui {
 
@@ -13,7 +14,7 @@ namespace ui {
 	}
 
 MapInfoDialog::MapInfoDialog() :
-	BlockingTransientWindow(MAPINFO_WINDOW_TITLE, GlobalRadiant().getMainWindow())
+	BlockingTransientWindow(MAPINFO_WINDOW_TITLE, GlobalMainFrame().getTopLevelWindow())
 {
 	gtk_window_set_default_size(GTK_WINDOW(getWindow()), MAPINFO_DEFAULT_SIZE_X, MAPINFO_DEFAULT_SIZE_Y);
 	gtk_container_set_border_width(GTK_CONTAINER(getWindow()), 12);
@@ -75,7 +76,7 @@ GtkWidget* MapInfoDialog::createTabLabel(const std::string& label, const std::st
 	GtkWidget* hbox = gtk_hbox_new(FALSE, 3);
 	gtk_box_pack_start(
     	GTK_BOX(hbox), 
-    	gtk_image_new_from_pixbuf(GlobalRadiant().getLocalPixbufWithMask(iconName)), 
+    	gtk_image_new_from_pixbuf(GlobalUIManager().getLocalPixbufWithMask(iconName)), 
     	FALSE, FALSE, 3
     );
 	gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new(label.c_str()), FALSE, FALSE, 3);

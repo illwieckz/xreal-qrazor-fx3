@@ -8,6 +8,7 @@
 #include "igrid.h"
 #include "inamespace.h"
 #include "iselection.h"
+#include "imainframe.h"
 #include "scenelib.h"
 #include "gtkutil/dialog.h"
 #include "xyview/GlobalXYWnd.h"
@@ -42,7 +43,7 @@ void scaleSelected(const Vector3& scaleXYZ) {
 		GlobalSelectionSystem().scaleSelected(scaleXYZ);
 	}
 	else {
-		gtkutil::errorDialog("Cannot scale by zero value.", GlobalRadiant().getMainWindow());
+		gtkutil::errorDialog("Cannot scale by zero value.", GlobalMainFrame().getTopLevelWindow());
 	}
 }
 
@@ -117,7 +118,11 @@ public:
 
 	// Adds the cloned nodes to their designated parents. Pass TRUE to select the nodes.
 	void moveClonedNodes(bool select) {
-		for (Map::iterator i = _cloned.begin(); i != _cloned.end(); i++) {
+		for (Map::iterator i = _cloned.begin(); i != _cloned.end(); ++i)
+		{
+			// Remove the child from the basic container first
+			_cloneRoot->removeChildNode(i->first);
+
 			// Add the node to its parent
 			i->second->addChildNode(i->first);
 

@@ -1,6 +1,7 @@
 #include "SkinChooser.h"
 
-#include "iradiant.h"
+#include "iuimanager.h"
+#include "imainframe.h"
 #include "modelskin.h"
 #include "gtkutil/RightAlignment.h"
 #include "gtkutil/ScrolledFrame.h"
@@ -40,7 +41,7 @@ SkinChooser::SkinChooser()
   _preview(new ModelPreview)
 {
 	// Set up window
-	gtk_window_set_transient_for(GTK_WINDOW(_widget), GlobalRadiant().getMainWindow());
+	gtk_window_set_transient_for(GTK_WINDOW(_widget), GlobalMainFrame().getTopLevelWindow());
     gtk_window_set_modal(GTK_WINDOW(_widget), TRUE);
     gtk_window_set_position(GTK_WINDOW(_widget), GTK_WIN_POS_CENTER_ON_PARENT);
 	gtk_window_set_title(GTK_WINDOW(_widget), WINDOW_TITLE.c_str());
@@ -189,8 +190,8 @@ public:
 		
 		// Get the icon, either folder or skin
 		GdkPixbuf* pixBuf = isExplicit
-							? GlobalRadiant().getLocalPixbuf(SKIN_ICON)
-							: GlobalRadiant().getLocalPixbuf(FOLDER_ICON);
+							? GlobalUIManager().getLocalPixbuf(SKIN_ICON)
+							: GlobalUIManager().getLocalPixbuf(FOLDER_ICON);
 		
 		gtk_tree_store_set(store, it, 
 						   DISPLAYNAME_COL, displayPath.c_str(),
@@ -214,7 +215,7 @@ void SkinChooser::populateSkins() {
 	gtk_tree_store_set(_treeStore, &matchingSkins, 
 					   DISPLAYNAME_COL, "Matching skins", 
 					   FULLNAME_COL, "",
-					   ICON_COL, GlobalRadiant().getLocalPixbuf(FOLDER_ICON),
+					   ICON_COL, GlobalUIManager().getLocalPixbuf(FOLDER_ICON),
 					   -1); 		
 
 	// Get the skins for the associated model, and add them as matching skins
@@ -229,7 +230,7 @@ void SkinChooser::populateSkins() {
 		gtk_tree_store_set(_treeStore, &temp, 
 						   DISPLAYNAME_COL, i->c_str(), 
 						   FULLNAME_COL, i->c_str(),
-						   ICON_COL, GlobalRadiant().getLocalPixbuf(SKIN_ICON),
+						   ICON_COL, GlobalUIManager().getLocalPixbuf(SKIN_ICON),
 						   -1); 		
 	}
 	
@@ -239,7 +240,7 @@ void SkinChooser::populateSkins() {
 	gtk_tree_store_set(_treeStore, &allSkins, 
 					   DISPLAYNAME_COL, "All skins", 
 					   FULLNAME_COL, "",
-					   ICON_COL, GlobalRadiant().getLocalPixbuf(FOLDER_ICON),
+					   ICON_COL, GlobalUIManager().getLocalPixbuf(FOLDER_ICON),
 					   -1); 		
 	
 	// Get the list of skins for the model

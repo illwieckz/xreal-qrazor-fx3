@@ -312,8 +312,15 @@ void Light::checkStartEnd() {
 	}
 }
 
-void Light::rotationChanged() {
+void Light::rotationChanged()
+{
 	m_rotation = m_useLightRotation ? m_lightRotation : m_rotationKey.m_rotation;
+
+	// Update the transformation matrix
+	_owner.localToParent() = Matrix4::getIdentity();
+	_owner.localToParent().translateBy(worldOrigin());
+	_owner.localToParent().multiplyBy(m_rotation.getMatrix4());
+
 	GlobalSelectionSystem().pivotChanged();
 }
 
@@ -481,10 +488,6 @@ void Light::render(const RenderInfo& info) const {
 	light_draw(_lightBox, info.getFlags());
 }
 
-VolumeIntersectionValue Light::intersectVolume(const VolumeTest& volume, const Matrix4& localToWorld) const {
-	return volume.TestAABB(_lightBox, localToWorld);
-}
-
 Doom3LightRadius& Light::getDoom3Radius() {
 	return m_doom3Radius;
 }
@@ -546,12 +549,13 @@ void Light::renderWireframe(RenderableCollector& collector,
 	// Render bounding box if selected or the showAllLighRadii flag is set
 	if (selected || EntitySettings::InstancePtr()->showAllLightRadii()) 
     {
+		/* greebo: uncomment this to let the light volume box render in the default colour
 		collector.SetState(
-			_entity.getEntityClass()->getWireShader(), RenderableCollector::eWireframeOnly
+			m_colour->getWireShader(), RenderableCollector::eWireframeOnly
 		);
 		collector.SetState(
-			_entity.getEntityClass()->getWireShader(), RenderableCollector::eFullMaterials
-		);
+			m_colour->getWireShader(), RenderableCollector::eFullMaterials
+		);*/
 
 		if (isProjected()) 
         {
@@ -568,7 +572,16 @@ void Light::renderWireframe(RenderableCollector& collector,
 	}
 }
 
-void Light::testSelect(Selector& selector, SelectionTest& test, const Matrix4& localToWorld) {
+void Light::testSelect(Selector& selector, SelectionTest& test, const Matrix4& localToWorld)
+{
+	// Pass the call down to the model node, if applicable
+	SelectionTestablePtr selectionTestable = Node_getSelectionTestable(_modelKey.getNode());
+
+    if (selectionTestable)
+	{
+		selectionTestable->testSelect(selector, test);
+    }
+
 	test.BeginMesh(localToWorld);
 
 	SelectionIntersection best;

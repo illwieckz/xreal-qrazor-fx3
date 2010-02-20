@@ -12,13 +12,14 @@
 #include "camera/GlobalCamera.h"
 #include "ui/texturebrowser/TextureBrowser.h"
 #include "xyview/GlobalXYWnd.h"
-#include <boost/bind.hpp>
 
 namespace ui {
 
 	namespace {
 		const std::string RKEY_CAMERA_ROOT = "user/ui/camera"; 
 		const std::string RKEY_CAMERA_WINDOW_STATE = RKEY_CAMERA_ROOT + "/window";
+		const std::string RKEY_FLOATING_ROOT = "user/ui/mainFrame/floating"; 
+		const std::string RKEY_GROUPDIALOG_VISIBLE = RKEY_FLOATING_ROOT + "/groupDialogVisible"; 
 	}
 
 std::string FloatingLayout::getName() {
@@ -51,13 +52,6 @@ void FloatingLayout::activate() {
 		globalErrorStream() << "Could not connect ToggleCamera event\n";
 	}
 
-	// Add the toggle max/min command for floating windows
-	GlobalCommandSystem().addCommand("ToggleCameraFullScreen", 
-		boost::bind(&FloatingLayout::toggleCameraFullScreen, this, _1)
-	);
-
-	GlobalEventManager().addCommand("ToggleCameraFullScreen", "ToggleCameraFullScreen");
-
 	GtkWidget* page = gtkutil::FramedWidget(
 		GlobalTextureBrowser().constructWindow(GTK_WINDOW(GlobalGroupDialog().getDialogWindow()))
 	);
@@ -71,7 +65,10 @@ void FloatingLayout::activate() {
     	"Texture Browser"
     );
 
-	GlobalGroupDialog().showDialogWindow();
+	if (GlobalRegistry().get(RKEY_GROUPDIALOG_VISIBLE) == "1")
+	{
+		GlobalGroupDialog().showDialogWindow();
+	}
 
 	// greebo: Now that the dialog is shown, tell the Entity Inspector to reload 
 	// the position info from the Registry once again.
@@ -82,12 +79,17 @@ void FloatingLayout::activate() {
 	GlobalXYWnd().restoreState();
 }
 
-void FloatingLayout::deactivate() {
+void FloatingLayout::deactivate()
+{
 	// Save the current XYViews to the registry
 	GlobalXYWnd().saveState();
 
 	// Delete all active views
 	GlobalXYWnd().destroyViews();
+
+	// Save groupdialog state
+	GlobalRegistry().set(RKEY_GROUPDIALOG_VISIBLE, 
+		GTK_WIDGET_VISIBLE(GlobalGroupDialog().getDialogWindow()) ? "1" : "0");
 
 	// Hide the group dialog
 	GlobalGroupDialog().hideDialogWindow();
@@ -99,12 +101,13 @@ void FloatingLayout::deactivate() {
 	// Destroy the camera window
 	if (_floatingCamWnd != NULL)
 	{
+		if (_floatingCamWnd->isFullscreen())
+		{
+			_floatingCamWnd->setFullscreen(false);
+		}
+
 		// Save camwnd state
 		_camWndPosition.saveToPath(RKEY_CAMERA_WINDOW_STATE);
-
-		// De-register commands
-		GlobalEventManager().removeEvent("ToggleCameraFullScreen");
-		GlobalCommandSystem().removeCommand("ToggleCameraFullScreen");
 
 		IEventPtr ev = GlobalEventManager().findEvent("ToggleCamera");
 		if (!ev->empty()) {
@@ -119,7 +122,8 @@ void FloatingLayout::deactivate() {
 	}
 }
 
-void FloatingLayout::toggleCameraFullScreen(const cmd::ArgumentList& args) {
+void FloatingLayout::toggleFullscreenCameraView()
+{
 	_floatingCamWnd->toggleFullscreen();
 }
 

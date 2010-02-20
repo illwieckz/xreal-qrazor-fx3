@@ -51,7 +51,8 @@ void Document::addTopLevelNode(const std::string& name) {
 	xmlNodePtr root = xmlNewDocNode(_xmlDoc, NULL, nameStr, emptyStr);
 	xmlNodePtr oldRoot = xmlDocSetRootElement(_xmlDoc, root);
 
-	if (oldRoot != NULL) {
+	if (oldRoot != NULL) 
+    {
 		// Old root element, remove it
 		xmlUnlinkNode(oldRoot);
 		xmlFreeNode(oldRoot);

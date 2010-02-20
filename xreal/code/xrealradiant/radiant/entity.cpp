@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "xyview/GlobalXYWnd.h"
 #include "selection/algorithm/Shader.h"
 #include "selection/algorithm/General.h"
+#include "selection/algorithm/Group.h"
 #include "selection/algorithm/Entity.h"
 #include "ui/modelselector/ModelSelector.h"
 
@@ -92,77 +93,8 @@ void ReloadDefs(const cmd::ArgumentList& args)
 	GlobalEntityClassManager().reloadDefs();
 }
 
-/*class EntitySetKeyValueSelected : public scene::Graph::Walker
+void Entity_connectSelected(const cmd::ArgumentList& args)
 {
-  const char* m_key;
-  const char* m_value;
-public:
-  EntitySetKeyValueSelected(const char* key, const char* value)
-    : m_key(key), m_value(value)
-  {
-  }
-  bool pre(const scene::Path& path, const scene::INodePtr& node) const
-  {
-    return true;
-  }
-  void post(const scene::Path& path, const scene::INodePtr& node) const
-  {
-    Entity* entity = Node_getEntity(node);
-    if(entity != NULL && (node->childSelected() || Node_getSelectable(node)->isSelected()))
-    {
-      entity->setKeyValue(m_key, m_value);
-    }
-  }
-};*/
-
-// Documentation: see header
-scene::INodePtr changeEntityClassname(const scene::INodePtr& node, const std::string& classname) {
-	// Make a copy of this node first
-	scene::INodePtr oldNode(node); 
-
-	// greebo: First, get the eclass
-	IEntityClassPtr eclass = GlobalEntityClassManager().findOrInsert(
-		classname, 
-		node_is_group(oldNode) // whether this entity has child primitives
-	);
-
-	// must not fail, findOrInsert always returns non-NULL
-	assert(eclass != NULL); 
-
-	// Create a new entity with the given class
-	scene::INodePtr newNode(GlobalEntityCreator().createEntity(eclass));
-
-	Entity* oldEntity = Node_getEntity(oldNode);
-	Entity* newEntity = Node_getEntity(newNode);
-	assert(newEntity != NULL); // must not be NULL
-
-	// Instantiate a visitor that copies all spawnargs to the new node
-	EntityCopyingVisitor visitor(*newEntity);
-	// Traverse the old entity with this walker
-	oldEntity->forEachKeyValue(visitor);
-
-	// The old node must not be the root node (size of path >= 2)
-	scene::INodePtr parent = oldNode->getParent();
-	assert(parent != NULL);
-	
-	// Remove the old entity node from the parent
-	scene::removeNodeFromParent(oldNode);
-
-	// Traverse the child and reparent all primitives to the new entity node
-	parentBrushes(oldNode, newNode);
-
-	// Insert the new entity to the parent
-	parent->addChildNode(newNode);
-
-	return newNode;
-}
-
-void Scene_EntitySetKeyValue_Selected(const char* key, const char* value)
-{
-	//GlobalSceneGraph().traverse(EntitySetKeyValueSelected(key, value)); // TODO?
-}
-
-void Entity_connectSelected(const cmd::ArgumentList& args) {
 	if (GlobalSelectionSystem().countSelected() == 2) {
 		GlobalEntityCreator().connectEntities(
 			GlobalSelectionSystem().penultimateSelected(),	// source
@@ -187,8 +119,6 @@ AABB Doom3Light_getBounds(AABB aabb)
     }
 	return aabb;
 }
-
-#include "map/ParentSelectedPrimitivesToEntityWalker.h"
 
 /** 
  * Create an instance of the given entity at the given position, and return
@@ -219,8 +149,9 @@ scene::INodePtr Entity_createFromSelection(const char* name, const Vector3& orig
 	AABB workzone = GlobalSelectionSystem().getWorkZone().bounds;
     
     scene::INodePtr node(GlobalEntityCreator().createEntity(entityClass));
-    
-    GlobalSceneGraph().root()->addChildNode(node);
+	Entity* entity = Node_getEntity(node);
+
+	GlobalSceneGraph().root()->addChildNode(node);
     
     if (entityClass->isFixedSize() || (isModel && !primitivesSelected)) {
 		selection::algorithm::deleteSelection();
@@ -240,11 +171,9 @@ scene::INodePtr Entity_createFromSelection(const char* name, const Vector3& orig
     
         Node_setSelected(node, true);
     }
-    else { // brush-based entity
-    	
-    	Entity* entity = Node_getEntity(node);
-    	
-    	// Add selected brushes as children of non-fixed entity
+    else // brush-based entity
+	{ 
+		// Add selected brushes as children of non-fixed entity
 		entity->setKeyValue("model", entity->getKeyValue("name"));
 
 		// Take the selection center as new origin
@@ -260,8 +189,9 @@ scene::INodePtr Entity_createFromSelection(const char* name, const Vector3& orig
         }
                 
         // Parent the selected primitives to the new node
-		ParentSelectedPrimitivesToEntityWalker walker(node);
+		selection::algorithm::ParentPrimitivesToEntityWalker walker(node);
 		GlobalSelectionSystem().foreachSelected(walker);
+		walker.reparent();
 
 	    // De-select the children and select the newly created parent entity
 	    GlobalSelectionSystem().setSelectedAll(false);
@@ -270,14 +200,28 @@ scene::INodePtr Entity_createFromSelection(const char* name, const Vector3& orig
 	
     // Set the light radius and origin
 
-    if (entityClass->isLight() && primitivesSelected) {
+    if (entityClass->isLight() && primitivesSelected)
+	{
         AABB bounds(Doom3Light_getBounds(workzone));    
-        Node_getEntity(node)->setKeyValue("origin", bounds.getOrigin());
-        Node_getEntity(node)->setKeyValue("light_radius", bounds.getExtents());
+        entity->setKeyValue("origin", bounds.getOrigin());
+        entity->setKeyValue("light_radius", bounds.getExtents());
     }
     
     // Flag the map as unsaved after creating the entity
     GlobalMap().setModified(true);
+
+	// Check for auto-setting key values
+	EntityClassAttributeList list = entityClass->getAttributeList("editor_setKeyValue");
+
+	if (!list.empty())
+	{
+		for (EntityClassAttributeList::const_iterator i = list.begin(); i != list.end(); ++i)
+		{
+			// Cut off the "editor_setKeyValueN " string from the key to get the spawnarg name
+			std::string key = i->name.substr(i->name.find_first_of(' ') + 1, 18);
+			entity->setKeyValue(key, i->value);
+		}
+	}
     
 	// Return the new node
 	return node;

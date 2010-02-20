@@ -1,39 +1,38 @@
 #ifndef SCENE_INSTANCE_WALKERS_H_
 #define SCENE_INSTANCE_WALKERS_H_
 
-#include "ipath.h"
+#include "inode.h"
+#include <stack>
 
-namespace scene {
+namespace scene
+{
 
-/** greebo: This Walker instantiates the visited nodes (the ones
- * 			that are Instantiable, that is). The whole subgraph is
- * 			traversed and GlobalSceneGraph().insert() is called on 
- *          the according nodes.
+/** 
+ * greebo: This Walker instantiates the visited nodes. 
+ * The whole subgraph is traversed and GlobalSceneGraph().insert() is 
+ * called on each node.
  */
 class InstanceSubgraphWalker : 
 	public scene::NodeVisitor
 {
-	scene::Path _path;
+private:
+	std::stack<INodePtr> _nodeStack;
 public:
-	InstanceSubgraphWalker(const scene::Path& path);
-
-	virtual bool pre(const scene::INodePtr& node);
-	virtual void post(const scene::INodePtr& node);
+	bool pre(const INodePtr& node);
+	void post(const INodePtr& node); 
 };
 
-/** greebo: This Walker un-instantiates the visited nodes (the ones
- * 			that are Instantiable, that is). The whole subgraph is
- * 			traversed and erase() is called on the according nodes.
+/** 
+ * greebo: This Walker un-instantiates the visited nodes 
+ * The whole subgraph is traversed and erase() is 
+ * called on each nodes, AFTER it has been traversed.
  */
 class UninstanceSubgraphWalker : 
 	public scene::NodeVisitor
 {
-	scene::Path _path;
 public:
-	UninstanceSubgraphWalker(const scene::Path& parent);
-	
-	virtual bool pre(const scene::INodePtr& node);
-	virtual void post(const scene::INodePtr& node);
+	bool pre(const scene::INodePtr& node);
+	void post(const scene::INodePtr& node);
 };
 
 } // namespace scene

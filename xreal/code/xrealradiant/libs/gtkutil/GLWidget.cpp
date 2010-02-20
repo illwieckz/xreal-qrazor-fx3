@@ -143,10 +143,21 @@ const config_t configs_with_depth[] =
 };
 
 // Constructor, pass TRUE to enable depth-buffering
-GLWidget::GLWidget(bool zBuffer) :
-	_widget(gtk_drawing_area_new()),
-	_zBuffer(zBuffer)
+GLWidget::GLWidget(bool zBuffer, const std::string& debugName) 
+: _widget(gtk_drawing_area_new()),
+  _zBuffer(zBuffer)
 {
+#ifdef DEBUG_GL_WIDGETS
+    std::cout << "GLWidget: constructed with name '" << debugName << "'" 
+              << std::endl;
+#endif
+
+    // Name the widget
+    if (!debugName.empty())
+    {
+        gtk_widget_set_name(_widget, debugName.c_str());
+    }
+
 	g_signal_connect(G_OBJECT(_widget), "hierarchy-changed", G_CALLBACK(onHierarchyChanged), this);
 	g_signal_connect(G_OBJECT(_widget), "realize", G_CALLBACK(onRealise), this);
 	g_signal_connect(G_OBJECT(_widget), "unrealize", G_CALLBACK(onUnRealise), this);
@@ -191,70 +202,66 @@ GdkGLConfig* GLWidget::createGLConfig() {
 	return gdk_gl_config_new_by_mode((GdkGLConfigMode)(GDK_GL_MODE_RGBA | GDK_GL_MODE_DOUBLE));
 }
 
-bool GLWidget::makeCurrent(GtkWidget* widget) {
+bool GLWidget::makeCurrent(GtkWidget* widget) 
+{
+#ifdef DEBUG_GL_WIDGETS
+    std::cout << "GLWidget: widget '" << gtk_widget_get_name(widget)
+              << "' made current." << std::endl;
+#endif
+
 	 GdkGLContext* glcontext = gtk_widget_get_gl_context(widget);
 	 GdkGLDrawable* gldrawable = gtk_widget_get_gl_drawable(widget);
 	 return gdk_gl_drawable_gl_begin(gldrawable, glcontext) ? true : false;
 }
 
-void GLWidget::swapBuffers(GtkWidget* widget) {
+void GLWidget::swapBuffers(GtkWidget* widget) 
+{
+#ifdef DEBUG_GL_WIDGETS
+    std::cout << "GLWidget: widget '" << gtk_widget_get_name(widget)
+              << "' swapped buffers." << std::endl;
+#endif
 	GdkGLDrawable* gldrawable = gtk_widget_get_gl_drawable(widget);
 	gdk_gl_drawable_swap_buffers(gldrawable);
 }
 
-gboolean GLWidget::onHierarchyChanged(GtkWidget* widget, GtkWidget* previous_toplevel, GLWidget* self) {
-	if (previous_toplevel == NULL && !gtk_widget_is_gl_capable(widget)) {
+gboolean GLWidget::onHierarchyChanged(GtkWidget* widget,
+                                      GtkWidget* previous_toplevel,
+                                      GLWidget* self) 
+{
+	if (previous_toplevel == NULL && !gtk_widget_is_gl_capable(widget)) 
+    {
 		// Create a new GL config structure
 		GdkGLConfig* glconfig = (self->_zBuffer) ? createGLConfigWithDepth() : createGLConfig();
 		assert(glconfig != NULL);
 
+		GtkWidget* context = GlobalOpenGL().getGLContextWidget();
+
 		gtk_widget_set_gl_capability(
 			widget, 
 			glconfig, 
-			_shared != NULL ? gtk_widget_get_gl_context(_shared) : NULL, 
+			context != NULL ? gtk_widget_get_gl_context(context) : NULL, 
 			TRUE, 
 			GDK_GL_RGBA_TYPE
 		);
 
 		gtk_widget_realize(widget);
-		
-		// Shared not set yet?
-		if (_shared == 0) {
-			_shared = widget;
-		}
 	}
 
 	return FALSE;
 }
 
-gint GLWidget::onRealise(GtkWidget* widget, GLWidget* self) {
-	if (++_realisedWidgets == 1) {
-		_shared = widget;
-		gtk_widget_ref(_shared);
-
-		makeCurrent(_shared);
-		GlobalOpenGL().contextValid = true;
-
-		GlobalOpenGL().sharedContextCreated();
-	}
+gint GLWidget::onRealise(GtkWidget* widget, GLWidget* self) 
+{
+	self->_context = GlobalOpenGL().registerGLWidget(widget);
 
 	return FALSE;
 }
 
-gint GLWidget::onUnRealise(GtkWidget* widget, GLWidget* self) {
-	if (--_realisedWidgets == 0) {
-		GlobalOpenGL().contextValid = false;
-
-		GlobalOpenGL().sharedContextDestroyed();
-
-		gtk_widget_unref(_shared);
-		_shared = NULL;
-	}
+gint GLWidget::onUnRealise(GtkWidget* widget, GLWidget* self)
+{
+	GlobalOpenGL().unregisterGLWidget(widget);
 
 	return FALSE;
 }
-
-GtkWidget* GLWidget::_shared = NULL;
-int GLWidget::_realisedWidgets = 0;
 
 } // namespace gtkutil

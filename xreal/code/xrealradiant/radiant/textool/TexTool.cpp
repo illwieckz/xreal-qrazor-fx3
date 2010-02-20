@@ -2,6 +2,7 @@
 
 #include "ieventmanager.h"
 #include "iregistry.h"
+#include "imainframe.h"
 #include "igl.h"
 #include "iundo.h"
 #include "iuimanager.h"
@@ -34,9 +35,8 @@ namespace ui {
 	namespace {
 		const std::string WINDOW_TITLE = "Texture Tool";
 		
-		const std::string RKEY_ROOT = "user/ui/textures/texTool/";
-		const std::string RKEY_WINDOW_STATE = RKEY_ROOT + "window";
-		const std::string RKEY_GRID_STATE = RKEY_ROOT + "gridActive";
+		const std::string RKEY_WINDOW_STATE = RKEY_TEXTOOL_ROOT + "window";
+		const std::string RKEY_GRID_STATE = RKEY_TEXTOOL_ROOT + "gridActive";
 		
 		const float DEFAULT_ZOOM_FACTOR = 1.5f;
 		const float ZOOM_MODIFIER = 1.25f;
@@ -48,7 +48,7 @@ namespace ui {
 	}
 
 TexTool::TexTool() 
-: gtkutil::PersistentTransientWindow(WINDOW_TITLE, GlobalRadiant().getMainWindow(), true),
+: gtkutil::PersistentTransientWindow(WINDOW_TITLE, GlobalMainFrame().getTopLevelWindow(), true),
   _glWidget(true),
   _selectionInfo(GlobalSelectionSystem().getSelectionInfo()),
   _zoomFactor(DEFAULT_ZOOM_FACTOR),
@@ -61,7 +61,7 @@ TexTool::TexTool()
 	gtk_window_set_type_hint(GTK_WINDOW(getWindow()), GDK_WINDOW_TYPE_HINT_DIALOG);
 	
 	g_signal_connect(G_OBJECT(getWindow()), "focus-in-event", G_CALLBACK(triggerRedraw), this);
-	g_signal_connect(G_OBJECT(getWindow()), "key_press_event", G_CALLBACK(onKeyPress), this);
+	g_signal_connect(G_OBJECT(getWindow()), "key-press-event", G_CALLBACK(onKeyPress), this);
 	
 	// Register this dialog to the EventManager, so that shortcuts can propagate to the main window
 	GlobalEventManager().connect(GTK_OBJECT(getWindow()));
@@ -97,6 +97,7 @@ TexToolPtr& TexTool::InstancePtr() {
 void TexTool::keyChanged(const std::string& key, const std::string& val) 
 {
 	_gridActive = (val == "1");
+
 	draw();
 }
 
@@ -120,6 +121,10 @@ void TexTool::populateWindow() {
 	g_signal_connect(G_OBJECT(glWidget), "motion-notify-event", G_CALLBACK(onMouseMotion), this);
 	g_signal_connect(G_OBJECT(glWidget), "key_press_event", G_CALLBACK(onKeyPress), this);
 	g_signal_connect(G_OBJECT(glWidget), "scroll_event", G_CALLBACK(onMouseScroll), this);
+
+	// greebo: The "size-allocate" event is needed to determine the window size, as expose-event is 
+	// often called for subsets of the widget and the size info in there is therefore not reliable.
+	g_signal_connect(G_OBJECT(glWidget), "size-allocate", G_CALLBACK(onSizeAllocate), this);
 	
 	// Make the GL widget accept the global shortcuts
 	GlobalEventManager().connect(GTK_OBJECT(glWidget));
@@ -152,7 +157,7 @@ void TexTool::_preHide() {
 // Pre-show callback
 void TexTool::_preShow() {
 	// Trigger an update of the current selection
-	rescanSelection();
+	queueUpdate();
 	// Restore the position
 	_windowPosition.applyPosition();
 }
@@ -192,19 +197,17 @@ TexTool& TexTool::Instance() {
 	return *InstancePtr();
 }
 
-void TexTool::update() {
+void TexTool::update()
+{
 	std::string selectedShader = selection::algorithm::getShaderFromSelection();
 	_shader = GlobalMaterialManager().getMaterialForName(selectedShader);
-}
 
-void TexTool::rescanSelection() {
-	update();
-	
 	// Clear the list to remove all the previously allocated items
 	_items.clear();
 	
 	// Does the selection use one single shader?
-	if (std::string(_shader->getName()) != "") {
+	if (!_shader->getName().empty())
+	{
 		if (_selectionInfo.patchCount > 0) {
 			// One single named shader, get the selection list
 			PatchPtrVector patchList = selection::algorithm::getSelectedPatches();
@@ -251,9 +254,27 @@ void TexTool::rescanSelection() {
 	recalculateVisibleTexSpace();
 }
 
-void TexTool::selectionChanged(const scene::INodePtr& node, bool isComponent) {
-	rescanSelection();
+void TexTool::draw()
+{
+	// Redraw
+	gtk_widget_queue_draw(_glWidget);
+}
+
+void TexTool::onGtkIdle()
+{
+	update();
 	draw();
+}
+
+void TexTool::queueUpdate()
+{
+	// Request a callback once the application is idle
+	requestIdleCallback();
+}
+
+void TexTool::selectionChanged(const scene::INodePtr& node, bool isComponent)
+{
+	queueUpdate();
 }
 
 void TexTool::flipSelected(int axis) {
@@ -356,11 +377,6 @@ void TexTool::recalculateVisibleTexSpace() {
 	_texSpaceAABB.extents[1] = std::max(_texSpaceAABB.extents[0], _texSpaceAABB.extents[1]);
 }
 
-void TexTool::draw() {
-	// Redraw
-	gtk_widget_queue_draw(_glWidget);
-}
-
 AABB& TexTool::getExtents() {
 	_selAABB = AABB();
 	
@@ -418,7 +434,7 @@ textool::TexToolItemVec
 	for (std::size_t i = 0; i < _items.size(); i++) {
 		// Get the list from each item
 		textool::TexToolItemVec found = 
-			_items[i]->getSelectableChilds(rectangle);
+			_items[i]->getSelectableChildren(rectangle);
 		
 		// and append the vector to the existing vector
 		selectables.insert(selectables.end(), found.begin(), found.end());
@@ -443,20 +459,25 @@ textool::TexToolItemVec TexTool::getSelectables(const Vector2& coords) {
 	return getSelectables(testRectangle);
 }
 
-void TexTool::beginOperation() {
+void TexTool::beginOperation()
+{
 	// Start an undo recording session
 	GlobalUndoSystem().start();
 	
 	// Tell all the items to save their memento
-	for (std::size_t i = 0; i < _items.size(); i++) {
+	for (std::size_t i = 0; i < _items.size(); i++)
+	{
 		_items[i]->beginTransformation();
 	}
 }
 
-void TexTool::endOperation(const std::string& commandName) {
-	for (std::size_t i = 0; i < _items.size(); i++) {
+void TexTool::endOperation(const std::string& commandName)
+{
+	for (std::size_t i = 0; i < _items.size(); i++)
+	{
 		_items[i]->endTransformation();
 	}
+
 	GlobalUndoSystem().finish(commandName);
 }
 
@@ -514,18 +535,22 @@ void TexTool::doMouseUp(const Vector2& coords, GdkEventButton* event) {
 	draw();
 }
 
-void TexTool::doMouseMove(const Vector2& coords, GdkEventMotion* event) {
-	if (_dragRectangle) {
+void TexTool::doMouseMove(const Vector2& coords, GdkEventMotion* event)
+{
+	if (_dragRectangle)
+	{
 		_selectionRectangle.bottomRight = coords;
 		draw();
 	}
-	else if (_manipulatorMode) {
+	else if (_manipulatorMode)
+	{
 		Vector2 delta = coords - _manipulateRectangle.topLeft;
 		
 		// Snap the operations to the grid
 		Vector3 snapped(0,0,0);
 		
-		if (_gridActive) {
+		if (_gridActive)
+		{
 			snapped[0] = (fabs(delta[0]) > 0.0f) ? 
 				floor(fabs(delta[0]) / _grid)*_grid * delta[0]/fabs(delta[0]) : 
 				0.0f;
@@ -539,14 +564,16 @@ void TexTool::doMouseMove(const Vector2& coords, GdkEventMotion* event) {
 			snapped[1] = delta[1]; 
 		}
 		
-		if (snapped.getLength() > 0) {
+		if (snapped.getLength() > 0)
+		{
 			// Create the transformation matrix
 			Matrix4 transform = Matrix4::getTranslation(snapped);
 			
 			// Transform the selected
 			// The transformSelected() call is propagated down the entire tree
 			// of available items (e.g. PatchItem > PatchVertexItems)
-			for (std::size_t i = 0; i < _items.size(); i++) {
+			for (std::size_t i = 0; i < _items.size(); i++)
+			{
 				_items[i]->transformSelected(transform);
 			}
 			
@@ -572,13 +599,14 @@ void TexTool::doMouseDown(const Vector2& coords, GdkEventButton* event) {
 	_dragRectangle = false;
 	_viewOriginMove = false;
 	
-	if (observerEvent == ui::obsManipulate) {
+	if (observerEvent == ui::obsManipulate)
+	{
 		// Get the list of selectables of this point
-		textool::TexToolItemVec selectables;
-		selectables = getSelectables(coords);
+		textool::TexToolItemVec selectables = getSelectables(coords);
 		
 		// Any selectables under the mouse pointer?
-		if (selectables.size() > 0) {
+		if (!selectables.empty())
+		{
 			// Activate the manipulator mode
 			_manipulatorMode = true;
 			_manipulateRectangle.topLeft = coords; 
@@ -588,7 +616,8 @@ void TexTool::doMouseDown(const Vector2& coords, GdkEventButton* event) {
 			beginOperation();
 		}
 	}
-	else if (observerEvent == ui::obsSelect || observerEvent == ui::obsToggle) {
+	else if (observerEvent == ui::obsSelect || observerEvent == ui::obsToggle)
+	{
 		// Start a drag or click operation
 		_dragRectangle = true;
 		_selectionRectangle.topLeft = coords;
@@ -685,18 +714,16 @@ void TexTool::drawGrid() {
 	}
 }
 
-gboolean TexTool::onExpose(GtkWidget* widget, GdkEventExpose* event, TexTool* self) {
-	// Update the information about the current selection 
-	self->update();
-	
+gboolean TexTool::onExpose(GtkWidget* widget, GdkEventExpose* event, TexTool* self)
+{
+	// Perform any pending updates
+	self->flushIdleCallback();
+
 	// Activate the GL widget
 	gtkutil::GLWidgetSentry sentry(self->_glWidget);
 	
-	// Store the window dimensions for later calculations
-	self->_windowDims = Vector2(event->area.width, event->area.height);
-	
 	// Initialise the viewport
-	glViewport(0, 0, event->area.width, event->area.height);
+	glViewport(0, 0, self->_windowDims[0], self->_windowDims[1]);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
@@ -708,8 +735,8 @@ gboolean TexTool::onExpose(GtkWidget* widget, GdkEventExpose* event, TexTool* se
 	glDisable(GL_BLEND);
 	
 	// Do nothing, if the shader name is empty
-	std::string shaderName = self->_shader->getName(); 
-	if (shaderName == "") {
+	if (self->_shader == NULL || self->_shader->getName().empty())
+	{
 		return false;
 	}
 	
@@ -798,9 +825,18 @@ gboolean TexTool::onExpose(GtkWidget* widget, GdkEventExpose* event, TexTool* se
 	return false;
 }
 
+void TexTool::onSizeAllocate(GtkWidget* widget, GtkAllocation* allocation, TexTool* self)
+{
+	// Store the window dimensions for later calculations
+	self->_windowDims = Vector2(allocation->width, allocation->height);
+
+	// Queue an expose event
+	gtk_widget_queue_draw(widget);
+}
+
 gboolean TexTool::triggerRedraw(GtkWidget* widget, GdkEventFocus* event, TexTool* self) {
 	// Trigger a redraw
-	self->draw();
+	gtk_widget_queue_draw(self->_glWidget);
 	return false;
 }
 
@@ -955,6 +991,7 @@ void TexTool::registerCommands() {
 	GlobalEventManager().addCommand("TexToolFlipT", "TexToolFlipT");
 	GlobalEventManager().addCommand("TexToolSelectRelated", "TexToolSelectRelated");
 	GlobalEventManager().addRegistryToggle("TexToolToggleGrid", RKEY_GRID_STATE);
+	GlobalEventManager().addRegistryToggle("TexToolToggleFaceVertexScalePivot", RKEY_FACE_VERTEX_SCALE_PIVOT_IS_CENTROID);
 }
 
 } // namespace ui

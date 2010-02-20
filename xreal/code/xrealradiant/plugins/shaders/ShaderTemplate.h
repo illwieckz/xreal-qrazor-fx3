@@ -52,10 +52,15 @@ private:
 	std::string description;
 
   int m_nFlags;
-  float m_fTrans;
 
   // cull stuff
   Material::ECull m_Cull;
+
+    // Sort position (e.g. sort decal)
+    Material::SortRequest _sortReq;
+
+    // Polygon offset
+    float _polygonOffset;
 
 	std::string _blockContents;
 
@@ -74,11 +79,12 @@ public:
       fogLight(false),
       ambientLight(false),
       blendLight(false),
+      _sortReq(Material::SORT_OPAQUE),
+      _polygonOffset(0.0f),
 	  _blockContents(blockContents),
 	  _parsed(false)
 	{
     	m_nFlags = 0;
-    	m_fTrans = 1.0f;    
 	}
 
 	/**
@@ -105,11 +111,6 @@ public:
 		return m_nFlags;
 	}
 
-	float getTrans() {
-		if (!_parsed) parseDefinition();
-		return m_fTrans;
-	}
-
 	Material::ECull getCull() {
 		if (!_parsed) parseDefinition();
 		return m_Cull;
@@ -134,6 +135,16 @@ public:
 		if (!_parsed) parseDefinition();
 		return blendLight;
 	}
+
+    Material::SortRequest getSortRequest() const
+    {
+        return _sortReq;
+    }
+
+    float getPolygonOffset() const
+    {
+        return _polygonOffset;
+    }
 
 	// Sets the raw block definition contents, will be parsed on demand
 	void setBlockContents(const std::string& blockContents) {

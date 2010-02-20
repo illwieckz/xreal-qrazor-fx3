@@ -13,7 +13,6 @@ namespace scene {
 
 class Node :
 	public INode,
-	public Traversable::Observer,
 	public boost::enable_shared_from_this<Node>
 {
 public:
@@ -124,15 +123,14 @@ public:
 
 	void setTransformChangedCallback(const Callback& callback);
 
-	// traverse observer
 	// greebo: This gets called as soon as a scene::Node gets inserted into
-	// the oberved Traversable. This triggers an instantiation call and ensures
-	// that each inserted node is also instantiated.
-	virtual void onTraversableInsert(const INodePtr& child);
-	virtual void onTraversableErase(const INodePtr& child);
+	// the TraversableNodeSet. This triggers an instantiation call on the child node.
+	virtual void onChildAdded(const INodePtr& child);
+	virtual void onChildRemoved(const INodePtr& child);
 
-	virtual void instantiate(const scene::Path& path);
-	virtual void uninstantiate(const scene::Path& path);
+	// Gets called when this node is inserted into a scene graph
+	virtual void onInsertIntoScene();
+	virtual void onRemoveFromScene();
 
 	/**
 	 * greebo: Constructs the scene path to this node. This will walk up the
@@ -149,9 +147,6 @@ protected:
 	void getPathRecursively(scene::Path& targetPath);
 
 	TraversableNodeSet& getTraversable();
-
-	virtual void attachTraverseObserver(scene::Traversable::Observer* observer);
-	virtual void detachTraverseObserver(scene::Traversable::Observer* observer);
 
 	virtual void instanceAttach(MapFile* mapfile);
 	virtual void instanceDetach(MapFile* mapfile);

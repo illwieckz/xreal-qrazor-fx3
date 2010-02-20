@@ -23,14 +23,6 @@ NullModelNodePtr NullModelNode::InstancePtr() {
 	return _nullModelNode;
 }
 
-void NullModelNode::instantiate(const scene::Path& path) {
-	Node::instantiate(path);
-}
-
-void NullModelNode::uninstantiate(const scene::Path& path) {
-	Node::uninstantiate(path);
-}
-  
 const IModel& NullModelNode::getIModel() const {
 	return *_nullModel;
 }
@@ -49,12 +41,6 @@ void NullModelNode::renderWireframe(RenderableCollector& collector, const Volume
 
 const AABB& NullModelNode::localAABB() const {
 	return _nullModel->localAABB();
-}
-
-VolumeIntersectionValue NullModelNode::intersectVolume(
-	const VolumeTest& test, const Matrix4& localToWorld) const
-{
-	return _nullModel->intersectVolume(test, localToWorld);
 }
 
 } // namespace model

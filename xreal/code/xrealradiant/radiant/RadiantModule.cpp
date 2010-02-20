@@ -47,109 +47,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "mainframe_old.h"
 
-namespace radiant {
-
-RadiantModule::RadiantModule() :
-	_mainWindow(NULL)
-{}
-	
-GtkWindow* RadiantModule::getMainWindow() {
-	return _mainWindow;
-}
-
-void RadiantModule::setMainWindow(GtkWindow* mainWindow) {
-	_mainWindow = mainWindow;
-}
-	
-GdkPixbuf* RadiantModule::getLocalPixbuf(const std::string& fileName) {
-	// Try to use a cached pixbuf first
-	PixBufMap::iterator i = _localPixBufs.find(fileName);
-	
-	if (i != _localPixBufs.end()) {
-		return i->second;
-	}
-
-	// Not cached yet, load afresh
-
-	// Construct the full filename using the Bitmaps path
-	std::string fullFileName(GlobalRegistry().get(RKEY_BITMAPS_PATH) + fileName);
-
-	GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file(fullFileName.c_str(), NULL);
-
-	if (pixbuf != NULL) {
-		_localPixBufs.insert(PixBufMap::value_type(fileName, pixbuf));
-		
-		// Avoid destruction of this pixbuf
-		g_object_ref(pixbuf);
-	}
-	else {
-		globalErrorStream() << "Couldn't load pixbuf " << fullFileName << std::endl; 
-	}
-
-	return pixbuf;
-}
-
-GdkPixbuf* RadiantModule::getLocalPixbufWithMask(const std::string& fileName) {
-
-	// Try to find a cached pixbuf before loading from disk
-	PixBufMap::iterator i = _localPixBufsWithMask.find(fileName);
-	
-	if (i != _localPixBufsWithMask.end()) {
-		return i->second;
-	}
-
-	// Not cached yet, load afresh
-
-	std::string fullFileName(GlobalRegistry().get(RKEY_BITMAPS_PATH) + fileName);
-	
-	GdkPixbuf* rgb = gdk_pixbuf_new_from_file(fullFileName.c_str(), 0);
-	if (rgb != NULL) {
-		// File load successful, add alpha channel
-		GdkPixbuf* rgba = gdk_pixbuf_add_alpha(rgb, TRUE, 255, 0, 255);
-		gdk_pixbuf_unref(rgb);
-
-		_localPixBufsWithMask.insert(PixBufMap::value_type(fileName, rgba));
-
-		// Avoid destruction of this pixbuf
-		g_object_ref(rgba);
-
-		return rgba;
-	}
-	else {
-		// File load failed
-		globalErrorStream() << "Couldn't load pixbuf " << fullFileName << std::endl; 
-		return NULL;
-	}
-}
-
-ICounter& RadiantModule::getCounter(CounterType counter) {
-	// Pass the call to the helper class
-	return _counters.get(counter);
-}
-	
-void RadiantModule::setStatusText(const std::string& statusText) {
-	// Pass the call
-	GlobalUIManager().getStatusBarManager().setText(STATUSBAR_COMMAND, statusText);
-}
-	
-void RadiantModule::updateAllWindows() {
-	GlobalCamera().update();
-	GlobalXYWnd().updateAllViews();
-}
+namespace radiant
+{
 
 ui::IModelPreviewPtr RadiantModule::createModelPreview()
 {
 	return ui::IModelPreviewPtr(new ui::ModelPreview);
 }
 
-ui::IFileChooserPtr RadiantModule::createFileChooser(const std::string& title, 
-	bool open, bool browseFolders, const std::string& pattern, const std::string& defaultExt)
-{
-	return ui::IFileChooserPtr(new gtkutil::FileChooser(
-		GTK_WIDGET(getMainWindow()),
-		title, open, browseFolders, pattern, defaultExt));
-}
-	
 void RadiantModule::addEventListener(RadiantEventListenerPtr listener) {
 	_eventListeners.insert(RadiantEventListenerWeakPtr(listener));
 }
@@ -226,7 +131,6 @@ const StringSet& RadiantModule::getDependencies() const {
 		_dependencies.insert(MODULE_SELECTIONSYSTEM);
 		_dependencies.insert(MODULE_RENDERSYSTEM);
 		_dependencies.insert(MODULE_CLIPPER);
-		_dependencies.insert(MODULE_UIMANAGER);
 	}
 	
 	return _dependencies;
@@ -249,15 +153,6 @@ void RadiantModule::initialiseModule(const ApplicationContext& ctx) {
     GlobalTextureBrowser().construct();
     Entity_Construct();
     map::AutoSaver().init();
-
-	// Add the statusbar command text item
-	GlobalUIManager().getStatusBarManager().addTextElement(
-		STATUSBAR_COMMAND, 
-		"",  // no icon
-		IStatusBarManager::POS_COMMAND
-	);
-
-	_counters.init();
 }
 
 void RadiantModule::shutdownModule() {
@@ -272,19 +167,6 @@ void RadiantModule::shutdownModule() {
     // lock the instances. This is just for safety, usually all
 	// EventListeners get cleared upon OnRadiantShutdown anyway.
     _eventListeners.clear();
-
-	// Remove all remaining pixbufs
-	for (PixBufMap::iterator i = _localPixBufs.begin(); i != _localPixBufs.end(); ++i) {
-		if (GDK_IS_PIXBUF(i->second)) {
-			g_object_unref(i->second);
-		}
-	}
-
-	for (PixBufMap::iterator i = _localPixBufsWithMask.begin(); i != _localPixBufsWithMask.end(); ++i) {
-		if (GDK_IS_PIXBUF(i->second)) {
-			g_object_unref(i->second);
-		}
-	}
 }
 
 // Define the static Radiant module

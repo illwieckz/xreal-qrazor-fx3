@@ -5,7 +5,6 @@
 
 #include "transformlib.h"
 #include "scenelib.h"
-#include "cullable.h"
 #include "editable.h"
 #include "nameable.h"
 #include "iundo.h"
@@ -20,6 +19,8 @@
 #include "brush/FacePlane.h"
 #include "brush/Face.h"
 
+class PatchNode;
+
 /* greebo: The patch class itself, represented by control vertices. The basic rendering of the patch 
  * is handled here (unselected control points, tesselation lines, shader). 
  * 
@@ -29,24 +30,11 @@
 class Patch :
 	public IPatch,
 	public Bounded,
-	public Cullable,
 	public Snappable,
 	public Undoable
 {
-public:
-	// A Patch observer, this is implemented by the PatchNode
-	// to re-allocate the patch control instances.
-	class Observer {
-		public:
-		    virtual ~Observer() {}
-			virtual void allocate(std::size_t size) = 0;
-	};
-
 private:
-	typedef std::set<Observer*> Observers;
-	Observers m_observers;
-
-	scene::Node* m_node;
+	PatchNode& _node;
 
 	AABB m_aabb_local; // local bbox
 
@@ -101,6 +89,9 @@ private:
 	bool m_bOverlay;
 
 	bool m_transformChanged;
+
+	// TRUE if the patch tesselation needs an update
+	bool _tesselationChanged;
 	
 	// Callback functions when the patch gets changed
 	Callback m_evaluateTransform;
@@ -115,23 +106,18 @@ public:
 	static int m_CycleCapIndex;// = 0;
 	
 	// Constructor
-	Patch(scene::Node& node, const Callback& evaluateTransform, const Callback& boundsChanged);
+	Patch(PatchNode& node, const Callback& evaluateTransform, const Callback& boundsChanged);
 	
 	// Copy constructors (create this patch from another patch)
-	Patch(const Patch& other);
-	Patch(const Patch& other, scene::Node& node, const Callback& evaluateTransform, const Callback& boundsChanged);
+	Patch(const Patch& other, PatchNode& node, const Callback& evaluateTransform, const Callback& boundsChanged);
+
+	PatchNode& getPatchNode();
 	
 	InstanceCounter m_instanceCounter;
 
-	void instanceAttach(const scene::Path& path);	
+	void instanceAttach(MapFile* map);
 	// Remove the attached instance and decrease the counters
-	void instanceDetach(const scene::Path& path);
-
-	// Attaches an observer (doh!)
-	void attach(Observer* observer);
-	
-	// Detach the previously attached observer
-	void detach(Observer* observer);
+	void instanceDetach(MapFile* map);
 
 	// Allocate callback: pass the allocate call to all the observers
 	void onAllocate(std::size_t size);
@@ -141,8 +127,6 @@ public:
 	
 	// Return the interally stored AABB
 	const AABB& localAABB() const;
-	
-	VolumeIntersectionValue intersectVolume(const VolumeTest& test, const Matrix4& localToWorld) const;
 	
 	// Render functions: solid mode, wireframe mode and components 
 	void render_solid(RenderableCollector& collector, const VolumeTest& volume, const Matrix4& localToWorld) const;
@@ -184,8 +168,6 @@ public:
 	void RenderDebug(RenderStateFlags state) const;
 	// Renders the normals (indicated by lines) of this patch
 	void RenderNormals(RenderStateFlags state) const;
-
-	void UpdateCachedData();
 
 	// Gets the shader name or sets the shader to <name>
 	const std::string& getShader() const;
@@ -254,7 +236,7 @@ public:
  	 */
  	void appendPoints(bool columns, bool beginning);
  
-	void ConstructPrefab(const AABB& aabb, EPatchPrefab eType, int axis, std::size_t width = 3, std::size_t height = 3);
+	void ConstructPrefab(const AABB& aabb, EPatchPrefab eType, EViewType viewType, std::size_t width = 3, std::size_t height = 3);
 	void constructPlane(const AABB& aabb, int axis, std::size_t width, std::size_t height);
 	void InvertMatrix();
 	void TransposeMatrix();
@@ -283,6 +265,9 @@ public:
 	void CapTexture();
 	void NaturalTexture();
 	void ProjectTexture(int nAxis);
+
+	// Aligns the patch texture along the given side/border - if possible
+	void alignTexture(EAlignType align);
 
 	/* greebo: This basically projects all the patch vertices into the brush plane and 
 	 * transforms the projected coordinates into the texture plane space */
@@ -371,6 +356,8 @@ private:
 	// This notifies the surfaceinspector/patchinspector about the texture change
 	static void textureChanged();
 
+	void updateTesselation();
+
 	// greebo: this allocates the shader with the passed name 
 	void captureShader();
 
@@ -380,7 +367,7 @@ private:
 	// greebo: checks, if the shader name is valid
 	void check_shader();
 
-	void AccumulateBBox();
+	void updateAABB();
   
 	void TesselateSubMatrixFixed(ArbitraryMeshVertex* vertices, 
 								 std::size_t strideX, std::size_t strideY, 

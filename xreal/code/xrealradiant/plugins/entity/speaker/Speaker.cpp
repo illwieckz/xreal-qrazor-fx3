@@ -60,12 +60,6 @@ const AABB& Speaker::localAABB() const {
 	return m_aabb_border;
 }
 
-VolumeIntersectionValue Speaker::intersectVolume(
-	const VolumeTest& volume, const Matrix4& localToWorld) const
-{
-	return volume.TestAABB(localAABB(), localToWorld);
-}
-
 // Submit renderables for solid mode
 void Speaker::renderSolid(RenderableCollector& collector,
                           const VolumeTest& volume,

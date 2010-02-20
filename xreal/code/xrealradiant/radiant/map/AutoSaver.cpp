@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "mapfile.h"
+#include "itextstream.h"
 #include "iscenegraph.h"
 #include "imainframe.h"
 #include "iradiant.h"
@@ -168,7 +169,7 @@ void AutoMapSaver::checkSave() {
 	}
 
 	// greebo: Check if we have a valid main window to grab the pointer
-	GtkWindow* mainWindow = GlobalRadiant().getMainWindow();
+	GtkWindow* mainWindow = GlobalMainFrame().getTopLevelWindow();
 	if (mainWindow == NULL) {
 		return;
 	}

@@ -2,11 +2,10 @@
 #include "RenderableAABB.h"
 
 #include "gtkutil/GLWidgetSentry.h"
-#include "iradiant.h"
+#include "iuimanager.h"
 #include "imodelcache.h"
 #include "ieclass.h"
 #include "os/path.h"
-#include "referencecache.h"
 #include "math/aabb.h"
 #include "modelskin.h"
 
@@ -62,7 +61,7 @@ ModelPreview::ModelPreview() :
     gtk_tool_button_set_icon_widget(
     	GTK_TOOL_BUTTON(_drawBBox), 
 		gtk_image_new_from_pixbuf(
-			GlobalRadiant().getLocalPixbuf("iconDrawBBox.png")));
+			GlobalUIManager().getLocalPixbuf("iconDrawBBox.png")));
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), _drawBBox, 0);
 	
 	// Create the menu

@@ -23,7 +23,7 @@ class SoundManager :
 	SoundFilePtr _emptySound;
 
 	// The helper class for playing the sounds
-	SoundPlayer _soundPlayer;
+	boost::shared_ptr<SoundPlayer> _soundPlayer;
 
 public:
 	/**

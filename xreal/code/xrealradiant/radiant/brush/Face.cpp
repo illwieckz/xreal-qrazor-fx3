@@ -1,18 +1,19 @@
 #include "Face.h"
 
+#include "ivolumetest.h"
 #include "ifilter.h"
+#include "itextstream.h"
 #include "irenderable.h"
 
 #include "shaderlib.h"
 #include "Winding.h"
-#include "cullable.h"
 
 #include "Brush.h"
 #include "BrushModule.h"
 #include "ui/surfaceinspector/SurfaceInspector.h"
 
-Face::Face(FaceObserver* observer) :
-	m_refcount(0),
+Face::Face(Brush& owner, FaceObserver* observer) :
+	_owner(owner),
 	_faceShader(texdef_name_default()),
 	m_texdef(_faceShader, TextureProjection(), false),
 	m_observer(observer),
@@ -26,6 +27,7 @@ Face::Face(FaceObserver* observer) :
 }
 
 Face::Face(
+    Brush& owner, 
 	const Vector3& p0,
 	const Vector3& p1,
 	const Vector3& p2,
@@ -33,7 +35,7 @@ Face::Face(
 	const TextureProjection& projection,
 	FaceObserver* observer
 ) :
-	m_refcount(0),
+	_owner(owner),
 	_faceShader(shader),
 	m_texdef(_faceShader, projection),
 	m_observer(observer),
@@ -46,12 +48,12 @@ Face::Face(
 	planeChanged();
 }
 
-Face::Face(const Face& other, FaceObserver* observer) :
+Face::Face(Brush& owner, const Face& other, FaceObserver* observer) :
 	IFace(other),
 	OpenGLRenderable(other),
 	Undoable(other),
 	FaceShader::Observer(other),
-	m_refcount(0),
+	_owner(owner),
 	_faceShader(other._faceShader.getMaterialName(), other._faceShader.m_flags),
 	m_texdef(_faceShader, other.getTexdef().normalised()),
 	m_observer(observer),
@@ -67,6 +69,11 @@ Face::Face(const Face& other, FaceObserver* observer) :
 
 Face::~Face() {
 	_faceShader.detachObserver(*this);
+}
+
+Brush& Face::getBrush()
+{
+	return _owner;
 }
 
 void Face::planeChanged() {
@@ -237,10 +244,9 @@ void Face::testSelect_centroid(SelectionTest& test, SelectionIntersection& best)
 	test.TestPoint(m_centroid, best);
 }
 
-void Face::shaderChanged() {
+void Face::shaderChanged()
+{
 	EmitTextureCoordinates();
-	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
 	m_observer->shaderChanged();
 	planeChanged();
 	SceneChangeNotify();
@@ -266,7 +272,7 @@ void Face::texdefChanged() {
 	revertTexdef();
 	EmitTextureCoordinates();
 	// Update the Texture Tools
-	ui::SurfaceInspector::Instance().update();
+	ui::SurfaceInspector::Instance().queueUpdate();
 }
 
 void Face::GetTexdef(TextureProjection& projection) const {
@@ -355,6 +361,13 @@ void Face::fitTexture(float s_repeat, float t_repeat) {
 void Face::flipTexture(unsigned int flipAxis) {
 	undoSave();
 	m_texdef.flipTexture(flipAxis);
+	texdefChanged();
+}
+
+void Face::alignTexture(EAlignType align)
+{
+	undoSave();
+	m_texdef.alignTexture(align, m_winding);
 	texdefChanged();
 }
 

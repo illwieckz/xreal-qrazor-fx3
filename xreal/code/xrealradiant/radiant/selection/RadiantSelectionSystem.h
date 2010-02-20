@@ -105,7 +105,6 @@ private:
 	// The coordinates of the mouse pointer when the manipulation starts
 	Vector2 _deviceStart;
 
-	void Scene_TestSelect(SelectablesList& targetList, SelectionTest& test, const View& view, SelectionSystem::EMode mode, SelectionSystem::EComponentMode componentMode);
 	bool nothingSelected() const;
 	
 	SignalHandlerId _boundsChangedHandler;
@@ -163,12 +162,12 @@ public:
 	
 	void startMove();
 	
-	bool SelectManipulator(const View& view, const double device_point[2], const double device_epsilon[2]);
+	bool SelectManipulator(const View& view, const Vector2& device_point, const Vector2& device_epsilon);
 	
 	void deselectAll();
 	
-	void SelectPoint(const View& view, const double device_point[2], const double device_epsilon[2], EModifier modifier, bool face);
-	void SelectArea(const View& view, const double device_point[2], const double device_delta[2], EModifier modifier, bool face);
+	void SelectPoint(const View& view, const Vector2& device_point, const Vector2& device_epsilon, EModifier modifier, bool face);
+	void SelectArea(const View& view, const Vector2& device_point, const Vector2& device_delta, EModifier modifier, bool face);
 	
 	// These are the "callbacks" that are used by the Manipulatables
 	void translate(const Vector3& translation);  
@@ -183,7 +182,7 @@ public:
 	void translateSelected(const Vector3& translation);
 	void scaleSelected(const Vector3& scaling);
 	
-	void MoveSelected(const View& view, const double device_point[2]);
+	void MoveSelected(const View& view, const Vector2& devicePoint);
 	
 	/// \todo Support view-dependent nudge.
 	void NudgeManipulator(const Vector3& nudge, const Vector3& view);
@@ -212,6 +211,11 @@ public:
 protected:
 	// Called when GTK is idle to recalculate the workzone (if necessary)
 	virtual void onGtkIdle();
+
+	// Traverses the scene and adds any selectable nodes matching the given SelectionTest to the "targetList".
+	void testSelectScene(SelectablesList& targetList, SelectionTest& test, 
+						 const View& view, SelectionSystem::EMode mode, 
+						 SelectionSystem::EComponentMode componentMode);
 
 private:
 	void notifyObservers(const scene::INodePtr& node, bool isComponent);

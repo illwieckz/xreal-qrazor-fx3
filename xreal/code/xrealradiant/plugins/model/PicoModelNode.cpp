@@ -1,6 +1,7 @@
 #include "PicoModelNode.h"
 
 #include "RenderablePicoSurface.h"
+#include "ivolumetest.h"
 #include "ishaders.h"
 #include "ifilter.h"
 #include "imodelcache.h"
@@ -29,20 +30,6 @@ const IModel& PicoModelNode::getIModel() const {
 
 const AABB& PicoModelNode::localAABB() const {
 	return _picoModel->localAABB();
-}
-
-VolumeIntersectionValue PicoModelNode::intersectVolume(
-	const VolumeTest& test, const Matrix4& localToWorld) const
-{
-	return _picoModel->intersectVolume(test, localToWorld);
-}
-
-void PicoModelNode::instantiate(const scene::Path& path) {
-	Node::instantiate(path);
-}
-
-void PicoModelNode::uninstantiate(const scene::Path& path) {
-	Node::uninstantiate(path);
 }
 
 // SelectionTestable implementation
@@ -103,7 +90,7 @@ void PicoModelNode::submitRenderables(RenderableCollector& collector,
 {
 	// Test the model's intersection volume, if it intersects pass on the 
 	// render call
-	if (_picoModel->intersectVolume(volume, localToWorld) != VOLUME_OUTSIDE) 
+	if (volume.TestAABB(_picoModel->localAABB(), localToWorld) != VOLUME_OUTSIDE) 
     {
 		// Submit the lights
 		collector.setLights(_lights);

@@ -52,6 +52,8 @@ public:
 };
 typedef boost::shared_ptr<Selectable> SelectablePtr;
 
+template<typename Element> class BasicVector2;
+typedef BasicVector2<double> Vector2;
 template<typename Element> class BasicVector3;
 typedef BasicVector3<double> Vector3;
 template<typename Element> class BasicVector4;
@@ -190,11 +192,11 @@ public:
 
   virtual void pivotChanged() const = 0;
   
-  virtual bool SelectManipulator(const View& view, const double device_point[2], const double device_epsilon[2]) = 0;
-  virtual void SelectPoint(const View& view, const double device_point[2], const double device_epsilon[2], EModifier modifier, bool face) = 0;
-  virtual void SelectArea(const View& view, const double device_point[2], const double device_delta[2], EModifier modifier, bool face) = 0;
+  virtual bool SelectManipulator(const View& view, const Vector2& devicePoint, const Vector2& deviceEpsilon) = 0;
+  virtual void SelectPoint(const View& view, const Vector2& devicePoint, const Vector2& deviceEpsilon, EModifier modifier, bool face) = 0;
+  virtual void SelectArea(const View& view, const Vector2& devicePoint, const Vector2& deviceDelta, EModifier modifier, bool face) = 0;
   
-  virtual void MoveSelected(const View& view, const double device_point[2]) = 0;
+  virtual void MoveSelected(const View& view, const Vector2& devicePoint) = 0;
   virtual void endMove() = 0;
   virtual void cancelMove() = 0;
 

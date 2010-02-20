@@ -2,6 +2,9 @@
 
 #include "iregistry.h"
 #include "ieventmanager.h"
+#include "itextstream.h"
+#include "iuimanager.h"
+#include "imainframe.h"
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -12,6 +15,7 @@
 #include "gtkutil/LeftAlignment.h"
 #include "gtkutil/ControlButton.h"
 #include "gtkutil/SerialisableWidgets.h"
+#include "gtkutil/ComboBox.h"
 
 #include "patch/PatchNode.h"
 #include "selection/algorithm/Primitives.h"
@@ -43,7 +47,7 @@ namespace ui {
 	}
 
 PatchInspector::PatchInspector() 
-: gtkutil::PersistentTransientWindow(WINDOW_TITLE, GlobalRadiant().getMainWindow(), true),
+: gtkutil::PersistentTransientWindow(WINDOW_TITLE, GlobalMainFrame().getTopLevelWindow(), true),
   _selectionInfo(GlobalSelectionSystem().getSelectionInfo()),
   _patchRows(0),
   _patchCols(0),
@@ -292,13 +296,13 @@ PatchInspector::CoordRow PatchInspector::createCoordRow(
 		GtkWidget* hbox = gtk_hbox_new(true, 0);
 		
 		coordRow.smaller = ControlButtonPtr(
-			new gtkutil::ControlButton(GlobalRadiant().getLocalPixbuf("arrow_left.png"))
+			new gtkutil::ControlButton(GlobalUIManager().getLocalPixbuf("arrow_left.png"))
 		);
 		gtk_widget_set_size_request(*coordRow.smaller, 15, 24);
 		gtk_box_pack_start(GTK_BOX(hbox), *coordRow.smaller, false, false, 0);
 		
 		coordRow.larger = ControlButtonPtr(
-			new gtkutil::ControlButton(GlobalRadiant().getLocalPixbuf("arrow_right.png"))
+			new gtkutil::ControlButton(GlobalUIManager().getLocalPixbuf("arrow_right.png"))
 		);
 		gtk_widget_set_size_request(*coordRow.larger, 15, 24);
 		gtk_box_pack_start(GTK_BOX(hbox), *coordRow.larger, false, false, 0); 
@@ -324,7 +328,20 @@ PatchInspector::CoordRow PatchInspector::createCoordRow(
 	return coordRow;
 }
 
-void PatchInspector::update() {
+void PatchInspector::onGtkIdle()
+{
+	// Perform the pending update
+	update();
+}
+
+void PatchInspector::queueUpdate()
+{
+	// Request an idle callback to perform the update when GTK is idle
+	requestIdleCallback();
+}
+
+void PatchInspector::update()
+{
 	_updateActive = true;
 	
 	if (_patch != NULL) {
@@ -337,8 +354,8 @@ void PatchInspector::update() {
 
 void PatchInspector::loadControlVertex() {
 	if (_patch != NULL) {
-		int row = strToInt(gtk_combo_box_get_active_text(GTK_COMBO_BOX(_vertexChooser.rowCombo)));
-		int col = strToInt(gtk_combo_box_get_active_text(GTK_COMBO_BOX(_vertexChooser.colCombo)));
+		int row = strToInt(gtkutil::ComboBox::getActiveText(GTK_COMBO_BOX(_vertexChooser.rowCombo)));
+		int col = strToInt(gtkutil::ComboBox::getActiveText(GTK_COMBO_BOX(_vertexChooser.colCombo)));
 		
 		// Retrieve the controlvertex
 		const PatchControl& ctrl = _patch->ctrlAt(row, col);
@@ -523,8 +540,8 @@ void PatchInspector::emitCoords()
 
 	_patch->undoSave();
 
-	int row = strToInt(gtk_combo_box_get_active_text(GTK_COMBO_BOX(_vertexChooser.rowCombo)));
-	int col = strToInt(gtk_combo_box_get_active_text(GTK_COMBO_BOX(_vertexChooser.colCombo)));
+	int row = strToInt(gtkutil::ComboBox::getActiveText(GTK_COMBO_BOX(_vertexChooser.rowCombo)));
+	int col = strToInt(gtkutil::ComboBox::getActiveText(GTK_COMBO_BOX(_vertexChooser.colCombo)));
 	
 	// Retrieve the controlvertex
 	PatchControl& ctrl = _patch->ctrlAt(row, col);

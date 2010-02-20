@@ -3,6 +3,7 @@
 #include <ostream>
 #include "itextstream.h"
 #include "iscenegraph.h"
+#include "idialogmanager.h"
 #include "ieventmanager.h"
 #include "iundo.h"
 #include "ifilesystem.h"
@@ -10,6 +11,7 @@
 #include "ifilter.h"
 #include "icounter.h"
 #include "iradiant.h"
+#include "imainframe.h"
 #include "imapresource.h"
 
 #include "stream/textfilestream.h"
@@ -17,10 +19,8 @@
 #include "os/path.h"
 #include "MapImportInfo.h"
 #include "MapExportInfo.h"
-#include "gtkutil/messagebox.h"
 #include "gtkutil/IConv.h"
 
-#include "referencecache.h"
 #include "brush/BrushModule.h"
 #include "xyview/GlobalXYWnd.h"
 #include "camera/GlobalCamera.h"
@@ -31,6 +31,7 @@
 #include "map/PointFile.h"
 #include "map/RegionManager.h"
 #include "map/RootNode.h"
+#include "map/MapResource.h"
 #include "map/algorithm/Clone.h"
 #include "map/algorithm/Merge.h"
 #include "map/algorithm/Traverse.h"
@@ -163,7 +164,7 @@ void Map::onResourceRealise() {
 	}
 
 	// Take the new node and insert it as map root
-	GlobalSceneGraph().insert_root(m_resource->getNode());
+	GlobalSceneGraph().setRoot(m_resource->getNode());
 
 	AutoSaver().clearChanges();
 
@@ -178,7 +179,7 @@ void Map::onResourceUnrealise() {
 
       GlobalUndoSystem().clear();
 
-      GlobalSceneGraph().erase_root();
+	  GlobalSceneGraph().setRoot(scene::INodePtr());
     }
 }
   
@@ -206,7 +207,7 @@ void Map::updateTitle() {
 		title += " *";
 	}
 
-	gtk_window_set_title(GlobalRadiant().getMainWindow(), title.c_str());
+	gtk_window_set_title(GlobalMainFrame().getTopLevelWindow(), title.c_str());
 }
 
 void Map::setMapName(const std::string& newName) {
@@ -255,7 +256,7 @@ const MapFormat& Map::getFormatForFile(const std::string& filename) {
 	// Acquire the module from the ModuleRegistry
 	RegisterableModulePtr mapLoader = module::GlobalModuleRegistry().getModule(moduleName);
 	
-	ASSERT_MESSAGE(mapLoader != NULL, "map format not found for file " << filename.c_str());
+	ASSERT_MESSAGE(mapLoader != NULL, "map format not found for file " + filename);
 	return *static_cast<MapFormat*>(mapLoader.get());
 }
 
@@ -435,9 +436,9 @@ void Map::load(const std::string& filename) {
 	globalOutputStream() << "--- LoadMapFile ---\n";
 	globalOutputStream() << m_name << "\n";
   
-	globalOutputStream() << GlobalRadiant().getCounter(counterBrushes).get() << " brushes\n";
-	globalOutputStream() << GlobalRadiant().getCounter(counterPatches).get() << " patches\n";
-	globalOutputStream() << GlobalRadiant().getCounter(counterEntities).get() << " entities\n";
+	globalOutputStream() << GlobalCounters().getCounter(counterBrushes).get() << " brushes\n";
+	globalOutputStream() << GlobalCounters().getCounter(counterPatches).get() << " patches\n";
+	globalOutputStream() << GlobalCounters().getCounter(counterEntities).get() << " entities\n";
 
 	// Move the view to a start position
 	gotoStartPosition();
@@ -560,11 +561,11 @@ bool Map::saveDirect(const std::string& filename) {
 	
 	_saveInProgress = true;
 
-	bool result = MapResource_saveFile(
+	bool result = MapResource::saveFile(
 		getFormatForFile(filename), 
 		GlobalSceneGraph().root(), 
 		map::traverse, // TraversalFunc 
-		filename.c_str()
+		filename
 	);
 	
 	_saveInProgress = false;
@@ -580,43 +581,49 @@ bool Map::saveSelected(const std::string& filename) {
 	
 	_saveInProgress = true;
 
-	bool success = MapResource_saveFile(Map::getFormatForFile(filename), 
-  							  GlobalSceneGraph().root(), 
-  							  map::traverseSelected, // TraversalFunc
-  							  filename.c_str());
+	bool success = MapResource::saveFile(
+		Map::getFormatForFile(filename), 
+		GlobalSceneGraph().root(), 
+		map::traverseSelected, // TraversalFunc
+		filename
+	);
 
 	_saveInProgress = false;
 
 	return success;
 }
 
-bool Map::askForSave(const std::string& title) {
-	if (!isModified()) {
+bool Map::askForSave(const std::string& title)
+{
+	if (!isModified())
+	{
 		// Map is not modified, return positive
 		return true;
 	}
 
 	// Ask the user
-	EMessageBoxReturn result = gtk_MessageBox(
-		GTK_WIDGET(GlobalRadiant().getMainWindow()), 
-		"The current map has changed since it was last saved."
-		"\nDo you want to save the current map before continuing?", 
-		title.c_str(), 
-		eMB_YESNOCANCEL, eMB_ICONQUESTION
-	);
+	ui::IDialogPtr msgBox = GlobalDialogManager().createMessageBox(
+		title, "The current map has changed since it was last saved."
+		"\nDo you want to save the current map before continuing?", ui::IDialog::MESSAGE_YESNOCANCEL);
+
+	ui::IDialog::Result result = msgBox->run();
 	
-	if (result == eIDCANCEL) {
+	if (result == ui::IDialog::RESULT_CANCELLED)
+	{
 		return false;
 	}
 	
-	if (result == eIDYES) {
+	if (result == ui::IDialog::RESULT_YES)
+	{
 		// The user wants to save the map
-	    if (isUnnamed()) {
+	    if (isUnnamed())
+		{
 	    	// Map still unnamed, try to save the map with a new name
 	    	// and take the return value from the other routine.
 			return saveAs();
 	    }
-	    else {
+	    else
+		{
 	    	// Map is named, save it
 			save();
 	    }
@@ -688,9 +695,16 @@ void Map::loadPrefabAt(const Vector3& targetCoords) {
 	    
 	    // Now import the prefab (imported items get selected)
 	    import(filename);
+
+		// Switch texture lock on
+		bool prevTexLockState = GlobalBrush()->textureLockEnabled();
+		GlobalBrush()->setTextureLock(true);
 	    
 	    // Translate the selection to the given point
 	    GlobalSelectionSystem().translateSelected(targetCoords);
+
+		// Revert to previous state
+		GlobalBrush()->setTextureLock(prevTexLockState);
 	}
 }
 
@@ -808,8 +822,10 @@ void Map::importSelected(TextInputStream& in) {
 	BasicContainerPtr root(new BasicContainer);
 	
 	// Pass an empty stringstream to the importer
+	std::istream str(&in);
+
 	std::istringstream dummyStream;
-	MapImportInfo importInfo(in, dummyStream);
+	MapImportInfo importInfo(str, dummyStream);
 	importInfo.root = root;
 
 	const MapFormat& format = getFormat();
