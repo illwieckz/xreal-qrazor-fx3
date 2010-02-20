@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="entitylist"
 	ProjectGUID="{A35C6082-EE2D-4DEB-944B-61CFEB19C5B1}"
 	RootNamespace="archivezip"
@@ -406,6 +406,14 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{A15EFB56-927F-411D-A57B-0328321456A2}"
+			RelativePathToProject=".\xmlutillib.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{B6D4B38A-0C39-42CD-8193-75979E1F4D68}"
+			RelativePathToProject=".\gtkutillib.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter

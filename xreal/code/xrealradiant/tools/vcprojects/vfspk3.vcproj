@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="vfspk3"
 	ProjectGUID="{D933EF8B-2C21-46E7-B720-0621C090AE6E}"
 	RootNamespace="archivezip"
@@ -406,6 +406,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{A15EFB56-927F-411D-A57B-0328321456A2}"
+			RelativePathToProject=".\xmlutillib.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter

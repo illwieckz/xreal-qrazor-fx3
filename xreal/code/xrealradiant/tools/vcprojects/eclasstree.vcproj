@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="eclasstree"
 	ProjectGUID="{3B1A6CA3-D76E-4020-860D-1BED3DF7A3BE}"
 	RootNamespace="archivezip"
@@ -406,6 +406,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{B6D4B38A-0C39-42CD-8193-75979E1F4D68}"
+			RelativePathToProject=".\gtkutillib.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
