@@ -93,6 +93,7 @@
 		</surfaceInspector>
 		<texTool>
 			<gridActive value="1" />
+			<faceVertexScalePivotIsCentroid value="0" />
 		</texTool>
 	</textures>
 	<grid>
@@ -114,6 +115,9 @@
 			<pane name="vertical1" position="250" />
 			<pane name="vertical2" position="250" />
 		</splitPane>
+		<floating>
+			<groupDialogVisible value="1" />
+		</floating>
 	</mainFrame>
 	<groupDialog>
 		<window xPosition="50" yPosition="530" width="350" height="200" />
@@ -122,7 +126,7 @@
 		<window xPosition="50" yPosition="530" width="250" height="400" />
 	</entityList>
 	<multiMonitor>
-		<startOnPrimaryMonitor value="0" />
+		<startMonitorNum value="0" />
 	</multiMonitor>
 	<xyview>
 		<views name="default">
@@ -162,6 +166,7 @@
 	</clipper>
 	<brush>
 		<textureLock value="1" />
+		<emitCSGSubtractWarning value="1" />
 	</brush>
 	<patch>
 		<subdivideThreshold value="2" />
@@ -259,6 +264,8 @@
 		<toolbutton name="texflips" action="TexToolFlipS" tooltip="Flip Selection Horiz (S-Axis)" icon="tex_flips.png"/>
 		<toolbutton name="texflipt" action="TexToolFlipT" tooltip="Flip Selection Vertical (T-Axis)" icon="tex_flipt.png"/>
 		<toolbutton name="selectrelated" action="TexToolSelectRelated" tooltip="Select Related Items" icon="textool_select_related.png"/>
+		<separator/>
+		<toggletoolbutton name="togglefacevertexscalepivot" action="TexToolToggleFaceVertexScalePivot" tooltip="Center Pivot when scaling faces" icon="textool_facescale_pivot.png"/>
     </toolbar>
  </ui>
 </user>
