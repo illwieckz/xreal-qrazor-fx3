@@ -36,8 +36,9 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/render/backend/OpenGLShader.cpp',
 'code/xrealradiant/radiant/render/backend/GLProgramFactory.cpp',
 'code/xrealradiant/radiant/render/backend/OpenGLShaderPass.cpp',
-'code/xrealradiant/radiant/render/OpenGLRenderSystem.cpp',
 'code/xrealradiant/radiant/render/OpenGLModule.cpp',
+'code/xrealradiant/radiant/render/OpenGLRenderSystem.cpp',
+'code/xrealradiant/radiant/render/debug/SpacePartitionRenderer.cpp',
 'code/xrealradiant/radiant/ui/entitychooser/EntityClassChooser.cpp',
 'code/xrealradiant/radiant/ui/entitychooser/EntityClassTreePopulator.cpp',
 'code/xrealradiant/radiant/ui/filterdialog/FilterDialog.cpp',
@@ -87,6 +88,7 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/ui/einspector/AnglePropertyEditor.cpp',
 'code/xrealradiant/radiant/ui/einspector/PropertyEditor.cpp',
 'code/xrealradiant/radiant/ui/common/CommandEntry.cpp',
+'code/xrealradiant/radiant/ui/common/EntityChooser.cpp',
 'code/xrealradiant/radiant/ui/common/MapPreview.cpp',
 'code/xrealradiant/radiant/ui/common/ModelPreview.cpp',
 'code/xrealradiant/radiant/ui/common/TexturePreviewCombo.cpp',
@@ -102,6 +104,7 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/ui/transform/TransformDialog.cpp',
 'code/xrealradiant/radiant/ui/modelselector/ModelSelector.cpp',
 'code/xrealradiant/radiant/ui/surfaceinspector/SurfaceInspector.cpp',
+'code/xrealradiant/radiant/ui/patch/CapDialog.cpp',
 'code/xrealradiant/radiant/ui/patch/PatchThickenDialog.cpp',
 'code/xrealradiant/radiant/ui/patch/PatchInspector.cpp',
 'code/xrealradiant/radiant/ui/patch/PatchCreateDialog.cpp',
@@ -117,10 +120,10 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/textool/item/FaceItem.cpp',
 'code/xrealradiant/radiant/textool/item/PatchItem.cpp',
 'code/xrealradiant/radiant/textool/item/PatchVertexItem.cpp',
+'code/xrealradiant/radiant/textool/item/FaceVertexItem.cpp',
 'code/xrealradiant/radiant/textool/TexTool.cpp',
 'code/xrealradiant/radiant/layers/LayerCommandTarget.cpp',
 'code/xrealradiant/radiant/layers/LayerSystem.cpp',
-'code/xrealradiant/radiant/referencecache.cpp',
 'code/xrealradiant/radiant/view.cpp',
 'code/xrealradiant/radiant/modulesystem/DynamicLibrary.cpp',
 'code/xrealradiant/radiant/modulesystem/ApplicationContextImpl.cpp',
@@ -166,6 +169,7 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/map/FindMapElements.cpp',
 'code/xrealradiant/radiant/map/MapFileManager.cpp',
 'code/xrealradiant/radiant/map/algorithm/Traverse.cpp',
+'code/xrealradiant/radiant/map/CounterManager.cpp',
 'code/xrealradiant/radiant/map/RegionManager.cpp',
 'code/xrealradiant/radiant/map/PointFile.cpp',
 'code/xrealradiant/radiant/map/MapPositionManager.cpp',
@@ -192,24 +196,24 @@ xrealradiant_src = [
 'code/xrealradiant/radiant/referencecache/NullModelNode.cpp'
 ]
 
-scenegraph_src = [
+scenegraphutil_src = [
 'code/xrealradiant/libs/scene/InstanceWalkers.cpp',
 'code/xrealradiant/libs/scene/TraversableNodeSet.cpp',
 'code/xrealradiant/libs/scene/Node.cpp',
-'code/xrealradiant/libs/UndoableObject.cpp'
 ]
 
 gtkutil_src = [
 'code/xrealradiant/libs/gtkutil/GLWidget.cpp',
 'code/xrealradiant/libs/gtkutil/PanedPosition.cpp',
 'code/xrealradiant/libs/gtkutil/VFSTreePopulator.cpp',
-'code/xrealradiant/libs/gtkutil/messagebox.cpp',
 'code/xrealradiant/libs/gtkutil/nonmodal.cpp',
 'code/xrealradiant/libs/gtkutil/Timer.cpp',
 'code/xrealradiant/libs/gtkutil/WindowPosition.cpp',
 'code/xrealradiant/libs/gtkutil/idledraw.cpp',
 'code/xrealradiant/libs/gtkutil/window/PersistentTransientWindow.cpp',
-'code/xrealradiant/libs/gtkutil/dialog.cpp',
+'code/xrealradiant/libs/gtkutil/dialog/Dialog.cpp',
+'code/xrealradiant/libs/gtkutil/dialog/MessageBox.cpp',
+'code/xrealradiant/libs/gtkutil/dialog_legacy.cpp',
 'code/xrealradiant/libs/gtkutil/glfont.cpp',
 'code/xrealradiant/libs/gtkutil/MenuItemAccelerator.cpp',
 'code/xrealradiant/libs/gtkutil/cursor.cpp',
@@ -217,7 +221,6 @@ gtkutil_src = [
 'code/xrealradiant/libs/gtkutil/menu/PopupMenu.cpp',
 'code/xrealradiant/libs/gtkutil/widget.cpp',
 'code/xrealradiant/libs/gtkutil/RegistryConnector.cpp',
-'code/xrealradiant/libs/gtkutil/xorrectangle.cpp',
 'code/xrealradiant/libs/gtkutil/TreeModel.cpp',
 'code/xrealradiant/libs/gtkutil/ModalProgressDialog.cpp',
 'code/xrealradiant/libs/gtkutil/window.cpp',
@@ -405,6 +408,11 @@ particles_src = [
 'code/xrealradiant/plugins/particles/particles.cpp'
 ]
 
+scenegraph_src = [
+'code/xrealradiant/plugins/scenegraph/SceneGraph.cpp',
+'code/xrealradiant/plugins/scenegraph/Octree.cpp'
+]
+
 shaders_src = [
 'code/xrealradiant/plugins/shaders/textures/TextureManipulator.cpp',
 'code/xrealradiant/plugins/shaders/textures/ImageFileLoader.cpp',
@@ -433,6 +441,7 @@ sound_src = [
 ]
 
 uimanager_src = [
+'code/xrealradiant/plugins/uimanager/DialogManager.cpp',
 'code/xrealradiant/plugins/uimanager/MenuItem.cpp',
 'code/xrealradiant/plugins/uimanager/GroupDialog.cpp',
 'code/xrealradiant/plugins/uimanager/colourscheme/ColourScheme.cpp',
@@ -493,7 +502,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] =
 	module_env.Append(LIBPATH=['.'])
 	
 	scenegraphutil_env = module_env.Clone()
-	scenegraphutil_env.StaticLibrary('scenegraphutil', scenegraph_src)
+	scenegraphutil_env.StaticLibrary('scenegraphutil', scenegraphutil_src)
 	
 	gtkutil_env = module_env.Clone()
 	gtkutil_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
@@ -615,7 +624,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] =
 	
 	scenegraph_env = module_env.Clone()
 	scenegraph_env.Append(LIBS=['scenegraphutil'])
-	scenegraph_env.SharedLibrary('scenegraph', ['code/xrealradiant/plugins/scenegraph/SceneGraph.cpp'])
+	scenegraph_env.SharedLibrary('scenegraph', scenegraph_src)
 	scenegraph_env.InstallAs('#xrealradiant/modules/scenegraph.so', 'libscenegraph.so')
 	
 	shaders_env = module_env.Clone()
