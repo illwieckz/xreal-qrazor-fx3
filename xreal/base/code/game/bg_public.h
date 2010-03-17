@@ -309,7 +309,7 @@ enum
 	EF_AWARD_ASSIST			= BIT(16),	// draw a assist sprite
 	EF_AWARD_DENIED			= BIT(17),	// denied
 	EF_AWARD_TELEFRAG		= BIT(18),	// draw a telefrag sprite
-	EF_TEAMVOTED		    = BIT(19),	// already cast a team vote
+	EF_TEAMVOTED			= BIT(19),	// already cast a team vote
 	EF_KAMIKAZE				= BIT(20),
 	EF_TICKING				= BIT(21),	// used to make players play the prox mine ticking sound
 	EF_FIRING2				= BIT(22),	// for lightning gun

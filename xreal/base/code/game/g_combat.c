@@ -601,7 +601,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			trap_SendServerCommand(-1, va("cpm \"%s\n\"", customObit));
 		}
 		*/
-	}	
+	}
 #endif
 
 	// broadcast the death event to everyone

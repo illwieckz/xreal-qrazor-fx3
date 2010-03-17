@@ -47,7 +47,6 @@ typedef struct
 	int             spawnTime;
 } botSpawnQueue_t;
 
-//static int            botBeginDelay = 0;  // bk001206 - unused, init
 static botSpawnQueue_t botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
 
 vmCvar_t        bot_minplayers;

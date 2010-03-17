@@ -1113,11 +1113,15 @@ void SP_func_door(gentity_t * ent)
 
 	// default speed of 400
 	if(!ent->speed)
+	{
 		ent->speed = 400;
+	}
 
 	// default wait of 2 seconds
 	if(!ent->wait)
+	{
 		ent->wait = 2;
+	}
 	ent->wait *= 1000;
 
 	// default lip of 8 units
