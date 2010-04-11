@@ -23,7 +23,7 @@ textures/hipshot_sky/grimmnight
 
 textures/hipshot_sky/interstellar
 {
-	qer_editorimage cubemaps/hipshot/interstellar/interstellar_nz.png
+	qer_editorimage cubemaps/hipshot/interstellar/interstellar_pz.png
 
 	noFragment
 	noshadows
@@ -32,8 +32,8 @@ textures/hipshot_sky/interstellar
 	sky
 	nolightmap
 
-//	xmap_sun	todo
-//	xmap_skylight	todo
+	xmap_sun	0.0 1.0 0.7 125 315 45
+	xmap_skylight	150 3
 
 	{ 
 		stage skyboxMap
@@ -44,7 +44,7 @@ textures/hipshot_sky/interstellar
 
 textures/hipshot_sky/miramar
 {
-	qer_editorimage cubemaps/hipshot/miramar/miramar_nz.png
+	qer_editorimage cubemaps/hipshot/miramar/miramar_ny.png
 
 	noFragment
 	noshadows
@@ -86,7 +86,7 @@ textures/hipshot_sky/stormydays
 
 textures/hipshot_sky/violentdays
 {
-	qer_editorimage cubemaps/hipshot/violentdays/violentdays_nz.png
+	qer_editorimage cubemaps/hipshot/violentdays/violentdays_ny.png
 
 	noFragment
 	noshadows
