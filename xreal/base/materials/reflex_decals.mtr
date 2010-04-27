@@ -2,9 +2,6 @@ textures/reflex/decals/achtung01
 {
 	qer_editorimage textures/reflex/decals/achtung01.tga
 	DECAL_MACRO
-	noShadows
-      nonsolid
-	translucent
 
 	{
 		blend GL_DST_COLOR, GL_SRC_COLOR		
@@ -16,9 +13,6 @@ textures/reflex/decals/in_red01
 {
 	qer_editorimage textures/reflex/decals/in_red01.tga
 	DECAL_MACRO
-	noShadows
-      nonsolid
-	translucent
 
 	{
 		blend GL_DST_COLOR, GL_SRC_COLOR		
@@ -30,9 +24,6 @@ textures/reflex/decals/in_orange01
 {
 	qer_editorimage textures/reflex/decals/in_orange01.tga
 	DECAL_MACRO
-	noShadows
-      nonsolid
-	translucent
 
 	{
 		blend GL_DST_COLOR, GL_SRC_COLOR		
