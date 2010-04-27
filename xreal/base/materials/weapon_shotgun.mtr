@@ -12,11 +12,13 @@ models/weapons/shotgun/shotgun
 	//unsmoothedTangents
 	
 	diffusemap		models/weapons/shotgun/shotgun_d.tga
+	bumpmap			addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
+	specularmap	 	models/weapons/shotgun/shotgun_s.tga
 	{
-		blend 		bumpmap
-		map  		addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
+		stage		reflectionMap
+		blend		GL_DST_COLOR, GL_ONE
+		cubeMap		_autocube
 	}
-    specularmap	 	models/weapons/shotgun/shotgun_s.tga
 }
 
 models/weapons/shotgun/q2_w_supershotgun01
@@ -28,7 +30,12 @@ models/weapons/shotgun/q2_w_supershotgun01
 	
 	diffusemap		models/weapons/shotgun/shotgun_d.tga
 	normalmap		addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
-    specularmap	 	models/weapons/shotgun/shotgun_s.tga
+	specularmap	 	models/weapons/shotgun/shotgun_s.tga
+	{
+		stage		reflectionMap
+		blend		GL_DST_COLOR, GL_ONE
+		cubeMap		_autocube
+	}
 	/*
 	{
 		blend 		add
@@ -119,7 +126,12 @@ models/weapons/shotgun/f_shotgun
 
 models/weapons/shotgun/shell
 {
-	diffuseMap models/weapons/shells/shell_d.png
-	normalMap models/weapons/shells/shell_n.png
-	specularMap models/weapons/shells/shell_s.png
+	diffuseMap	models/weapons/shells/shell_d.png
+	normalMap	models/weapons/shells/shell_n.png
+	specularMap	models/weapons/shells/shell_s.png
+	{
+		stage	reflectionMap
+		blend	GL_DST_COLOR, GL_ONE
+		cubeMap	_autocube
+	}
 }

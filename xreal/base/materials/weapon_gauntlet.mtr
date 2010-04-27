@@ -1,34 +1,24 @@
 models/weapons2/gauntlet/ldagauntlet
 {
+	diffuseMap	models/weapons/gauntlet/ldagauntlet_d.tga
+	bumpMap		heightMap(models/weapons/gauntlet/ldagauntlet_h.tga, 2)
+	specularMap	models/weapons/gauntlet/ldagauntlet_s.tga
 	{
-		blend diffuseMap
-		map models/weapons/gauntlet/ldagauntlet_d.tga
-	}
-	{
-		blend bumpMap
-		map heightMap(models/weapons/gauntlet/ldagauntlet_h.tga, 2)
-	}
-	{
-		blend specularMap
-		map models/weapons/gauntlet/ldagauntlet_s.tga
+		stage reflectionMap
+		blend GL_DST_COLOR, GL_ONE
+		cubeMap _autocube
 	}
 }
 
 models/weapons2/gauntlet/ldagauntlet_b
 {
+	diffuseMap	models/weapons/gauntlet/ldagauntlet_b_d.tga
+	bumpMap		heightMap(models/weapons/gauntlet/ldagauntlet_b_h.tga, 1)
+	specularMap	models/weapons/gauntlet/ldagauntlet_b_s.tga
 	{
-		blend diffuseMap
-		map models/weapons/gauntlet/ldagauntlet_b_d.tga
-		//centerScale 1.2, 1.2
-	}
-	{
-		blend bumpMap
-		map heightMap(models/weapons/gauntlet/ldagauntlet_b_h.tga, 1)
-		//map models/weapons/gauntlet/ldagauntlet_b_n.tga
-	}
-	{
-		blend specularMap
-		map models/weapons/gauntlet/ldagauntlet_b_s.tga
+		stage reflectionMap
+		blend GL_DST_COLOR, GL_ONE
+		cubeMap _autocube
 	}
 }
 

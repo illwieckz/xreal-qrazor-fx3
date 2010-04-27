@@ -28,17 +28,12 @@ models/weapons/rocketl/rocketl_uvw_frame_exp_d // rahmen ums rohr
 	twoSided
 	diffuseMap models/weapons/rocketl/rocketl_uvw_frame_exp_d.tga
 	normalMap models/weapons/rocketl/frame_n.png
-	specularMap models/weapons/rocketl/frame_s.tga
-	
-	/*
+	specularMap models/weapons/rocketl/frame_s.tga	
 	{
 		stage reflectionMap
-		blend GL_ONE_MINUS_DST_COLOR, GL_ZERO
-		//blend GL_DST_COLOR, GL_ZERO
-		cubeMap cubemaps/pete/carbon-creek512
+		blend GL_DST_COLOR, GL_ONE
+		cubeMap _autocube
 	}
-	normalMap models/weapons/rocketl/frame_n.png
-	*/
 }
 models/weapons/rocketl/tube_d //schl�uche 
 {
@@ -46,6 +41,11 @@ models/weapons/rocketl/tube_d //schl�uche
 	diffuseMap models/weapons/rocketl/tube_d.tga
 	normalMap models/weapons/rocketl/tube_n.png
 	specularMap models/weapons/rocketl/tube_d.tga
+	{
+		stage reflectionMap
+		blend GL_DST_COLOR, GL_ONE
+		cubeMap _autocube
+	}
 }
 models/weapons/rocketl/rocketl_uvw_exp //inneres rohr
 {
@@ -53,6 +53,11 @@ models/weapons/rocketl/rocketl_uvw_exp //inneres rohr
 	diffuseMap models/weapons/rocketl/rocketl_uvw_exp.tga
 	normalMap models/weapons/rocketl/roor_n.png
 	specularMap models/weapons/rocketl/roor_s.tga
+	{
+		stage reflectionMap
+		blend GL_DST_COLOR, GL_ONE
+		cubeMap _autocube
+	}
 }
 
 models/weapons/rocketl/rocketl_uvw_rtop_exp_d //platte vorne/oben, griff, abzug, schale
@@ -61,16 +66,11 @@ models/weapons/rocketl/rocketl_uvw_rtop_exp_d //platte vorne/oben, griff, abzug,
 	diffuseMap models/weapons/rocketl/rocketl_uvw_rtop_exp_d.tga
 	normalMap models/weapons/rocketl/front_n.png
 	specularMap models/weapons/rocketl/rocketl_uvw_rtop_exp_d.tga
-	
-	/*
 	{
 		stage reflectionMap
-		blend GL_ONE_MINUS_DST_COLOR, GL_ZERO
-		//blend GL_DST_COLOR, GL_ZERO
-		cubeMap cubemaps/pete/carbon-creek512
+		blend GL_DST_COLOR, GL_ONE
+		cubeMap _autocube
 	}
-	normalMap models/weapons/rocketl/front_n.png
-	*/
 }
 models/weapons/rocketl/rocketl_body_d // hinterteil -.-
 {
@@ -78,6 +78,11 @@ models/weapons/rocketl/rocketl_body_d // hinterteil -.-
 	diffuseMap models/weapons/rocketl/rocketl_body_d.tga
 	normalMap models/weapons/rocketl/body_n2.png
 	specularMap models/weapons/rocketl/rocketl_body_d.tga
+	{
+		stage reflectionMap
+		blend GL_DST_COLOR, GL_ONE
+		cubeMap _autocube
+	}
 }
 
 // missile

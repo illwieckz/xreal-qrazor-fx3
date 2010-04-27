@@ -9,15 +9,16 @@ models/weapons/machinegun/machinegun
 	//unsmoothedTangents
 
 	diffusemap		models/weapons/machinegun/machinegun_d.tga
-	{
-		blend 		bumpmap
-		map			addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	  
-	}		
+	bumpmap			addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	
 	specularmap		models/weapons/machinegun/machinegun_s.tga
-	
+	{
+		stage reflectionMap
+		blend GL_DST_COLOR, GL_ONE
+		cubeMap _autocube
+	}
 	{
 		blend 		add
-		map			models/weapons/machinegun/machinegun_add.tga
+		map		models/weapons/machinegun/machinegun_add.tga
 		red 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm0
 		green 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm1
 		blue 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm2
@@ -30,11 +31,13 @@ models/weapons/machinegun/w_machinegun
 	//unsmoothedTangents
 
 	diffusemap		models/weapons/machinegun/machinegun_d.tga
-	{
-		blend 		bumpmap
-		map			addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	  
-	}		
+	bumpmap			addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	
 	specularmap		models/weapons/machinegun/machinegun_s.tga
+	{
+		stage reflectionMap
+		blend GL_DST_COLOR, GL_ONE
+		cubeMap _autocube
+	}
 	{
 		blend 		add
 		map			models/weapons/machinegun/machinegun_add.tga
@@ -119,6 +122,6 @@ models/weapons/machinegun/f_machinegun
 	noshadows
 	{
 		map	models/weapons/machinegun/f_machinegun.png
-		blend add
+		blend	add
 	}
 }
