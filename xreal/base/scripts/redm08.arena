@@ -1,0 +1,7 @@
+{
+	map  "redm08"
+	longname "DEAD SIMPLE REDUX"
+	bots  "Visor"
+	fraglimit 25
+	type  "ffa tourney team"
+}
