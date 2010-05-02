@@ -777,6 +777,7 @@ void            G_RunClient(gentity_t * ent);
 qboolean        OnSameTeam(gentity_t * ent1, gentity_t * ent2);
 void            Team_CheckDroppedItem(gentity_t * dropped);
 qboolean        CheckObeliskAttack(gentity_t * obelisk, gentity_t * attacker);
+int             Team_CaptureFlag(gentity_t * ent, gentity_t * other, int team);
 
 //
 // g_mem.c

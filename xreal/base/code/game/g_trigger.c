@@ -146,7 +146,60 @@ void SP_trigger_multiple(gentity_t * ent)
 	trap_LinkEntity(ent);
 }
 
+/*
+==============================================================================
 
+trigger_flagonly_multiple
+
+==============================================================================
+*/
+
+// the trigger was just activated
+void multi_flagonly_trigger(gentity_t * ent, gentity_t * activator)
+{
+	ent->activator = activator;
+
+	if(!activator->client)
+	{
+		return;
+	}
+
+	if(ent->red_only && activator->client->ps.powerups[PW_BLUEFLAG])
+	{
+		G_UseTargets(ent, ent->activator);
+		Team_CaptureFlag(ent, activator, TEAM_RED);
+	}
+	else if(ent->blue_only && activator->client->ps.powerups[PW_REDFLAG])
+	{
+		G_UseTargets(ent, ent->activator);
+		Team_CaptureFlag(ent, activator, TEAM_BLUE);
+	}
+}
+
+void Touch_Flagonly_Multi(gentity_t * self, gentity_t * other, trace_t * trace)
+{
+	if(!other->client)
+	{
+		return;
+	}
+	multi_flagonly_trigger(self, other);
+}
+
+/*QUAKED trigger_flagonly_multiple (.5 .5 .5) ?
+Player must be carrying the appropriate flag for it to trigger.
+Either red_only or blue_only must be set.
+*/
+void SP_trigger_flagonly_multiple(gentity_t * ent)
+{
+	G_SpawnBoolean("red_only", "0", &ent->red_only);
+	G_SpawnBoolean("blue_only", "0", &ent->blue_only);
+
+	ent->touch = Touch_Flagonly_Multi;
+	//ent->use = Use_Multi;
+
+	InitTrigger(ent);
+	trap_LinkEntity(ent);
+}
 
 /*
 ==============================================================================

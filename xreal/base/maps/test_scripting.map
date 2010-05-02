@@ -2,8 +2,8 @@ Version 2
 // entity 0
 {
 "classname" "worldspawn"
-"editor_drLastCameraPos" "1004.28 -34.1354 420.513"
-"editor_drLastCameraAngle" "-16.5 240.9 0"
+"editor_drLastCameraPos" "1165.33 37.4799 184.091"
+"editor_drLastCameraAngle" "-19.5 75 0"
 // primitive 0
 {
 brushDef3
@@ -3099,6 +3099,18 @@ brushDef3
 ( 1 0 0 -512 ) ( ( -0.03125 0 195.75 ) ( 0 0.03125 3.5 ) ) "textures/trak/trak5/pipe1a" 0 0 0
 }
 }
+// primitive 258
+{
+brushDef3
+{
+( 0 0 1 -8 ) ( ( 0.03125 0 56 ) ( 0 0.03125 59 ) ) "textures/trak/trak5/pipe1a" 0 0 0
+( 0 1 0 -424 ) ( ( 0.03125 0 11.75 ) ( 0 0.03125 15 ) ) "textures/trak/trak5/pipe1a" 0 0 0
+( 1 0 0 -1320 ) ( ( 0.03125 0 56.5 ) ( 0 0.03125 15 ) ) "textures/trak/trak5/pipe1a" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.125 0 60 ) ( 0 0.125 20 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 344 ) ( ( 0.03125 0 35.5 ) ( 0 0.03125 15 ) ) "textures/trak/trak5/pipe1a" 0 0 0
+( -1 0 0 1240 ) ( ( 0.03125 0 56.5 ) ( 0 0.03125 15 ) ) "textures/trak/trak5/pipe1a" 0 0 0
+}
+}
 }
 // entity 1
 {
@@ -5718,10 +5730,10 @@ brushDef3
 {
 "classname" "func_explosive"
 "name" "func_explosive_20"
-"model" "func_explosive_20"
-"origin" "-508 -320 64"
 "health" "9999"
 "luaHurt" "target_usestuff"
+"model" "func_explosive_20"
+"origin" "-508 -320 64"
 // primitive 0
 {
 brushDef3
@@ -5732,6 +5744,33 @@ brushDef3
 ( 0 -1 0 -16 ) ( ( 0.03125 0 255.25 ) ( 0 0.03125 254 ) ) "textures/trak/trak5/pipe1b" 0 0 0
 ( 0 0 1 -16 ) ( ( 0.03125 0 255.25 ) ( 0 0.03125 4.25 ) ) "textures/trak/trak5/pipe1b" 0 0 0
 ( -1 0 0 -4 ) ( ( 0.03125 0 1.5 ) ( 0 0.03125 2.25 ) ) "textures/trak/trak5/pipe1b" 0 0 0
+}
+}
+}
+// entity 189
+{
+"classname" "trigger_flagonly_multiple"
+"name" "trigger_flagonly_multiple_1"
+"luaDie" "TriggerDie"
+"luaFree" "TriggerFree"
+"luaHurt" "TriggerHurt"
+"luaSpawn" "TriggerSpawn"
+"luaTouch" "TriggerTouch"
+"luaTrigger" "TriggerTrigger"
+"luaUse" "TriggerUse"
+"model" "trigger_flagonly_multiple_1"
+"origin" "1280 384 68"
+"red_only" "1"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -60 ) ( ( 0.125 0 0 ) ( 0 0.125 48 ) ) "textures/common/trigger" 0 0 0
+( 0 1 0 -40 ) ( ( 0.125 0 16 ) ( 0 0.125 0 ) ) "textures/common/trigger" 0 0 0
+( 1 0 0 -40 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/common/trigger" 0 0 0
+( 0 0 -1 -60 ) ( ( 0.125 0 0 ) ( 0 0.125 16 ) ) "textures/common/trigger" 0 0 0
+( 0 -1 0 -40 ) ( ( 0.125 0 48 ) ( 0 0.125 0 ) ) "textures/common/trigger" 0 0 0
+( -1 0 0 -40 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/common/trigger" 0 0 0
 }
 }
 }
