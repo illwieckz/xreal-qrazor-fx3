@@ -5,17 +5,21 @@ models\weapons\railgun\body
 
 	//noShadows
 
-	diffusemap		models\weapons\railgun\body_diffuse
-	normalMap 		models\weapons\railgun\body_NRM
-	specularMap 		models\weapons\railgun\body_spec
+	diffusemap	models\weapons\railgun\body_diffuse
 	{
-		stage reflectionMap
-		blend GL_DST_COLOR, GL_ONE
-		cubeMap _autocube
+		stage	normalMap
+		map	models\weapons\railgun\body_NRM
+		forceHighQuality
+	}
+	specularMap 	models\weapons\railgun\body_spec
+	{
+		stage	reflectionMap
+		blend	GL_DST_COLOR, GL_ONE
+		cubeMap	_autocube
 	}
 	{
-		blend 		add
-		map		models\weapons\railgun\body_glo
+		blend 	add
+		map	models\weapons\railgun\body_glo
 		colored
 	}
 }
