@@ -1,57 +1,30 @@
-
-
 //==================
 // SUPER SHOTGUN
 //==================
 
 models/weapons/shotgun/shotgun
 {
-
 	noShadows
-	//noselfShadow
-	//unsmoothedTangents
-	
 	diffusemap		models/weapons/shotgun/shotgun_d.tga
 	bumpmap			addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
 	specularmap	 	models/weapons/shotgun/shotgun_s.tga
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	reflectionMap		_autocube
 }
 
 models/weapons/shotgun/q2_w_supershotgun01
 {
-
 	noShadows
-	//noselfShadow
-	//unsmoothedTangents
-	
 	diffusemap		models/weapons/shotgun/shotgun_d.tga
 	normalmap		addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
 	specularmap	 	models/weapons/shotgun/shotgun_s.tga
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
-	/*
-	{
-		blend 		add
-		map			models/q2_items/q2_item_pulse.tga
-		red 		( q2iteminout [Parm4 + (time / 1.5) ]) * Parm0
-		green 		( q2iteminout [Parm4 + (time / 1.5) ]) * Parm1
-		blue 		( q2iteminout [Parm4 + (time / 1.5) ]) * Parm2
-	}
-	*/
+	reflectionMap		_autocube
 }
 
 
 models/weapons/shotgun/shotgun_muzzflash
 {
-	sort nearest
-	deform sprite
+	sort			nearest
+	deform			sprite
 	{
 		forceHighQuality
 		if 		( time + parm4 ) * 6.4 < 1.0
@@ -66,11 +39,10 @@ models/weapons/shotgun/shotgun_muzzflash
 
 models/weapons/shotgun/shotgun_muzzflash2
 {
-	sort nearest
-	//deform tube
+	sort			nearest
 	{
 		forceHighQuality
-		if ( time + parm4 ) * 5 < 1.0
+		if		( time + parm4 ) * 5 < 1.0
 		blend 		add
 		map 		models/weapons/shotgun/shotgun_muzzflash2_strip.tga
 		scale 		1 / 8 , 1
@@ -81,8 +53,8 @@ models/weapons/shotgun/shotgun_muzzflash2
 
 models/weapons/shotgun/shotgun_muzzflashb
 {
-	sort nearest
-	deform sprite
+	sort			nearest
+	deform			sprite
 	{
 		forceHighQuality
 		if 		( time + parm4 ) * 7 < 1.0
@@ -97,8 +69,7 @@ models/weapons/shotgun/shotgun_muzzflashb
 
 models/weapons/shotgun/shotgun_muzzflash2b
 {
-	sort nearest
-	//deform tube
+	sort			nearest
 	{
 		forceHighQuality
 		if 		( time + parm4 ) * 5 < 1.0
@@ -110,28 +81,10 @@ models/weapons/shotgun/shotgun_muzzflash2b
 	}
 }
 
-
-/*
-models/weapons/shotgun/f_shotgun
-{
-	sort additive
-	cull disable
-	{
-		map	models/weapons/shotgun/f_shotgun.tga
-		blend add
-	}
-}
-*/
-
-
 models/weapons/shotgun/shell
 {
-	diffuseMap	models/weapons/shells/shell_d.png
-	normalMap	models/weapons/shells/shell_n.png
-	specularMap	models/weapons/shells/shell_s.png
-	{
-		stage	reflectionMap
-		blend	GL_DST_COLOR, GL_ONE
-		cubeMap	_autocube
-	}
+	diffuseMap		models/weapons/shells/shell_d.png
+	normalMap		models/weapons/shells/shell_n.png
+	specularMap		models/weapons/shells/shell_s.png
+	reflectionMap		_autocube
 }

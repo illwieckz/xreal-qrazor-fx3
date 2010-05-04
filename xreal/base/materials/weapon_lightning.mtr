@@ -1,23 +1,14 @@
-
 models/weapons/lightning/w_lightning
 {
 	diffuseMap	models/weapons/lightning/lightning.tga
 	normalMap	models/weapons/lightning/lightning_local.tga
-	specularMap	models/weapons/lightning/lightning_s.tga
-	{
-		stage	reflectionMap
-		blend	GL_DST_COLOR, GL_ONE
-		cubeMap	_autocube
-	}
+	specularMap	models/weapons/lightning/lightning.tga
+	reflectionMap	_autocube
 }
 
 models/weapons/lightning/f_lightning
 {
-	sort additive
+	sort		additive
 	twoSided
-	
-	{
-		map models/weapons/lightning/f_lightning.tga
-		blend add
-	}
+	glowMap		models/weapons/lightning/f_lightning.tga
 }

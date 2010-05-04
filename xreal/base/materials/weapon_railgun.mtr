@@ -1,22 +1,13 @@
-
-
 models\weapons\railgun\body
 {
-
-	//noShadows
-
 	diffusemap	models\weapons\railgun\body_diffuse
 	{
+		forceHighQuality
 		stage	normalMap
 		map	models\weapons\railgun\body_NRM
-		forceHighQuality
 	}
 	specularMap 	models\weapons\railgun\body_spec
-	{
-		stage	reflectionMap
-		blend	GL_DST_COLOR, GL_ONE
-		cubeMap	_autocube
-	}
+	reflectionMap	_autocube
 	{
 		blend 	add
 		map	models\weapons\railgun\body_glo
@@ -26,14 +17,9 @@ models\weapons\railgun\body
 
 models\weapons\railgun\bgf
 {
-    	//noselfShadow
 	twosided
-	diffusemap	 	models\weapons\railgun\bgf_diffuse
-	normalmap      		models\weapons\railgun\bgf_NRM
-	specularmap	 	models\weapons\railgun\bgf_spec
-	{
-		stage reflectionMap
-		blend GL_DST_COLOR, GL_ONE
-		cubeMap _autocube
-	}
+	diffusemap	 models\weapons\railgun\bgf_diffuse
+	normalmap      	models\weapons\railgun\bgf_NRM
+	specularmap	 models\weapons\railgun\bgf_spec
+	reflectionMap	_autocube
 }

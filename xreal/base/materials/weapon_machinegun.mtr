@@ -5,45 +5,31 @@
 
 models/weapons/machinegun/machinegun
 {
-	//noselfShadow
-	//unsmoothedTangents
-
-	diffusemap		models/weapons/machinegun/machinegun_d.tga
-	bumpmap			addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	
-	specularmap		models/weapons/machinegun/machinegun_s.tga
+	diffusemap	models/weapons/machinegun/machinegun_d.tga
+	bumpmap		addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	
+	specularmap	models/weapons/machinegun/machinegun_s.tga
+	reflectionMap	_autocube
 	{
-		stage reflectionMap
-		blend GL_DST_COLOR, GL_ONE
-		cubeMap _autocube
-	}
-	{
-		blend 		add
-		map		models/weapons/machinegun/machinegun_add.tga
-		red 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm0
-		green 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm1
-		blue 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm2
+		blend 	add
+		map	models/weapons/machinegun/machinegun_add.tga
+		red 	( q2firetable2 [Parm4 + (time / 6) ]) * Parm0
+		green 	( q2firetable2 [Parm4 + (time / 6) ]) * Parm1
+		blue 	( q2firetable2 [Parm4 + (time / 6) ]) * Parm2
 	}
 }
 
 models/weapons/machinegun/w_machinegun
 {
-	//noselfShadow
-	//unsmoothedTangents
-
-	diffusemap		models/weapons/machinegun/machinegun_d.tga
-	bumpmap			addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	
-	specularmap		models/weapons/machinegun/machinegun_s.tga
+	diffusemap	models/weapons/machinegun/machinegun_d.tga
+	bumpmap		addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	
+	specularmap	models/weapons/machinegun/machinegun_s.tga
+	reflectionMap	_autocube
 	{
-		stage reflectionMap
-		blend GL_DST_COLOR, GL_ONE
-		cubeMap _autocube
-	}
-	{
-		blend 		add
-		map			models/weapons/machinegun/machinegun_add.tga
-		red 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm0
-		green 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm1
-		blue 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm2
+		blend 	add
+		map	models/weapons/machinegun/machinegun_add.tga
+		red 	( q2firetable2 [Parm4 + (time / 6) ]) * Parm0
+		green 	( q2firetable2 [Parm4 + (time / 6) ]) * Parm1
+		blue 	( q2firetable2 [Parm4 + (time / 6) ]) * Parm2
 	}
 }
 
@@ -56,13 +42,12 @@ models/weapons/machinegun/machinegun_muzzflash
 	noShadows
 	{
 		forceHighQuality
-		if 			( time + parm4 ) * 8 < 1.0
-		//if parm4
-		blend 		add
-		map 		models/weapons/machinegun/machinegun_muzzflash_strip.tga
-		scale 		1 / 12 , 1
-		scroll 		q2table12[ (time + parm4) * 8 ] , 0
-		rotate		q2rotate90[ parm5 ]
+		if 	( time + parm4 ) * 8 < 1.0
+		blend 	add
+		map 	models/weapons/machinegun/machinegun_muzzflash_strip.tga
+		scale 	1 / 12 , 1
+		scroll 	q2table12[ (time + parm4) * 8 ] , 0
+		rotate	q2rotate90[ parm5 ]
 	}
 }
 
@@ -74,44 +59,42 @@ models/weapons/machinegun/machinegun_muzzflashb
 	noShadows
 	{
 		forceHighQuality
-		if 			( time + parm4 ) * 7 < 1.0
-		blend 		add
-		map 		models/weapons/machinegun/machinegun_muzzflash_strip.tga
-		scale 		1 / 12 , 1
-		scroll 		q2table12[ (time + parm4) * 7 ] , 0
-		rotate		q2rotate90[ parm5 ]
+		if 	( time + parm4 ) * 7 < 1.0
+		blend 	add
+		map 	models/weapons/machinegun/machinegun_muzzflash_strip.tga
+		scale 	1 / 12 , 1
+		scroll 	q2table12[ (time + parm4) * 7 ] , 0
+		rotate	q2rotate90[ parm5 ]
 	}
 }
 
 models/weapons/machinegun/machinegun_muzzflash2
 {
 	twoSided
-	//deform tube
 	sort nearest
 	noShadows
 	{
 		forceHighQuality
-		if 			( time + parm4 ) * 7 < 1.0
-		blend 		add
-		map 		models/weapons/machinegun/machinegun_muzzflash2_strip.tga
-		scale 		1 / 4 , 1
-		scroll 		q2table4[ (time + parm4) * 7] , 0
+		if 	( time + parm4 ) * 7 < 1.0
+		blend 	add
+		map 	models/weapons/machinegun/machinegun_muzzflash2_strip.tga
+		scale 	1 / 4 , 1
+		scroll 	q2table4[ (time + parm4) * 7] , 0
 	}
 }
 
 models/weapons/machinegun/machinegun_muzzflash2b
 {
 	twoSided
-	//deform tube
 	sort nearest
 	noShadows
 	{
 		forceHighQuality
-		if 			( time + parm4 ) * 6 < 1.0
-		blend 		add
-		map 		models/weapons/machinegun/machinegun_muzzflash2_strip.tga
-		scale 		1 / 4 , 1
-		scroll 		q2table4[ (time + parm4) * 6] , 0
+		if 	( time + parm4 ) * 6 < 1.0
+		blend 	add
+		map 	models/weapons/machinegun/machinegun_muzzflash2_strip.tga
+		scale 	1 / 4 , 1
+		scroll 	q2table4[ (time + parm4) * 6] , 0
 	}
 }
 
