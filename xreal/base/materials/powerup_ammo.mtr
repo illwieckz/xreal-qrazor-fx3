@@ -4,15 +4,10 @@
 // 1.machinegun
 models/powerups/ammo/machammo
 {
-	//twoSided
 	diffuseMap		models/powerups/ammo/ammobox.tga
 	bumpMap			models/powerups/ammo/ammobox_n.tga
-	specularMap		models/powerups/ammo/ammobox_s.tga
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	specularMap		models/powerups/ammo/ammobox.tga
+	reflectionMap		_autocube
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -32,12 +27,8 @@ models/powerups/ammo/shotammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
 	bumpMap			models/powerups/ammo/ammobox_n.tga
-	specularMap		models/powerups/ammo/ammobox_s.tga
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	specularMap		models/powerups/ammo/ammobox.tga
+	reflectionMap		_autocube
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -57,12 +48,8 @@ models/powerups/ammo/grenammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
 	bumpMap			models/powerups/ammo/ammobox_n.tga
-	specularMap		models/powerups/ammo/ammobox_s.tga
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	specularMap		models/powerups/ammo/ammobox.tga
+	reflectionMap		_autocube
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -82,12 +69,8 @@ models/powerups/ammo/lighammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
 	bumpMap			models/powerups/ammo/ammobox_n.tga
-	specularMap		models/powerups/ammo/ammobox_s.tga
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	specularMap		models/powerups/ammo/ammobox.tga
+	reflectionMap		_autocube
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -107,12 +90,8 @@ models/powerups/ammo/plasammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
 	bumpMap			models/powerups/ammo/ammobox_n.tga
-	specularMap		models/powerups/ammo/ammobox_s.tga
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	specularMap		models/powerups/ammo/ammobox.tga
+	reflectionMap		_autocube
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -132,12 +111,8 @@ models/powerups/ammo/rockammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
 	bumpMap			models/powerups/ammo/ammobox_n.tga
-	specularMap		models/powerups/ammo/ammobox_s.tga
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	specularMap		models/powerups/ammo/ammobox.tga
+	reflectionMap		_autocube
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -157,12 +132,8 @@ models/powerups/ammo/railammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
 	bumpMap			models/powerups/ammo/ammobox_n.tga
-	specularMap		models/powerups/ammo/ammobox_s.tga
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	specularMap		models/powerups/ammo/ammobox.tga
+	reflectionMap		_autocube
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -183,12 +154,8 @@ models/powerups/ammo/bfgammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
 	bumpMap			models/powerups/ammo/ammobox_n.tga
-	specularMap		models/powerups/ammo/ammobox_s.tga
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	specularMap		models/powerups/ammo/ammobox.tga
+	reflectionMap		_autocube
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
