@@ -831,11 +831,11 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			if(tr.worldDeluxeMapping)
 			{
 				// load deluxemaps
-				lightmapFiles = ri.FS_ListFiles(mapName, ".png", &numLightmaps);
+				lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".png", "*lm_*", &numLightmaps);
 
 				if(!lightmapFiles || !numLightmaps)
 				{
-					lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
+					lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".tga", "*lm_*", &numLightmaps);
 
 					if(!lightmapFiles || !numLightmaps)
 					{
@@ -860,11 +860,11 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 		else
 #endif
 		{
-			lightmapFiles = ri.FS_ListFiles(mapName, ".png", &numLightmaps);
+			lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".png", "*lm_*", &numLightmaps);
 
 			if(!lightmapFiles || !numLightmaps)
 			{
-				lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
+				lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".tga", "*lm_*", &numLightmaps);
 
 				if(!lightmapFiles || !numLightmaps)
 				{
@@ -8395,8 +8395,14 @@ void R_BuildCubeMaps(void)
 	int             x, y, xy, xy2;
 
 	cubemapProbe_t *cubeProbe;
-	byte            temp[128 * 128 * 4];
+	byte            temp[REF_CUBEMAP_SIZE * REF_CUBEMAP_SIZE * 4];
 	byte           *dest;
+
+	byte           *fileBuf;
+	char           *fileName = NULL;
+	int             fileCount = 0;
+	int             fileBufX = 0;
+	int             fileBufY = 0;
 
 	//bspCluster_t   *cluster;
 
@@ -8404,7 +8410,7 @@ void R_BuildCubeMaps(void)
 	//qboolean        bad;
 
 //  srfSurfaceStatic_t *sv;
-	int				progress = 0;
+	int             progress = 0;
 	int             startTime, endTime;
 
 	startTime = ri.Milliseconds();
@@ -8415,6 +8421,8 @@ void R_BuildCubeMaps(void)
 	{
 		tr.cubeTemp[i] = ri.Malloc(REF_CUBEMAP_SIZE * REF_CUBEMAP_SIZE * 4);
 	}
+
+	fileBuf = ri.Malloc(REF_CUBEMAP_STORE_SIZE * REF_CUBEMAP_STORE_SIZE * 4);
 
 	// calculate origins for our probes
 	Com_InitGrowList(&tr.cubeProbes, 4000);
@@ -8735,6 +8743,43 @@ void R_BuildCubeMaps(void)
 					}
 				}
 			}
+
+			// collate cubemaps into one large image and write it out
+			if(qtrue)
+			{
+				// Initialize output buffer
+				if(fileBufX == 0 && fileBufY == 0)
+				{
+					memset(fileBuf, 255, REF_CUBEMAP_STORE_SIZE * REF_CUBEMAP_STORE_SIZE * 4);
+				}
+
+				// Copy this cube map into buffer
+				R_SubImageCpy(fileBuf,
+					fileBufX * REF_CUBEMAP_SIZE, fileBufY * REF_CUBEMAP_SIZE,
+					REF_CUBEMAP_STORE_SIZE, REF_CUBEMAP_STORE_SIZE,
+					tr.cubeTemp[i], 
+					REF_CUBEMAP_SIZE, REF_CUBEMAP_SIZE,
+					4, qtrue);
+
+				// Increment everything
+				fileBufX++;
+				if(fileBufX >= REF_CUBEMAP_STORE_SIDE)
+				{
+					fileBufY++;
+					fileBufX = 0;
+				}
+				if(fileBufY >= REF_CUBEMAP_STORE_SIDE)
+				{
+					// File is full, write it
+					fileName = va("maps/%s/cm_%04d.png", s_worldData.baseName, fileCount);
+					ri.Printf(PRINT_ALL, "\nwriting %s\n", fileName);
+					ri.FS_WriteFile(fileName, fileBuf, 1);	// create path
+					SavePNG(fileName, fileBuf, REF_CUBEMAP_STORE_SIZE, REF_CUBEMAP_STORE_SIZE, 4, qfalse);
+
+					fileCount++;
+					fileBufY = 0;
+				}
+			}
 		}
 
 #if defined(USE_D3D10)
@@ -8764,6 +8809,17 @@ void R_BuildCubeMaps(void)
 #endif
 	}
 	ri.Printf(PRINT_ALL, "\n");
+
+	// write buffer if theres any still unwritten
+	if(fileBufX != 0 || fileBufY != 0)
+	{
+		fileName = va("maps/%s/cm_%04d.png", s_worldData.baseName, fileCount);
+		ri.Printf(PRINT_ALL, "writing %s\n", fileName);
+		ri.FS_WriteFile(fileName, fileBuf, 1);	// create path
+		SavePNG(fileName, fileBuf, REF_CUBEMAP_STORE_SIZE, REF_CUBEMAP_STORE_SIZE, 4, qfalse);
+	}
+	ri.Printf(PRINT_ALL, "Wrote %d cubemaps in %d files.\n", j, fileCount+1);
+	ri.Free(fileBuf);
 
 	// turn pixel targets off
 	tr.refdef.pixelTarget = NULL;
