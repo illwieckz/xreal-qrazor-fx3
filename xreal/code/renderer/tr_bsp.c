@@ -4892,7 +4892,7 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 	srfTriangle_t  *triangles;
 	IBO_t          *volumeIBO;
 	vec3_t			mins, maxs;
-	vec3_t			offset = {0.01, 0.01, 0.01};
+//	vec3_t			offset = {0.01, 0.01, 0.01};
 
 	ri.Printf(PRINT_ALL, "...loading nodes and leaves\n");
 
@@ -8045,7 +8045,7 @@ void R_PrecacheInteractions()
 	int             i;
 	trRefLight_t   *light;
 	bspSurface_t   *surface;
-	int             numLeafs;
+//	int             numLeafs;
 	int             startTime, endTime;
 
 	//if(r_precomputedLighting->integer)
@@ -8925,11 +8925,12 @@ void RE_LoadWorldMap(const char *name)
 	// only set tr.world now that we know the entire level has loaded properly
 	tr.world = &s_worldData;
 
-	//R_BuildCubeMaps();
-
 	// make sure the VBO glState entries are save
 	R_BindNullVBO();
 	R_BindNullIBO();
+
+	// build cubemaps after the necessary vbo stuff is done
+	//R_BuildCubeMaps();
 
 	// never move this to RE_BeginFrame because we need it to set it here for the first frame
 	// but we need the information across 2 frames
