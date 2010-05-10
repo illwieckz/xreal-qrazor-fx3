@@ -363,6 +363,7 @@ textures/trak/trak5/floor2f
 
 textures/trak/trak5/glass_twosided
 {
+	xmap_alphaShadow
 	qer_editorImage		textures/trak/trak5/glass.png
 	qer_trans		0.9
 	noshadows
@@ -372,20 +373,22 @@ textures/trak/trak5/glass_twosided
 
 	{
 		stage		heatHazeMap
-		scroll		time * 0, time * 0
+		scroll		0, 0
 		clamp
 		deformMagnitude	.4
-		map		textures/sfx/vp1.png
+		map		textures/trak/trak5/glass_nm.png
 	}
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/glass.png
-		blend		GL_DST_ALPHA, GL_ONE
+		blend		blend
 	}
+	specularMap		textures/trak/trak5/glass.png
 }
 
 textures/trak/trak5/glass
 {
+	xmap_alphaShadow
 	qer_editorImage		textures/trak/trak5/glass.png
 	qer_trans		0.9
 	noshadows
@@ -394,16 +397,17 @@ textures/trak/trak5/glass
 
 	{
 		stage		heatHazeMap
-		scroll		time * 0, time * 0
+		scroll		0, 0
 		clamp
 		deformMagnitude	.4
-		map		textures/sfx/vp1.png
+		map		textures/trak/trak5/glass_nm.png
 	}
 	{
 		stage		diffuseMap
 		map		textures/trak/trak5/glass.png
-		blend		GL_DST_ALPHA, GL_ONE
+		blend		blend
 	}
+	specularMap		textures/trak/trak5/glass.png
 }
 
 textures/trak/trak5/grate1a
