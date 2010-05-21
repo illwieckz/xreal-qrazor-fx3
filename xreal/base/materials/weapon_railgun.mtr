@@ -1,6 +1,6 @@
 models\weapons\railgun\body
 {
-	diffusemap	models\weapons\railgun\body_diffuse
+	diffuseMap	models\weapons\railgun\body_diffuse
 	{
 		forceHighQuality
 		stage	normalMap
@@ -18,8 +18,8 @@ models\weapons\railgun\body
 models\weapons\railgun\bgf
 {
 	twosided
-	diffusemap	 models\weapons\railgun\bgf_diffuse
-	normalmap      	models\weapons\railgun\bgf_NRM
-	specularmap	 models\weapons\railgun\bgf_spec
+	diffusemap	models\weapons\railgun\bgf_diffuse
+	normalmap	models\weapons\railgun\bgf_NRM
+	specularmap	models\weapons\railgun\bgf_spec
 	reflectionMap	_autocube
 }

@@ -2,14 +2,12 @@
 models/powerups/kamikaze/kamikaze1
 {
 	twoSided
-	
 	diffuseMap	models/powerups/kamikaze/kamikaze1_ao.png
 	normalMap	models/powerups/kamikaze/kamikaze1_normal.png
-	
 	{
 		stage	reflectionMap
-       	cubeMap	env/fabz0r/gen2
-		blend GL_DST_COLOR, GL_ZERO
+		cubeMap	env/fabz0r/gen2
+		blend	GL_DST_COLOR, GL_ZERO
 	}
 }
 
@@ -17,150 +15,110 @@ models/powerups/kamikaze/kamikaze1
 models/powerups/kamikaze/kamikaze2
 {
 	twoSided
-	
 	diffuseMap	models/powerups/kamikaze/kamikaze2_ao.png
 	normalMap	models/powerups/kamikaze/kamikaze2_normal.png
-	
 	{
 		stage	reflectionMap
-       	cubeMap	env/fabz0r/gen2
-		blend GL_DST_COLOR, GL_ZERO
+		cubeMap	env/fabz0r/gen2
+		blend	GL_DST_COLOR, GL_ZERO
 	}
 }
 
 models/powerups/kamikaze/kamikaze3
 {
 	twoSided
-	
-	diffuseMap	models/powerups/kamikaze/kamikaze3_ao.png
-	normalMap	models/powerups/kamikaze/kamikaze3_normal.png
-	
+	diffuseMap		models/powerups/kamikaze/kamikaze3_ao.png
+	normalMap		models/powerups/kamikaze/kamikaze3_normal.png
 	{
-		stage	reflectionMap
-       	cubeMap	env/fabz0r/gen2
-		blend GL_DST_COLOR, GL_ZERO
+		stage		reflectionMap
+		cubeMap		env/fabz0r/gen2
+		blend		GL_DST_COLOR, GL_ZERO
 	}
 }
-
-
 
 models/powerups/kamikaze/shocksphere1
 {
  	twosided
- 	
  	sort postProcess
- 	
  	{
-		stage	normalmap
+		stage		normalmap
 		map		models/powerups/kamikaze/round_normal.png
 		clamp
-  		rotate 40 * time
+  		rotate		40 * time
    	}
  	{
-		stage	reflectionMap
-       	cubeMap	env/fabz0r/gen2
-		blend blend //GL_DST_COLOR, GL_ZERO
+		stage		reflectionMap
+		cubeMap		env/fabz0r/gen2
+		blend		blend //GL_DST_COLOR, GL_ZERO
 	}
 	{
-		stage	heathazemap
+		stage		heathazemap
 		map		models/powerups/kamikaze/round_normal.png
 		clamp
-		deformMagnitude 10.0
-  		rotate 40 * time
-		//centerScale 0.9, 0.9
-    	blend blend
+		deformMagnitude	10.0
+  		rotate		40 * time
+		blend		blend
    	}
-	/*
- 	{
-	    map models/powerups/kamikaze/shockwave2
-		blend add
-        scroll time * 1, 0
-		rgbGen entity
-	}
-	*/
-	
 }
 
 models/powerups/kamikaze/shockwave1
 {
-    twoSided
-    noMipMaps
-    
-    sort postProcess
- 
+	twoSided
+	noMipMaps
+	sort postProcess
 	{
-		blend add
-		map models/powerups/kamikaze/shockwave1.5.png
+		blend		add
+		map		models/powerups/kamikaze/shockwave1.5.png
 		clamp
-   		rotate -40 * time
+   		rotate		-40 * time
 	}
 
 	{
-		stage	heathazemap
+		stage		heathazemap
 		map		models/powerups/kamikaze/round_normal.png
 		clamp
-		deformMagnitude 10.0
-  		rotate 40 * time
-		//centerScale 0.9, 0.9
-    	blend blend
+		deformMagnitude	10.0
+  		rotate		40 * time
+		blend		blend
    	}
-	
-	/*
-	{
-		clamp
-	    map models/powerups/kamikaze/shockwave1.3.png
-		blend add
-        rotate time * 20
-		rgbGen entity
-	}
-	{
-	    clamp
-	    map models/powerups/kamikaze/shockwave1.4.png
-		blend add
-  		rotate time * -20
-		rgbGen entity
-	}
-	*/
 }
 
 models/powerups/kamikaze/shockwave2
 {
 	twoSided
-	
 	// Tr3B: yeah very lazy ..
 	{
-		map gfx/2d/ui/menuback4.png
-		blend blend
-		alpha 0.1 + 0.5 * ( 1.0 -  (   (sinTable[time * 2.2] + 1.0) / 2.0 ) )
-		scroll time * -2.2, 0
+		map		gfx/2d/ui/menuback4.png
+		blend		blend
+		alpha		0.1 + 0.5 * ( 1.0 -  (   (sinTable[time * 2.2] + 1.0) / 2.0 ) )
+		scroll		time * -2.2, 0
 	}
 	{
-		map gfx/2d/ui/menuback4.png
-		blend blend
-		alpha 0.1 + 0.5 * ( 1.0 -  (   (sinTable[time ] + 1.0) / 2.0 ) )
-		scroll time * 5.8, 0
-		centerScale 1.0 + (cosTable[time]) , 1
+		map		gfx/2d/ui/menuback4.png
+		blend		blend
+		alpha		0.1 + 0.5 * ( 1.0 -  (   (sinTable[time ] + 1.0) / 2.0 ) )
+		scroll		time * 5.8, 0
+		centerScale	1.0 + (cosTable[time]) , 1
 	}
 	{
-		map gfx/2d/ui/menuback4.png
-		blend blend
-		alpha 0.1 + 0.5 * ( 1.0 -  (   (sinTable[time] + 1.0) / 2.0 ) )
-		scroll time * 5.8, 0
-		centerScale 1.0 + (cosTable[time]) , 1
-		rotate 180
+		map		gfx/2d/ui/menuback4.png
+		blend		blend
+		alpha		0.1 + 0.5 * ( 1.0 -  (   (sinTable[time] + 1.0) / 2.0 ) )
+		scroll		time * 5.8, 0
+		centerScale	1.0 + (cosTable[time]) , 1
+		rotate		180
 	}
 }
 
 
 models/powerups/kamitrail
 {
-	
-        surfaceparm trans	
-	cull disable
+        surfaceparm		trans	
+	cull			disable
         nomipmaps
 	{
-	        map models/powerups/kamitrail.tga 
-		blendFunc Add
-		rgbGen identity
+	        map		models/powerups/kamitrail.tga 
+		blendFunc	Add
+		rgbGen		identity
 	}
 }

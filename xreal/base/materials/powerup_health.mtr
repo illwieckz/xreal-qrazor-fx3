@@ -7,19 +7,10 @@ cleaned up by odin 2010
 
 models/powerups/health/small
 {
-	diffusemap		models/powerups/health/small.png
-	specularmap		models/powerups/health/small.png
+	diffuseMap		gfx/2d/green
+	specularMap		gfx/2d/green
 	normalmap		_flat
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
-	{
-		map		models/powerups/health/health_glow.png
-		rgbGen		wave sin .5 .5 0 1.5	
-		blend		blend
-	}
+	reflectionmap		_autocube
 }
 
 models/powerups/health/small_sphere
@@ -29,13 +20,16 @@ models/powerups/health/small_sphere
         	rotate		time * -0.4
 		blend		add
 		green		0.5 + sinTable[time * 0.3] * 0.5
+		tcGen		environment
 	}
 	{
 		clampmap	gfx/effect/effmap02.png
   		green		0.6 + sinTable[time * 0.2] * 0.4
       	  	scroll		sinTable[time * 0.2] * 0.5 + 0.5, 0
 		blend		add
+		tcGen		environment
 	}
+	reflectionmap		_autocube
 }
 
 models/powerups/health/small_flare
@@ -59,24 +53,12 @@ models/powerups/health/small_flare
 	}
 }
 
-
-
 models/powerups/health/medium
 {
-	diffusemap		models/powerups/health/medium.png
-	specularmap		models/powerups/health/medium.png
+	diffuseMap		gfx/2d/yellow
+	specularMap		gfx/2d/yellow
 	normalmap		_flat
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
-	{
-		map		models/powerups/health/health_glow.png
-		
-		rgbGen		wave sin .5 .5 0 1.5	
-		blend		blend
-	}
+	reflectionmap		_autocube
 }
 
 models/powerups/health/medium_sphere
@@ -87,6 +69,7 @@ models/powerups/health/medium_sphere
 		blend		add
 		green		0.5 + sinTable[time * 0.3] * 0.56
 		red		0.52 + sinTable[time * 0.34] * 0.5
+		tcGen		environment
 	}
 	{
 		clampmap	gfx/effect/effmap02.png
@@ -94,7 +77,9 @@ models/powerups/health/medium_sphere
       		red		0.62 + sinTable[time * 0.32] * 0.4
       	  	scroll		sinTable[time * 0.23] * 0.5 + 0.5, 0
 		blend		add
+		tcGen		environment
 	}
+	reflectionmap		_autocube
 }
 
 models/powerups/health/medium_flare
@@ -119,22 +104,12 @@ models/powerups/health/medium_flare
 	}
 }
 
-
 models/powerups/health/large
 {
-	diffusemap		models/powerups/health/large.png
-	specularmap		models/powerups/health/large.png
+	diffuseMap		gfx/2d/red
+	specularMap		gfx/2d/red
 	normalmap		_flat
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
-	{
-		map		models/powerups/health/health_glow.png
-		rgbGen		wave sin .5 .5 0 1.5	
-		blend		blend
-	}
+	reflectionmap		_autocube
 }
 
 models/powerups/health/large_sphere
@@ -144,13 +119,16 @@ models/powerups/health/large_sphere
         	rotate		time * -0.4
 		blend		add
 		red		0.5 + sinTable[time * 0.3] * 0.5
+		tcGen		environment
 	}
 	{
 		clampmap	gfx/effect/effmap02.png
 		red		0.7 + sinTable[time * 0.3] * 0.4
 		scroll		sinTable[time * 0.3] * 0.5 + 0.5, 0
 		blend 		add
+		tcGen		environment
 	}
+	reflectionmap		_autocube
 }
 
 models/powerups/health/large_flare
@@ -176,22 +154,11 @@ models/powerups/health/large_flare
 
 models/powerups/health/mega
 {
-	diffusemap		models/powerups/health/mega.png
-	specularmap		models/powerups/health/mega.png
+	diffuseMap		gfx/2d/teal
+	specularMap		gfx/2d/teal
 	normalmap		_flat
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
-	{
-		map		models/powerups/health/health_glow.png
-		rgbGen		wave sin .5 .5 0 1.5	
-		blend		blend
-	}
+	reflectionmap		_autocube
 }
-
-
 
 models/powerups/health/mega_sphere
 {
@@ -200,13 +167,16 @@ models/powerups/health/mega_sphere
 		rotate		time * -0.4
 		blend		add
 		blue		0.55 + sinTable[time * 0.35] * 0.55
+		tcGen		environment
 	}
 	{
 		clampmap	gfx/effect/effmap02.png	
   		blue		0.6 + sinTable[time * 0.2] * 0.4
 		scroll		sinTable[time * 0.2] * 0.5 + 0.5, 0
 		blend		add
+		tcGen		environment
 	}
+	reflectionmap		_autocube
 }
 
 models/powerups/health/mega_flare
