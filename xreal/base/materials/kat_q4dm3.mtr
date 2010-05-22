@@ -136,7 +136,7 @@ textures/kat_q4dm3/stepsdirtMix
 	}
 	{
 		blend 	specularmap
-		map		textures/kat_q4dm3/dirt_s.tga
+		map		textures/kat_q4dm3/dirt.tga
 		inverseVertexColor
 		scale 2, 2
 	}
@@ -156,7 +156,7 @@ textures/kat_q4dm3/stepsdirtMix
 	}
 	{
 		blend	specularmap
-		map		textures/kat_q4dm3/steps_s.tga
+		map		textures/kat_q4dm3/steps.tga
 		VertexColor
 //		scale 2, 2
 	}
@@ -175,7 +175,7 @@ textures/kat_q4dm3/stone_flat
 	    diffusemap		models/mapobjects/kat/stone_flat.tga
 		bumpmap			addnormals( models/mapobjects/kat/stone_flat_local.tga, heightmap( models/mapobjects/kat/stone_flat_h.tga, 1 ) )
 //	    bumpmap			models/mapobjects/kat/stone_flat_local.tga
-		specularmap	    models/mapobjects/kat/stone_flat_s.tga
+		specularmap	    models/mapobjects/kat/stone_flat.tga
 }
 
 
@@ -192,7 +192,7 @@ textures/kat_q4dm3/stone_lamps
 	    diffusemap		models/mapobjects/kat/stone_lamps.tga
 		bumpmap			addnormals( models/mapobjects/kat/stone_lamps_local.tga, heightmap( models/mapobjects/kat/stone_lamps_h.tga, 1 ) )
 //	    bumpmap			models/mapobjects/kat/stone_lamps_local.tga
-		specularmap	    models/mapobjects/kat/stone_lamps_s.tga
+		specularmap	    models/mapobjects/kat/stone_lamps.tga
 }
 
 
@@ -208,7 +208,7 @@ textures/kat_q4dm3/stone_steps
 	    diffusemap		models/mapobjects/kat/steps.tga
 		bumpmap			addnormals( models/mapobjects/kat/steps_local.tga, heightmap( models/mapobjects/kat/steps_h.tga, 1 ) )
 //	    bumpmap			models/mapobjects/kat/steps_local.tga
-		specularmap	    models/mapobjects/kat/steps_s.tga
+		specularmap	    models/mapobjects/kat/steps.tga
 }
 
 
@@ -219,11 +219,11 @@ textures/kat_q4dm3/stone
 //	noshadows
 	nonsolid
 	stone
-	qer_editorimage		models/mapobjects/kat/rock_plain.tga
+	qer_editorimage		models/mapobjects/kat/rock_plain
 	
-		diffusemap		models/mapobjects/kat/rock_plain.tga
-		bumpmap			addnormals (models/textures/kat_q4dm3/rock_v2_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 2 ) )
-		specularmap		models/mapobjects/kat/rock_plain_s.tga
+		diffusemap		models/mapobjects/kat/rock_plain
+		bumpmap			addnormals (models/mapobjects/kat/rock_plain_local, heightmap( models/mapobjects/kat/rock_plain_h, 2 ) )
+		specularmap		models/mapobjects/kat/rock_plain
 }
 
 

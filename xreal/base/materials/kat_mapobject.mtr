@@ -1,5 +1,3 @@
-
-
 /*
 	map objects by Ken 'kat' Beyer
 */
@@ -23,7 +21,7 @@ models/mapobjects/kat/lantern
 	}
 
 		bumpmap			addnormals( models/mapobjects/kat/lantern_2b_n.tga, heightmap( models/mapobjects/kat/lantern_2b_h.tga, 4 ) )
-		specularmap		models/mapobjects/kat/lantern_2b_s.tga
+		specularmap		models/mapobjects/kat/lantern_2b.tga
 }
 
 models/mapobjects/kat/lantern_crystal
@@ -118,7 +116,7 @@ models/mapobjects/kat/lantern_top_hat
 
 		bumpmap			addnormals( models/mapobjects/kat/lantern_top_2_n.tga, heightmap( models/mapobjects/kat/lantern_top_h.tga, 2 ) )
 		diffusemap		models/mapobjects/kat/lantern_top_d2.tga
-		specularmap		models/mapobjects/kat/lantern_top_s2.tga
+		specularmap		models/mapobjects/kat/lantern_top_d2.tga
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -167,7 +165,7 @@ models/mapobjects/kat/jumppad
 
 	diffusemap 	models/mapobjects/kat/jumppad_f2.tga
 	bumpmap addnormals (models/mapobjects/kat/jumppad_4_n.tga, heightmap (models/mapobjects/kat/jumppad_h.tga, 2 ))
-	specularmap	models/mapobjects/kat/jumppad_c2_neutral_s.tga
+	specularmap	models/mapobjects/kat/jumppad_f2.tga
 
 	{
 //		blend blend
@@ -193,7 +191,7 @@ models/mapobjects/kat/jumppad_body
 
 		bumpmap			addnormals( models/mapobjects/kat/jumppad_drum_n.tga, heightmap( models/mapobjects/kat/jumppad_drum_h.tga, 2 ) )
 		diffusemap		models/mapobjects/kat/jumppad_drum_v2.tga
-		specularmap		models/mapobjects/kat/jumppad_drum_s.tga
+		specularmap		models/mapobjects/kat/jumppad_drum_v2.tga
 }
 
 
@@ -261,7 +259,7 @@ models/mapobjects/kat/weapon_marker
 
 	diffusemap 	models/mapobjects/kat/weapon_marker.tga
 	bumpmap addnormals (models/mapobjects/kat/weapon_marker_local.tga, heightmap (models/mapobjects/kat/weapon_marker_h.tga, 2 ))
-	specularmap	models/mapobjects/kat/weapon_marker_s.tga
+	specularmap	models/mapobjects/kat/weapon_marker.tga
 	{
 		blend add
 		red			parm0
@@ -287,7 +285,7 @@ models/mapobjects/kat/stone_lamps
 	    diffusemap		models/mapobjects/kat/stone_lamps.tga
 		bumpmap			addnormals( models/mapobjects/kat/stone_lamps_local.tga, heightmap( models/mapobjects/kat/stone_lamps_h.tga, 1 ) )
 //	    bumpmap			models/mapobjects/kat/stone_lamps_local.tga
-		specularmap	    models/mapobjects/kat/stone_lamps_s.tga
+		specularmap	    models/mapobjects/kat/stone_lamps.tga
 }
 
 //q4base/models/mapobjects/kat/stone_flat
@@ -301,7 +299,7 @@ models/mapobjects/kat/stone_flat
 	    diffusemap		models/mapobjects/kat/stone_flat.tga
 		bumpmap			addnormals( models/mapobjects/kat/stone_flat_local.tga, heightmap( models/mapobjects/kat/stone_flat_h.tga, 1 ) )
 //	    bumpmap			models/mapobjects/kat/stone_flat_local.tga
-		specularmap	    models/mapobjects/kat/stone_flat_s.tga
+		specularmap	    models/mapobjects/kat/stone_flat.tga
 }
 
 
@@ -317,7 +315,7 @@ models/mapobjects/kat/stone_steps
 	    diffusemap		models/mapobjects/kat/steps.tga
 		bumpmap			addnormals( models/mapobjects/kat/steps_local.tga, heightmap( models/mapobjects/kat/steps_h.tga, 1 ) )
 //	    bumpmap			models/mapobjects/kat/steps_local.tga
-		specularmap	    models/mapobjects/kat/steps_s.tga
+		specularmap	    models/mapobjects/kat/steps.tga
 }
 
 
@@ -332,5 +330,5 @@ models/mapobjects/kat/stone
 	
 		diffusemap		models/mapobjects/kat/rock_plain.tga
 		bumpmap			addnormals (models/mapobjects/kat/rock_v2_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 2 ) )
-		specularmap		models/mapobjects/kat/rock_plain_s.tga
+		specularmap		models/mapobjects/kat/rock_plain.tga
 }

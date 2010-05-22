@@ -7,10 +7,10 @@ material for holdable powerups. by otty
 models/powerups/holdable/teleporter
 {
 	twosided
-	{
-		map	models/powerups/holdable/teleporter.png
-		blend	GL_ONE, GL_ZERO
-	}
+	diffuseMap	gfx/2d/teal
+	specularMap	gfx/2d/teal
+	normalMap	_flat
+	reflectionMap	_autocube
 	{
 		edgeClamp
 		map	gfx/effect/effmap02.png
@@ -19,6 +19,7 @@ models/powerups/holdable/teleporter
      		blue	0.075 + sinTable[time * 0.2] * 0.4
           	rotate	time * -0.8
           	blend	add
+		tcGen	environment
 	}
 	{
 		edgeClamp
@@ -28,6 +29,7 @@ models/powerups/holdable/teleporter
 		red	0.14  + sinTable[time * 0.3] * 0.5
      		green	0.66 + sinTable[time * 0.3] * 0.5
 		blue	0.75 + sinTable[time * 0.3] * 0.5
+		tcGen	environment
 	}
 }
 
@@ -57,10 +59,10 @@ models/powerups/holdable/teleporter_flare
 models/powerups/holdable/medkit
 {
 	twosided
-	{
-		map	models/powerups/holdable/medkit.png
-		blend	GL_ONE, GL_ZERO
-	}
+	diffuseMap	gfx/2d/red
+	specularMap	gfx/2d/red
+	normalMap	_flat
+	reflectionMap	_autocube
 	{
 		edgeClamp
 		map	gfx/effect/effmap02.png
@@ -69,6 +71,7 @@ models/powerups/holdable/medkit
 		blue	0.015 + sinTable[time * 0.3] * 0.5
     		rotate	time * -0.8
           	blend	add
+		tcGen	environment
 	}
 	{
 		edgeClamp
@@ -78,6 +81,7 @@ models/powerups/holdable/medkit
 		red	0.94  + sinTable[time * 0.3] * 0.5
      		green	0.66 + sinTable[time * 0.3] * 0.5
 		blue	0.15 + sinTable[time * 0.3] * 0.5
+		tcGen	environment
 	}
 }
 

@@ -53,30 +53,31 @@ powerups/battleSuit
 {
 	deformVertexes	wave 100 sin 1 0 0 0
 	{
-		map	gfx/effect/quad_fx
-		tcGen	environment
-		turb	0 0.15 0 0.3
-		rotate	time *333
-		scroll	.3 .3
-		blend	add
-		color	1, 1, 0, 1
+		stage	diffuseMap
+		map	gfx/2d/yellow
+		blend	blend
 	}
+	specularMap	gfx/2d/yellow
+	normalMap	_flat
 	reflectionMap	_autocube
+	{
+		stage	glowMap
+		map	gfx/2d/yellow
+		rgbGen	wave sin 1 0.5 1 0.1
+		blend	add
+	}
 }
 
 powerups/battleWeapon
 {
-	deformVertexes	wave 100 sin 0.5 0 0 0
-	{
-		map	gfx/effect/quad_fx
-		tcGen	environment
-		turb	0 0.15 0 0.3
-		rotate	time * 333
-		scroll	.3 .3
-		blend	add
-		color	1, 1, 0, 1
-	}
-	reflectionMap	_autocube
+//	deformVertexes	wave 100 sin 0.5 0 0 0
+//	{
+//		map	gfx/effect/quad_fx
+//		tcGen	environment
+//		blend	add
+//		color	1, 1, 0, 1
+//	}
+//	reflectionMap	_autocube
 }
 
 powerups/invisibility
@@ -101,23 +102,23 @@ powerups/invisibility
 
 powerups/quad
 {
-	//deformVertexes wave 100 sin 3 0 0 0
 	{
-		map gfx/effect/quad_fx.tga
-		blend add
-		rotate time * 30
-		scroll time * 1, time * .1
+		map	gfx/effect/quad_fx.tga
+		blend	add
+		rotate	time * 30
+		scroll	time * 1, time * .1
+		tcGen	environment
 	}
 }
 
 powerups/quadWeapon
 {
-	//deformVertexes wave 100 sin 0.5 0 0 0
 	{
-		map gfx/effect/quad_fx.tga
-		blend add
-		rotate time * 30
-		scroll time * 1, time * .1
+		map	gfx/effect/quad_fx.tga
+		blend	add
+		rotate	time * 30
+		scroll	time * 1, time * .1
+		tcGen	environment
 	}
 }
 
@@ -125,12 +126,12 @@ powerups/regen
 {
 	deformVertexes wave 100 sin 3 0 0 0
 	{
-		map textures/effects/regenmap2.tga
-				blendfunc GL_ONE GL_ONE
-				tcGen environment
-				tcmod rotate 30
-		//tcMod turb 0 0.2 0 .2
-				tcmod scroll 1 .1
+		map	gfx/effect/quad_fx.tga
+		color	1, 0, 0, 1
+		blend	add
+		tcGen	environment
+		tcmod	rotate 30
+		tcmod	scroll 1 .1
 	}
 }
 
@@ -138,10 +139,10 @@ powerups/blueflag
 {
 	deformVertexes wave 100 sin 3 0 0 0
 	{
-		map textures/effects/blueflagmap.tga
-				blendfunc GL_ONE GL_ONE
-				tcGen environment
-				tcMod turb 0 0.2 0 1
+		map	textures/effects/blueflagmap.tga
+		blend	GL_ONE GL_ONE
+		tcGen	environment
+		tcMod	turb 0 0.2 0 1
 	}
 }
 
@@ -943,11 +944,9 @@ nailTrail
 	twoSided
 	
 	{
-		clamp
-		map gfx/misc/smoke2.png 
+		clampmap gfx/misc/smoke2.png 
 		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		vertexColor
-        //rotate time * -30
 	}
 
 }
@@ -1159,7 +1158,7 @@ scoreboardPing
 
 //===============================================================
 
-gfx/2d/crosshaira
+/*gfx/2d/crosshaira
 {
 	nopicmip
 	{
@@ -1257,7 +1256,7 @@ gfx/2d/crosshairj
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		rgbGen identity
 	}
-}
+}*/
 gfx/2d/crosshairk
 {
 	nopicmip

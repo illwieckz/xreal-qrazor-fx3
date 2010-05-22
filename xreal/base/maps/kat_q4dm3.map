@@ -2,15 +2,16 @@ Version 2
 // entity 0
 {
 "classname" "worldspawn"
+"_lightmapscale" "0.25"
 "ambientColor" "0.16 0.15 0.21"
 "fogColor" "0.77 0.81 0.89"
 "fogDensity" "0.0007"
 "message" "Kat's Klorr! by Ken 'kat' Beyer"
 "perPolyCollision" "0"
-"_lightmapscale" "0.25"
-"editor_drLastCameraPos" "304.326 -49.5659 298.06"
-"editor_drLastCameraAngle" "9.6 191.7 0"
-"xmap_lightopts" "-fast -filter -super 2 -samplesize 1 -lightmapsize 2048 -pointscale 1.0 -skyscale 1.0 -areascale 1.0 -bounce 0"
+"xmap_lightopts" "-fast -filter -super 2 -samplesize 1 -lightmapsize 2048 -pointscale 1.0 -skyscale 1.0 -areascale 1.0"
+"gridsize" "8 8 8"
+"editor_drLastCameraPos" "1955.53 -879.489 456.917"
+"editor_drLastCameraAngle" "27.6 161.1 0"
 // primitive 0
 {
 brushDef3
@@ -923,7 +924,7 @@ brushDef3
 ( 0 -1 0 128 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 1 -1416 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 -1 1216 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( 0 -0.242536 -0.970142 1257.304688 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( 0 -0.242536 -0.9701419999999999 1257.304688 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 }
 }
 // primitive 76
@@ -973,7 +974,7 @@ brushDef3
 ( -1 0 0 -128 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 -1 0 -768 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 -1 -64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( -0.294086 0.9557790000000001 0 512.8857420000001 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( -0.294086 0.955779 0 512.8857420000001 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 }
 }
 // primitive 80
@@ -984,7 +985,7 @@ brushDef3
 ( 0 1 0 544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( -1 0 0 -128 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 -1 216 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( 0.294086 -0.9557790000000001 0 -512.8857420000001 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( 0.294086 -0.955779 0 -512.8857420000001 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 }
 }
 // primitive 81
@@ -1102,7 +1103,7 @@ brushDef3
 ( 0 0 -1 -64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 1 -1216 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0.707107 -0.707107 0 164.048767 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( 0.857493 -0.514496 0 -214.030258 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( 0.8574929999999999 -0.514496 0 -214.030258 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0.8 0.6 0 -1521.600098 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( -1 0 0 960 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 }
@@ -1162,7 +1163,7 @@ brushDef3
 ( 0 0 -1 -64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 1 32 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 -1 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( 0.294086 -0.9557790000000001 0 -512.8857420000001 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( 0.294086 -0.955779 0 -512.8857420000001 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 1 0 544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( -1 0 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 }
@@ -1261,7 +1262,7 @@ brushDef3
 ( 0 0 1 -640 ) ( ( -0.015625 0 -6 ) ( -0 -0.015625 -30.000004 ) ) "textures/common/nodraw" 0 0 0
 ( -0.6957950000000001 0.71824 0 -532.9343260000001 ) ( ( 0.015625 0 -25.000002 ) ( 0 0.015625 -0.125 ) ) "textures/editor/visportal" 0 0 0
 ( -0.707107 -0.707107 0 -989.949463 ) ( ( 0.015625 0 -6.000002 ) ( 0 0.015625 0 ) ) "textures/common/nodraw" 0 0 0
-( 0.6957950000000001 -0.71824 0 521.6220090000001 ) ( ( 0.015625 0 30.000002 ) ( 0 0.015625 0 ) ) "textures/common/nodraw" 0 0 0
+( 0.6957950000000001 -0.71824 0 521.622009 ) ( ( 0.015625 0 30.000002 ) ( 0 0.015625 0 ) ) "textures/common/nodraw" 0 0 0
 ( 0.707107 0.707107 0 633.5675660000001 ) ( ( 0.015625 0 6.000002 ) ( 0 0.015625 0 ) ) "textures/common/nodraw" 0 0 0
 }
 }
@@ -1475,9 +1476,9 @@ brushDef3
 {
 ( 0 0 -1 -32 ) ( ( 0 -0.015625 -28.132376 ) ( 0.015625 0 -27 ) ) "textures/common/nodraw" 0 0 0
 ( 0 0 1 -640 ) ( ( 0 0.015625 -28.132376 ) ( -0.015625 0 27 ) ) "textures/common/nodraw" 0 0 0
-( -0.970142 -0.242536 0 1234.02124 ) ( ( 0.015625 0 5.117661 ) ( 0 0.015625 0 ) ) "textures/common/nodraw" 0 0 0
+( -0.9701419999999999 -0.242536 0 1234.02124 ) ( ( 0.015625 0 5.117661 ) ( 0 0.015625 0 ) ) "textures/common/nodraw" 0 0 0
 ( 0 -1 0 512 ) ( ( 0.015625 0 -28.132376 ) ( 0 0.015625 0 ) ) "textures/common/nodraw" 0 0 0
-( 0.970142 0.242536 0 -1241.782349 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/editor/visportal" 0 0 0
+( 0.9701419999999999 0.242536 0 -1241.782349 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/editor/visportal" 0 0 0
 ( 0 1 0 -768 ) ( ( 0.015625 0 -15.63236 ) ( 0 0.015625 0 ) ) "textures/common/nodraw" 0 0 0
 }
 }
@@ -1523,9 +1524,9 @@ brushDef3
 {
 ( 0 0 -1 136 ) ( ( 0.015625 0 6.992663 ) ( 0 0.015625 3 ) ) "textures/common/nodraw" 0 0 0
 ( 0 0 1 -1216 ) ( ( 0.015625 0 6.992663 ) ( 0 0.015625 3 ) ) "textures/common/nodraw" 0 0 0
-( 0.242536 0.970142 0 -1040 ) ( ( 0.015625 0 -1 ) ( 0 0.015625 0 ) ) "textures/editor/visportal" 0 0 0
+( 0.242536 0.9701419999999999 0 -1040 ) ( ( 0.015625 0 -1 ) ( 0 0.015625 0 ) ) "textures/editor/visportal" 0 0 0
 ( -1 0 0 448 ) ( ( 0.015625 0 6.992663 ) ( 0 0.015625 3 ) ) "textures/common/nodraw" 0 0 0
-( -0.242536 -0.970142 0 1032.231567 ) ( ( 0.015625 0 6.992663 ) ( 0 0.015625 3 ) ) "textures/common/nodraw" 0 0 0
+( -0.242536 -0.9701419999999999 0 1032.231567 ) ( ( 0.015625 0 6.992663 ) ( 0 0.015625 3 ) ) "textures/common/nodraw" 0 0 0
 ( 1 0 0 -704 ) ( ( 0.015625 0 6.992663 ) ( 0 0.015625 3 ) ) "textures/common/nodraw" 0 0 0
 }
 }
@@ -1933,7 +1934,7 @@ brushDef3
 ( 0 -1 0 408 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 1 0 0 -888 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 0 1 0 -520 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
-( -0.997459 0.07124700000000001 0 776.877808 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( -0.997459 0.071247 0 776.877808 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 }
 }
 // primitive 160
@@ -2041,7 +2042,7 @@ brushDef3
 ( 0 0 -1 -40 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 104 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.707107 -0.707107 0 -746.7047730000001 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.707107 -0.707107 0 -746.704773 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 1 0 -136 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 1024 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
@@ -2078,7 +2079,7 @@ brushDef3
 ( 0 0 1 -320 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -104 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 -1224 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( -0.274721 0.9615240000000001 0 374.719604 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( -0.274721 0.961524 0 374.719604 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -0.9486830000000001 0.316228 0 1125.770874 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
 }
@@ -2102,7 +2103,7 @@ brushDef3
 ( 0 0 1 -320 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -160 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 -1152 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.242536 0.970142 0 -178.50621 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.242536 0.9701419999999999 0 -178.50621 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 1088 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
 }
@@ -2163,7 +2164,7 @@ brushDef3
 ( 0 -1 0 256 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 -1344 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 1 0 -504 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( -0.997925 0.064382 0 1276.829346 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( -0.997925 0.06438199999999999 0 1276.829346 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
 }
 // primitive 179
@@ -2174,7 +2175,7 @@ brushDef3
 ( 0 0 1 -320 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -200 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 -936 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( -0.581238 0.813733 0 609.1376340000001 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( -0.581238 0.813733 0 609.137634 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -0.894427 0.447214 0 840.761536 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
 }
@@ -2259,7 +2260,7 @@ brushDef3
 ( 0 0 1 -320 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -616 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( -0.242536 0.970142 0 512.235229 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( -0.242536 0.9701419999999999 0 512.235229 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 -128 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
 }
@@ -2283,7 +2284,7 @@ brushDef3
 ( 0 0 1 -320 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -608 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 304 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.316228 0.9486830000000001 0 627.3958740000001 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.316228 0.9486830000000001 0 627.395874 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 -328 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
 }
@@ -2295,7 +2296,7 @@ brushDef3
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -608 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 328 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.066519 0.997785 0 572.595642 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.06651899999999999 0.997785 0 572.595642 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 -448 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
 }
@@ -2319,7 +2320,7 @@ brushDef3
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -608 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 552 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( -0.514496 0.857493 0 189.334457 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( -0.514496 0.8574929999999999 0 189.334457 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -0.894427 0.447214 0 -271.905853 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
 }
@@ -2377,7 +2378,7 @@ brushDef3
 {
 ( 0 0 -1 -40 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.242536 -0.970142 0 -690.741455 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.242536 -0.9701419999999999 0 -690.741455 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 320 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 1 0 704 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 -384 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
@@ -2414,7 +2415,7 @@ brushDef3
 ( 0 0 -1 -40 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0.447214 -0.894427 0 -661.876099 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.995037 -0.099504 0 9.552358999999999 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.9950369999999999 -0.099504 0 9.552358999999999 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 1 0 704 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 -136 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
@@ -2451,7 +2452,7 @@ brushDef3
 ( 0 0 -1 216 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -512 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.970142 -0.242536 0 -15.52228 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.9701419999999999 -0.242536 0 -15.52228 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 1 0 448 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 -136 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
@@ -2475,7 +2476,7 @@ brushDef3
 ( 0 0 -1 216 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -408 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.995037 0.099504 0 136.121094 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.9950369999999999 0.099504 0 136.121094 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 1 0 248 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 -136 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
@@ -2595,7 +2596,7 @@ brushDef3
 ( 0 0 -1 -40 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 0 1 -320 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 128 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.566529 -0.8240420000000001 0 141.735199 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.5665289999999999 -0.8240420000000001 0 141.735199 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 1 0 -216 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 -128 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
@@ -2823,7 +2824,7 @@ brushDef3
 ( 0 0 -1 -40 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -896 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.857493 0.514496 0 1256.741577 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.8574929999999999 0.514496 0 1256.741577 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 1 0 856 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 -1088 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
@@ -2920,7 +2921,7 @@ brushDef3
 ( 0 0 1 -1216 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 -1 0 -1472 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 1 0 0 552 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( 0.977802 0.209529 0 818 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( 0.9778019999999999 0.209529 0 818 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( -1 0 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 }
 }
@@ -2969,7 +2970,7 @@ brushDef3
 ( -0.06959799999999999 -0.997575 0 -1260.934937 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 1 0 0 -0 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 1 0 1216 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( -0.514496 -0.857493 0 -1240.27771 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( -0.514496 -0.8574929999999999 0 -1240.27771 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 }
 }
 // primitive 246
@@ -3016,7 +3017,7 @@ brushDef3
 ( 0 0 1 -1216 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 -1 0 -1472 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 1 0 0 -384 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( -0.874157 0.485643 0 957.2993770000001 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( -0.874157 0.485643 0 957.299377 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( -1 0 0 304 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 }
 }
@@ -3041,7 +3042,7 @@ brushDef3
 ( 0 -1 0 -440 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 1 0 0 832 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 0 1 0 328 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
-( -0.9615240000000001 -0.274721 0 -982.402771 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( -0.961524 -0.274721 0 -982.402771 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 }
 }
 // primitive 252
@@ -3066,7 +3067,7 @@ brushDef3
 ( 1 0 0 880 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 0 1 0 264 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( -1 0 0 -944 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
-( -0.780869 -0.624695 0 -929.546265 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( -0.780869 -0.624695 0 -929.5462649999999 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 }
 }
 // primitive 254
@@ -3187,7 +3188,7 @@ brushDef3
 ( 0 0 1 -1216 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 0 -1 0 -1024 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 1 0 0 -556 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
-( 0.316228 0.9486830000000001 0 750.092285 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 0.316228 0.9486830000000001 0 750.0922849999999 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( -1 0 0 496 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 }
 }
@@ -3295,7 +3296,7 @@ brushDef3
 ( 0 0 1 -1216 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 0 -1 0 -560 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 0.707107 0.707107 0 -130.107651 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
-( 0.274721 0.9615240000000001 0 306.588776 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 0.274721 0.961524 0 306.588776 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( -1 0 0 676 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 }
 }
@@ -3415,7 +3416,7 @@ brushDef3
 ( 0 0 1 -1216 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 0 -1 0 -1472 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 1 0 0 -192 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
-( 0.274721 0.9615240000000001 0 1351.078491 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 0.274721 0.961524 0 1351.078491 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( -1 0 0 136 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 }
 }
@@ -3690,7 +3691,7 @@ brushDef3
 ( 0 0 -1 -64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 0 0.447214 0.894427 157.419189 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 0 -1 0 -440 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
-( 0.9557790000000001 -0.294086 0 868.435486 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 0.955779 -0.294086 0 868.435486 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( 0 1 0 336 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 ( -1 0 0 -1088 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
 }
@@ -3764,7 +3765,7 @@ brushDef3
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -1472 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 552 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.919145 0.393919 0 986.3739010000001 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.919145 0.393919 0 986.373901 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 -576 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
 }
@@ -4147,7 +4148,7 @@ brushDef3
 {
 ( 0 0 -1 -40 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 0 1 -448 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( -0.07227400000000001 -0.997385 0 1207.847412 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( -0.072274 -0.997385 0 1207.847412 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 -980 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 1 0 -1280 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 704 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
@@ -4280,7 +4281,7 @@ brushDef3
 ( 0 0 -1 -40 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 544 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.970142 -0.242536 0 38.805698 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.9701419999999999 -0.242536 0 38.805698 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 1 0 -576 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
@@ -4316,7 +4317,7 @@ brushDef3
 ( 0 0 -1 -40 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 400 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( 0.857493 -0.514496 0 137.198853 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( 0.8574929999999999 -0.514496 0 137.198853 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 1 0 -440 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 0 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
@@ -4328,7 +4329,7 @@ brushDef3
 ( 0 0 -1 -40 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 1 -640 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 -1 0 368 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( 0.514496 -0.857493 0 323.789337 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( 0.514496 -0.8574929999999999 0 323.789337 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 1 0 -416 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( -1 0 0 -128 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 }
@@ -4481,7 +4482,7 @@ brushDef3
 {
 ( 0 0 -1 -40 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 1 -1216 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( -0.514496 -0.857493 0 1734.193604 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( -0.514496 -0.8574929999999999 0 1734.193604 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 1 0 0 -1344 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 1 0 -1280 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( -1 0 0 1264 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
@@ -4508,7 +4509,7 @@ brushDef3
 ( 0 -1 0 656 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 1 0 0 -1344 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 1 0 -768 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( -0.977802 -0.209529 0 1428.150269 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( -0.9778019999999999 -0.209529 0 1428.150269 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 }
 }
 // primitive 374
@@ -4735,7 +4736,7 @@ brushDef3
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 0 -1 0 -1120 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( 1 0 0 160 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
-( -0.274721 0.9615240000000001 0 894.492004 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
+( -0.274721 0.961524 0 894.492004 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 ( -1 0 0 -216 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/monster_clip" 0 0 0
 }
 }
@@ -4976,7 +4977,7 @@ brushDef3
 ( -0.581238 -0.813733 0 -184.368759 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 1 0 0 320 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 1 0 -136 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
-( -0.842922 -0.538035 0 -294.341248 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
+( -0.8429219999999999 -0.538035 0 -294.341248 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/common/caulk" 0 0 0
 }
 }
 // primitive 413
@@ -5130,7 +5131,7 @@ brushDef3
 ( 0 0 -1 -64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 0 -1 0 -160 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
-( -0.707107 0.707107 0 746.7047730000001 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/editor/visportal" 0 0 0
+( -0.707107 0.707107 0 746.704773 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/editor/visportal" 0 0 0
 ( 1 0 0 -1088 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/editor/visportal" 0 0 0
 }
 }
@@ -5150,7 +5151,7 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 -1 1392 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/skies/kat_q4dm3" 0 0 0
+( 0 0 -1 1392 ) ( ( 0.000244125 0 0 ) ( 0 0.000244125 0 ) ) "textures/hipshot_sky/miramar" 0 0 0
 ( 0 0 1 -1472 ) ( ( 0.015625 0 0 ) ( 0 0.015625 -0 ) ) "textures/common/caulk" 0 0 0
 ( 0 -1 0 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 -0 ) ) "textures/common/caulk" 0 0 0
 ( 1 0 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 -0 ) ) "textures/common/caulk" 0 0 0
@@ -5200,7 +5201,7 @@ brushDef3
 {
 ( 0 -1 0 -544 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 1 0 0 -896 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
-( -0.724138 0.689655 0 560.551697 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/editor/visportal" 0 0 0
+( -0.7241379999999999 0.689655 0 560.551697 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/editor/visportal" 0 0 0
 ( 0.724345 -0.689437 0 -566.281067 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 0 0 -1 -32 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 0 0 1 -1392 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
@@ -5214,8 +5215,8 @@ brushDef3
 ( 0 0 1 -640 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 0 -1 0 -1216 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 0 1 0 320 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
-( -0.9615240000000001 -0.274721 0 -887.898682 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/editor/visportal" 0 0 0
-( 0.9615240000000001 0.274721 0 880.2064820000001 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
+( -0.961524 -0.274721 0 -887.898682 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/editor/visportal" 0 0 0
+( 0.961524 0.274721 0 880.2064820000001 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 }
 }
 // primitive 433
@@ -5355,7 +5356,7 @@ brushDef3
 ( 0 0 1 -288 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 1 0 0 -832 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( -0.544988 0.838444 0 17.439602 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/editor/visportal" 0 0 0
-( 0.5339930000000001 -0.8454890000000001 0 -11.391859 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
+( 0.5339930000000001 -0.845489 0 -11.391859 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 0 -1 0 416 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 0 0 -1 -32 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 }
@@ -5581,317 +5582,317 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_75"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section1flat.ase"
 "origin" "848 -328 40"
 "rotation" "0.848048 0.529919 0 -0.529919 0.848048 0 0 0 1"
-"clipModel" "1"
 }
 // entity 9
 {
 "classname" "func_static"
 "name" "func_static_74"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section2flat.ase"
 "origin" "704 -360 36"
 "rotation" "-0.809017 -0.587785 0 0.587785 -0.809017 0 0 0 1"
-"clipModel" "1"
 }
 // entity 10
 {
 "classname" "func_static"
 "name" "func_static_73"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section30.ase"
 "origin" "256 -128 1152"
-"clipModel" "1"
 }
 // entity 11
 {
 "classname" "func_static"
 "name" "func_static_72"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section29.ase"
 "origin" "384 192 1152"
-"clipModel" "1"
 }
 // entity 12
 {
 "classname" "func_static"
 "name" "func_static_71"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section28.ase"
 "origin" "640 -256 1152"
-"clipModel" "1"
 }
 // entity 13
 {
 "classname" "func_static"
 "name" "func_static_70"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section27.ase"
 "origin" "192 -320 192"
-"clipModel" "1"
 }
 // entity 14
 {
 "classname" "func_static"
 "name" "func_static_69"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section26.ase"
 "origin" "448 -192 0"
-"clipModel" "1"
 }
 // entity 15
 {
 "classname" "func_static"
 "name" "func_static_68"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section25.ase"
 "origin" "-832 64 448"
-"clipModel" "1"
 }
 // entity 16
 {
 "classname" "func_static"
 "name" "func_static_67"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section24.ase"
 "origin" "-704 64 0"
-"clipModel" "1"
 }
 // entity 17
 {
 "classname" "func_static"
 "name" "func_static_66"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section23.ase"
 "origin" "-448 -64 64"
-"clipModel" "1"
 }
 // entity 18
 {
 "classname" "func_static"
 "name" "func_static_65"
+"clipModel" "1"
 "model" "models/mapobjects/kat_q4dm3/section22.ase"
 "origin" "-704 -768 192"
-"clipModel" "1"
 }
 // entity 19
 {
 "classname" "func_static"
 "name" "func_static_64"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section21.ase"
 "origin" "-640 -512 384"
-"clipModel" "1"
 }
 // entity 20
 {
 "classname" "func_static"
 "name" "func_static_63"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section20.ase"
 "origin" "-64 -64 384"
-"clipModel" "1"
 }
 // entity 21
 {
 "classname" "func_static"
 "name" "func_static_62"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section19.ase"
 "origin" "384 -448 704"
-"clipModel" "1"
 }
 // entity 22
 {
 "classname" "func_static"
 "name" "func_static_61"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section18.ase"
 "origin" "256 -128 768"
-"clipModel" "1"
 }
 // entity 23
 {
 "classname" "func_static"
 "name" "func_static_60"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section17.ase"
 "origin" "256 -1088 704"
-"clipModel" "1"
 }
 // entity 24
 {
 "classname" "func_static"
 "name" "func_static_59"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section16.ase"
 "origin" "-192 -1344 704"
-"clipModel" "1"
 }
 // entity 25
 {
 "classname" "func_static"
 "name" "func_static_58"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section15.ase"
 "origin" "-448 -1280 640"
-"clipModel" "1"
 }
 // entity 26
 {
 "classname" "func_static"
 "name" "func_static_57"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section14.ase"
 "origin" "512 -896 704"
-"clipModel" "1"
 }
 // entity 27
 {
 "classname" "func_static"
 "name" "func_static_56"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section13.ase"
 "origin" "-192 -1344 704"
-"clipModel" "1"
 }
 // entity 28
 {
 "classname" "func_static"
 "name" "func_static_55"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section12.ase"
 "origin" "384 192 256"
-"clipModel" "1"
 }
 // entity 29
 {
 "classname" "func_static"
 "name" "func_static_54"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section11.ase"
 "origin" "704 384 64"
-"clipModel" "1"
 }
 // entity 30
 {
 "classname" "func_static"
 "name" "func_static_53"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section10.ase"
 "origin" "576 256 448"
-"clipModel" "1"
 }
 // entity 31
 {
 "classname" "func_static"
 "name" "func_static_52"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section9.ase"
 "origin" "576 896 1152"
-"clipModel" "1"
 }
 // entity 32
 {
 "classname" "func_static"
 "name" "func_static_51"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section8.ase"
 "origin" "192 832 704"
-"clipModel" "1"
 }
 // entity 33
 {
 "classname" "func_static"
 "name" "func_static_50"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section7.ase"
 "origin" "768 1088 512"
-"clipModel" "1"
 }
 // entity 34
 {
 "classname" "func_static"
 "name" "func_static_49"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section6.ase"
 "origin" "512 832 704"
-"clipModel" "1"
 }
 // entity 35
 {
 "classname" "func_static"
 "name" "func_static_48"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section5.ase"
 "origin" "832 -576 448"
-"clipModel" "1"
 }
 // entity 36
 {
 "classname" "func_static"
 "name" "func_static_47"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section4.ase"
 "origin" "1280 320 256"
-"clipModel" "1"
 }
 // entity 37
 {
 "classname" "func_static"
 "name" "func_static_46"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section3.ase"
 "origin" "1280 320 448"
-"clipModel" "1"
 }
 // entity 38
 {
 "classname" "func_static"
 "name" "func_static_45"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section2.ase"
 "origin" "1216 1088 640"
-"clipModel" "1"
 }
 // entity 39
 {
 "classname" "func_static"
 "name" "func_static_44"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section1.ase"
 "origin" "1152 768 512"
-"clipModel" "1"
 }
 // entity 40
 {
 "classname" "func_static"
 "name" "func_static_43"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/stairs_sml.ase"
 "origin" "256 -1088 320"
-"clipModel" "1"
 }
 // entity 41
 {
 "classname" "func_static"
 "name" "func_static_42"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/centre.ase"
 "origin" "384 0 0"
-"clipModel" "1"
 }
 // entity 42
 {
 "classname" "func_static"
 "name" "func_static_41"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/stairs_big.ase"
 "origin" "-960 -512 128"
-"clipModel" "1"
 }
 // entity 43
 {
@@ -6002,10 +6003,10 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_36"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/weapon_marker.ase"
 "origin" "-540 -788 136"
-"clipModel" "1"
 }
 // entity 58
 {
@@ -6040,10 +6041,10 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_35"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/weapon_marker.ase"
 "origin" "192 -1424 260"
-"clipModel" "1"
 }
 // entity 62
 {
@@ -6099,10 +6100,10 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_34"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/weapon_marker.ase"
 "origin" "932 976 137"
-"clipModel" "1"
 }
 // entity 69
 {
@@ -6130,131 +6131,131 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_25"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp2.ase"
 "origin" "599 1065 164"
 "rotation" "0.993768 0.0859297 -0.0710015 -0.0869434 0.996149 -0.0113072 0.0697565 0.0174099 0.997412"
-"clipModel" "1"
 }
 // entity 73
 {
 "classname" "func_static"
 "name" "func_static_33"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp4.ase"
 "origin" "608 45 -31"
 "rotation" "-0.29952 -0.947152 -0.114854 0.718213 -0.144587 -0.680636 0.628059 -0.286353 0.723563"
-"clipModel" "1"
 }
 // entity 74
 {
 "classname" "func_static"
 "name" "func_static_32"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp1.ase"
 "origin" "274 -192 -10"
 "rotation" "0.995588 0.0888558 0.0301577 -0.0871027 0.99467 -0.0551743 -0.0348995 0.0523041 0.998021"
-"clipModel" "1"
 }
 // entity 75
 {
 "classname" "func_static"
 "name" "func_static_31"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp1.ase"
 "origin" "276 96 -6"
 "rotation" "0.993916 0.105118 0.0328788 -0.104465 0.994307 -0.0210042 -0.0348995 0.0174418 0.999239"
-"clipModel" "1"
 }
 // entity 76
 {
 "classname" "func_static"
 "name" "func_static_30"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp3.ase"
 "origin" "565 104 -3"
 "rotation" "0.99863 -0.00728376 -0.0518266 -1.78e-010 0.990268 -0.139173 0.052336 0.138982 0.988911"
-"clipModel" "1"
 }
 // entity 77
 {
 "classname" "func_static"
 "name" "func_static_29"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp3.ase"
 "origin" "563 -179 -10"
 "rotation" "1 0 0 0 0.999391 -0.0348995 0 0.0348995 0.999391"
-"clipModel" "1"
 }
 // entity 78
 {
 "classname" "func_static"
 "name" "func_static_28"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp3.ase"
 "origin" "1193 -97 -8"
 "rotation" "0.970662 -0.218479 0.100407 0.224095 0.973364 -0.0484106 -0.0871557 0.069491 0.993768"
-"clipModel" "1"
 }
 // entity 79
 {
 "classname" "func_static"
 "name" "func_static_27"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp1.ase"
 "origin" "955 586 -9"
 "rotation" "0.795596 0.602938 0.0590919 -0.599525 0.797598 -0.0663817 -0.0871557 0.017386 0.996043"
-"clipModel" "1"
 }
 // entity 80
 {
 "classname" "func_static"
 "name" "func_static_26"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp1.ase"
 "origin" "1235 1166 154"
 "rotation" "0.855993 0.51668 0.0178442 -0.514332 0.854582 -0.0717787 -0.052336 0.0522642 0.997261"
-"clipModel" "1"
 }
 // entity 81
 {
 "classname" "func_static"
 "name" "func_static_20"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp1.ase"
 "origin" "310 -752 362"
 "rotation" "0.758589 0.642788 -0.106613 -0.636532 0.766044 0.0894587 0.139173 1.75652e-009 0.990268"
-"clipModel" "1"
 }
 // entity 82
 {
 "classname" "func_static"
 "name" "func_static_19"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp3.ase"
 "origin" "-371 -1423 282"
 "rotation" "0.945519 0.325568 0 -0.325568 0.945519 0 0 0 1"
-"clipModel" "1"
 }
 // entity 83
 {
 "classname" "func_static"
 "name" "func_static_18"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp1.ase"
 "origin" "-864 -1063 163"
 "rotation" "0.99392 -0.0518266 -0.0971414 0.0375216 0.988911 -0.143692 0.103511 0.139173 0.984843"
-"clipModel" "1"
 }
 // entity 84
 {
 "classname" "func_static"
 "name" "func_static_17"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/lamp1.ase"
 "origin" "-787 -472 160"
 "rotation" "0.997564 0 0.0697565 0 1 0 -0.0697565 0 0.997564"
-"clipModel" "1"
 }
 // entity 85
 {
@@ -6344,7 +6345,7 @@ brushDef3
 brushDef3
 {
 ( 0 -1 0 -64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -63.63966907964957 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -63.63966907964651 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
 ( -1 0 0 -64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -63.63966907965023 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
 ( 0 1 0 -64 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
@@ -6358,10 +6359,10 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_6"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/jumppad_fx2.ase"
 "origin" "544 888 152"
-"clipModel" "1"
 }
 // entity 94
 {
@@ -6395,29 +6396,29 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_5"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/jumppad_fx2.ase"
 "origin" "1184 816 -24"
-"clipModel" "1"
 }
 // entity 97
 {
 "classname" "func_static"
 "name" "func_static_3"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/jumppad_fx2.ase"
 "origin" "-256 -872 142"
-"clipModel" "1"
 }
 // entity 98
 {
 "classname" "func_static"
 "name" "func_static_2"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/jumppad_fx2.ase"
 "origin" "-556 -1120 150"
 "rotation" "0.999389 0.00243447 0.0348571 -0.00121798 0.999391 -0.0348783 -0.0349208 0.0348145 0.998784"
-"clipModel" "1"
 }
 // entity 99
 {
@@ -6675,7 +6676,7 @@ brushDef3
 {
 ( 0.7071067811865476 -0.7071067811865476 0 -63.63966907965018 ) ( ( 0.03125 0 11.755653 ) ( 0 0.03125 0.25 ) ) "textures/common/trigmulti" 0 0 0
 ( 0 -1 0 -64 ) ( ( 0.03125 0 8.875 ) ( 0 0.03125 0.25 ) ) "textures/common/trigmulti" 0 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -63.63966907964989 ) ( ( 0.03125 0 0.795495 ) ( 0 0.03125 0.25 ) ) "textures/common/trigmulti" 0 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -63.63966907964988 ) ( ( 0.03125 0 0.795495 ) ( 0 0.03125 0.25 ) ) "textures/common/trigmulti" 0 0 0
 ( -1 0 0 -64 ) ( ( 0.03125 0 -7.75 ) ( 0 0.03125 0.25 ) ) "textures/common/trigmulti" 0 0 0
 ( 1 0 0 -64 ) ( ( 0.03125 0 7.75 ) ( 0 0.03125 0.25 ) ) "textures/common/trigmulti" 0 0 0
 ( 0 0 -1 -8 ) ( ( 0.03125 0 7.75 ) ( 0 0.03125 -8.875 ) ) "textures/common/trigmulti" 0 0 0
@@ -6688,10 +6689,10 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_4"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat/jumppad_fx2.ase"
 "origin" "-416 -504 -8"
-"clipModel" "1"
 }
 // entity 119
 {
@@ -6711,7 +6712,7 @@ brushDef3
 brushDef3
 {
 ( 0 -1 0 -64 ) ( ( 0.03125 0 4.5 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -63.63966907965061 ) ( ( 0.03125 0 11.313716 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -63.63966907965102 ) ( ( 0.03125 0 11.313716 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
 ( -1 0 0 -64 ) ( ( 0.03125 0 11.5 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -63.63966907965028 ) ( ( 0.03125 0 4.949748 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
 ( 0 1 0 -64 ) ( ( 0.03125 0 -4.5 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
@@ -6888,31 +6889,31 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_76"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section1flat.ase"
 "origin" "-24 72 36"
 "rotation" "-0.997564 0.0697569 0 -0.0697569 -0.997564 0 0 0 1"
-"clipModel" "1"
 }
 // entity 138
 {
 "classname" "func_static"
 "name" "func_static_77"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section2flat.ase"
 "origin" "704 264 36"
 "rotation" "0.438371 -0.898794 0 0.898794 0.438371 0 0 0 1"
-"clipModel" "1"
 }
 // entity 139
 {
 "classname" "func_static"
 "name" "func_static_78"
+"clipModel" "1"
 "forceMeta" "1"
 "model" "models/mapobjects/kat_q4dm3/section1flat.ase"
 "origin" "468 220 36"
 "rotation" "-0.71934 -0.694658 0 0.694658 -0.71934 0 0 0 1"
-"clipModel" "1"
 }
 // entity 140
 {
@@ -6951,10 +6952,10 @@ brushDef3
 {
 ( 0 0 -1 -40 ) ( ( 0.058731 0.021376 9.430661000000001 ) ( -0.021376 0.058731 1.462366 ) ) "textures/common/trighurt" 0 0 0
 ( 0 0 1 -32 ) ( ( 0.058731 -0.021376 9.430661000000001 ) ( 0.021376 0.058731 -1.462366 ) ) "textures/common/trighurt" 0 0 0
-( 0.342019894888923 -0.9396927112094518 0 -20.00001843947251 ) ( ( 0.0625 0 -1.462366 ) ( 0 0.0625 8 ) ) "textures/common/trighurt" 0 0 0
-( 0.9396927112094518 0.342019894888923 0 -20.00001843947285 ) ( ( 0.0625 0 9.430656000000001 ) ( 0 0.0625 8 ) ) "textures/common/trighurt" 0 0 0
-( -0.342019894888923 0.9396927112094518 0 -20.00001843947274 ) ( ( 0.0625 0 1.462366 ) ( 0 0.0625 8 ) ) "textures/common/trighurt" 0 0 0
-( -0.9396927112094518 -0.342019894888923 0 -20.00001843947268 ) ( ( 0.0625 0 -9.430656000000001 ) ( 0 0.0625 8 ) ) "textures/common/trighurt" 0 0 0
+( 0.342019894888923 -0.9396927112094517 0 -20.00001843947251 ) ( ( 0.0625 0 -1.462366 ) ( 0 0.0625 8 ) ) "textures/common/trighurt" 0 0 0
+( 0.9396927112094517 0.342019894888923 0 -20.00001843947285 ) ( ( 0.0625 0 9.430656000000001 ) ( 0 0.0625 8 ) ) "textures/common/trighurt" 0 0 0
+( -0.342019894888923 0.9396927112094517 0 -20.00001843947274 ) ( ( 0.0625 0 1.462366 ) ( 0 0.0625 8 ) ) "textures/common/trighurt" 0 0 0
+( -0.9396927112094517 -0.342019894888923 0 -20.00001843947268 ) ( ( 0.0625 0 -9.430656000000001 ) ( 0 0.0625 8 ) ) "textures/common/trighurt" 0 0 0
 }
 }
 }
@@ -7081,12 +7082,12 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 -1 -40 ) ( ( 0.061134 -0.012994 -75.87052900000001 ) ( 0.012994 0.061134 127.869461 ) ) "textures/common/trighurt" 0 0 0
-( 0 0 1 -32 ) ( ( 0.061134 0.012994 -75.87052900000001 ) ( -0.012994 0.061134 -127.869461 ) ) "textures/common/trighurt" 0 0 0
+( 0 0 -1 -40 ) ( ( 0.061134 -0.012994 -75.870529 ) ( 0.012994 0.061134 127.869461 ) ) "textures/common/trighurt" 0 0 0
+( 0 0 1 -32 ) ( ( 0.061134 0.012994 -75.870529 ) ( -0.012994 0.061134 -127.869461 ) ) "textures/common/trighurt" 0 0 0
 ( -0.2079119054366971 -0.9781475551151176 0 -22.87366521044016 ) ( ( 0.0625 0 -127.869461 ) ( 0 0.0625 -10.25 ) ) "textures/common/trighurt" 0 0 0
-( 0.9781475551151176 -0.2079119054366971 0 -25.72141009610517 ) ( ( 0.0625 0 -75.87052900000001 ) ( 0 0.0625 -10.25 ) ) "textures/common/trighurt" 0 0 0
-( 0.2079119054366971 0.9781475551151176 0 -17.1285023713356 ) ( ( 0.0625 0 127.869461 ) ( 0 0.0625 -10.25 ) ) "textures/common/trighurt" 0 0 0
-( -0.9781475551151176 0.2079119054366971 0 -14.27693648045754 ) ( ( 0.0625 0 75.87052900000001 ) ( 0 0.0625 -10.25 ) ) "textures/common/trighurt" 0 0 0
+( 0.9781475551151176 -0.2079119054366971 0 -25.72141009610727 ) ( ( 0.0625 0 -75.870529 ) ( 0 0.0625 -10.25 ) ) "textures/common/trighurt" 0 0 0
+( 0.2079119054366971 0.9781475551151176 0 -17.12850237133572 ) ( ( 0.0625 0 127.869461 ) ( 0 0.0625 -10.25 ) ) "textures/common/trighurt" 0 0 0
+( -0.9781475551151176 0.2079119054366971 0 -14.27693648045754 ) ( ( 0.0625 0 75.870529 ) ( 0 0.0625 -10.25 ) ) "textures/common/trighurt" 0 0 0
 }
 }
 }
@@ -7125,12 +7126,12 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 -1 -40 ) ( ( 0.053003 0.03312 -87.35372200000001 ) ( -0.03312 0.053003 157.733795 ) ) "textures/common/trighurt" 0 0 0
-( 0 0 1 -32 ) ( ( 0.053003 -0.03312 -87.35372200000001 ) ( 0.03312 0.053003 -157.733795 ) ) "textures/common/trighurt" 0 0 0
+( 0 0 -1 -40 ) ( ( 0.053003 0.03312 -87.353722 ) ( -0.03312 0.053003 157.733795 ) ) "textures/common/trighurt" 0 0 0
+( 0 0 1 -32 ) ( ( 0.053003 -0.03312 -87.353722 ) ( 0.03312 0.053003 -157.733795 ) ) "textures/common/trighurt" 0 0 0
 ( 0.5299191174128671 -0.8480481878999377 0 -15.01386702023945 ) ( ( 0.0625 0 -157.733795 ) ( 0 0.0625 0 ) ) "textures/common/trighurt" 0 0 0
 ( 0.8480481878999377 0.5299191174128671 0 -29.01742371203543 ) ( ( 0.0625 0 -87.353714 ) ( 0 0.0625 0 ) ) "textures/common/trighurt" 0 0 0
 ( -0.5299191174128671 0.8480481878999377 0 -24.98115239495633 ) ( ( 0.0625 0 157.733795 ) ( 0 0.0625 0 ) ) "textures/common/trighurt" 0 0 0
-( -0.8480481878999377 -0.5299191174128671 0 -10.99999268827265 ) ( ( 0.0625 0 87.353714 ) ( 0 0.0625 0 ) ) "textures/common/trighurt" 0 0 0
+( -0.8480481878999377 -0.5299191174128671 0 -10.99999268827264 ) ( ( 0.0625 0 87.353714 ) ( 0 0.0625 0 ) ) "textures/common/trighurt" 0 0 0
 }
 }
 }

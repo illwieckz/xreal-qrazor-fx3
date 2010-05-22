@@ -53,8 +53,8 @@ textures/hipshot_sky/miramar
 	sky
 	nolightmap
 
-//	xmap_sun	todo
-//	xmap_skylight	todo
+	xmap_sun 1.0 1.0 0.7 125 315 90
+	xmap_skylight 125 3
 
 	{ 
 		stage skyboxMap

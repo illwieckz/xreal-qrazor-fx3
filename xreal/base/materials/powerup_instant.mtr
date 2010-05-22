@@ -7,14 +7,10 @@ cleaned up by odin 2010
 
 models/powerups/instant/enviro
 {
-	diffusemap		models/powerups/instant/enviro.png
-	specularmap		models/powerups/instant/enviro.png
+	diffusemap		gfx/2d/yellow
+	specularmap		gfx/2d/yellow
 	normalmap		_flat
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	reflectionmap		_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -23,6 +19,7 @@ models/powerups/instant/enviro
 		blue		0.02 + sinTable[time *0.52] * 0.4
 		rotate		time * -0.1
 		blend		add
+		tcGen		environment
 	}
 }
 
@@ -36,6 +33,7 @@ models/powerups/instant/enviro_ring
 		blue		0.02 + sinTable[time *0.52] * 0.4
   		rotate		time * -0.1
 		blend		add
+		tcGen		environment
 	}
 	{
 		edgeClamp
@@ -45,6 +43,7 @@ models/powerups/instant/enviro_ring
 		red		0.75 + sinTable[time * 2] * 0.4
  		green		0.75 + sinTable[time * 0.52] * 0.4
 		blue		0.02 + sinTable[time *0.52] * 0.4
+		tcGen		environment
 	}
 }
 
@@ -76,14 +75,10 @@ models/powerups/instant/regen
 {
 	
 	twosided
-	diffusemap		models/powerups/instant/regen.png
-	specularmap		models/powerups/instant/regen.png
+	diffusemap		gfx/2d/red
+	specularmap		gfx/2d/red
 	normalmap		_flat
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	reflectionmap		_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -92,6 +87,7 @@ models/powerups/instant/regen
 		blue		0.02 + sinTable[time *0.52] * 0.4
   		rotate		time * -0.1
 		blend		add
+		tcGen		environment
 	}
 }
 
@@ -105,6 +101,7 @@ models/powerups/instant/regen_ring
 		blue		0.02 + sinTable[time *0.52] * 0.4	
   		rotate		time * -0.1
 		blend		add
+		tcGen		environment
 	}
 	{
 		edgeClamp
@@ -114,6 +111,7 @@ models/powerups/instant/regen_ring
 		red		0.75 + sinTable[time * 2] * 0.4
  		green		0.09 + sinTable[time * 0.52] * 0.4
 		blue		0.02 + sinTable[time *0.52] * 0.4
+		tcGen		environment
 	}
 }
 
@@ -143,14 +141,10 @@ models/powerups/instant/regen_flare
 models/powerups/instant/flight
 {
 	twosided
-	diffusemap		models/powerups/instant/flight.png
-	specularmap		models/powerups/instant/flight.png
+	diffusemap		gfx/2d/magenta
+	specularmap		gfx/2d/magenta
 	normalmap		_flat
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	reflectionmap		_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -159,6 +153,7 @@ models/powerups/instant/flight
 		blue		0.082 + sinTable[time *0.52] * 0.4
   		rotate		time * -0.8
 		blend		add
+		tcGen		environment
 	}
 	{
 		edgeClamp
@@ -168,6 +163,7 @@ models/powerups/instant/flight
 		red		0.075 + sinTable[time * 2] * 0.4
 		green		0.009 + sinTable[time * 2] * 0.4
 		blue		0.082 + sinTable[time *2] * 0.4
+		tcGen		environment
 	}
 }
 
@@ -182,6 +178,7 @@ models/powerups/instant/flight_ring
 		blue		0.82 + sinTable[time *2] * 0.4
   		rotate		time * -0.1
 		blend		add
+		tcGen		environment
 	}
 	{
 		edgeClamp
@@ -191,6 +188,7 @@ models/powerups/instant/flight_ring
 		red		0.75 + sinTable[time * 2] * 0.4
 		green		0.09 + sinTable[time * 2] * 0.4
 		blue		0.82 + sinTable[time *2] * 0.4
+		tcGen		environment
 	}
 }
 
@@ -222,14 +220,10 @@ models/powerups/instant/invis
 {
 	
 	twosided
-	diffusemap		models/powerups/instant/invis.png
-	specularmap		models/powerups/instant/invis.png
+	diffusemap		gfx/2d/teal
+	specularmap		gfx/2d/teal
 	normalmap		_flat
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	reflectionmap		_autocube
 	{
 		map		gfx/effect/effmap03.png
 		blend		add
@@ -247,6 +241,7 @@ models/powerups/instant/invis_ring
 		blue		0.85 + sinTable[time *2] * 0.4
 		rotate		time * -0.1
 		blend		add
+		tcGen		environment
 	}
 	{
 		edgeClamp
@@ -256,6 +251,7 @@ models/powerups/instant/invis_ring
 		red		0.24  + sinTable[time * 0.3] * 0.5
 		green		0.76 + sinTable[time * 0.3] * 0.5
 		blue		0.9 + sinTable[time * 3] * 0.5
+		tcGen		environment
 	}
 }
 
@@ -282,14 +278,10 @@ models/powerups/instant/haste
 {
 	
 	twosided
-	diffusemap		models/powerups/instant/haste.png
-	specularmap		models/powerups/instant/haste.png
+	diffusemap		gfx/2d/green
+	specularmap		gfx/2d/green
 	normalmap		_flat
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	reflectionmap		_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png	
@@ -298,6 +290,7 @@ models/powerups/instant/haste
 		blue		0.075 + sinTable[time * 0.2] * 0.4
 		rotate		time * -0.8
 		blend		add
+		tcGen		environment
 	}
 	{
 		edgeClamp
@@ -307,12 +300,13 @@ models/powerups/instant/haste
 		red		0.714 + sinTable[time * 0.2] * 0.4
 		green		0.66 + sinTable[time * 0.2] * 0.4
 		blue		0.075 + sinTable[time * 0.2] * 0.4
+		tcGen		environment
 	}
-	{
-		map		models/powerups/instant/haste_glow.png
-		rgbGen		wave sin .5 .5 .3 0.5	
-		blend		blend
-	}
+//	{
+//		map		models/powerups/instant/haste_glow.png
+//		rgbGen		wave sin .5 .5 .3 0.5	
+//		blend		blend
+//	}
 }
 
 models/powerups/instant/haste_flare
@@ -346,6 +340,7 @@ models/powerups/instant/haste_ring
 		blue		0.14 + sinTable[time *2] * 0.4
 		rotate		time * -0.1
 		blend		add
+		tcGen		environment
 	}
 	{
 		edgeClamp
@@ -355,6 +350,7 @@ models/powerups/instant/haste_ring
 		red		0.5  + sinTable[time * 0.3] * 0.5
 		green		0.66 + sinTable[time * 0.3] * 0.5
 		blue		0.15 + sinTable[time * 3] * 0.5
+		tcGen		environment
 	}
 }
 
@@ -362,14 +358,10 @@ models/powerups/instant/quad
 {
 	
 	twosided
-	diffusemap		models/powerups/instant/quad.png
-	specularmap		models/powerups/instant/quad.png
+	diffusemap		gfx/2d/blue
+	specularmap		gfx/2d/blue
 	normalmap		_flat
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
+	reflectionmap		_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -378,6 +370,7 @@ models/powerups/instant/quad
 		blue		0.075 + sinTable[time * 0.2] * 0.4
 		rotate		time * -0.8
 		blend		add
+		tcGen		environment
 	}
 	{
 		edgeClamp
@@ -387,6 +380,7 @@ models/powerups/instant/quad
 		red		0.14  + sinTable[time * 0.3] * 0.5
 		green		0.66 + sinTable[time * 0.3] * 0.5
 		blue		0.75 + sinTable[time * 0.3] * 0.5
+		tcGen		environment
 	}
 	{
 		map		models/powerups/instant/quad_glow.png
@@ -405,6 +399,7 @@ models/powerups/instant/quad_ring
 		blue		0.75 + sinTable[time *2] * 0.4
 		rotate		time * -0.1
 		blend		add
+		tcGen		environment
 	}
 	{
 		edgeClamp
@@ -414,6 +409,7 @@ models/powerups/instant/quad_ring
 		red		0.014  + sinTable[time * 0.3] * 0.5
 		green		0.066 + sinTable[time * 0.3] * 0.5
 		blue		0.5 + sinTable[time * 3] * 0.5
+		tcGen		environment
 	}
 }
 
