@@ -384,6 +384,7 @@ textures/trak/trak5/glass_twosided
 		blend		blend
 	}
 	specularMap		textures/trak/trak5/glass.png
+	reflectionMap		_autocube
 }
 
 textures/trak/trak5/glass
@@ -408,6 +409,7 @@ textures/trak/trak5/glass
 		blend		blend
 	}
 	specularMap		textures/trak/trak5/glass.png
+	reflectionMap		_autocube
 }
 
 textures/trak/trak5/grate1a

@@ -74,7 +74,7 @@ Yan "Method" Ostretsov - yan_test
 Stefan "ReFlex" Lautner - REDM08, UGLY R.G.A
 Pat "raynorpat" Raynor - Longest, Soul
 Tom "phantazm11" Perryman - phantq4dm4
-
+Evan "Odin" Goers - oddm01
 
 
 2D ART
@@ -96,6 +96,7 @@ Tom "phantazm11" Perryman - Quake4 aztech texture set
 Oilpainter - Quake4 Rustex texture set
 hi_volt - sky clouds
 leileilol - menu art, effect textures
+Eric "Oblivion" Belita - Facility 114 texture set
 
 
 

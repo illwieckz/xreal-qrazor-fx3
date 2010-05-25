@@ -1,0 +1,291 @@
+// Facility 114
+// Textures by Oblivion
+// Materials by Odin
+textures/facility114/base
+{
+	parallax
+	qer_editorImage		textures/facility114/base
+	diffuseMap		textures/facility114/base
+	specularMap		textures/facility114/base_s
+	normalMap		_flat
+}
+
+textures/facility114/baseblue
+{
+	parallax
+	qer_editorImage		textures/facility114/baseblue
+	diffuseMap		textures/facility114/baseblue
+	specularMap		textures/facility114/base_s
+	normalMap		_flat
+}
+
+textures/facility114/basered
+{
+	parallax
+	qer_editorImage		textures/facility114/basered
+	diffuseMap		textures/facility114/basered
+	specularMap		textures/facility114/base_s
+	normalMap		_flat
+}
+
+textures/facility114/baseyellow
+{
+	parallax
+	qer_editorImage		textures/facility114/baseyellow
+	diffuseMap		textures/facility114/baseyellow
+	specularMap		textures/facility114/base_s
+	normalMap		_flat
+}
+
+textures/facility114/ceiling00
+{
+	parallax
+	qer_editorImage		textures/facility114/ceiling00
+	diffuseMap		textures/facility114/ceiling00
+	specularMap		textures/facility114/ceiling00_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/ceiling00_local
+	}
+	glowMap			textures/facility114/ceiling00_glow
+}
+
+textures/facility114/ceiling00_light
+{
+	parallax
+	qer_editorImage		textures/facility114/ceiling00
+	xmap_surfaceLight	2000
+	xmap_lightImage		textures/facility114/ceiling00_glow
+	diffuseMap		textures/facility114/ceiling00
+	specularMap		textures/facility114/ceiling00_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/ceiling00_local
+	}
+	glowMap			textures/facility114/ceiling00_glow
+}
+
+textures/facility114/ceiling01
+{
+	parallax
+	qer_editorImage		textures/facility114/ceiling01
+	diffuseMap		textures/facility114/ceiling01
+	specularMap		textures/facility114/ceiling01_s
+	normalMap		textures/facility114/ceiling01_local
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/ceiling01_local
+	}
+}
+
+textures/facility114/corridor00
+{
+	parallax
+	qer_editorImage		textures/facility114/corridor00
+	diffuseMap		textures/facility114/corridor00
+	specularMap		textures/facility114/corridor00_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/corridor00_local
+	}
+}
+
+textures/facility114/corridor01
+{
+	parallax
+	qer_editorImage		textures/facility114/corridor01
+	diffuseMap		textures/facility114/corridor01
+	specularMap		textures/facility114/corridor01_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/corridor01_local
+	}
+}
+
+textures/facility114/corridor02
+{
+	parallax
+	qer_editorImage		textures/facility114/corridor02
+	diffuseMap		textures/facility114/corridor02
+	specularMap		textures/facility114/corridor02_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/corridor02_local
+	}
+}
+
+textures/facility114/corridor03
+{
+	parallax
+	qer_editorImage		textures/facility114/corridor03
+	diffuseMap		textures/facility114/corridor03
+	specularMap		textures/facility114/corridor03_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/corridor03_local
+	}
+}
+
+textures/facility114/corridor04
+{
+	parallax
+	qer_editorImage		textures/facility114/corridor04
+	diffuseMap		textures/facility114/corridor04
+	specularMap		textures/facility114/corridor04_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/corridor04_local
+	}
+}
+
+textures/facility114/door01
+{
+	parallax
+	qer_editorImage		textures/facility114/door01
+	diffuseMap		textures/facility114/door01
+	specularMap		textures/facility114/door01_s
+	normalMap		_flat
+}
+
+textures/facility114/floor00
+{
+	parallax
+	qer_editorImage		textures/facility114/floor00
+	diffuseMap		textures/facility114/floor00
+	specularMap		textures/facility114/floor00_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/floor00_local
+	}
+}
+
+textures/facility114/floor01
+{
+	parallax
+	qer_editorImage		textures/facility114/floor01
+	diffuseMap		textures/facility114/floor01
+	specularMap		textures/facility114/floor01_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/floor01_local
+	}
+}
+
+textures/facility114/floor02
+{
+	parallax
+	qer_editorImage	textures/facility114/floor02
+	{
+		stage		diffuseMap
+		map		textures/facility114/floor02
+		depthScale	0.01
+	}
+	specularMap		textures/facility114/floor02_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/floor02_local
+	}
+}
+
+textures/facility114/lift00
+{
+	parallax
+	qer_editorImage		textures/facility114/lift00
+	diffuseMap		textures/facility114/lift00
+	specularMap		textures/facility114/lift00_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/lift00_local
+	}
+}
+
+textures/facility114/lift01
+{
+	parallax
+	qer_editorImage		textures/facility114/lift01
+	diffuseMap		textures/facility114/lift01
+	specularMap		textures/facility114/lift01_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/lift01_local
+	}
+}
+
+textures/facility114/lift02
+{
+	parallax
+	qer_editorImage		textures/facility114/lift02
+	diffuseMap		textures/facility114/lift02
+	specularMap		textures/facility114/lift02_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/lift02_local
+	}
+}
+
+textures/facility114/trim00
+{
+	parallax
+	qer_editorImage		textures/facility114/trim00
+	diffuseMap		textures/facility114/trim00
+	specularMap		textures/facility114/trim00_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/trim00_local
+	}
+	glowMap			textures/facility114/trim00_glow
+}
+
+textures/facility114/trim01
+{
+	parallax
+	qer_editorImage		textures/facility114/trim01
+	diffuseMap		textures/facility114/trim01
+	specularMap		textures/facility114/trim01_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/trim01_local
+	}
+}
+
+textures/facility114/trim02
+{
+	parallax
+	qer_editorImage		textures/facility114/trim02
+	diffuseMap		textures/facility114/trim02
+	specularMap		textures/facility114/trim02_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/trim02_local
+	}
+}
+
+textures/facility114/tube
+{
+	parallax
+	qer_editorImage		textures/facility114/tube
+	diffuseMap		textures/facility114/tube
+	specularMap		textures/facility114/tube_s
+	{
+		forceHighQuality
+		stage		normalMap
+		map		textures/facility114/tube_local
+	}
+}

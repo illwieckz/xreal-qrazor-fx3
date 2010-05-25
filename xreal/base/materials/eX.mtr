@@ -51,7 +51,7 @@ textures/eX/eXmetalBase04
 	
 	bumpMap addnormals	(textures/eX/eXmetalBase01_norm.tga, heightmap ( textures/eX/eXmetalBase01_h.tga,1 ) )
 	diffuseMap			textures/eX/eXmetalBase04.tga
-	specularMap			textures/eX/eXmetalBase01_s.tga
+	specularMap			textures/eX/eXmetalBase04_s.tga
 }
 
 textures/eX/eXmetalBase06rust
@@ -61,7 +61,7 @@ textures/eX/eXmetalBase06rust
 	
 	bumpMap addnormals	(textures/eX/eXmetalBase01_norm.tga, heightmap ( textures/eX/eXmetalBase01_h.tga,1 ) )
 	diffuseMap			textures/eX/eXmetalBase06rust.tga
-	specularMap			textures/eX/eX_cretefloor_01_s.tga
+	specularMap			textures/eX/eXmetalBase06rust_s.tga
 }
 
 textures/eX/eXmetalBase07rust
@@ -71,7 +71,7 @@ textures/eX/eXmetalBase07rust
 	
 	bumpMap addnormals	(textures/eX/eXmetalBase01_norm.tga, heightmap ( textures/eX/eXmetalBase01_h.tga,3 ) )
 	diffuseMap			textures/eX/eXmetalBase07rust.tga
-	specularMap			textures/eX/eXmetalBase01_s.tga
+	specularMap			textures/eX/eXmetalBase07rust_s.tga
 }
 
 textures/eX/eXmetalBase01 
@@ -146,7 +146,7 @@ textures/eX/eX_clangfloor_rusted
 	
 	bumpMap addnormals	(textures/eX/eX_clangfloor_01_norm.tga, heightmap ( textures/eX/eX_clangfloor_01_h.tga,1 ) )
 	diffuseMap			textures/eX/eX_clangfloor_01b.tga
-	specularMap			textures/eX/eX_clangfloor_01_s.tga
+	specularMap			textures/eX/eX_clangfloor_01b_s.tga
 }
 
 textures/eX/eX_floor_simplines 
@@ -265,7 +265,7 @@ textures/eX/eX_wall_01b
 	
 	bumpMap addnormals	(textures/eX/eX_wall_01_norm.tga, heightmap ( textures/eX/eX_wall_01_h.tga,1 ) )
 	diffuseMap			textures/eX/eX_wall_01b.tga
-	specularMap			textures/eX/eX_wall_01_s.tga
+	specularMap			textures/eX/eX_wall_01b_s.tga
 }
 
 textures/eX/eX_wall_panels_08 
