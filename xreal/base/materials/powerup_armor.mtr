@@ -1,9 +1,9 @@
 models/powerups/armor/shard_d
 {
 	diffuseMap		models/powerups/armor/shard_d.tga
-	bumpMap			models/powerups/armor/shard_n.tga
 	specularMap		models/powerups/armor/shard_s.tga
 	reflectionMap		_autocube
+	bumpMap			models/powerups/armor/shard_n.tga
 	{
 		map		models/powerups/armor/shard_glo.tga
 		blend		add
@@ -20,39 +20,39 @@ models/powerups/armor/shard_d
 models/powerups/armor/armor_red_front
 {
 	diffuseMap		models/powerups/armor/armor_red_front.png
-	bumpMap			models/powerups/armor/armor_front_n.png
 	specularMap		models/powerups/armor/armor_front_s.png
 	reflectionMap		_autocube
+	bumpMap			models/powerups/armor/armor_front_n.png
 }
 models/powerups/armor/armor_red_back
 {
 	diffuseMap		models/powerups/armor/armor_red_back.png
-	bumpMap			models/powerups/armor/armor_back_n.png
 	specularMap		models/powerups/armor/armor_back_s.png
 	reflectionMap		_autocube
+	bumpMap			models/powerups/armor/armor_back_n.png
 }
 
 models/powerups/armor/armor_yellow_front
 {
 	diffuseMap		models/powerups/armor/armor_yellow_front.png
-	bumpMap			models/powerups/armor/armor_front_n.png
 	specularMap		models/powerups/armor/armor_front_s.png
 	reflectionMap		_autocube
+	bumpMap			models/powerups/armor/armor_front_n.png
 }
 models/powerups/armor/armor_yellow_back
 {
 	diffuseMap		models/powerups/armor/armor_yellow_back.png
-	bumpMap			models/powerups/armor/armor_back_n.png
 	specularMap		models/powerups/armor/armor_back_s.png
 	reflectionMap		_autocube
+	bumpMap			models/powerups/armor/armor_back_n.png
 }
 models/powerups/armor/armor_dekor
 {
 
 	diffuseMap		models/powerups/armor/armor_dekor.png
-	bumpMap			models/powerups/armor/armor_dekor_n.png
 	specularMap		models/powerups/armor/armor_dekor_s.png
 	reflectionMap		_autocube
+	bumpMap			models/powerups/armor/armor_dekor_n.png
 	{
 		map		models/powerups/armor/armor_dekor_glow.png
 		blend		add

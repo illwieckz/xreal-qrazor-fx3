@@ -4,12 +4,9 @@ models/powerups/harvester/skull1
 	twoSided
 	
 	diffuseMap	models/powerups/harvester/skull1_ao.png
+	specularMap	models/powerups/harvester/skull1_ao.png
+	reflectionMap	_autocube
 	normalMap	models/powerups/harvester/skull1_normal.png
-	{
-		stage		reflectionMap
-		blend		GL_DST_COLOR, GL_ONE
-		cubeMap		_autocube
-	}
 }
 
 // TODO glowing eyes
@@ -18,12 +15,9 @@ models/powerups/harvester/skull2
 	twoSided
 	
 	diffuseMap	models/powerups/harvester/skull2_ao.png
+	specularMap	models/powerups/harvester/skull2_ao.png
+	reflectionMap	_autocube
 	normalMap	models/powerups/harvester/skull2_normal.png
-	{
-		stage	reflectionMap
-		blend	GL_DST_COLOR, GL_ONE
-		cubeMap	_autocube
-	}
 }
 
 models/powerups/harvester/skull3
@@ -31,12 +25,9 @@ models/powerups/harvester/skull3
 	twoSided
 	
 	diffuseMap	models/powerups/harvester/skull3_ao.png
+	specularMap	models/powerups/harvester/skull3_ao.png
+	reflectionMap	_autocube
 	normalMap	models/powerups/harvester/skull3_normal.png
-	{
-		stage	reflectionMap
-		blend	GL_DST_COLOR, GL_ONE
-		cubeMap	_autocube
-	}
 }
 
 models/powerups/harvester/skull1_red
@@ -44,12 +35,9 @@ models/powerups/harvester/skull1_red
 	twoSided
 	
 	diffuseMap	models/powerups/harvester/skull1_ao.png
+	specularMap	models/powerups/harvester/skull1_ao.png
+	reflectionMap	_autocube
 	normalMap	models/powerups/harvester/skull1_normal.png
-	{
-		stage	reflectionMap
-		blend	GL_DST_COLOR, GL_ONE
-		cubeMap	_autocube
-	}
 	{
 		blend	add
 		map	models/powerups/harvester/skull1_ao.png
@@ -73,15 +61,12 @@ models/powerups/harvester/skull3_red
 	twoSided
 	
 	diffuseMap	models/powerups/harvester/skull3_ao.png
+	specularMap	models/powerups/harvester/skull3_ao.png
+	reflectionMap	_autocube
 	normalMap	models/powerups/harvester/skull3_normal.png
 	{
-		stage	reflectionMap
-		blend	GL_DST_COLOR, GL_ONE
-		cubeMap	_autocube
-	}
-	{
 		blend	add
-		map	models/powerups/harvester/skull1_ao.png
+		map	models/powerups/harvester/skull3_ao.png
 		color	1, 0, 0, 1
 	}
 }
@@ -91,12 +76,9 @@ models/powerups/harvester/skull1_blue
 	twoSided
 	
 	diffuseMap	models/powerups/harvester/skull1_ao.png
+	specularMap	models/powerups/harvester/skull1_ao.png
+	reflectionMap	_autocube
 	normalMap	models/powerups/harvester/skull1_normal.png
-	{
-		stage	reflectionMap
-		blend	GL_DST_COLOR, GL_ONE
-		cubeMap	_autocube
-	}
 	{
 		blend	add
 		map	models/powerups/harvester/skull1_ao.png
@@ -120,15 +102,12 @@ models/powerups/harvester/skull3_blue
 	twoSided
 	
 	diffuseMap	models/powerups/harvester/skull3_ao.png
+	specularMap	models/powerups/harvester/skull3_ao.png
+	reflectionMap	_autocube
 	normalMap	models/powerups/harvester/skull3_normal.png
 	{
-		stage	reflectionMap
-		blend	GL_DST_COLOR, GL_ONE
-		cubeMap	_autocube
-	}
-	{
 		blend	add
-		map	models/powerups/harvester/skull1_ao.png
+		map	models/powerups/harvester/skull3_ao.png
 		color	0, 0, 1, 1
 	}
 }

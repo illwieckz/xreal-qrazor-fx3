@@ -1,9 +1,9 @@
 models/weapons/lightning/w_lightning
 {
 	diffuseMap	models/weapons/lightning/lightning.tga
-	normalMap	models/weapons/lightning/lightning_local.tga
 	specularMap	models/weapons/lightning/lightning.tga
 	reflectionMap	_autocube
+	normalMap	models/weapons/lightning/lightning_local.tga
 }
 
 models/weapons/lightning/f_lightning

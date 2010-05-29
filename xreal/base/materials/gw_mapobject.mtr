@@ -1,30 +1,30 @@
 
 models/mapobjects/gw/fan
 { 
-	qer_editorimage		models/mapobjects/gw/fan_local.tga
+	qer_editorimage		models/mapobjects/gw/fan_d.tga
 	diffusemap		models/mapobjects/gw/fan_d.tga
-	bumpmap			models/mapobjects/gw/fan_local.tga
 	specularmap		models/mapobjects/gw/fan_s.tga
 	reflectionMap		_autocube
+	bumpmap			models/mapobjects/gw/fan_local.tga
 }
 
 models/mapobjects/gw/piller
 { 
-	qer_editorimage		models/mapobjects/gw/piller_local.tga
+	qer_editorimage		models/mapobjects/gw/piller_d.tga
 	
 	diffusemap		models/mapobjects/gw/piller_d.tga
-	bumpmap			models/mapobjects/gw/piller_local.tga
 	specularmap		models/mapobjects/gw/piller_s.tga
+	bumpmap			models/mapobjects/gw/piller_local.tga
 }
 
 models/mapobjects/gw/teleporter_01
 { 
-	qer_editorimage		models/mapobjects/gw/teleporter_01_local.tga
+	qer_editorimage		models/mapobjects/gw/teleporter_01_d.tga
 	
 	diffusemap		models/mapobjects/gw/teleporter_01_d.tga
-	bumpmap			models/mapobjects/gw/teleporter_01_local.tga
 	specularmap		models/mapobjects/gw/teleporter_01_s.tga
 	reflectionMap		_autocube
+	bumpmap			models/mapobjects/gw/teleporter_01_local.tga
 }
 
 models/mapobjects/gw/chainlink_fence
@@ -33,14 +33,14 @@ models/mapobjects/gw/chainlink_fence
 	nonsolid
 	twosided
 	alphashadow
-	bumpmap			models/mapobjects/gw/chainlink_fence_local.tga
-	specularmap		models/mapobjects/gw/chainlink_fence_s.tga
 	{
 		blend		diffusemap
 		alphatest	.5
 		map		models/mapobjects/gw/chainlink_fence_d.tga
 	}
+	specularmap		models/mapobjects/gw/chainlink_fence_s.tga
 	reflectionMap		_autocube
+	bumpmap			models/mapobjects/gw/chainlink_fence_local.tga
 }
 
 models/mapobjects/gw/fencepost
@@ -48,7 +48,7 @@ models/mapobjects/gw/fencepost
 	qer_editorimage		models/mapobjects/gw/fencepost_d.tga
 	
 	diffusemap		models/mapobjects/gw/fencepost_d.tga
-	bumpmap			models/mapobjects/gw/fencepost_local.tga
 	specularmap		models/mapobjects/gw/fencepost_s.tga
 	reflectionMap		_autocube
+	bumpmap			models/mapobjects/gw/fencepost_local.tga
 }

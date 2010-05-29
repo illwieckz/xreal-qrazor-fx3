@@ -5,9 +5,9 @@
 models/powerups/ammo/machammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
 	specularMap		models/powerups/ammo/ammobox.tga
 	reflectionMap		_autocube
+	bumpMap			models/powerups/ammo/ammobox_n.tga
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -26,9 +26,9 @@ models/powerups/ammo/machammo2
 models/powerups/ammo/shotammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
 	specularMap		models/powerups/ammo/ammobox.tga
 	reflectionMap		_autocube
+	bumpMap			models/powerups/ammo/ammobox_n.tga
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -47,9 +47,9 @@ models/powerups/ammo/shotammo2
 models/powerups/ammo/grenammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
 	specularMap		models/powerups/ammo/ammobox.tga
 	reflectionMap		_autocube
+	bumpMap			models/powerups/ammo/ammobox_n.tga
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -68,9 +68,9 @@ models/powerups/ammo/grenammo2
 models/powerups/ammo/lighammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
 	specularMap		models/powerups/ammo/ammobox.tga
 	reflectionMap		_autocube
+	bumpMap			models/powerups/ammo/ammobox_n.tga
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -89,9 +89,9 @@ models/powerups/ammo/lighammo2
 models/powerups/ammo/plasammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
 	specularMap		models/powerups/ammo/ammobox.tga
 	reflectionMap		_autocube
+	bumpMap			models/powerups/ammo/ammobox_n.tga
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -110,9 +110,9 @@ models/powerups/ammo/plasammo2
 models/powerups/ammo/rockammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
 	specularMap		models/powerups/ammo/ammobox.tga
 	reflectionMap		_autocube
+	bumpMap			models/powerups/ammo/ammobox_n.tga
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -131,9 +131,9 @@ models/powerups/ammo/rockammo2
 models/powerups/ammo/railammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
 	specularMap		models/powerups/ammo/ammobox.tga
 	reflectionMap		_autocube
+	bumpMap			models/powerups/ammo/ammobox_n.tga
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend
@@ -153,9 +153,9 @@ models/powerups/ammo/railammo2
 models/powerups/ammo/bfgammo
 {
 	diffuseMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
 	specularMap		models/powerups/ammo/ammobox.tga
 	reflectionMap		_autocube
+	bumpMap			models/powerups/ammo/ammobox_n.tga
 	{
 		map		models/powerups/ammo/ammolights.tga
 		blend		blend

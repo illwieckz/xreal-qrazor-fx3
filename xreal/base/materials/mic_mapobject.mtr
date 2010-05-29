@@ -3,13 +3,13 @@ models/mapobjects/mic/tele-frame
 	qer_editorimage		models/mapobjects/mic/tele01_diff
 	diffusemap		models/mapobjects/mic/tele01_diff
 	specularmap		models/mapobjects/mic/tele01_height2b_SPEC
-	bumpmap			models/mapobjects/mic/tele01_height2b_NRM
 	reflectionMap		_autocube
+	bumpmap			models/mapobjects/mic/tele01_height2b_NRM	
 	{
 		map		models/mapobjects/mic/tele01_glo.tga
 		blend		add
 		rgb		1.25 + sinTable[time * 1.0]
-	} 		
+	}
 }
 
 
@@ -44,20 +44,21 @@ models/mapobjects/mic/jumppad/jumppad01
 {
 	qer_editorimage		models/mapobjects/mic/jumppad/jp_diff
 	diffusemap		models/mapobjects/mic/jumppad/jp_diff
-	normalmap		models/mapobjects/mic/jumppad/jp_normal
 	specularmap		models/mapobjects/mic/jumppad/jp_spec
 	reflectionMap		_autocube
+	normalmap		models/mapobjects/mic/jumppad/jp_normal	
 	{
 		map		models/mapobjects/mic/jumppad/jp_glo
 		blend		add
 		rgb		1.25 + sinTable[time * 1.0]
-	} 		
+	}
 }
 
 models/mapobjects/mic/jumppad/jumppad01_kabel
 {
 	qer_editorimage		models/mapobjects/mic/jumppad/jp_diff_kabel
 	diffusemap		models/mapobjects/mic/jumppad/jp_diff_kabel
-	normalmap		models/mapobjects/mic/jumppad/jp_normal_kabel
+	specularMap		models/mapobjects/mic/jumppad/jp_diff_kabel
 	reflectionMap		_autocube
+	normalmap		models/mapobjects/mic/jumppad/jp_normal_kabel
 }

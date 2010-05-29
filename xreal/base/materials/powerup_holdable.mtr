@@ -9,8 +9,8 @@ models/powerups/holdable/teleporter
 	twosided
 	diffuseMap	gfx/2d/teal
 	specularMap	gfx/2d/teal
-	normalMap	_flat
 	reflectionMap	_autocube
+	normalMap	_flat
 	{
 		edgeClamp
 		map	gfx/effect/effmap02.png
@@ -61,8 +61,8 @@ models/powerups/holdable/medkit
 	twosided
 	diffuseMap	gfx/2d/red
 	specularMap	gfx/2d/red
-	normalMap	_flat
 	reflectionMap	_autocube
+	normalMap	_flat
 	{
 		edgeClamp
 		map	gfx/effect/effmap02.png
@@ -107,5 +107,3 @@ models/powerups/holdable/medkit_flare
 		green	0.1 + sinTable[time * 0.31] * 0.5
 	}
 }
-
-

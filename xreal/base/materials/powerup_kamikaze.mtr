@@ -3,37 +3,28 @@ models/powerups/kamikaze/kamikaze1
 {
 	twoSided
 	diffuseMap	models/powerups/kamikaze/kamikaze1_ao.png
+	specularMap	models/powerups/kamikaze/kamikaze1_ao.png
+	reflectionMap		_autocube
 	normalMap	models/powerups/kamikaze/kamikaze1_normal.png
-	{
-		stage	reflectionMap
-		cubeMap	env/fabz0r/gen2
-		blend	GL_DST_COLOR, GL_ZERO
-	}
 }
 
 // TODO glowing eyes
 models/powerups/kamikaze/kamikaze2
 {
 	twoSided
-	diffuseMap	models/powerups/kamikaze/kamikaze2_ao.png
-	normalMap	models/powerups/kamikaze/kamikaze2_normal.png
-	{
-		stage	reflectionMap
-		cubeMap	env/fabz0r/gen2
-		blend	GL_DST_COLOR, GL_ZERO
-	}
+	diffuseMap		models/powerups/kamikaze/kamikaze2_ao.png
+	specularMap		models/powerups/kamikaze/kamikaze2_ao.png
+	reflectionMap		_autocube
+	normalMap		models/powerups/kamikaze/kamikaze2_normal.png
 }
 
 models/powerups/kamikaze/kamikaze3
 {
 	twoSided
 	diffuseMap		models/powerups/kamikaze/kamikaze3_ao.png
+	specularMap		models/powerups/kamikaze/kamikaze3_ao.png
+	reflectionMap		_autocube
 	normalMap		models/powerups/kamikaze/kamikaze3_normal.png
-	{
-		stage		reflectionMap
-		cubeMap		env/fabz0r/gen2
-		blend		GL_DST_COLOR, GL_ZERO
-	}
 }
 
 models/powerups/kamikaze/shocksphere1

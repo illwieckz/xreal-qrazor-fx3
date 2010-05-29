@@ -6,9 +6,9 @@
 models/weapons/machinegun/machinegun
 {
 	diffusemap	models/weapons/machinegun/machinegun_d.tga
-	bumpmap		addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	
 	specularmap	models/weapons/machinegun/machinegun_s.tga
-	reflectionMap	_autocube
+	reflectionmap	_autocube
+	bumpmap		addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	
 	{
 		blend 	add
 		map	models/weapons/machinegun/machinegun_add.tga
@@ -21,9 +21,9 @@ models/weapons/machinegun/machinegun
 models/weapons/machinegun/w_machinegun
 {
 	diffusemap	models/weapons/machinegun/machinegun_d.tga
-	bumpmap		addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	
 	specularmap	models/weapons/machinegun/machinegun_s.tga
 	reflectionMap	_autocube
+	bumpmap		addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	
 	{
 		blend 	add
 		map	models/weapons/machinegun/machinegun_add.tga

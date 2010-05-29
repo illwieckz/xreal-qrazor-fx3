@@ -3,8 +3,8 @@ textures/odin/walls/rockwall1
 	qer_editorImage	textures/odin/walls/rockwall1_d.png
 
 	diffuseMap	textures/odin/walls/rockwall1_d.png
-	bumpMap		heightMap(textures/odin/walls/rockwall1_local.png, addNormals(textures/odin/walls/rockwall1_h.png))
 	specularMap	textures/odin/walls/rockwall1_d.png
+	bumpMap		heightMap(textures/odin/walls/rockwall1_local.png, addNormals(textures/odin/walls/rockwall1_h.png))
 }
 
 textures/odin/walls/rockwall2
@@ -12,8 +12,8 @@ textures/odin/walls/rockwall2
 	qer_editorImage	textures/odin/walls/rockwall2_d.png
 
 	diffuseMap	textures/odin/walls/rockwall2_d.png
-	bumpMap		textures/odin/walls/rockwall2_local.png
 	specularMap	textures/odin/walls/rockwall2_d.png
+	bumpMap		textures/odin/walls/rockwall2_local.png
 }
 
 textures/odin/walls/rockwall3
@@ -21,8 +21,8 @@ textures/odin/walls/rockwall3
 	qer_editorImage	textures/odin/walls/rockwall3_d.png
 
 	diffuseMap	textures/odin/walls/rockwall3_d.png
-	bumpMap		displacemap(heightMap(textures/odin/walls/rockwall3_local.png, addNormals(textures/odin/walls/rockwall3_h.png)), invertColor(textures/odin/walls/rockwall3_disp.png))
 	specularMap	textures/odin/walls/rockwall3_s.png
+	bumpMap		displacemap(heightMap(textures/odin/walls/rockwall3_local.png, addNormals(textures/odin/walls/rockwall3_h.png)), invertColor(textures/odin/walls/rockwall3_disp.png))
 }
 
 textures/odin/walls/rockwall4
@@ -32,8 +32,8 @@ textures/odin/walls/rockwall4
 	parallax
 
 	diffuseMap	textures/odin/walls/rockwall4_d.png
-	bumpMap		textures/odin/walls/rockwall4_local.png
 	specularMap	textures/odin/walls/rockwall4_s.png
+	bumpMap		textures/odin/walls/rockwall4_local.png
 }
 
 textures/odin/walls/m_rustywall1.png
@@ -43,8 +43,8 @@ textures/odin/walls/m_rustywall1.png
 	parallax
 
 	diffuseMap	textures/odin/walls/m_rustywall1.png
-	bumpMap		textures/odin/walls/m_rustywall1_local.png
 	specularMap	textures/odin/walls/m_rustywall1_s.png
+	bumpMap		textures/odin/walls/m_rustywall1_local.png
 }
 
 textures/odin/walls/m_rustywall2.png

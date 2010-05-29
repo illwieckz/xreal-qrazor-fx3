@@ -9,8 +9,8 @@ models/powerups/instant/enviro
 {
 	diffusemap		gfx/2d/yellow
 	specularmap		gfx/2d/yellow
-	normalmap		_flat
 	reflectionmap		_autocube
+	normalmap		_flat
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -77,8 +77,8 @@ models/powerups/instant/regen
 	twosided
 	diffusemap		gfx/2d/red
 	specularmap		gfx/2d/red
-	normalmap		_flat
 	reflectionmap		_autocube
+	normalmap		_flat
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -143,8 +143,8 @@ models/powerups/instant/flight
 	twosided
 	diffusemap		gfx/2d/magenta
 	specularmap		gfx/2d/magenta
-	normalmap		_flat
 	reflectionmap		_autocube
+	normalmap		_flat
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -166,7 +166,6 @@ models/powerups/instant/flight
 		tcGen		environment
 	}
 }
-
 
 models/powerups/instant/flight_ring
 {
@@ -215,15 +214,14 @@ models/powerups/instant/flight_flare
 	}
 }
 
-
 models/powerups/instant/invis
 {
 	
 	twosided
 	diffusemap		gfx/2d/teal
 	specularmap		gfx/2d/teal
-	normalmap		_flat
 	reflectionmap		_autocube
+	normalmap		_flat
 	{
 		map		gfx/effect/effmap03.png
 		blend		add
@@ -280,8 +278,8 @@ models/powerups/instant/haste
 	twosided
 	diffusemap		gfx/2d/green
 	specularmap		gfx/2d/green
-	normalmap		_flat
 	reflectionmap		_autocube
+	normalmap		_flat
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png	
@@ -302,11 +300,6 @@ models/powerups/instant/haste
 		blue		0.075 + sinTable[time * 0.2] * 0.4
 		tcGen		environment
 	}
-//	{
-//		map		models/powerups/instant/haste_glow.png
-//		rgbGen		wave sin .5 .5 .3 0.5	
-//		blend		blend
-//	}
 }
 
 models/powerups/instant/haste_flare
@@ -360,8 +353,8 @@ models/powerups/instant/quad
 	twosided
 	diffusemap		gfx/2d/blue
 	specularmap		gfx/2d/blue
-	normalmap		_flat
 	reflectionmap		_autocube
+	normalmap		_flat
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png

@@ -1,42 +1,33 @@
-
 models/ppodium_base
 {
-	
-	diffuseMap textures/otty/base/h_metal01_d.png
-	specularMap textures/otty/base/h_metal01_s.png
-	bumpMap textures/otty/base/h_metal01_n.png
-	
-
+	diffuseMap	textures/otty/base/h_metal01_d.png
+	specularMap	textures/otty/base/h_metal01_s.png
+	reflectionMap	_autocube
+	bumpMap		textures/otty/base/h_metal01_n.png
 }
 
 
 models/ppodium_ripl
 {
-	
 	{
 		stage diffuseMap
 		map textures/otty/base/m_ripl_d.png
 		scale 4, 4
-
 	}
 	{
 		stage specularMap
 		map textures/otty/base/m_ripl_s.png
 		scale 4, 4
-
-	}
+	
 	{
 		stage bumpMap
 		map textures/otty/base/m_ripl_n.png
 		scale 4, 4
-
 	}	
-
 }
 
 models/ppodium_grid
 {
-	
 	{
 		map _white
 		blend blend
@@ -45,14 +36,11 @@ models/ppodium_grid
 		green 0.4
 		blue 1.0
 	}
-
 	{
 		map gfx/effect/grid01.png
 		blend blend
 		alpha 0.1 + 0.5 * ( 1.0 -  (   (sinTable[time] + 1.0) / 2.0 ) )
 		scroll time * 5.8, 0
 		centerScale 1.0 + (cosTable[time]) , 1
-		
 	}
-
 }

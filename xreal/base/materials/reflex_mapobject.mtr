@@ -1,25 +1,26 @@
-
 models/mapobjects/reflex/gold1
 {
-    qer_editorimage    models/mapobjects/reflex/gold1.tga
-    
-	diffusemap         models/mapobjects/reflex/gold1.tga
-	specularmap	    models/mapobjects/reflex/gold1_spec.tga
-    bumpmap            models/mapobjects/reflex/gold1_local.tga
+	qer_editorimage	models/mapobjects/reflex/gold1.tga
+	diffusemap	models/mapobjects/reflex/gold1.tga
+	specularmap	models/mapobjects/reflex/gold1_spec.tga
+	reflectionMap	_autocube
+	bumpmap		models/mapobjects/reflex/gold1_local.tga
 }
 
 models/mapobjects/reflex/metal4
 {
-    qer_editorimage    models/mapobjects/reflex/metal4.tga
-    
-	diffusemap         models/mapobjects/reflex/metal4.tga
-    bumpmap         models/mapobjects/reflex/metal4_local.tga
+	qer_editorimage	models/mapobjects/reflex/metal4.tga
+	diffusemap	models/mapobjects/reflex/metal4.tga
+	specularmap	models/mapobjects/reflex/metal4.tga
+	reflectionMap	_autocube
+	bumpmap		models/mapobjects/reflex/metal4_local.tga
 }
 
 models/mapobjects/reflex/vent1
 {
-    qer_editorimage    models/mapobjects/reflex/vent1.tga
-    
-	diffusemap         models/mapobjects/reflex/vent1.tga
-    bumpmap         models/mapobjects/reflex/vent1_local.tga
+	qer_editorimage	models/mapobjects/reflex/vent1.tga
+	diffusemap	models/mapobjects/reflex/vent1.tga
+	specularmap	models/mapobjects/reflex/vent1.tga
+	reflectionMap	_autocube
+	bumpmap		models/mapobjects/reflex/vent1_local.tga
 }

@@ -9,8 +9,8 @@ textures/odin/terrain/cobbleroad1
 	parallax
 
 	diffuseMap	textures/odin/terrain/cobbleroad1_d.png
-	normalMap	textures/odin/terrain/cobbleroad1_local.png
 	specularMap	textures/odin/terrain/cobbleroad1_s.png
+	normalMap	textures/odin/terrain/cobbleroad1_local.png
 }
 
 textures/odin/terrain/concrete1
@@ -22,8 +22,8 @@ textures/odin/terrain/concrete1
 	xmap_nonPlanar
 
 	diffuseMap	textures/odin/terrain/concrete1_d.png
-	bumpMap		heightMap(textures/odin/terrain/concrete1_local.png, addNormals(textures/odin/terrain/concrete1_h.png))
 	specularMap	textures/odin/terrain/concrete1_s.png
+	bumpMap		heightMap(textures/odin/terrain/concrete1_local.png, addNormals(textures/odin/terrain/concrete1_h.png))
 }
 
 textures/odin/terrain/concrete2
@@ -35,8 +35,8 @@ textures/odin/terrain/concrete2
 	xmap_nonPlanar
 
 	diffuseMap	textures/odin/terrain/concrete2_d.png
-	bumpMap		heightMap(textures/odin/terrain/concrete2_local.png, addNormals(textures/odin/terrain/concrete2_h.png))
 	specularMap	textures/odin/terrain/concrete2_s.png
+	bumpMap		heightMap(textures/odin/terrain/concrete2_local.png, addNormals(textures/odin/terrain/concrete2_h.png))
 }
 
 textures/odin/terrain/dirtground1
@@ -48,6 +48,6 @@ textures/odin/terrain/dirtground1
 	xmap_nonPlanar
 
 	diffuseMap	textures/odin/terrain/dirtground1_d.png
-	bumpMap		heightMap(textures/odin/terrain/dirtground1_local.png, addNormals(textures/odin/terrain/dirtground1_h.png))
 	specularMap	textures/odin/terrain/dirtground1_s.png
+	bumpMap		heightMap(textures/odin/terrain/dirtground1_local.png, addNormals(textures/odin/terrain/dirtground1_h.png))
 }

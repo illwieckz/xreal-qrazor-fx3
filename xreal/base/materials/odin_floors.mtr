@@ -5,6 +5,6 @@ textures/odin/floors/woodflr1
 	parallax
 
 	diffuseMap	textures/odin/floors/woodflr1_d.png
-	normalMap	textures/odin/floors/woodflr1_local.png
 	specularMap	textures/odin/floors/woodflr1_d.png
+	normalMap	textures/odin/floors/woodflr1_local.png
 }

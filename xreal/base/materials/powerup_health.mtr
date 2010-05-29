@@ -9,8 +9,8 @@ models/powerups/health/small
 {
 	diffuseMap		gfx/2d/green
 	specularMap		gfx/2d/green
-	normalmap		_flat
 	reflectionmap		_autocube
+	normalmap		_flat
 }
 
 models/powerups/health/small_sphere
@@ -57,8 +57,8 @@ models/powerups/health/medium
 {
 	diffuseMap		gfx/2d/yellow
 	specularMap		gfx/2d/yellow
-	normalmap		_flat
 	reflectionmap		_autocube
+	normalmap		_flat
 }
 
 models/powerups/health/medium_sphere
@@ -108,8 +108,8 @@ models/powerups/health/large
 {
 	diffuseMap		gfx/2d/red
 	specularMap		gfx/2d/red
-	normalmap		_flat
 	reflectionmap		_autocube
+	normalmap		_flat
 }
 
 models/powerups/health/large_sphere
@@ -156,8 +156,8 @@ models/powerups/health/mega
 {
 	diffuseMap		gfx/2d/teal
 	specularMap		gfx/2d/teal
-	normalmap		_flat
 	reflectionmap		_autocube
+	normalmap		_flat
 }
 
 models/powerups/health/mega_sphere

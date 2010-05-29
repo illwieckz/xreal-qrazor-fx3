@@ -16,12 +16,11 @@ models/mapobjects/kat/lantern
 
 	{
 		blend			diffusemap
-	    map				models/mapobjects/kat/lantern_2b.tga
+		map			models/mapobjects/kat/lantern_2b.tga
 		alphaTest 0.5
 	}
-
-		bumpmap			addnormals( models/mapobjects/kat/lantern_2b_n.tga, heightmap( models/mapobjects/kat/lantern_2b_h.tga, 4 ) )
-		specularmap		models/mapobjects/kat/lantern_2b.tga
+	specularmap			models/mapobjects/kat/lantern_2b.tga
+	bumpmap				addnormals( models/mapobjects/kat/lantern_2b_n.tga, heightmap( models/mapobjects/kat/lantern_2b_h.tga, 4 ) )
 }
 
 models/mapobjects/kat/lantern_crystal
@@ -32,19 +31,19 @@ models/mapobjects/kat/lantern_crystal
 //	spectrum 7
 //	materialType glass
 
-	qer_editorimage		models/mapobjects/kat/crystal.tga
+	qer_editorimage			models/mapobjects/kat/crystal.tga
 
-	diffusemap		models/mapobjects/kat/crystal.tga
+	diffusemap			models/mapobjects/kat/crystal.tga
 //	{
 //		blend	blend	//diffuse
 //		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 //		map		models/mapobjects/kat/crystal.tga
 //	}
 	
-	specularmap		models/mapobjects/kat/crystal_s.tga
+	specularmap			models/mapobjects/kat/crystal_s.tga
 	
 	{
-		blend		bumpmap
+		stage			bumpmap
 		map			heightmap (models/mapobjects/kat/crystal_h.tga, 1)
 		scale 2.5, 2.5
 	}
@@ -124,25 +123,21 @@ models/mapobjects/kat/lantern_top_hat
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 models/mapobjects/kat/jumppad_nofx
 {
-//     	noselfShadow
-		nonSolid
+	nonSolid
 
-	diffusemap 	models/mapobjects/kat/jumppad_e2.tga
-	bumpmap addnormals (models/mapobjects/kat/jumppad_n.tga, heightmap (models/mapobjects/kat/jumppad_h.tga, 2 ))
+	diffusemap	models/mapobjects/kat/jumppad_e2.tga
 	specularmap	models/mapobjects/kat/jumppad_s_c.tga
+	bumpmap		addnormals (models/mapobjects/kat/jumppad_n.tga, heightmap (models/mapobjects/kat/jumppad_h.tga, 2 ))
 }
 
 models/mapobjects/kat/accelpad
 {
-//     	noselfShadow
-		nonSolid
+	nonSolid
 
-	diffusemap 	models/mapobjects/kat/accel.tga
-	bumpmap addnormals (models/mapobjects/kat/accel_local.tga, heightmap (models/mapobjects/kat/accel_h.tga, 2 ))
+	diffusemap	models/mapobjects/kat/accel.tga
 	specularmap	models/mapobjects/kat/accel_s.tga
-
+	bumpmap		addnormals (models/mapobjects/kat/accel_local.tga, heightmap (models/mapobjects/kat/accel_h.tga, 2 ))
 	{
-//		blend blend
 		blend add
 		map models/mapobjects/kat/accel_g2.tga
 		rgb 1.25 + sintable [time * 1]
@@ -159,23 +154,19 @@ models/mapobjects/kat/accelpad
 models/mapobjects/kat/jumppad
 {
 	qer_editorImage models/mapobjects/kat/jumppad_f2.tga
-
-//  noselfShadow
 	nonSolid
 
-	diffusemap 	models/mapobjects/kat/jumppad_f2.tga
-	bumpmap addnormals (models/mapobjects/kat/jumppad_4_n.tga, heightmap (models/mapobjects/kat/jumppad_h.tga, 2 ))
+	diffusemap	models/mapobjects/kat/jumppad_f2.tga
 	specularmap	models/mapobjects/kat/jumppad_f2.tga
-
+	bumpmap		addnormals (models/mapobjects/kat/jumppad_4_n.tga, heightmap (models/mapobjects/kat/jumppad_h.tga, 2 ))
 	{
-//		blend blend
-		blend add
-		map models/mapobjects/kat/jumppad_g_neutral.tga
-		rgb 1.25 + sintable [time * 1]
+		blend	add
+		map	models/mapobjects/kat/jumppad_g_neutral.tga
+		rgb	1.25 + sintable [time * 1]
 	}	
 	{
-		blend add
-		map models/mapobjects/kat/jumppad_g2_neutral.tga
+		blend	add
+		map	models/mapobjects/kat/jumppad_g2_neutral.tga
 	}
 	
 }
@@ -183,15 +174,12 @@ models/mapobjects/kat/jumppad
 //q4base/models/mapobjects/kat/jumppad_body
 models/mapobjects/kat/jumppad_body
 {
-	qer_editorimage			models/mapobjects/kat/jumppad_drum_v2.tga
-//	materialType hollowmetal
-//	noSelfShadow			//leave this in place for the 'Pro' map :o|
-//	noshadows
+	qer_editorimage		models/mapobjects/kat/jumppad_drum_v2.tga
 	nonsolid
 
-		bumpmap			addnormals( models/mapobjects/kat/jumppad_drum_n.tga, heightmap( models/mapobjects/kat/jumppad_drum_h.tga, 2 ) )
-		diffusemap		models/mapobjects/kat/jumppad_drum_v2.tga
-		specularmap		models/mapobjects/kat/jumppad_drum_v2.tga
+	diffusemap		models/mapobjects/kat/jumppad_drum_v2.tga
+	specularmap		models/mapobjects/kat/jumppad_drum_v2.tga
+	bumpmap			addnormals( models/mapobjects/kat/jumppad_drum_n.tga, heightmap( models/mapobjects/kat/jumppad_drum_h.tga, 2 ) )
 }
 
 
@@ -257,9 +245,9 @@ models/mapobjects/kat/weapon_marker
 	//noselfShadow
 	nonsolid
 
-	diffusemap 	models/mapobjects/kat/weapon_marker.tga
-	bumpmap addnormals (models/mapobjects/kat/weapon_marker_local.tga, heightmap (models/mapobjects/kat/weapon_marker_h.tga, 2 ))
+	diffusemap	models/mapobjects/kat/weapon_marker.tga
 	specularmap	models/mapobjects/kat/weapon_marker.tga
+	bumpmap		addnormals (models/mapobjects/kat/weapon_marker_local.tga, heightmap (models/mapobjects/kat/weapon_marker_h.tga, 2 ))
 	{
 		blend add
 		red			parm0
@@ -306,29 +294,24 @@ models/mapobjects/kat/stone_flat
 //q4base/models/mapobjects/kat/stone_steps
 models/mapobjects/kat/stone_steps
 {
-//	noSelfShadow
-//	noshadows
 	nonsolid
 	stone
 	qer_editorimage		models/mapobjects/kat/steps.tga
 
-	    diffusemap		models/mapobjects/kat/steps.tga
-		bumpmap			addnormals( models/mapobjects/kat/steps_local.tga, heightmap( models/mapobjects/kat/steps_h.tga, 1 ) )
-//	    bumpmap			models/mapobjects/kat/steps_local.tga
-		specularmap	    models/mapobjects/kat/steps.tga
+	diffusemap		models/mapobjects/kat/steps.tga
+	specularmap		models/mapobjects/kat/steps.tga
+	bumpmap			addnormals( models/mapobjects/kat/steps_local.tga, heightmap( models/mapobjects/kat/steps_h.tga, 1 ) )
 }
 
 
 //q4base/models/mapobjects/kat/stone
 models/mapobjects/kat/stone
 {
-//	noSelfShadow
-//	noshadows
 	nonsolid
 	stone
 	qer_editorimage		models/mapobjects/kat/rock_plain.tga
 	
-		diffusemap		models/mapobjects/kat/rock_plain.tga
-		bumpmap			addnormals (models/mapobjects/kat/rock_v2_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 2 ) )
-		specularmap		models/mapobjects/kat/rock_plain.tga
+	diffusemap		models/mapobjects/kat/rock_plain.tga
+	specularmap		models/mapobjects/kat/rock_plain.tga
+	bumpmap			addnormals (models/mapobjects/kat/rock_v2_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 2 ) )
 }
