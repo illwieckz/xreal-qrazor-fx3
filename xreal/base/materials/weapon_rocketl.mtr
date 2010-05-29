@@ -61,7 +61,7 @@ models/weapons/rocketl/rocketl_body_d // hinterteil -.-
 	twoSided
 	diffuseMap	models/weapons/rocketl/rocketl_body_d.tga
 	specularMap	models/weapons/rocketl/rocketl_body_d.tga
-
+	reflectionMap	_autocube
 	normalMap	models/weapons/rocketl/body_n2.png
 }
 
@@ -70,8 +70,8 @@ models/weapons/rocketl/rocketl_body_d // hinterteil -.-
 models/projectiles/missile/missile
 {
 	diffuseMap	models/projectiles/missile/missile.png
-	reflectionMap	_autocube
 	specularMap	models/projectiles/missile/missile_spec.png
+	reflectionMap	_autocube
 	normalMap	heightmap(models/projectiles/missile/missile_bump.png, 3)
 	{
 		map	models/projectiles/missile/missile_glow.png

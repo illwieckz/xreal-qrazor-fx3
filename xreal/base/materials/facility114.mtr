@@ -73,7 +73,6 @@ textures/facility114/ceiling01
 	qer_editorImage		textures/facility114/ceiling01
 	diffuseMap		textures/facility114/ceiling01
 	specularMap		textures/facility114/ceiling01_s
-	normalMap		textures/facility114/ceiling01_local
 	{
 		forceHighQuality
 		stage		normalMap

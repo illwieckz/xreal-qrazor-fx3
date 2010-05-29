@@ -12,8 +12,8 @@ textures/reflex/special/wallwalk01_blue
     wallwalk
     
     diffusemap       textures/reflex/special/wallwalk01.tga
-    bumpmap          textures/reflex/special/wallwalk01_local.tga
     specularMap      textures/reflex/special/wallwalk01_spec.tga
+    bumpmap          textures/reflex/special/wallwalk01_local.tga
 	{
 		blend		add
 		map	      textures/reflex/special/wallwalk01_glow
@@ -33,8 +33,8 @@ textures/reflex/special/wallwalktrim01_blue
     wallwalk
     
     diffusemap       textures/reflex/special/wallwalktrim01.tga
-    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
     specularMap      textures/reflex/special/wallwalktrim01_spec.tga
+    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
 	{
 		blend		add
 		map	      textures/reflex/special/wallwalktrim01_glow
@@ -54,8 +54,8 @@ textures/reflex/special/wallwalk01_red
     wallwalk
     
     diffusemap       textures/reflex/special/wallwalk01.tga
-    bumpmap          textures/reflex/special/wallwalk01_local.tga
     specularMap      textures/reflex/special/wallwalk01_spec.tga
+    bumpmap          textures/reflex/special/wallwalk01_local.tga
 	{
 		blend		add
 		map	      textures/reflex/special/wallwalk01_glow
@@ -75,8 +75,8 @@ textures/reflex/special/wallwalktrim01_red
     wallwalk
     
     diffusemap       textures/reflex/special/wallwalktrim01.tga
-    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
     specularMap      textures/reflex/special/wallwalktrim01_spec.tga
+    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
 	{
 		blend		add
 		map	      textures/reflex/special/wallwalktrim01_glow
@@ -96,8 +96,8 @@ textures/reflex/special/wallwalk01_green
     wallwalk
     
     diffusemap       textures/reflex/special/wallwalk01.tga
-    bumpmap          textures/reflex/special/wallwalk01_local.tga
     specularMap      textures/reflex/special/wallwalk01_spec.tga
+    bumpmap          textures/reflex/special/wallwalk01_local.tga
 	{
 		blend		add
 		map	      textures/reflex/special/wallwalk01_glow
@@ -117,8 +117,8 @@ textures/reflex/special/wallwalktrim01_green
     wallwalk
     
     diffusemap       textures/reflex/special/wallwalktrim01.tga
-    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
     specularMap      textures/reflex/special/wallwalktrim01_spec.tga
+    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
 	{
 		blend		add
 		map	      textures/reflex/special/wallwalktrim01_glow
@@ -138,8 +138,8 @@ textures/reflex/special/wallwalk01_orange
     wallwalk
     
     diffusemap       textures/reflex/special/wallwalk01.tga
-    bumpmap          textures/reflex/special/wallwalk01_local.tga
     specularMap      textures/reflex/special/wallwalk01_spec.tga
+    bumpmap          textures/reflex/special/wallwalk01_local.tga
 	{
 		blend		add
 		map	      textures/reflex/special/wallwalk01_glow
@@ -159,8 +159,8 @@ textures/reflex/special/wallwalktrim01_orange
     wallwalk
     
     diffusemap       textures/reflex/special/wallwalktrim01.tga
-    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
     specularMap      textures/reflex/special/wallwalktrim01_spec.tga
+    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
 	{
 		blend		add
 		map	      textures/reflex/special/wallwalktrim01_glow
@@ -200,13 +200,13 @@ textures/reflex/special/launchpad01
             scroll    time * -1.4, time* 0.0
       }
 	{
-		blend bumpmap          
-		map textures/reflex/special/launchpad01_treads_local
+		blend specularMap      
+		map textures/reflex/special/launchpad01_treads_spec
             scroll    time * -1.4, time* 0.0
 	}
 	{
-		blend specularMap      
-		map textures/reflex/special/launchpad01_treads_spec
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_treads_local
             scroll    time * -1.4, time* 0.0
 	}
       {
@@ -220,12 +220,12 @@ color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (ji
             alphaTest .5
       }
 	{
-		blend bumpmap          
-		map textures/reflex/special/launchpad01_local
-	}
-	{
 		blend specularMap      
 		map textures/reflex/special/launchpad01_spec
+	}
+	{
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_local
 	}
 }
 
@@ -244,13 +244,13 @@ textures/reflex/special/launchpad01_red
             scroll    time * -1.4, time* 0.0
       }
 	{
-		blend bumpmap          
-		map textures/reflex/special/launchpad01_treads_local
+		blend specularMap      
+		map textures/reflex/special/launchpad01_treads_spec
             scroll    time * -1.4, time* 0.0
 	}
 	{
-		blend specularMap      
-		map textures/reflex/special/launchpad01_treads_spec
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_treads_local
             scroll    time * -1.4, time* 0.0
 	}
       {
@@ -264,12 +264,12 @@ color       0.85 * (jitter5 [time * 2]), 0.15 * (jitter5 [time * 2]), 0.15 * (ji
             alphaTest .5
       }
 	{
-		blend bumpmap          
-		map textures/reflex/special/launchpad01_local
-	}
-	{
 		blend specularMap      
 		map textures/reflex/special/launchpad01_spec
+	}
+	{
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_local
 	}
 }
 
@@ -288,13 +288,13 @@ textures/reflex/special/launchpad01_blue
             scroll    time * -1.4, time* 0.0
       }
 	{
-		blend bumpmap          
-		map textures/reflex/special/launchpad01_treads_local
+		blend specularMap      
+		map textures/reflex/special/launchpad01_treads_spec
             scroll    time * -1.4, time* 0.0
 	}
 	{
-		blend specularMap      
-		map textures/reflex/special/launchpad01_treads_spec
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_treads_local
             scroll    time * -1.4, time* 0.0
 	}
       {
@@ -308,12 +308,12 @@ color       0.15 * (jitter5 [time * 2]), 0.15 * (jitter5 [time * 2]), 0.85 * (ji
             alphaTest .5
       }
 	{
-		blend bumpmap          
-		map textures/reflex/special/launchpad01_local
-	}
-	{
 		blend specularMap      
 		map textures/reflex/special/launchpad01_spec
+	}
+	{
+		blend bumpmap          
+		map textures/reflex/special/launchpad01_local
 	}
 }
 
@@ -321,16 +321,16 @@ textures/reflex/special/launchpad01_metal
 {
     qer_editorimage  textures/reflex/special/launchpad01_metal
     diffusemap       textures/reflex/special/launchpad01_metal
-    bumpmap          textures/reflex/special/launchpad01_metal_local
     specularMap      textures/reflex/special/launchpad01_metal_spec
+    bumpmap          textures/reflex/special/launchpad01_metal_local
 }
 
 textures/reflex/special/launchpad01_trim
 {
     qer_editorimage  textures/reflex/special/launchpad01_trim
     diffusemap       textures/reflex/special/launchpad01_trim
-    bumpmap          textures/reflex/special/launchpad01_trim_local
     specularMap      textures/reflex/special/launchpad01_trim_spec
+    bumpmap          textures/reflex/special/launchpad01_trim_local
 }
 
 textures/reflex/special/bouncepad01
@@ -359,13 +359,13 @@ color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (ji
             alphaTest .5
       }
 	{
-		blend bumpmap          
-		map textures/reflex/special/bouncepad01_fan_local
+		blend specularMap      
+		map textures/reflex/special/bouncepad01_fan_spec
             rotate	time * -240
 	}
 	{
-		blend specularMap      
-		map textures/reflex/special/bouncepad01_fan_spec
+		blend bumpmap          
+		map textures/reflex/special/bouncepad01_fan_local
             rotate	time * -240
 	}
       {
@@ -374,12 +374,12 @@ color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (ji
             alphaTest .5
       }
 	{
-		blend bumpmap          
-		map textures/reflex/special/bouncepad01_local
-	}
-	{
 		blend specularMap      
 		map textures/reflex/special/bouncepad01_spec
+	}
+	{
+		blend bumpmap          
+		map textures/reflex/special/bouncepad01_local
 	}
       {
             blend add
@@ -387,6 +387,3 @@ color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (ji
 color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
       }
 }
-
-
-

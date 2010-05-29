@@ -8,7 +8,6 @@
 
 models/weapons/arms/arm2
 {
-	noShadows
 	clamp
 	diffusemap	models/weapons/arms/arm2_d.tga
 	specularmap	models/weapons/arms/arm2_s.tga

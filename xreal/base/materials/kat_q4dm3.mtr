@@ -10,14 +10,6 @@ textures/kat_q4dm3/stonedirtMix
 
 //### TEXTURE 1 - DIRT
 	{
-		blend	bumpmap
-		map 	textures/kat_q4dm3/dirt_local.tga
-//		map		addnormals( textures/kat_q4dm3/dirt_local.tga, heightmap( textures/kat_q4dm3/dirt_h.tga, 1 ) )
-				
-		inverseVertexColor
-		scale 3, 3
-	}
-	{
 		blend	diffusemap
 		map		textures/kat_q4dm3/dirt.tga
 		inverseVertexColor
@@ -29,17 +21,16 @@ textures/kat_q4dm3/stonedirtMix
 		inverseVertexColor
 		scale 3, 3
 	}
+	{
+		blend	bumpmap
+		map 	textures/kat_q4dm3/dirt_local.tga
+//		map		addnormals( textures/kat_q4dm3/dirt_local.tga, heightmap( textures/kat_q4dm3/dirt_h.tga, 1 ) )
+				
+		inverseVertexColor
+		scale 3, 3
+	}
 
 //### TEXTURE 2 - ROCK FACE
-	{
-		blend 	bumpmap
-//		map		models/mapobjects/kat/rock_plain_local.tga
-//		map		textures/kat_q4dm3/rock_v2_local.tga
-		map		addnormals (textures/kat_q4dm3/rock_v2b_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 4 ) )
-//		map		addnormals (models/mapobjects/kat/rock_plain_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 1 ) )
-		VertexColor
-		scale 1.5, 1.5
-	}
 	{
 		blend 	diffusemap
 		map		models/mapobjects/kat/rock_plain.tga
@@ -52,6 +43,15 @@ textures/kat_q4dm3/stonedirtMix
 //		VertexColor
 //		scale 1.5, 1.5
 //	}
+	{
+		blend 	bumpmap
+//		map		models/mapobjects/kat/rock_plain_local.tga
+//		map		textures/kat_q4dm3/rock_v2_local.tga
+		map		addnormals (textures/kat_q4dm3/rock_v2b_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 4 ) )
+//		map		addnormals (models/mapobjects/kat/rock_plain_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 1 ) )
+		VertexColor
+		scale 1.5, 1.5
+	}
 }
 
 
@@ -67,13 +67,6 @@ textures/kat_q4dm3/grounddirtMix
 
 //### TEXTURE 1 - DIRT
 	{
-		blend	bumpmap
-///		map 	textures/kat_q4dm3/dirt_local.tga
-		map		addnormals( textures/kat_q4dm3/dirt_local.tga, heightmap( textures/kat_q4dm3/dirt_h.tga, 1 ) )
-		inverseVertexColor
-		scale 3, 3
-	}
-	{
 		blend	diffusemap
 		map		textures/kat_q4dm3/dirt.tga
 		inverseVertexColor
@@ -85,15 +78,15 @@ textures/kat_q4dm3/grounddirtMix
 		inverseVertexColor
 		scale 3, 3
 	}
-
-//### TEXTURE 2 - GROUND
 	{
-		blend 	bumpmap
-		map		addnormals (textures/kat_q4dm3/ground_cb_n.tga, heightmap( textures/kat_q4dm3/ground_h.tga, 1 ) )
-//		map		addnormals (textures/kat_q4dm3/ground_local.tga, heightmap( textures/kat_q4dm3/ground_h.tga, 1 ) )
-		VertexColor
+		blend	bumpmap
+///		map 	textures/kat_q4dm3/dirt_local.tga
+		map		addnormals( textures/kat_q4dm3/dirt_local.tga, heightmap( textures/kat_q4dm3/dirt_h.tga, 1 ) )
+		inverseVertexColor
 		scale 3, 3
 	}
+
+//### TEXTURE 2 - GROUND
 	{
 		blend 	diffusemap
 		map		textures/kat_q4dm3/ground.tga
@@ -103,6 +96,13 @@ textures/kat_q4dm3/grounddirtMix
 	{
 		blend	specularmap
 		map		textures/kat_q4dm3/ground_s.tga
+		VertexColor
+		scale 3, 3
+	}
+	{
+		blend 	bumpmap
+		map		addnormals (textures/kat_q4dm3/ground_cb_n.tga, heightmap( textures/kat_q4dm3/ground_h.tga, 1 ) )
+//		map		addnormals (textures/kat_q4dm3/ground_local.tga, heightmap( textures/kat_q4dm3/ground_h.tga, 1 ) )
 		VertexColor
 		scale 3, 3
 	}
@@ -122,13 +122,6 @@ textures/kat_q4dm3/stepsdirtMix
 
 //### TEXTURE 1 - DIRT
 	{
-		blend	bumpmap
-///		map 	textures/kat_q4dm3/dirt_local.tga
-		map		addnormals( textures/kat_q4dm3/dirt_local.tga, heightmap( textures/kat_q4dm3/dirt_h.tga, 1 ) )
-		inverseVertexColor
-		scale 2, 2
-	}
-	{
 		blend	diffusemap
 		map		textures/kat_q4dm3/dirt.tga
 		inverseVertexColor
@@ -140,14 +133,15 @@ textures/kat_q4dm3/stepsdirtMix
 		inverseVertexColor
 		scale 2, 2
 	}
+	{
+		blend	bumpmap
+///		map 	textures/kat_q4dm3/dirt_local.tga
+		map		addnormals( textures/kat_q4dm3/dirt_local.tga, heightmap( textures/kat_q4dm3/dirt_h.tga, 1 ) )
+		inverseVertexColor
+		scale 2, 2
+	}
 
 //### TEXTURE 2 - STEPS
-	{
-		blend 	bumpmap
-		map		addnormals (textures/kat_q4dm3/steps_local.tga, heightmap( textures/kat_q4dm3/steps_h.tga, 1 ) )
-		VertexColor
-//		scale 2, 2
-	}
 	{
 		blend 	diffusemap
 		map		textures/kat_q4dm3/steps.tga
@@ -160,70 +154,59 @@ textures/kat_q4dm3/stepsdirtMix
 		VertexColor
 //		scale 2, 2
 	}
+	{
+		blend 	bumpmap
+		map		addnormals (textures/kat_q4dm3/steps_local.tga, heightmap( textures/kat_q4dm3/steps_h.tga, 1 ) )
+		VertexColor
+//		scale 2, 2
+	}
 }
-
-
 
 //q4base/textures/kat_q4dm3/stone_flat
 textures/kat_q4dm3/stone_flat
 {
-//	noSelfShadow
-//	noshadows
 	stone
 	qer_editorimage		models/mapobjects/kat/stone_flat.tga
 
-	    diffusemap		models/mapobjects/kat/stone_flat.tga
-		bumpmap			addnormals( models/mapobjects/kat/stone_flat_local.tga, heightmap( models/mapobjects/kat/stone_flat_h.tga, 1 ) )
-//	    bumpmap			models/mapobjects/kat/stone_flat_local.tga
-		specularmap	    models/mapobjects/kat/stone_flat.tga
+	diffusemap		models/mapobjects/kat/stone_flat.tga
+	specularmap		models/mapobjects/kat/stone_flat.tga
+	bumpmap			addnormals( models/mapobjects/kat/stone_flat_local.tga, heightmap( models/mapobjects/kat/stone_flat_h.tga, 1 ) )
 }
-
-
 
 //q4base/textures/kat_q4dm3/stone_lamps
 textures/kat_q4dm3/stone_lamps
 {
-//	noSelfShadow
-//	noshadows
 	stone
 	nonsolid
 	qer_editorimage		models/mapobjects/kat/stone_lamps.tga
 
-	    diffusemap		models/mapobjects/kat/stone_lamps.tga
-		bumpmap			addnormals( models/mapobjects/kat/stone_lamps_local.tga, heightmap( models/mapobjects/kat/stone_lamps_h.tga, 1 ) )
-//	    bumpmap			models/mapobjects/kat/stone_lamps_local.tga
-		specularmap	    models/mapobjects/kat/stone_lamps.tga
+	diffusemap		models/mapobjects/kat/stone_lamps.tga
+	specularmap		models/mapobjects/kat/stone_lamps.tga
+	bumpmap			addnormals( models/mapobjects/kat/stone_lamps_local.tga, heightmap( models/mapobjects/kat/stone_lamps_h.tga, 1 ) )
 }
-
 
 //q4base/textures/kat_q4dm3/stone_steps
 textures/kat_q4dm3/stone_steps
 {
-//	noSelfShadow
-//	noshadows
 	nonsolid
 	stone
 	qer_editorimage		models/mapobjects/kat/steps.tga
 
-	    diffusemap		models/mapobjects/kat/steps.tga
-		bumpmap			addnormals( models/mapobjects/kat/steps_local.tga, heightmap( models/mapobjects/kat/steps_h.tga, 1 ) )
-//	    bumpmap			models/mapobjects/kat/steps_local.tga
-		specularmap	    models/mapobjects/kat/steps.tga
+	diffusemap		models/mapobjects/kat/steps.tga
+	specularmap		models/mapobjects/kat/steps.tga
+	bumpmap			addnormals( models/mapobjects/kat/steps_local.tga, heightmap( models/mapobjects/kat/steps_h.tga, 1 ) )
 }
-
 
 //q4base/textures/kat_q4dm3/stone
 textures/kat_q4dm3/stone
 {
-//	noSelfShadow
-//	noshadows
 	nonsolid
 	stone
 	qer_editorimage		models/mapobjects/kat/rock_plain
 	
-		diffusemap		models/mapobjects/kat/rock_plain
-		bumpmap			addnormals (models/mapobjects/kat/rock_plain_local, heightmap( models/mapobjects/kat/rock_plain_h, 2 ) )
-		specularmap		models/mapobjects/kat/rock_plain
+	diffusemap		models/mapobjects/kat/rock_plain
+	specularmap		models/mapobjects/kat/rock_plain
+	bumpmap			addnormals (models/mapobjects/kat/rock_plain_local, heightmap( models/mapobjects/kat/rock_plain_h, 2 ) )
 }
 
 
@@ -242,7 +225,7 @@ textures/skies/kat_q4dm3
 	noshadows
 	{
 		blend			blend			// so transparent windows can draw on top of it
-		cameraCubeMap	gfx/env/kat_q4dm3
+		cameraCubeMap		gfx/env/kat_q4dm3
 		texgen			skybox
 	}
 }
