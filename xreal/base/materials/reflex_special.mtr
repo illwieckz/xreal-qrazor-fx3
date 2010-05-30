@@ -335,55 +335,53 @@ textures/reflex/special/launchpad01_trim
 
 textures/reflex/special/bouncepad01
 {
-    qer_editorimage  textures/reflex/special/bouncepad01
-
-      xmap_surfaceLight 800
+	qer_editorimage  textures/reflex/special/bouncepad01
+	xmap_surfaceLight 800
 	xmap_lightRGB 0.94 0.57 0.13
 	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
-      xmap_lightSubdivide 16
-
-      {
-            blend diffusemap
-            map textures/reflex/special/black
-      }
-      {
-            blend add
-            map textures/reflex/special/bouncepad01_twirl
-            rotate	time * -180
-color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
-      }
-      {
-            blend diffusemap
-            map textures/reflex/special/bouncepad01_fan
-            rotate	time * -240
-            alphaTest .5
-      }
+	xmap_lightSubdivide 16
 	{
-		blend specularMap      
-		map textures/reflex/special/bouncepad01_fan_spec
-            rotate	time * -240
+		blend		diffusemap
+		map		textures/reflex/special/black
 	}
 	{
-		blend bumpmap          
-		map textures/reflex/special/bouncepad01_fan_local
-            rotate	time * -240
-	}
-      {
-            blend diffusemap
-            map textures/reflex/special/bouncepad01
-            alphaTest .5
-      }
-	{
-		blend specularMap      
-		map textures/reflex/special/bouncepad01_spec
+		blend		add
+		map		textures/reflex/special/bouncepad01_twirl
+		rotate		time * -180
+		color		0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
 	}
 	{
-		blend bumpmap          
-		map textures/reflex/special/bouncepad01_local
+		blend		diffusemap
+		map		textures/reflex/special/bouncepad01_fan
+		rotate		time * -240
+		alphaTest	.5
 	}
-      {
-            blend add
-            map textures/reflex/special/bouncepad01_add
-color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
-      }
+	{
+		blend		specularMap      
+		map		textures/reflex/special/bouncepad01_fan_spec
+		rotate		time * -240
+	}
+	{
+		blend		bumpmap          
+		map		textures/reflex/special/bouncepad01_fan_local
+		rotate		time * -240
+	}
+	{
+		blend		diffusemap
+		map		textures/reflex/special/bouncepad01
+		alphaTest	.5
+	}
+	{
+		blend		specularMap      
+		map		textures/reflex/special/bouncepad01_spec
+	}
+	{
+		blend		bumpmap          
+		map		textures/reflex/special/bouncepad01_local
+	}
+	{
+		blend		add
+		map		textures/reflex/special/bouncepad01_add
+		color		0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
+	}
 }

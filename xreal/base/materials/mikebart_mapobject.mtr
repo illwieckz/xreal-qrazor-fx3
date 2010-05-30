@@ -13,8 +13,8 @@ models/mapobjects/mikebart/tree_foliage01
 		alphaTest 0.6
 		//vertexcolor
    }      
-   bumpmap         models/mapobjects/mikebart/tree_foliage01_local.tga
    specularmap      models/mapobjects/mikebart/tree_foliage01_s.tga
+   bumpmap         models/mapobjects/mikebart/tree_foliage01_local.tga
    
    /*
    {       
@@ -39,8 +39,8 @@ models/mapobjects/mikebart/tree_branches01
 		alphaTest 0.6
 		//vertexcolor
    }      
-   bumpmap         models/mapobjects/mikebart/tree_branches01_local.tga
    specularmap      models/mapobjects/mikebart/tree_branches01_s.tga
+   bumpmap         models/mapobjects/mikebart/tree_branches01_local.tga
    /*
    {       
 		blend   diffusemap

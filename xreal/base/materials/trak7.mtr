@@ -8,8 +8,8 @@ textures/trak/trak7/vpanel1
 		map		textures/trak/trak7/vpanel1.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak7/vpanel1_nm.png
 	specularMap		textures/trak/trak7/vpanel1_gloss.png
+	normalMap		textures/trak/trak7/vpanel1_nm.png
 }
 
 textures/trak/trak7/wall1
@@ -22,8 +22,8 @@ textures/trak/trak7/wall1
 		map		textures/trak/trak7/wall1.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak7/wall1_nm.png
 	specularMap		textures/trak/trak7/wall1_gloss.png
+	normalMap		textures/trak/trak7/wall1_nm.png
 }
 
 textures/trak/trak7/wall1b
@@ -36,8 +36,8 @@ textures/trak/trak7/wall1b
 		map		textures/trak/trak7/wall1b.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak7/wall1_nm.png
 	specularMap		textures/trak/trak7/wall1_gloss.png
+	normalMap		textures/trak/trak7/wall1_nm.png
 }
 
 textures/trak/trak7/tile1
@@ -50,8 +50,8 @@ textures/trak/trak7/tile1
 		map		textures/trak/trak7/tile1.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak7/tile1_nm.png
 	specularMap		textures/trak/trak7/tile1_gloss.png
+	normalMap		textures/trak/trak7/tile1_nm.png
 }
 
 textures/trak/trak7/tile1a
@@ -64,8 +64,8 @@ textures/trak/trak7/tile1a
 		map		textures/trak/trak7/tile1a.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak7/tile1_nm.png
 	specularMap		textures/trak/trak7/tile1_gloss.png
+	normalMap		textures/trak/trak7/tile1_nm.png
 }
 
 textures/trak/trak7/vent1
@@ -78,8 +78,8 @@ textures/trak/trak7/vent1
 		map		textures/trak/trak7/vent1.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak7/vent1_nm.png
 	specularMap		textures/trak/trak7/vent1_gloss.png
+	normalMap		textures/trak/trak7/vent1_nm.png
 }
 
 textures/trak/trak7/pipe1
@@ -92,6 +92,6 @@ textures/trak/trak7/pipe1
 		map		textures/trak/trak7/pipe1.png
 		depthScale	-0.05
 	}
-	normalMap		textures/trak/trak7/pipe1_nm.png
 	specularMap		textures/trak/trak7/pipe1_gloss.png
+	normalMap		textures/trak/trak7/pipe1_nm.png
 }

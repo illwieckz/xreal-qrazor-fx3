@@ -337,6 +337,7 @@ textures/eX/eX_wall_bigrib_02
 
 	diffusemap	textures/eX/eX_wall_bigrib_02
 	specularmap	textures/eX/eX_wall_bigrib_02_s
+	reflectionMap	_autocube
 	bumpmap		addnormals ( textures/eX/eX_wall_bigrib_02_norm, heightmap ( textures/eX/eX_wall_bigrib_02_h, 1 ) )
 }
 

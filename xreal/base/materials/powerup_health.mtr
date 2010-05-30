@@ -15,6 +15,7 @@ models/powerups/health/small
 
 models/powerups/health/small_sphere
 {
+	twosided
 	{
 		clampmap	gfx/effect/effmap01.png
         	rotate		time * -0.4
@@ -63,6 +64,7 @@ models/powerups/health/medium
 
 models/powerups/health/medium_sphere
 {
+	twosided
 	{
 		clampmap	gfx/effect/effmap01.png
         	rotate		time * -0.4
@@ -114,6 +116,7 @@ models/powerups/health/large
 
 models/powerups/health/large_sphere
 {
+	twosided
 	{
 		clampmap	gfx/effect/effmap01.png
         	rotate		time * -0.4
@@ -162,6 +165,7 @@ models/powerups/health/mega
 
 models/powerups/health/mega_sphere
 {
+	twosided
 	{
 		clampmap	gfx/effect/effmap01.png
 		rotate		time * -0.4

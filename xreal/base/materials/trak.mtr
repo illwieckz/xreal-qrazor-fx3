@@ -34,7 +34,7 @@ textures/trak/trak5/basictrim1a
 
 	parallax
 
-	normalMap		textures/trak/trak5/basictrim1a.png
+	diffuseMap		textures/trak/trak5/basictrim1a.png
 	specularMap		textures/trak/trak5/basictrim1a.png
 	normalMap		textures/trak/trak5/basictrim1a_nm.png
 }

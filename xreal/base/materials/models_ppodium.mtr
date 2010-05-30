@@ -18,7 +18,7 @@ models/ppodium_ripl
 		stage specularMap
 		map textures/otty/base/m_ripl_s.png
 		scale 4, 4
-	
+	}
 	{
 		stage bumpMap
 		map textures/otty/base/m_ripl_n.png
