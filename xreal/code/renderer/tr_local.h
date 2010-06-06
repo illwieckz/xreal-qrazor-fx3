@@ -112,7 +112,7 @@ typedef enum
 
 #define HDR_ENABLED() ((r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable))
 
-#define REF_CUBEMAP_SIZE		32
+#define REF_CUBEMAP_SIZE	128
 #define REF_CUBEMAP_STORE_SIZE	1024
 #define REF_CUBEMAP_STORE_SIDE	(REF_CUBEMAP_STORE_SIZE/REF_CUBEMAP_SIZE)
 

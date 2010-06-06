@@ -7,6 +7,7 @@ textures/facility114/base
 	qer_editorImage		textures/facility114/base
 	diffuseMap		textures/facility114/base
 	specularMap		textures/facility114/base_s
+	reflectionMap		_autocube
 	normalMap		_flat
 }
 
@@ -16,6 +17,7 @@ textures/facility114/baseblue
 	qer_editorImage		textures/facility114/baseblue
 	diffuseMap		textures/facility114/baseblue
 	specularMap		textures/facility114/base_s
+	reflectionMap		_autocube
 	normalMap		_flat
 }
 
@@ -25,6 +27,7 @@ textures/facility114/basered
 	qer_editorImage		textures/facility114/basered
 	diffuseMap		textures/facility114/basered
 	specularMap		textures/facility114/base_s
+	reflectionMap		_autocube
 	normalMap		_flat
 }
 
@@ -34,6 +37,7 @@ textures/facility114/baseyellow
 	qer_editorImage		textures/facility114/baseyellow
 	diffuseMap		textures/facility114/baseyellow
 	specularMap		textures/facility114/base_s
+	reflectionMap		_autocube
 	normalMap		_flat
 }
 
@@ -43,6 +47,7 @@ textures/facility114/ceiling00
 	qer_editorImage		textures/facility114/ceiling00
 	diffuseMap		textures/facility114/ceiling00
 	specularMap		textures/facility114/ceiling00_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -59,6 +64,7 @@ textures/facility114/ceiling00_light
 	xmap_lightImage		textures/facility114/ceiling00_glow
 	diffuseMap		textures/facility114/ceiling00
 	specularMap		textures/facility114/ceiling00_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -73,6 +79,7 @@ textures/facility114/ceiling01
 	qer_editorImage		textures/facility114/ceiling01
 	diffuseMap		textures/facility114/ceiling01
 	specularMap		textures/facility114/ceiling01_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -86,6 +93,7 @@ textures/facility114/corridor00
 	qer_editorImage		textures/facility114/corridor00
 	diffuseMap		textures/facility114/corridor00
 	specularMap		textures/facility114/corridor00_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -99,6 +107,7 @@ textures/facility114/corridor01
 	qer_editorImage		textures/facility114/corridor01
 	diffuseMap		textures/facility114/corridor01
 	specularMap		textures/facility114/corridor01_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -112,6 +121,7 @@ textures/facility114/corridor02
 	qer_editorImage		textures/facility114/corridor02
 	diffuseMap		textures/facility114/corridor02
 	specularMap		textures/facility114/corridor02_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -125,6 +135,7 @@ textures/facility114/corridor03
 	qer_editorImage		textures/facility114/corridor03
 	diffuseMap		textures/facility114/corridor03
 	specularMap		textures/facility114/corridor03_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -138,6 +149,7 @@ textures/facility114/corridor04
 	qer_editorImage		textures/facility114/corridor04
 	diffuseMap		textures/facility114/corridor04
 	specularMap		textures/facility114/corridor04_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -151,6 +163,7 @@ textures/facility114/door01
 	qer_editorImage		textures/facility114/door01
 	diffuseMap		textures/facility114/door01
 	specularMap		textures/facility114/door01_s
+	reflectionMap		_autocube
 	normalMap		_flat
 }
 
@@ -160,6 +173,7 @@ textures/facility114/floor00
 	qer_editorImage		textures/facility114/floor00
 	diffuseMap		textures/facility114/floor00
 	specularMap		textures/facility114/floor00_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -173,6 +187,7 @@ textures/facility114/floor01
 	qer_editorImage		textures/facility114/floor01
 	diffuseMap		textures/facility114/floor01
 	specularMap		textures/facility114/floor01_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -190,6 +205,7 @@ textures/facility114/floor02
 		depthScale	0.01
 	}
 	specularMap		textures/facility114/floor02_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -203,6 +219,7 @@ textures/facility114/lift00
 	qer_editorImage		textures/facility114/lift00
 	diffuseMap		textures/facility114/lift00
 	specularMap		textures/facility114/lift00_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -216,6 +233,7 @@ textures/facility114/lift01
 	qer_editorImage		textures/facility114/lift01
 	diffuseMap		textures/facility114/lift01
 	specularMap		textures/facility114/lift01_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -229,6 +247,7 @@ textures/facility114/lift02
 	qer_editorImage		textures/facility114/lift02
 	diffuseMap		textures/facility114/lift02
 	specularMap		textures/facility114/lift02_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -242,6 +261,7 @@ textures/facility114/trim00
 	qer_editorImage		textures/facility114/trim00
 	diffuseMap		textures/facility114/trim00
 	specularMap		textures/facility114/trim00_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -256,6 +276,7 @@ textures/facility114/trim01
 	qer_editorImage		textures/facility114/trim01
 	diffuseMap		textures/facility114/trim01
 	specularMap		textures/facility114/trim01_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -269,6 +290,7 @@ textures/facility114/trim02
 	qer_editorImage		textures/facility114/trim02
 	diffuseMap		textures/facility114/trim02
 	specularMap		textures/facility114/trim02_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
@@ -282,6 +304,7 @@ textures/facility114/tube
 	qer_editorImage		textures/facility114/tube
 	diffuseMap		textures/facility114/tube
 	specularMap		textures/facility114/tube_s
+	reflectionMap		_autocube
 	{
 		forceHighQuality
 		stage		normalMap
