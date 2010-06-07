@@ -8349,15 +8349,14 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
 		}
 	}
 #else
-	tr.autoCubeImage = tr.blackCubeImage;
-	if(!r_reflectionMapping->integer)
-		return;
-
 	float			distance, maxDistance;
 	cubemapProbe_t *cubeProbe;
 	unsigned int    hash;
 	vertexHash_t	*vertexHash;
 
+	tr.autoCubeImage = tr.blackCubeImage;
+	if(!r_reflectionMapping->integer)
+		return;
 
 	if(tr.cubeHashTable == NULL || xyz == NULL)
 		return;
