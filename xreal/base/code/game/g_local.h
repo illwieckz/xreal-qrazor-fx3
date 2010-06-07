@@ -214,6 +214,7 @@ struct gentity_s
 	qboolean        slow;
 	qboolean        red_only;
 	qboolean        blue_only;
+	qboolean        priv;
 
 	// portal cameras
 	qboolean        slowrotate;
