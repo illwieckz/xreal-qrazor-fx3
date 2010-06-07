@@ -1,8 +1,6 @@
 textures/raedwulf/water/water1
 {
 	qer_editorimage textures/common/qer_mirror.tga
-
-	deformVertexes wave 100 sin 3 2 .1 0.1
 	
 	translucent
 	noshadows
@@ -13,8 +11,8 @@ textures/raedwulf/water/water1
 		forceHighQuality
 		stage		liquidMap
 		map		displacemap (textures/kjelll/water1.png)
-		scroll		sinTable[time] * 0.00002, sinTable[time] * 0.000001
-		scale		0.00004, 0.00004
+		scroll	time * 0.02, time * 0.01
+		scale		0.04, 0.04
 		refractionIndex	1.34 // water
 		
 		fresnelPower	2.0
