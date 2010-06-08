@@ -458,6 +458,7 @@ undo_src = [
 ]
 
 wavefront_src = [
+'code/xrealradiant/plugins/wavefront/plugin.cpp',
 'code/xrealradiant/plugins/wavefront/WaveFrontModule.cpp',
 'code/xrealradiant/plugins/wavefront/WaveFrontExporter.cpp'
 ]
