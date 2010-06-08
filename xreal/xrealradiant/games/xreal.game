@@ -4,7 +4,7 @@
   index="99"
   name="XreaL"
   enginepath_win32="C:/Program Files/XreaL/"
-  enginepath_linux="/usr/local/games/xreal/"
+  enginepath_linux=".."
   enginepath_macos="/usr/local/games/xreal/"
   engine_win32="xreal.exe"
   engine_linux="xreal"
