@@ -105,6 +105,7 @@ float EstimatePenumbra(float vertexDistance, float blocker)
 }
 #endif
 
+/*
 #if 0 //defined(VSM) || defined(ESM)
 vec4 PCF(vec4 shadowVert, float filterWidth, float samples)
 {
@@ -126,6 +127,7 @@ vec4 PCF(vec4 shadowVert, float filterWidth, float samples)
 	return moments;
 }
 #endif
+*/
 
 void	main()
 {
