@@ -1925,6 +1925,7 @@ void RE_Shutdown(qboolean destroyWindow)
 	ri.Cmd_RemoveCommand("fbolist");
 	ri.Cmd_RemoveCommand("vbolist");
 	ri.Cmd_RemoveCommand("generatemtr");
+	ri.Cmd_RemoveCommand("buildcubemaps");
 
 	ri.Cmd_RemoveCommand("glsl_restart");
 
