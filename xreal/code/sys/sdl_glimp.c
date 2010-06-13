@@ -1073,8 +1073,18 @@ static void GLimp_InitExtensions(void)
 		qglGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &glConfig.maxVertexAttribs);
 
 		reservedComponents = 16 * 10; // approximation how many uniforms we have besides the bone matrices
+
+		if(glConfig.driverType == GLDRV_MESA)
+		{
+			// HACK
+			// restrict to number of vertex uniforms to 512 because of:
+			// xreal.x86_64: nv50_program.c:4181: nv50_program_validate_data: Assertion `p->param_nr <= 512' failed
+
+			glConfig.maxVertexUniforms = Q_bound(0, glConfig.maxVertexUniforms, 512);
+		}
+
 		glConfig.maxVertexSkinningBones = (int) Q_bound(0.0, (Q_max(glConfig.maxVertexUniforms - reservedComponents, 0) / 16), MAX_BONES);
-		glConfig.vboVertexSkinningAvailable = r_vboVertexSkinning->integer && ((glConfig.maxVertexSkinningBones >= 12 && glConfig.driverType != GLDRV_MESA) ? qtrue : qfalse);
+		glConfig.vboVertexSkinningAvailable = r_vboVertexSkinning->integer && ((glConfig.maxVertexSkinningBones >= 12) ? qtrue : qfalse);
 
 		qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) SDL_GL_GetProcAddress("glBindAttribLocationARB");
 		qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) SDL_GL_GetProcAddress("glGetActiveAttribARB");
