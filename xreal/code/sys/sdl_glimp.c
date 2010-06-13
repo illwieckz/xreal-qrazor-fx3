@@ -1429,7 +1429,7 @@ static void GLimp_InitExtensions(void)
 
 	// GL_EXT_packed_depth_stencil
 	glConfig.framebufferPackedDepthStencilAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_packed_depth_stencil"))
+	if(Q_stristr(glConfig.extensions_string, "GL_EXT_packed_depth_stencil") && glConfig.driverType != GLDRV_MESA)
 	{
 		if(r_ext_packed_depth_stencil->integer)
 		{
@@ -1594,7 +1594,10 @@ void GLimp_Init(void)
 	Q_strncpyz(glConfig.extensions_string, (char *)qglGetString(GL_EXTENSIONS), sizeof(glConfig.extensions_string));
 
 
-	if(Q_stristr(glConfig.renderer_string, "mesa") || Q_stristr(glConfig.vendor_string, "mesa"))
+	if(	Q_stristr(glConfig.renderer_string, "mesa") ||
+		Q_stristr(glConfig.renderer_string, "gallium") ||
+		Q_stristr(glConfig.vendor_string, "nouveau") ||
+		Q_stristr(glConfig.vendor_string, "mesa"))
 	{
 		// suckage
 		glConfig.driverType = GLDRV_MESA;
