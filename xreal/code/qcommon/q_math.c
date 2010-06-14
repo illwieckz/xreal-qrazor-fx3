@@ -2954,7 +2954,13 @@ void MatrixPlaneReflection(matrix_t m, const vec4_t plane)
 	m[0] = -2 * P[0] * P[0] + 1;	m[4] = -2 * P[0] * P[1];			m[8]  = -2 * P[0] * P[2];		m[12] = 2 * P[0] * P[3];
 	m[1] = -2 * P[1] * P[0];		m[5] = -2 * P[1] * P[1] + 1;		m[9]  = -2 * P[1] * P[2];		m[13] = 2 * P[1] * P[3];
 	m[2] = -2 * P[2] * P[0];		m[6] = -2 * P[2] * P[1];			m[10] = -2 * P[2] * P[2] + 1;	m[14] = 2 * P[2] * P[3];
-	m[3] = 0;						0;									m[11] = 0;						m[15] = 1;
+	m[3] = 0;						m[7] = 0;							m[11] = 0;						m[15] = 1;
+
+#if 0
+	matrix_t m2;
+	MatrixCopy(m, m2);
+	MatrixTranspose(m2, m);
+#endif
 }
 
 void MatrixLookAtLH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up)
