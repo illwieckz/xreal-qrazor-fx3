@@ -12,5 +12,5 @@ end
 -- end
 
 function et_ClientBegin(clientNum) --called on ClientBegin
-    et.G_Print("\n __ NEW CLIENT !!! ClientBegin="..clientNum.."\n\n") -- printout our text to the console
+    --et.G_Print("\n __ NEW CLIENT !!! ClientBegin="..clientNum.."\n\n") -- printout our text to the console
 end --close et_RunFrame()
