@@ -3017,6 +3017,10 @@ static void ParseNormalMap(shaderStage_t * stage, char **text)
 	{
 		stage->forceHighQuality = qtrue;
 	}
+	if(r_highQualityNormalMapping->integer)
+	{
+		stage->overrideNoPicMip = qtrue;
+	}
 
 	if(ParseMap(stage, text, buffer, sizeof(buffer)))
 	{

@@ -5,16 +5,14 @@ textures/trak/trak6/light1
 	xmap_lightImage		textures/trak/trak6/light1.blend.png
 
 	parallax
-
 	{
 		stage		diffuseMap
 		map		textures/trak/trak6/light1.png
 		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak6/light1.png
-	normalMap		textures/trak/trak6/light1a_nm.png
+	bumpMap			textures/trak/trak6/light1_nm.png
 	{
-		stage		glowMap
 		map		textures/trak/trak6/light1.blend.png
 		rgb		0.5
 		blend		add
@@ -32,7 +30,7 @@ textures/trak/trak6/tile2
 		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak6/tile2_gloss.png
-	normalMap		textures/trak/trak6/tile2_nm.png
+	bumpMap			textures/trak/trak6/tile2_nm.png
 }
 
 textures/trak/trak6/wall2
@@ -46,7 +44,7 @@ textures/trak/trak6/wall2
 		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak6/wall2_gloss.png
-	normalMap		textures/trak/trak6/wall2_nm.png
+	bumpMap			textures/trak/trak6/wall2_nm.png
 }
 
 textures/trak/trak6/trim1
@@ -60,7 +58,7 @@ textures/trak/trak6/trim1
 		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak6/trim1_gloss.png
-	normalMap		textures/trak/trak6/trim1_nm.png
+	bumpMap			textures/trak/trak6/trim1_nm.png
 }
 
 textures/trak/trak6/panel1
@@ -74,7 +72,7 @@ textures/trak/trak6/panel1
 		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak6/panel1_gloss.png
-	normalMap		textures/trak/trak6/panel1_nm.png
+	bumpMap			textures/trak/trak6/panel1_nm.png
 }
 
 textures/trak/trak6/crate1
@@ -88,7 +86,7 @@ textures/trak/trak6/crate1
 		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak6/crate1_gloss.png
-	normalMap		textures/trak/trak6/crate1_nm.png
+	bumpMap			textures/trak/trak6/crate1_nm.png
 }
 
 textures/trak/trak6/pipe2
@@ -102,7 +100,7 @@ textures/trak/trak6/pipe2
 		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak6/pipe2_gloss.png
-	normalMap		textures/trak/trak6/pipe2_nm.png
+	bumpMap			textures/trak/trak6/pipe2_nm.png
 }
 
 textures/trak/trak6/grate2
@@ -116,7 +114,7 @@ textures/trak/trak6/grate2
 		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak6/grate2_gloss.png
-	normalMap		textures/trak/trak6/grate2_nm.png
+	bumpMap			textures/trak/trak6/grate2_nm.png
 }
 
 textures/trak/trak6/trim2
@@ -130,7 +128,7 @@ textures/trak/trak6/trim2
 		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak6/trim2_gloss.png
-	normalMap		textures/trak/trak6/trim2_nm.png
+	bumpMap			textures/trak/trak6/trim2_nm.png
 }
 
 textures/trak/trak6/tile3
@@ -144,5 +142,5 @@ textures/trak/trak6/tile3
 		depthScale	-0.05
 	}
 	specularMap		textures/trak/trak6/tile3_gloss.png
-	normalMap		textures/trak/trak6/tile3_nm.png
+	bumpMap			textures/trak/trak6/tile3_nm.png
 }

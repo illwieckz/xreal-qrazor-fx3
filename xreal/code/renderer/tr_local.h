@@ -3962,6 +3962,7 @@ extern cvar_t  *r_depthOfField;
 #endif
 
 extern cvar_t  *r_reflectionMapping;
+extern cvar_t  *r_highQualityNormalMapping;
 
 extern cvar_t  *r_bloom;
 extern cvar_t  *r_bloomBlur;
