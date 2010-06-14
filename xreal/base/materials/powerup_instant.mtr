@@ -8,9 +8,7 @@ cleaned up by odin 2010
 models/powerups/instant/enviro
 {
 	diffusemap		gfx/2d/yellow
-	specularmap		gfx/2d/yellow
-	reflectionmap		_autocube
-	normalmap		_flat
+	reflectionMapBlended	_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -76,9 +74,7 @@ models/powerups/instant/regen
 	
 	twosided
 	diffusemap		gfx/2d/red
-	specularmap		gfx/2d/red
-	reflectionmap		_autocube
-	normalmap		_flat
+	reflectionMapBlended	_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -142,9 +138,7 @@ models/powerups/instant/flight
 {
 	twosided
 	diffusemap		gfx/2d/magenta
-	specularmap		gfx/2d/magenta
-	reflectionmap		_autocube
-	normalmap		_flat
+	reflectionMapBlended	_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -219,9 +213,7 @@ models/powerups/instant/invis
 	
 	twosided
 	diffusemap		gfx/2d/teal
-	specularmap		gfx/2d/teal
-	reflectionmap		_autocube
-	normalmap		_flat
+	reflectionMapBlended	_autocube
 	{
 		map		gfx/effect/effmap03.png
 		blend		add
@@ -277,9 +269,7 @@ models/powerups/instant/haste
 	
 	twosided
 	diffusemap		gfx/2d/green
-	specularmap		gfx/2d/green
-	reflectionmap		_autocube
-	normalmap		_flat
+	reflectionMapBlended	_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png	
@@ -352,9 +342,7 @@ models/powerups/instant/quad
 	
 	twosided
 	diffusemap		gfx/2d/blue
-	specularmap		gfx/2d/blue
-	reflectionmap		_autocube
-	normalmap		_flat
+	reflectionMapBlended	_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png

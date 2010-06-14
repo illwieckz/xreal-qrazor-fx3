@@ -9,7 +9,6 @@ models/powerups/health/small
 {
 	diffuseMap		gfx/2d/green
 	specularMap		gfx/2d/green
-	reflectionmap		_autocube
 	normalmap		_flat
 }
 
@@ -30,7 +29,7 @@ models/powerups/health/small_sphere
 		blend		add
 		tcGen		environment
 	}
-	reflectionmap		_autocube
+	reflectionMapBlended	_autocube
 }
 
 models/powerups/health/small_flare
@@ -58,7 +57,6 @@ models/powerups/health/medium
 {
 	diffuseMap		gfx/2d/yellow
 	specularMap		gfx/2d/yellow
-	reflectionmap		_autocube
 	normalmap		_flat
 }
 
@@ -81,7 +79,7 @@ models/powerups/health/medium_sphere
 		blend		add
 		tcGen		environment
 	}
-	reflectionmap		_autocube
+	reflectionMapBlended	_autocube
 }
 
 models/powerups/health/medium_flare
@@ -110,7 +108,6 @@ models/powerups/health/large
 {
 	diffuseMap		gfx/2d/red
 	specularMap		gfx/2d/red
-	reflectionmap		_autocube
 	normalmap		_flat
 }
 
@@ -131,7 +128,7 @@ models/powerups/health/large_sphere
 		blend 		add
 		tcGen		environment
 	}
-	reflectionmap		_autocube
+	reflectionMapBlended	_autocube
 }
 
 models/powerups/health/large_flare
@@ -159,7 +156,6 @@ models/powerups/health/mega
 {
 	diffuseMap		gfx/2d/teal
 	specularMap		gfx/2d/teal
-	reflectionmap		_autocube
 	normalmap		_flat
 }
 
@@ -180,7 +176,7 @@ models/powerups/health/mega_sphere
 		blend		add
 		tcGen		environment
 	}
-	reflectionmap		_autocube
+	reflectionMapBlended	_autocube
 }
 
 models/powerups/health/mega_flare

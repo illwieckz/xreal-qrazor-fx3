@@ -2,10 +2,9 @@
 models/powerups/kamikaze/kamikaze1
 {
 	twoSided
-	diffuseMap	models/powerups/kamikaze/kamikaze1_ao.png
-	specularMap	models/powerups/kamikaze/kamikaze1_ao.png
-	reflectionMap		_autocube
-	normalMap	models/powerups/kamikaze/kamikaze1_normal.png
+	diffuseMap		models/powerups/kamikaze/kamikaze1_ao.png
+	specularMap		models/powerups/kamikaze/kamikaze1_ao.png
+	normalMap		models/powerups/kamikaze/kamikaze1_normal.png
 }
 
 // TODO glowing eyes
@@ -14,7 +13,6 @@ models/powerups/kamikaze/kamikaze2
 	twoSided
 	diffuseMap		models/powerups/kamikaze/kamikaze2_ao.png
 	specularMap		models/powerups/kamikaze/kamikaze2_ao.png
-	reflectionMap		_autocube
 	normalMap		models/powerups/kamikaze/kamikaze2_normal.png
 }
 
@@ -23,7 +21,6 @@ models/powerups/kamikaze/kamikaze3
 	twoSided
 	diffuseMap		models/powerups/kamikaze/kamikaze3_ao.png
 	specularMap		models/powerups/kamikaze/kamikaze3_ao.png
-	reflectionMap		_autocube
 	normalMap		models/powerups/kamikaze/kamikaze3_normal.png
 }
 

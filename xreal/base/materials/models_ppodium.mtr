@@ -2,7 +2,6 @@ models/ppodium_base
 {
 	diffuseMap	textures/otty/base/h_metal01_d.png
 	specularMap	textures/otty/base/h_metal01_s.png
-	reflectionMap	_autocube
 	bumpMap		textures/otty/base/h_metal01_n.png
 }
 

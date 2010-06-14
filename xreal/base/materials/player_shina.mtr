@@ -6,7 +6,6 @@ models/players/shina/cloth
 		map		models/players/shina/cloth.png
 	}
 	specularMap		models/players/shina/cloth_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_n.png
 }
 
@@ -18,7 +17,6 @@ models/players/shina/cloth_bright
 		map		models/players/shina/cloth.png
 	}
 	specularMap		models/players/shina/cloth_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_n.png
 	glowMap			models/players/shina/cloth_bright.png
 }
@@ -31,7 +29,6 @@ models/players/shina/cloth_red
 		map		models/players/shina/cloth_red.png
 	}
 	specularMap		models/players/shina/cloth_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_n.png
 	glowMap			models/players/shina/cloth_red_bright.png
 }
@@ -43,7 +40,6 @@ models/players/shina/cloth_blue
 		map		models/players/shina/cloth_blue.png
 	}
 	specularMap		models/players/shina/cloth_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_n.png
 	glowMap			models/players/shina/cloth_blue_bright.png
 }
@@ -56,7 +52,6 @@ models/players/shina/cloth_head
 		map		models/players/shina/cloth_head.png
 	}
 	specularMap		models/players/shina/cloth_head_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_head_n.png
 }
 
@@ -68,7 +63,6 @@ models/players/shina/cloth_head_bright
 		map		models/players/shina/cloth_head.png
 	}
 	specularMap		models/players/shina/cloth_head_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_head_n.png
 	glowMap			models/players/shina/cloth_head_bright.png
 }
@@ -81,7 +75,6 @@ models/players/shina/cloth_head_red
 		map		models/players/shina/cloth_head_red.png
 	}
 	specularMap		models/players/shina/cloth_head_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_head_n.png
 }
 
@@ -93,7 +86,6 @@ models/players/shina/cloth_head_blue
 		map		models/players/shina/cloth_head_blue.png
 	}
 	specularMap		models/players/shina/cloth_head_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_head_n.png
 }
 models/players/shina/cloth_middle
@@ -104,7 +96,6 @@ models/players/shina/cloth_middle
 		map		models/players/shina/cloth_middle.png
 	}
 	specularMap		models/players/shina/cloth_middle_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_middle_n.png
 }
 
@@ -116,7 +107,6 @@ models/players/shina/cloth_middle_bright
 		map		models/players/shina/cloth_middle.png
 	}
 	specularMap		models/players/shina/cloth_middle_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_middle_n.png
 	glowMap			models/players/shina/cloth_middle_bright.png
 }
@@ -129,7 +119,6 @@ models/players/shina/cloth_middle_red
 		map		models/players/shina/cloth_middle_red.png
 	}
 	specularMap		models/players/shina/cloth_middle_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_middle_n.png
 	glowMap			models/players/shina/cloth_middle_red_bright.png
 }
@@ -142,7 +131,6 @@ models/players/shina/cloth_middle_blue
 		map		models/players/shina/cloth_middle_blue.png
 	}
 	specularMap		models/players/shina/cloth_middle_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_middle_n.png
 	glowMap			models/players/shina/cloth_middle_blue_bright.png
 }
@@ -155,7 +143,6 @@ models/players/shina/cloth_lower
 		map		models/players/shina/cloth_lower.png
 	}
 	specularMap		models/players/shina/cloth_lower_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_lower_n.png
 }
 
@@ -167,7 +154,6 @@ models/players/shina/cloth_lower_bright
 		map		models/players/shina/cloth_lower.png
 	}
 	specularMap		models/players/shina/cloth_lower_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_lower_n.png
 	glowMap			models/players/shina/cloth_lower_bright.png
 }
@@ -180,7 +166,6 @@ models/players/shina/cloth_upper
 		map		models/players/shina/cloth_upper.png
 	}
 	specularMap		models/players/shina/cloth_upper_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/cloth_upper_n.png
 }
 
@@ -193,7 +178,6 @@ models/players/shina/accessecoires
 		map		models/players/shina/accessecoires.png
 	}
 	specularMap		models/players/shina/accessecoires_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/accessecoires_s.png
 	{
 		if(parm4 <= 0.5)
@@ -270,7 +254,6 @@ models/players/shina/hair
 		map		models/players/shina/hair.png
 	}	
 	specularMap		models/players/shina/hair_s.png
-	reflectionMap		_autocube
 	bumpMap			models/players/shina/hair_s.png
 }
 

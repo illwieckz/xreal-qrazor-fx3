@@ -1,7 +1,6 @@
 models/projectiles/grenade/grenade
 {
 	diffuseMap	models/projectiles/grenade/grenade.tga
-	reflectionMap	_autocube
 	specularMap	models/projectiles/grenade/grenade_spec.tga
 	normalMap	models/projectiles/grenade/grenade_bump.png
 	glowMap		models/projectiles/grenade/grenade_glow.tga

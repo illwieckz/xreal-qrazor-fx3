@@ -8,7 +8,7 @@ models/mapobjects/bja/bja_light01
 	xmap_lightImage		models/mapobjects/bja/bja_light01_add
 	diffusemap		models/mapobjects/bja/bja_light01_d
 	specularmap		models/mapobjects/bja/bja_light01_s
-	reflectionMap		_autocube
+	reflectionMapBlended	_autocube
 	bumpmap			addnormals ( models/mapobjects/bja/bja_light01_local.tga, heightmap (models/mapobjects/bja/bja_light01_h.tga, 2) )
 	{ 
 		blend		add
@@ -24,7 +24,7 @@ models/mapobjects/bja/bja_light02
 	xmap_lightImage		models/mapobjects/bja/bja_light02_add
 	diffusemap		models/mapobjects/bja/bja_light02_d
 	specularmap		models/mapobjects/bja/bja_light02_s
-	reflectionMap		_autocube
+	reflectionMapBlended	_autocube
 	bumpmap			addnormals ( models/mapobjects/bja/bja_light02_local.tga, heightmap (models/mapobjects/bja/bja_light02_h.tga, 2) )
 	{ 
 		blend		add
@@ -40,7 +40,7 @@ models/mapobjects/bja/bja_light03
 	xmap_lightImage		models/mapobjects/bja/bja_light03_add
 	diffusemap		models/mapobjects/bja/bja_light03_d
 	specularmap		models/mapobjects/bja/bja_light03_s
-	reflectionMap		_autocube
+	reflectionMapBlended	_autocube
 	bumpmap			addnormals ( models/mapobjects/bja/bja_light03_local.tga, heightmap (models/mapobjects/bja/bja_light03_h.tga, 2) )
 	{ 
 		blend		add
@@ -56,7 +56,7 @@ models/mapobjects/bja/bja_light04
 	xmap_lightImage		models/mapobjects/bja/bja_light04_add
 	diffusemap		models/mapobjects/bja/bja_light04_d
 	specularmap		models/mapobjects/bja/bja_light04_s
-	reflectionMap		_autocube
+	reflectionMapBlended	_autocube
 	bumpmap			addnormals ( models/mapobjects/bja/bja_light04_local.tga, heightmap (models/mapobjects/bja/bja_light04_h.tga, 2) )
 	{ 
 		blend		add
@@ -72,7 +72,7 @@ models/mapobjects/bja/bja_light05
 	xmap_lightImage		models/mapobjects/bja/bja_light05_add
 	diffusemap		models/mapobjects/bja/bja_light05_d
 	specularmap		models/mapobjects/bja/bja_light05_s
-	reflectionMap		_autocube
+	reflectionMapBlended	_autocube
 	bumpmap			addnormals ( models/mapobjects/bja/bja_light05_local.tga, heightmap (models/mapobjects/bja/bja_light05_h.tga, 2) )
 	{ 
 		blend		add
@@ -86,7 +86,7 @@ models/mapobjects/bja/bja_trashcan
 	qer_editorimage		models/mapobjects/bja/bja_trashcan_d.tga
 	diffusemap		models/mapobjects/bja/bja_trashcan_d
 	specularmap		models/mapobjects/bja/bja_trashcan_s
-	reflectionMap		_autocube
+	reflectionMapBlended	_autocube
 	bumpmap			addnormals ( models/mapobjects/bja/bja_trashcan_local.tga, heightmap (models/mapobjects/bja/bja_trashcan_h.tga, 2) )
 }
 
@@ -95,6 +95,6 @@ models/mapobjects/bja/bja_vent
 	qer_editorimage		models/mapobjects/bja/bja_vent_d.tga
 	diffusemap		models/mapobjects/bja/bja_vent_d
 	specularmap		models/mapobjects/bja/bja_vent_s
-	reflectionMap		_autocube
+	reflectionMapBlended	_autocube
 	bumpmap			addnormals ( models/mapobjects/bja/bja_vent_local.tga, heightmap (models/mapobjects/bja/bja_vent_h.tga, 4) )
 }

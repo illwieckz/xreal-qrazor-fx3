@@ -7,7 +7,8 @@ models/weapons/shotgun/shotgun
 	noShadows
 	diffusemap		models/weapons/shotgun/shotgun_d.tga
 	specularmap	 	models/weapons/shotgun/shotgun_d.tga
-	reflectionMap		_autocube
+	bumpmap			addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
+	reflectionMapBlended	_autocube
 	bumpmap			addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
 }
 
@@ -16,7 +17,8 @@ models/weapons/shotgun/q2_w_supershotgun01
 	noShadows
 	diffusemap		models/weapons/shotgun/shotgun_d.tga
 	specularmap	 	models/weapons/shotgun/shotgun_d.tga
-	reflectionMap		_autocube
+	normalmap		addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
+	reflectionMapBlended	_autocube
 	normalmap		addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
 }
 
@@ -85,6 +87,7 @@ models/weapons/shotgun/shell
 {
 	diffuseMap		models/weapons/shells/shell_d.png
 	specularMap		models/weapons/shells/shell_s.png
-	reflectionMap		_autocube
+	normalMap		models/weapons/shells/shell_n.png
+	reflectionMapBlended	_autocube
 	normalMap		models/weapons/shells/shell_n.png
 }

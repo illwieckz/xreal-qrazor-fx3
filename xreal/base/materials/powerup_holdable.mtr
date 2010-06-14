@@ -8,9 +8,7 @@ models/powerups/holdable/teleporter
 {
 	twosided
 	diffuseMap	gfx/2d/teal
-	specularMap	gfx/2d/teal
-	reflectionMap	_autocube
-	normalMap	_flat
+	reflectionMapBlended	_autocube
 	{
 		edgeClamp
 		map	gfx/effect/effmap02.png
@@ -60,9 +58,7 @@ models/powerups/holdable/medkit
 {
 	twosided
 	diffuseMap	gfx/2d/red
-	specularMap	gfx/2d/red
-	reflectionMap	_autocube
-	normalMap	_flat
+	reflectionMapBlended	_autocube
 	{
 		edgeClamp
 		map	gfx/effect/effmap02.png

@@ -5,29 +5,29 @@
 
 models/weapons/machinegun/machinegun
 {
-	diffusemap	models/weapons/machinegun/machinegun_d.tga
-	specularmap	models/weapons/machinegun/machinegun_d.tga
-	bumpmap		addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )
-	reflectionmap	_autocube	
-	bumpmap		addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )
+	diffusemap		models/weapons/machinegun/machinegun_d.tga
+	specularmap		models/weapons/machinegun/machinegun_d.tga
+	bumpmap			addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )
+	reflectionMapBlended	_autocube	
+	bumpmap			addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )
 	{
-		blend 	add
-		map	models/weapons/machinegun/machinegun_add.tga
-		red 	( q2firetable2 [Parm4 + (time / 6) ]) * Parm0
-		green 	( q2firetable2 [Parm4 + (time / 6) ]) * Parm1
-		blue 	( q2firetable2 [Parm4 + (time / 6) ]) * Parm2
+		blend 		add
+		map		models/weapons/machinegun/machinegun_add.tga
+		red 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm0
+		green 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm1
+		blue 		( q2firetable2 [Parm4 + (time / 6) ]) * Parm2
 	}
 }
 
 models/weapons/machinegun/w_machinegun
 {
-	diffusemap	models/weapons/machinegun/machinegun_d.tga
-	specularmap	models/weapons/machinegun/machinegun_d.tga
-	reflectionMap	_autocube
-	bumpmap		addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )	
-	glowMap		models/weapons/machinegun/machinegun_add.tga
+	diffusemap		models/weapons/machinegun/machinegun_d.tga
+	specularmap		models/weapons/machinegun/machinegun_d.tga
+	bumpmap			addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )
+	reflectionMapBlended	_autocube
+	bumpmap			addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )
+	glowMap			models/weapons/machinegun/machinegun_add.tga
 }
-
 
 models/weapons/machinegun/machinegun_muzzflash
 {
