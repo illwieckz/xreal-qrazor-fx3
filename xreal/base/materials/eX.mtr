@@ -212,7 +212,7 @@ textures/eX/eX_floor_mtl_grate_01
 	bumpmap		addnormals ( textures/eX/eX_floor_mtl_grate_01_norm, heightmap ( textures/eX/eX_floor_mtl_grate_01_h, 1 ) )
 }
 
-textures/eX/eXmetalFloor02 
+textures/eX/eXmetalFloor02
 {
 	qer_editorimage textures/eX/eXmetalFloor02
 
@@ -220,6 +220,25 @@ textures/eX/eXmetalFloor02
 	specularmap	textures/eX/eXmetalFloor02_s
 	bumpmap		addnormals ( textures/eX/eXmetalFloor02_norm, heightmap ( textures/eX/eXmetalFloor02_h, 1 ) )
 }
+
+textures/eX/eXmetalFloor02_reflect
+{
+	qer_editorimage textures/eX/eXmetalFloor02
+
+	mirror
+
+	diffusemap	textures/eX/eXmetalFloor02
+	specularmap	textures/eX/eXmetalFloor02_s
+	bumpmap		addnormals ( textures/eX/eXmetalFloor02_norm, heightmap ( textures/eX/eXmetalFloor02_h, 1 ) )
+	{
+		stage	screenMap
+		map	_portalRender
+		depthWrite
+		color	1, 1, 1, 1
+		blend	GL_DST_COLOR, GL_ONE
+	}
+}
+
 
 textures/eX/eX_clangfloor_01 
 {

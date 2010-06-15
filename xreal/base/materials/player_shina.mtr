@@ -254,7 +254,7 @@ models/players/shina/hair
 		map		models/players/shina/hair.png
 	}	
 	specularMap		models/players/shina/hair_s.png
-	bumpMap			models/players/shina/hair_s.png
+	bumpMap			heightmap(models/players/shina/hair_s.png)
 }
 
 models/players/shina/hair_transp
