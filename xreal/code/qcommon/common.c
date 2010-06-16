@@ -3894,9 +3894,9 @@ void Com_Init(char *commandLine)
 	Com_Printf("Altivec support is %s\n", com_altivec->integer ? "enabled" : "disabled");
 #endif
 
-#if id386
-	Com_DetectSSE();
-#endif
+//#if id386
+//	Com_DetectSSE();
+//#endif
 
 	Com_Printf("--- Common Initialization Complete ---\n");
 }
