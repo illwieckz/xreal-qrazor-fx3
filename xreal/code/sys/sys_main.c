@@ -600,6 +600,13 @@ int main(int argc, char **argv)
 
 	Sys_PlatformInit();
 
+#if defined(USE_JAVA)
+	// Tr3B: Java likes to change the printf formatting, e.g. decimal numbers use ',' instead of '.'
+	// with a de_DE locale setting. This can break the GLSL compilers in the drivers.
+	// As a side note: It only happens with Java remote debugging enabled "+set jvm_remoteDebugging 1".
+	Sys_SetEnv("LC_NUMERIC", "en_US");
+#endif
+
 	// Set the initial time base
 	Sys_Milliseconds();
 
