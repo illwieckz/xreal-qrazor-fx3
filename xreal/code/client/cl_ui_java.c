@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2010 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -1298,6 +1298,356 @@ jint JNICALL Java_xreal_client_renderer_Renderer_registerSkin(JNIEnv *env, jclas
 	return handle;
 }
 
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    loadWorldBsp
+ * Signature: (Ljava/lang/String;)V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_loadWorldBsp(JNIEnv *env, jclass cls, jstring jname)
+{
+	char           *name;
+
+	name = (char *)((*env)->GetStringUTFChars(env, jname, 0));
+
+	re.LoadWorld(name);
+
+	(*env)->ReleaseStringUTFChars(env, jname, name);
+}
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    clearScene
+ * Signature: ()V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_clearScene(JNIEnv *env, jclass cls)
+{
+	re.ClearScene();
+}
+
+static refEntity_t		refEntity;
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    addRefEntityToScene
+ * Signature: (IIIFFFFFFFFFFFFFFIFFFIFIIIFFFFFFFFFI)V
+ */
+// *INDENT-OFF*
+void JNICALL Java_xreal_client_renderer_Renderer_addRefEntityToScene(JNIEnv *env, jclass cls, jint reType, jint renderfx, jint hModel,
+			jfloat posX, jfloat posY, jfloat posZ,
+			jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW,
+			jfloat scaleX, jfloat scaleY, jfloat scaleZ,
+			jfloat lightPosX, jfloat lightPosY, jfloat lightPosZ,
+			jfloat shadowPlane,
+			jint frame,
+			jfloat oldPosX, jfloat oldPosY, jfloat oldPosZ,
+			jint oldFrame,
+			jfloat lerp,
+			jint skinNum, jint customSkin, jint customMaterial,
+			jfloat materialRed, jfloat materialGreen, jfloat materialBlue, jfloat materialAlpha,
+			jfloat materialTexCoordU, jfloat materialTexCoordV,
+			jfloat materialTime,
+			jfloat radius, jfloat rotation,
+			jint noShadowID)
+{
+	quat_t			quat;
+
+	refEntity.reType = reType;
+	refEntity.renderfx = renderfx;
+	refEntity.hModel = hModel;
+
+	// most recrefEntity data
+	VectorSet(refEntity.origin, posX, posY, posZ);
+
+	QuatSet(quat, quatX, quatY, quatZ, quatW);
+	QuatToAxis(quat, refEntity.axis);
+
+	if(scaleX != 1 || scaleY != 1 || scaleZ != 1)
+	{
+		VectorScale(refEntity.axis[0], scaleX, refEntity.axis[0]);
+		VectorScale(refEntity.axis[1], scaleY, refEntity.axis[1]);
+		VectorScale(refEntity.axis[2], scaleZ, refEntity.axis[2]);
+
+		refEntity.nonNormalizedAxes = qtrue;
+	}
+	else
+	{
+		refEntity.nonNormalizedAxes = qfalse;
+	}
+
+	VectorSet(refEntity.lightingOrigin, lightPosX, lightPosY, lightPosZ);
+	refEntity.shadowPlane = shadowPlane;
+
+	refEntity.frame = frame;
+
+	// previous data for frame interpolation
+	VectorSet(refEntity.oldorigin, oldPosX, oldPosY, oldPosZ);
+	refEntity.oldframe = oldFrame;
+	refEntity.backlerp = 1.0 - lerp;
+
+	// texturing
+	refEntity.skinNum = skinNum;
+	refEntity.customSkin = customSkin;
+	refEntity.customShader = customMaterial;
+
+	// misc
+	refEntity.shaderRGBA[0] = (byte) (materialRed * 255);
+	refEntity.shaderRGBA[1] = (byte) (materialGreen * 255);
+	refEntity.shaderRGBA[2] = (byte) (materialBlue * 255);
+	refEntity.shaderRGBA[3] = (byte) (materialAlpha * 255);
+
+	refEntity.shaderTexCoord[0] = materialTexCoordU;
+	refEntity.shaderTexCoord[1] = materialTexCoordV;
+
+	refEntity.shaderTime = materialTime;
+
+	// extra sprite information
+	refEntity.radius = radius;
+	refEntity.rotation = rotation;
+
+	// extra light interaction information
+	refEntity.noShadowID = noShadowID;
+
+	re.AddRefEntityToScene(&refEntity);
+
+}
+// *INDENT-ON*
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    setRefEntityBone
+ * Signature: (ILjava/lang/String;IFFFFFFF)V
+ */
+// *INDENT-OFF*
+void JNICALL Java_xreal_client_renderer_Renderer_setRefEntityBone(	JNIEnv *env, jclass cls,
+																	jint boneIndex, jstring jname, jint parentIndex,
+																	jfloat posX, jfloat posY, jfloat posZ,
+																	jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW)
+{
+	refBone_t*		bone;
+
+#if defined(REFBONE_NAMES)
+	char           *name;
+#endif
+
+	if(boneIndex < 0 || boneIndex >= MAX_BONES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_client_renderer_Renderer_setRefEntityBone: bad bone index %i\n", boneIndex);
+	}
+
+	bone = &refEntity.skeleton.bones[boneIndex];
+
+#if defined(REFBONE_NAMES)
+	name = (char *)((*env)->GetStringUTFChars(env, jname, 0));
+
+	Q_strncpyz(bone->name, name, sizeof(bone->name));
+
+	(*env)->ReleaseStringUTFChars(env, jname, name);
+#endif
+
+	bone->parentIndex = parentIndex;
+
+	VectorSet(bone->origin, posX, posY, posZ);
+	QuatSet(bone->rotation, quatX, quatY, quatZ, quatW);
+}
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    setRefEntitySkeleton
+ * Signature: (IIFFFFFFFFF)V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_setRefEntitySkeleton(JNIEnv *env, jclass cls,
+																	jint type,
+																	jint numBones,
+																	jfloat minX, jfloat minY, jfloat minZ,
+																	jfloat maxX, jfloat maxY, jfloat maxZ,
+																	jfloat scaleX, jfloat scaleY, jfloat scaleZ)
+{
+	refEntity.skeleton.type = type;
+	refEntity.skeleton.numBones = numBones;
+
+	VectorSet(refEntity.skeleton.bounds[0], minX, minY, minZ);
+	VectorSet(refEntity.skeleton.bounds[1], maxX, maxY, maxZ);
+
+	VectorSet(refEntity.skeleton.scale, scaleX, scaleY, scaleZ);
+}
+
+
+
+
+// ====================================================================================
+
+static jclass class_RefBone = NULL;
+static jmethodID method_RefBone_ctor = NULL;
+
+static jclass   class_RefSkeleton = NULL;
+static jmethodID method_RefSkeleton_ctor = NULL;
+
+
+static void RefSkeleton_javaRegister()
+{
+	class_RefBone = (*javaEnv)->FindClass(javaEnv, "xreal/client/renderer/RefBone");
+	if(CheckException() || !class_RefBone)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.renderer.RefBone");
+	}
+
+
+	// public RefBone(String name, int parentIndex, Vector3f origin, Quat4f rotation)
+
+	method_RefBone_ctor = (*javaEnv)->GetMethodID(javaEnv, class_RefBone, "<init>", "(Ljava/lang/String;ILjavax/vecmath/Vector3f;Ljavax/vecmath/Quat4f;)V");
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.renderer.RefBone");
+	}
+
+
+	class_RefSkeleton = (*javaEnv)->FindClass(javaEnv, "xreal/client/renderer/RefSkeleton");
+	if(CheckException() || !class_RefSkeleton)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.renderer.RefSkeleton");
+	}
+
+	// public RefSkeleton(int type, RefBone[] bones, Vector3f mins, Vector3f maxs)
+
+	method_RefSkeleton_ctor = (*javaEnv)->GetMethodID(javaEnv, class_RefSkeleton, "<init>", "(I[Lxreal/client/renderer/RefBone;Ljavax/vecmath/Vector3f;Ljavax/vecmath/Vector3f;)V");
+
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.renderer.RefSkeleton");
+	}
+}
+
+void RefSkeleton_javaDetach()
+{
+	if(class_RefBone)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_RefBone);
+		class_RefBone = NULL;
+	}
+
+	if(class_RefSkeleton)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_RefSkeleton);
+		class_RefSkeleton = NULL;
+	}
+}
+
+jobject Java_NewRefBone(const refBone_t * bone)
+{
+	jobject obj = NULL;
+
+	if(class_RefBone)
+	{
+		jstring name = (*javaEnv)->NewStringUTF(javaEnv, bone->name);
+
+		// public RefBone(String name, int parentIndex, Vector3f origin, Quat4f rotation) {
+		obj = (*javaEnv)->NewObject(javaEnv, class_RefBone, method_RefBone_ctor,
+				name,
+				bone->parentIndex,
+				Java_NewVector3f(bone->origin),
+				Java_NewQuat4f(bone->rotation));
+	}
+
+	return obj;
+}
+
+jobject Java_NewRefSkeleton(const refSkeleton_t * skel)
+{
+	jobject obj = NULL;
+
+	if(class_RefSkeleton && class_RefBone)
+	{
+		int i;
+		jobjectArray bonesArray;
+
+		bonesArray = (*javaEnv)->NewObjectArray(javaEnv, skel->numBones, class_RefBone, NULL);
+
+		for(i = 0; i < skel->numBones; i++) {
+			jobject bone = Java_NewRefBone(&skel->bones[i]);
+
+			(*javaEnv)->SetObjectArrayElement(javaEnv, bonesArray, i, bone);
+		}
+
+		/*
+		public RefSkeleton(int type, RefBone[] bones, Vector3f mins, Vector3f maxs)
+		*/
+		obj = (*javaEnv)->NewObject(javaEnv, class_RefSkeleton, method_RefSkeleton_ctor,
+				skel->type,
+				bonesArray,
+				Java_NewVector3f(skel->bounds[0]),
+				Java_NewVector3f(skel->bounds[1]));
+
+		(*javaEnv)->DeleteLocalRef(javaEnv, bonesArray);
+
+		CheckException();
+	}
+
+	return obj;
+}
+
+// ====================================================================================
+
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    buildSkeleton
+ * Signature: (IIIFZ)Lxreal/client/renderer/RefSkeleton;
+ */
+jobject JNICALL Java_xreal_client_renderer_Renderer_buildSkeleton(JNIEnv *env, jclass cls, jint hAnim, jint startFrame, jint endFrame, jfloat frac, jboolean clearOrigin)
+{
+	refSkeleton_t   skeleton;
+
+	re.BuildSkeleton(&skeleton, hAnim, startFrame, endFrame, frac, clearOrigin);
+
+	return Java_NewRefSkeleton(&skeleton);
+}
+
+
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    renderScene
+ * Signature: (IIIIFFFFFFFFFII)V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_renderScene(JNIEnv *env, jclass cls,
+																jint viewPortX, jint viewPortY, jint viewPortWidth, jint viewPortHeight,
+																jfloat fovX, jfloat fovY,
+																jfloat posX, jfloat posY, jfloat posZ,
+																jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW,
+																jint time,
+																jint flags)
+{
+	refdef_t		refdef;
+	quat_t			quat;
+
+	Com_Memset(&refdef, 0, sizeof(refdef));
+
+	refdef.x = viewPortX;
+	refdef.y = viewPortY;
+	refdef.width = viewPortWidth;
+	refdef.height = viewPortHeight;
+
+	refdef.fov_x = fovX;
+	refdef.fov_y = fovY;
+
+	VectorSet(refdef.vieworg, posX, posY, posZ);
+
+	QuatSet(quat, quatX, quatY, quatZ, quatW);
+	QuatToAxis(quat, refdef.viewaxis);
+
+	AxisCopy(axisDefault, refdef.viewaxis);
+
+	refdef.time = time;
+	refdef.rdflags = flags;
+
+	re.RenderScene(&refdef);
+}
+
+
+
+
+
+
 // handle to Renderer class
 static jclass   class_Renderer = NULL;
 static JNINativeMethod Renderer_methods[] = {
@@ -1310,6 +1660,13 @@ static JNINativeMethod Renderer_methods[] = {
 	{"registerModel", "(Ljava/lang/String;Z)I", Java_xreal_client_renderer_Renderer_registerModel},
 	{"registerAnimation", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerAnimation},
 	{"registerSkin", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerSkin},
+	{"loadWorldBsp", "(Ljava/lang/String;)V", Java_xreal_client_renderer_Renderer_loadWorldBsp},
+	{"clearScene", "()V", Java_xreal_client_renderer_Renderer_clearScene},
+	{"addRefEntityToScene", "(IIIFFFFFFFFFFFFFFIFFFIFIIIFFFFFFFFFI)V", Java_xreal_client_renderer_Renderer_addRefEntityToScene},
+	{"setRefEntityBone", "(ILjava/lang/String;IFFFFFFF)V", Java_xreal_client_renderer_Renderer_setRefEntityBone},
+	{"setRefEntitySkeleton", "(IIFFFFFFFFF)V", Java_xreal_client_renderer_Renderer_setRefEntitySkeleton},
+	{"buildSkeleton", "(IIIFZ)Lxreal/client/renderer/RefSkeleton;", Java_xreal_client_renderer_Renderer_buildSkeleton},
+	{"renderScene", "(IIIIFFFFFFFFFII)V", Java_xreal_client_renderer_Renderer_renderScene}
 };
 
 void Renderer_javaRegister()
@@ -1614,6 +1971,7 @@ void CL_ShutdownUI(void)
 	Client_javaDetach();
 	Renderer_javaDetach();
 	Font_javaDetach();
+	RefSkeleton_javaDetach();
 	UserInterface_javaDetach();
 }
 
@@ -1627,6 +1985,7 @@ void CL_InitUI(void)
 	Client_javaRegister();
 	Renderer_javaRegister();
 	Font_javaRegister();
+	RefSkeleton_javaRegister();
 	UserInterface_javaRegister();
 
 	// init for this gamestate

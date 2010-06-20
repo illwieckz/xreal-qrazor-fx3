@@ -113,11 +113,11 @@ JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_setRefEntityBone
 
 /*
  * Class:     xreal_client_renderer_Renderer
- * Method:    setRefSkeleton
- * Signature: (IFFFFFFFFF)V
+ * Method:    setRefEntitySkeleton
+ * Signature: (IIFFFFFFFFF)V
  */
-JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_setRefSkeleton
-  (JNIEnv *, jclass, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
+JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_setRefEntitySkeleton
+  (JNIEnv *, jclass, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
 
 /*
  * Class:     xreal_client_renderer_Renderer

@@ -164,6 +164,10 @@ static jmethodID method_Vector3f_ctor = NULL;
 static jclass   class_Angle3f = NULL;
 static jmethodID method_Angle3f_ctor = NULL;
 
+// handles to the javax.vecmath.Quat4f class
+static jclass   class_Quat4f = NULL;
+static jmethodID method_Quat4f_ctor = NULL;
+
 // handles to the xreal.Trajectory class
 static jclass   class_Trajectory = NULL;
 static jmethodID method_Trajectory_ctor = NULL;
@@ -208,6 +212,8 @@ void Misc_javaRegister()
 		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Tuple3f constructor method");
 	}
 
+
+
 	class_Point3f = (*javaEnv)->FindClass(javaEnv, "javax/vecmath/Point3f");
 	if(CheckException() || !class_Point3f)
 	{
@@ -219,6 +225,8 @@ void Misc_javaRegister()
 	{
 		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Point3f constructor method");
 	}
+
+
 
 	class_Vector3f = (*javaEnv)->FindClass(javaEnv, "javax/vecmath/Vector3f");
 	if(CheckException() || !class_Vector3f)
@@ -232,6 +240,8 @@ void Misc_javaRegister()
 		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Vector3f constructor method");
 	}
 
+
+
 	class_Angle3f = (*javaEnv)->FindClass(javaEnv, "xreal/Angle3f");
 	if(CheckException() || !class_Angle3f)
 	{
@@ -243,6 +253,21 @@ void Misc_javaRegister()
 	{
 		Com_Error(ERR_FATAL, "Couldn't find xreal.Angle3f constructor method");
 	}
+
+
+	class_Quat4f = (*javaEnv)->FindClass(javaEnv, "javax/vecmath/Quat4f");
+	if(CheckException() || !class_Quat4f)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Quat4f");
+	}
+
+	method_Quat4f_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Quat4f, "<init>", "(FFFF)V");
+	if(CheckException() || !method_Quat4f_ctor)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Quat4f constructor method");
+	}
+
+
 
 	class_Trajectory = (*javaEnv)->FindClass(javaEnv, "xreal/Trajectory");
 	if(CheckException() || !class_Trajectory)
@@ -292,6 +317,12 @@ void Misc_javaDetach()
 		class_Angle3f = NULL;
 	}
 
+	if(class_Quat4f)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Quat4f);
+		class_Quat4f = NULL;
+	}
+
 	if(class_Trajectory)
 	{
 		(*javaEnv)->DeleteLocalRef(javaEnv, class_Trajectory);
@@ -323,6 +354,21 @@ jobject Java_NewAngle3f(float pitch, float yaw, float roll)
 	if(class_Angle3f)
 	{
 		obj = (*javaEnv)->NewObject(javaEnv, class_Angle3f, method_Angle3f_ctor, pitch, yaw, roll);
+	}
+
+	return obj;
+}
+
+
+// OPTIMIZE: Quat4f constructor normalizes the input and calls sqrt() ..
+
+jobject Java_NewQuat4f(const quat_t q)
+{
+	jobject obj = NULL;
+
+	if(class_Quat4f)
+	{
+		obj = (*javaEnv)->NewObject(javaEnv, class_Quat4f, method_Quat4f_ctor, q[0], q[1], q[2]);
 	}
 
 	return obj;
