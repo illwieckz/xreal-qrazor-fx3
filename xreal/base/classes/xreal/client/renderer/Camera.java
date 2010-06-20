@@ -34,8 +34,8 @@ public class Camera {
 
 	public int x, y, width, height;
 	public float fovX, fovY;
-	public Vector3f position;
-	public Quat4f quat;
+	public Vector3f position = new Vector3f();
+	public Quat4f quat = new Quat4f();
 
 	/**
 	 * time in milliseconds for shader effects and other time dependent

@@ -3,13 +3,19 @@ package xreal.client.ui;
 import java.io.File;
 import java.io.IOException;
 
+import javax.vecmath.Vector3f;
+
+import xreal.Angle3f;
 import xreal.Color;
 import xreal.ConsoleColorStrings;
 import xreal.Engine;
 import xreal.client.Client;
 import xreal.client.KeyCode;
 import xreal.client.SoundChannel;
+import xreal.client.renderer.Camera;
 import xreal.client.renderer.Font;
+import xreal.client.renderer.RefEntity;
+import xreal.client.renderer.Renderer;
 import xreal.client.ui.border.Border;
 import xreal.client.ui.border.LineBorder;
 import xreal.client.ui.event.KeyEvent;
@@ -21,6 +27,8 @@ public class MainMenu extends MenuFrame {
 	
 	Button singlePlayer;
 	
+	private int podiumModel;
+	
 	MainMenu() 
 	{
 		super();
@@ -28,6 +36,8 @@ public class MainMenu extends MenuFrame {
 		fullscreen = true;
 		wrapAround = true;
 		showlogo = true;
+		
+		podiumModel = Renderer.registerModel("models/meshes/ppodium.md5mesh", true);
 		
 		/*
 		int y = 134;
@@ -201,7 +211,169 @@ public class MainMenu extends MenuFrame {
 		fontVera.paintText(320, 470, 12, Color.White, "XreaL(c) 2005-2009, XreaL Team - http://xreal.sourceforge.net", 0, 0,
 				  Font.CENTER | Font.DROPSHADOW);
 		
+		renderViewTest(320, UserInterface.SCREEN_HEIGHT / 2, 100, 100, UserInterface.getRealTime());
+		
 		super.render();
+	}
+	
+	
+	void renderViewTest(float x, float y, float w, float h, int time)
+	{
+		//     body;
+		RefEntity	podium = new RefEntity();
+		Camera        refdef = new Camera();
+
+		//Vector3f          legsAngles = new Vector3f();
+		//vec3_t          torsoAngles;
+		//vec3_t          headAngles;
+
+		Vector3f          podiumAngles = new Vector3f();
+
+		Vector3f          origin = new Vector3f();
+		int             	renderfx;
+
+		Vector3f          mins = new Vector3f( -16, -16, -24 );
+		Vector3f          maxs = new Vector3f( 16, 16, 32 );
+		float           len;
+		float           xx;
+
+		
+		//if(!pi->bodyModel)
+		//	return;
+
+		//if(!pi->bodySkin)
+		//	return;
+
+		//dp_realtime = time;
+
+		//UI_DrawRect(x, y, w, h, colorYellow);
+
+		Rectangle rect = new Rectangle(x, y, w, h);
+		UserInterface.adjustFrom640(rect);
+		//UI_AdjustFrom640(&x, &y, &w, &h);
+
+		//memset(&refdef, 0, sizeof(refdef));
+		//memset(&body, 0, sizeof(body));
+		//memset(&podium, 0, sizeof(podium));
+
+		refdef.rdflags = Camera.RDF_NOWORLDMODEL | Camera.RDF_NOSHADOWS;
+
+		//AxisClear(refdef.viewaxis);
+		//refdef.quat
+
+		refdef.x = (int) Math.floor(rect.x);
+		refdef.y = (int) Math.floor(rect.y);
+		refdef.width = (int) Math.floor(rect.width);
+		refdef.height = (int) Math.floor(rect.height);;
+
+		refdef.fovX = (int)((float)refdef.width / 640.0f * 60.0f);
+		xx = (float) (refdef.width / Math.tan(refdef.fovX / 360 * Math.PI));
+		refdef.fovY = (float) Math.atan2(refdef.height, xx);
+		refdef.fovY *= (360 / Math.PI);
+
+		// calculate distance so the player nearly fills the box
+		len = 0.7f * (maxs.z - mins.z);
+		origin.x = (float) (len / Math.tan(Math.toRadians(refdef.fovX) * 0.5) + 10);
+		origin.y = 0.5f * (mins.y + maxs.y);
+		origin.z = -0.5f * (mins.z + maxs.z);
+		origin.z -= len - 20;
+
+		refdef.time = time;
+		
+		Renderer.clearScene();
+
+		// get the rotation information
+
+		// Quake 2 style
+		/*
+		legsAngles.x = Angle3f.normalize360(((float)(uis.realtime / 30.0)); //180 - 30;
+		legsAngles[PITCH] = 0;
+		legsAngles[ROLL] = 0;
+
+		AnglesToAxis(legsAngles, body.axis);
+
+		renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
+
+		// add the body
+		VectorCopy(origin, body.origin);
+		VectorCopy(body.origin, body.oldorigin);
+
+		body.hModel = pi->bodyModel;
+		body.customSkin = pi->bodySkin;
+		body.shaderTime = 1.0f;
+
+		body.renderfx = renderfx;
+		VectorCopy(origin, body.lightingOrigin);
+		body.lightingOrigin[0] -= 150;			// + = behind, - = in front
+		body.lightingOrigin[1] += 150;			// + = left, - = right
+		body.lightingOrigin[2] += 3000;			// + = above, - = below
+
+		body.backlerp = 1.0f;
+		body.frame = 1;
+		body.oldframe = 0;
+
+		// modify bones and set proper local bounds for culling
+		if(!trap_R_BuildSkeleton(&body.skeleton, pi->animations[LEGS_IDLE].handle, body.oldframe, body.frame, 1.0 - body.backlerp, qfalse))
+		{
+			Com_Printf("Can't build animation\n");
+			return;
+		}
+
+		if(body.skeleton.type == SK_RELATIVE)
+		{
+			// transform relative bones to absolute ones required for vertex skinning
+			UI_XPPM_TransformSkeleton(&body.skeleton, NULL);
+		}
+
+
+		//UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
+		trap_R_AddRefEntityToScene(&body);
+		*/
+
+		//VectorCopy(legsAngles, podiumAngles);
+		//AnglesToAxis(podiumAngles, podium.axis);
+
+		// add the podium
+		podium.origin = new Vector3f(origin);
+		podium.origin.z += 1;
+
+		podium.oldOrigin = new Vector3f(podium.origin);
+
+		podium.hModel = podiumModel;
+
+		//podium.customSkin = pi->bodySkin;
+		//podium.shaderTime = 1.0f;
+
+		//podium.renderfx = renderfx;
+		podium.lightingOrigin = new Vector3f(origin);
+		podium.lightingOrigin.x -= 150;			// + = behind, - = in front
+		podium.lightingOrigin.y += 150;			// + = left, - = right
+		podium.lightingOrigin.z += 3000;			// + = above, - = below
+
+		podium.lerp = 1.0f;
+		podium.frame = 1;
+		podium.oldFrame = 0;
+
+		//UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
+		
+		Renderer.addRefEntityToScene(podium);
+
+
+	//#if 1
+	//	origin[0] -= 150;			// + = behind, - = in front
+	//	origin[1] += 150;			// + = left, - = right
+	//	origin[2] += 150;			// + = above, - = below
+	//	trap_R_AddLightToScene(origin, 300, 1.0, 1.0, 1.0);
+	//#endif
+
+	//#if 1
+	//	origin[0] -= 150;
+	//	origin[1] -= 150;
+	//	origin[2] -= 150;
+	//	trap_R_AddLightToScene(origin, 400, 1.0, 1.0, 1.0);
+	//#endif
+
+		Renderer.renderScene(refdef);
 	}
 	
 	@Override

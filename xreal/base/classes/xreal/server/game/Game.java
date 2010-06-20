@@ -271,6 +271,8 @@ public class Game implements GameListener {
 		
 		//System.gc();
 		
+		//crashTest();
+		
 		//Engine.print("xreal.server.game.Game.runFrame(time2 = " + Engine.getTimeInMilliseconds() + ")\n");
 	}
 
@@ -400,7 +402,7 @@ public class Game implements GameListener {
 		{
 			GameEntity ent = null;
 		
-			//ent.updateEntityStateByPhysics();
+			ent.updateEntityStateByPhysics();
 		
 			Vector3f v1 = null;
 			Vector3f v2 = new Vector3f(v1);

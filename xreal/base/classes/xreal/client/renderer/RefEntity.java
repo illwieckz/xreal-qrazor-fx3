@@ -12,17 +12,17 @@ import xreal.Color;
  */
 public class RefEntity {
 
-	public RefEntityType reType;
+	public RefEntityType reType = RefEntityType.RT_MODEL;
 	public int renderFX;
 
 	public int hModel; // opaque type outside refresh
 
 	// most recent data
-	public Vector3f origin; // also used as MODEL_BEAM's "from"
-	public Quat4f quat; // rotation
-	public Vector3f scale;
+	public Vector3f origin = new Vector3f(); // also used as MODEL_BEAM's "from"
+	public Quat4f quat = new Quat4f(); // rotation
+	public Vector3f scale = new Vector3f();
 
-	public Vector3f lightingOrigin; // so multi-part models can be lit
+	public Vector3f lightingOrigin = new Vector3f(); // so multi-part models can be lit
 									// identically (RF_LIGHTING_ORIGIN)
 	public float shadowPlane; // projection shadows go here, stencils go
 								// slightly lower
@@ -30,7 +30,7 @@ public class RefEntity {
 	public int frame; // also used as MODEL_BEAM's diameter
 
 	// previous data for frame interpolation
-	public Vector3f oldOrigin; // also used as MODEL_BEAM's "to"
+	public Vector3f oldOrigin = new Vector3f(); // also used as MODEL_BEAM's "to"
 	public int oldFrame;
 	public float lerp; // 0.0 = old, 1.0 = current
 
@@ -56,7 +56,7 @@ public class RefEntity {
 	/**
 	 * colors used by rgbgen entity shaders
 	 */
-	public Color materialRGBA;
+	public Color materialRGBA = Color.White;
 	public float materialTexCoordU; // texture coordinates used by tcMod entity
 									// modifiers
 	public float materialTexCoordV;

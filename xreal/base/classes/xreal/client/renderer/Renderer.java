@@ -135,19 +135,21 @@ public abstract class Renderer {
 															float posX, float posY, float posZ,
 															float quatX, float quatY, float quatZ, float quatW);
 	
-	private synchronized static native void setRefSkeleton(	int type, 
+	private synchronized static native void setRefEntitySkeleton(	int type,
+															int numBones,
 															float minX, float minY, float minZ,
 															float maxX, float maxY, float maxZ,
 															float scaleX, float scaleY, float scaleZ);
 	
-	private static void setRefSkeleton(RefSkeleton skel) {
+	private static void setRefEntitySkeleton(RefSkeleton skel) {
 		
-		setRefSkeleton(skel.getType().ordinal(),
+		RefBone bones[] = skel.getBones();
+		
+		setRefEntitySkeleton(skel.getType().ordinal(),
+				bones.length,
 				skel.mins.x, skel.mins.y, skel.mins.z,
 				skel.maxs.x, skel.maxs.y, skel.maxs.z,
 				skel.scale.x, skel.scale.y, skel.scale.z);
-		
-		RefBone bones[] = skel.getBones();
 		
 		for(int i = 0; i < bones.length; i++) {
 			RefBone b = bones[i];
@@ -162,7 +164,7 @@ public abstract class Renderer {
 	public static void addRefEntityToScene(RefEntity ent) {
 		
 		if(ent.skeleton != null) {
-			setRefSkeleton(ent.skeleton);
+			setRefEntitySkeleton(ent.skeleton);
 		}
 		
 		addRefEntityToScene(ent.reType.ordinal(),
