@@ -1329,7 +1329,7 @@ static refEntity_t		refEntity;
 /*
  * Class:     xreal_client_renderer_Renderer
  * Method:    addRefEntityToScene
- * Signature: (IIIFFFFFFFFFFFFFFIFFFIFIIIFFFFFFFFFI)V
+ * Signature: (IIIFFFFFFFFFFFFFFIFFFIFIIIFFFFFFFFFIZ)V
  */
 // *INDENT-OFF*
 void JNICALL Java_xreal_client_renderer_Renderer_addRefEntityToScene(JNIEnv *env, jclass cls, jint reType, jint renderfx, jint hModel,
@@ -1347,7 +1347,8 @@ void JNICALL Java_xreal_client_renderer_Renderer_addRefEntityToScene(JNIEnv *env
 			jfloat materialTexCoordU, jfloat materialTexCoordV,
 			jfloat materialTime,
 			jfloat radius, jfloat rotation,
-			jint noShadowID)
+			jint noShadowID,
+			jboolean useSkeleton)
 {
 	quat_t			quat;
 
@@ -1360,6 +1361,8 @@ void JNICALL Java_xreal_client_renderer_Renderer_addRefEntityToScene(JNIEnv *env
 
 	QuatSet(quat, quatX, quatY, quatZ, quatW);
 	QuatToAxis(quat, refEntity.axis);
+
+	AxisCopy(axisDefault, refEntity.axis);
 
 	if(scaleX != 1 || scaleY != 1 || scaleZ != 1)
 	{
@@ -1406,6 +1409,11 @@ void JNICALL Java_xreal_client_renderer_Renderer_addRefEntityToScene(JNIEnv *env
 
 	// extra light interaction information
 	refEntity.noShadowID = noShadowID;
+
+	if(useSkeleton == qfalse)
+	{
+		refEntity.skeleton.type = SK_INVALID;
+	}
 
 	re.AddRefEntityToScene(&refEntity);
 
@@ -1662,7 +1670,7 @@ static JNINativeMethod Renderer_methods[] = {
 	{"registerSkin", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerSkin},
 	{"loadWorldBsp", "(Ljava/lang/String;)V", Java_xreal_client_renderer_Renderer_loadWorldBsp},
 	{"clearScene", "()V", Java_xreal_client_renderer_Renderer_clearScene},
-	{"addRefEntityToScene", "(IIIFFFFFFFFFFFFFFIFFFIFIIIFFFFFFFFFI)V", Java_xreal_client_renderer_Renderer_addRefEntityToScene},
+	{"addRefEntityToScene", "(IIIFFFFFFFFFFFFFFIFFFIFIIIFFFFFFFFFIZ)V", Java_xreal_client_renderer_Renderer_addRefEntityToScene},
 	{"setRefEntityBone", "(ILjava/lang/String;IFFFFFFF)V", Java_xreal_client_renderer_Renderer_setRefEntityBone},
 	{"setRefEntitySkeleton", "(IIFFFFFFFFF)V", Java_xreal_client_renderer_Renderer_setRefEntitySkeleton},
 	{"buildSkeleton", "(IIIFZ)Lxreal/client/renderer/RefSkeleton;", Java_xreal_client_renderer_Renderer_buildSkeleton},

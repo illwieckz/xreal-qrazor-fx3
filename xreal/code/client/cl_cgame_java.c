@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2010 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -24,9 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 
-#if !defined(USE_JAVA)
+#if defined(USE_JAVA)
 
-vm_t           *cgvm;
+#include "../qcommon/vm_java.h"
 
 extern qboolean loadCamera(const char *name);
 extern void     startCamera(int time);
@@ -37,7 +37,7 @@ extern qboolean getCameraInfo(int time, vec3_t * origin, vec3_t * angles);
 CL_GetGameState
 ====================
 */
-void CL_GetGameState(gameState_t * gs)
+static void CL_GetGameState(gameState_t * gs)
 {
 	*gs = cl.gameState;
 }
@@ -47,39 +47,9 @@ void CL_GetGameState(gameState_t * gs)
 CL_GetGlconfig
 ====================
 */
-void CL_GetGlconfig(glConfig_t * glconfig)
+static void CL_GetGlconfig(glConfig_t * glconfig)
 {
 	*glconfig = cls.glconfig;
-}
-
-/*
-====================
-Key_KeynumToStringBuf
-====================
-*/
-static void Key_KeynumToStringBuf(int keynum, char *buf, int buflen)
-{
-	Q_strncpyz(buf, Key_KeynumToString(keynum), buflen);
-}
-
-/*
-====================
-Key_GetBindingBuf
-====================
-*/
-static void Key_GetBindingBuf(int keynum, char *buf, int buflen)
-{
-	char           *value;
-
-	value = Key_GetBinding(keynum);
-	if(value)
-	{
-		Q_strncpyz(buf, value, buflen);
-	}
-	else
-	{
-		*buf = 0;
-	}
 }
 
 
@@ -88,7 +58,7 @@ static void Key_GetBindingBuf(int keynum, char *buf, int buflen)
 CL_GetUserCmd
 ====================
 */
-qboolean CL_GetUserCmd(int cmdNumber, usercmd_t * ucmd)
+static qboolean CL_GetUserCmd(int cmdNumber, usercmd_t * ucmd)
 {
 	// cmds[cmdNumber] is the last properly generated command
 
@@ -110,7 +80,7 @@ qboolean CL_GetUserCmd(int cmdNumber, usercmd_t * ucmd)
 	return qtrue;
 }
 
-int CL_GetCurrentCmdNumber(void)
+static int CL_GetCurrentCmdNumber(void)
 {
 	return cl.cmdNumber;
 }
@@ -121,7 +91,7 @@ int CL_GetCurrentCmdNumber(void)
 CL_GetParseEntityState
 ====================
 */
-qboolean CL_GetParseEntityState(int parseEntityNumber, entityState_t * state)
+static qboolean CL_GetParseEntityState(int parseEntityNumber, entityState_t * state)
 {
 	// can't return anything that hasn't been parsed yet
 	if(parseEntityNumber >= cl.parseEntitiesNum)
@@ -144,7 +114,7 @@ qboolean CL_GetParseEntityState(int parseEntityNumber, entityState_t * state)
 CL_GetCurrentSnapshotNumber
 ====================
 */
-void CL_GetCurrentSnapshotNumber(int *snapshotNumber, int *serverTime)
+static void CL_GetCurrentSnapshotNumber(int *snapshotNumber, int *serverTime)
 {
 	*snapshotNumber = cl.snap.messageNum;
 	*serverTime = cl.snap.serverTime;
@@ -155,7 +125,7 @@ void CL_GetCurrentSnapshotNumber(int *snapshotNumber, int *serverTime)
 CL_GetSnapshot
 ====================
 */
-qboolean CL_GetSnapshot(int snapshotNumber, snapshot_t * snapshot)
+static qboolean CL_GetSnapshot(int snapshotNumber, snapshot_t * snapshot)
 {
 	clSnapshot_t   *clSnap;
 	int             i, count;
@@ -455,368 +425,271 @@ void CL_CM_LoadMap(const char *mapname)
 	CM_LoadMap(mapname, qtrue, &checksum);
 }
 
+
+
+// ====================================================================================
+
+
+// handle to ClientGame class
+static jclass	class_ClientGame = NULL;
+static jobject  object_ClientGame = NULL;
+static jclass   interface_ClientGameListener;
+static jmethodID method_ClientGame_ctor;
+static jmethodID method_ClientGame_initClientGame;
+static jmethodID method_ClientGame_shutdownClientGame;
+static jmethodID method_ClientGame_drawActiveFrame;
+static jmethodID method_ClientGame_keyEvent;
+static jmethodID method_ClientGame_mouseEvent;
+static jmethodID method_ClientGame_eventHandling;
+static jmethodID method_ClientGame_lastAttacker;
+static jmethodID method_ClientGame_crosshairPlayer;
+static jmethodID method_ClientGame_consoleCommand;
+
+static void ClientGame_javaRegister()
+{
+	Com_Printf("ClientGame_javaRegister()\n");
+
+	// load the interface ClientGameListener
+	interface_ClientGameListener = (*javaEnv)->FindClass(javaEnv, "xreal/client/game/ClientGameListener");
+	if(CheckException() || !interface_ClientGameListener)
+	{
+		Com_Error(ERR_DROP, "Couldn't find class xreal.client.game.ClientGameListener");
+	}
+
+	// load the class ClientGame
+	class_ClientGame = (*javaEnv)->FindClass(javaEnv, "xreal/client/game/ClientGame");
+	if(CheckException() || !class_ClientGame)
+	{
+		Com_Error(ERR_DROP, "Couldn't find class xreal.client.game.ClientGame");
+	}
+
+	// check class ClientGame against interface ClientGameListener
+	if(!((*javaEnv)->IsAssignableFrom(javaEnv, class_ClientGame, interface_ClientGameListener)))
+	{
+		Com_Error(ERR_DROP, "The specified ClientGame class doesn't implement xreal.client.game.ClientGameListener");
+	}
+
+	// remove old game if existing
+	(*javaEnv)->DeleteLocalRef(javaEnv, interface_ClientGameListener);
+
+	// load game interface methods
+	method_ClientGame_initClientGame = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "initClientGame", "(III)V");
+	method_ClientGame_shutdownClientGame = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "shutdownClientGame", "()V");
+	method_ClientGame_drawActiveFrame = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "drawActiveFrame", "(IIZ)V");
+	method_ClientGame_keyEvent = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "keyEvent", "(IIZ)V");
+	method_ClientGame_mouseEvent = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "mouseEvent", "(III)V");
+	method_ClientGame_eventHandling = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "eventHandling", "(I)V");
+	method_ClientGame_lastAttacker = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "lastAttacker", "()I");
+	method_ClientGame_crosshairPlayer = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "crosshairPlayer", "()I");
+	method_ClientGame_consoleCommand = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "consoleCommand", "()Z");
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Problem getting handle for one or more of the ClientGame methods\n");
+	}
+
+	// load constructor
+	method_ClientGame_ctor = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "<init>", "()V");
+
+	object_ClientGame = (*javaEnv)->NewObject(javaEnv, class_ClientGame, method_ClientGame_ctor);
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Couldn't create instance of the class ClientGame");
+	}
+}
+
+
+static void ClientGame_javaDetach()
+{
+	Com_Printf("ClientGame_javaDetach()\n");
+
+	if(javaEnv)
+	{
+		if(class_ClientGame)
+		{
+			(*javaEnv)->DeleteLocalRef(javaEnv, class_ClientGame);
+			class_ClientGame = NULL;
+		}
+
+		if(object_ClientGame)
+		{
+			(*javaEnv)->DeleteLocalRef(javaEnv, object_ClientGame);
+			object_ClientGame = NULL;
+		}
+	}
+}
+
+static void Java_CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
+{
+	if(!object_ClientGame)
+		return;
+
+	Com_Printf("Java_CG_Init\n");
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_ClientGame, method_ClientGame_initClientGame, serverMessageNum, serverCommandSequence, clientNum);
+
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_CG_Init(serverMessageNum = %i, serverCommandSequence = %i, clientNum = %i)", serverMessageNum, serverCommandSequence, clientNum);
+	}
+}
+
+static void Java_CG_Shutdown(void)
+{
+	if(!object_ClientGame)
+		return;
+
+	Com_Printf("Java_CG_Shutdown\n");
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_ClientGame, method_ClientGame_shutdownClientGame);
+
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occurred during Java_CG_Shutdown()");
+	}
+}
+
+static qboolean Java_CG_ConsoleCommand(void)
+{
+	jboolean result;
+
+	if(!object_ClientGame)
+		return qfalse;
+
+	result = (*javaEnv)->CallBooleanMethod(javaEnv, object_ClientGame, method_ClientGame_consoleCommand);
+
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_CG_ConsoleCommand()");
+	}
+
+	return result;
+}
+
+static void Java_CG_DrawActiveFrame(int serverTime, int stereoView, qboolean demoPlayback)
+{
+	if(!object_ClientGame)
+		return;
+
+	//Com_Printf("Java_CG_DrawActiveFrame\n");
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_ClientGame, method_ClientGame_drawActiveFrame, serverTime, stereoView, demoPlayback);
+
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occured during Java_CG_DrawActiveFrame(serverTime = %i, stereoView = %i, demoPlayback = %i)", serverTime, stereoView, demoPlayback);
+	}
+}
+
+void Java_CG_KeyEvent(int key, qboolean down)
+{
+	if(!object_ClientGame)
+		return;
+
+	Com_Printf("Java_CG_KeyEvent(key = %i, down = %i)\n", key, down);
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_ClientGame, method_ClientGame_keyEvent, cls.realtime, key, down);
+
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occurred during Java_CG_KeyEvent(key = %i, down = %i)", key, down);
+	}
+}
+
+void Java_CG_MouseEvent(int dx, int dy)
+{
+	if(!object_ClientGame)
+		return;
+
+	Com_Printf("Java_UI_MouseEvent(dx = %i, dy = %i)\n", dx, dy);
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_ClientGame, method_ClientGame_mouseEvent, cls.realtime, dx, dy);
+
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occurred during Java_CG_MouseEvent(dx = %i, dy = %i)", dx, dy);
+	}
+}
+
+void Java_CG_EventHandling(int type)
+{
+	if(!object_ClientGame)
+		return;
+
+	Com_Printf("Java_UI_EventHandling(type = %i)\n", type);
+
+	(*javaEnv)->CallVoidMethod(javaEnv, object_ClientGame, method_ClientGame_mouseEvent, type);
+
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occurred during Java_CG_EventHandling(type = %i)", type);
+	}
+}
+
+int Java_CG_CrosshairPlayer(void)
+{
+	jint result;
+
+	if(!object_ClientGame)
+		return qfalse;
+
+	Com_Printf("Java_CG_CrosshairPlayer\n");
+
+	result = (*javaEnv)->CallIntMethod(javaEnv, object_ClientGame, method_ClientGame_crosshairPlayer);
+
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occurred during Java_CG_CrosshairPlayer");
+	}
+
+	return result;
+}
+
+int Java_CG_LastAttacker(void)
+{
+	jint result;
+
+	if(!object_ClientGame)
+		return qfalse;
+
+	Com_Printf("Java_CG_LastAttacker\n");
+
+	result = (*javaEnv)->CallIntMethod(javaEnv, object_ClientGame, method_ClientGame_lastAttacker);
+
+	if(CheckException())
+	{
+		Com_Error(ERR_DROP, "Java exception occurred during Java_CG_LastAttacker");
+	}
+
+	return result;
+}
+
+
+// ====================================================================================
+
+
 /*
 ====================
 CL_ShutdonwCGame
-
 ====================
 */
 void CL_ShutdownCGame(void)
 {
 	Key_SetCatcher(Key_GetCatcher() & ~KEYCATCH_CGAME);
 	cls.cgameStarted = qfalse;
-	if(!cgvm)
+
+	if(!javaEnv)
 	{
+		Com_Printf("Can't stop Java user interface module, javaEnv pointer was null\n");
 		return;
 	}
-	VM_Call(cgvm, CG_SHUTDOWN);
-	VM_Free(cgvm);
-	cgvm = NULL;
-}
 
-static int FloatAsInt(float f)
-{
-	floatint_t      fi;
+	CheckException();
 
-	fi.f = f;
-	return fi.i;
-}
+	Java_CG_Shutdown();
 
-/*
-====================
-CL_CgameSystemCalls
+	CheckException();
 
-The cgame module is making a system call
-====================
-*/
-intptr_t CL_CgameSystemCalls(intptr_t * args)
-{
-	switch (args[0])
-	{
-		case CG_PRINT:
-			Com_Printf("%s", (const char *)VMA(1));
-			return 0;
-		case CG_ERROR:
-			Com_Error(ERR_DROP, "%s", (const char *)VMA(1));
-			return 0;
-		case CG_MILLISECONDS:
-			return Sys_Milliseconds();
-		case CG_CVAR_REGISTER:
-			Cvar_Register(VMA(1), VMA(2), VMA(3), args[4]);
-			return 0;
-		case CG_CVAR_UPDATE:
-			Cvar_Update(VMA(1));
-			return 0;
-		case CG_CVAR_SET:
-			Cvar_Set(VMA(1), VMA(2));
-			return 0;
-		case CG_CVAR_VARIABLESTRINGBUFFER:
-			Cvar_VariableStringBuffer(VMA(1), VMA(2), args[3]);
-			return 0;
-		case CG_ARGC:
-			return Cmd_Argc();
-		case CG_ARGV:
-			Cmd_ArgvBuffer(args[1], VMA(2), args[3]);
-			return 0;
-		case CG_ARGS:
-			Cmd_ArgsBuffer(VMA(1), args[2]);
-			return 0;
-		case CG_FS_FOPENFILE:
-			return FS_FOpenFileByMode(VMA(1), VMA(2), args[3]);
-		case CG_FS_READ:
-			FS_Read2(VMA(1), args[2], args[3]);
-			return 0;
-		case CG_FS_WRITE:
-			FS_Write(VMA(1), args[2], args[3]);
-			return 0;
-		case CG_FS_FCLOSEFILE:
-			FS_FCloseFile(args[1]);
-			return 0;
-		case CG_FS_SEEK:
-			return FS_Seek(args[1], args[2], args[3]);
-		case CG_FS_GETFILELIST:
-			return FS_GetFileList(VMA(1), VMA(2), VMA(3), args[4]);
-		case CG_SENDCONSOLECOMMAND:
-			Cbuf_AddText(VMA(1));
-			return 0;
-		case CG_ADDCOMMAND:
-			CL_AddCgameCommand(VMA(1));
-			return 0;
-		case CG_REMOVECOMMAND:
-			Cmd_RemoveCommand(VMA(1));
-			return 0;
-		case CG_SENDCLIENTCOMMAND:
-			CL_AddReliableCommand(VMA(1), qfalse);
-			return 0;
-		case CG_UPDATESCREEN:
-			// this is used during lengthy level loading, so pump message loop
-			// We can't call Com_EventLoop here, a restart will crash and this _does_ happen
-			// if there is a map change while we are downloading at pk3. ZOID
-			SCR_UpdateScreen();
-			return 0;
-		case CG_CM_LOADMAP:
-			CL_CM_LoadMap(VMA(1));
-			return 0;
-		case CG_CM_NUMINLINEMODELS:
-			return CM_NumInlineModels();
-		case CG_CM_INLINEMODEL:
-			return CM_InlineModel(args[1]);
-		case CG_CM_TEMPBOXMODEL:
-			return CM_TempBoxModel(VMA(1), VMA(2), /*int capsule */ qfalse);
-		case CG_CM_TEMPCAPSULEMODEL:
-			return CM_TempBoxModel(VMA(1), VMA(2), /*int capsule */ qtrue);
-		case CG_CM_POINTCONTENTS:
-			return CM_PointContents(VMA(1), args[2]);
-		case CG_CM_TRANSFORMEDPOINTCONTENTS:
-			return CM_TransformedPointContents(VMA(1), args[2], VMA(3), VMA(4));
-		case CG_CM_BOXTRACE:
-			CM_BoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], TT_AABB);
-			return 0;
-		case CG_CM_CAPSULETRACE:
-			CM_BoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], TT_CAPSULE);
-			return 0;
-		case CG_CM_TRANSFORMEDBOXTRACE:
-			CM_TransformedBoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9), TT_AABB);
-			return 0;
-		case CG_CM_TRANSFORMEDCAPSULETRACE:
-			CM_TransformedBoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9), TT_CAPSULE);
-			return 0;
-		case CG_CM_BISPHERETRACE:
-			CM_BiSphereTrace(VMA(1), VMA(2), VMA(3), VMF(4), VMF(5), args[6], args[7]);
-			return 0;
-		case CG_CM_TRANSFORMEDBISPHERETRACE:
-			CM_TransformedBiSphereTrace(VMA(1), VMA(2), VMA(3), VMF(4), VMF(5), args[6], args[7], VMA(8));
-			return 0;
-		case CG_CM_MARKFRAGMENTS:
-			return re.MarkFragments(args[1], VMA(2), VMA(3), args[4], VMA(5), args[6], VMA(7));
-		case CG_S_STARTSOUND:
-			S_StartSound(VMA(1), args[2], args[3], args[4]);
-			return 0;
-		case CG_S_STARTLOCALSOUND:
-			S_StartLocalSound(args[1], args[2]);
-			return 0;
-		case CG_S_CLEARLOOPINGSOUNDS:
-			S_ClearLoopingSounds(args[1]);
-			return 0;
-		case CG_S_ADDLOOPINGSOUND:
-			S_AddLoopingSound(args[1], VMA(2), VMA(3), args[4]);
-			return 0;
-		case CG_S_ADDREALLOOPINGSOUND:
-			S_AddRealLoopingSound(args[1], VMA(2), VMA(3), args[4]);
-			return 0;
-		case CG_S_STOPLOOPINGSOUND:
-			S_StopLoopingSound(args[1]);
-			return 0;
-		case CG_S_UPDATEENTITYPOSITION:
-			S_UpdateEntityPosition(args[1], VMA(2));
-			return 0;
-		case CG_S_RESPATIALIZE:
-			S_Respatialize(args[1], VMA(2), VMA(3), args[4]);
-			return 0;
-		case CG_S_REGISTERSOUND:
-			return S_RegisterSound(VMA(1));
-		case CG_S_STARTBACKGROUNDTRACK:
-			S_StartBackgroundTrack(VMA(1), VMA(2));
-			return 0;
-		case CG_R_LOADWORLDMAP:
-			re.LoadWorld(VMA(1));
-			return 0;
-		case CG_R_REGISTERMODEL:
-			return re.RegisterModel(VMA(1), args[2]);
-		case CG_R_REGISTERANIMATION:
-			return re.RegisterAnimation(VMA(1));
-		case CG_R_REGISTERSKIN:
-			return re.RegisterSkin(VMA(1));
-		case CG_R_REGISTERSHADER:
-			return re.RegisterShader(VMA(1));
-		case CG_R_REGISTERSHADERNOMIP:
-			return re.RegisterShaderNoMip(VMA(1));
-		case CG_R_REGISTERSHADERLIGHTATTENUATION:
-			return re.RegisterShaderLightAttenuation(VMA(1));
-		case CG_R_REGISTERFONT:
-			re.RegisterFont(VMA(1), args[2], VMA(3));
-		case CG_R_CLEARSCENE:
-			re.ClearScene();
-			return 0;
-		case CG_R_ADDREFENTITYTOSCENE:
-			re.AddRefEntityToScene(VMA(1));
-			return 0;
-		case CG_R_ADDREFLIGHTSTOSCENE:
-			re.AddRefLightToScene(VMA(1));
-			return 0;
-		case CG_R_ADDPOLYTOSCENE:
-			re.AddPolyToScene(args[1], args[2], VMA(3), 1);
-			return 0;
-		case CG_R_ADDPOLYSTOSCENE:
-			re.AddPolyToScene(args[1], args[2], VMA(3), args[4]);
-			return 0;
-		case CG_R_LIGHTFORPOINT:
-			return re.LightForPoint(VMA(1), VMA(2), VMA(3), VMA(4));
-		case CG_R_ADDLIGHTTOSCENE:
-			re.AddLightToScene(VMA(1), VMF(2), VMF(3), VMF(4), VMF(5));
-			return 0;
-		case CG_R_RENDERSCENE:
-			re.RenderScene(VMA(1));
-			return 0;
-		case CG_R_SETCOLOR:
-			re.SetColor(VMA(1));
-			return 0;
-		case CG_R_DRAWSTRETCHPIC:
-			re.DrawStretchPic(VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[9]);
-			return 0;
-		case CG_R_MODELBOUNDS:
-			re.ModelBounds(args[1], VMA(2), VMA(3));
-			return 0;
-		case CG_R_LERPTAG:
-			return re.LerpTag(VMA(1), args[2], args[3], args[4], VMF(5), VMA(6));
-		case CG_R_CHECKSKELETON:
-			return re.CheckSkeleton(VMA(1), args[2], args[3]);
-		case CG_R_BUILDSKELETON:
-			return re.BuildSkeleton(VMA(1), args[2], args[3], args[4], VMF(5), args[6]);
-		case CG_R_BLENDSKELETON:
-			return re.BlendSkeleton(VMA(1), VMA(2), VMF(3));
-		case CG_R_BONEINDEX:
-			return re.BoneIndex(args[1], VMA(2));
-		case CG_R_ANIMNUMFRAMES:
-			return re.AnimNumFrames(args[1]);
-		case CG_R_ANIMFRAMERATE:
-			return re.AnimFrameRate(args[1]);
-		case CG_GETGLCONFIG:
-			CL_GetGlconfig(VMA(1));
-			return 0;
-		case CG_GETGAMESTATE:
-			CL_GetGameState(VMA(1));
-			return 0;
-		case CG_GETCURRENTSNAPSHOTNUMBER:
-			CL_GetCurrentSnapshotNumber(VMA(1), VMA(2));
-			return 0;
-		case CG_GETSNAPSHOT:
-			return CL_GetSnapshot(args[1], VMA(2));
-		case CG_GETSERVERCOMMAND:
-			return CL_GetServerCommand(args[1]);
-		case CG_GETCURRENTCMDNUMBER:
-			return CL_GetCurrentCmdNumber();
-		case CG_GETUSERCMD:
-			return CL_GetUserCmd(args[1], VMA(2));
-		case CG_SETUSERCMDVALUE:
-			CL_SetUserCmdValue(args[1], VMF(2));
-			return 0;
-		case CG_MEMORY_REMAINING:
-			return Hunk_MemoryRemaining();
-		case CG_KEY_ISDOWN:
-			return Key_IsDown(args[1]);
-		case CG_KEY_GETCATCHER:
-			return Key_GetCatcher();
-		case CG_KEY_SETCATCHER:
-			// Don't allow the cgame module to close the console
-			Key_SetCatcher(args[1] | (Key_GetCatcher() & KEYCATCH_CONSOLE));
-			return 0;
-		case CG_KEY_GETKEY:
-			return Key_GetKey(VMA(1));
-
-
-		case CG_GETDEMOSTATE:
-			return CL_DemoState();
-		case CG_GETDEMOPOS:
-			return CL_DemoPos();
-		case CG_GETDEMONAME:
-			CL_DemoName(VMA(1), args[2]);
-			return 0;
-
-		case CG_KEY_KEYNUMTOSTRINGBUF:
-			Key_KeynumToStringBuf(args[1], VMA(2), args[3]);
-			return 0;
-		case CG_KEY_GETBINDINGBUF:
-			Key_GetBindingBuf(args[1], VMA(2), args[3]);
-			return 0;
-		case CG_KEY_SETBINDING:
-			Key_SetBinding(args[1], VMA(2));
-			return 0;
-
-		case CG_PC_ADD_GLOBAL_DEFINE:
-			return Parse_AddGlobalDefine(VMA(1));
-		case CG_PC_LOAD_SOURCE:
-			return Parse_LoadSourceHandle(VMA(1));
-		case CG_PC_FREE_SOURCE:
-			return Parse_FreeSourceHandle(args[1]);
-		case CG_PC_READ_TOKEN:
-			return Parse_ReadTokenHandle(args[1], VMA(2));
-		case CG_PC_SOURCE_FILE_AND_LINE:
-			return Parse_SourceFileAndLine(args[1], VMA(2), VMA(3));
-
-		case CG_MEMSET:
-			Com_Memset(VMA(1), args[2], args[3]);
-			return 0;
-		case CG_MEMCPY:
-			Com_Memcpy(VMA(1), VMA(2), args[3]);
-			return 0;
-		case CG_STRNCPY:
-			strncpy(VMA(1), VMA(2), args[3]);
-			return args[1];
-		case CG_SIN:
-			return FloatAsInt(sin(VMF(1)));
-		case CG_COS:
-			return FloatAsInt(cos(VMF(1)));
-		case CG_ATAN2:
-			return FloatAsInt(atan2(VMF(1), VMF(2)));
-		case CG_SQRT:
-			return FloatAsInt(sqrt(VMF(1)));
-		case CG_FLOOR:
-			return FloatAsInt(floor(VMF(1)));
-		case CG_CEIL:
-			return FloatAsInt(ceil(VMF(1)));
-		case CG_ACOS:
-			return FloatAsInt(Q_acos(VMF(1)));
-
-		case CG_S_STOPBACKGROUNDTRACK:
-			S_StopBackgroundTrack();
-			return 0;
-
-		case CG_REAL_TIME:
-			return Com_RealTime(VMA(1));
-
-		case CG_CIN_PLAYCINEMATIC:
-			return CIN_PlayCinematic(VMA(1), args[2], args[3], args[4], args[5], args[6]);
-
-		case CG_CIN_STOPCINEMATIC:
-			return CIN_StopCinematic(args[1]);
-
-		case CG_CIN_RUNCINEMATIC:
-			return CIN_RunCinematic(args[1]);
-
-		case CG_CIN_DRAWCINEMATIC:
-			CIN_DrawCinematic(args[1]);
-			return 0;
-
-		case CG_CIN_SETEXTENTS:
-			CIN_SetExtents(args[1], args[2], args[3], args[4], args[5]);
-			return 0;
-
-		case CG_R_REMAP_SHADER:
-			re.RemapShader(VMA(1), VMA(2), VMA(3));
-			return 0;
-
-/*
-	case CG_LOADCAMERA:
-		return loadCamera(VMA(1));
-
-	case CG_STARTCAMERA:
-		startCamera(args[1]);
-		return 0;
-
-	case CG_GETCAMERAINFO:
-		return getCameraInfo(args[1], VMA(2), VMA(3));
-*/
-		case CG_GET_ENTITY_TOKEN:
-			return re.GetEntityToken(VMA(1), args[2]);
-		case CG_R_INPVS:
-			return re.inPVS(VMA(1), VMA(2));
-
-		default:
-			assert(0);
-			Com_Error(ERR_DROP, "Bad cgame system trap: %ld", (long int)args[0]);
-	}
-	return 0;
+	ClientGame_javaDetach();
 }
 
 
@@ -832,7 +705,6 @@ void CL_InitCGame(void)
 	const char     *info;
 	const char     *mapname;
 	int             t1, t2;
-	vmInterpret_t   interpret = VMI_NATIVE;
 
 	t1 = Sys_Milliseconds();
 
@@ -844,29 +716,14 @@ void CL_InitCGame(void)
 	mapname = Info_ValueForKey(info, "mapname");
 	Com_sprintf(cl.mapname, sizeof(cl.mapname), "maps/%s.bsp", mapname);
 
-#if defined(USE_LLVM)
-	// load the dll or bytecode
-	if(cl_connectedToPureServer != 0)
-	{
-		// if sv_pure is set we only allow llvms to be loaded
-		interpret = VMI_BYTECODE;
-	}
-	else
-	{
-		interpret = Cvar_VariableValue("vm_cgame");
-	}
-#endif
-	cgvm = VM_Create("cgame", CL_CgameSystemCalls, interpret);
-	if(!cgvm)
-	{
-		Com_Error(ERR_DROP, "VM_Create on cgame failed");
-	}
+	ClientGame_javaRegister();
+
 	cls.state = CA_LOADING;
 
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
-	VM_Call(cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum);
+	Java_CG_Init(clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum);
 
 	// reset any CVAR_CHEAT cvars registered by cgame
 	if(!clc.demoplaying && !cl_connectedToCheatServer)
@@ -904,12 +761,7 @@ See if the current console command is claimed by the cgame
 */
 qboolean CL_GameCommand(void)
 {
-	if(!cgvm)
-	{
-		return qfalse;
-	}
-
-	return VM_Call(cgvm, CG_CONSOLE_COMMAND);
+	return Java_CG_ConsoleCommand();
 }
 
 
@@ -920,7 +772,7 @@ CL_CGameRendering
 */
 void CL_CGameRendering(stereoFrame_t stereo)
 {
-	VM_Call(cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying);
+	Java_CG_DrawActiveFrame(cl.serverTime, stereo, clc.demoplaying);
 }
 
 

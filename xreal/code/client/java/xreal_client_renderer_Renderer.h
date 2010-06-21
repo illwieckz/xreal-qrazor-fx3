@@ -98,10 +98,10 @@ JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_clearScene
 /*
  * Class:     xreal_client_renderer_Renderer
  * Method:    addRefEntityToScene
- * Signature: (IIIFFFFFFFFFFFFFFIFFFIFIIIFFFFFFFFFI)V
+ * Signature: (IIIFFFFFFFFFFFFFFIFFFIFIIIFFFFFFFFFIZ)V
  */
 JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_addRefEntityToScene
-  (JNIEnv *, jclass, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jint, jfloat, jfloat, jfloat, jint, jfloat, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jint);
+  (JNIEnv *, jclass, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jint, jfloat, jfloat, jfloat, jint, jfloat, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jint, jboolean);
 
 /*
  * Class:     xreal_client_renderer_Renderer

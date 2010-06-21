@@ -129,7 +129,8 @@ public abstract class Renderer {
 																float materialTexCoordU, float materialTexCoordV,
 																float materialTime,
 																float radius, float rotation,
-																int noShadowID);
+																int noShadowID,
+																boolean useSkeleton);
 	
 	private synchronized static native void setRefEntityBone(int boneIndex, String name, int parentIndex,
 															float posX, float posY, float posZ,
@@ -163,7 +164,9 @@ public abstract class Renderer {
 	
 	public static void addRefEntityToScene(RefEntity ent) {
 		
-		if(ent.skeleton != null) {
+		boolean useSkeleton = ent.skeleton != null && ent.skeleton.getType() == RefSkeletonType.ABSOLUTE;
+		
+		if(useSkeleton) {
 			setRefEntitySkeleton(ent.skeleton);
 		}
 		
@@ -206,7 +209,9 @@ public abstract class Renderer {
 							ent.materialTime,
 							
 							ent.radius, ent.rotation,
-							ent.noShadowID);
+							ent.noShadowID,
+							
+							useSkeleton);
 	}
 	
 	public synchronized static native RefSkeleton buildSkeleton(int hAnim, int startFrame, int endFrame, float frac, boolean clearOrigin);

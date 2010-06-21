@@ -211,7 +211,7 @@ public class MainMenu extends MenuFrame {
 		fontVera.paintText(320, 470, 12, Color.White, "XreaL(c) 2005-2009, XreaL Team - http://xreal.sourceforge.net", 0, 0,
 				  Font.CENTER | Font.DROPSHADOW);
 		
-		renderViewTest(320, UserInterface.SCREEN_HEIGHT / 2, 100, 100, UserInterface.getRealTime());
+		//renderViewTest(320, UserInterface.SCREEN_HEIGHT / 2, 200, 300, UserInterface.getRealTime());
 		
 		super.render();
 	}
@@ -264,7 +264,7 @@ public class MainMenu extends MenuFrame {
 		refdef.x = (int) Math.floor(rect.x);
 		refdef.y = (int) Math.floor(rect.y);
 		refdef.width = (int) Math.floor(rect.width);
-		refdef.height = (int) Math.floor(rect.height);;
+		refdef.height = (int) Math.floor(rect.height);
 
 		refdef.fovX = (int)((float)refdef.width / 640.0f * 60.0f);
 		xx = (float) (refdef.width / Math.tan(refdef.fovX / 360 * Math.PI));
