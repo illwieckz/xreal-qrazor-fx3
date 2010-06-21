@@ -49,9 +49,9 @@ public class UserInterface implements UserInterfaceListener {
 		POSTGAME
 	}
 
-	private int vidWidth;
-	private int vidHeight;
-	private float windowAspect;
+	private static int vidWidth;
+	private static int vidHeight;
+	private static float windowAspect;
 
 	private static float screenScale;
 	private static float screenXBias;
@@ -75,9 +75,9 @@ public class UserInterface implements UserInterfaceListener {
 
 	public UserInterface(int vidWidth, int vidHeight, float windowAspect) {
 		super();
-		this.vidWidth = vidWidth;
-		this.vidHeight = vidHeight;
-		this.windowAspect = windowAspect;
+		UserInterface.vidWidth = vidWidth;
+		UserInterface.vidHeight = vidHeight;
+		UserInterface.windowAspect = windowAspect;
 		
 		// for 640x480 virtualized screen
 		screenXScale = vidWidth / 640.0f;
@@ -180,8 +180,8 @@ public class UserInterface implements UserInterfaceListener {
 	public void refresh(int time) {
 		// Engine.println("UserInterface.refresh(time = " + time + ")");
 		
-		this.frameTime = time - realTime;
-		this.realTime = time;
+		UserInterface.frameTime = time - realTime;
+		UserInterface.realTime = time;
 		
 		if(!menuStack.isEmpty())
 		{
@@ -323,5 +323,14 @@ public class UserInterface implements UserInterfaceListener {
 	
 	public static int getFrameTime() {
 		return frameTime;
+	}
+
+	
+	public static int getVidWidth() {
+		return vidWidth;
+	}
+	
+	public static int getVidHeight() {
+		return vidHeight;
 	}
 }

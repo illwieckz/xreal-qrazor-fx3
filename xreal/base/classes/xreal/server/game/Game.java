@@ -88,7 +88,7 @@ public class Game implements GameListener {
 	}
 
 	@Override
-	public void initGame(int _levelTime, int randomSeed, boolean restart) {
+	public void initGame(int levelTime, int randomSeed, boolean restart) {
 		
 		Engine.print("xreal.server.game.Game.initGame(levelTime = "+ levelTime + ", randomSeed = " + randomSeed + ", restart = " + restart + ")\n");
 		
@@ -104,7 +104,7 @@ public class Game implements GameListener {
 
 		//Engine.sendConsoleCommand(Engine.EXEC_APPEND, "echo cool!");
 		
-		levelTime = _levelTime;
+		Game.levelTime = levelTime;
 		deltaTime = 0;
 		
 		// make some data visible to connecting client

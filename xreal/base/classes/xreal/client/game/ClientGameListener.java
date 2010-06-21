@@ -8,7 +8,7 @@ package xreal.client.game;
  */
 public interface ClientGameListener
 {
-	public void			initClientGame(int serverMessageNum, int serverCommandSequence, int clientNum);
+	public void			initClientGame(int serverMessageNum, int serverCommandSequence, int clientNum) throws Exception;
 	
 	public void			shutdownClientGame();
 	
@@ -28,8 +28,9 @@ public interface ClientGameListener
 	 * @param serverTime
 	 * @param stereoView
 	 * @param demoPlayback	If demoPlayback is set, local movement prediction will not be enabled
+	 * @throws Exception 
 	 */
-	public void			drawActiveFrame(int serverTime, int stereoView, boolean demoPlayback);
+	public void			drawActiveFrame(int serverTime, int stereoView, boolean demoPlayback) throws Exception;
 	
 	
 	public int			crosshairPlayer();

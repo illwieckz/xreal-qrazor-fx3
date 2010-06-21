@@ -17,7 +17,7 @@ public class ConfigStrings {
 	 * an info string with all the serverinfo cvars
 	 */
 	@SuppressWarnings("unused")
-	private static final int SERVERINFO = 0;
+	public static final int SERVERINFO = 0;
 
 	/**
 	 * an info string for server system to client system configuration
