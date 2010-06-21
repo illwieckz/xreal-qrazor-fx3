@@ -713,6 +713,91 @@ jstring JNICALL Java_xreal_client_Client_getConfigString(JNIEnv *env, jclass cls
 
 /*
  * Class:     xreal_client_Client
+ * Method:    getCurrentSnapshotNumber
+ * Signature: ()I
+ */
+jint JNICALL Java_xreal_client_Client_getCurrentSnapshotNumber(JNIEnv *env, jclass cls)
+{
+	return cl.snap.messageNum;
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getCurrentSnapshotTime
+ * Signature: ()I
+ */
+jint JNICALL Java_xreal_client_Client_getCurrentSnapshotTime(JNIEnv *env, jclass cls)
+{
+	return cl.snap.serverTime;
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getSnapshot
+ * Signature: (I)Lxreal/client/game/Snapshot;
+ */
+jobject JNICALL Java_xreal_client_Client_getSnapshot(JNIEnv *env, jclass cls, jint snapshotNumber)
+{
+	// TODO
+
+#if 0
+	clSnapshot_t   *clSnap;
+	int             i, count;
+
+	if(snapshotNumber > cl.snap.messageNum)
+	{
+		Com_Error(ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.snapshot.messageNum");
+	}
+
+	// if the frame has fallen out of the circular buffer, we can't return it
+	if(cl.snap.messageNum - snapshotNumber >= PACKET_BACKUP)
+	{
+		return NULL;
+	}
+
+	// if the frame is not valid, we can't return it
+	clSnap = &cl.snapshots[snapshotNumber & PACKET_MASK];
+	if(!clSnap->valid)
+	{
+		return NULL;
+	}
+
+	// if the entities in the frame have fallen out of their
+	// circular buffer, we can't return it
+	if(cl.parseEntitiesNum - clSnap->parseEntitiesNum >= MAX_PARSE_ENTITIES)
+	{
+		return NULL;
+	}
+
+	// write the snapshot
+	snapshot->snapFlags = clSnap->snapFlags;
+	snapshot->serverCommandSequence = clSnap->serverCommandNum;
+	snapshot->ping = clSnap->ping;
+	snapshot->serverTime = clSnap->serverTime;
+	Com_Memcpy(snapshot->areamask, clSnap->areamask, sizeof(snapshot->areamask));
+	snapshot->ps = clSnap->ps;
+	count = clSnap->numEntities;
+	if(count > MAX_ENTITIES_IN_SNAPSHOT)
+	{
+		Com_DPrintf("CL_GetSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT);
+		count = MAX_ENTITIES_IN_SNAPSHOT;
+	}
+	snapshot->numEntities = count;
+	for(i = 0; i < count; i++)
+	{
+		snapshot->entities[i] = cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
+	}
+
+	// FIXME: configstring changes and server commands!!!
+
+	return Java_NewSnapshot(snapshot);
+#else
+	return NULL;
+#endif
+}
+
+/*
+ * Class:     xreal_client_Client
  * Method:    getKeyCatchers
  * Signature: ()I
  */
@@ -952,6 +1037,9 @@ void JNICALL Java_xreal_client_Client_stopBackgroundTrack(JNIEnv *env, jclass cl
 static jclass   class_Client = NULL;
 static JNINativeMethod Client_methods[] = {
 	{"getConfigString", "(I)Ljava/lang/String;", Java_xreal_client_Client_getConfigString},
+	{"getCurrentSnapshotNumber", "()I", Java_xreal_client_Client_getCurrentSnapshotNumber},
+	{"getCurrentSnapshotTime", "()I", Java_xreal_client_Client_getCurrentSnapshotTime},
+	{"getSnapshot", "(I)Lxreal/client/game/Snapshot;", Java_xreal_client_Client_getSnapshot},
 
 	{"getKeyCatchers", "()I", Java_xreal_client_Client_getKeyCatchers},
 	{"setKeyCatchers", "(I)V", Java_xreal_client_Client_setKeyCatchers},

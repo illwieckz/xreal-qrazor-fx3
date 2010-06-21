@@ -30,7 +30,6 @@ public class ClientGame implements ClientGameListener {
 	static private int		clientNum;
 	
 	static private int		serverCommandSequence;	// reliable command stream counter
-	static private int		processedSnapshotNum;	// the number of snapshots cgame has requested
 	
 	static private int		time;
 	static private int		levelStartTime;
@@ -48,6 +47,10 @@ public class ClientGame implements ClientGameListener {
 	static private final Camera	camera = new Camera();
 	
 	static private final HUD	hud = new HUD();
+	
+	static private SnapshotManager snapshotManager;
+	
+	static public final Lagometer lagometer = new Lagometer();
 	
 	
 	private ClientGame() {
@@ -104,7 +107,7 @@ public class ClientGame implements ClientGameListener {
 		Renderer.clearScene();
 
 		// set up cg.snap and possibly cg.nextSnap
-//		CG_ProcessSnapshots();
+		snapshotManager.processSnapshots();
 //
 //		// if we haven't received any snapshots yet, all
 //		// we can draw is the information screen
@@ -248,17 +251,16 @@ public class ClientGame implements ClientGameListener {
 		
 		//cg.progress = 0;
 		
-		ClientGame.clientNum = clientNum;		
+		ClientGame.clientNum = clientNum;
+		
+		ClientGame.snapshotManager = new SnapshotManager(serverMessageNum);
 
-		ClientGame.processedSnapshotNum = serverMessageNum;
 		ClientGame.serverCommandSequence = serverCommandSequence;
 		
-		// check version
+		// make sure we are running the same version of the game as the server does
 		String s = Client.getConfigString(ConfigStrings.GAME_VERSION);
 		if(!s.equals(Config.GAME_VERSION))
 		{
-			//Engine.error("Client/Server game mismatch: " + Config.GAME_VERSION + "/" + s);
-			
 			throw new Exception("Client/Server game mismatch: " + Config.GAME_VERSION + "/" + s);
 		}
 
@@ -276,6 +278,8 @@ public class ClientGame implements ClientGameListener {
 		
 		// we are done loading 
 		loadingProgress = 0;
+		
+		System.gc();
 	}
 
 	@Override
@@ -324,9 +328,6 @@ public class ClientGame implements ClientGameListener {
 		
 		info.read(Client.getConfigString(ConfigStrings.SERVERINFO));
 	
-		//cgs.gametype = atoi(Info_ValueForKey(info, "g_gametype"));
-		//trap_Cvar_Set("g_gametype", va("%i", cgs.gametype));
-		
 		String gametype = info.get("g_gametype");
 		CVars.g_gametype.set(gametype);
 		Engine.println("Game Type: " + GameType.values()[CVars.g_gametype.getInteger()]);
@@ -460,6 +461,8 @@ public class ClientGame implements ClientGameListener {
 		hud.draw();
 	}
 	
+	
+	
 	// --------------------------------------------------------------------------------------------
 	
 	
@@ -472,7 +475,8 @@ public class ClientGame implements ClientGameListener {
 		return serverCommandSequence;
 	}
 
-	public static int getProcessedSnapshotNum() {
-		return processedSnapshotNum;
+	public static int getTime() {
+		return time;
 	}
+	
 }

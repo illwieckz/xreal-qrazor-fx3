@@ -3,6 +3,8 @@ package xreal.client;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
+import xreal.client.game.Snapshot;
+
 /**
  * Represents Client functionality. Never use this code for the server game.
  * 
@@ -10,12 +12,34 @@ import javax.vecmath.Vector3f;
  */
 public class Client {
 	
+	// networking ---------------------------------------------------------------------------------
+	
 	/**
 	 * Get the server entry for a config string specified by ConfigStrings.*
 	 * 
 	 * @return If the index is < 0 or > MAX_CONFIGSTRINGS it will return null. 
 	 */
 	public synchronized native static String getConfigString(int index);
+	
+	/**
+	 * Get the number of the latest snapshot received from server.
+	 */
+	public synchronized native static int getCurrentSnapshotNumber();
+	
+	/**
+	 * Get the time of the latest snapshot received from server.
+	 */
+	public synchronized native static int getCurrentSnapshotTime();
+	
+	
+	/**
+	 * Get a snapshot for a certain snapshotNumber, if available in the circular buffer.
+	 * 
+	 * @param snapshotNumber
+	 * 
+	 * @return Either a valid Snapshot or null.
+	 */
+	public synchronized native static Snapshot getSnapshot(int snapshotNumber);
 	
 	
 	// keyboard and mouse event handling ----------------------------------------------------------

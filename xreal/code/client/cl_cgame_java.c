@@ -109,75 +109,7 @@ static qboolean CL_GetParseEntityState(int parseEntityNumber, entityState_t * st
 	return qtrue;
 }
 
-/*
-====================
-CL_GetCurrentSnapshotNumber
-====================
-*/
-static void CL_GetCurrentSnapshotNumber(int *snapshotNumber, int *serverTime)
-{
-	*snapshotNumber = cl.snap.messageNum;
-	*serverTime = cl.snap.serverTime;
-}
 
-/*
-====================
-CL_GetSnapshot
-====================
-*/
-static qboolean CL_GetSnapshot(int snapshotNumber, snapshot_t * snapshot)
-{
-	clSnapshot_t   *clSnap;
-	int             i, count;
-
-	if(snapshotNumber > cl.snap.messageNum)
-	{
-		Com_Error(ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.snapshot.messageNum");
-	}
-
-	// if the frame has fallen out of the circular buffer, we can't return it
-	if(cl.snap.messageNum - snapshotNumber >= PACKET_BACKUP)
-	{
-		return qfalse;
-	}
-
-	// if the frame is not valid, we can't return it
-	clSnap = &cl.snapshots[snapshotNumber & PACKET_MASK];
-	if(!clSnap->valid)
-	{
-		return qfalse;
-	}
-
-	// if the entities in the frame have fallen out of their
-	// circular buffer, we can't return it
-	if(cl.parseEntitiesNum - clSnap->parseEntitiesNum >= MAX_PARSE_ENTITIES)
-	{
-		return qfalse;
-	}
-
-	// write the snapshot
-	snapshot->snapFlags = clSnap->snapFlags;
-	snapshot->serverCommandSequence = clSnap->serverCommandNum;
-	snapshot->ping = clSnap->ping;
-	snapshot->serverTime = clSnap->serverTime;
-	Com_Memcpy(snapshot->areamask, clSnap->areamask, sizeof(snapshot->areamask));
-	snapshot->ps = clSnap->ps;
-	count = clSnap->numEntities;
-	if(count > MAX_ENTITIES_IN_SNAPSHOT)
-	{
-		Com_DPrintf("CL_GetSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT);
-		count = MAX_ENTITIES_IN_SNAPSHOT;
-	}
-	snapshot->numEntities = count;
-	for(i = 0; i < count; i++)
-	{
-		snapshot->entities[i] = cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
-	}
-
-	// FIXME: configstring changes and server commands!!!
-
-	return qtrue;
-}
 
 /*
 =====================
