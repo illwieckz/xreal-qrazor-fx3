@@ -286,6 +286,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\client\cl_cgame_java.c"
+				>
+			</File>
+			<File
 				RelativePath="client\cl_cin.c"
 				>
 				<FileConfiguration
