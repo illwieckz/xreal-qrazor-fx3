@@ -4,7 +4,7 @@ public class Config {
 	/**
 	 * Always increase this if you change the ET_, EV_, GT_ or WP_ types.
 	 */
-	public static final String GAME_VERSION = "XreaL-rev4";
+	public static final String GAME_VERSION = "XreaL-rev4"; //"XreaL_base_java-rev1";
 
 	public static final String DEFAULT_MODEL = "shina";
 	public static final String DEFAULT_HEADMODEL = "shina";

@@ -3,15 +3,25 @@ package xreal.client.game;
 import xreal.Color;
 import xreal.Engine;
 import xreal.client.renderer.Font;
+import xreal.client.renderer.Renderer;
 
 public class FPSCounter {
 
-	static private final int	FPS_FRAMES = 40;	
-	static int					previousTimes[] = new int[FPS_FRAMES];
-	static int					index;
-	static int					previous;
+	private final int	FPS_FRAMES = 40;	
+	private int			previousTimes[];
+	private int			index;
+	private int			previous;
 	
-	public float drawFPS(float y)
+	private Font		font;
+	
+	public FPSCounter() {
+		
+		previousTimes = new int[FPS_FRAMES];
+		
+		font = Renderer.registerFont("fonts/Vera.ttf", 48);
+	}
+	
+	public float render(float y)
 	{
 		int             i, total;
 		int             fps;
@@ -43,8 +53,11 @@ public class FPSCounter {
 
 			String s = fps + "fps";
 
-			ClientGame.media.fontVera.paintText(635, y, 10, Color.White, s, 0, 0, Font.RIGHT | Font.DROPSHADOW);
+			font.paintText(635, y, 10, Color.White, s, 0, 0, Font.RIGHT | Font.DROPSHADOW);
 		}
+		
+		// test
+		//ClientGame.getMedia().fontVera = null;
 
 		return y + 16;
 	}

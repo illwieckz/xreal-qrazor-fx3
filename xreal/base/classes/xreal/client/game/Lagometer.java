@@ -35,7 +35,6 @@ public class Lagometer {
 	 * 
 	 * @param snap	Pass NULL for a dropped packet.
 	 */
-	@SuppressWarnings("null")
 	void addSnapshotInfo(Snapshot snap)
 	{
 		// dropped packet

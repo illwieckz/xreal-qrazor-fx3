@@ -25,32 +25,32 @@ import xreal.common.GameType;
  */
 public class ClientGame implements ClientGameListener {
 
-	static private int		clientFrame;	// incremented each frame
+	static private int			clientFrame;	// incremented each frame
 	
-	static private int		clientNum;
+	static private int			clientNum;
 	
-	static private int		serverCommandSequence;	// reliable command stream counter
+	static private int			serverCommandSequence;	// reliable command stream counter
 	
-	static private int		time;
-	static private int		levelStartTime;
+	static private int			time;
+	static private int			levelStartTime;
 	
-	static private boolean	demoPlayback;
+	static private boolean		demoPlayback;
 	
 	// information screen text during loading
 	//progressInfo_t  progressInfo[NUM_PROGRESS];
-	static private int      loadingProgress = 1;
+	static private int      	loadingProgress = 1;
 	
-	static private String	mapFileName;
+	static private String		mapFileName;
 	
-	static public final Media	media = new Media();
+	static private Media		media;
 	
-	static private final Camera	camera = new Camera();
+	static private Camera		camera;
 	
-	static private final HUD	hud = new HUD();
+	static private HUD			hud;
 	
 	static private SnapshotManager snapshotManager;
 	
-	static public final Lagometer lagometer = new Lagometer();
+	static public Lagometer		lagometer;
 	
 	
 	private ClientGame() {
@@ -246,14 +246,18 @@ public class ClientGame implements ClientGameListener {
 		
 		Engine.print("xreal.client.game.ClientGame.initClientGame(serverMessageNum = "+ serverMessageNum + ", serverCommandSequence = " + serverCommandSequence + ", clientNum = " + clientNum  + ")\n");
 		
-		
 		Engine.print("------- CGame Initialization -------\n");
+		
+		// clear everything
+		media = new Media();
+		camera = new Camera();
+		hud = new HUD();
+		snapshotManager = new SnapshotManager(serverMessageNum);
+		lagometer = new Lagometer();
 		
 		//cg.progress = 0;
 		
 		ClientGame.clientNum = clientNum;
-		
-		ClientGame.snapshotManager = new SnapshotManager(serverMessageNum);
 
 		ClientGame.serverCommandSequence = serverCommandSequence;
 		
@@ -355,11 +359,7 @@ public class ClientGame implements ClientGameListener {
 	
 	private void registerGraphics()
 	{
-		// register fonts
-		media.fontVera = Renderer.registerFont("fonts/Vera.ttf", 48);
-		media.fontVeraSe = Renderer.registerFont("fonts/VeraSe.ttf", 48);
-		media.fontVeraBold = Renderer.registerFont("fonts/VeraBd.ttf", 48);
-		media.fontVeraSerifBold = Renderer.registerFont("fonts/VeraSeBd.ttf", 48);
+		
 		
 		// clear any references to old media
 		//memset(&cg.refdef, 0, sizeof(cg.refdef));
@@ -458,7 +458,7 @@ public class ClientGame implements ClientGameListener {
 		*/
 
 		// draw status bar and other floating elements
-		hud.draw();
+		hud.render();
 	}
 	
 	
@@ -477,6 +477,13 @@ public class ClientGame implements ClientGameListener {
 
 	public static int getTime() {
 		return time;
+	}
+
+	/**
+	 * @return the media
+	 */
+	public static Media getMedia() {
+		return media;
 	}
 	
 }
