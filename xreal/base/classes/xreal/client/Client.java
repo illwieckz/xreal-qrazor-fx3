@@ -3,7 +3,6 @@ package xreal.client;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
-import xreal.client.game.Snapshot;
 
 /**
  * Represents Client functionality. Never use this code for the server game.

@@ -1,5 +1,7 @@
 package xreal.client.game;
 
+import xreal.client.Snapshot;
+
 /**
  * 
  * @author Robert Beckebans

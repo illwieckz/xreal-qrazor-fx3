@@ -2,6 +2,7 @@ package xreal.client.game;
 
 import xreal.Engine;
 import xreal.client.Client;
+import xreal.client.Snapshot;
 
 public class SnapshotManager {
 	
@@ -206,7 +207,7 @@ public class SnapshotManager {
 	
 	void setInitialSnapshot(Snapshot snap)
 	{
-		
+		//Engine.println("setInitialSnapshot(" + snap.toString() + ")");
 	}
 	
 	

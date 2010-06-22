@@ -34,7 +34,7 @@ JNIEXPORT jint JNICALL Java_xreal_client_Client_getCurrentSnapshotTime
 /*
  * Class:     xreal_client_Client
  * Method:    getSnapshot
- * Signature: (I)Lxreal/client/game/Snapshot;
+ * Signature: (I)Lxreal/client/Snapshot;
  */
 JNIEXPORT jobject JNICALL Java_xreal_client_Client_getSnapshot
   (JNIEnv *, jclass, jint);

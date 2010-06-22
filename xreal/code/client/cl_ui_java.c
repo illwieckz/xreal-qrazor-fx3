@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2010 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2009-2010 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -683,7 +683,421 @@ static void CL_GetClipboardData(char *buf, int buflen)
 
 
 
+// ====================================================================================
 
+
+static jclass class_EntityState = NULL;
+static jmethodID method_EntityState_ctor = NULL;
+
+static jclass class_PlayerState = NULL;
+static jmethodID method_PlayerState_ctor = NULL;
+
+static jclass   class_Snapshot = NULL;
+static jmethodID method_Snapshot_ctor = NULL;
+
+void Snapshot_javaRegister()
+{
+	class_EntityState = (*javaEnv)->FindClass(javaEnv, "xreal/EntityState");
+	if(CheckException() || !class_EntityState)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.EntityState");
+	}
+
+	/*
+		EntityState(int number, int eType, int eFlags,
+			Trajectory pos, Trajectory apos,
+			int time, int time2,
+			Vector3f origin, Vector3f origin2,
+			Angle3f angles, Angle3f angles2,
+			int otherEntityNum, int otherEntityNum2, int groundEntityNum,
+			int constantLight, int loopSound, int modelindex, int modelindex2,
+			int clientNum, int frame, int solid, int event, int eventParm,
+			int powerups, int weapon, int legsAnim, int torsoAnim, int generic1) {
+	 */
+
+
+	method_EntityState_ctor = (*javaEnv)->GetMethodID(javaEnv, class_EntityState, "<init>",
+			"(III"
+			"Lxreal/Trajectory;Lxreal/Trajectory;"
+			"II"
+			"Ljavax/vecmath/Vector3f;Ljavax/vecmath/Vector3f;"
+			"Lxreal/Angle3f;Lxreal/Angle3f;"
+			"III"
+			"IIII"
+			"IIIII"
+			"IIIII"
+			")V");
+
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.EntityState");
+	}
+
+
+
+	class_PlayerState = (*javaEnv)->FindClass(javaEnv, "xreal/PlayerState");
+	if(CheckException() || !class_PlayerState)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.PlayerState");
+	}
+
+	/*
+	 public PlayerState(int commandTime, int pmType, int pmFlags, int pmTime,
+			int bobCycle, Vector3f origin, Vector3f velocity, int weaponTime,
+			int gravity, int speed, int deltaPitch, int deltaYaw,
+			int deltaRoll, int groundEntityNum, int legsTimer, int legsAnim,
+			int torsoTimer, int torsoAnim, int movementDir,
+			Vector3f grapplePoint, int eFlags, int eventSequence, int[] events,
+			int[] eventParms, int externalEvent, int externalEventParm,
+			int externalEventTime, int clientNum, int weapon, int weaponState,
+			Angle3f viewAngles, int viewHeight, int damageEvent, int damageYaw,
+			int damagePitch, int damageCount, int[] stats, int[] persistant,
+			int[] powerups, int[] ammo, int generic1, int loopSound,
+			int jumppadEnt, int ping, int pmoveFramecount, int jumppadFrame,
+			int entityEventSequence) {
+	 */
+	method_PlayerState_ctor = (*javaEnv)->GetMethodID(javaEnv, class_PlayerState, "<init>",
+			"(IIII"
+			"ILjavax/vecmath/Vector3f;Ljavax/vecmath/Vector3f;I"
+			"IIII"
+			"IIII"
+			"III"
+			"Ljavax/vecmath/Vector3f;II[I"
+			"[III"
+			"IIII"
+			"Lxreal/Angle3f;III"
+			"II[I[I"
+			"[I[III"
+			"IIII"
+			"I"
+			")V");
+
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.PlayerState");
+	}
+
+
+
+	class_Snapshot = (*javaEnv)->FindClass(javaEnv, "xreal/client/Snapshot");
+	if(CheckException() || !class_Snapshot)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.Snapshot");
+	}
+
+	/*
+	public Snapshot(int snapFlags, int ping, int serverTime,
+					byte areamask[], PlayerState ps, EntityState[] entities,
+					int numServerCommands, int serverCommandSequence)
+	 */
+	method_Snapshot_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Snapshot, "<init>",
+			"(III"
+			"[BLxreal/PlayerState;[Lxreal/EntityState;"
+			"I"
+			")V");
+
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.Snapshot");
+	}
+}
+
+void Snapshot_javaDetach()
+{
+	if(class_EntityState)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_EntityState);
+		class_EntityState = NULL;
+	}
+
+	if(class_PlayerState)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_PlayerState);
+		class_PlayerState = NULL;
+	}
+
+	if(class_Snapshot)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Snapshot);
+		class_Snapshot = NULL;
+	}
+}
+
+static jobject Java_NewEntityState(const entityState_t * ent)
+{
+	jobject obj = NULL;
+
+	if(class_PlayerState)
+	{
+		/*
+		public EntityState(int number, int eType, int eFlags,
+			Trajectory pos, Trajectory apos,
+			int time, int time2,
+			Vector3f origin, Vector3f origin2,
+			Angle3f angles, Angle3f angles2,
+			int otherEntityNum, int otherEntityNum2, int groundEntityNum,
+			int constantLight, int loopSound, int modelindex, int modelindex2,
+			int clientNum, int frame, int solid, int event, int eventParm,
+			int powerups, int weapon, int legsAnim, int torsoAnim, int generic1) {
+		*/
+		obj = (*javaEnv)->NewObject(javaEnv, class_EntityState, method_EntityState_ctor,
+				ent->number,
+
+				ent->eType,
+				ent->eFlags,
+
+				Java_NewTrajectory(&ent->pos),
+				Java_NewTrajectory(&ent->apos),
+
+				ent->time,
+				ent->time2,
+
+				Java_NewVector3f(ent->origin),
+				Java_NewVector3f(ent->origin2),
+
+				Java_NewAngle3f(ent->angles[PITCH], ent->angles[YAW], ent->angles[ROLL]),
+				Java_NewAngle3f(ent->angles2[PITCH], ent->angles2[YAW], ent->angles2[ROLL]),
+
+				ent->otherEntityNum,
+				ent->otherEntityNum2,
+				ent->groundEntityNum,
+
+				ent->constantLight,
+				ent->loopSound,
+
+				ent->modelindex,
+				ent->modelindex2,
+
+				ent->clientNum,
+				ent->frame,
+				ent->solid,
+
+				ent->event,
+				ent->eventParm,
+
+				ent->powerups,
+				ent->weapon,
+
+				ent->legsAnim,
+				ent->torsoAnim,
+
+				ent->generic1);
+	}
+
+	return obj;
+}
+
+static jobject Java_NewPlayerState(const playerState_t * ps)
+{
+	jobject obj = NULL;
+
+	if(class_PlayerState)
+	{
+		jintArray eventsArray;
+		jintArray eventParmsArray;
+
+		jintArray statsArray;
+		jintArray persistantArray;
+		jintArray powerupsArray;
+		jintArray ammoArray;
+
+		// build arrays
+		eventsArray = (*javaEnv)->NewIntArray(javaEnv, MAX_PS_EVENTS);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, eventsArray, 0, MAX_PS_EVENTS, ps->events);
+
+		eventParmsArray = (*javaEnv)->NewIntArray(javaEnv, MAX_PS_EVENTS);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, eventParmsArray, 0, MAX_PS_EVENTS, ps->eventParms);
+
+
+		statsArray = (*javaEnv)->NewIntArray(javaEnv, MAX_STATS);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, statsArray, 0, MAX_STATS, ps->stats);
+
+		persistantArray = (*javaEnv)->NewIntArray(javaEnv, MAX_PERSISTANT);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, persistantArray, 0, MAX_PERSISTANT, ps->persistant);
+
+		powerupsArray = (*javaEnv)->NewIntArray(javaEnv, MAX_POWERUPS);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, powerupsArray, 0, MAX_POWERUPS, ps->powerups);
+
+		ammoArray = (*javaEnv)->NewIntArray(javaEnv, MAX_WEAPONS);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, ammoArray, 0, MAX_WEAPONS, ps->ammo);
+
+
+		/*
+		public PlayerState(int commandTime, int pmType, int pmFlags, int pmTime,
+			int bobCycle, Vector3f origin, Vector3f velocity, int weaponTime,
+			int gravity, int speed, int deltaPitch, int deltaYaw,
+			int deltaRoll, int groundEntityNum, int legsTimer, int legsAnim,
+			int torsoTimer, int torsoAnim, int movementDir,
+			Vector3f grapplePoint, int eFlags, int eventSequence, int[] events,
+			int[] eventParms, int externalEvent, int externalEventParm,
+			int externalEventTime, int clientNum, int weapon, int weaponState,
+			Angle3f viewAngles, int viewHeight, int damageEvent, int damageYaw,
+			int damagePitch, int damageCount, int[] stats, int[] persistant,
+			int[] powerups, int[] ammo, int generic1, int loopSound,
+			int jumppadEnt, int ping, int pmoveFramecount, int jumppadFrame,
+			int entityEventSequence)
+		*/
+		obj = (*javaEnv)->NewObject(javaEnv, class_PlayerState, method_PlayerState_ctor,
+				ps->commandTime,
+
+				ps->pm_type,
+				ps->pm_flags,
+				ps->pm_time,
+
+				ps->bobCycle,
+
+				Java_NewVector3f(ps->origin),
+				Java_NewVector3f(ps->velocity),
+
+				ps->weaponTime,
+				ps->gravity,
+				ps->speed,
+
+				ps->delta_angles[PITCH],
+				ps->delta_angles[YAW],
+				ps->delta_angles[ROLL],
+
+				ps->groundEntityNum,
+
+				ps->legsTimer,
+				ps->legsAnim,
+				ps->torsoTimer,
+				ps->torsoAnim,
+
+				ps->movementDir,
+
+				Java_NewVector3f(ps->grapplePoint),
+
+				ps->eFlags,
+
+				ps->eventSequence,
+				eventsArray,
+				eventParmsArray,
+
+				ps->externalEvent,
+				ps->externalEventParm,
+				ps->externalEventTime,
+
+				ps->clientNum,
+				ps->weapon,
+				ps->weaponstate,
+
+				Java_NewAngle3f(ps->viewangles[PITCH], ps->viewangles[YAW], ps->viewangles[ROLL]),
+				ps->viewheight,
+
+				ps->damageEvent,
+				ps->damageYaw,
+				ps->damagePitch,
+				ps->damageCount,
+
+				statsArray,
+				persistantArray,
+				powerupsArray,
+				ammoArray,
+
+				ps->generic1,
+				ps->loopSound,
+				ps->jumppad_ent,
+				ps->ping,
+
+				ps->pmove_framecount,
+				ps->jumppad_frame,
+
+				ps->entityEventSequence);
+
+		(*javaEnv)->DeleteLocalRef(javaEnv, eventsArray);
+
+		CheckException();
+	}
+
+	return obj;
+}
+
+static jobject Java_NewSnapshot(const clSnapshot_t * clSnap)
+{
+	jobject obj = NULL;
+
+	/*
+	 snapshot->snapFlags = clSnap->snapFlags;
+	snapshot->serverCommandSequence = clSnap->serverCommandNum;
+	snapshot->ping = clSnap->ping;
+	snapshot->serverTime = clSnap->serverTime;
+	Com_Memcpy(snapshot->areamask, clSnap->areamask, sizeof(snapshot->areamask));
+	snapshot->ps = clSnap->ps;
+	count = clSnap->numEntities;
+	if(count > MAX_ENTITIES_IN_SNAPSHOT)
+	{
+		Com_DPrintf("CL_GetSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT);
+		count = MAX_ENTITIES_IN_SNAPSHOT;
+	}
+	snapshot->numEntities = count;
+	for(i = 0; i < count; i++)
+	{
+		snapshot->entities[i] = cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
+	}
+
+	// FIXME: configstring changes and server commands!!!
+	 */
+
+	if(class_Snapshot && class_PlayerState && class_EntityState)
+	{
+		int				i, count;
+		jobjectArray 	entitiesArray;
+		jbyteArray		areamaskArray;
+		jobject			playerState;
+
+		// build EntityState[] entities
+		count = clSnap->numEntities;
+		if(count > MAX_ENTITIES_IN_SNAPSHOT)
+		{
+			Com_DPrintf("Java_NewSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT);
+			count = MAX_ENTITIES_IN_SNAPSHOT;
+		}
+
+		entitiesArray = (*javaEnv)->NewObjectArray(javaEnv, count, class_EntityState, NULL);
+
+		for(i = 0; i < count; i++) {
+
+			jobject			javaEntityState;
+			entityState_t*	entityState;
+
+			entityState = &cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
+
+			javaEntityState = Java_NewEntityState(entityState);
+
+			(*javaEnv)->SetObjectArrayElement(javaEnv, entitiesArray, i, javaEntityState);
+		}
+
+		// build byte[] areamask
+		areamaskArray = (*javaEnv)->NewByteArray(javaEnv, sizeof(clSnap->areamask));
+		(*javaEnv)->SetByteArrayRegion(javaEnv, areamaskArray, 0, sizeof(clSnap->areamask), clSnap->areamask);
+
+		// build player state
+		playerState = Java_NewPlayerState(&clSnap->ps);
+
+		/*
+		public Snapshot(int snapFlags, int ping, int serverTime,
+					byte areamask[], PlayerState ps, EntityState[] entities,
+					int serverCommandSequence)
+		*/
+		obj = (*javaEnv)->NewObject(javaEnv, class_Snapshot, method_Snapshot_ctor,
+				clSnap->snapFlags,
+				clSnap->ping,
+				clSnap->serverTime,
+				areamaskArray,
+				playerState,
+				entitiesArray,
+				clSnap->serverCommandNum);
+
+		(*javaEnv)->DeleteLocalRef(javaEnv, entitiesArray);
+		(*javaEnv)->DeleteLocalRef(javaEnv, areamaskArray);
+		(*javaEnv)->DeleteLocalRef(javaEnv, playerState);
+
+		CheckException();
+	}
+
+	return obj;
+}
 
 // ====================================================================================
 
@@ -738,9 +1152,6 @@ jint JNICALL Java_xreal_client_Client_getCurrentSnapshotTime(JNIEnv *env, jclass
  */
 jobject JNICALL Java_xreal_client_Client_getSnapshot(JNIEnv *env, jclass cls, jint snapshotNumber)
 {
-	// TODO
-
-#if 0
 	clSnapshot_t   *clSnap;
 	int             i, count;
 
@@ -770,30 +1181,7 @@ jobject JNICALL Java_xreal_client_Client_getSnapshot(JNIEnv *env, jclass cls, ji
 	}
 
 	// write the snapshot
-	snapshot->snapFlags = clSnap->snapFlags;
-	snapshot->serverCommandSequence = clSnap->serverCommandNum;
-	snapshot->ping = clSnap->ping;
-	snapshot->serverTime = clSnap->serverTime;
-	Com_Memcpy(snapshot->areamask, clSnap->areamask, sizeof(snapshot->areamask));
-	snapshot->ps = clSnap->ps;
-	count = clSnap->numEntities;
-	if(count > MAX_ENTITIES_IN_SNAPSHOT)
-	{
-		Com_DPrintf("CL_GetSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT);
-		count = MAX_ENTITIES_IN_SNAPSHOT;
-	}
-	snapshot->numEntities = count;
-	for(i = 0; i < count; i++)
-	{
-		snapshot->entities[i] = cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
-	}
-
-	// FIXME: configstring changes and server commands!!!
-
-	return Java_NewSnapshot(snapshot);
-#else
-	return NULL;
-#endif
+	return Java_NewSnapshot(clSnap);
 }
 
 /*
@@ -1039,7 +1427,7 @@ static JNINativeMethod Client_methods[] = {
 	{"getConfigString", "(I)Ljava/lang/String;", Java_xreal_client_Client_getConfigString},
 	{"getCurrentSnapshotNumber", "()I", Java_xreal_client_Client_getCurrentSnapshotNumber},
 	{"getCurrentSnapshotTime", "()I", Java_xreal_client_Client_getCurrentSnapshotTime},
-	{"getSnapshot", "(I)Lxreal/client/game/Snapshot;", Java_xreal_client_Client_getSnapshot},
+	{"getSnapshot", "(I)Lxreal/client/Snapshot;", Java_xreal_client_Client_getSnapshot},
 
 	{"getKeyCatchers", "()I", Java_xreal_client_Client_getKeyCatchers},
 	{"setKeyCatchers", "(I)V", Java_xreal_client_Client_setKeyCatchers},
@@ -1117,7 +1505,10 @@ void Font_javaRegister()
 				String materialName) {
 	 */
 
-	method_Glyph_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Glyph, "<init>", "(IIIIIIIFFFFILjava/lang/String;)V");
+	method_Glyph_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Glyph, "<init>",
+			"("
+			"IIIIIIIFFFFILjava/lang/String;"
+			")V");
 	if(CheckException())
 	{
 		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.renderer.Glyph");
@@ -2065,9 +2456,12 @@ void CL_ShutdownUI(void)
 	CheckException();
 
 	Client_javaDetach();
+	Snapshot_javaDetach();
+
 	Renderer_javaDetach();
 	Font_javaDetach();
 	RefSkeleton_javaDetach();
+
 	UserInterface_javaDetach();
 }
 
@@ -2079,9 +2473,12 @@ CL_InitUI
 void CL_InitUI(void)
 {
 	Client_javaRegister();
+	Snapshot_javaRegister();
+
 	Renderer_javaRegister();
 	Font_javaRegister();
 	RefSkeleton_javaRegister();
+
 	UserInterface_javaRegister();
 
 	// init for this gamestate

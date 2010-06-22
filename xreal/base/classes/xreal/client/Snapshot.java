@@ -1,4 +1,6 @@
-package xreal.client.game;
+package xreal.client;
+
+import java.util.Arrays;
 
 import xreal.EntityState;
 import xreal.PlayerState;
@@ -18,9 +20,6 @@ public class Snapshot {
 	
 	//private static final int MAX_ENTITIES_IN_SNAPSHOT = 512;	// was 256 in vanilla Q3A
 	
-	//
-	// same as in q_shared.h
-	//
 	private static final int SNAPFLAG_RATE_DELAYED = 1;
 	
 	/** snapshot used during connection and for zombies */
@@ -36,23 +35,23 @@ public class Snapshot {
 	/** server time the message is valid for (in msec) */
 	private int             serverTime;
 
-	/** portalarea visibility bits */
-	private byte            areamask[]; //MAX_MAP_AREA_BYTES];	// 
+	/** portalarea visibility bits [MAX_MAP_AREA_BYTES]*/
+	private byte            areamask[];
 
 	/** complete information about the current player at this time */
 	private PlayerState		ps;
 
 	/**
-	 * all of the entities that need to be presented at the time of this snapshot
+	 * all of the entities that need to be presented at the time of this snapshot [MAX_ENTITIES_IN_SNAPSHOT]
 	 */
-	private EntityState		entities[];		//[MAX_ENTITIES_IN_SNAPSHOT]; 
+	private EntityState		entities[]; 
 	
 	/** text based server commands to execute when this */
-	private int             numServerCommands;
+//	private int             numServerCommands;		// WAS NEVER USED IN NATIVE CLIENT GAME AND NOT SET IN THE CLIENT
 	private int             serverCommandSequence;
 	
 	
-	public Snapshot(int snapFlags, int ping, int serverTime, byte areamask[], PlayerState ps, EntityState[] entities, int numServerCommands, int serverCommandSequence)
+	public Snapshot(int snapFlags, int ping, int serverTime, byte areamask[], PlayerState ps, EntityState[] entities, int serverCommandSequence)
 	{
 		super();
 		this.snapFlags = snapFlags;
@@ -61,7 +60,6 @@ public class Snapshot {
 		this.areamask = areamask;
 		this.ps = ps;
 		this.entities = entities;
-		this.numServerCommands = numServerCommands;
 		this.serverCommandSequence = serverCommandSequence;
 	}
 
@@ -89,11 +87,6 @@ public class Snapshot {
 	public EntityState[] getEntities() {
 		return entities;
 	}
-	
-
-	public int getNumServerCommands() {
-		return numServerCommands;
-	}
 
 
 	public int getServerCommandSequence() {
@@ -111,4 +104,19 @@ public class Snapshot {
 	public boolean isServerCount() {
 		return ((snapFlags & SNAPFLAG_SERVERCOUNT) != 0);
 	}
+
+
+	@Override
+	public String toString() {
+		return String
+				.format(
+						"Snapshot [\nareamask=%s,\nnumEntities=%s,\nentities=%s\n,\n\nping=%s,\nps=%s,\nserverCommandSequence=%s,\nserverTime=%s,\nsnapFlags=%s]",
+						Arrays.toString(areamask), entities.length, Arrays.toString(entities),
+						ping, ps, serverCommandSequence, serverTime, snapFlags);
+	}
+
+
+	
+	
+	
 }
