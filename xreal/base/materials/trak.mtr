@@ -308,7 +308,8 @@ textures/trak/trak5/glass_twosided
 		blend		blend
 	}
 	specularMap		textures/trak/trak5/glass.png
-	reflectionMapBlended	_autocube
+	normalMap		textures/trak/trak5/glass_nm.png
+//	reflectionMapBlended	_autocube
 	{
 		stage		heatHazeMap
 		scroll		0, 0
@@ -333,12 +334,13 @@ textures/trak/trak5/glass
 		blend		blend
 	}
 	specularMap		textures/trak/trak5/glass.png
-	reflectionMapBlended	_autocube
+	normalMap		textures/trak/trak5/glass_nm.png
+//	reflectionMapBlended	_autocube
 	{
 		stage		heatHazeMap
 		scroll		0, 0
 		clamp
-		deformMagnitude	.4
+		deformMagnitude	2
 		map		textures/trak/trak5/glass_nm.png
 	}
 }
