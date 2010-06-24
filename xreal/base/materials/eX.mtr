@@ -619,6 +619,7 @@ textures/eX/eX_trim_support_03
 textures/eX/eX_cretebase_01 
 {
 	qer_editorimage 	textures/eX/eX_cretebase_01
+	xmap_shadeAngle		45
 
 	diffusemap		textures/eX/eX_cretebase_01
 	specularmap		textures/eX/eX_cretebase_01
@@ -629,6 +630,7 @@ textures/eX/eX_cretebase_02
 {
 
 	qer_EditorImage		textures/eX/eX_cretebase_02.tga
+	xmap_shadeAngle		45
 	
 	diffuseMap		textures/eX/eX_cretebase_02.tga
 	specularMap		textures/eX/eX_cretebase_02.tga
@@ -639,6 +641,7 @@ textures/eX/eX_cretebase_03_dark
 {
 
 	qer_EditorImage		textures/eX/eX_cretebase_03_dark.tga
+	xmap_shadeAngle		45
 	
 	diffuseMap		textures/eX/eX_cretebase_03_dark.tga
 	specularMap		textures/eX/eX_cretebase_03_dark.tga
@@ -648,6 +651,7 @@ textures/eX/eX_cretebase_03_dark
 textures/eX/eX_cretewall_01 
 {
 	qer_editorimage 	textures/eX/eX_cretewall_01
+	xmap_shadeAngle		45
 
 	diffusemap		textures/eX/eX_cretewall_01
 	specularmap		textures/eX/eX_cretewall_01
@@ -657,6 +661,7 @@ textures/eX/eX_cretewall_01
 textures/eX/eX_cretewall_02 
 {
 	qer_editorimage 	textures/eX/eX_cretewall_02
+	xmap_shadeAngle		45
 
 	diffusemap		textures/eX/eX_cretewall_02
 	specularmap		textures/eX/eX_cretewall_02
@@ -666,6 +671,7 @@ textures/eX/eX_cretewall_02
 textures/eX/eX_cretewall_03 
 {
 	qer_editorimage 	textures/eX/eX_cretewall_03
+	xmap_shadeAngle		45
 
 	diffusemap		textures/eX/eX_cretewall_03
 	specularmap		textures/eX/eX_cretewall_03
@@ -675,6 +681,7 @@ textures/eX/eX_cretewall_03
 textures/eX/eX_cretewall_03b 
 {
 	qer_editorimage 	textures/eX/eX_cretewall_03b
+	xmap_shadeAngle		45
 
 	diffusemap		textures/eX/eX_cretewall_03b
 	specularmap		textures/eX/eX_cretewall_03b
@@ -684,6 +691,7 @@ textures/eX/eX_cretewall_03b
 textures/eX/eX_cretefloor_01 
 {
 	qer_editorimage 	textures/eX/eX_cretefloor_01
+	xmap_shadeAngle		45
 
 	diffusemap		textures/eX/eX_cretefloor_01
 	specularmap		textures/eX/eX_cretefloor_01_s
@@ -693,6 +701,7 @@ textures/eX/eX_cretefloor_01
 textures/eX/eX_cretefloor_01b 
 {
 	qer_editorimage 	textures/eX/eX_cretefloor_01b
+	xmap_shadeAngle		45
 
 	diffusemap		textures/eX/eX_cretefloor_01b
 	specularmap		textures/eX/eX_cretefloor_01b_s
