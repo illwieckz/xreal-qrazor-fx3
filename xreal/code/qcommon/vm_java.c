@@ -571,14 +571,20 @@ jobject Java_NewUserCommand(const usercmd_t * ucmd)
  */
 void JNICALL Java_xreal_Engine_print(JNIEnv * env, jclass cls, jstring js)
 {
-	char            string[MAXPRINTMSG];
+//	char            string[MAXPRINTMSG];
+	char           *s;
 
 	if(js == NULL)
 		return;
 
-	ConvertJavaString(string, js, sizeof(string));
+	s = (char *)((*env)->GetStringUTFChars(env, js, 0));
 
-	Com_Printf("%s", string);
+	Com_Printf("%s", s);
+
+	(*env)->ReleaseStringUTFChars(env, js, s);
+
+//	ConvertJavaString(string, js, sizeof(string));
+//	Com_Printf("%s", string);
 }
 
 /*
@@ -588,14 +594,20 @@ void JNICALL Java_xreal_Engine_print(JNIEnv * env, jclass cls, jstring js)
  */
 void JNICALL Java_xreal_Engine_error(JNIEnv *env, jclass cls, jstring js)
 {
-	char            string[MAXPRINTMSG];
+//	char            string[MAXPRINTMSG];
+	char           *s;
 
 	if(js == NULL)
 		return;
 
-	ConvertJavaString(string, js, sizeof(string));
+	s = (char *)((*env)->GetStringUTFChars(env, js, 0));
 
-	Com_Error(ERR_DROP, "%s", string);
+	Com_Error(ERR_DROP, "%s", s);
+
+	(*env)->ReleaseStringUTFChars(env, js, s);
+
+//	ConvertJavaString(string, js, sizeof(string));
+//	Com_Error(ERR_DROP, "%s", string);
 }
 
 /*
