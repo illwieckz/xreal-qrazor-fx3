@@ -1,7 +1,7 @@
 package xreal.client.game;
 
 import xreal.Engine;
-import xreal.EntityState;
+import xreal.client.EntityState;
 
 public class ClientPlayer extends ClientEntity {
 	

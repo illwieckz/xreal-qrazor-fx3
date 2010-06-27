@@ -1,9 +1,11 @@
-package xreal;
+package xreal.client;
 
 import java.util.Arrays;
 
 import javax.vecmath.Vector3f;
 
+import xreal.Angle3f;
+import xreal.TrajectoryType;
 import xreal.common.Config;
 import xreal.common.EntityType;
 import xreal.common.PlayerMovementFlags;
@@ -23,7 +25,7 @@ import xreal.common.PlayerStatsType;
  * 
  * @author Robert Beckebans
  */
-public class PlayerState {
+public class PlayerState extends EntityState {
 	
 	// bit field limits
 	// Tr3B: NOTE: never go beyond 32 without recoding the delta compression of playerState_t
@@ -86,7 +88,7 @@ public class PlayerState {
 	public Vector3f grapplePoint;
 
 	/** copied to entityState_t->eFlags */
-	public int eFlags;
+//	public int eFlags;
 
 	/** pmove generated events */
 	public int eventSequence;
@@ -154,7 +156,8 @@ public class PlayerState {
 			int[] powerups, int[] ammo, int generic1, int loopSound,
 			int jumppadEnt, int ping, int pmoveFramecount, int jumppadFrame,
 			int entityEventSequence) {
-		super();
+		super(clientNum);
+		
 		this.commandTime = commandTime;
 		pm_type = PlayerMovementType.values()[pmType];
 		pm_flags = pmFlags;
@@ -212,7 +215,7 @@ public class PlayerState {
 	 * @param snap
 	 * @return
 	 */
-	public EntityState getEntityState(boolean snap)
+	public EntityState createEntityState(boolean snap)
 	{
 		EntityState s = new EntityState(clientNum);
 		

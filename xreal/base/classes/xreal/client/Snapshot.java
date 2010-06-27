@@ -2,8 +2,6 @@ package xreal.client;
 
 import java.util.Arrays;
 
-import xreal.EntityState;
-import xreal.PlayerState;
 
 
 /**
@@ -67,7 +65,6 @@ public class Snapshot {
 	public int getSnapFlags() {
 		return snapFlags;
 	}
-
 
 	public int getPing() {
 		return ping;

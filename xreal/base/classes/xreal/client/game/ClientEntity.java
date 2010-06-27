@@ -4,7 +4,7 @@ import javax.vecmath.Vector3f;
 
 import xreal.Angle3f;
 import xreal.Engine;
-import xreal.EntityState;
+import xreal.client.EntityState;
 
 
 
@@ -47,12 +47,15 @@ public class ClientEntity {
 	public Vector3f			lerpOrigin = new Vector3f();
 	public Angle3f			lerpAngles = new Angle3f();
 	
-	public ClientEntity(EntityState state) {
+	
+	public ClientEntity(EntityState es) {
 		
 		Engine.println("ClientEntity()");
 		
-		currentState = state;
-		nextState = state;
+		ClientGame.getEntities().setElementAt(this, es.getNumber());
+		
+		currentState = es;
+		nextState = es;
 		
 		reset();
 	}
@@ -72,5 +75,25 @@ public class ClientEntity {
 	
 	public void checkEvents() {
 		// TODO
+	}
+	
+	/**
+	 * nextState is moved to currentState and events are fired
+	 */
+	public void transitionState()
+	{
+		currentState = nextState;
+		currentValid = true;
+
+		// reset if the entity wasn't in the last frame or was teleported
+		if(!interpolate) {
+			reset();
+		}
+
+		// clear the next state.  if will be set by the next CG_SetNextSnap
+		interpolate = false;
+
+		// check for events
+		checkEvents();
 	}
 }

@@ -1,7 +1,9 @@
-package xreal;
+package xreal.client;
 
 import javax.vecmath.Vector3f;
 
+import xreal.Angle3f;
+import xreal.Trajectory;
 import xreal.common.EntityType;
 
 /**
@@ -240,6 +242,8 @@ public class EntityState {
 	/** TA: wall walking ceiling hack */
 	private static final int EF_WALLCLIMBCEILING	= (1 << 24);
 	
+	
+	
 	public boolean isEntityFlag_dead() {
 		return hasEntityFlags(EF_DEAD);
 	}
@@ -252,6 +256,21 @@ public class EntityState {
 			delEntityFlags(EF_DEAD);
 		}
 	}
+	
+	
+	public boolean isEntityFlag_teleport() {
+		return hasEntityFlags(EF_TELEPORT_BIT);
+	}
+
+	public void setEntityFlag_teleport(boolean b) {
+		
+		if(b) {
+			addEntityFlags(EF_TELEPORT_BIT);
+		} else {
+			delEntityFlags(EF_TELEPORT_BIT);
+		}
+	}
+	
 
 	public boolean isEntityFlag_wallClimbCeiling() {
 		return hasEntityFlags(EF_WALLCLIMBCEILING);

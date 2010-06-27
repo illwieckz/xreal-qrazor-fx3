@@ -1,10 +1,13 @@
 package xreal.client.game;
 
+import xreal.CVars;
 import xreal.Engine;
-import xreal.EntityState;
 import xreal.client.Client;
+import xreal.client.EntityState;
+import xreal.client.PlayerState;
 import xreal.client.Snapshot;
 import xreal.common.EntityType;
+import xreal.common.PlayerMovementFlags;
 
 public class SnapshotManager {
 	
@@ -25,6 +28,9 @@ public class SnapshotManager {
 	private Snapshot		nextSnap;
 	
 	private Snapshot		activeSnapshots[] = new Snapshot[2];
+	
+	private boolean			thisFrameTeleport;
+	private boolean			nextFrameTeleport;
 	
 	
 	SnapshotManager(int processedSnapshotNum) {
@@ -61,7 +67,7 @@ public class SnapshotManager {
 			if(n < latestSnapshotNum)
 			{
 				// this should never happen
-				throw new Exception("processSnapshots: n < cg.latestSnapshotNum");
+				throw new Exception("processSnapshots: n < this.latestSnapshotNum");
 			}
 			latestSnapshotNum = n;
 		}
@@ -87,59 +93,58 @@ public class SnapshotManager {
 			}
 		}
 
-		/*
 		// loop until we either have a valid nextSnap with a serverTime
 		// greater than cg.time to interpolate towards, or we run
 		// out of available snapshots
 		do
 		{
 			// if we don't have a nextframe, try and read a new one in
-			if(!cg.nextSnap)
+			if(nextSnap == null)
 			{
-				snap = CG_ReadNextSnapshot();
+				snap = readNextSnapshot();
 
 				// if we still don't have a nextframe, we will just have to
 				// extrapolate
-				if(!snap)
+				if(snap == null)
 				{
 					break;
 				}
 
-				CG_SetNextSnap(snap);
+				setNextSnap(snap);
 
 
 				// if time went backwards, we have a level restart
-				if(cg.nextSnap->serverTime < cg.snap->serverTime)
+				if(nextSnap.getServerTime() < this.snap.getServerTime())
 				{
-					CG_Error("CG_ProcessSnapshots: Server time went backwards");
+					throw new Exception("processSnapshots: Server time went backwards");
 				}
 			}
 
 			// if our time is < nextFrame's, we have a nice interpolating state
-			if(cg.time >= cg.snap->serverTime && cg.time < cg.nextSnap->serverTime)
-			{
+			if((ClientGame.getTime() >= this.snap.getServerTime()) && (ClientGame.getTime() < this.nextSnap.getServerTime())) {
 				break;
 			}
 
 			// we have passed the transition from nextFrame to frame
-			CG_TransitionSnapshot();
-		} while(1);
+			transitionSnapshot();
+		} while(true);
 
 		// assert our valid conditions upon exiting
-		if(cg.snap == NULL)
+		if(this.snap == null)
 		{
-			CG_Error("CG_ProcessSnapshots: cg.snap == NULL");
+			throw new Exception("processSnapshots: this.snap == null");
 		}
-		if(cg.time < cg.snap->serverTime)
+		
+		if(ClientGame.getTime() < this.snap.getServerTime())
 		{
 			// this can happen right after a vid_restart
-			cg.time = cg.snap->serverTime;
+			ClientGame.resetTime(this.snap.getServerTime());
 		}
-		if(cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.time)
+		
+		if(this.nextSnap != null && this.nextSnap.getServerTime() <= ClientGame.getTime())
 		{
-			CG_Error("CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time");
+			throw new Exception("processSnapshots: this.nextSnap.serverTime <= ClientGame.time");
 		}
-		*/
 	}
 	
 	/**
@@ -152,7 +157,6 @@ public class SnapshotManager {
 	 */
 	private Snapshot readNextSnapshot()
 	{
-		boolean        r;
 		Snapshot       dest;
 
 		if(latestSnapshotNum > processedSnapshotNum + 1000)
@@ -169,10 +173,10 @@ public class SnapshotManager {
 			dest = Client.getSnapshot(processedSnapshotNum);
 
 			// FIXME: why would trap_GetSnapshot return a snapshot with the same server time
-			if((snap != null) && (dest != null) && (dest.getServerTime() == snap.getServerTime()))
-			{
+			//if((snap != null) && (dest != null) && (dest.getServerTime() == snap.getServerTime()))
+			//{
 				//continue;
-			}
+			//}
 
 			// if it succeeded, return
 			if(dest != null)
@@ -207,7 +211,11 @@ public class SnapshotManager {
 		return null;
 	}
 	
-	void setInitialSnapshot(Snapshot snap)
+	/**
+	 * 
+	 * @param snap
+	 */
+	private void setInitialSnapshot(Snapshot snap)
 	{
 		Engine.println("setInitialSnapshot(" + snap.toString() + ")");
 		
@@ -219,41 +227,29 @@ public class SnapshotManager {
 		{
 			Engine.println("setInitialSnapshot: null own ClientPlayer");
 			
-			cent = new ClientPlayer(snap.getPlayerState().getEntityState(false));
+			cent = new ClientPlayer(snap.getPlayerState().createEntityState(false));
 			ClientGame.getEntities().setElementAt(cent, ownClientNum);
 		}
 
 		// sort out solid entities
-		//CG_BuildSolidList();
+		//TODO CG_BuildSolidList();
 
-		//CG_ExecuteNewServerCommands(snap->serverCommandSequence);
+		//TODO CG_ExecuteNewServerCommands(snap->serverCommandSequence);
 
 		// set our local weapon selection pointer to
 		// what the server has indicated the current weapon is
-		//CG_Respawn();
+		//TODO CG_Respawn();
 
-		for(EntityState state : snap.getEntities())
+		for(EntityState es : snap.getEntities())
 		{
-			cent = ClientGame.getEntities().get(state.getNumber());
+			cent = ClientGame.getEntities().get(es.getNumber());
 			
-			// check for state.eType and create objects inherited from ClientEntity
-			EntityType eType = state.eType;
-				
-			switch (eType)
+			if(cent == null || cent.currentState.eType != es.eType)
 			{
-				default:
-				case GENERAL:
-					cent = new ClientEntity(state);
-					break;
-				
-				case PLAYER:
-					cent = new ClientPlayer(state);
-					break;
+				cent = ClientGame.createClientEntity(es);
 			}
-				
-			ClientGame.getEntities().setElementAt(cent, state.getNumber());
 
-			cent.currentState = state;
+			cent.currentState = es;
 			
 			//cent->currentState = *state;
 			cent.interpolate = false;
@@ -265,6 +261,175 @@ public class SnapshotManager {
 		}
 		
 		Engine.println("setInitialSnapshot:" + ClientGame.getEntities().toString());
+	}
+	
+	/**
+	 * A new snapshot has just been read in from the client system.
+	 */
+	private void setNextSnap(Snapshot snap)
+	{
+		this.nextSnap = snap;
+		
+		int ownClientNum = snap.getPlayerState().clientNum;
+		ClientEntity cent = ClientGame.getEntities().get(ownClientNum);
+		if(cent == null)
+		{
+			Engine.println("setNextSnapshot: null own ClientPlayer");
+			
+			cent = new ClientPlayer(snap.getPlayerState().createEntityState(false));
+		}
+		
+		cent.nextState = snap.getPlayerState().createEntityState(false);
+		cent.interpolate = true;
+
+		// check for extrapolation errors
+		for(EntityState es : snap.getEntities())
+		{
+			cent = ClientGame.getEntities().get(es.getNumber());
+
+			if(cent == null || cent.currentState.eType != es.eType)
+			{
+				cent = ClientGame.createClientEntity(es);
+			}
+				
+			cent.nextState = es;
+
+			// if this frame is a teleport, or the entity wasn't in the
+			// previous frame, don't interpolate
+			if(!cent.currentValid || (cent.currentState.isEntityFlag_teleport() ^ es.isEntityFlag_teleport()))
+			{
+				cent.interpolate = false;
+			}
+			else
+			{
+				cent.interpolate = true;
+			}
+		}
+
+		// if the next frame is a teleport for the playerstate, we
+		// can't interpolate during demos
+		if((this.snap != null) && (snap.getPlayerState().isEntityFlag_teleport() ^ this.snap.getPlayerState().isEntityFlag_teleport()))
+		{
+			nextFrameTeleport = true;
+		}
+		else
+		{
+			nextFrameTeleport = false;
+		}
+
+		// if changing follow mode, don't interpolate
+		if(nextSnap.getPlayerState().clientNum != this.snap.getPlayerState().clientNum)
+		{
+			nextFrameTeleport = true;
+		}
+		
+		// if changing server restarts, don't interpolate
+		if(this.nextSnap.isServerCount() ^ this.snap.isServerCount())
+		{
+			nextFrameTeleport = true;
+		}
+
+		// sort out solid entities
+		// TODO CG_BuildSolidList();
+	}
+	
+	/**
+	 * The transition point from snap to nextSnap has passed.
+	 * @throws Exception 
+	 */
+	private void transitionSnapshot() throws Exception
+	{
+		ClientEntity cent;
+
+		if(snap == null)
+		{
+			throw new Exception("transitionSnapshot: NULL this.snap");
+		}
+		
+		if(nextSnap == null)
+		{
+			throw new Exception("transitionSnapshot: NULL this.nextSnap");
+		}
+
+		// execute any server string commands before transitioning entities
+		// TODO CG_ExecuteNewServerCommands(cg.nextSnap->serverCommandSequence);
+
+		// if we had a map_restart, set everything with initial
+		//if(!cg.snap)
+		//{
+		//}
+
+		// clear the currentValid flag for all entities in the existing snapshot
+		for(EntityState es : snap.getEntities())
+		{
+			cent = ClientGame.getEntities().get(es.getNumber());
+			
+			if(cent == null || cent.currentState.eType != es.eType)
+			{
+				cent = ClientGame.createClientEntity(es);
+			}
+			
+			cent.currentValid = false;
+		}
+
+		// move nextSnap to snap and do the transitions
+		Snapshot oldFrame = snap;
+		snap = nextSnap;
+
+		int ownClientNum = snap.getPlayerState().clientNum;
+		ClientPlayer player = (ClientPlayer) ClientGame.getEntities().get(ownClientNum);
+		if(player == null)
+		{
+			Engine.println("transitionSnapshot: null own ClientPlayer");
+			
+			player = new ClientPlayer(snap.getPlayerState().createEntityState(false));
+			ClientGame.getEntities().setElementAt(player, ownClientNum);
+		}
+		else
+		{
+			player.currentState = snap.getPlayerState().createEntityState(false);
+			player.interpolate = true;
+		}
+		
+		// check for playerstate transition events
+		if(oldFrame != null)
+		{
+			PlayerState  ops, ps;
+
+			ops = oldFrame.getPlayerState();
+			ps = snap.getPlayerState();
+			
+			// teleporting checks are irrespective of prediction
+			if(ps.isEntityFlag_teleport() ^ ops.isEntityFlag_teleport())
+			{
+				thisFrameTeleport = true;	// will be cleared by prediction code
+			}
+
+			// if we are not doing client side movement prediction for any
+			// reason, then the client events and view changes will be issued now
+			if(ClientGame.isDemoPlayback() || ((snap.getPlayerState().pm_flags & PlayerMovementFlags.FOLLOW) != 0) || CVars.cg_nopredict.getBoolean() || CVars.g_synchronousClients.getBoolean())
+			{
+				// TODO player.transitionState()
+				//CG_TransitionPlayerState(ps, ops);
+			}
+		}
+
+		for(EntityState es : snap.getEntities())
+		{
+			cent = ClientGame.getEntities().get(es.getNumber());
+			
+			if(cent == null || cent.currentState.eType != es.eType)
+			{
+				cent = ClientGame.createClientEntity(es);
+			}
+			
+			cent.transitionState();
+
+			// remember time of snapshot this entity was last updated in
+			cent.snapShotTime = snap.getServerTime();
+		}
+
+		nextSnap = null;
 	}
 	
 	

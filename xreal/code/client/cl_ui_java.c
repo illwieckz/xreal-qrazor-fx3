@@ -697,10 +697,10 @@ static jmethodID method_Snapshot_ctor = NULL;
 
 void Snapshot_javaRegister()
 {
-	class_EntityState = (*javaEnv)->FindClass(javaEnv, "xreal/EntityState");
+	class_EntityState = (*javaEnv)->FindClass(javaEnv, "xreal/client/EntityState");
 	if(CheckException() || !class_EntityState)
 	{
-		Com_Error(ERR_FATAL, "Couldn't find xreal.EntityState");
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.EntityState");
 	}
 
 	/*
@@ -730,15 +730,15 @@ void Snapshot_javaRegister()
 
 	if(CheckException())
 	{
-		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.EntityState");
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.EntityState");
 	}
 
 
 
-	class_PlayerState = (*javaEnv)->FindClass(javaEnv, "xreal/PlayerState");
+	class_PlayerState = (*javaEnv)->FindClass(javaEnv, "xreal/client/PlayerState");
 	if(CheckException() || !class_PlayerState)
 	{
-		Com_Error(ERR_FATAL, "Couldn't find xreal.PlayerState");
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.PlayerState");
 	}
 
 	/*
@@ -774,7 +774,7 @@ void Snapshot_javaRegister()
 
 	if(CheckException())
 	{
-		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.PlayerState");
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.PlayerState");
 	}
 
 
@@ -792,7 +792,7 @@ void Snapshot_javaRegister()
 	 */
 	method_Snapshot_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Snapshot, "<init>",
 			"(III"
-			"[BLxreal/PlayerState;[Lxreal/EntityState;"
+			"[BLxreal/client/PlayerState;[Lxreal/client/EntityState;"
 			"I"
 			")V");
 

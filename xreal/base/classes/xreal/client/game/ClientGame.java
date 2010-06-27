@@ -10,12 +10,14 @@ import xreal.CVars;
 import xreal.Engine;
 import xreal.UserInfo;
 import xreal.client.Client;
+import xreal.client.EntityState;
 import xreal.client.renderer.Camera;
 import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
 import xreal.client.renderer.StereoFrame;
 import xreal.common.Config;
 import xreal.common.ConfigStrings;
+import xreal.common.EntityType;
 import xreal.common.GameType;
 import xreal.server.game.GameEntity;
 
@@ -38,7 +40,7 @@ public class ClientGame implements ClientGameListener {
 	static private int			levelStartTime;
 	
 	static private boolean		demoPlayback;
-	
+
 	// information screen text during loading
 	//progressInfo_t  progressInfo[NUM_PROGRESS];
 	static private int      	loadingProgress = 1;
@@ -472,6 +474,31 @@ public class ClientGame implements ClientGameListener {
 	}
 	
 	
+	public static ClientEntity createClientEntity(EntityState es) {
+		
+		ClientEntity cent;
+		
+		// check for state.eType and create objects inherited from ClientEntity
+		EntityType eType = es.eType;
+			
+		switch (eType)
+		{
+			default:
+			case GENERAL:
+				cent = new ClientEntity(es);
+				break;
+			
+			case PLAYER:
+				cent = new ClientPlayer(es);
+				break;
+		}
+		
+		// puts itself in the correct slot
+		
+		//ClientGame.getEntities().setElementAt(cent, es.getNumber());
+		
+		return cent;
+	}
 	
 	// --------------------------------------------------------------------------------------------
 	
@@ -485,6 +512,15 @@ public class ClientGame implements ClientGameListener {
 		return serverCommandSequence;
 	}
 
+	/**
+	 * Can be set by the SnapshotManager after a vid_restart.
+	 * 
+	 * @param time
+	 */
+	public static void resetTime(int time) {
+		ClientGame.time = time;
+	}
+	
 	public static int getTime() {
 		return time;
 	}
@@ -499,5 +535,9 @@ public class ClientGame implements ClientGameListener {
 
 	public static Lagometer getLagometer() {
 		return lagometer;
+	}
+	
+	public static boolean isDemoPlayback() {
+		return demoPlayback;
 	}
 }
