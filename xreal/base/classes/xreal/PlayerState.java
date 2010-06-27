@@ -4,6 +4,12 @@ import java.util.Arrays;
 
 import javax.vecmath.Vector3f;
 
+import xreal.common.Config;
+import xreal.common.EntityType;
+import xreal.common.PlayerMovementFlags;
+import xreal.common.PlayerMovementType;
+import xreal.common.PlayerStatsType;
+
 /**
  * playerState_t is the information needed by both the client and server to
  * predict player motion and actions- Nothing outside of the PlayerController
@@ -27,10 +33,12 @@ public class PlayerState {
 	static final int MAX_POWERUPS = 16;
 	static final int MAX_WEAPONS = 16;
 	
+	private static final int MAX_PS_EVENTS = 2; 
+	
 	/** cmd->serverTime of last executed command */
 	public int commandTime;
 
-	public int pm_type;
+	public PlayerMovementType pm_type;
 	public int pm_flags;
 	public int pm_time;
 
@@ -148,7 +156,7 @@ public class PlayerState {
 			int entityEventSequence) {
 		super();
 		this.commandTime = commandTime;
-		pm_type = pmType;
+		pm_type = PlayerMovementType.values()[pmType];
 		pm_flags = pmFlags;
 		pm_time = pmTime;
 		this.bobCycle = bobCycle;
@@ -197,6 +205,110 @@ public class PlayerState {
 	}
 
 
+	/**
+	 * This is done after each set of usercmd_t on the server,
+	 * and after local prediction on the client
+	 * 
+	 * @param snap
+	 * @return
+	 */
+	public EntityState getEntityState(boolean snap)
+	{
+		EntityState s = new EntityState(clientNum);
+		
+		if(pm_type == PlayerMovementType.INTERMISSION || pm_type == PlayerMovementType.SPECTATOR)
+		{
+			s.eType = EntityType.INVISIBLE;
+		}
+		else if(this.stats[PlayerStatsType.HEALTH.ordinal()] <= Config.GIB_HEALTH)
+		{
+			s.eType = EntityType.INVISIBLE;
+		}
+		else
+		{
+			s.eType = EntityType.PLAYER;
+		}
+
+		//s.number = clientNum;
+
+		s.pos.trType = TrajectoryType.INTERPOLATE;
+		s.pos.trBase = new Vector3f(this.origin);
+
+		if(snap)
+		{
+			s.pos.trBase.snap();
+		}
+		
+		// set the trDelta for flag direction
+		s.pos.trDelta = new Vector3f(this.velocity);
+
+		s.apos.trType = TrajectoryType.INTERPOLATE;
+		s.apos.trBase = new Vector3f(this.viewAngles);
+
+		if(snap)
+		{
+			s.apos.trBase.snap();
+		}
+
+		// TA: i need for other things :)
+		//s.angles2[YAW] = this.movementDir;
+		s.time2 = this.movementDir;
+		s.legsAnim = this.legsAnim;
+		s.torsoAnim = this.torsoAnim;
+		s.clientNum = this.clientNum;	// EntityType.PLAYER looks here instead of at number
+		// so corpses can also reference the proper config
+		s.eFlags = this.eFlags;
+		
+		if(this.stats[PlayerStatsType.HEALTH.ordinal()] <= 0)
+		{
+			s.setEntityFlag_dead(true);
+		}
+		else
+		{
+			s.setEntityFlag_dead(false);
+		}
+
+		if(this.externalEvent > 0)
+		{
+			s.event = this.externalEvent;
+			s.eventParm = this.externalEventParm;
+		}
+		else if(this.entityEventSequence < this.eventSequence)
+		{
+			int             seq;
+
+			if(this.entityEventSequence < this.eventSequence - MAX_PS_EVENTS)
+			{
+				this.entityEventSequence = this.eventSequence - MAX_PS_EVENTS;
+			}
+			seq = this.entityEventSequence & (MAX_PS_EVENTS - 1);
+			s.event = this.events[seq] | ((this.entityEventSequence & 3) << 8);
+			s.eventParm = this.eventParms[seq];
+			this.entityEventSequence++;
+		}
+
+		s.weapon = this.weapon;
+		s.groundEntityNum = this.groundEntityNum;
+
+		s.powerups = 0;
+		for(int i = 0; i < MAX_POWERUPS; i++)
+		{
+			if(this.powerups[i] > 0)
+			{
+				s.powerups |= 1 << i;
+			}
+		}
+
+		// TA: have to get the surfNormal thru somehow...
+		s.angles2 = new Angle3f(this.grapplePoint);
+		if((this.pm_flags & PlayerMovementFlags.WALLCLIMBINGCEILING) != 0)
+			s.setEntityFlag_wallClimbCeiling(true);
+
+		s.loopSound = this.loopSound;
+		s.generic1 = this.generic1;
+		
+		return s;
+	}
 
 	@Override
 	public String toString() {

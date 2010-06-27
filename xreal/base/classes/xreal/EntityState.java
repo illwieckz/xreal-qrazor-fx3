@@ -2,6 +2,8 @@ package xreal;
 
 import javax.vecmath.Vector3f;
 
+import xreal.common.EntityType;
+
 /**
  * EntityState_t is the information conveyed from the server in an update
  * message about entities that the client will need to render in some way.
@@ -14,11 +16,26 @@ import javax.vecmath.Vector3f;
  */
 public class EntityState {
 
-	/** entity index */
-	public int number;
+	// entityState_t->event values
+	// entity events are for effects that take place reletive
+	// to an existing entities origin.  Very network efficient.
+
+	// two bits at the top of the entityState->event field
+	// will be incremented with each change in the event so
+	// that an identical event started twice in a row can
+	// be distinguished.  And off the value with ~EV_EVENT_BITS
+	// to retrieve the actual event number
+	public static final int EV_EVENT_BIT1 = 0x00000100;
+	public static final int EV_EVENT_BIT2 = 0x00000200;
+	public static final int EV_EVENT_BITS = (EV_EVENT_BIT1|EV_EVENT_BIT2);
+
+	public static final int EVENT_VALID_MSEC = 300;
 	
+	/** entity index */
+	private int number;
+
 	/** ordinal of EntityType enum */
-	public int eType;
+	public EntityType eType;
 	public int eFlags;
 
 	/** for calculating position */
@@ -90,7 +107,7 @@ public class EntityState {
 			int powerups, int weapon, int legsAnim, int torsoAnim, int generic1) {
 		super();
 		this.number = number;
-		this.eType = eType;
+		this.eType = EntityType.values()[eType];
 		this.eFlags = eFlags;
 		this.pos = pos;
 		this.apos = apos;
@@ -118,6 +135,140 @@ public class EntityState {
 		this.torsoAnim = torsoAnim;
 		this.generic1 = generic1;
 	}
+	
+	public EntityState(int clientNum) {
+		number = clientNum;
+		
+		eType = EntityType.GENERAL;
+		
+		this.pos = new Trajectory();
+		this.apos = new Trajectory();
+	}
+
+	public int getNumber() {
+		return number;
+	}
+	
+	// --------------------------------------------------------------------------------------------
+	// entityState_t->eFlags
+	
+	private void addEntityFlags(int flags) {
+		eFlags |= flags;
+	}
+	
+	private void delEntityFlags(int flags) {
+		eFlags = eFlags & ~flags;
+	}
+	
+	private boolean hasEntityFlags(int flags) {
+		return (eFlags & flags) != 0;
+	}
+
+	/** don't draw a foe marker over players with EF_DEAD */
+	private static final int EF_DEAD	= (1 << 0);
+	
+	/** toggled every time the origin abruptly changes */
+	private static final int EF_TELEPORT_BIT		= (1 << 1);
+	
+	/** draw an excellent sprite */
+	private static final int EF_AWARD_EXCELLENT		= (1 << 2);
+	
+	
+	private static final int EF_PLAYER_EVENT		= (1 << 3);
+	
+	/** for missiles */
+	private static final int EF_BOUNCE				= (1 << 4);
+	
+	/** for missiles */
+	private static final int EF_BOUNCE_HALF			= (1 << 5);
+	
+	/** draw a gauntlet sprite */
+	private static final int EF_AWARD_GAUNTLET		= (1 << 6);
+	
+	/** may have an event, but no model (unspawned items) */
+	private static final int EF_NODRAW				= (1 << 7);
+	
+	/** for lightning gun */
+	private static final int EF_FIRING				= (1 << 8);
+	
+	/** will push otherwise */
+	private static final int EF_MOVER_STOP			= (1 << 9);
+	
+	/** draw the capture sprite */
+	private static final int EF_AWARD_CAP			= (1 << 10);
+	
+	/** draw a talk balloon */
+	private static final int EF_TALK				= (1 << 11);
+	
+	/** draw a connection trouble sprite */
+	private static final int EF_CONNECTION			= (1 << 12);
+	
+	/** already cast a vote */
+	private static final int EF_VOTED				= (1 << 13);
+	
+	/** draw an impressive sprite */
+	private static final int EF_AWARD_IMPRESSIVE	= (1 << 14);
+	
+	/** draw a defend sprite */
+	private static final int EF_AWARD_DEFEND		= (1 << 15);
+	
+	/** draw a assist sprite */
+	private static final int EF_AWARD_ASSIST		= (1 << 16);
+	
+	/** denied */
+	private static final int EF_AWARD_DENIED		= (1 << 17);
+	
+	/** draw a telefrag sprite */
+	private static final int EF_AWARD_TELEFRAG		= (1 << 18);
+	
+	/** already cast a team vote */
+	private static final int EF_TEAMVOTED			= (1 << 19);
+	
+	
+	private static final int EF_KAMIKAZE			= (1 << 20);
+	
+	/** used to make players play the prox mine ticking sound */
+	private static final int EF_TICKING				= (1 << 21);
+	
+	/** for lightning gun */
+	private static final int EF_FIRING2				= (1 << 22);
+	
+	
+	/** TA: wall walking */
+	private static final int EF_WALLCLIMB			= (1 << 23);
+	
+	/** TA: wall walking ceiling hack */
+	private static final int EF_WALLCLIMBCEILING	= (1 << 24);
+	
+	public boolean isEntityFlag_dead() {
+		return hasEntityFlags(EF_DEAD);
+	}
+
+	public void setEntityFlag_dead(boolean dead) {
+		
+		if(dead) {
+			addEntityFlags(EF_DEAD);
+		} else {
+			delEntityFlags(EF_DEAD);
+		}
+	}
+
+	public boolean isEntityFlag_wallClimbCeiling() {
+		return hasEntityFlags(EF_WALLCLIMBCEILING);
+	}
+
+	public void setEntityFlag_wallClimbCeiling(boolean b) {
+		
+		if(b) {
+			addEntityFlags(EF_WALLCLIMBCEILING);
+		} else {
+			delEntityFlags(EF_WALLCLIMBCEILING);
+		}
+	}
+	
+	
+	
+	// --------------------------------------------------------------------------------------------
 
 	@Override
 	public String toString() {

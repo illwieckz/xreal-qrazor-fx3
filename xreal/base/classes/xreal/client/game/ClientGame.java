@@ -1,6 +1,8 @@
 package xreal.client.game;
 
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import javax.vecmath.Vector3f;
 
@@ -15,6 +17,7 @@ import xreal.client.renderer.StereoFrame;
 import xreal.common.Config;
 import xreal.common.ConfigStrings;
 import xreal.common.GameType;
+import xreal.server.game.GameEntity;
 
 
 /**
@@ -50,7 +53,9 @@ public class ClientGame implements ClientGameListener {
 	
 	static private SnapshotManager snapshotManager;
 	
-	static public Lagometer		lagometer;
+	static private Lagometer	lagometer;
+	
+	static private Vector<ClientEntity> entities;
 	
 	
 	private ClientGame() {
@@ -254,6 +259,11 @@ public class ClientGame implements ClientGameListener {
 		hud = new HUD();
 		snapshotManager = new SnapshotManager(serverMessageNum);
 		lagometer = new Lagometer();
+		
+		entities = new Vector<ClientEntity>();
+		for(int i = 0; i < Engine.MAX_GENTITIES; i++) {
+			entities.add(null);
+		}
 		
 		//cg.progress = 0;
 		
@@ -478,12 +488,16 @@ public class ClientGame implements ClientGameListener {
 	public static int getTime() {
 		return time;
 	}
-
-	/**
-	 * @return the media
-	 */
+	
 	public static Media getMedia() {
 		return media;
 	}
 	
+	public static Vector<ClientEntity> getEntities() {
+		return entities;
+	}
+
+	public static Lagometer getLagometer() {
+		return lagometer;
+	}
 }

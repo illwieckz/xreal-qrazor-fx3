@@ -18,4 +18,7 @@ public class Config {
 	public static final int CROUCH_VIEWHEIGHT = 16; // 32 // Tr3B: was 12
 	public static final int CROUCH_HEIGHT = 20; // 38 // Tr3B: was 16
 	public static final int DEAD_VIEWHEIGHT = -16; // Tr3B: was -16
+	
+	
+	public static final int GIB_HEALTH = -40;
 }

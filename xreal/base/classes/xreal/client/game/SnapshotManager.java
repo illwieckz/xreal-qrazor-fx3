@@ -1,8 +1,10 @@
 package xreal.client.game;
 
 import xreal.Engine;
+import xreal.EntityState;
 import xreal.client.Client;
 import xreal.client.Snapshot;
+import xreal.common.EntityType;
 
 public class SnapshotManager {
 	
@@ -185,7 +187,7 @@ public class SnapshotManager {
 					activeSnapshots[0] = dest;
 				}
 				
-				ClientGame.lagometer.addSnapshotInfo(dest);
+				ClientGame.getLagometer().addSnapshotInfo(dest);
 				return dest;
 			}
 
@@ -195,7 +197,7 @@ public class SnapshotManager {
 			// buffer in the client system.
 
 			// record as a dropped packet
-			ClientGame.lagometer.addSnapshotInfo(null);
+			ClientGame.getLagometer().addSnapshotInfo(null);
 
 			// If there are additional snapshots, continue trying to
 			// read them.
@@ -207,7 +209,62 @@ public class SnapshotManager {
 	
 	void setInitialSnapshot(Snapshot snap)
 	{
-		//Engine.println("setInitialSnapshot(" + snap.toString() + ")");
+		Engine.println("setInitialSnapshot(" + snap.toString() + ")");
+		
+		this.snap = snap;
+
+		int ownClientNum = snap.getPlayerState().clientNum;
+		ClientEntity cent = ClientGame.getEntities().get(ownClientNum);
+		if(cent == null)
+		{
+			Engine.println("setInitialSnapshot: null own ClientPlayer");
+			
+			cent = new ClientPlayer(snap.getPlayerState().getEntityState(false));
+			ClientGame.getEntities().setElementAt(cent, ownClientNum);
+		}
+
+		// sort out solid entities
+		//CG_BuildSolidList();
+
+		//CG_ExecuteNewServerCommands(snap->serverCommandSequence);
+
+		// set our local weapon selection pointer to
+		// what the server has indicated the current weapon is
+		//CG_Respawn();
+
+		for(EntityState state : snap.getEntities())
+		{
+			cent = ClientGame.getEntities().get(state.getNumber());
+			
+			// check for state.eType and create objects inherited from ClientEntity
+			EntityType eType = state.eType;
+				
+			switch (eType)
+			{
+				default:
+				case GENERAL:
+					cent = new ClientEntity(state);
+					break;
+				
+				case PLAYER:
+					cent = new ClientPlayer(state);
+					break;
+			}
+				
+			ClientGame.getEntities().setElementAt(cent, state.getNumber());
+
+			cent.currentState = state;
+			
+			//cent->currentState = *state;
+			cent.interpolate = false;
+			cent.currentValid = true;
+
+			//CG_ResetEntity(cent);
+
+			cent.checkEvents();
+		}
+		
+		Engine.println("setInitialSnapshot:" + ClientGame.getEntities().toString());
 	}
 	
 	

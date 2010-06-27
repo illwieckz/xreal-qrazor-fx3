@@ -197,17 +197,22 @@ public class MainMenu extends MenuFrame {
 		
 		// stress test
 		/*
-		float textWidth = textFont.getTextWidth(message, 0.125f, 0);
-		float textHeight = textFont.getTextHeight(message, 0.125f, 0);
+		message = "x";
+		float textWidth = fontVera.getTextWidth(message, 8, 0);
+		float textHeight = fontVera.getTextHeight(message, 8, 0);
 		
 		int count = 0;
-		for (float x = 0; x < SCREEN_WIDTH; x += textWidth) {
-			for (float y = 0; y < SCREEN_HEIGHT; y += textHeight) {
-				textFont.paintText(x, y, 0.125f, Color.White, message, 0, 0, Font.LEFT);
+		for (float x = 0; x < UserInterface.SCREEN_WIDTH; x += textWidth) {
+			for (float y = 0; y <UserInterface. SCREEN_HEIGHT; y += textHeight) {
+				fontVera.paintText(x, y, 8, Color.White, message, 0, 0, Font.LEFT);
+				count++;
 			}
 		}
-		*/
 		
+		Engine.println("textWidth=" + textWidth + ", textHeight=" + textHeight + ", count=" + count);
+		
+		fontVera.paintText(320, 470, 12, Color.White, count + " letters drawn", 0, 0,  Font.CENTER);
+		*/
 		fontVera.paintText(320, 470, 12, Color.White, "XreaL(c) 2005-2009, XreaL Team - http://xreal.sourceforge.net", 0, 0,
 				  Font.CENTER | Font.DROPSHADOW);
 		
