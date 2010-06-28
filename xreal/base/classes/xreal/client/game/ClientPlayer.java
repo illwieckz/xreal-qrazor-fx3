@@ -1,9 +1,14 @@
 package xreal.client.game;
 
+import javax.vecmath.Vector3f;
+
+import xreal.Angle3f;
 import xreal.Engine;
 import xreal.client.EntityState;
 
 public class ClientPlayer extends ClientEntity {
+	
+	private int				muzzleFlashTime;
 	
 	public ClientPlayer(EntityState state) {
 		super(state);
@@ -18,19 +23,19 @@ public class ClientPlayer extends ClientEntity {
 		
 		//super.reset();
 		
-		/*
-		cent->errorTime = -99999;	// guarantee no error decay added
-		cent->extrapolated = qfalse;
+		errorTime = -99999;	// guarantee no error decay added
+		extrapolated = false;
 	
-		CG_ClearLerpFrame(&cgs.clientinfo[cent->currentState.clientNum], &cent->pe.legs, cent->currentState.legsAnim);
-		CG_ClearLerpFrame(&cgs.clientinfo[cent->currentState.clientNum], &cent->pe.torso, cent->currentState.torsoAnim);
+		//CG_ClearLerpFrame(&cgs.clientinfo[cent->currentState.clientNum], &cent->pe.legs, cent->currentState.legsAnim);
+		//CG_ClearLerpFrame(&cgs.clientinfo[cent->currentState.clientNum], &cent->pe.torso, cent->currentState.torsoAnim);
 	
-		BG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->lerpOrigin);
-		BG_EvaluateTrajectory(&cent->currentState.apos, cg.time, cent->lerpAngles);
+		lerpOrigin = currentState.pos.evaluatePosition(ClientGame.getTime());
+		lerpAngles = new Angle3f(currentState.apos.evaluatePosition(ClientGame.getTime()));
 	
-		VectorCopy(cent->lerpOrigin, cent->rawOrigin);
-		VectorCopy(cent->lerpAngles, cent->rawAngles);
-	
+		rawOrigin = new Vector3f(lerpOrigin);
+		rawAngles = new Angle3f(lerpAngles);
+		
+		/*	
 		memset(&cent->pe.legs, 0, sizeof(cent->pe.legs));
 		cent->pe.legs.yawAngle = cent->rawAngles[YAW];
 		cent->pe.legs.yawing = qfalse;

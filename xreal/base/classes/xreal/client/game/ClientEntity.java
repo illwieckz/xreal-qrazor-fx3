@@ -21,7 +21,6 @@ public class ClientEntity {
 	public boolean			interpolate;	// true if next is valid to interpolate to
 	public boolean			currentValid;	// true if cg.frame holds this entity
 
-	public int				muzzleFlashTime;	// move to playerEntity?
 	public int				previousEvent;
 	public int				teleportFlag;
 
@@ -39,7 +38,7 @@ public class ClientEntity {
 
 	boolean					extrapolated;	// false if origin / angles is an interpolation
 	public Vector3f			rawOrigin = new Vector3f();
-	public Vector3f			rawAngles = new Vector3f();
+	public Angle3f			rawAngles = new Angle3f();
 
 	public Vector3f			beamEnd = new Vector3f();
 
@@ -50,7 +49,7 @@ public class ClientEntity {
 	
 	public ClientEntity(EntityState es) {
 		
-		Engine.println("ClientEntity()");
+		Engine.println("ClientEntity(entity number = " + es.getNumber() + ")");
 		
 		ClientGame.getEntities().setElementAt(this, es.getNumber());
 		

@@ -217,7 +217,7 @@ public class SnapshotManager {
 	 */
 	private void setInitialSnapshot(Snapshot snap)
 	{
-		Engine.println("setInitialSnapshot(" + snap.toString() + ")");
+		//Engine.println("setInitialSnapshot(" + snap.toString() + ")");
 		
 		this.snap = snap;
 
@@ -260,7 +260,7 @@ public class SnapshotManager {
 			cent.checkEvents();
 		}
 		
-		Engine.println("setInitialSnapshot:" + ClientGame.getEntities().toString());
+		//Engine.println("setInitialSnapshot:" + ClientGame.getEntities().toString());
 	}
 	
 	/**
@@ -435,5 +435,21 @@ public class SnapshotManager {
 	
 	public int getProcessedSnapshotNum() {
 		return processedSnapshotNum;
+	}
+	
+	public boolean hasValidSnapshot() {
+		return (snap != null && !snap.isInactive());
+	}
+	
+	public Snapshot getSnapshot() {
+		return snap;
+	}
+	
+	public Snapshot getNextSnapshot() {
+		return nextSnap;
+	}
+	
+	public boolean isNextFrameTeleport() {
+		return nextFrameTeleport;
 	}
 }

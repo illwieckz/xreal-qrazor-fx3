@@ -218,6 +218,7 @@ public class Angle3f extends Tuple3f {
 		return angle;
 	}
 	
+	
 	/**
 	 * Normalize all angles of this Angle3f to the range [0 <= angle < 360]
 	 */
@@ -237,4 +238,38 @@ public class Angle3f extends Tuple3f {
 		y = normalize180(y);
 		z = normalize180(z);
 	}
+	
+	public static float interpolateAngle(float from, float to, float frac)
+	{
+		float           a;
+
+		if(to - from > 180.0)
+		{
+			to -= 360.0;
+		}
+		if(to - from < -180.0)
+		{
+			to += 360.0;
+		}
+		a = from + frac * (to - from);
+
+		return a;
+	}
+	
+	/**
+    * Sets the value of this Angle3f to the interpolation between angles a1 and a2.
+    * 
+    * @author Robert Beckebans
+    * 
+    * @param a1 the first angles
+    * @param a2 the second angles
+    * @param frac interpolation range [0 - 1]
+    */
+   public final void interpolate(Angle3f a1, Angle3f a2, float frac) {
+	
+	   x = interpolateAngle(a1.x, a2.x, frac);
+	   y = interpolateAngle(a1.y, a2.y, frac);
+	   z = interpolateAngle(a1.z, a2.z, frac);
+   }
+	
 }

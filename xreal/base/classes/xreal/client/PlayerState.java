@@ -25,7 +25,7 @@ import xreal.common.PlayerStatsType;
  * 
  * @author Robert Beckebans
  */
-public class PlayerState extends EntityState {
+public class PlayerState extends EntityState implements Cloneable {
 	
 	// bit field limits
 	// Tr3B: NOTE: never go beyond 32 without recoding the delta compression of playerState_t
@@ -335,8 +335,25 @@ public class PlayerState extends EntityState {
 	}
 
 
-
 	
+	public Object clone() {
+		
+		PlayerState ps = new PlayerState(commandTime, pm_type.ordinal(), pm_flags, pm_time,
+				bobCycle, new Vector3f(origin), new Vector3f(velocity), weaponTime,
+				gravity, speed, deltaPitch, deltaYaw,
+				deltaRoll, groundEntityNum, legsTimer, legsAnim,
+				torsoTimer, torsoAnim, movementDir,
+				new Vector3f(grapplePoint), eFlags, eventSequence, events.clone(),
+				eventParms.clone(), externalEvent, externalEventParm,
+				externalEventTime, clientNum, weapon, weaponState,
+				new Angle3f(viewAngles), viewHeight, damageEvent, damageYaw,
+				damagePitch, damageCount, stats.clone(), persistant.clone(),
+				powerups.clone(), ammo.clone(), generic1, loopSound,
+				jumppad_ent, ping, pmove_framecount, jumppad_frame,
+				entityEventSequence);
+		
+		return ps;
+	}
 	
 	
 }

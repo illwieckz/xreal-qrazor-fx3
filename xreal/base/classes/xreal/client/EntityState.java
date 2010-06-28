@@ -109,7 +109,20 @@ public class EntityState {
 			int powerups, int weapon, int legsAnim, int torsoAnim, int generic1) {
 		super();
 		this.number = number;
-		this.eType = EntityType.values()[eType];
+		
+		// check for bad Q3A habit 
+		// Any of the EV_* events can be added free standing by setting eType to ET_EVENTS + eventNum.
+		if(eType >= EntityType.EVENTS.ordinal())
+		{
+			this.eType = EntityType.EVENTS;
+			this.event = eType - EntityType.EVENTS.ordinal();
+		}
+		else
+		{
+			this.eType = EntityType.values()[eType];
+		}
+		
+		
 		this.eFlags = eFlags;
 		this.pos = pos;
 		this.apos = apos;

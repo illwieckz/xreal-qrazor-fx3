@@ -49,11 +49,13 @@ public class ClientGame implements ClientGameListener {
 	
 	static private Media		media;
 	
-	static private Camera		camera;
+	static private ClientCamera	camera;
 	
 	static private HUD			hud;
 	
 	static private SnapshotManager snapshotManager;
+	
+	static private PredictionManager predictionManager;
 	
 	static private Lagometer	lagometer;
 	
@@ -90,8 +92,6 @@ public class ClientGame implements ClientGameListener {
 		
 		//Engine.print("xreal.client.game.ClientGame.drawActiveFrame(serverTime = "+ serverTime + ", stereoView = " + stereoView + ", demoPlayback = " + demoPlayback + ")\n");
 		
-		int             inwater;
-
 		time = serverTime;
 		ClientGame.demoPlayback = demoPlayback;
 
@@ -115,33 +115,33 @@ public class ClientGame implements ClientGameListener {
 
 		// set up cg.snap and possibly cg.nextSnap
 		snapshotManager.processSnapshots();
-//
-//		// if we haven't received any snapshots yet, all
-//		// we can draw is the information screen
-//		if(!cg.snap || (cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE))
-//		{
-//			CG_DrawInformation();
-//			return;
-//		}
-//
-//		// let the client system know what our weapon and zoom settings are
+
+		// if we haven't received any snapshots yet, all
+		// we can draw is the information screen
+		if(!snapshotManager.hasValidSnapshot())
+		{
+			//CG_DrawInformation();
+			return;
+		}
+
+		// let the client system know what our weapon and zoom settings are
 //		trap_SetUserCmdValue(cg.weaponSelect, cg.zoomSensitivity);
 
 		// this counter will be bumped for every valid scene we generate
 		clientFrame++;
 
-//		// update cg.predictedPlayerState
-//		CG_PredictPlayerState();
-//
+		// update cg.predictedPlayerState
+		predictionManager.predictPlayerState();
+		
 //		// decide on third person view
 //		cg.renderingThirdPerson = cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0);
 //
 //		// build cg.refdef
-//		inwater = CG_CalcViewValues();
-//		if(inwater)
-//		{
-//			cg.refdef.rdflags |= RDF_UNDERWATER;
-//		}
+		boolean inwater = camera.calcViewValues(predictionManager.getPredictedPlayerState());
+		if(inwater)
+		{
+			camera.rdflags |= Camera.RDF_UNDERWATER;
+		}
 //
 //		// first person blend blobs, done after AnglesToAxis
 //		if(!cg.renderingThirdPerson)
@@ -257,9 +257,10 @@ public class ClientGame implements ClientGameListener {
 		
 		// clear everything
 		media = new Media();
-		camera = new Camera();
+		camera = new ClientCamera();
 		hud = new HUD();
 		snapshotManager = new SnapshotManager(serverMessageNum);
+		predictionManager = new PredictionManager();
 		lagometer = new Lagometer();
 		
 		entities = new Vector<ClientEntity>();
@@ -449,19 +450,21 @@ public class ClientGame implements ClientGameListener {
 
 
 		// clear around the rendered view if sized down
-		/*
-		CG_TileClear();
+		//CG_TileClear();
 
+		/*
 		// offset vieworg appropriately if we're doing stereo separation
 		VectorCopy(cg.refdef.vieworg, baseOrg);
 		if(separation != 0)
 		{
 			VectorMA(cg.refdef.vieworg, -separation, cg.refdef.viewaxis[1], cg.refdef.vieworg);
 		}
+		*/
 
 		// draw 3D view
-		trap_R_RenderScene(&cg.refdef);
+		Renderer.renderScene(camera);
 
+		/*
 		// restore original viewpoint if running stereo
 		if(separation != 0)
 		{
@@ -531,6 +534,10 @@ public class ClientGame implements ClientGameListener {
 	
 	public static Vector<ClientEntity> getEntities() {
 		return entities;
+	}
+	
+	public static SnapshotManager getSnapshotManager() {
+		return snapshotManager;
 	}
 
 	public static Lagometer getLagometer() {

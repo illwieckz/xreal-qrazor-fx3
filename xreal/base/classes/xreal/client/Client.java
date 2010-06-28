@@ -3,6 +3,8 @@ package xreal.client;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
+import xreal.UserCommand;
+
 
 /**
  * Represents Client functionality. Never use this code for the server game.
@@ -79,6 +81,17 @@ public class Client {
 	 */
 	public synchronized native static void clearKeyStates();
 	
+	
+	public synchronized native static int getCurrentCommandNumber();
+	
+	public synchronized native static UserCommand getUserCommand(int cmdNumber);
+	
+	public static UserCommand getCurrentUserCommand() {
+		int cmdNum = getCurrentCommandNumber();
+		UserCommand cmd = getUserCommand(cmdNum);
+		
+		return cmd;
+	}
 	
 	
 	// sound handling -----------------------------------------------------------------------------
