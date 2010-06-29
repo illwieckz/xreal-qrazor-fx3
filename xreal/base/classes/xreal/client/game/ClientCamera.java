@@ -15,9 +15,7 @@ public class ClientCamera extends Camera {
 	
 	public boolean calcViewValues(PlayerState ps)
 	{
-		
-
-		//memset(&cg.refdef, 0, sizeof(cg.refdef));
+		time = ClientGame.getTime();
 
 		// calculate size of 3D view
 		calcVrect(ps);

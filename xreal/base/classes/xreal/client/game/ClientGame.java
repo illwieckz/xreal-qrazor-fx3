@@ -177,7 +177,6 @@ public class ClientGame implements ClientGameListener {
 //			CG_AddTestLight();
 //		}
 //
-//		cg.refdef.time = cg.time;
 //		memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
 //
 //		// warning sounds when powerup is wearing off
