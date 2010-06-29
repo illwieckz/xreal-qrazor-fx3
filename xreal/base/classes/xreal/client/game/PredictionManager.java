@@ -155,7 +155,7 @@ public class PredictionManager {
 		predictedPlayerState.velocity.interpolate(prev.getPlayerState().velocity, next.getPlayerState().velocity, f);
 		
 			
-		if (true) {
+		if (false) {
 			Engine.println("client origin:\t\t\t" + predictedPlayerState.origin.toString());
 			Engine.println("client velocity:\t\t" + predictedPlayerState.velocity.toString());
 			Engine.println("client view angles:\t\t" + predictedPlayerState.viewAngles.toString());

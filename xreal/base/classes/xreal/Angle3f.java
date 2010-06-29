@@ -137,6 +137,8 @@ public class Angle3f extends Tuple3f {
 			}
 		}
 	}
+	
+	
 
 	/**
 	 * Set this Angle3f to point from Point3f p1 to Point3f p2
@@ -173,6 +175,33 @@ public class Angle3f extends Tuple3f {
 		this.x = (float) ((Math.asin(-2 * (q.z * q.x - q.w * q.y))) * 180.0f / Math.PI);
 		this.y = (float) ((Math.atan2(2 * (q.z * q.w + q.x * q.y), (q2.z - q2.w - q2.x + q2.y))) * 180.0f / Math.PI);
 		this.z = (float) ((Math.atan2(2 * (q.w * q.x + q.z * q.y), (-q2.z - q2.w + q2.x + q2.y))) * 180.0f / Math.PI);	
+	}
+	
+	/**
+	 * @author	Robert Beckebans
+	 * 
+	 * @param	q, the quaternion
+	 */
+	public final void getQuaternion(Quat4f q) {
+		
+		Vector3f forward = new Vector3f();
+		Vector3f right = new Vector3f();
+		Vector3f up = new Vector3f();
+		
+		getVectors(forward, right, up);
+		
+		/*
+		Matrix3f m = new Matrix3f(	forward.x, forward.y, forward.z,
+									-right.x, -right.y, -right.z,
+									up.x, up.y, up.z);
+		*/
+		
+		Matrix3f m = new Matrix3f(
+				forward.x, -right.x, up.x,
+				forward.y, -right.y, up.y,
+				forward.z, -right.z, up.z);
+		
+		q.set(m);
 	}
 	
 	

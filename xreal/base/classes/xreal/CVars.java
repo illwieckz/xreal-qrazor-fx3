@@ -12,7 +12,7 @@ public abstract class CVars {
 	public static final CVar cg_draw2D = new CVar("cg_draw2D", "1", CVar.ARCHIVE);
 	public static final CVar cg_drawFPS = new CVar("cg_drawFPS", "0", CVar.ARCHIVE);
 	
-	public static final CVar cg_nopredict = new CVar("cg_nopredict", "0", 0);
+	public static final CVar cg_nopredict = new CVar("cg_nopredict", "1", 0);
 	
 	
 	// noset vars
