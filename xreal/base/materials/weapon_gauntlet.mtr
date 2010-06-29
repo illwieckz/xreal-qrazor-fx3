@@ -3,16 +3,21 @@ models/weapons2/gauntlet/ldagauntlet
 	diffuseMap		models/weapons/gauntlet/ldagauntlet_d.tga
 	specularMap		models/weapons/gauntlet/ldagauntlet_d.tga
 	bumpMap			heightMap(models/weapons/gauntlet/ldagauntlet_h.tga, 2)
-	reflectionMapBlended		_autocube
+	reflectionMapBlended	_autocube
 	bumpMap			heightMap(models/weapons/gauntlet/ldagauntlet_h.tga, 2)
 }
 
 models/weapons2/gauntlet/ldagauntlet_b
 {
-	diffuseMap		models/weapons/gauntlet/ldagauntlet_b_d.tga
-	specularMap		models/weapons/gauntlet/ldagauntlet_b_d.tga
+	diffuseMap		invertAlpha(models/weapons/gauntlet/ldagauntlet_b_d.tga)
+	specularMap		models/weapons/gauntlet/ldagauntlet_b_s.tga
 	bumpMap			heightMap(models/weapons/gauntlet/ldagauntlet_b_h.tga, 1)
-	reflectionMapBlended		_autocube
+	{
+		maskAlpha
+		stage		reflectionMap
+		cubeMap		_autocube
+		blend		GL_DST_ALPHA, GL_ONE
+	}
 	bumpMap			heightMap(models/weapons/gauntlet/ldagauntlet_b_h.tga, 1)
 }
 
