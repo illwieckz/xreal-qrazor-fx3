@@ -3019,6 +3019,9 @@ static void ParseNormalMap(shaderStage_t * stage, char **text)
 	}
 	if(r_highQualityNormalMapping->integer)
 	{
+		stage->overrideFilterType = qtrue;
+		stage->filterType = FT_LINEAR;
+
 		stage->overrideNoPicMip = qtrue;
 	}
 
