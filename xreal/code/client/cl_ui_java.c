@@ -1841,8 +1841,6 @@ void JNICALL Java_xreal_client_renderer_Renderer_addRefEntityToScene(JNIEnv *env
 	QuatSet(quat, quatX, quatY, quatZ, quatW);
 	QuatToAxis(quat, refEntity.axis);
 
-	AxisCopy(axisDefault, refEntity.axis);
-
 	if(scaleX != 1 || scaleY != 1 || scaleZ != 1)
 	{
 		VectorScale(refEntity.axis[0], scaleX, refEntity.axis[0]);
@@ -2121,8 +2119,6 @@ void JNICALL Java_xreal_client_renderer_Renderer_renderScene(JNIEnv *env, jclass
 
 	QuatSet(quat, quatX, quatY, quatZ, quatW);
 	QuatToAxis(quat, refdef.viewaxis);
-
-	AxisCopy(axisDefault, refdef.viewaxis);
 
 	refdef.time = time;
 	refdef.rdflags = flags;
