@@ -59,7 +59,7 @@ public class ClientGame implements ClientGameListener {
 	
 	static private Lagometer	lagometer;
 	
-	static private Vector<ClientEntity> entities;
+	static private Vector<CEntity> entities;
 	
 	
 	private ClientGame() {
@@ -150,13 +150,13 @@ public class ClientGame implements ClientGameListener {
 //		}
 //
 //		// build the render lists
-//		if(!cg.hyperspace)
-//		{
-//			CG_AddPacketEntities();	// adter calcViewValues, so predicted player state is correct
+		if(!predictionManager.isHyperspace())
+		{
+			addPacketEntities();	// adter calcViewValues, so predicted player state is correct
 //			CG_AddMarks();
 //			CG_AddParticles();
 //			CG_AddLocalEntities();
-//		}
+		}
 //		CG_AddViewWeapon(&cg.predictedPlayerState);
 //
 //		// add buffered sounds
@@ -262,7 +262,7 @@ public class ClientGame implements ClientGameListener {
 		predictionManager = new PredictionManager();
 		lagometer = new Lagometer();
 		
-		entities = new Vector<ClientEntity>();
+		entities = new Vector<CEntity>();
 		for(int i = 0; i < Engine.MAX_GENTITIES; i++) {
 			entities.add(null);
 		}
@@ -476,9 +476,9 @@ public class ClientGame implements ClientGameListener {
 	}
 	
 	
-	public static ClientEntity createClientEntity(EntityState es) {
+	public static CEntity createClientEntity(EntityState es) {
 		
-		ClientEntity cent;
+		CEntity cent;
 		
 		// check for state.eType and create objects inherited from ClientEntity
 		EntityType eType = es.eType;
@@ -487,11 +487,15 @@ public class ClientGame implements ClientGameListener {
 		{
 			default:
 			case GENERAL:
-				cent = new ClientEntity(es);
+				cent = new CEntity_General(es);
 				break;
 			
 			case PLAYER:
-				cent = new ClientPlayer(es);
+				cent = new CEntity_Player(es);
+				break;
+				
+			case PHYSICS_BOX:
+				cent = new CEntity_PhysicsBox(es);
 				break;
 		}
 		
@@ -500,6 +504,45 @@ public class ClientGame implements ClientGameListener {
 		//ClientGame.getEntities().setElementAt(cent, es.getNumber());
 		
 		return cent;
+	}
+	
+	private void addPacketEntities() throws Exception
+	{
+		/*
+		playerState_t  *ps;
+
+		// the auto-rotating items will all have the same axis
+		cg.autoAngles[0] = 0;
+		cg.autoAngles[1] = (cg.time & 2047) * 360 / 2048.0;
+		cg.autoAngles[2] = 0;
+
+		cg.autoAnglesFast[0] = 0;
+		cg.autoAnglesFast[1] = (cg.time & 1023) * 360 / 1024.0f;
+		cg.autoAnglesFast[2] = 0;
+
+		AnglesToAxis(cg.autoAngles, cg.autoAxis);
+		AnglesToAxis(cg.autoAnglesFast, cg.autoAxisFast);
+
+		// generate and add the entity from the playerstate
+		ps = &cg.predictedPlayerState;
+		BG_PlayerStateToEntityState(ps, &cg.predictedPlayerEntity.currentState, qfalse);
+		CG_AddCEntity(&cg.predictedPlayerEntity);
+
+		// lerp the non-predicted value for lightning gun origins
+		CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);
+		*/
+
+		// add each entity sent over by the server
+		EntityState[] entityStates = snapshotManager.getSnapshot().getEntities(); 
+		for(EntityState es : entityStates)
+		{
+			CEntity cent = entities.get(es.getNumber());
+			
+			if(cent != null)
+			{
+				cent.addToRenderer();
+			}
+		}
 	}
 	
 	// --------------------------------------------------------------------------------------------
@@ -531,7 +574,7 @@ public class ClientGame implements ClientGameListener {
 		return media;
 	}
 	
-	public static Vector<ClientEntity> getEntities() {
+	public static Vector<CEntity> getEntities() {
 		return entities;
 	}
 	

@@ -13,8 +13,9 @@ import xreal.common.PlayerMovementFlags;
 public class PredictionManager {
 
 	private boolean			hyperspace;
+
 	private PlayerState		predictedPlayerState;
-	private ClientPlayer	predictedPlayerEntity;
+	private CEntity_Player	predictedPlayerEntity;
 	private boolean			validPPS;	// clear until the first call to CG_PredictPlayerState
 	private int				predictedErrorTime;
 	private Vector3f		predictedError;
@@ -164,5 +165,9 @@ public class PredictionManager {
 	
 	public PlayerState getPredictedPlayerState() {
 		return predictedPlayerState;
+	}
+	
+	public boolean isHyperspace() {
+		return hyperspace;
 	}
 }

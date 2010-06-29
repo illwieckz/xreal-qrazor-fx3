@@ -182,7 +182,7 @@ public class Angle3f extends Tuple3f {
 	 * 
 	 * @param	q, the quaternion
 	 */
-	public final void getQuaternion(Quat4f q) {
+	public final void get(Quat4f q) {
 		
 		Vector3f forward = new Vector3f();
 		Vector3f right = new Vector3f();
@@ -202,6 +202,25 @@ public class Angle3f extends Tuple3f {
 				forward.z, -right.z, up.z);
 		
 		q.set(m);
+	}
+	
+	/**
+	 * @author	Robert Beckebans
+	 * 
+	 * @param	m, the matrix
+	 */
+	public final void get(Matrix3f m) {
+		
+		Vector3f forward = new Vector3f();
+		Vector3f right = new Vector3f();
+		Vector3f up = new Vector3f();
+		
+		getVectors(forward, right, up);
+		right.negate();
+		
+		m.setColumn(0, forward);
+		m.setColumn(1, right);
+		m.setColumn(2, up);
 	}
 	
 	

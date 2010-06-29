@@ -32,6 +32,12 @@ public class SnapshotManager {
 	private boolean			thisFrameTeleport;
 	private boolean			nextFrameTeleport;
 	
+	/**
+	 * 
+	 * (float)( cg.time - cg.frame->serverTime ) / (cg.nextFrame->serverTime - cg.frame->serverTime)
+	 */
+	static private float	frameInterpolation;
+	
 	
 	SnapshotManager(int processedSnapshotNum) {
 		this.processedSnapshotNum = processedSnapshotNum;
@@ -145,6 +151,9 @@ public class SnapshotManager {
 		{
 			throw new Exception("processSnapshots: this.nextSnap.serverTime <= ClientGame.time");
 		}
+		
+		
+		calcFrameInterpolation();
 	}
 	
 	/**
@@ -222,12 +231,12 @@ public class SnapshotManager {
 		this.snap = snap;
 
 		int ownClientNum = snap.getPlayerState().clientNum;
-		ClientEntity cent = ClientGame.getEntities().get(ownClientNum);
+		CEntity cent = ClientGame.getEntities().get(ownClientNum);
 		if(cent == null)
 		{
 			Engine.println("setInitialSnapshot: null own ClientPlayer");
 			
-			cent = new ClientPlayer(snap.getPlayerState().createEntityState(false));
+			cent = new CEntity_Player(snap.getPlayerState().createEntityState(false));
 			ClientGame.getEntities().setElementAt(cent, ownClientNum);
 		}
 
@@ -271,12 +280,12 @@ public class SnapshotManager {
 		this.nextSnap = snap;
 		
 		int ownClientNum = snap.getPlayerState().clientNum;
-		ClientEntity cent = ClientGame.getEntities().get(ownClientNum);
+		CEntity cent = ClientGame.getEntities().get(ownClientNum);
 		if(cent == null)
 		{
 			Engine.println("setNextSnapshot: null own ClientPlayer");
 			
-			cent = new ClientPlayer(snap.getPlayerState().createEntityState(false));
+			cent = new CEntity_Player(snap.getPlayerState().createEntityState(false));
 		}
 		
 		cent.nextState = snap.getPlayerState().createEntityState(false);
@@ -339,7 +348,7 @@ public class SnapshotManager {
 	 */
 	private void transitionSnapshot() throws Exception
 	{
-		ClientEntity cent;
+		CEntity cent;
 
 		if(snap == null)
 		{
@@ -377,12 +386,12 @@ public class SnapshotManager {
 		snap = nextSnap;
 
 		int ownClientNum = snap.getPlayerState().clientNum;
-		ClientPlayer player = (ClientPlayer) ClientGame.getEntities().get(ownClientNum);
+		CEntity_Player player = (CEntity_Player) ClientGame.getEntities().get(ownClientNum);
 		if(player == null)
 		{
 			Engine.println("transitionSnapshot: null own ClientPlayer");
 			
-			player = new ClientPlayer(snap.getPlayerState().createEntityState(false));
+			player = new CEntity_Player(snap.getPlayerState().createEntityState(false));
 			ClientGame.getEntities().setElementAt(player, ownClientNum);
 		}
 		else
@@ -432,6 +441,30 @@ public class SnapshotManager {
 		nextSnap = null;
 	}
 	
+	private void calcFrameInterpolation() {
+		if(nextSnap != null)
+		{
+			int             delta;
+
+			delta = (nextSnap.getServerTime() - snap.getServerTime());
+			
+			if(delta == 0)
+			{
+				frameInterpolation = 0;
+			}
+			else
+			{
+				frameInterpolation = (float)(ClientGame.getTime() - snap.getServerTime()) / delta;
+			}
+		}
+		else
+		{
+			// actually, it should never be used, because
+			// no entities should be marked as interpolating
+			frameInterpolation = 0;
+		}
+	}
+	
 	
 	public int getProcessedSnapshotNum() {
 		return processedSnapshotNum;
@@ -451,5 +484,9 @@ public class SnapshotManager {
 	
 	public boolean isNextFrameTeleport() {
 		return nextFrameTeleport;
+	}
+	
+	public float getFrameInterpolation() {
+		return frameInterpolation;
 	}
 }

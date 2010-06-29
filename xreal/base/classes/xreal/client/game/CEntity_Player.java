@@ -6,14 +6,14 @@ import xreal.Angle3f;
 import xreal.Engine;
 import xreal.client.EntityState;
 
-public class ClientPlayer extends ClientEntity {
+public class CEntity_Player extends CEntity {
 	
 	private int				muzzleFlashTime;
 	
-	public ClientPlayer(EntityState state) {
-		super(state);
+	public CEntity_Player(EntityState es) {
+		super(es);
 		
-		Engine.println("ClientPlayer()");
+		Engine.println("CEntity_Player(entity number = " + es.getNumber() + ")");
 	}
 
 	/**

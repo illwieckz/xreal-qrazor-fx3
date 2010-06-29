@@ -14,6 +14,8 @@ public abstract class CVars {
 	
 	public static final CVar cg_nopredict = new CVar("cg_nopredict", "1", 0);
 	
+	public static final CVar cg_smoothClients = new CVar("cg_smoothClients", "0", CVar.USERINFO | CVar.ARCHIVE);
+	
 	
 	// noset vars
 //	{NULL, "gamename", GAMEVERSION, CVar.SERVERINFO | CVar.ROM, 0, qfalse},

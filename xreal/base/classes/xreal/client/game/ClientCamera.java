@@ -43,7 +43,7 @@ public class ClientCamera extends Camera {
 		//	VectorCopy(ps->viewangles, cg.refdefViewAngles);
 		//	AnglesToAxis(cg.refdefViewAngles, cg.refdef.viewaxis);
 		
-			ps.viewAngles.getQuaternion(quat);
+			ps.viewAngles.get(quat);
 
 			return calcFov(ps);
 		//}
