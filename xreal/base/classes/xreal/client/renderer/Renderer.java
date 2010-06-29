@@ -216,6 +216,36 @@ public abstract class Renderer {
 	
 	public synchronized static native RefSkeleton buildSkeleton(int hAnim, int startFrame, int endFrame, float frac, boolean clearOrigin);
 	
+	
+	
+	
+	private synchronized static native void addPolygonToSceneBegin(int hMaterial, int numVertices);
+	
+	private synchronized static native void addPolygonVertexToScene(float posX, float posY, float posZ,
+																	float texCoordU, float texCoordV,
+																	float red, float green, float blue, float alpha);
+	
+	private synchronized static native void addPolygonToSceneEnd();
+	
+	public static void addPolygonToScene(Polygon poly) throws Exception {
+		
+		if(poly.hMaterial <= 0) {
+			throw new Exception("WARNING: Renderer.addPolygonToScene: null poly material\n");
+		}
+		
+		addPolygonToSceneBegin(poly.hMaterial, poly.vertices.size());
+		
+		for(Vertex v : poly.vertices) {
+			
+			addPolygonVertexToScene(v.pos.x, v.pos.y, v.pos.z,
+									v.st.x, v.st.y,
+									v.color.x, v.color.y, v.color.z, v.color.w);
+		}
+		
+		addPolygonToSceneEnd();
+	}
+	
+	
 	private synchronized static native void renderScene(int viewPortX, int viewPortY, int viewPortWidth, int viewPortHeight,
 														float fovX, float fovY,
 														float posX, float posY, float posZ,

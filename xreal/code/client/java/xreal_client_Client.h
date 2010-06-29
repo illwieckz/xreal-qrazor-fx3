@@ -89,6 +89,22 @@ JNIEXPORT void JNICALL Java_xreal_client_Client_clearKeyStates
 
 /*
  * Class:     xreal_client_Client
+ * Method:    getCurrentCommandNumber
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_xreal_client_Client_getCurrentCommandNumber
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getUserCommand
+ * Signature: (I)Lxreal/UserCommand;
+ */
+JNIEXPORT jobject JNICALL Java_xreal_client_Client_getUserCommand
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_client_Client
  * Method:    registerSound
  * Signature: (Ljava/lang/String;)I
  */

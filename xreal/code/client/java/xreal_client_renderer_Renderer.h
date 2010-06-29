@@ -129,6 +129,30 @@ JNIEXPORT jobject JNICALL Java_xreal_client_renderer_Renderer_buildSkeleton
 
 /*
  * Class:     xreal_client_renderer_Renderer
+ * Method:    addPolygonToSceneBegin
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_addPolygonToSceneBegin
+  (JNIEnv *, jclass, jint, jint);
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    addPolygonVertexToScene
+ * Signature: (FFFFFFFFF)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_addPolygonVertexToScene
+  (JNIEnv *, jclass, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    addPolygonToSceneEnd
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_addPolygonToSceneEnd
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     xreal_client_renderer_Renderer
  * Method:    renderScene
  * Signature: (IIIIFFFFFFFFFII)V
  */

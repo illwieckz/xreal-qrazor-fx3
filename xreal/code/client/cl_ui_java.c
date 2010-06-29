@@ -2087,6 +2087,76 @@ jobject JNICALL Java_xreal_client_renderer_Renderer_buildSkeleton(JNIEnv *env, j
 	return Java_NewRefSkeleton(&skeleton);
 }
 
+static refEntity_t		refEntity;
+
+static int				s_maxPolyVerts;
+static poly_t			s_poly;
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    addPolygonToSceneBegin
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_addPolygonToSceneBegin(JNIEnv *env, jclass cls, jint hMaterial, jint numVertices)
+{
+	if(hMaterial <= 0)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_client_renderer_Renderer_addPolygonToSceneBegin: null hMaterial\n");
+	}
+
+	s_poly.numVerts = 0;
+	s_poly.hShader = hMaterial;
+}
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    addPolygonVertexToScene
+ * Signature: (FFFFFFFFF)V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_addPolygonVertexToScene(JNIEnv *env, jclass cls,
+																					jfloat posX, jfloat posY, jfloat posZ,
+																					jfloat texCoordU, jfloat texCoordV,
+																					jfloat red, jfloat green, jfloat blue, jfloat alpha)
+{
+	polyVert_t*				v;
+
+	if(s_poly.numVerts >= s_maxPolyVerts)
+	{
+		Com_DPrintf("WARNING: Java_xreal_client_renderer_Renderer_addPolygonVertexToScene: r_maxPolyVerts reached\n");
+		return;
+	}
+
+	v = &s_poly.verts[s_poly.numVerts++];
+
+	v->xyz[0] = posX;
+	v->xyz[1] = posY;
+	v->xyz[2] = posZ;
+
+	v->st[0] = texCoordU;
+	v->st[1] = texCoordV;
+
+	v->modulate[0] = (byte) (red * 255);
+	v->modulate[1] = (byte) (green * 255);
+	v->modulate[2] = (byte) (blue * 255);
+	v->modulate[3] = (byte) (alpha * 255);
+}
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    addPolygonToSceneEnd
+ * Signature: ()V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_addPolygonToSceneEnd(JNIEnv *env, jclass cls)
+{
+	if(s_poly.numVerts == 0) {
+		return;
+	}
+
+	re.AddPolyToScene(s_poly.hShader, s_poly.numVerts, s_poly.verts, 1);
+
+	s_poly.numVerts = 0;
+}
+
 
 
 /*
@@ -2149,6 +2219,11 @@ static JNINativeMethod Renderer_methods[] = {
 	{"setRefEntityBone", "(ILjava/lang/String;IFFFFFFF)V", Java_xreal_client_renderer_Renderer_setRefEntityBone},
 	{"setRefEntitySkeleton", "(IIFFFFFFFFF)V", Java_xreal_client_renderer_Renderer_setRefEntitySkeleton},
 	{"buildSkeleton", "(IIIFZ)Lxreal/client/renderer/RefSkeleton;", Java_xreal_client_renderer_Renderer_buildSkeleton},
+
+	{"addPolygonToSceneBegin", "(II)V", Java_xreal_client_renderer_Renderer_addPolygonToSceneBegin},
+	{"addPolygonVertexToScene", "(FFFFFFFFF)V", Java_xreal_client_renderer_Renderer_addPolygonVertexToScene},
+	{"addPolygonToSceneEnd", "()V", Java_xreal_client_renderer_Renderer_addPolygonToSceneEnd},
+
 	{"renderScene", "(IIIIFFFFFFFFFII)V", Java_xreal_client_renderer_Renderer_renderScene}
 };
 
@@ -2167,6 +2242,12 @@ void Renderer_javaRegister()
 	{
 		Com_Error(ERR_FATAL, "Couldn't register native methods for xreal.client.renderer.Renderer");
 	}
+
+	// allocate memory for temporary polygon vertices
+	cvar_t* r_maxPolyVerts = Cvar_Get("r_maxpolyverts", "100000", 0);	// 3000 in vanilla Q3A
+
+	s_maxPolyVerts = r_maxPolyVerts->integer;
+	s_poly.verts = (polyVert_t *) Com_Allocate(sizeof(polyVert_t) * r_maxPolyVerts->integer);
 }
 
 
@@ -2182,6 +2263,15 @@ void Renderer_javaDetach()
 			(*javaEnv)->DeleteLocalRef(javaEnv, class_Renderer);
 			class_Renderer = NULL;
 		}
+	}
+
+	// destroy polygon vertices pool
+	if(s_poly.verts != NULL)
+	{
+		Com_Dealloc(s_poly.verts);
+		s_poly.verts = NULL;
+
+		s_maxPolyVerts = 0;
 	}
 }
 
