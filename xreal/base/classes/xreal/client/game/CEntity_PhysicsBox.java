@@ -18,7 +18,7 @@ public class CEntity_PhysicsBox extends CEntity {
 	public CEntity_PhysicsBox(EntityState es) {
 		super(es);
 		
-		Engine.println("CEntity_PhysicsBox(entity number = " + es.getNumber() + ")");
+		//Engine.println("CEntity_PhysicsBox(entity number = " + es.getNumber() + ")");
 	}
 
 	
@@ -141,6 +141,7 @@ public class CEntity_PhysicsBox extends CEntity {
 
 		Matrix3f rotation = new Matrix3f();
 		rotation.setIdentity();
+		rotation.set(lerpQuat);
 		//lerpAngles.get(rotation);
 		
 		//MatrixFromAngles(rotation, cent->lerpAngles[PITCH], cent->lerpAngles[YAW], cent->lerpAngles[ROLL]);

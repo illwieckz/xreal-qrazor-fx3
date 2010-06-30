@@ -3,6 +3,7 @@ package xreal.client;
 import java.util.Arrays;
 
 import javax.vecmath.Vector3f;
+import javax.vecmath.Vector4f;
 
 import xreal.Angle3f;
 import xreal.TrajectoryType;
@@ -235,7 +236,7 @@ public class PlayerState extends EntityState implements Cloneable {
 		//s.number = clientNum;
 
 		s.pos.trType = TrajectoryType.INTERPOLATE;
-		s.pos.trBase = new Vector3f(this.origin);
+		s.pos.trBase = new Vector4f(this.origin);
 
 		if(snap)
 		{
@@ -243,10 +244,10 @@ public class PlayerState extends EntityState implements Cloneable {
 		}
 		
 		// set the trDelta for flag direction
-		s.pos.trDelta = new Vector3f(this.velocity);
+		s.pos.trDelta = new Vector4f(this.velocity);
 
 		s.apos.trType = TrajectoryType.INTERPOLATE;
-		s.apos.trBase = new Vector3f(this.viewAngles);
+		s.apos.trBase = new Vector4f(this.viewAngles);
 
 		if(snap)
 		{

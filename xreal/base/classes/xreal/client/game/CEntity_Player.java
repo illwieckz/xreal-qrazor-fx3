@@ -13,7 +13,7 @@ public class CEntity_Player extends CEntity {
 	public CEntity_Player(EntityState es) {
 		super(es);
 		
-		Engine.println("CEntity_Player(entity number = " + es.getNumber() + ")");
+		//Engine.println("CEntity_Player(entity number = " + es.getNumber() + ")");
 	}
 
 	/**

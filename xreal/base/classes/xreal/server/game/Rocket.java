@@ -1,6 +1,7 @@
 package xreal.server.game;
 
 import javax.vecmath.Vector3f;
+import javax.vecmath.Vector4f;
 
 import xreal.Engine;
 import xreal.Trajectory;
@@ -34,12 +35,12 @@ public class Rocket extends GameEntity {
 		*/
 		{
 			pos.trType = TrajectoryType.LINEAR;
-			pos.trDelta.scale(3, dir);
+			pos.trDelta.scale(3, new Vector4f(dir));
 			//VectorScale(dir, g_rocketVelocity.value, bolt->s.pos.trDelta);
 		}
 
 		pos.trTime = Game.getLevelTime();// - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
-		pos.trBase = start;
+		pos.trBase = new Vector4f(start);
 
 		//SnapVector(bolt->s.pos.trDelta);	// save net bandwidth ?
 		

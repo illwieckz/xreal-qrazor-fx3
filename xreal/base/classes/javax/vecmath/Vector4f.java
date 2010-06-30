@@ -33,6 +33,8 @@ package javax.vecmath;
 
 import java.lang.Math;
 
+import xreal.Angle3f;
+
 /**
  * A 4-element vector represented by single-precision floating point x,y,z,w 
  * coordinates.
@@ -118,6 +120,16 @@ public class Vector4f extends Tuple4f implements java.io.Serializable {
     public Vector4f(Tuple3f t1) {
 	super(t1.x, t1.y, t1.z, 0.0f);
     }
+    
+    /**
+     * @author Robert Beckebans
+     * @param t1
+     */
+    /*
+    public Vector4f(Angle3f t1) {
+	super(t1.x, t1.y, t1.z, 0.0f);
+    }
+    */
 
 
   /**
@@ -224,5 +236,18 @@ public class Vector4f extends Tuple4f implements java.io.Serializable {
       if( vDot >  1.0) vDot =  1.0;
       return((float) (Math.acos( vDot )));
    } 
+   
+   /**
+     * Round this vector to int values for saving networking
+     * 
+     * @author Robert Beckebans
+     */
+    public void snap() 
+    {
+    	this.x = Math.round(this.x);
+    	this.y = Math.round(this.y);
+    	this.z = Math.round(this.z);
+    	this.w = Math.round(this.w);
+    }
 
 }

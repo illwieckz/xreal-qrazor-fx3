@@ -1,5 +1,6 @@
 package xreal.client.game;
 
+import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
 import xreal.Angle3f;
@@ -47,11 +48,12 @@ public abstract class CEntity {
 	// exact interpolated position of entity on this frame
 	public Vector3f			lerpOrigin = new Vector3f();
 	public Angle3f			lerpAngles = new Angle3f();
+	public Quat4f			lerpQuat = new Quat4f();
 	
 	
 	public CEntity(EntityState es) {
 		
-		Engine.println("CEntity(entity number = " + es.getNumber() + ")");
+		Engine.println("called constructor " + this.getClass().getName() + "(entity number = " + es.getNumber() + ")");
 		
 		ClientGame.getEntities().setElementAt(this, es.getNumber());
 		
@@ -136,7 +138,11 @@ public abstract class CEntity {
 
 		// just use the current frame and evaluate as best we can
 		lerpOrigin = currentState.pos.evaluatePosition(ClientGame.getTime());
-		lerpAngles = new Angle3f(currentState.apos.evaluatePosition(ClientGame.getTime()));
+		
+		Vector3f tmp = currentState.apos.evaluatePosition(ClientGame.getTime());
+		lerpAngles = new Angle3f(tmp.x, tmp.y, tmp.z);
+		
+		lerpQuat = currentState.apos.evaluateRotation(ClientGame.getTime());
 
 		// adjust for riding a mover if it wasn't rolled into the predicted
 		// player state

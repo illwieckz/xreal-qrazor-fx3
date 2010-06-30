@@ -764,7 +764,7 @@ jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1pos(JNIEnv *en
  * Signature: (IIIIFFFFFFF)V
  */
 //int index, int trType, int trTime, int trDuration, float trAcceleration, float trBaseX, float trBaseY, float trBaseZ, float trDeltaX, float trDeltaY, float trDeltaZ);
-void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1pos(JNIEnv *env, jclass cls, jint index, jint trType, jint trTime, jint trDuration, jfloat trAcceleration, jfloat trBaseX, jfloat trBaseY, jfloat trBaseZ, jfloat trDeltaX, jfloat trDeltaY, jfloat trDeltaZ)
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1pos(JNIEnv *env, jclass cls, jint index, jint trType, jint trTime, jint trDuration, jfloat trAcceleration, jfloat trBaseX, jfloat trBaseY, jfloat trBaseZ, jfloat trBaseW, jfloat trDeltaX, jfloat trDeltaY, jfloat trDeltaZ, jfloat trDeltaW)
 {
 	gentity_t	   *ent;
 
@@ -782,10 +782,12 @@ void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1pos(JNIEnv *env, 
 	ent->s.pos.trBase[0] = trBaseX;
 	ent->s.pos.trBase[1] = trBaseY;
 	ent->s.pos.trBase[2] = trBaseZ;
+	ent->s.pos.trBase[3] = trBaseW;
 
 	ent->s.pos.trDelta[0] = trDeltaX;
 	ent->s.pos.trDelta[1] = trDeltaY;
 	ent->s.pos.trDelta[2] = trDeltaZ;
+	ent->s.pos.trDelta[3] = trDeltaW;
 }
 
 /*
@@ -811,7 +813,7 @@ jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1apos(JNIEnv *e
  * Method:    setEntityState_apos
  * Signature: (IIIIFFFFFFF)V
  */
-void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1apos(JNIEnv *env, jclass cls, jint index, jint trType, jint trTime, jint trDuration, jfloat trAcceleration, jfloat trBaseX, jfloat trBaseY, jfloat trBaseZ, jfloat trDeltaX, jfloat trDeltaY, jfloat trDeltaZ)
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1apos(JNIEnv *env, jclass cls, jint index, jint trType, jint trTime, jint trDuration, jfloat trAcceleration, jfloat trBaseX, jfloat trBaseY, jfloat trBaseZ, jfloat trBaseW, jfloat trDeltaX, jfloat trDeltaY, jfloat trDeltaZ, jfloat trDeltaW)
 {
 	gentity_t	   *ent;
 
@@ -829,10 +831,12 @@ void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1apos(JNIEnv *env,
 	ent->s.apos.trBase[0] = trBaseX;
 	ent->s.apos.trBase[1] = trBaseY;
 	ent->s.apos.trBase[2] = trBaseZ;
+	ent->s.apos.trBase[3] = trBaseW;
 
 	ent->s.apos.trDelta[0] = trDeltaX;
 	ent->s.apos.trDelta[1] = trDeltaY;
 	ent->s.apos.trDelta[2] = trDeltaZ;
+	ent->s.apos.trDelta[3] = trDeltaW;
 }
 
 /*
@@ -1686,10 +1690,10 @@ static JNINativeMethod GameEntity_methods[] = {
 	{"setEntityState_eFlags", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1eFlags},
 
 	{"getEntityState_pos", "(I)Lxreal/Trajectory;", Java_xreal_server_game_GameEntity_getEntityState_1pos},
-	{"setEntityState_pos", "(IIIIFFFFFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1pos},
+	{"setEntityState_pos", "(IIIIFFFFFFFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1pos},
 
 	{"getEntityState_apos", "(I)Lxreal/Trajectory;", Java_xreal_server_game_GameEntity_getEntityState_1apos},
-	{"setEntityState_apos", "(IIIIFFFFFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1apos},
+	{"setEntityState_apos", "(IIIIFFFFFFFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1apos},
 
 	{"getEntityState_time", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1time},
 	{"setEntityState_time", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1time},

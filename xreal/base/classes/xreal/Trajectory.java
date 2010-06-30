@@ -1,6 +1,9 @@
 package xreal;
 
+import javax.vecmath.AxisAngle4f;
+import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
+import javax.vecmath.Vector4f;
 
 /**
  * 
@@ -8,33 +11,6 @@ import javax.vecmath.Vector3f;
  */
 public class Trajectory {
 	
-	public Trajectory() {
-		this.trBase = new Vector3f();
-		this.trDelta = new Vector3f();
-	}
-	
-	public Trajectory(TrajectoryType trType, int trTime, int trDuration, float trAcceleration, Vector3f trBase, Vector3f trDelta) {
-		super();
-		
-		this.trType = trType;
-		this.trTime = trTime;
-		this.trDuration = trDuration;
-		this.trAcceleration = trAcceleration;
-		this.trBase = trBase;
-		this.trDelta = trDelta;
-	}
-	
-	public Trajectory(int trType, int trTime, int trDuration, float trAcceleration, float trBaseX, float trBaseY, float trBaseZ, float trDeltaX, float trDeltaY, float trDeltaZ) {
-		super();
-		
-		this.trType = TrajectoryType.values()[trType];
-		this.trTime = trTime;
-		this.trDuration = trDuration;
-		this.trAcceleration = trAcceleration;
-		this.trBase = new Vector3f(trBaseX, trBaseY, trBaseZ);
-		this.trDelta = new Vector3f(trDeltaX, trDeltaY, trDeltaZ);
-	}
-
 	public TrajectoryType  trType = TrajectoryType.STATIONARY;
 	public int             trTime;
 	
@@ -48,12 +24,43 @@ public class Trajectory {
 	 */
 	public float           trAcceleration;
 	
-	public Vector3f        trBase;
+	public Vector4f        trBase;
 	
 	/**
 	 * velocity, etc
 	 */
-	public Vector3f        trDelta;
+	public Vector4f        trDelta;
+	
+	
+	
+	public Trajectory() {
+		this.trBase = new Vector4f();
+		this.trDelta = new Vector4f();
+	}
+	
+	public Trajectory(TrajectoryType trType, int trTime, int trDuration, float trAcceleration, Vector4f trBase, Vector4f trDelta) {
+		super();
+		
+		this.trType = trType;
+		this.trTime = trTime;
+		this.trDuration = trDuration;
+		this.trAcceleration = trAcceleration;
+		this.trBase = trBase;
+		this.trDelta = trDelta;
+	}
+	
+	public Trajectory(int trType, int trTime, int trDuration, float trAcceleration, float trBaseX, float trBaseY, float trBaseZ, float trBaseW, float trDeltaX, float trDeltaY, float trDeltaZ, float trDeltaW) {
+		super();
+		
+		this.trType = TrajectoryType.values()[trType];
+		this.trTime = trTime;
+		this.trDuration = trDuration;
+		this.trAcceleration = trAcceleration;
+		this.trBase = new Vector4f(trBaseX, trBaseY, trBaseZ, trBaseW);
+		this.trDelta = new Vector4f(trDeltaX, trDeltaY, trDeltaZ, trDeltaW);
+	}
+	
+	
 	
 	
 	/**
@@ -67,7 +74,7 @@ public class Trajectory {
 	{
 		float           deltaTime;
 		float           phase;
-		Vector3f		position = new Vector3f();
+		Vector4f		position = new Vector4f();
 
 		switch (trType)
 		{
@@ -132,26 +139,26 @@ public class Trajectory {
 				phase = (0.5f * trAcceleration) * (deltaTime * deltaTime);
 
 				// make dir equal to the velocity of the object
-				Vector3f dir = new Vector3f(trDelta);
+				Vector3f dir = new Vector3f(trDelta.x, trDelta.y, trDelta.z);
 				dir.normalize();
 				dir.scale(phase);
 				
 				// move a distance "phase" in the direction "dir" from our starting point
-				position.add(dir);
+				position.add(new Vector4f(dir));
 				break;
 		}
 		
-		return position;
+		return new Vector3f(position.x, position.y, position.z);
 	}
 	
 	/**
 	 * For determining velocity at a given time.
 	 */
-	Vector3f evaluateVelocity(int atTime)
+	public Vector3f evaluateVelocity(int atTime)
 	{
 		float           deltaTime;
 		float           phase;
-		Vector3f		velocity = new Vector3f();
+		Vector4f		velocity = new Vector4f();
 
 		switch (trType)
 		{
@@ -194,15 +201,50 @@ public class Trajectory {
 				deltaTime = (atTime - trTime) * 0.001f;
 
 				// turn magnitude of acceleration into a vector
-				Vector3f dir = new Vector3f(trDelta);
+				Vector3f dir = new Vector3f(trDelta.x, trDelta.y, trDelta.z);
 				dir.normalize();
 				dir.scale(trAcceleration);
 
 				// u + t * a = v
-				velocity.scaleAdd(deltaTime, dir, trDelta);
+				velocity.scaleAdd(deltaTime, new Vector4f(dir), trDelta);
 				break;
 		}
 		
-		return velocity;
+		return new Vector3f(velocity.x, velocity.y, velocity.z);
+	}
+	
+	/**
+	 * For determining velocity at a given time.
+	 */
+	public Quat4f evaluateRotation(int atTime)
+	{
+		float           deltaTime;
+		float           phase;
+		Quat4f			rotation = new Quat4f();
+
+		switch (trType)
+		{
+			default:
+			case STATIONARY:
+			case INTERPOLATE:
+				rotation.set(trBase);
+				break;
+
+			case LINEAR:
+				deltaTime = (atTime - trTime) * 0.001f;	// milliseconds to seconds
+				
+				AxisAngle4f deltaAxisAngle = new AxisAngle4f();
+				deltaAxisAngle.set(new Quat4f(trDelta));
+				deltaAxisAngle.angle *= deltaTime;
+				
+				Quat4f deltaQuat = new Quat4f();
+				deltaQuat.set(deltaAxisAngle);
+				
+				rotation.set(trBase);
+				rotation.mul(deltaQuat);
+				break;
+		}
+		
+		return rotation;
 	}
 }

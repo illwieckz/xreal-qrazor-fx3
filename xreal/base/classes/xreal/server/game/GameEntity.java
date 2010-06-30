@@ -80,11 +80,11 @@ public class GameEntity implements EntityStateAccess {
 	
 	private synchronized static native Trajectory getEntityState_pos(int index);
 	
-	private synchronized static native void setEntityState_pos(int index, int trType, int trTime, int trDuration, float trAcceleration, float trBaseX, float trBaseY, float trBaseZ, float trDeltaX, float trDeltaY, float trDeltaZ);
+	private synchronized static native void setEntityState_pos(int index, int trType, int trTime, int trDuration, float trAcceleration, float trBaseX, float trBaseY, float trBaseZ, float trBaseW, float trDeltaX, float trDeltaY, float trDeltaZ, float trDeltaW);
 	
 	private synchronized static native Trajectory getEntityState_apos(int index);
 	
-	private synchronized static native void setEntityState_apos(int index, int trType, int trTime, int trDuration, float trAcceleration, float trBaseX, float trBaseY, float trBaseZ, float trDeltaX, float trDeltaY, float trDeltaZ);
+	private synchronized static native void setEntityState_apos(int index, int trType, int trTime, int trDuration, float trAcceleration, float trBaseX, float trBaseY, float trBaseZ, float trBaseW, float trDeltaX, float trDeltaY, float trDeltaZ, float trDeltaW);
 	
 	private synchronized static native int getEntityState_time(int index);
 
@@ -208,8 +208,10 @@ public class GameEntity implements EntityStateAccess {
 	
 	GameEntity() {
 		entityIndex = allocateEntity0(-1);
+		
+		Engine.println("called constructor " + this.getClass().getName() + "(native entity number = " + entityIndex + ")");
 
-		Engine.println("GameEntity() allocated native entity using index: " + entityIndex);
+		//Engine.println("GameEntity() allocated native entity using index: " + entityIndex);
 		
 		//ownThread = this;
 		
@@ -221,7 +223,7 @@ public class GameEntity implements EntityStateAccess {
 	GameEntity(int reservedIndex) {
 		entityIndex = allocateEntity0(reservedIndex);
 
-		Engine.println("GameEntity() allocated native entity using index: " + entityIndex);
+		Engine.println("called ctor " + this.getClass().getName() + "(native entity number = " + entityIndex + ")");
 		
 		//ownThread = this;
 		
@@ -404,7 +406,7 @@ public class GameEntity implements EntityStateAccess {
 	
 	@Override
 	public void setEntityState_pos(Trajectory t) {
-		setEntityState_pos(entityIndex, t.trType.ordinal(), t.trTime, t.trDuration, t.trAcceleration, t.trBase.x, t.trBase.y, t.trBase.z, t.trDelta.x, t.trDelta.y, t.trDelta.z);
+		setEntityState_pos(entityIndex, t.trType.ordinal(), t.trTime, t.trDuration, t.trAcceleration, t.trBase.x, t.trBase.y, t.trBase.z, t.trBase.w, t.trDelta.x, t.trDelta.y, t.trDelta.z, t.trDelta.w);
 	}
 	
 	@Override
@@ -414,7 +416,7 @@ public class GameEntity implements EntityStateAccess {
 	
 	@Override
 	public void setEntityState_apos(Trajectory t) {
-		setEntityState_apos(entityIndex, t.trType.ordinal(), t.trTime, t.trDuration, t.trAcceleration, t.trBase.x, t.trBase.y, t.trBase.z, t.trDelta.x, t.trDelta.y, t.trDelta.z);
+		setEntityState_apos(entityIndex, t.trType.ordinal(), t.trTime, t.trDuration, t.trAcceleration, t.trBase.x, t.trBase.y, t.trBase.z, t.trBase.w, t.trDelta.x, t.trDelta.y, t.trDelta.z, t.trDelta.w);
 	}
 	
 	@Override

@@ -276,9 +276,9 @@ void Misc_javaRegister()
 	}
 
 	// int trType, int trTime, int trDuration, float trAcceleration,
-	//float trBaseX, float trBaseY, float trBaseZ,
-	//float trDeltaX, float trDeltaY, float trDeltaZ)
-	method_Trajectory_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Trajectory, "<init>", "(IIIFFFFFFF)V");
+	//float trBaseX, float trBaseY, float trBaseZ, float trBaseW,
+	//float trDeltaX, float trDeltaY, float trDeltaZ, float trDeltaW)
+	method_Trajectory_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Trajectory, "<init>", "(IIIFFFFFFFFF)V");
 	if(CheckException() || !method_Trajectory_ctor)
 	{
 		Com_Error(ERR_FATAL, "Couldn't find xreal.Trajectory constructor method");
@@ -381,8 +381,8 @@ jobject Java_NewTrajectory(const trajectory_t * t)
 	if(class_Trajectory)
 	{
 		obj = (*javaEnv)->NewObject(javaEnv, class_Trajectory, method_Trajectory_ctor, t->trType, t->trTime, t->trDuration, t->trAcceleration,
-				t->trBase[0], t->trBase[1], t->trBase[2],
-				t->trDelta[0], t->trDelta[1], t->trDelta[2]);
+				t->trBase[0], t->trBase[1], t->trBase[2], t->trBase[3],
+				t->trDelta[0], t->trDelta[1], t->trDelta[2], t->trDelta[3]);
 	}
 
 	return obj;
