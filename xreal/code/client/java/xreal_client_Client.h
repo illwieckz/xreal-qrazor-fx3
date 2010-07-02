@@ -97,6 +97,14 @@ JNIEXPORT jint JNICALL Java_xreal_client_Client_getCurrentCommandNumber
 
 /*
  * Class:     xreal_client_Client
+ * Method:    getOldestCommandNumber
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_xreal_client_Client_getOldestCommandNumber
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     xreal_client_Client
  * Method:    getUserCommand
  * Signature: (I)Lxreal/UserCommand;
  */

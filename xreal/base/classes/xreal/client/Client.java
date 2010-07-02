@@ -84,6 +84,8 @@ public class Client {
 	
 	public synchronized native static int getCurrentCommandNumber();
 	
+	public synchronized native static int getOldestCommandNumber();
+	
 	public synchronized native static UserCommand getUserCommand(int cmdNumber);
 	
 	public static UserCommand getCurrentUserCommand() {
@@ -91,6 +93,13 @@ public class Client {
 		UserCommand cmd = getUserCommand(cmdNum);
 		
 		return cmd;
+	}
+	
+	public static UserCommand getOldestUserCommand() {
+		int cmdNum = getOldestCommandNumber();
+		UserCommand cmd = getUserCommand(cmdNum);
+		
+		 return cmd;
 	}
 	
 	

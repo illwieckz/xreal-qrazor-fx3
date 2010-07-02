@@ -1,9 +1,14 @@
 package xreal.client.renderer;
 
+import xreal.CVars;
 import xreal.Color;
 import xreal.client.ui.Rectangle;
 import xreal.client.ui.UserInterface;
+import xreal.client.ui.border.LineBorder;
 
+/**
+ * @author Robert Beckebans
+ */
 public class Font {
 	
 	public static final int LEFT = 0x00000000;	// default
@@ -63,6 +68,12 @@ public class Font {
 		UserInterface.adjustFrom640(rect);
 
 		Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, s, t, s2, t2, hShader);
+		
+		if(CVars.ui_debug.getBoolean())
+		{
+			LineBorder border = new LineBorder(Color.Red);
+			border.paintBorder(x, y, width * scale, height * scale);
+		}
 	}
 	
 	public void paintText(float x, float y, float fontSize, Color color, String text, float adjust, int limit, int style)
@@ -78,13 +89,11 @@ public class Font {
 
 		if((style & BLINK) != 0 && ((UserInterface.getRealTime() / BLINK_DIVISOR) & 1) != 0)
 			return;
-
-		y += textHeight / 2;
-
+		
 		switch (style & FORMATMASK)
 		{
 			case CENTER:
-				x -= textWidth / 2;
+				x -= textWidth / 2.0f;
 				break;
 
 			case RIGHT:
@@ -95,6 +104,14 @@ public class Font {
 			default:
 				break;
 		}
+		
+		if(CVars.ui_debug.getBoolean())
+		{
+			LineBorder border = new LineBorder(Color.Blue);
+			border.paintBorder(x, y, textWidth, textHeight);
+		}
+		
+		y += textHeight;// / 2.0f;
 
 		drawColor.set(color);
 		

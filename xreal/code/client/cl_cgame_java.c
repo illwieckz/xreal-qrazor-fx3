@@ -53,37 +53,6 @@ static void CL_GetGlconfig(glConfig_t * glconfig)
 }
 
 
-/*
-====================
-CL_GetUserCmd
-====================
-*/
-static qboolean CL_GetUserCmd(int cmdNumber, usercmd_t * ucmd)
-{
-	// cmds[cmdNumber] is the last properly generated command
-
-	// can't return anything that we haven't created yet
-	if(cmdNumber > cl.cmdNumber)
-	{
-		Com_Error(ERR_DROP, "CL_GetUserCmd: %i >= %i", cmdNumber, cl.cmdNumber);
-	}
-
-	// the usercmd has been overwritten in the wrapping
-	// buffer because it is too far out of date
-	if(cmdNumber <= cl.cmdNumber - CMD_BACKUP)
-	{
-		return qfalse;
-	}
-
-	*ucmd = cl.cmds[cmdNumber & CMD_MASK];
-
-	return qtrue;
-}
-
-static int CL_GetCurrentCmdNumber(void)
-{
-	return cl.cmdNumber;
-}
 
 
 /*
@@ -367,7 +336,6 @@ static jclass	class_ClientGame = NULL;
 static jobject  object_ClientGame = NULL;
 static jclass   interface_ClientGameListener;
 static jmethodID method_ClientGame_ctor;
-static jmethodID method_ClientGame_initClientGame;
 static jmethodID method_ClientGame_shutdownClientGame;
 static jmethodID method_ClientGame_drawActiveFrame;
 static jmethodID method_ClientGame_keyEvent;
@@ -377,7 +345,7 @@ static jmethodID method_ClientGame_lastAttacker;
 static jmethodID method_ClientGame_crosshairPlayer;
 static jmethodID method_ClientGame_consoleCommand;
 
-static void ClientGame_javaRegister()
+static void ClientGame_javaRegister(int serverMessageNum, int serverCommandSequence, int clientNum)
 {
 	Com_Printf("ClientGame_javaRegister()\n");
 
@@ -405,7 +373,6 @@ static void ClientGame_javaRegister()
 	(*javaEnv)->DeleteLocalRef(javaEnv, interface_ClientGameListener);
 
 	// load game interface methods
-	method_ClientGame_initClientGame = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "initClientGame", "(III)V");
 	method_ClientGame_shutdownClientGame = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "shutdownClientGame", "()V");
 	method_ClientGame_drawActiveFrame = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "drawActiveFrame", "(IIZ)V");
 	method_ClientGame_keyEvent = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "keyEvent", "(IIZ)V");
@@ -420,12 +387,12 @@ static void ClientGame_javaRegister()
 	}
 
 	// load constructor
-	method_ClientGame_ctor = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "<init>", "()V");
+	method_ClientGame_ctor = (*javaEnv)->GetMethodID(javaEnv, class_ClientGame, "<init>", "(III)V");
 
-	object_ClientGame = (*javaEnv)->NewObject(javaEnv, class_ClientGame, method_ClientGame_ctor);
+	object_ClientGame = (*javaEnv)->NewObject(javaEnv, class_ClientGame, method_ClientGame_ctor, serverMessageNum, serverCommandSequence, clientNum);
 	if(CheckException())
 	{
-		Com_Error(ERR_DROP, "Couldn't create instance of the class ClientGame");
+		Com_Error(ERR_DROP, "Couldn't create instance of the class ClientGame(serverMessageNum = %i, serverCommandSequence = %i, clientNum = %i)", serverMessageNum, serverCommandSequence, clientNum);
 	}
 }
 
@@ -447,21 +414,6 @@ static void ClientGame_javaDetach()
 			(*javaEnv)->DeleteLocalRef(javaEnv, object_ClientGame);
 			object_ClientGame = NULL;
 		}
-	}
-}
-
-static void Java_CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
-{
-	if(!object_ClientGame)
-		return;
-
-	Com_Printf("Java_CG_Init\n");
-
-	(*javaEnv)->CallVoidMethod(javaEnv, object_ClientGame, method_ClientGame_initClientGame, serverMessageNum, serverCommandSequence, clientNum);
-
-	if(CheckException())
-	{
-		Com_Error(ERR_DROP, "Java exception occured during Java_CG_Init(serverMessageNum = %i, serverCommandSequence = %i, clientNum = %i)", serverMessageNum, serverCommandSequence, clientNum);
 	}
 }
 
@@ -648,14 +600,13 @@ void CL_InitCGame(void)
 	mapname = Info_ValueForKey(info, "mapname");
 	Com_sprintf(cl.mapname, sizeof(cl.mapname), "maps/%s.bsp", mapname);
 
-	ClientGame_javaRegister();
+	// init for this gamestate using the ClientGame constructor
 
-	cls.state = CA_LOADING;
-
-	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
-	Java_CG_Init(clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum);
+	ClientGame_javaRegister(clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum);
+
+	cls.state = CA_LOADING;
 
 	// reset any CVAR_CHEAT cvars registered by cgame
 	if(!clc.demoplaying && !cl_connectedToCheatServer)

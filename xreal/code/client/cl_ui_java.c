@@ -1259,6 +1259,54 @@ void JNICALL Java_xreal_client_Client_clearKeyStates(JNIEnv *env, jclass cls)
 	Key_ClearStates();
 }
 
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getCurrentCommandNumber
+ * Signature: ()I
+ */
+jint JNICALL Java_xreal_client_Client_getCurrentCommandNumber(JNIEnv *env, jclass cls)
+{
+	return cl.cmdNumber;
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getOldestCommandNumber
+ * Signature: ()I
+ */
+jint JNICALL Java_xreal_client_Client_getOldestCommandNumber(JNIEnv *env, jclass cls)
+{
+	return (cl.cmdNumber - CMD_BACKUP + 1);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getUserCommand
+ * Signature: (I)Lxreal/UserCommand;
+ */
+jobject JNICALL Java_xreal_client_Client_getUserCommand(JNIEnv *env, jclass cls, jint cmdNumber)
+{
+	// cmds[cmdNumber] is the last properly generated command
+
+	// can't return anything that we haven't created yet
+	if(cmdNumber > cl.cmdNumber)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_client_Client_getUserCommand: %i >= %i", cmdNumber, cl.cmdNumber);
+	}
+
+	// the usercmd has been overwritten in the wrapping
+	// buffer because it is too far out of date
+	if(cmdNumber <= cl.cmdNumber - CMD_BACKUP)
+	{
+		return qfalse;
+	}
+
+	return Java_NewUserCommand(&cl.cmds[cmdNumber & CMD_MASK]);
+}
+
+
+
 /*
  * Class:     xreal_client_Client
  * Method:    registerSound
@@ -1425,6 +1473,7 @@ void JNICALL Java_xreal_client_Client_stopBackgroundTrack(JNIEnv *env, jclass cl
 static jclass   class_Client = NULL;
 static JNINativeMethod Client_methods[] = {
 	{"getConfigString", "(I)Ljava/lang/String;", Java_xreal_client_Client_getConfigString},
+
 	{"getCurrentSnapshotNumber", "()I", Java_xreal_client_Client_getCurrentSnapshotNumber},
 	{"getCurrentSnapshotTime", "()I", Java_xreal_client_Client_getCurrentSnapshotTime},
 	{"getSnapshot", "(I)Lxreal/client/Snapshot;", Java_xreal_client_Client_getSnapshot},
@@ -1435,6 +1484,10 @@ static JNINativeMethod Client_methods[] = {
 	{"setKeyBinding", "(ILjava/lang/String;)V", Java_xreal_client_Client_setKeyBinding},
 	{"isKeyDown", "(I)Z", Java_xreal_client_Client_isKeyDown},
 	{"clearKeyStates", "()V", Java_xreal_client_Client_clearKeyStates},
+
+	{"getCurrentCommandNumber", "()I", Java_xreal_client_Client_getCurrentCommandNumber},
+	{"getOldestCommandNumber", "()I", Java_xreal_client_Client_getOldestCommandNumber},
+	{"getUserCommand", "(I)Lxreal/UserCommand;", Java_xreal_client_Client_getUserCommand},
 
 	{"registerSound", "(Ljava/lang/String;)I", Java_xreal_client_Client_registerSound},
 	{"startSound", "(FFFIII)V", Java_xreal_client_Client_startSound},

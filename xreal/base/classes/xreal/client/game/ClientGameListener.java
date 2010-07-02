@@ -8,7 +8,7 @@ package xreal.client.game;
  */
 public interface ClientGameListener
 {
-	public void			initClientGame(int serverMessageNum, int serverCommandSequence, int clientNum) throws Exception;
+	//public void			initClientGame(int serverMessageNum, int serverCommandSequence, int clientNum) throws Exception;
 	
 	public void			shutdownClientGame();
 	

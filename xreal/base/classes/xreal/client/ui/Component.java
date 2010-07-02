@@ -3,8 +3,11 @@ package xreal.client.ui;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import xreal.CVars;
+import xreal.Color;
 import xreal.Engine;
 import xreal.client.ui.border.Border;
+import xreal.client.ui.border.LineBorder;
 import xreal.client.ui.event.Event;
 import xreal.client.ui.event.EventListener;
 import xreal.client.ui.event.KeyListener;
@@ -115,6 +118,12 @@ public class Component implements EventListener {
 	}
 
 	public void render() {
+		
+		if(CVars.ui_debug.getBoolean())
+		{
+			LineBorder border = new LineBorder(Color.White);
+			border.paintBorder(this, bounds.x, bounds.y, bounds.width, bounds.height);
+		}
 	}
 	
 	public float getX() {
@@ -147,6 +156,10 @@ public class Component implements EventListener {
 	
 	public void setHeight(float f) {
 		bounds.height = f;
+	}
+	
+	public void setBounds(Rectangle bounds) {
+		this.bounds = bounds;
 	}
 
 	public void setBorder(Border border) {

@@ -18,7 +18,7 @@ public class Snapshot {
 	
 	//private static final int MAX_ENTITIES_IN_SNAPSHOT = 512;	// was 256 in vanilla Q3A
 	
-	private static final int SNAPFLAG_RATE_DELAYED = 1;
+	public static final int SNAPFLAG_RATE_DELAYED = 1;
 	
 	/** snapshot used during connection and for zombies */
 	private static final int SNAPFLAG_NOT_ACTIVE = 2;

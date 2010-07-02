@@ -5,6 +5,8 @@ public abstract class CVars {
 	
 	public static final CVar cl_paused = new CVar("cl_paused", "0", CVar.ROM);
 	
+	public static final CVar ui_debug = new CVar("ui_debug", "0", 0);
+	
 	public static final CVar cg_stereoSeparation = new CVar("cg_stereoSeparation", "0.4", CVar.ARCHIVE);
 	public static final CVar cg_fov = new CVar("cg_fov", "90", CVar.ARCHIVE);
 	public static final CVar cg_viewsize = new CVar("cg_viewsize", "100", CVar.ARCHIVE);
@@ -12,6 +14,7 @@ public abstract class CVars {
 	public static final CVar cg_draw2D = new CVar("cg_draw2D", "1", CVar.ARCHIVE);
 	public static final CVar cg_drawFPS = new CVar("cg_drawFPS", "0", CVar.ARCHIVE);
 	
+	public static final CVar cg_lagometer = new CVar("cg_lagometer", "1", CVar.ARCHIVE);
 	public static final CVar cg_nopredict = new CVar("cg_nopredict", "1", 0);
 	
 	public static final CVar cg_smoothClients = new CVar("cg_smoothClients", "0", CVar.USERINFO | CVar.ARCHIVE);

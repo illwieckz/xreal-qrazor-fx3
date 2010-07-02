@@ -62,7 +62,54 @@ public class ClientGame implements ClientGameListener {
 	static private Vector<CEntity> entities;
 	
 	
-	private ClientGame() {
+	private ClientGame(int serverMessageNum, int serverCommandSequence, int clientNum) throws Exception {
+		
+		Engine.print("xreal.client.game.ClientGame.ClientGame(serverMessageNum = "+ serverMessageNum + ", serverCommandSequence = " + serverCommandSequence + ", clientNum = " + clientNum  + ")\n");
+		
+		Engine.print("------- CGame Initialization -------\n");
+		
+		// clear everything
+		media = new Media();
+		camera = new ClientCamera();
+		hud = new HUD();
+		snapshotManager = new SnapshotManager(serverMessageNum);
+		predictionManager = new PredictionManager();
+		lagometer = new Lagometer();
+		
+		entities = new Vector<CEntity>();
+		for(int i = 0; i < Engine.MAX_GENTITIES; i++) {
+			entities.add(null);
+		}
+		
+		//cg.progress = 0;
+		
+		ClientGame.clientNum = clientNum;
+
+		ClientGame.serverCommandSequence = serverCommandSequence;
+		
+		// make sure we are running the same version of the game as the server does
+		String s = Client.getConfigString(ConfigStrings.GAME_VERSION);
+		if(!s.equals(Config.GAME_VERSION))
+		{
+			throw new Exception("Client/Server game mismatch: " + Config.GAME_VERSION + "/" + s);
+		}
+
+		s = Client.getConfigString(ConfigStrings.LEVEL_START_TIME);
+		ClientGame.levelStartTime = Integer.parseInt(s);
+		
+		
+		parseServerinfo();
+		
+		registerGraphics();
+		
+		// TODO
+
+		startMusic();
+		
+		// we are done loading 
+		loadingProgress = 0;
+		
+		System.gc();
 	}
 	
 	@Override
@@ -248,57 +295,6 @@ public class ClientGame implements ClientGameListener {
 	}
 
 	@Override
-	public void initClientGame(int serverMessageNum, int serverCommandSequence, int clientNum) throws Exception {
-		
-		Engine.print("xreal.client.game.ClientGame.initClientGame(serverMessageNum = "+ serverMessageNum + ", serverCommandSequence = " + serverCommandSequence + ", clientNum = " + clientNum  + ")\n");
-		
-		Engine.print("------- CGame Initialization -------\n");
-		
-		// clear everything
-		media = new Media();
-		camera = new ClientCamera();
-		hud = new HUD();
-		snapshotManager = new SnapshotManager(serverMessageNum);
-		predictionManager = new PredictionManager();
-		lagometer = new Lagometer();
-		
-		entities = new Vector<CEntity>();
-		for(int i = 0; i < Engine.MAX_GENTITIES; i++) {
-			entities.add(null);
-		}
-		
-		//cg.progress = 0;
-		
-		ClientGame.clientNum = clientNum;
-
-		ClientGame.serverCommandSequence = serverCommandSequence;
-		
-		// make sure we are running the same version of the game as the server does
-		String s = Client.getConfigString(ConfigStrings.GAME_VERSION);
-		if(!s.equals(Config.GAME_VERSION))
-		{
-			throw new Exception("Client/Server game mismatch: " + Config.GAME_VERSION + "/" + s);
-		}
-
-		s = Client.getConfigString(ConfigStrings.LEVEL_START_TIME);
-		ClientGame.levelStartTime = Integer.parseInt(s);
-		
-		
-		parseServerinfo();
-		
-		registerGraphics();
-		
-		// TODO
-
-		startMusic();
-		
-		// we are done loading 
-		loadingProgress = 0;
-		
-		System.gc();
-	}
-
-	@Override
 	public void keyEvent(int time, int key, boolean down) {
 		
 		Engine.println("xreal.client.game.ClientGame.keyEvent(time = " + time +", key = " + key + ", down = " + down + ")");
@@ -473,6 +469,7 @@ public class ClientGame implements ClientGameListener {
 
 		// draw status bar and other floating elements
 		hud.render();
+		lagometer.render();
 	}
 	
 	

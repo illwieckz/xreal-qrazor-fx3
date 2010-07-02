@@ -1,8 +1,6 @@
 package xreal.client.renderer;
 
 import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import xreal.Color;
 
 /**
@@ -30,9 +28,9 @@ public abstract class Renderer {
 	 * @param t1
 	 * @param s2
 	 * @param t2
-	 * @param hShader The material.
+	 * @param hMaterial The material.
 	 */
-	public synchronized static native void drawStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, int hShader);
+	public synchronized static native void drawStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, int hMaterial);
 	
 	
 	/**
