@@ -761,7 +761,7 @@ void SV_Init(void)
 	// server vars
 	sv_rconPassword = Cvar_Get("rconPassword", "", CVAR_TEMP);
 	sv_privatePassword = Cvar_Get("sv_privatePassword", "", CVAR_TEMP);
-#if 0 //defined(USE_JAVA)
+#if defined(USE_JAVA)
 	sv_fps = Cvar_Get("sv_fps", "60", CVAR_TEMP);
 #else
 	sv_fps = Cvar_Get("sv_fps", "20", CVAR_TEMP);
