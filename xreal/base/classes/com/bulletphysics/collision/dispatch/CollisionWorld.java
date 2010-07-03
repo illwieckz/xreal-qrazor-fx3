@@ -23,13 +23,9 @@
 
 package com.bulletphysics.collision.dispatch;
 
+import com.bulletphysics.BulletGlobals;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.vecmath.Matrix3f;
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
@@ -39,13 +35,13 @@ import com.bulletphysics.collision.broadphase.Dispatcher;
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
 import com.bulletphysics.collision.broadphase.OverlappingPairCache;
 import com.bulletphysics.collision.narrowphase.ConvexCast;
+import com.bulletphysics.collision.narrowphase.ConvexCast.CastResult;
 import com.bulletphysics.collision.narrowphase.GjkConvexCast;
 import com.bulletphysics.collision.narrowphase.GjkEpaPenetrationDepthSolver;
 import com.bulletphysics.collision.narrowphase.SubsimplexConvexCast;
 import com.bulletphysics.collision.narrowphase.TriangleConvexcastCallback;
 import com.bulletphysics.collision.narrowphase.TriangleRaycastCallback;
 import com.bulletphysics.collision.narrowphase.VoronoiSimplexSolver;
-import com.bulletphysics.collision.narrowphase.ConvexCast.CastResult;
 import com.bulletphysics.collision.shapes.BvhTriangleMeshShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.CompoundShape;
@@ -58,6 +54,10 @@ import com.bulletphysics.linearmath.IDebugDraw;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
 import com.bulletphysics.linearmath.VectorUtil;
+
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
 
 /**
  * CollisionWorld is interface and container for the collision detection.
@@ -209,6 +209,12 @@ public class CollisionWorld {
 		Transform tmpTrans = new Transform();
 
 		colObj.getCollisionShape().getAabb(colObj.getWorldTransform(tmpTrans), minAabb, maxAabb);
+		// need to increase the aabb for contact thresholds
+		Vector3f contactThreshold = new Vector3f();
+		contactThreshold.set(BulletGlobals.getContactBreakingThreshold(), BulletGlobals.getContactBreakingThreshold(), BulletGlobals.getContactBreakingThreshold());
+		minAabb.sub(contactThreshold);
+		maxAabb.add(contactThreshold);
+
 		BroadphaseInterface bp = broadphasePairCache;
 
 		// moving objects should be moderately sized, probably something wrong if not
@@ -356,11 +362,16 @@ public class CollisionWorld {
 						CollisionShape childCollisionShape = compoundShape.getChildShape(i);
 						Transform childWorldTrans = new Transform(colObjWorldTransform);
 						childWorldTrans.mul(childTrans);
+						// replace collision shape so that callback can determine the triangle
+						CollisionShape saveCollisionShape = collisionObject.getCollisionShape();
+						collisionObject.internalSetTemporaryCollisionShape(childCollisionShape);
 						rayTestSingle(rayFromTrans, rayToTrans,
 								collisionObject,
 								childCollisionShape,
 								childWorldTrans,
 								resultCallback);
+						// restore
+						collisionObject.internalSetTemporaryCollisionShape(saveCollisionShape);
 					}
 				}
 			}
@@ -396,7 +407,7 @@ public class CollisionWorld {
 	/**
 	 * objectQuerySingle performs a collision detection query and calls the resultCallback. It is used internally by rayTest.
 	 */
-	public void objectQuerySingle(ConvexShape castShape, Transform convexFromTrans, Transform convexToTrans, CollisionObject collisionObject, CollisionShape collisionShape, Transform colObjWorldTransform, ConvexResultCallback resultCallback, float allowedPenetration) {
+	public static void objectQuerySingle(ConvexShape castShape, Transform convexFromTrans, Transform convexToTrans, CollisionObject collisionObject, CollisionShape collisionShape, Transform colObjWorldTransform, ConvexResultCallback resultCallback, float allowedPenetration) {
 		if (collisionShape.isConvex()) {
 			CastResult castResult = new CastResult();
 			castResult.allowedPenetration = allowedPenetration;
@@ -405,8 +416,6 @@ public class CollisionWorld {
 			ConvexShape convexShape = (ConvexShape) collisionShape;
 			VoronoiSimplexSolver simplexSolver = new VoronoiSimplexSolver();
 			GjkEpaPenetrationDepthSolver gjkEpaPenetrationSolver = new GjkEpaPenetrationDepthSolver();
-
-			boolean result = false;
 
 			// JAVA TODO: should be convexCaster1
 			//ContinuousConvexCollision convexCaster1(castShape,convexShape,&simplexSolver,&gjkEpaPenetrationSolver);
@@ -502,11 +511,16 @@ public class CollisionWorld {
 						CollisionShape childCollisionShape = compoundShape.getChildShape(i);
 						Transform childWorldTrans = new Transform();
 						childWorldTrans.mul(colObjWorldTransform, childTrans);
+						// replace collision shape so that callback can determine the triangle
+						CollisionShape saveCollisionShape = collisionObject.getCollisionShape();
+						collisionObject.internalSetTemporaryCollisionShape(childCollisionShape);
 						objectQuerySingle(castShape, convexFromTrans, convexToTrans,
 						                  collisionObject,
 						                  childCollisionShape,
 						                  childWorldTrans,
 						                  resultCallback, allowedPenetration);
+						// restore
+						collisionObject.internalSetTemporaryCollisionShape(saveCollisionShape);
 					}
 				}
 			}
@@ -752,11 +766,17 @@ public class CollisionWorld {
 			hitCollisionObject = convexResult.hitCollisionObject;
 			if (normalInWorldSpace) {
 				hitNormalWorld.set(convexResult.hitNormalLocal);
+				if (hitNormalWorld.length() > 2) {
+					System.out.println("CollisionWorld.addSingleResult world " + hitNormalWorld);
+				}
 			}
 			else {
 				// need to transform normal into worldspace
 				hitNormalWorld.set(convexResult.hitNormalLocal);
 				hitCollisionObject.getWorldTransform(new Transform()).basis.transform(hitNormalWorld);
+				if (hitNormalWorld.length() > 2) {
+					System.out.println("CollisionWorld.addSingleResult world " + hitNormalWorld);
+				}
 			}
 
 			hitPointWorld.set(convexResult.hitPointLocal);

@@ -23,17 +23,17 @@
 
 package com.bulletphysics.collision.dispatch;
 
+import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.bulletphysics.collision.broadphase.CollisionAlgorithm;
 import com.bulletphysics.collision.broadphase.CollisionAlgorithmConstructionInfo;
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
-import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.CompoundShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectPool;
+
 
 /**
  * CompoundCollisionAlgorithm supports collision between {@link CompoundShape}s and

@@ -23,17 +23,25 @@
 
 package com.bulletphysics.collision.shapes;
 
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.BulletGlobals;
+import com.bulletphysics.util.ObjectPool;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.VectorUtil;
-import com.bulletphysics.util.ObjectPool;
+
+import javax.vecmath.Vector3f;
 
 /**
- * BvhTriangleMeshShape is a static-triangle mesh shape with Bounding Volume Hierarchy
- * optimization. Uses an interface to access the triangles to allow for sharing
- * graphics/physics triangles.
+ * BvhTriangleMeshShape is a static-triangle mesh shape with several optimizations,
+ * such as bounding volume hierarchy. It is recommended to enable useQuantizedAabbCompression
+ * for better memory usage.<p>
+ *
+ * It takes a triangle mesh as input, for example a {@link TriangleMesh} or
+ * {@link TriangleIndexVertexArray}. The BvhTriangleMeshShape class allows for
+ * triangle mesh deformations by a refit or partialRefit method.<p>
+ *
+ * Instead of building the bounding volume hierarchy acceleration structure, it is
+ * also possible to serialize (save) and deserialize (load) the structure from disk.
+ * See ConcaveDemo for an example.
  * 
  * @author jezek2
  */
@@ -71,10 +79,11 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
 			bvh = new OptimizedBvh();
 			bvh.build(meshInterface, useQuantizedAabbCompression, bvhAabbMin, bvhAabbMax);
 			ownsBvh = true;
+
+			// JAVA NOTE: moved from TriangleMeshShape
+			recalcLocalAabb();
 		}
 
-		// JAVA NOTE: moved from TriangleMeshShape
-		recalcLocalAabb();
 		//#endif //DISABLE_BVH
 	}
 
@@ -198,7 +207,7 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
 			bvh = new OptimizedBvh();
 			// rebuild the bvh...
 			bvh.build(meshInterface, useQuantizedAabbCompression, localAabbMin, localAabbMax);
-
+			ownsBvh = true;
 		}
 	}
 	
@@ -207,11 +216,25 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
 	}
 
 	public void setOptimizedBvh(OptimizedBvh bvh) {
+		Vector3f scaling = new Vector3f();
+		scaling.set(1f, 1f, 1f);
+		setOptimizedBvh(bvh, scaling);
+	}
+
+	public void setOptimizedBvh(OptimizedBvh bvh, Vector3f scaling) {
 		assert (this.bvh == null);
 		assert (!ownsBvh);
 
 		this.bvh = bvh;
 		ownsBvh = false;
+
+		// update the scaling without rebuilding the bvh
+		Vector3f tmp = new Vector3f();
+		tmp.sub(getLocalScaling(new Vector3f()), scaling);
+
+		if (tmp.lengthSquared() > BulletGlobals.SIMD_EPSILON) {
+			super.setLocalScaling(scaling);
+		}
 	}
 
 	public boolean usesQuantizedAabbCompression() {

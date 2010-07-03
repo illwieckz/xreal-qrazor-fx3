@@ -23,17 +23,13 @@
 
 package com.bulletphysics.collision.dispatch;
 
-import java.util.List;
-
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.collision.broadphase.CollisionAlgorithm;
 import com.bulletphysics.collision.broadphase.CollisionAlgorithmConstructionInfo;
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
+import com.bulletphysics.collision.narrowphase.ConvexCast.CastResult;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.collision.narrowphase.SubsimplexConvexCast;
 import com.bulletphysics.collision.narrowphase.VoronoiSimplexSolver;
-import com.bulletphysics.collision.narrowphase.ConvexCast.CastResult;
 import com.bulletphysics.collision.shapes.ConcaveShape;
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.collision.shapes.TriangleCallback;
@@ -41,6 +37,9 @@ import com.bulletphysics.collision.shapes.TriangleShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.ObjectPool;
+
+import java.util.List;
+import javax.vecmath.Vector3f;
 
 /**
  * ConvexConcaveCollisionAlgorithm supports collision between convex shapes

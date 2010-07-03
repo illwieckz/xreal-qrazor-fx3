@@ -23,12 +23,12 @@
 
 package com.bulletphysics.dynamics.constraintsolver;
 
-import javax.vecmath.Matrix3f;
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
+
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Vector3f;
 
 /**
  * Point to point constraint between two rigid bodies each with a pivot point that
@@ -156,6 +156,17 @@ public class Point2PointConstraint extends TypedConstraint {
 			float depth = -tmp.dot(normal); //this is the error projected on the normal
 
 			float impulse = depth * setting.tau / timeStep * jacDiagABInv - setting.damping * rel_vel * jacDiagABInv;
+
+			float impulseClamp = setting.impulseClamp;
+			if (impulseClamp > 0f) {
+				if (impulse < -impulseClamp) {
+					impulse = -impulseClamp;
+				}
+				if (impulse > impulseClamp) {
+					impulse = impulseClamp;
+				}
+			}
+
 			appliedImpulse += impulse;
 			Vector3f impulse_vector = new Vector3f();
 			impulse_vector.scale(impulse, normal);
@@ -195,6 +206,7 @@ public class Point2PointConstraint extends TypedConstraint {
 	public static class ConstraintSetting {
 		public float tau = 0.3f;
 		public float damping = 1f;
+		public float impulseClamp = 0f;
 	}
 	
 }

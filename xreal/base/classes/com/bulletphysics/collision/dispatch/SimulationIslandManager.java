@@ -94,7 +94,7 @@ public class SimulationIslandManager {
 			int i;
 			for (i = 0; i < colWorld.getCollisionObjectArray().size(); i++) {
 				CollisionObject collisionObject = colWorld.getCollisionObjectArray().get(i);
-				if (collisionObject.mergesSimulationIslands()) {
+				if (!collisionObject.isStaticOrKinematicObject()) {
 					collisionObject.setIslandTag(unionFind.find(index));
 					collisionObject.setCompanionId(-1);
 				}
@@ -115,9 +115,11 @@ public class SimulationIslandManager {
 		return islandId;
 	}
 
-	public void buildAndProcessIslands(Dispatcher dispatcher, List<CollisionObject> collisionObjects, IslandCallback callback) {
+	public void buildIslands(Dispatcher dispatcher, List<CollisionObject> collisionObjects) {
 		BulletStats.pushProfile("islandUnionFindAndQuickSort");
 		try {
+			islandmanifold.clear();
+
 			// we are going to sort the unionfind array, and store the element id in the size
 			// afterwards, we clean unionfind, to make sure no-one uses it anymore
 
@@ -229,7 +231,21 @@ public class SimulationIslandManager {
 					//#endif //SPLIT_ISLANDS
 				}
 			}
+		}
+		finally {
+			BulletStats.popProfile();
+		}
+	}
 
+	public void buildAndProcessIslands(Dispatcher dispatcher, List<CollisionObject> collisionObjects, IslandCallback callback) {
+		buildIslands(dispatcher, collisionObjects);
+
+		int endIslandIndex = 1;
+		int startIslandIndex;
+		int numElem = getUnionFind().getNumElements();
+
+		BulletStats.pushProfile("processIslands");
+		try {
 			//#ifndef SPLIT_ISLANDS
 			//btPersistentManifold** manifold = dispatcher->getInternalManifoldPointer();
 			//
@@ -263,7 +279,7 @@ public class SimulationIslandManager {
 				boolean islandSleeping = false;
 
 				for (endIslandIndex = startIslandIndex; (endIslandIndex < numElem) && (getUnionFind().getElement(endIslandIndex).id == islandId); endIslandIndex++) {
-					/*int*/ i = getUnionFind().getElement(endIslandIndex).sz;
+					int i = getUnionFind().getElement(endIslandIndex).sz;
 					CollisionObject colObj0 = collisionObjects.get(i);
 					islandBodies.add(colObj0);
 					if (!colObj0.isActive()) {
@@ -305,8 +321,6 @@ public class SimulationIslandManager {
 				islandBodies.clear();
 			}
 			//#endif //SPLIT_ISLANDS
-
-			islandmanifold.clear();
 		}
 		finally {
 			BulletStats.popProfile();

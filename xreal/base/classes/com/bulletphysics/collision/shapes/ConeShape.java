@@ -23,15 +23,17 @@
 
 package com.bulletphysics.collision.shapes;
 
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 
+import javax.vecmath.Vector3f;
+
 /**
- * ConeShape implements a cone shape, around the Y axis.
+ * ConeShape implements a cone shape primitive, centered around the origin and
+ * aligned with the Y axis. The {@link ConeShapeX} is aligned around the X axis
+ * and {@link ConeShapeZ} around the Z axis.
  * 
  * @author jezek2
  */

@@ -25,11 +25,6 @@ package com.bulletphysics.dynamics;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.vecmath.Matrix3f;
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseProxy;
 import com.bulletphysics.collision.dispatch.CollisionFlags;
@@ -42,6 +37,11 @@ import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
+
+
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
 
 /**
  * RigidBody is the main class for rigid body objects. It is derived from
@@ -235,12 +235,37 @@ public class RigidBody extends CollisionObject {
 		angularDamping = MiscUtil.GEN_clamped(ang_damping, 0f, 1f);
 	}
 
+	public float getLinearDamping() {
+		return linearDamping;
+	}
+
+	public float getAngularDamping() {
+		return angularDamping;
+	}
+
+	public float getLinearSleepingThreshold() {
+		return linearSleepingThreshold;
+	}
+
+	public float getAngularSleepingThreshold() {
+		return angularSleepingThreshold;
+	}
+
 	/**
 	 * Damps the velocity, using the given linearDamping and angularDamping.
 	 */
 	public void applyDamping(float timeStep) {
-		linearVelocity.scale(MiscUtil.GEN_clamped((1f - timeStep * linearDamping), 0f, 1f));
-		angularVelocity.scale(MiscUtil.GEN_clamped((1f - timeStep * angularDamping), 0f, 1f));
+		// On new damping: see discussion/issue report here: http://code.google.com/p/bullet/issues/detail?id=74
+		// todo: do some performance comparisons (but other parts of the engine are probably bottleneck anyway
+
+		//#define USE_OLD_DAMPING_METHOD 1
+		//#ifdef USE_OLD_DAMPING_METHOD
+		//linearVelocity.scale(MiscUtil.GEN_clamped((1f - timeStep * linearDamping), 0f, 1f));
+		//angularVelocity.scale(MiscUtil.GEN_clamped((1f - timeStep * angularDamping), 0f, 1f));
+		//#else
+		linearVelocity.scale((float)Math.pow(1f - linearDamping, timeStep));
+		angularVelocity.scale((float)Math.pow(1f - angularDamping, timeStep));
+		//#endif
 
 		if (additionalDamping) {
 			// Additional damping can help avoiding lowpass jitter motion, help stability for ragdolls etc.
@@ -359,8 +384,10 @@ public class RigidBody extends CollisionObject {
 
 	public void applyForce(Vector3f force, Vector3f rel_pos) {
 		applyCentralForce(force);
+		
 		Vector3f tmp = new Vector3f();
 		tmp.cross(rel_pos, force);
+		tmp.scale(angularFactor);
 		applyTorque(tmp);
 	}
 
@@ -368,12 +395,14 @@ public class RigidBody extends CollisionObject {
 		linearVelocity.scaleAdd(inverseMass, impulse, linearVelocity);
 	}
 	
+	//@StaticAlloc
 	public void applyTorqueImpulse(Vector3f torque) {
 		Vector3f tmp = new Vector3f(torque);
 		invInertiaTensorWorld.transform(tmp);
 		angularVelocity.add(tmp);
 	}
 
+	//@StaticAlloc
 	public void applyImpulse(Vector3f impulse, Vector3f rel_pos) {
 		if (inverseMass != 0f) {
 			applyCentralImpulse(impulse);

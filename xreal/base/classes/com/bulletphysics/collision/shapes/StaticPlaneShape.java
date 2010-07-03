@@ -23,17 +23,15 @@
 
 package com.bulletphysics.collision.shapes;
 
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
 import com.bulletphysics.linearmath.VectorUtil;
 
+import javax.vecmath.Vector3f;
+
 /**
- * StaticPlaneShape simulates an "infinite" plane by dynamically reporting triangles
- * approximated by intersection of the plane with the AABB. Assumed is that the other
- * objects is not also infinite, so a reasonable sized AABB.
+ * StaticPlaneShape simulates an infinite non-moving (static) collision plane.
  * 
  * @author jezek2
  */

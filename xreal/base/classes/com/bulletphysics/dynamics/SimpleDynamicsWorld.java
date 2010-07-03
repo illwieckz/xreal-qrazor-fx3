@@ -24,9 +24,6 @@
 package com.bulletphysics.dynamics;
 
 import java.util.List;
-
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.Dispatcher;
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
@@ -37,6 +34,8 @@ import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.ContactSolverInfo;
 import com.bulletphysics.linearmath.Transform;
+
+import javax.vecmath.Vector3f;
 
 /**
  * SimpleDynamicsWorld serves as unit-test and to verify more complicated and

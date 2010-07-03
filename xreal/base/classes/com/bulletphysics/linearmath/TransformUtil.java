@@ -23,11 +23,12 @@
 
 package com.bulletphysics.linearmath;
 
+import com.bulletphysics.BulletGlobals;
+
+
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
-
-import com.bulletphysics.BulletGlobals;
 
 /**
  * Utility functions for transforms.
@@ -62,6 +63,7 @@ public class TransformUtil {
 		}
 	}
 	
+	//@StaticAlloc
 	public static void integrateTransform(Transform curTrans, Vector3f linvel, Vector3f angvel, float timeStep, Transform predictedTransform) {
 		predictedTransform.origin.scaleAdd(timeStep, linvel, curTrans.origin);
 //	//#define QUATERNION_DERIVATIVE

@@ -25,14 +25,13 @@ package com.bulletphysics.collision.shapes;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.vecmath.Matrix3f;
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
+
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Vector3f;
 
 // JAVA NOTE: CompoundShape from 2.71
 

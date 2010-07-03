@@ -23,13 +23,14 @@
 
 package com.bulletphysics.collision.narrowphase;
 
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.collision.shapes.MinkowskiSumShape;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
+
+import javax.vecmath.Vector3f;
 
 /**
  * SubsimplexConvexCast implements Gino van den Bergens' paper
@@ -173,7 +174,12 @@ public class SubsimplexConvexCast implements ConvexCast {
 		// don't report a time of impact when moving 'away' from the hitnormal
 		
 		result.fraction = lambda;
-		result.normal.normalize(n);
+		if (n.lengthSquared() >= BulletGlobals.SIMD_EPSILON * BulletGlobals.SIMD_EPSILON) {
+			result.normal.normalize(n);
+		}
+		else {
+			result.normal.set(0f, 0f, 0f);
+		}
 
 		// don't report time of impact for motion away from the contact normal (or causes minor penetration)
 		if (result.normal.dot(r) >= -result.allowedPenetration)

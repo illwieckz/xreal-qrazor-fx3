@@ -23,7 +23,6 @@
 
 package com.bulletphysics.collision.broadphase;
 
-import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.util.ObjectPool;
 import com.bulletphysics.linearmath.MiscUtil;
@@ -48,6 +47,7 @@ public class HashedOverlappingPairCache extends OverlappingPairCache {
 	
 	private IntArrayList hashTable = new IntArrayList();
 	private IntArrayList next = new IntArrayList();
+	protected OverlappingPairCallback ghostPairCallback;
 
 	public HashedOverlappingPairCache() {
 		int initialAllocatedSize = 2;
@@ -126,6 +126,10 @@ public class HashedOverlappingPairCache extends OverlappingPairCache {
 		// table indices to support the move.
 
 		int lastPairIndex = overlappingPairArray.size() - 1;
+
+		if (ghostPairCallback != null) {
+			ghostPairCallback.removeOverlappingPair(proxy0, proxy1, dispatcher);
+		}
 
 		// If the removed pair is the last pair, we are done.
 		if (lastPairIndex == pairIndex) {
@@ -309,6 +313,12 @@ public class HashedOverlappingPairCache extends OverlappingPairCache {
 		int count = overlappingPairArray.size();
 		int oldCapacity = overlappingPairArray.capacity();
 		overlappingPairArray.add(null);
+
+		// this is where we add an actual pair, so also call the 'ghost'
+		if (ghostPairCallback != null) {
+			ghostPairCallback.addOverlappingPair(proxy0, proxy1);
+		}
+
 		int newCapacity = overlappingPairArray.capacity();
 
 		if (oldCapacity < newCapacity) {
@@ -400,6 +410,10 @@ public class HashedOverlappingPairCache extends OverlappingPairCache {
 		assert (index < overlappingPairArray.size());
 
 		return overlappingPairArray.get(index);
+	}
+
+	public void setInternalGhostPairCallback(OverlappingPairCallback ghostPairCallback) {
+		this.ghostPairCallback = ghostPairCallback;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////

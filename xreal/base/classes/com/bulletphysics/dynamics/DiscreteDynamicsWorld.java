@@ -23,26 +23,29 @@
 
 package com.bulletphysics.dynamics;
 
+import com.bulletphysics.collision.dispatch.CollisionWorld.LocalConvexResult;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
+import com.bulletphysics.collision.broadphase.BroadphasePair;
+import com.bulletphysics.collision.broadphase.BroadphaseProxy;
 import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
 import com.bulletphysics.collision.broadphase.Dispatcher;
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
+import com.bulletphysics.collision.broadphase.OverlappingPairCache;
 import com.bulletphysics.collision.dispatch.CollisionConfiguration;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.CollisionWorld;
+import com.bulletphysics.collision.dispatch.CollisionWorld.ClosestConvexResultCallback;
 import com.bulletphysics.collision.dispatch.SimulationIslandManager;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.InternalTriangleIndexCallback;
+import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.collision.shapes.TriangleCallback;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.ContactSolverInfo;
@@ -56,6 +59,8 @@ import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.ScalarUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
+
+import javax.vecmath.Vector3f;
 
 /**
  * DiscreteDynamicsWorld provides discrete rigid body simulation.
@@ -77,6 +82,9 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 	protected boolean ownsConstraintSolver;
 
 	protected List<RaycastVehicle> vehicles = new ArrayList<RaycastVehicle>();
+	
+	protected List<ActionInterface> actions = new ArrayList<ActionInterface>();
+
 	protected int profileTimings = 0;
 	
 	public DiscreteDynamicsWorld(Dispatcher dispatcher, BroadphaseInterface pairCache, ConstraintSolver constraintSolver, CollisionConfiguration collisionConfiguration) {
@@ -207,6 +215,12 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 					debugDrawer.drawLine(wheelPosWS, vehicles.get(i).getWheelInfo(v).raycastInfo.contactPointWS, wheelColor);
 				}
 			}
+
+			if (getDebugDrawer() != null && getDebugDrawer().getDebugMode() != 0) {
+				for (i=0; i<actions.size(); i++) {
+					actions.get(i).debugDraw(debugDrawer);
+				}
+			}
 		}
 	}
 
@@ -260,7 +274,7 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 							body.getInterpolationWorldTransform(tmpTrans),
 							body.getInterpolationLinearVelocity(tmpLinVel),
 							body.getInterpolationAngularVelocity(tmpAngVel),
-							localTime, interpolatedTransform);
+							localTime * body.getHitFraction(), interpolatedTransform);
 					body.getMotionState().setWorldTransform(interpolatedTransform);
 				}
 			}
@@ -371,6 +385,9 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 			integrateTransforms(timeStep);
 
 			// update vehicle simulation
+			updateActions(timeStep);
+
+			// update vehicle simulation
 			updateVehicles(timeStep);
 
 			updateActivationState(timeStep);
@@ -432,6 +449,18 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 		}
 	}
 
+	public void updateActions(float timeStep) {
+		BulletStats.pushProfile("updateActions");
+		try {
+			for (int i=0; i<actions.size(); i++) {
+				actions.get(i).updateAction(this, timeStep);
+			}
+		}
+		finally {
+			BulletStats.popProfile();
+		}
+	}
+
 	protected void updateVehicles(float timeStep) {
 		BulletStats.pushProfile("updateVehicles");
 		try {
@@ -448,7 +477,9 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 	protected void updateActivationState(float timeStep) {
 		BulletStats.pushProfile("updateActivationState");
 		try {
-			for (int i = 0; i < collisionObjects.size(); i++) {
+			Vector3f tmp = new Vector3f();
+
+			for (int i=0; i<collisionObjects.size(); i++) {
 				CollisionObject colObj = collisionObjects.get(i);
 				RigidBody body = RigidBody.upcast(colObj);
 				if (body != null) {
@@ -461,6 +492,11 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 						else {
 							if (body.getActivationState() == CollisionObject.ACTIVE_TAG) {
 								body.setActivationState(CollisionObject.WANTS_DEACTIVATION);
+							}
+							if (body.getActivationState() == CollisionObject.ISLAND_SLEEPING) {
+								tmp.set(0f, 0f, 0f);
+								body.setAngularVelocity(tmp);
+								body.setLinearVelocity(tmp);
 							}
 						}
 					}
@@ -492,7 +528,17 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 		constraint.getRigidBodyA().removeConstraintRef(constraint);
 		constraint.getRigidBodyB().removeConstraintRef(constraint);
 	}
-	
+
+	@Override
+	public void addAction(ActionInterface action) {
+		actions.add(action);
+	}
+
+	@Override
+	public void removeAction(ActionInterface action) {
+		actions.remove(action);
+	}
+
 	@Override
 	public void addVehicle(RaycastVehicle vehicle) {
 		vehicles.add(vehicle);
@@ -610,12 +656,11 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 					RigidBody colObj0 = constraint.getRigidBodyA();
 					RigidBody colObj1 = constraint.getRigidBodyB();
 
-					if (((colObj0 != null) && ((colObj0).mergesSimulationIslands())) &&
-							((colObj1 != null) && ((colObj1).mergesSimulationIslands()))) {
+					if (((colObj0 != null) && (!colObj0.isStaticOrKinematicObject())) &&
+						((colObj1 != null) && (!colObj1.isStaticOrKinematicObject())))
+					{
 						if (colObj0.isActive() || colObj1.isActive()) {
-
-							getSimulationIslandManager().getUnionFind().unite((colObj0).getIslandTag(),
-									(colObj1).getIslandTag());
+							getSimulationIslandManager().getUnionFind().unite((colObj0).getIslandTag(), (colObj1).getIslandTag());
 						}
 					}
 				}
@@ -632,13 +677,50 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 	protected void integrateTransforms(float timeStep) {
 		BulletStats.pushProfile("integrateTransforms");
 		try {
+			Vector3f tmp = new Vector3f();
+			Transform tmpTrans = new Transform();
+
 			Transform predictedTrans = new Transform();
-			for (int i = 0; i < collisionObjects.size(); i++) {
+			for (int i=0; i<collisionObjects.size(); i++) {
 				CollisionObject colObj = collisionObjects.get(i);
 				RigidBody body = RigidBody.upcast(colObj);
 				if (body != null) {
+					body.setHitFraction(1f);
+
 					if (body.isActive() && (!body.isStaticOrKinematicObject())) {
 						body.predictIntegratedTransform(timeStep, predictedTrans);
+
+						tmp.sub(predictedTrans.origin, body.getWorldTransform(tmpTrans).origin);
+						float squareMotion = tmp.lengthSquared();
+
+						if (body.getCcdSquareMotionThreshold() != 0f && body.getCcdSquareMotionThreshold() < squareMotion) {
+							BulletStats.pushProfile("CCD motion clamping");
+							try {
+								if (body.getCollisionShape().isConvex()) {
+									BulletStats.gNumClampedCcdMotions++;
+
+									ClosestNotMeConvexResultCallback sweepResults = new ClosestNotMeConvexResultCallback(body, body.getWorldTransform(tmpTrans).origin, predictedTrans.origin, getBroadphase().getOverlappingPairCache(), getDispatcher());
+									//ConvexShape convexShape = (ConvexShape)body.getCollisionShape();
+									SphereShape tmpSphere = new SphereShape(body.getCcdSweptSphereRadius()); //btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+
+									sweepResults.collisionFilterGroup = body.getBroadphaseProxy().collisionFilterGroup;
+									sweepResults.collisionFilterMask = body.getBroadphaseProxy().collisionFilterMask;
+
+									convexSweepTest(tmpSphere, body.getWorldTransform(tmpTrans), predictedTrans, sweepResults);
+									// JAVA NOTE: added closestHitFraction test to prevent objects being stuck
+									if (sweepResults.hasHit() && (sweepResults.closestHitFraction > 0.0001f)) {
+										body.setHitFraction(sweepResults.closestHitFraction);
+										body.predictIntegratedTransform(timeStep * body.getHitFraction(), predictedTrans);
+										body.setHitFraction(0f);
+										//System.out.printf("clamped integration to hit fraction = %f\n", sweepResults.closestHitFraction);
+									}
+								}
+							}
+							finally {
+								BulletStats.popProfile();
+							}
+						}
+
 						body.proceedToTransform(predictedTrans);
 					}
 				}
@@ -950,7 +1032,19 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 	public TypedConstraint getConstraint(int index) {
 		return constraints.get(index);
 	}
-	
+
+	// JAVA NOTE: not part of the original api
+	@Override
+	public int getNumActions() {
+		return actions.size();
+	}
+
+	// JAVA NOTE: not part of the original api
+	@Override
+	public ActionInterface getAction(int index) {
+		return actions.get(index);
+	}
+
 	public SimulationIslandManager getSimulationIslandManager() {
 		return islandManager;
 	}
@@ -962,6 +1056,9 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 	@Override
 	public DynamicsWorldType getWorldType() {
 		return DynamicsWorldType.DISCRETE_DYNAMICS_WORLD;
+	}
+
+	public void setNumTasks(int numTasks) {
 	}
 	
 	////////////////////////////////////////////////////////////////////////////
@@ -1003,6 +1100,75 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 			debugDrawer.drawLine(wv0, wv1, color);
 			debugDrawer.drawLine(wv1, wv2, color);
 			debugDrawer.drawLine(wv2, wv0, color);
+		}
+	}
+
+	private static class ClosestNotMeConvexResultCallback extends ClosestConvexResultCallback {
+		private CollisionObject me;
+		private float allowedPenetration = 0f;
+		private OverlappingPairCache pairCache;
+		private Dispatcher dispatcher;
+
+		public ClosestNotMeConvexResultCallback(CollisionObject me, Vector3f fromA, Vector3f toA, OverlappingPairCache pairCache, Dispatcher dispatcher) {
+			super(fromA, toA);
+			this.me = me;
+			this.pairCache = pairCache;
+			this.dispatcher = dispatcher;
+		}
+
+		@Override
+		public float addSingleResult(LocalConvexResult convexResult, boolean normalInWorldSpace) {
+			if (convexResult.hitCollisionObject == me) {
+				return 1f;
+			}
+
+			Vector3f linVelA = new Vector3f(), linVelB = new Vector3f();
+			linVelA.sub(convexToWorld, convexFromWorld);
+			linVelB.set(0f, 0f, 0f);//toB.getOrigin()-fromB.getOrigin();
+
+			Vector3f relativeVelocity = new Vector3f();
+			relativeVelocity.sub(linVelA, linVelB);
+			// don't report time of impact for motion away from the contact normal (or causes minor penetration)
+			if (convexResult.hitNormalLocal.dot(relativeVelocity) >= -allowedPenetration) {
+				return 1f;
+			}
+
+			return super.addSingleResult(convexResult, normalInWorldSpace);
+		}
+
+		@Override
+		public boolean needsCollision(BroadphaseProxy proxy0) {
+			// don't collide with itself
+			if (proxy0.clientObject == me) {
+				return false;
+			}
+
+			// don't do CCD when the collision filters are not matching
+			if (!super.needsCollision(proxy0)) {
+				return false;
+			}
+
+			CollisionObject otherObj = (CollisionObject)proxy0.clientObject;
+
+			// call needsResponse, see http://code.google.com/p/bullet/issues/detail?id=179
+			if (dispatcher.needsResponse(me, otherObj)) {
+				// don't do CCD when there are already contact points (touching contact/penetration)
+				List<PersistentManifold> manifoldArray = new ArrayList<PersistentManifold>();
+				BroadphasePair collisionPair = pairCache.findPair(me.getBroadphaseHandle(), proxy0);
+				if (collisionPair != null) {
+					if (collisionPair.algorithm != null) {
+						//manifoldArray.resize(0);
+						collisionPair.algorithm.getAllContactManifolds(manifoldArray);
+						for (int j=0; j<manifoldArray.size(); j++) {
+							PersistentManifold manifold = manifoldArray.get(j);
+							if (manifold.getNumContacts() > 0) {
+								return false;
+							}
+						}
+					}
+				}
+			}
+			return true;
 		}
 	}
 

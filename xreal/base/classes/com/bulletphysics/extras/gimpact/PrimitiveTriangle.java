@@ -27,13 +27,12 @@
 
 package com.bulletphysics.extras.gimpact;
 
+import com.bulletphysics.linearmath.Transform;
+
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
-
-import com.bulletphysics.linearmath.Transform;
 
 /**
  *

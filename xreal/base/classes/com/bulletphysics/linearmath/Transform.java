@@ -23,12 +23,13 @@
 
 package com.bulletphysics.linearmath;
 
+import com.bulletphysics.collision.shapes.UniformScalingShape;
+
+
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
-
-import com.bulletphysics.collision.shapes.UniformScalingShape;
 
 /**
  * Transform represents translation and rotation (rigid transform). Scaling and
@@ -108,6 +109,7 @@ public class Transform {
 		origin.set(vec);
 	}
 
+	//@StaticAlloc
 	public void mul(Transform tr1, Transform tr2) {
 		Vector3f vec = new Vector3f(tr2.origin);
 		tr1.transform(vec);

@@ -25,21 +25,16 @@ package com.bulletphysics.collision.shapes;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.VectorUtil;
 
+import javax.vecmath.Vector3f;
+
 /**
- * ConvexHullShape implements an implicit ({@link #localGetSupportingVertex localGetSupportingVertex})
- * convex hull of a point cloud (vertices). No connectivity is needed.<p>
- * 
- * {@link #localGetSupportingVertex localGetSupportingVertex} iterates linearly
- * though all vertices. On modern hardware, due to cache coherency this isn't
- * that bad. Complex algorithms tend to trash the cache (memory is much slower
- * than the cpu).
+ * ConvexHullShape implements an implicit convex hull of an array of vertices.
+ * Bullet provides a general and fast collision detector for convex shapes based
+ * on GJK and EPA using localGetSupportingVertex.
  * 
  * @author jezek2
  */
@@ -60,6 +55,12 @@ public class ConvexHullShape extends PolyhedralConvexShape {
 			this.points.add(new Vector3f(points.get(i)));
 		}
 		
+		recalcLocalAabb();
+	}
+
+	@Override
+	public void setLocalScaling(Vector3f scaling) {
+		localScaling.set(scaling);
 		recalcLocalAabb();
 	}
 	

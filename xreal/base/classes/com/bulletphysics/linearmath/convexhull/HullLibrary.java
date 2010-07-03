@@ -25,22 +25,26 @@
 
 package com.bulletphysics.linearmath.convexhull;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.BulletGlobals;
+import com.bulletphysics.collision.shapes.ShapeHull;
 import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.IntArrayList;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.vecmath.Vector3f;
+
 /**
- * Convex Hull library for converting point clouds to polygonal representation.
- * 
+ * HullLibrary class can create a convex hull from a collection of vertices, using
+ * the ComputeHull method. The {@link ShapeHull} class uses this HullLibrary to create
+ * a approximate convex mesh given a general (non-polyhedral) convex shape.
+ *
  * @author jezek2
  */
 public class HullLibrary {
+
+	public final IntArrayList vertexIndexMapping = new IntArrayList();
 
 	private List<Tri> tris = new ArrayList<Tri>();
 	
@@ -502,6 +506,11 @@ public class HullLibrary {
 	//The thing is, often times, there are many 'dead vertices' in the point cloud that are on longer referenced by the hull.
 	//The routine 'BringOutYourDead' find only the referenced vertices, copies them to an new buffer, and re-indexes the hull so that it is a minimal representation.
 	private void bringOutYourDead(List<Vector3f> verts, int vcount, List<Vector3f> overts, int[] ocount, IntArrayList indices, int indexcount) {
+		IntArrayList tmpIndices = new IntArrayList();
+		for (int i=0; i<vertexIndexMapping.size(); i++) {
+			tmpIndices.add(vertexIndexMapping.size());
+		}
+
 		IntArrayList usedIndices = new IntArrayList();
 		MiscUtil.resize(usedIndices, vcount, 0);
 		/*
@@ -526,6 +535,12 @@ public class HullLibrary {
 
 				overts.get(ocount[0]).set(verts.get(v)); // copy old vert to new vert array
 
+				for (int k = 0; k < vertexIndexMapping.size(); k++) {
+					if (tmpIndices.get(k) == v) {
+						vertexIndexMapping.set(k, ocount[0]);
+					}
+				}
+
 				ocount[0]++; // increment output vert count
 
 				assert (ocount[0] >= 0 && ocount[0] <= vcount);
@@ -548,6 +563,9 @@ public class HullLibrary {
 		if (svcount == 0) {
 			return false;
 		}
+
+		vertexIndexMapping.clear();
+
 		vcount[0] = 0;
 
 		float[] recip = new float[3];
@@ -701,6 +719,8 @@ public class HullLibrary {
 					dest.z = pz;
 					vcount[0]++;
 				}
+
+				vertexIndexMapping.add(j);
 			}
 		}
 

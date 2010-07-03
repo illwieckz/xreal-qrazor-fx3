@@ -23,12 +23,12 @@
 
 package com.bulletphysics.linearmath;
 
+import com.bulletphysics.BulletGlobals;
+import com.bulletphysics.util.ArrayPool;
+
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
-
-import com.bulletphysics.BulletGlobals;
-import com.bulletphysics.util.ArrayPool;
 
 /**
  * Utility functions for matrices.

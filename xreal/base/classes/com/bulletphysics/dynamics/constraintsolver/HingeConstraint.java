@@ -25,16 +25,16 @@
 
 package com.bulletphysics.dynamics.constraintsolver;
 
-import javax.vecmath.Matrix3f;
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.QuaternionUtil;
 import com.bulletphysics.linearmath.ScalarUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
+
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
 
 /**
  * Hinge constraint between two rigid bodies each with a pivot point that descibes
@@ -600,6 +600,22 @@ public class HingeConstraint extends TypedConstraint {
 
 	public float getLimitSign() {
 		return limitSign;
+	}
+
+	public boolean getAngularOnly() {
+		return angularOnly;
+	}
+
+	public boolean getEnableAngularMotor() {
+		return enableAngularMotor;
+	}
+
+	public float getMotorTargetVelosity() {
+		return motorTargetVelocity;
+	}
+
+	public float getMaxMotorImpulse() {
+		return maxMotorImpulse;
 	}
 	
 }

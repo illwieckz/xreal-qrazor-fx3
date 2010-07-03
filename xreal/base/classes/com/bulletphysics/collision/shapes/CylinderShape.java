@@ -23,15 +23,17 @@
 
 package com.bulletphysics.collision.shapes;
 
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 
+import javax.vecmath.Vector3f;
+
 /**
- * Cylinder shape around the Y axis.
+ * CylinderShape class implements a cylinder shape primitive, centered around
+ * the origin. Its central axis aligned with the Y axis. {@link CylinderShapeX}
+ * is aligned with the X axis and {@link CylinderShapeZ} around the Z axis.
  * 
  * @author jezek2
  */

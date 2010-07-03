@@ -23,10 +23,6 @@
 
 package com.bulletphysics.collision.dispatch;
 
-import java.util.List;
-
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.collision.broadphase.CollisionAlgorithm;
 import com.bulletphysics.collision.broadphase.CollisionAlgorithmConstructionInfo;
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
@@ -35,6 +31,9 @@ import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.collision.shapes.StaticPlaneShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectPool;
+
+import java.util.List;
+import javax.vecmath.Vector3f;
 
 /**
  * ConvexPlaneCollisionAlgorithm provides convex/plane collision detection.

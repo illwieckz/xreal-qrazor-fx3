@@ -26,8 +26,9 @@ package com.bulletphysics.collision.broadphase;
 import java.util.List;
 
 /**
- * OverlappingPairCache is an interface that allows different ways of pair management.
- * 
+ * OverlappingPairCache provides an interface for overlapping pair management (add,
+ * remove, storage), used by the {@link BroadphaseInterface} broadphases.
+ *
  * @author jezek2
  */
 public abstract class OverlappingPairCache implements OverlappingPairCallback {
@@ -47,5 +48,7 @@ public abstract class OverlappingPairCache implements OverlappingPairCallback {
 	public abstract BroadphasePair findPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1);
 	
 	public abstract boolean hasDeferredRemoval();
+
+	public abstract void setInternalGhostPairCallback(OverlappingPairCallback ghostPairCallback);
 	
 }

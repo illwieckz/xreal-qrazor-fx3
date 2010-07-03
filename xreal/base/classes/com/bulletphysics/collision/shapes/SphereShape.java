@@ -23,13 +23,13 @@
 
 package com.bulletphysics.collision.shapes;
 
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.Transform;
 
+import javax.vecmath.Vector3f;
+
 /**
- * SphereShape implements an implicit ({@link #localGetSupportingVertex localGetSupportingVertex}) sphere.
+ * SphereShape implements an implicit sphere, centered around a local origin with radius.
  * 
  * @author jezek2
  */
@@ -37,6 +37,7 @@ public class SphereShape extends ConvexInternalShape {
 	
 	public SphereShape(float radius) {
 		implicitShapeDimensions.x = radius;
+		collisionMargin = radius;
 	}
 
 	@Override

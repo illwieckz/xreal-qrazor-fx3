@@ -25,13 +25,10 @@ package com.bulletphysics.dynamics.constraintsolver;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.vecmath.Matrix3f;
-import javax.vecmath.Vector3f;
-
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.ContactDestroyedCallback;
+import com.bulletphysics.util.ObjectPool;
 import com.bulletphysics.collision.broadphase.Dispatcher;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
@@ -42,7 +39,10 @@ import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
 import com.bulletphysics.util.IntArrayList;
-import com.bulletphysics.util.ObjectPool;
+
+
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Vector3f;
 
 /**
  * SequentialImpulseConstraintSolver uses a Propagation Method and Sequentially applies impulses.
@@ -232,7 +232,6 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 			ContactSolverInfo solverInfo) {
 
 		float normalImpulse;
-		boolean useSplitImpulse = false;
 
 		{
 			//  Optimized version of projected relative velocity, use precomputed cross products with normal
@@ -341,6 +340,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 		return 0f;
 	}
 	
+	//@StaticAlloc
 	protected void addFrictionConstraint(Vector3f normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, ManifoldPoint cp, Vector3f rel_pos1, Vector3f rel_pos2, CollisionObject colObj0, CollisionObject colObj1, float relaxation) {
 		RigidBody body0 = RigidBody.upcast(colObj0);
 		RigidBody body1 = RigidBody.upcast(colObj1);
