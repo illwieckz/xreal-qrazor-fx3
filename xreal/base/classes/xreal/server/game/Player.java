@@ -9,6 +9,7 @@ import xreal.Engine;
 import xreal.PlayerStateAccess;
 import xreal.UserCommand;
 import xreal.UserInfo;
+import xreal.client.game.ClientGame;
 import xreal.common.ConfigStrings;
 import xreal.common.GameType;
 import xreal.common.PlayerController;
@@ -40,14 +41,20 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	 */
 	public synchronized native static void sendClientCommand(int clientNum, String command);
 	
-	private static native String	getUserInfo(int clientNum);
-	private static native void 		setUserInfo(int clientNum, String s);
+	private synchronized static native String 	getUserInfo(int clientNum);
+	private synchronized static native void 	setUserInfo(int clientNum, String s);
+	
+	/**
+	 * @return Newest user command.
+	 */
+	private synchronized static native UserCommand getUserCommand(int clientNum); 
 	
 	// --------------------------------------------------------------------------------------------
 	
 	
 	Player(int clientNum, boolean firstTime, boolean isBot) throws GameException
 	{
+		// store the clientNum in the entityState_t::number
 		super(clientNum);
 		
 		_sess.sessionTeam = Team.SPECTATOR;
@@ -106,6 +113,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		_pers.connected = ClientConnectionState.CONNECTED;
 		_pers.enterTime = Game.getLevelTime();
+		_pers.cmd = getUserCommand(getEntityState_number());
 		
 		//_pers.teamState.state = Team.BEGIN;
 		
@@ -117,7 +125,10 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		setPlayerState_deltaPitch(Angle3f.toShort(viewAngles.x));
 		setPlayerState_deltaYaw(Angle3f.toShort(viewAngles.y));
 		setPlayerState_deltaRoll(Angle3f.toShort(viewAngles.z));
-
+		
+		
+		spawn();
+		
 	}
 
 	@Override
@@ -354,7 +365,237 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		//Engine.println("CS_PLAYERS userinfo = '" + uinfo.toString() + "'");
 		
 		Server.setConfigString(ConfigStrings.PLAYERS + getEntityState_number(), uinfo.toString());
+	}
+	
+	/**
+	 * Called every time a client is placed fresh in the world:
+	 * 
+	 * After the first ClientBegin, and after each respawn
+	 * Initializes all non-persistant parts of playerState
+	 */
+	private void spawn() {
 		
+		// find a spawn point
+		// do it before setting health back up, so farthest
+		// ranging doesn't count this client
+		SpawnPoint spawnPoint = null;
+		
+		if(_sess.sessionTeam == Team.SPECTATOR)
+		{
+			spawnPoint = selectSpectatorSpawnPoint();
+		}
+		
+		
+		if(spawnPoint != null)
+		{
+			Vector3f spawnOrigin = spawnPoint.getEntityState_origin();
+			
+			setOrigin(spawnOrigin);
+			setPlayerState_origin(spawnOrigin);
+			
+			setViewAngles(spawnPoint.getEntityState_angles());
+		}
+	}
+	
+	private void setViewAngles(Angle3f angles) {
+		
+		/*
+			// set the delta angle
+			for(i = 0; i < 3; i++)
+			{
+				int             cmdAngle;
+	
+				cmdAngle = ANGLE2SHORT(angle[i]);
+				ent->client->ps.delta_angles[i] = cmdAngle - ent->client->pers.cmd.angles[i];
+			}
+			VectorCopy(angle, ent->s.angles);
+			VectorCopy(ent->s.angles, ent->client->ps.viewangles);
+		 */
+		
+		setPlayerState_deltaPitch((short)(Angle3f.toShort(angles.x) - _pers.cmd.pitch));
+		setPlayerState_deltaYaw((short)(Angle3f.toShort(angles.y) - _pers.cmd.yaw));
+		setPlayerState_deltaRoll((short)(Angle3f.toShort(angles.z) - _pers.cmd.roll));
+
+		setPlayerState_viewAngles(angles);
+		setEntityState_angles(angles);
+		
+	}
+	
+
+	/**
+	 * This is also used for spectator spawns.
+	 */
+	private SpawnPoint findIntermissionPoint()
+	{
+		// find the intermission spot
+		GameEntity ent = Game.findEntity(this, "info_player_intermission");
+		if(ent == null)
+		{
+			ent = Game.findEntity(this, "info_player_start");
+			if(ent != null)
+			{
+				// the map creator forgot to put in an intermission point...
+				return (SpawnPoint) ent;
+			}
+			else
+			{
+				// the map creator forgot to put in an intermission point...
+				return selectSpawnPoint(new Vector3f());
+			}
+		}
+		else
+		{
+			
+			
+				//VectorCopy(ent->s.origin, level.intermission_origin);
+				//VectorCopy(ent->s.angles, level.intermission_angle);
+	
+				// if it has a target, look towards it
+				/*
+				if(ent->target)
+				{
+					target = G_PickTarget(ent->target);
+					if(target)
+					{
+						VectorSubtract(target->s.origin, level.intermission_origin, dir);
+						VectorToAngles(dir, level.intermission_angle);
+					}
+				}
+				*/
+				
+				return (SpawnPoint) ent;
+			
+		}
+		
+		
+	}
+	
+	private SpawnPoint selectSpectatorSpawnPoint()
+	{
+		return findIntermissionPoint();
+	}
+	
+	
+	/**
+	 * Chooses a player start, deathmatch start, etc
+	 * 
+	 * @param avoidPoint
+	 * @return
+	 */
+	private SpawnPoint selectSpawnPoint(Vector3f avoidPoint)
+	{
+		return null; //selectRandomFurthestSpawnPoint(avoidPoint);
+	}
+	
+	
+	/**
+	 * Chooses a player start, deathmatch start, etc
+	 * 
+	 * @param avoidPoint
+	 * @return
+	 */
+	/*
+	private SpawnPoint selectRandomFurthestSpawnPoint(Vector3f avoidPoint)
+	{
+		SpawnPoint      spot;
+		//vec3_t          delta;
+		//float           dist;
+		//float           list_dist[64];
+		//gentity_t      *list_spot[64];
+		int             numSpots, rnd, i, j;
+
+		numSpots = 0;
+		spot = null;
+
+		//while((spot = ClientGame.G_Find(spot, FOFS(classname), "info_player_deathmatch")) != NULL)
+		for(GameEntity ent : Game.getEntities())
+		{
+			if(ent.getClassName().equals("info_player_start")) {
+				
+			}
+			
+			if(SpotWouldTelefrag(spot))
+			{
+				continue;
+			}
+			VectorSubtract(spot->s.origin, avoidPoint, delta);
+			dist = VectorLength(delta);
+			for(i = 0; i < numSpots; i++)
+			{
+				if(dist > list_dist[i])
+				{
+					if(numSpots >= 64)
+						numSpots = 64 - 1;
+					for(j = numSpots; j > i; j--)
+					{
+						list_dist[j] = list_dist[j - 1];
+						list_spot[j] = list_spot[j - 1];
+					}
+					list_dist[i] = dist;
+					list_spot[i] = spot;
+					numSpots++;
+					if(numSpots > 64)
+						numSpots = 64;
+					break;
+				}
+			}
+			if(i >= numSpots && numSpots < 64)
+			{
+				list_dist[numSpots] = dist;
+				list_spot[numSpots] = spot;
+				numSpots++;
+			}
+		}
+		if(!numSpots)
+		{
+			spot = G_Find(NULL, FOFS(classname), "info_player_deathmatch");
+			if(!spot)
+				G_Error("Couldn't find a spawn point");
+			VectorCopy(spot->s.origin, origin);
+			origin[2] += 9;
+			VectorCopy(spot->s.angles, angles);
+			return spot;
+		}
+
+		// select a random spot from the spawn points furthest away
+		rnd = random() * (numSpots / 2);
+
+		VectorCopy(list_spot[rnd]->s.origin, origin);
+		origin[2] += 9;
+		VectorCopy(list_spot[rnd]->s.angles, angles);
+
+		return list_spot[rnd];
+	}
+	*/
+	
+	
+	private boolean spotWouldTelefrag(SpawnPoint spot)
+	{
+		/*
+		int             i, num;
+		int             touch[MAX_GENTITIES];
+		gentity_t      *hit;
+		vec3_t          mins, maxs;
+
+		VectorAdd(spot->s.origin, playerMins, mins);
+		VectorAdd(spot->s.origin, playerMaxs, maxs);
+		num = trap_EntitiesInBox(mins, maxs, touch, MAX_GENTITIES);
+
+		for(i = 0; i < num; i++)
+		{
+			hit = &g_entities[touch[i]];
+			//if ( hit->client && hit->client->ps.stats[STAT_HEALTH] > 0 ) {
+			if(hit->client)
+			{
+				return qtrue;
+			}
+
+		}
+
+		return qfalse;
+		*/
+		
+		return false;
 	}
 	
 	// ------------------- playerState_t:: fields in gclient_t::ps --------------------------------

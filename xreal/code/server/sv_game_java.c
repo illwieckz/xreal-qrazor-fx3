@@ -297,7 +297,6 @@ static jclass   interface_GameListener;
 static jmethodID method_Game_ctor;
 static jmethodID method_Game_initGame;
 static jmethodID method_Game_shutdownGame;
-static jmethodID method_Game_clientConnect;
 static jmethodID method_Game_runFrame;
 static jmethodID method_Game_runAIFrame;
 static jmethodID method_Game_consoleCommand;
@@ -332,7 +331,6 @@ void Game_javaRegister()
 	// load game interface methods
 	method_Game_initGame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "initGame", "(IIZ)V");
 	method_Game_shutdownGame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "shutdownGame", "(Z)V");
-	method_Game_clientConnect = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientConnect", "(Lxreal/server/game/Player;ZZ)Ljava/lang/String;");
 	method_Game_runFrame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "runFrame", "(I)V");
 	method_Game_runAIFrame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "runAIFrame", "(I)V");
 	method_Game_consoleCommand = (*javaEnv)->GetMethodID(javaEnv, class_Game, "consoleCommand", "()Z");
@@ -1953,6 +1951,24 @@ void JNICALL Java_xreal_server_game_Player_setUserInfo(JNIEnv *env, jclass cls, 
 
 /*
  * Class:     xreal_server_game_Player
+ * Method:    getUserCommand
+ * Signature: (I)Lxreal/UserCommand;
+ */
+jobject JNICALL Java_xreal_server_game_Player_getUserCommand(JNIEnv *env, jclass cls, jint clientNum)
+{
+	gclient_t	   *client;
+
+	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_getUserCommand: bad index %i\n", clientNum);
+	}
+
+	client = &g_clients[clientNum];
+	return Java_NewUserCommand(&svs.clients[clientNum].lastUsercmd);
+}
+
+/*
+ * Class:     xreal_server_game_Player
  * Method:    getPlayerState_commandTime
  * Signature: (I)I
  */
@@ -2424,6 +2440,8 @@ static JNINativeMethod Player_methods[] = {
 
 	{"getUserInfo", "(I)Ljava/lang/String;", Java_xreal_server_game_Player_getUserInfo},
 	{"setUserInfo", "(ILjava/lang/String;)V", Java_xreal_server_game_Player_setUserInfo},
+
+	{"getUserCommand", "(I)Lxreal/UserCommand;", Java_xreal_server_game_Player_getUserCommand},
 
 	{"getPlayerState_commandTime", "(I)I", Java_xreal_server_game_Player_getPlayerState_1commandTime},
 	{"setPlayerState_commandTime", "(II)V", Java_xreal_server_game_Player_setPlayerState_1commandTime},

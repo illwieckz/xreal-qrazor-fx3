@@ -2,6 +2,8 @@ package xreal.server.game;
 
 import javax.vecmath.Vector3f;
 
+import org.w3c.dom.Element;
+
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.dynamics.RigidBody;
 
@@ -206,7 +208,11 @@ public class GameEntity implements EntityStateAccess {
 	
 	private Thread ownThread;
 	
-	GameEntity() {
+	
+	protected String classname = "unknown";
+	protected SpawnArgs spawnArgs;
+
+	protected GameEntity() {
 		entityIndex = allocateEntity0(-1);
 		
 		Engine.println("called constructor " + this.getClass().getName() + "(native entity number = " + entityIndex + ")");
@@ -219,8 +225,41 @@ public class GameEntity implements EntityStateAccess {
 		
 		//Engine.println("GameEntity() using index: " + Game.getEntities().size());
 	}
+	
+	protected GameEntity(SpawnArgs spawnArgs) {
+		entityIndex = allocateEntity0(-1);
+		
+		Engine.println("called constructor " + this.getClass().getName() + "(native entity number = " + entityIndex + ")");
+		
+		this.spawnArgs = spawnArgs;
+		
+		
+		String s = spawnArgs.getClassName();
+		if(s != null) {
+			classname = s;
+			
+			Engine.println("classname='" + s + "'");
+		}
+		
+		Vector3f origin = spawnArgs.getVector3f("origin");
+		if(origin != null) {
+			setEntityState_origin(origin);
+		}
+		
+		Angle3f angles = spawnArgs.getAngle3f("angles");
+		if(angles != null) {
+			setEntityState_angles(angles);
+		}
+		
+		
+		//ownThread = this;
+		
+		Game.getEntities().add(this);
+		
+		//Engine.println("GameEntity() using index: " + Game.getEntities().size());
+	}
 
-	GameEntity(int reservedIndex) {
+	protected GameEntity(int reservedIndex) {
 		entityIndex = allocateEntity0(reservedIndex);
 
 		Engine.println("called ctor " + this.getClass().getName() + "(native entity number = " + entityIndex + ")");
@@ -705,6 +744,36 @@ public class GameEntity implements EntityStateAccess {
 	@Override
 	public void setEntityState_generic1(int generic1) {
 		setEntityState_generic1(entityIndex, generic1);
+	}
+	
+	/*
+	public SpawnArgs getSpawnArgs() {
+		return spawnArgs;
+	}
+	*/
+	
+	public String getClassName() {
+		
+		if(spawnArgs != null) {
+			return spawnArgs.getClassName();
+		} else {
+			return classname;
+		}
+	}
+	
+	public void setOrigin(float x, float y, float z) {
+		setEntityState_pos(entityIndex,
+				TrajectoryType.STATIONARY.ordinal(),
+				0,
+				0,
+				0,
+				x, y, z, 1,
+				0, 0, 0, 0);
+		
+	}
+	
+	public void setOrigin(Vector3f v) {
+		setOrigin(v.x, v.y, v.z);
 	}
 	
 	private int findConfigstringIndex(String name, int start, int max, boolean create)

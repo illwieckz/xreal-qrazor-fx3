@@ -1,6 +1,8 @@
 package xreal.server.game;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
@@ -35,6 +37,9 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 
+
+
+
 public class Game implements GameListener {
 	
 	static private int levelTime = 0;
@@ -61,17 +66,11 @@ public class Game implements GameListener {
 	
 	/**  */
 	private static String entitiesString;
+	
+	private static GameClassFactory classFactory = null;
 
 	private Game() {
 		
-	}
-
-	@Override
-	public String clientConnect(Player client, boolean firstTime, boolean isBot) {
-		Engine.print("xreal.server.game.Game.clientConnect(clientNum = " + client.getEntityState_number() + ", firstTime = " + firstTime + ", isBot = " + isBot + ")\n");
-		
-		//return "Game.clientConnect() is not implemented yet.";	// deny message
-		return null;
 	}
 
 	@Override
@@ -170,9 +169,15 @@ public class Game implements GameListener {
 		// suggest a gc, to clean things up from the last level, before
 		// spawning all the new entities
 		System.gc();
+		
+		// set class factory so we can associate xml entities with our java classes in xreal.server.game.spawn
+		classFactory =  new DefaultClassFactory();
+		
+		String classPaths[] = {"xreal.server.game"};
+		classFactory.setPackagePath(classPaths);
 
 		// read through the document and actually create the entities
-		//spawnEntities();
+		spawnEntities();
 		
 		
 		// parse the key/value pairs and spawn gentities
@@ -439,6 +444,47 @@ public class Game implements GameListener {
 		entitiesString = bsp.getEntitiesString();
 	}
 	
+	/**
+	 * Read the current level DOM document and spawn the map's entities.
+	 */
+	private void spawnEntities() {
+		Object[] ctorParams = new Object[1];
+		Class[] newCtorParamTypes = new Class[1];
+		newCtorParamTypes[0] = SpawnArgs.class;
+
+		// look for <entity>..</entity> sections
+		NodeList nl = getDocument("xreal.level").getElementsByTagName("entity");
+		for (int i = 0; i < nl.getLength(); i++) {
+			String className = null;
+
+			try {
+				Element e = (Element) nl.item(i);
+				className = e.getAttribute("class");
+				ctorParams[0] = new SpawnArgs(e);
+
+				// leighd 04/10/99 - altered lookup method to reference class
+				// factory
+				// directly rather than calling Game.lookup class.
+				Class entClass = classFactory.lookupClass(".spawn."	+ className.toLowerCase());
+				Constructor ctor = entClass.getConstructor(newCtorParamTypes);
+
+				try {
+					ctor.newInstance(ctorParams);
+				} catch (InvocationTargetException ite) {
+					throw ite.getTargetException();
+				}
+
+			} catch (ClassNotFoundException cnfe) {
+				Engine.println("Couldn't find class to handle: " + className);
+			} catch (NoSuchMethodException nsme) {
+				Engine.println("Class " + className	+ " doesn't have the right kind of constructor");
+			//} catch (InhibitedException ie) {
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
+		}
+	}
+	
 	private void runPhysics() {
 		dynamicsWorld.stepSimulation(deltaTime * 0.001f, 10);
 		
@@ -483,6 +529,45 @@ public class Game implements GameListener {
 		*/
 	}
 	
+	/**
+	 * Searches all active entities for the next one that holds
+	 * the matching string at fieldofs (use the FOFS() macro) in the structure.
+	 * 
+	 * Searches beginning at the entity after from, or the beginning if NULL
+	 * NULL will be returned if the end of the list is reached.
+	 */
+	public static GameEntity findEntity(GameEntity from, String className)
+	{
+		/*
+		if(from != null)
+			from = g_entities;
+		else
+			from++;
+		*/
+
+		for(GameEntity ent : entities)
+		{
+			if(ent == null)
+				continue;
+			
+			if(ent == from)
+				continue;
+			
+			//.spawnArgs.getClass();
+			
+			//if(!ent.isActive())
+			//	continue;
+			
+			if(ent.getClassName().equals(className))
+			{
+				return ent;
+			}
+			
+		}
+
+		return null;
+	}
+	
 	public static Set<GameEntity> getEntities() {
 		return entities;
 	}
@@ -497,5 +582,16 @@ public class Game implements GameListener {
 
 	static public DynamicsWorld getDynamicsWorld() {
 		return dynamicsWorld;
+	}
+	
+	/**
+	 * Get one of the DOM documents the Game keeps internally.
+	 * 
+	 * @return org.w3c.dom.Document
+	 * @param documentKey
+	 *            java.lang.String
+	 */
+	public static Document getDocument(String documentKey) {
+		return documentHashtable.get(documentKey);
 	}
 }

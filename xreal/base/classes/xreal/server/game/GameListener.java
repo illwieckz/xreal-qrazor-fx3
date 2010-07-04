@@ -11,10 +11,6 @@ public interface GameListener
 	
 	public void			shutdownGame(boolean restart);
 	
-	/**
-	 * @return NULL if the client is allowed to connect, otherwise return a text string with the reason for denial. 
-	 */
-	public String		clientConnect(Player client, boolean firstTime, boolean isBot);
 	public void			runFrame(int time);
 	public void			runAIFrame(int time);
 	
