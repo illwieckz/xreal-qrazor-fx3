@@ -672,16 +672,16 @@ void JNICALL Java_xreal_Engine_sendConsoleCommand(JNIEnv *env, jclass cls, jint 
  * Method:    readFile
  * Signature: (Ljava/lang/String;)[B
  */
-jbyteArray JNICALL Java_xreal_Engine_readFile(JNIEnv *env, jclass cls, jstring jfilename)
+jbyteArray JNICALL Java_xreal_Engine_readFile(JNIEnv *env, jclass cls, jstring jfileName)
 {
-	char           *filename;
+	char           *fileName;
 	jbyteArray		array;
 	int				length;
 	byte           *buf;
 
-	filename = (char *)((*env)->GetStringUTFChars(env, jfilename, 0));
+	fileName = (char *)((*env)->GetStringUTFChars(env, jfileName, 0));
 
-	length = FS_ReadFile(filename, (void **)&buf);
+	length = FS_ReadFile(fileName, (void **)&buf);
 	if(!buf)
 	{
 		return NULL;
@@ -692,11 +692,39 @@ jbyteArray JNICALL Java_xreal_Engine_readFile(JNIEnv *env, jclass cls, jstring j
 	array = (*env)->NewByteArray(env, length);
 	(*env)->SetByteArrayRegion(env, array, 0, length, buf);
 
-	(*env)->ReleaseStringUTFChars(env, jfilename, filename);
+	(*env)->ReleaseStringUTFChars(env, jfileName, fileName);
 
 	FS_FreeFile(buf);
 
 	return array;
+}
+
+/*
+ * Class:     xreal_Engine
+ * Method:    writeFile
+ * Signature: (Ljava/lang/String;[B)V
+ */
+void JNICALL Java_xreal_Engine_writeFile(JNIEnv *env, jclass cls, jstring jfileName, jbyteArray array)
+{
+	char           *fileName;
+	int				length;
+	byte           *buf = NULL;
+
+	fileName = (char *)((*env)->GetStringUTFChars(env, jfileName, 0));
+	length = (*env)->GetArrayLength(env, array);
+
+	//Com_Printf("Java_xreal_Engine_writeFile: file '%s' has length = %i\n", fileName, length);
+
+	buf = (byte*) malloc(length);
+
+	(*env)->GetByteArrayRegion(env, array, 0, length, buf);
+
+	FS_WriteFile(fileName, buf, length);
+
+	(*env)->ReleaseStringUTFChars(env, jfileName, fileName);
+	(*env)->ReleaseByteArrayElements(env, array, buf, 0);
+
+//	Com_Dealloc(buf);
 }
 
 // handle to Engine class
@@ -710,6 +738,7 @@ static JNINativeMethod Engine_methods[] = {
 	{"getConsoleArgs", "()Ljava/lang/String;", Java_xreal_Engine_getConsoleArgs},
 	{"sendConsoleCommand", "(ILjava/lang/String;)V", Java_xreal_Engine_sendConsoleCommand},
 	{"readFile", "(Ljava/lang/String;)[B", Java_xreal_Engine_readFile},
+	{"writeFile", "(Ljava/lang/String;[B)V", Java_xreal_Engine_writeFile}
 };
 
 void Engine_javaRegister()

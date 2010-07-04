@@ -145,7 +145,7 @@ public class Game implements GameListener {
 		if ((nl.getLength() == 0) || (nl2.getLength() > 0))
 			GameUtil.parseEntString(root, entitiesString);
 		
-		
+		/*
 		try {
 			XMLUtils.writeXMLDocument(levelDoc, "level.xml");
 		} catch (TransformerConfigurationException e) {
@@ -158,6 +158,7 @@ public class Game implements GameListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
 
 		// let interested objects know we're starting a new map, but nothing's
 		// been spawned yet - so that can inspect or tweak the level document.

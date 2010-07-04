@@ -167,9 +167,6 @@ public class XMLUtils {
 	 */
 	public static void writeXMLDocument(Document doc, String fileName) throws IOException, TransformerConfigurationException, Throwable {
 		
-		//Source source = new DOMSource(doc);
-        //Result result = new StreamResult(S);
-		
 		Transformer transformer = TransformerFactory.newInstance().newTransformer();
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		//transformer.setOutputProperty(OutputKeys.)
@@ -184,9 +181,9 @@ public class XMLUtils {
 		//String xmlString = result.getWriter().toString();
 		//System.out.println(xmlString);
 		
-		System.out.println(writer.toString());
+		//System.out.println(writer.toString());
 		
-		//Engine.writeFile(fileName, writer.toByteArray());
+		Engine.writeFile(fileName, writer.toByteArray());
 		
 		
 		/*
