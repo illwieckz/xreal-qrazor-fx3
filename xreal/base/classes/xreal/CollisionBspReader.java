@@ -1,5 +1,6 @@
 package xreal;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -110,6 +111,8 @@ public class CollisionBspReader {
 	}
 
 	private Surface surfaces[];
+	
+	private String entitiesString;
 
 	public CollisionBspReader(String filename) {
 		Engine.println("CollisionBspReader: loading '" + filename + "'");
@@ -166,6 +169,8 @@ public class CollisionBspReader {
 			loadBrushes(header.lumps[LumpType.BRUSHES.ordinal()], byteArray);
 			loadSurfaces(header.lumps[LumpType.SURFACES.ordinal()], header.lumps[LumpType.DRAWVERTS.ordinal()], header.lumps[LumpType.DRAWINDEXES.ordinal()],
 					byteArray);
+			
+			loadEntitiesString(header.lumps[LumpType.ENTITIES.ordinal()], byteArray);
 
 			reader.close();
 
@@ -173,6 +178,26 @@ public class CollisionBspReader {
 			// e.printStackTrace();
 			throw new RuntimeException("Reading Collision BSP failed: " + e.getMessage());
 		}
+	}
+	
+	void loadEntitiesString(Lump l, byte buf[]) throws IOException {
+
+		ByteArrayReader reader = new ByteArrayReader(buf, l.fileofs, l.filelen);
+		Engine.println("CollisionBspReader: loading entities string...");
+
+		byte[] buffer = new byte[2048];
+		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+		int bytesRead = reader.read(buffer);
+		while (bytesRead >= 0) {
+			byteOut.write(buffer, 0, bytesRead);
+			bytesRead = reader.read(buffer);
+		}
+
+		entitiesString = new String(byteOut.toByteArray());
+	}
+	
+	public String getEntitiesString() {
+		return entitiesString;
 	}
 
 	void loadShaders(Lump l, byte buf[]) throws IOException {

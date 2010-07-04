@@ -1,28 +1,18 @@
 package xreal.server.game;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.vecmath.Vector3f;
+import javax.xml.transform.TransformerConfigurationException;
 
-import com.bulletphysics.collision.broadphase.AxisSweep3;
-import com.bulletphysics.collision.broadphase.BroadphaseInterface;
-import com.bulletphysics.collision.dispatch.CollisionDispatcher;
-import com.bulletphysics.collision.dispatch.CollisionObject;
-import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
-import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.StaticPlaneShape;
-import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
-import com.bulletphysics.dynamics.DynamicsWorld;
-import com.bulletphysics.dynamics.RigidBody;
-import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
-import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
-import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
-import com.bulletphysics.linearmath.DefaultMotionState;
-import com.bulletphysics.linearmath.Transform;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import xreal.CVars;
 import xreal.CollisionBspReader;
@@ -30,7 +20,20 @@ import xreal.Engine;
 import xreal.common.Config;
 import xreal.common.ConfigStrings;
 import xreal.common.GameType;
+import xreal.common.xml.XMLUtils;
 import xreal.server.Server;
+
+import com.bulletphysics.collision.broadphase.BroadphaseInterface;
+import com.bulletphysics.collision.broadphase.DbvtBroadphase;
+import com.bulletphysics.collision.dispatch.CollisionDispatcher;
+import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
+import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 
 public class Game implements GameListener {
 	
@@ -42,7 +45,7 @@ public class Game implements GameListener {
 	
 	// keep the collision shapes, for deletion/cleanup
 	static private List<CollisionShape> collisionShapes;
-	static private BroadphaseInterface overlappingPairCache;
+	static private BroadphaseInterface broadphase;
 	static private CollisionDispatcher dispatcher;
 	static private ConstraintSolver solver;
 	static private DefaultCollisionConfiguration collisionConfiguration;
@@ -52,6 +55,12 @@ public class Game implements GameListener {
 	
 	// maximum number of objects (and allow user to shoot additional boxes)
 	private static final int MAX_PROXIES = 1024;
+	
+	//
+	private static Hashtable<String, Document> documentHashtable;
+	
+	/**  */
+	private static String entitiesString;
 
 	private Game() {
 		
@@ -116,6 +125,57 @@ public class Game implements GameListener {
 		Engine.println("Game Type: " + GameType.values()[CVars.g_gametype.getInteger()]);
 		
 		initPhysics();
+		
+		documentHashtable = new Hashtable<String, Document>();
+		
+		// create the inital, mostly empty level document (don't pass the entString)
+		Document levelDoc = GameUtil.buildLevelDocument(CVars.g_mapname.getString(), null, null);
+		documentHashtable.put("xreal.level", levelDoc);
+
+		// let interested objects know we're building a new level
+		// document, and they may add on to it.
+		//gameStatusSupport.fireEvent(GameStatusEvent.GAME_BUILD_LEVEL_DOCUMENT, entString, spawnPoint);
+
+		// parse the entString and place its contents in the document
+		// if no spawn entities have been placed in the document yet,
+		// or if the <include-default-entities/> tag appears
+		Element root = levelDoc.getDocumentElement();
+		NodeList nl = root.getElementsByTagName("entity");
+		NodeList nl2 = root.getElementsByTagName("include-default-entities");
+		if ((nl.getLength() == 0) || (nl2.getLength() > 0))
+			GameUtil.parseEntString(root, entitiesString);
+		
+		
+		try {
+			XMLUtils.writeXMLDocument(levelDoc, "level.xml");
+		} catch (TransformerConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Throwable e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// let interested objects know we're starting a new map, but nothing's
+		// been spawned yet - so that can inspect or tweak the level document.
+		//gameStatusSupport.fireEvent(GameStatusEvent.GAME_PRESPAWN);
+
+		// ponder whether or not we need to change player classes
+		//rethinkPlayerClass();
+
+		// suggest a gc, to clean things up from the last level, before
+		// spawning all the new entities
+		System.gc();
+
+		// read through the document and actually create the entities
+		//spawnEntities();
+		
+		
+		// parse the key/value pairs and spawn gentities
+		//spawnEntitiesFromString();
 		
 //		for(int i = 0; i < 30; i++)
 //		{
@@ -301,13 +361,18 @@ public class Game implements GameListener {
 
 		// the maximum size of the collision world. Make sure objects stay
 		// within these boundaries
-		// TODO: AxisSweep3
+		
+		
 		// Don't make the world AABB size too large, it will harm simulation
 		// quality and performance
-		Vector3f worldAabbMin = new Vector3f(-10000, -10000, -10000);
-		Vector3f worldAabbMax = new Vector3f(10000, 10000, 10000);
-		overlappingPairCache = new AxisSweep3(worldAabbMin, worldAabbMax);//, MAX_PROXIES);
-		// overlappingPairCache = new SimpleBroadphase(MAX_PROXIES);
+		//Vector3f worldAabbMin = new Vector3f(-10000, -10000, -10000);
+		//Vector3f worldAabbMax = new Vector3f(10000, 10000, 10000);
+		//overlappingPairCache = new AxisSweep3(worldAabbMin, worldAabbMax);//, MAX_PROXIES);
+		
+		 //broadphase = new SimpleBroadphase(MAX_PROXIES);
+		
+		// new JBullet supports DbvtBroadphase
+		broadphase = new DbvtBroadphase();
 
 		// the default constraint solver. For parallel processing you can use a
 		// different solver (see Extras/BulletMultiThreaded)
@@ -318,7 +383,7 @@ public class Game implements GameListener {
 		// sol.setSolverMode(sol.getSolverMode() &
 		// ~SolverMode.SOLVER_CACHE_FRIENDLY.getMask());
 
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 		// dynamicsWorld = new SimpleDynamicsWorld(dispatcher,
 		// overlappingPairCache, solver, collisionConfiguration);
 
@@ -369,6 +434,8 @@ public class Game implements GameListener {
 		CollisionBspReader bsp = new CollisionBspReader("maps/" + CVars.g_mapname.getString() + ".bsp");
 		
 		bsp.addWorldBrushesToSimulation(collisionShapes, dynamicsWorld);
+		
+		entitiesString = bsp.getEntitiesString();
 	}
 	
 	private void runPhysics() {

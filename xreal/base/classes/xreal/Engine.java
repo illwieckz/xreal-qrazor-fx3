@@ -130,5 +130,17 @@ public class Engine {
 	 * 
 	 * @return The byte array.
 	 */
-	public native static byte[] readFile(String filename);
+	public native static byte[] readFile(String fileName);
+	
+	/**
+	 * Write an entire file as an array of bytes at once.
+	 * 
+	 * @param filename The filename is relative to the quake search path.
+	 * 					e.g.:
+	 * 					models/mymodel/yo.md5mesh
+	 * 					maps/mymap.bsp
+	 * 
+	 * @return The byte array.
+	 */
+	public native static void writeFile(String fileName, byte[] data);
 }
