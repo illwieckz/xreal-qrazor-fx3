@@ -1,8 +1,20 @@
 package xreal.common;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import javax.vecmath.Vector3f;
 
+import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.dispatch.CollisionWorld;
+import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
+import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.dynamics.ActionInterface;
+import com.bulletphysics.linearmath.IDebugDraw;
+import com.bulletphysics.linearmath.Transform;
+
 import xreal.Angle3f;
+import xreal.CVars;
 import xreal.Engine;
 import xreal.PlayerStateAccess;
 import xreal.UserCommand;
@@ -12,7 +24,7 @@ import xreal.UserCommand;
  * 
  * @author Robert Beckebans
  */
-public class PlayerController {
+public class PlayerController implements ActionInterface {
 	
 	// all of the locals will be zeroed before each
 	// pmove, just to make damn sure we don't have
@@ -39,30 +51,40 @@ public class PlayerController {
 		public int previous_waterlevel;
 	}
 	
-	PlayerControllerLocals pml = new PlayerControllerLocals();
-	PlayerMove pm;
+	private PlayerControllerLocals pml = new PlayerControllerLocals();
 	
-	// movement parameters
-	private static final float pm_stopspeed = 100.0f;
-	private static final float pm_duckScale = 0.25f;
-	private static final float pm_swimScale = 0.50f;
-	private static final float pm_wadeScale = 0.70f;
-
-	private static final float pm_accelerate = 15.0f;
-	private static final float pm_airaccelerate = 1.0f;
-	private static final float pm_wateraccelerate = 4.0f;
-	private static final float pm_flyaccelerate = 8.0f;
-
-	private static final float pm_friction = 8.0f;
-	private static final float pm_waterfriction = 1.0f;
-	private static final float pm_flightfriction = 3.0f;
-	private static final float pm_spectatorfriction = 5.0f;
-
-	// XreaL Movement Physics
-	private static final float pm_airStopAccelerate = 2.5f;
-	private static final float pm_airControlAmount = 150.0f;
-	private static final float pm_strafeAccelerate = 70.0f;
-	private static final float pm_wishSpeed = 30.0f;
+	private Queue<PlayerMove> playerMovements = new LinkedList<PlayerMove>();
+	private PlayerMove pm;
+	
+	private final PairCachingGhostObject ghostObject;
+	private final ConvexShape convexShape;
+	private final CollisionWorld collisionWorld;
+	
+	
+	public PlayerController(PairCachingGhostObject ghostObject, ConvexShape convexShape, CollisionWorld collisionWorld) {
+		this.ghostObject = ghostObject;
+		this.convexShape = convexShape;
+		this.collisionWorld = collisionWorld;
+	}
+	
+	public void addPlayerMove(PlayerMove pmove)
+	{
+		//playerMovements.add(pmove);
+	}
+	
+	@Override
+	public void updateAction(CollisionWorld collisionWorld, float deltaTimeStep) {
+		
+		//Engine.println("PlayerController.updateAction(deltaTimeStep = " + deltaTimeStep + "), player movements = " + playerMovements.size());
+		
+		/*
+		while (!playerMovements.isEmpty()) {
+			PlayerMove pmove = playerMovements.remove();
+			
+			movePlayer(pmove);
+		}
+		*/
+	}
 	
 	public void movePlayer(PlayerMove pmove) 
 	{
@@ -258,7 +280,8 @@ public class PlayerController {
 				updateViewAngles(pm.ps, pm.cmd);
 				viewAngles = pm.ps.getPlayerState_viewAngles();
 				viewAngles.getVectors(pml.forward, pml.right, pml.up);
-				moveWithoutClipping();	// FIXME moveWithClipping
+				moveFlying(true);
+				
 				//PM_CheckDuck();
 				//PM_FlyMove();
 				//PM_DropTimers();
@@ -268,7 +291,7 @@ public class PlayerController {
 				updateViewAngles(pm.ps, pm.cmd);
 				viewAngles = pm.ps.getPlayerState_viewAngles();
 				viewAngles.getVectors(pml.forward, pml.right, pml.up);
-				moveWithoutClipping();
+				moveFlying(false);
 				//PM_DropTimers();
 				return;
 				
@@ -429,7 +452,95 @@ public class PlayerController {
 		*/
 	}
 	
-	void moveWithoutClipping()
+	private void friction()
+	{
+		Vector3f        vec;
+		Vector3f		vel;
+		float           speed, newspeed, control;
+		float           drop;
+
+		vel = pm.ps.getPlayerState_velocity();
+
+		// TA: make sure vertical velocity is NOT set to zero when wall climbing
+		vec = new Vector3f(vel);
+		if(pml.walking && (pm.ps.getPlayerState_pm_flags() & PlayerMovementFlags.WALLCLIMBING) == 0)
+		{
+			// ignore slope movement
+			vec.z = 0;
+		}
+
+		speed = vec.length();
+
+
+		if(speed < 1)				// && pm->ps->pm_type != PM_SPECTATOR && pm->ps->pm_type != PM_NOCLIP)
+		{
+			vel.x = 0;
+			vel.y = 0;				// allow sinking underwater
+			// FIXME: still have z friction underwater?
+			
+			pm.ps.setPlayerState_velocity(vel);
+			return;
+		}
+
+		drop = 0;
+
+		// apply ground friction
+		/*
+		if(pm->waterlevel <= 1)
+		{
+			if(pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK))
+			{
+				// if getting knocked back, no friction
+				if(!(pm->ps->pm_flags & PMF_TIME_KNOCKBACK))
+				{
+					control = speed < pm_stopspeed ? pm_stopspeed : speed;
+					drop += control * pm_friction * pml.frametime;
+				}
+			}
+		}
+
+		// apply water friction even if just wading
+		if(pm->waterlevel)
+		{
+			drop += speed * pm_waterfriction * pm->waterlevel * pml.frametime;
+		}
+
+		// apply flying friction
+		if(pm->ps->powerups[PW_FLIGHT])
+		{
+			drop += speed * pm_flightfriction * pml.frametime;
+		}
+		*/
+
+		PlayerMovementType pmType = pm.ps.getPlayerState_pm_type();
+		
+		if(pmType == PlayerMovementType.SPECTATOR)
+		{
+			drop += speed * CVars.pm_spectatorfriction.getValue() * pml.frametime;
+		}
+
+		// scale the velocity
+		newspeed = speed - drop;
+		if(newspeed < 0)
+		{
+			newspeed = 0;
+		}
+		newspeed /= speed;
+
+		if(pmType == PlayerMovementType.SPECTATOR || pmType == PlayerMovementType.NOCLIP)
+		{
+			if(drop < 1.0f && speed < 3.0f)
+			{
+				newspeed = 0;
+			}
+		}
+
+		vel.scale(newspeed);
+		
+		pm.ps.setPlayerState_velocity(vel);
+	}
+	
+	void moveFlying(boolean clipAgainstWorld)
 	{
 		float           speed, drop, friction, control, newspeed;
 		Vector3f        wishvel;
@@ -454,8 +565,8 @@ public class PlayerController {
 		{
 			drop = 0;
 
-			friction = pm_friction * 1.5f;	// extra friction
-			control = speed < pm_stopspeed ? pm_stopspeed : speed;
+			friction = CVars.pm_friction.getValue() * 1.5f;	// extra friction
+			control = speed < CVars.pm_stopSpeed.getValue() ? CVars.pm_stopSpeed.getValue() : speed;
 			drop += control * friction * pml.frametime;
 
 			// scale the velocity
@@ -495,11 +606,124 @@ public class PlayerController {
 		if(Float.isNaN(wishdir.x) || Float.isNaN(wishdir.y) || Float.isNaN(wishdir.z))
 			throw new RuntimeException("wishdir member(s) became NaN");
 
-		Vector3f newVelocity = accelerate(wishdir, wishspeed, pm_accelerate);
+		Vector3f newVelocity = accelerate(wishdir, wishspeed, CVars.pm_accelerate.getValue());
 		
 
 		// move
 		//VectorMA(pm->ps->origin, pml.frametime, pm->ps->velocity, pm->ps->origin);
+		
+		if(newVelocity != null)
+		{
+			if(Float.isNaN(newVelocity.x) || Float.isNaN(newVelocity.y) || Float.isNaN(newVelocity.z))
+				throw new RuntimeException("newVelocity member(s) became NaN");
+			
+			pm.ps.setPlayerState_velocity(newVelocity);
+			
+			
+			
+			if(clipAgainstWorld)
+			{
+				Transform start = new Transform();
+				Transform end = new Transform();
+				
+				Vector3f currentPosition = pm.ps.getPlayerState_origin();
+				Vector3f targetPosition = new Vector3f();
+				
+				targetPosition.scaleAdd(pml.frametime, newVelocity, currentPosition);
+
+				start.setIdentity();
+				end.setIdentity();
+
+				/* FIXME: Handle penetration properly */
+				start.origin.set(currentPosition);
+				end.origin.set(targetPosition);
+
+				KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject);
+				callback.collisionFilterGroup = ghostObject.getBroadphaseHandle().collisionFilterGroup;
+				callback.collisionFilterMask = ghostObject.getBroadphaseHandle().collisionFilterMask;
+
+				if (CVars.pm_useGhostObjectSweepTest.getBoolean()) 
+				{
+					ghostObject.convexSweepTest(convexShape, start, end, callback, collisionWorld.getDispatchInfo().allowedCcdPenetration);
+				}
+				else 
+				{
+					collisionWorld.convexSweepTest(convexShape, start, end, callback);
+				}
+
+				if (callback.hasHit()) 
+				{
+					currentPosition.interpolate(currentPosition, targetPosition, callback.closestHitFraction);
+				}
+				else 
+				{
+					currentPosition.set(targetPosition);
+				}
+				
+				pm.ps.setPlayerState_origin(currentPosition);
+			}
+			else
+			{
+			
+				Vector3f origin = pm.ps.getPlayerState_origin();
+				
+				newVelocity.scale(pml.frametime);
+				origin.add(newVelocity);
+				pm.ps.setPlayerState_origin(origin);
+			}
+			
+			//Vector3f vel = pm.ps.getPlayerState_velocity();
+			//
+		
+			//org.scaleAdd(pml.frametime, vel);
+			//org.scaleAdd(pml.frametime, wishvel);
+			//org.z += 0.01f;
+		
+			//pm.ps.setPlayerState_velocity(wishvel);
+			//pm.ps.setPlayerState_origin(org);
+			
+			//Engine.println("moveWithoutClipping(): new velocity = " + newVelocity + ", new origin = " + origin);
+		}
+	}
+	
+	/*
+	void moveFlying()
+	{
+		float           wishspeed;
+		Vector3f        wishvel;
+		Vector3f		wishdir = new Vector3f();
+		float           scale;
+
+		
+		// normal slowdown
+		//friction();
+
+		scale = calculateUserCommandScale(pm.cmd);
+		
+		// user intentions
+		if(scale <= 0)
+		{
+			wishvel = new Vector3f();
+		}
+		else
+		{
+			
+			
+			wishvel = new Vector3f(	pml.forward.x * pm.cmd.forwardmove + pml.right.x * pm.cmd.rightmove,
+									pml.forward.y * pm.cmd.forwardmove + pml.right.y * pm.cmd.rightmove,
+									pml.forward.z * pm.cmd.forwardmove + pml.right.z * pm.cmd.rightmove);
+
+			wishvel.z += scale * pm.cmd.upmove;
+		}
+		
+		if(Float.isNaN(wishvel.x) || Float.isNaN(wishvel.y) || Float.isNaN(wishvel.z))
+			throw new RuntimeException("wishvel member(s) became NaN");
+				
+
+		wishdir = new Vector3f(wishvel);
+		wishspeed = wishdir.length();
+		
+		Vector3f newVelocity = accelerate(wishdir, wishspeed, pm_flyaccelerate);
 		
 		if(newVelocity != null)
 		{
@@ -527,4 +751,32 @@ public class PlayerController {
 			//Engine.println("moveWithoutClipping(): new velocity = " + newVelocity + ", new origin = " + origin);
 		}
 	}
+	*/
+
+
+	@Override
+	public void debugDraw(IDebugDraw debugDrawer) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private static class KinematicClosestNotMeConvexResultCallback extends CollisionWorld.ClosestConvexResultCallback {
+		protected CollisionObject me;
+
+		public KinematicClosestNotMeConvexResultCallback(CollisionObject me) {
+			super(new Vector3f(), new Vector3f());
+			this.me = me;
+		}
+
+		@Override
+		public float addSingleResult(CollisionWorld.LocalConvexResult convexResult, boolean normalInWorldSpace) {
+			if (convexResult.hitCollisionObject == me) {
+				return 1.0f;
+			}
+
+			return super.addSingleResult(convexResult, normalInWorldSpace);
+		}
+	}
+	
 }

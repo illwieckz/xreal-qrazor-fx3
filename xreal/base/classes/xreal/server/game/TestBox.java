@@ -14,12 +14,15 @@ import com.bulletphysics.linearmath.Transform;
 import com.sun.org.apache.xml.internal.utils.StopParseException;
 
 import xreal.Angle3f;
+import xreal.CVars;
 import xreal.Engine;
 import xreal.Trajectory;
 import xreal.TrajectoryType;
 import xreal.common.EntityType;
 
 public class TestBox extends GameEntity {
+	
+	long stopTime = 0;
 	
 	TestBox(final Vector3f start, final Vector3f dir)
 	{
@@ -43,7 +46,61 @@ public class TestBox extends GameEntity {
 		//new Thread(this).start();
 		
 		initPhysics(start, dir);
+		
+		nextThinkTime = (int)(1000.0f / CVars.sv_fps.getInteger());
+		
+		//start();
 	}
+	
+	/*
+	@Override
+	public void run() {
+
+		//Thread thisThread = Thread.currentThread();
+
+		//while (ownThread == thisThread) {
+		while(!stopThreadRequested) {
+			
+			try {
+				
+				long currentTime = (int) System.currentTimeMillis();
+				
+				//if(stopTime == 0)
+				{
+					updateEntityStateByPhysics();
+				}
+				
+				if(!rigidBody.isActive()) {
+				
+					// end this thread in 1 second
+					if(stopTime == 0) {
+						stopTime = currentTime + nextThinkTime - 10;
+					}
+					
+					if(currentTime >= stopTime) {
+						
+						stopTime = 0;
+						requestStop();
+						
+						//stop();
+						//wait();
+						//interrupt();
+					}
+				}
+				
+				Thread.sleep(nextThinkTime);
+			} catch (InterruptedException e) {
+				//Engine.println("Interrupted Exception caught");
+				Engine.println("TestBox.run(): Interrupted Exception caught in thread = " + Thread.currentThread().getId());
+				//destroy();
+			}			
+
+			//Engine.println("TestBox.run() in thread = " + Thread.currentThread().getId());
+		}
+		
+		Engine.println("TestBox.run(): stopped in thread = " + Thread.currentThread().getId());
+	}
+	*/
 	
 	private void initPhysics(final Vector3f start, final Vector3f dir) {
 		

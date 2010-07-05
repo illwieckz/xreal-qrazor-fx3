@@ -139,8 +139,6 @@ public class Engine {
 	 * 					e.g.:
 	 * 					models/mymodel/yo.md5mesh
 	 * 					maps/mymap.bsp
-	 * 
-	 * @return The byte array.
 	 */
 	public native static void writeFile(String fileName, byte[] data);
 }

@@ -21,4 +21,7 @@ public class Config {
 	
 	
 	public static final int GIB_HEALTH = -40;
+	
+	public static final int PLAYER_WIDTH = 36;
+	public static final int PLAYER_HEIGHT = 74;
 }

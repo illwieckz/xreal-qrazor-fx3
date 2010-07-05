@@ -2,6 +2,13 @@ package xreal.server.game;
 
 import javax.vecmath.Vector3f;
 
+import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
+import com.bulletphysics.collision.dispatch.CollisionFlags;
+import com.bulletphysics.collision.dispatch.GhostPairCallback;
+import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
+import com.bulletphysics.collision.shapes.CapsuleShape;
+import com.bulletphysics.collision.shapes.ConvexShape;
+
 import xreal.Angle3f;
 import xreal.CVars;
 import xreal.ConsoleColorStrings;
@@ -10,6 +17,7 @@ import xreal.PlayerStateAccess;
 import xreal.UserCommand;
 import xreal.UserInfo;
 import xreal.client.game.ClientGame;
+import xreal.common.Config;
 import xreal.common.ConfigStrings;
 import xreal.common.GameType;
 import xreal.common.PlayerController;
@@ -29,7 +37,12 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	
 	private ClientPersistant	_pers = new ClientPersistant();
 	private ClientSession		_sess = new ClientSession();
-	private PlayerController	_playerController = new PlayerController();
+	
+	
+	private PairCachingGhostObject		_ghostObject;
+	private ConvexShape					_collisionShape;
+	private PlayerController			_playerController;
+	
 	private int					_lastCmdTime; 
 	
 	// --------------------------------------------------------------------------------------------
@@ -103,6 +116,28 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		}
 		G_ReadSessionData(client);
 		*/
+		
+		
+		// create player controller ---------------------------------------------------------------
+		
+		_ghostObject = new PairCachingGhostObject();
+		//_ghostObject.setWorldTransform(startTransform);
+		
+		Game.getBroadphase().getOverlappingPairCache().setInternalGhostPairCallback(new GhostPairCallback());
+		
+		_collisionShape = new CapsuleShape(Config.PLAYER_WIDTH, Config.PLAYER_HEIGHT);
+		
+		_ghostObject.setCollisionShape(_collisionShape);
+		_ghostObject.setCollisionFlags(CollisionFlags.CHARACTER_OBJECT);
+		
+		_playerController = new PlayerController(_ghostObject, _collisionShape, Game.getDynamicsWorld());
+		
+		Game.getDynamicsWorld().addCollisionObject(_ghostObject, CollisionFilterGroups.CHARACTER_FILTER, (short)(CollisionFilterGroups.STATIC_FILTER | CollisionFilterGroups.DEFAULT_FILTER));
+
+		Game.getDynamicsWorld().addAction(_playerController);
+		
+		// ----------------------------------------------------------------------------------------
+		
 		
 		Game.getPlayers().add(this);
 	}
@@ -225,11 +260,12 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		//if(_sess.spectatorState != SpectatorState.FOLLOW)
 		{
-			setPlayerState_pm_type(PlayerMovementType.NOCLIP);
+			setPlayerState_pm_type(PlayerMovementType.SPECTATOR);
 			setPlayerState_speed(700);	// faster than normal
 
 			// perform a pmove
 			_playerController.movePlayer(pm);
+			//_playerController.addPlayerMove(pm);
 
 			// save results of pmove
 			//VectorCopy(client->ps.origin, ent->s.origin);

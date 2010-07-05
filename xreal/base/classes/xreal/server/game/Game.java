@@ -345,6 +345,16 @@ public class Game implements GameListener {
 	@Override
 	public void shutdownGame(boolean restart) {
 		Engine.print("xreal.server.game.Game.shutdownGame(restart = " + restart + ")\n");
+		
+		// kill all threads
+		/*
+		if (CVars.g_threadEntities.getBoolean()) {
+
+			for (GameEntity ent : entities) {
+				ent.stop();
+			}
+		}
+		*/
 	}
 	
 	static public int getLevelTime() {
@@ -499,12 +509,17 @@ public class Game implements GameListener {
 			RigidBody body = RigidBody.upcast(obj);
 			
 			if (body != null && body.getMotionState() != null) {
-				//Transform trans = new Transform();
-				//body.getMotionState().getWorldTransform(trans);
 				
 				GameEntity ent = (GameEntity) body.getUserPointer();
 				if (ent != null) {
+					
 					ent.updateEntityStateByPhysics();
+					
+					/*
+					if(body.isActive() && !ent.isAlive()) {
+						ent.start();
+					}
+					*/
 				}
 			}
 		}
@@ -576,11 +591,15 @@ public class Game implements GameListener {
 		return players;
 	}
 	
-	static public List<CollisionShape> getCollisionShapes() {
+	public static List<CollisionShape> getCollisionShapes() {
 		return collisionShapes;
 	}
+	
+	public static BroadphaseInterface getBroadphase() {
+		return broadphase;
+	}
 
-	static public DynamicsWorld getDynamicsWorld() {
+	public static DynamicsWorld getDynamicsWorld() {
 		return dynamicsWorld;
 	}
 	

@@ -22,7 +22,7 @@ import xreal.server.Server;
  * 
  * @author Robert Beckebans
  */
-public class GameEntity implements EntityStateAccess {
+public class GameEntity /*extends Thread*/ implements EntityStateAccess {
 
 	/**
 	 * Similar to Q3A's G_Spawn()
@@ -206,7 +206,38 @@ public class GameEntity implements EntityStateAccess {
 	 */
 	private int entityIndex;
 	
-	private Thread ownThread;
+	// Concurrent programming ---------------------------------------------------------------------
+	
+	/*
+	protected Thread ownThread;
+	protected volatile boolean stopThreadRequested = false;
+	
+	public void requestStop() {
+		stopThreadRequested = true;
+	}
+	
+	
+	@Override
+	public void run() {
+
+		//Thread thisThread = Thread.currentThread();
+
+		//while (ownThread == thisThread) {
+		while(!stopThreadRequested) {
+			
+			try {
+				Thread.sleep((int) (Math.random() * 100));
+			} catch (InterruptedException e) {
+				Engine.println("GameEntity.run(): Interrupted Exception caught in thread = " + Thread.currentThread().getId());
+			}
+
+			//Engine.println("GameEntity.run() in thread = " + Thread.currentThread().getId());
+		}
+	}
+	*/
+
+	
+	// --------------------------------------------------------------------------------------------
 	
 	
 	protected String classname = "unknown";
@@ -307,28 +338,13 @@ public class GameEntity implements EntityStateAccess {
 			Game.getCollisionShapes().remove(collisionShape);
 		}
 		
+		/*
 		if (ownThread != null) {
 			Thread.currentThread().interrupt();
 		}
+		*/
 	}
 	
-	/*
-	@Override
-	public void run() {
-
-		Thread thisThread = Thread.currentThread();
-
-		while (ownThread == thisThread) {
-			try {
-				Thread.sleep((int) (Math.random() * 10000));
-			} catch (InterruptedException e) {
-				System.out.println("Interrupted Exception caught");
-			}
-
-			Engine.println("GameEntity.run() in thread = " + Thread.currentThread().getId());
-		}
-	}
-	*/
 	
 	/**
 	 * Link the entity into the first world sector node that the ent's box crosses using the entity's entityState_t::origin.
