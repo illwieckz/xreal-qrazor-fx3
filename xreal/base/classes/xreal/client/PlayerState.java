@@ -243,6 +243,10 @@ public class PlayerState extends EntityState implements Cloneable {
 			s.pos.trBase.snap();
 		}
 		
+		// Tr3B: not in Q3A but we need s.origin(2) != null
+		s.origin = new Vector3f(s.pos.trBase.x, s.pos.trBase.y, s.pos.trBase.z);
+		s.origin2 = new Vector3f();
+		
 		// set the trDelta for flag direction
 		s.pos.trDelta = new Vector4f(this.velocity);
 
@@ -253,6 +257,9 @@ public class PlayerState extends EntityState implements Cloneable {
 		{
 			s.apos.trBase.snap();
 		}
+		
+		// Tr3B: not in Q3A but we need s.angles != null
+		s.angles = new Angle3f(s.apos.trBase.x, s.apos.trBase.y, s.apos.trBase.z);
 
 		// TA: i need for other things :)
 		//s.angles2[YAW] = this.movementDir;
