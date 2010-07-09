@@ -317,8 +317,24 @@ textures/eX/eX_wall_u207
 textures/eX/eX_deswall_01 
 {
 	qer_editorimage textures/eX/eX_deswall_01
+	parallax
 
-	diffusemap	textures/eX/eX_deswall_01
+	diffusemap	textures/eX/eX_rplates_01
+	specularmap	textures/eX/eX_rplates_01_s
+	bumpmap		displaceMap(textures/eX/eX_rplates_01_norm, _white)
+
+	{
+		stage	diffusemap
+		map	textures/eX/eX_deswall_01_shadow
+		blend	filter
+	}
+	bumpmap		displaceMap(_flat, _white)
+
+	{
+		stage	diffusemap
+		map	textures/eX/eX_deswall_01
+		alphaTest	0.5
+	}
 	specularmap	textures/eX/eX_deswall_01_s
 	bumpmap		addnormals ( textures/eX/eX_deswall_01_norm, heightmap ( textures/eX/eX_deswall_01_h, 1 ) )
 }
@@ -453,11 +469,7 @@ textures/eX/eX_rplates_01
 {
 	qer_editorimage textures/eX/eX_rplates_01
 
-	{
-		stage diffusemap
-		map textures/eX/eX_rplates_01
-		depthScale 0.03
-	}
+	diffusemap	textures/eX/eX_rplates_01
 	specularmap	textures/eX/eX_rplates_01_s
 	bumpmap		displacemap( addnormals ( textures/eX/eX_rplates_01_norm, heightmap ( textures/eX/eX_rplates_01_h, 1 ) ), textures/eX/eX_rplates_01_disp )
 }
