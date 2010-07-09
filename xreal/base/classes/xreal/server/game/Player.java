@@ -1,13 +1,17 @@
 package xreal.server.game;
 
+import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
 import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
 import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.GhostPairCallback;
 import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
+import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CapsuleShape;
+import com.bulletphysics.collision.shapes.CapsuleShapeZ;
 import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.linearmath.Transform;
 
 import xreal.Angle3f;
 import xreal.CVars;
@@ -43,7 +47,9 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	private ConvexShape					_collisionShape;
 	private PlayerController			_playerController;
 	
-	private int					_lastCmdTime; 
+	private int					_lastCmdTime;
+	
+	private boolean				_noClip;
 	
 	// --------------------------------------------------------------------------------------------
 	
@@ -125,7 +131,15 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		Game.getBroadphase().getOverlappingPairCache().setInternalGhostPairCallback(new GhostPairCallback());
 		
-		_collisionShape = new CapsuleShape(Config.PLAYER_WIDTH, Config.PLAYER_HEIGHT);
+		_collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH, Config.PLAYER_HEIGHT);
+		//_collisionShape = new BoxShape(new Vector3f(18, 18, 37));
+		
+		/*
+		Vector3f maxs = new Vector3f();
+		Vector3f mins = new Vector3f();
+		_collisionShape.getAabb(new Transform(), mins, maxs);
+		setEntityState_solid(mins, maxs);
+		*/
 		
 		_ghostObject.setCollisionShape(_collisionShape);
 		_ghostObject.setCollisionFlags(CollisionFlags.CHARACTER_OBJECT);
@@ -165,6 +179,25 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		spawn();
 		
 	}
+	
+	private boolean cheatsOk()
+	{
+		if(!CVars.sv_cheats.getBoolean())
+		{
+			sendClientCommand(getEntityState_number(), "print \"Cheats are not enabled on this server.\n\"");
+			return false;
+		}
+		
+		/*
+		if(_health <= 0)
+		{
+			sendClientCommand(getEntityState_number(),, "print \"You must be alive to use this command.\n\"");
+			return qfalse;
+		}
+		*/
+		
+		return true;
+	}
 
 	@Override
 	public void clientCommand() {
@@ -187,6 +220,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 			
 		} else if (cmd.equals("shootboxes")) {
 
+			// spawn multiple boxes in front of the player
 			
 			Vector3f forward = new Vector3f();
 			Vector3f right = new Vector3f();
@@ -201,9 +235,25 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 			{
 				newOrigin.scaleAdd(i, right, origin);
 				GameEntity ent = new TestBox(newOrigin, forward);
+				//ent.start();
 			}
 			
-			//ent.start();
+		} else if (cmd.equals("noclip")) {
+			
+			if(!cheatsOk()) {
+				return;
+			}
+
+			String msg;
+			if(_noClip)	{
+				msg = "noclip OFF\n";
+			} else  {
+				msg = "noclip ON\n";
+			}
+			
+			_noClip = !_noClip;
+
+			sendClientCommand(getEntityState_number(), "print \"" + msg + "\"");
 			
 		} else {
 			sendClientCommand(getEntityState_number(), "print \"unknown cmd " + cmd + "\n\"");
@@ -262,6 +312,10 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		{
 			setPlayerState_pm_type(PlayerMovementType.SPECTATOR);
 			setPlayerState_speed(700);	// faster than normal
+			
+			if(_noClip) {
+				setPlayerState_pm_type(PlayerMovementType.NOCLIP);
+			}
 
 			// perform a pmove
 			_playerController.movePlayer(pm);
@@ -429,7 +483,19 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 			setOrigin(spawnOrigin);
 			setPlayerState_origin(spawnOrigin);
 			
-			setViewAngles(spawnPoint.getEntityState_angles());
+			Angle3f spawnAngles = spawnPoint.getEntityState_angles();
+			setViewAngles(spawnAngles);
+			
+			
+			Transform startTransform = new Transform();
+			startTransform.setIdentity();
+			startTransform.origin.set(spawnOrigin);
+			
+			Quat4f q = new Quat4f();
+			spawnAngles.get(q);
+			startTransform.setRotation(q);
+			
+			_ghostObject.setWorldTransform(startTransform);
 		}
 	}
 	
@@ -456,7 +522,6 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		setEntityState_angles(angles);
 		
 	}
-	
 
 	/**
 	 * This is also used for spectator spawns.
@@ -470,7 +535,6 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 			ent = Game.findEntity(this, "info_player_start");
 			if(ent != null)
 			{
-				// the map creator forgot to put in an intermission point...
 				return (SpawnPoint) ent;
 			}
 			else
