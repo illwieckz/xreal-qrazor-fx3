@@ -6,6 +6,7 @@ import xreal.CVars;
 import xreal.Engine;
 import xreal.UserCommand;
 import xreal.client.Client;
+import xreal.client.EntityState;
 import xreal.client.PlayerState;
 import xreal.client.Snapshot;
 import xreal.common.PlayerMovementFlags;
@@ -77,6 +78,7 @@ public class PredictionManager {
 		{
 			validPPS = true;
 			predictedPlayerState = (PlayerState) snap.getPlayerState().clone();
+			predictedPlayerEntity = new CEntity_Player(predictedPlayerState.createEntityState(false));
 		}
 
 
@@ -84,15 +86,16 @@ public class PredictionManager {
 		if(ClientGame.isDemoPlayback() || ((snap.getPlayerState().pm_flags & PlayerMovementFlags.FOLLOW) != 0))
 		{
 			interpolatePlayerState(false);
-			return;
 		}
-
 		// non-predicting local movement will grab the latest angles
-		if(CVars.cg_nopredict.getBoolean() || CVars.g_synchronousClients.getBoolean())
+		else if(CVars.cg_nopredict.getBoolean() || CVars.g_synchronousClients.getBoolean())
 		{
 			interpolatePlayerState(false); // FIXME true
-			return;
 		}
+		
+		predictedPlayerEntity.currentState = predictedPlayerState.createEntityState(false);
+		predictedPlayerEntity.nextState = predictedPlayerEntity.currentState;
+		//predictedPlayerEntity = new CEntity_Player(predictedPlayerState.createEntityState(false));
 
 		// TODO
 	}
@@ -165,6 +168,10 @@ public class PredictionManager {
 	
 	public PlayerState getPredictedPlayerState() {
 		return predictedPlayerState;
+	}
+	
+	public CEntity_Player getPredictedPlayerEntity() {
+		return predictedPlayerEntity;
 	}
 	
 	public boolean isHyperspace() {

@@ -2,19 +2,29 @@ package xreal.client.game;
 
 import javax.vecmath.Vector3f;
 
+import xreal.Angle3f;
 import xreal.CVars;
 import xreal.client.PlayerState;
 import xreal.client.renderer.Camera;
 import xreal.client.ui.UserInterface;
 import xreal.common.PlayerMovementType;
+import xreal.common.PlayerStatsType;
 
 public class ClientCamera extends Camera {
 	
 	private static final int	WAVE_AMPLITUDE	= 1;
 	private static final float	WAVE_FREQUENCY	= 0.4f;
 	
+	private static final int	FOCUS_DISTANCE	= 512;
+	
+	private boolean renderingThirdPerson;
+	private Angle3f viewAngles = new Angle3f();
+	
 	public boolean calcViewValues(PlayerState ps)
 	{
+		// decide on third person view
+		renderingThirdPerson = CVars.cg_thirdPerson.getBoolean();// || (ps.stats[PlayerStatsType.HEALTH.ordinal()] <= 0);
+		
 		time = ClientGame.getTime();
 
 		// calculate size of 3D view
@@ -22,7 +32,7 @@ public class ClientCamera extends Camera {
 		
 	/*
 		if (cg.cameraMode) {
-			vec3_t origin, angles;
+			Vector3f origin, angles;
 			if (trap_getCameraInfo(cg.time, &origin, &angles)) {
 				VectorCopy(origin, cg.refdef.vieworg);
 				angles[ROLL] = 0;
@@ -34,21 +44,6 @@ public class ClientCamera extends Camera {
 			}
 		}
 	*/
-
-	//#if defined(USE_JAVA)
-		//{
-		position = new Vector3f(ps.origin);
-		
-		//VectorCopy(ps->origin, cg.refdef.vieworg);
-		//	VectorCopy(ps->viewangles, cg.refdefViewAngles);
-		//	AnglesToAxis(cg.refdefViewAngles, cg.refdef.viewaxis);
-		
-			ps.viewAngles.get(quat);
-
-			return calcFov(ps);
-		//}
-	//#endif
-
 
 		/*
 		// intermission view
@@ -64,22 +59,24 @@ public class ClientCamera extends Camera {
 		cg.bobcycle = (ps->bobCycle & 128) >> 7;
 		cg.bobfracsin = fabs(sin((ps->bobCycle & 127) / 127.0 * M_PI));
 		cg.xyspeed = sqrt(ps->velocity[0] * ps->velocity[0] + ps->velocity[1] * ps->velocity[1]);
+		*/
 
-		VectorCopy(ps->origin, cg.refdef.vieworg);
+		position = new Vector3f(ps.origin);
 
 		//if(BG_ClassHasAbility(ps->stats[STAT_PCLASS], SCA_WALLCLIMBER))
-		{
-			CG_smoothWWTransitions(ps, ps->viewangles, cg.refdefViewAngles);
-		}
+//		{
+//			CG_smoothWWTransitions(ps, ps->viewangles, cg.refdefViewAngles);
+//		}
 //		else if(BG_ClassHasAbility(ps->stats[STAT_PCLASS], SCA_WALLJUMPER))
 //		{
 //			CG_smoothWJTransitions(ps, ps->viewangles, cg.refdefViewAngles);
 //		}
 //		else
 //		{
-//			VectorCopy(ps->viewangles, cg.refdefViewAngles);
+			viewAngles.set(ps.viewAngles);
 //		}
 
+		/*
 		// clumsy logic, but it needs to be this way round because the CS propogation
 		// delay screws things up otherwise
 	#if 0
@@ -116,21 +113,23 @@ public class ClientCamera extends Camera {
 				cg.predictedErrorTime = 0;
 			}
 		}
+		*/
 
-		if(cg.renderingThirdPerson)
+		if(renderingThirdPerson)
 		{
 			// back away from character
-			CG_OffsetThirdPersonView();
+			offsetThirdPersonView(ps);
 		}
 		else
 		{
 			// offset for local bobbing and kicks
-			CG_OffsetFirstPersonView();
+			//offsetFirstPersonView();
 		}
 
-		// position eye reletive to origin
-		AnglesToAxis(cg.refdefViewAngles, cg.refdef.viewaxis);
+		// position eye relative to origin
+		viewAngles.get(quat);
 
+		/*
 		if(cg.hyperspace)
 		{
 			cg.refdef.rdflags |= RDF_NOWORLDMODEL | RDF_HYPERSPACE;
@@ -138,7 +137,7 @@ public class ClientCamera extends Camera {
 		*/
 
 		// field of view
-		//return calcFov(ps);
+		return calcFov(ps);
 	}
 	
 	
@@ -313,5 +312,121 @@ public class ClientCamera extends Camera {
 		*/
 
 		return inwater;
+	}
+	
+	
+	void offsetThirdPersonView(PlayerState ps)
+	{
+		Vector3f         forward, right, up;
+		Vector3f         view;
+		Angle3f          focusAngles;
+		//trace_t         trace;
+		//static Vector3f   mins = { -8, -8, -8 };
+		//static Vector3f   maxs = { 8, 8, 8 };
+		Vector3f         focusPoint;
+		float            focusDist;
+		float            forwardScale, sideScale;
+		Vector3f         surfNormal;
+
+		
+		/*
+		if(ps.pm_flags & PMF_WALLCLIMBING)
+		{
+			if(ps.pm_flags & PMF_WALLCLIMBINGCEILING)
+				VectorSet(surfNormal, 0.0f, 0.0f, -1.0f);
+			else
+				VectorCopy(ps.grapplePoint, surfNormal);
+		}
+		else
+		*/
+			surfNormal = new Vector3f(0.0f, 0.0f, 1.0f);
+
+		
+		position.scaleAdd(ps.viewHeight, surfNormal, position);
+		
+		focusAngles = new Angle3f(viewAngles);
+
+		// if dead, look at killer
+		if(ps.stats[PlayerStatsType.HEALTH.ordinal()] <= 0)
+		{
+			// yaw
+			focusAngles.y = ps.stats[PlayerStatsType.DEAD_YAW.ordinal()];
+			viewAngles.y = ps.stats[PlayerStatsType.DEAD_YAW.ordinal()];
+		}
+
+		forward = new Vector3f();
+		right = new Vector3f();
+		up = new Vector3f();
+		
+		focusAngles.getVectors(forward, null, null);
+
+		focusPoint = new Vector3f();
+		focusPoint.scaleAdd(FOCUS_DISTANCE, forward, position);
+
+		view = new Vector3f();
+		view.scaleAdd(12, surfNormal, position);
+
+		//cg.refdefViewAngles[PITCH] *= 0.5;
+		viewAngles.getVectors(forward, right, up);
+
+		forwardScale = (float) Math.cos(CVars.cg_thirdPersonAngle.getValue() / 180 * Math.PI);
+		sideScale = (float) Math.sin(CVars.cg_thirdPersonAngle.getValue() / 180 * Math.PI);
+		
+		forward.scale(forwardScale);
+		right.scale(sideScale);
+		
+		view.scaleAdd(-CVars.cg_thirdPersonRange.getValue() * forwardScale, forward, view);
+		view.scaleAdd(-CVars.cg_thirdPersonRange.getValue() * sideScale, right, view);
+
+		// trace a ray from the origin to the viewpoint to make sure the view isn't
+		// in a solid block.  Use an 8 by 8 block to prevent the view from near clipping anything
+
+		//if(!cg_cameraMode.integer)
+		{
+			// TODO
+			
+			/*
+			CG_Trace(&trace, cg.refdef.vieworg, mins, maxs, view, ps.clientNum, MASK_SOLID);
+
+			if(trace.fraction != 1.0)
+			{
+				VectorCopy(trace.endpos, view);
+				view[2] += (1.0 - trace.fraction) * 32;
+				// try another trace to this position, because a tunnel may have the ceiling
+				// close enogh that this is poking out
+
+				CG_Trace(&trace, cg.refdef.vieworg, mins, maxs, view, ps.clientNum, MASK_SOLID);
+				VectorCopy(trace.endpos, view);
+			}
+			*/
+		}
+
+		position.set(view);
+
+		// select pitch to look at focus point from vieword
+		focusPoint.sub(position);
+		/*
+	#if 0
+		if(ps.pm_flags & PMF_WALLCLIMBING)
+		{
+			focusDist = VectorLength(focusPoint);
+		}
+		else
+	#endif
+		*/
+		{
+			focusDist = (float) Math.sqrt(focusPoint.x * focusPoint.x + focusPoint.y * focusPoint.y);
+		}
+		if(focusDist < 1)
+		{
+			focusDist = 1;			// should never happen
+		}
+		
+		viewAngles.x = (float) (-180 / Math.PI * Math.atan2(focusPoint.z, focusDist));
+		viewAngles.y -= CVars.cg_thirdPersonAngle.getValue();
+	}
+	
+	public boolean isRenderingThirdPerson() {
+		return renderingThirdPerson;
 	}
 }

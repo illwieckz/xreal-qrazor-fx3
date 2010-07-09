@@ -1,5 +1,7 @@
 package xreal.common;
 
+import javax.vecmath.Vector3f;
+
 public class Config {
 	/**
 	 * Always increase this if you change the ET_, EV_, GT_ or WP_ types.
@@ -24,4 +26,7 @@ public class Config {
 	
 	public static final int PLAYER_WIDTH = 36;
 	public static final int PLAYER_HEIGHT = 74;
+	
+	public static final Vector3f playerMins = new Vector3f(-18, -18, -24);
+	public static final Vector3f playerMaxs = new Vector3f(18, 18, 50);
 }

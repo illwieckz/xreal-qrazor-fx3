@@ -161,7 +161,7 @@ public abstract class CEntity {
 		// a snapshot ahead of the current one
 		if(ClientGame.getSnapshotManager().getNextSnapshot() == null)
 		{
-			throw new Exception("interpolateEntityPosition: cg.nextSnap == null");
+			throw new Exception("interpolateEntityPosition: nextSnap == null");
 		}
 
 		float f = ClientGame.getSnapshotManager().getFrameInterpolation();

@@ -13,11 +13,16 @@ public abstract class CVars {
 	
 	public static final CVar cg_draw2D = new CVar("cg_draw2D", "1", CVar.ARCHIVE);
 	public static final CVar cg_drawFPS = new CVar("cg_drawFPS", "0", CVar.ARCHIVE);
+	public static final CVar cg_drawPlayerCollision = new CVar("cg_drawPlayerCollision", "1", CVar.CHEAT);
 	
 	public static final CVar cg_lagometer = new CVar("cg_lagometer", "1", CVar.ARCHIVE);
 	public static final CVar cg_nopredict = new CVar("cg_nopredict", "1", 0);
 	
 	public static final CVar cg_smoothClients = new CVar("cg_smoothClients", "0", CVar.USERINFO | CVar.ARCHIVE);
+	
+	public static final CVar cg_thirdPersonRange = new CVar("cg_thirdPersonRange", "40", CVar.CHEAT);
+	public static final CVar cg_thirdPersonAngle = new CVar("cg_thirdPersonAngle", "0", CVar.CHEAT);
+	public static final CVar cg_thirdPerson = new CVar("cg_thirdPerson", "0", 0);
 	
 	
 	// noset vars
@@ -60,6 +65,7 @@ public abstract class CVars {
 	
 	
 	// player movement
+	public static final CVar pm_debug = new CVar("pm_debug", "0", 0);
 	
 	public static final CVar pm_useGhostObjectSweepTest = new CVar("pm_useGhostObjectSweepTest", "0", CVar.SYSTEMINFO);
 	
@@ -68,12 +74,12 @@ public abstract class CVars {
 	public static final CVar pm_swimScale = new CVar("pm_swimScale", "0.5", CVar.SYSTEMINFO);
 	public static final CVar pm_wadeScale = new CVar("pm_wadeScale", "0.7", CVar.SYSTEMINFO);
 
-	public static final CVar pm_accelerate = new CVar("pm_acceralerate", "15", CVar.SYSTEMINFO);
+	public static final CVar pm_accelerate = new CVar("pm_acceralerate", "10", CVar.SYSTEMINFO);
 	public static final CVar pm_airaccelerate = new CVar("pm_airAcceralerate", "1", CVar.SYSTEMINFO);
 	public static final CVar pm_wateraccelerate = new CVar("pm_waterAcceralerate", "4", CVar.SYSTEMINFO);
 	public static final CVar pm_flyaccelerate = new CVar("pm_flyAcceralerate", "8", CVar.SYSTEMINFO);
 
-	public static final CVar pm_friction = new CVar("pm_friction", "8", CVar.SYSTEMINFO);
+	public static final CVar pm_friction = new CVar("pm_friction", "6", CVar.SYSTEMINFO);
 	public static final CVar pm_waterfriction = new CVar("pm_waterFriction", "1", CVar.SYSTEMINFO);
 	public static final CVar pm_flightfriction = new CVar("pm_flightFriction", "3", CVar.SYSTEMINFO);
 	public static final CVar pm_spectatorfriction = new CVar("pm_spectatorFriction", "5", CVar.SYSTEMINFO);

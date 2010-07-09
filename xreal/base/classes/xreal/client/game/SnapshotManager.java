@@ -397,8 +397,8 @@ public class SnapshotManager {
 		else
 		{
 			player.currentState = snap.getPlayerState().createEntityState(false);
-			player.interpolate = true;
 		}
+		player.interpolate = false;
 		
 		// check for playerstate transition events
 		if(oldFrame != null)
@@ -488,5 +488,9 @@ public class SnapshotManager {
 	
 	public float getFrameInterpolation() {
 		return frameInterpolation;
+	}
+	
+	public int getLatestSnapshotTime() {
+		return latestSnapshotTime;
 	}
 }

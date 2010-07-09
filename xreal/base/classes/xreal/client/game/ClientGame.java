@@ -36,7 +36,15 @@ public class ClientGame implements ClientGameListener {
 	
 	static private int			serverCommandSequence;	// reliable command stream counter
 	
+	/**  this is the time value that the client is rendering at */
 	static private int			time;
+	
+	/** time at last frame, used for missile trails and prediction checking */
+	static private int			oldTime;
+	
+	/** time - oldTime */
+	static private int			frameTime;
+	
 	static private int			levelStartTime;
 	
 	static private boolean		demoPlayback;
@@ -80,6 +88,10 @@ public class ClientGame implements ClientGameListener {
 		for(int i = 0; i < Engine.MAX_GENTITIES; i++) {
 			entities.add(null);
 		}
+		
+		
+		// create own player entity ---------------------------------------------------------------
+		// ----------------------------------------------------------------------------------------
 		
 		//cg.progress = 0;
 		
@@ -179,9 +191,6 @@ public class ClientGame implements ClientGameListener {
 
 		// update cg.predictedPlayerState
 		predictionManager.predictPlayerState();
-		
-//		// decide on third person view
-//		cg.renderingThirdPerson = cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0);
 //
 //		// build cg.refdef
 		boolean inwater = camera.calcViewValues(predictionManager.getPredictedPlayerState());
@@ -231,20 +240,32 @@ public class ClientGame implements ClientGameListener {
 //
 //		// update audio positions
 //		trap_S_Respatialize(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater);
-//
-//		// make sure the lagometerSample and frame timing isn't done twice when in stereo
-//		if(stereoView != STEREO_RIGHT)
-//		{
-//			cg.frametime = cg.time - cg.oldTime;
-//
-//			if(cg.frametime < 0)
-//			{
-//				cg.frametime = 0;
-//			}
-//			cg.oldTime = cg.time;
-//			CG_AddLagometerFrameInfo();
-//		}
-//
+
+		
+		StereoFrame stereoFrame; 
+		try
+		{
+			stereoFrame = StereoFrame.values()[stereoView];
+		}
+		catch(Exception e)
+		{
+			throw new Exception("drawActiveFrame: Undefined stereoView");
+		}
+		
+		// make sure the lagometerSample and frame timing isn't done twice when in stereo
+		if(stereoFrame != StereoFrame.STEREO_RIGHT)
+		{
+			frameTime = time - oldTime;
+
+			if(frameTime < 0)
+			{
+				frameTime = 0;
+			}
+			oldTime = time;
+			
+			lagometer.addFrameInfo(snapshotManager.getLatestSnapshotTime());
+		}
+
 //		if(cg_timescale.value != cg_timescaleFadeEnd.value)
 //		{
 //			if(cg_timescale.value < cg_timescaleFadeEnd.value)
@@ -266,17 +287,9 @@ public class ClientGame implements ClientGameListener {
 //			}
 //		}
 //
-		StereoFrame stereoFrame; 
-		try
-		{
-			stereoFrame = StereoFrame.values()[stereoView];
-		}
-		catch(Exception e)
-		{
-			throw new Exception("CG_DrawActive: Undefined stereoView");
-		}
 		
-//		// actually issue the rendering calls
+		
+		// actually issue the rendering calls
 		drawActive(stereoFrame);
 //
 //		if(cg_stats.integer)
@@ -519,13 +532,15 @@ public class ClientGame implements ClientGameListener {
 
 		AnglesToAxis(cg.autoAngles, cg.autoAxis);
 		AnglesToAxis(cg.autoAnglesFast, cg.autoAxisFast);
+		*/
 
 		// generate and add the entity from the playerstate
-		ps = &cg.predictedPlayerState;
-		BG_PlayerStateToEntityState(ps, &cg.predictedPlayerEntity.currentState, qfalse);
-		CG_AddCEntity(&cg.predictedPlayerEntity);
+		CEntity_Player self = predictionManager.getPredictedPlayerEntity();
+		self.addToRenderer();
 
+		
 		// lerp the non-predicted value for lightning gun origins
+		/*
 		CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);
 		*/
 
@@ -581,6 +596,10 @@ public class ClientGame implements ClientGameListener {
 
 	public static Lagometer getLagometer() {
 		return lagometer;
+	}
+	
+	public static ClientCamera getCamera() {
+		return camera;
 	}
 	
 	public static boolean isDemoPlayback() {

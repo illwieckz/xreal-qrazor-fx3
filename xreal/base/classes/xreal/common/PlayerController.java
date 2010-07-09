@@ -42,6 +42,7 @@ public class PlayerController implements ActionInterface {
 
 		public boolean walking;
 		public boolean groundPlane;
+		public Vector3f groundPlaneNormal = new Vector3f();
 		// trace_t groundTrace;
 
 		public float impactSpeed;
@@ -50,8 +51,10 @@ public class PlayerController implements ActionInterface {
 		public Vector3f previous_velocity = new Vector3f(0, 0, 0);
 		public int previous_waterlevel;
 	}
-	
 	private PlayerControllerLocals pml = new PlayerControllerLocals();
+	
+	private static final int MAX_CLIP_PLANES = 5;
+	private static final float OVERCLIP	= 1.001f;
 	
 	private Queue<PlayerMove> playerMovements = new LinkedList<PlayerMove>();
 	private PlayerMove pm;
@@ -60,6 +63,7 @@ public class PlayerController implements ActionInterface {
 	private final ConvexShape convexShape;
 	private final CollisionWorld collisionWorld;
 	
+	private int c_pmove;
 	
 	public PlayerController(PairCachingGhostObject ghostObject, ConvexShape convexShape, CollisionWorld collisionWorld) {
 		this.ghostObject = ghostObject;
@@ -146,7 +150,7 @@ public class PlayerController implements ActionInterface {
 
 		// this counter lets us debug movement problems with a journal
 		// by setting a conditional breakpoint fot the previous frame
-		//c_pmove++;
+		c_pmove++;
 
 		// clear results
 		pm.numtouch = 0;
@@ -280,7 +284,8 @@ public class PlayerController implements ActionInterface {
 				updateViewAngles(pm.ps, pm.cmd);
 				viewAngles = pm.ps.getPlayerState_viewAngles();
 				viewAngles.getVectors(pml.forward, pml.right, pml.up);
-				moveFlying(true);
+				//flyMove();
+				spectatorMove(true);
 				
 				//PM_CheckDuck();
 				//PM_FlyMove();
@@ -291,7 +296,7 @@ public class PlayerController implements ActionInterface {
 				updateViewAngles(pm.ps, pm.cmd);
 				viewAngles = pm.ps.getPlayerState_viewAngles();
 				viewAngles.getVectors(pml.forward, pml.right, pml.up);
-				moveFlying(false);
+				spectatorMove(false);
 				//PM_DropTimers();
 				return;
 				
@@ -425,8 +430,8 @@ public class PlayerController implements ActionInterface {
 			accelspeed = addspeed;
 		}
 
-		Vector3f newVelocity = new Vector3f(wishdir);
-		newVelocity.scale(accelspeed);
+		Vector3f newVelocity = new Vector3f();
+		newVelocity.scaleAdd(accelspeed, wishdir, currentvel);
 		
 		//pm.ps.setPlayerState_velocity(newVelocity);
 		return newVelocity;
@@ -452,7 +457,33 @@ public class PlayerController implements ActionInterface {
 		*/
 	}
 	
-	private void friction()
+	/**
+	 * Slide off of the impacting surface.
+	 * 
+	 * @param in
+	 * @param normal
+	 * @param out
+	 * @param overbounce
+	 */
+	void clipVelocity(Vector3f in, Vector3f normal, Vector3f out, float overbounce)
+	{
+		float backoff = in.dot(normal);
+		
+		if(backoff < 0)
+		{
+			backoff *= overbounce;
+		}
+		else
+		{
+			backoff /= overbounce;
+		}
+
+		out.x = in.x - (normal.x * backoff);
+		out.y = in.y - (normal.y * backoff);
+		out.z = in.z - (normal.z * backoff);
+	}
+	
+	private void applyFriction()
 	{
 		Vector3f        vec;
 		Vector3f		vel;
@@ -470,8 +501,6 @@ public class PlayerController implements ActionInterface {
 		}
 
 		speed = vec.length();
-
-
 		if(speed < 1)				// && pm->ps->pm_type != PM_SPECTATOR && pm->ps->pm_type != PM_NOCLIP)
 		{
 			vel.x = 0;
@@ -525,8 +554,13 @@ public class PlayerController implements ActionInterface {
 		{
 			newspeed = 0;
 		}
-		newspeed /= speed;
+		
+		if(speed != 0)
+		{
+			newspeed /= speed;
+		}
 
+		/*
 		if(pmType == PlayerMovementType.SPECTATOR || pmType == PlayerMovementType.NOCLIP)
 		{
 			if(drop < 1.0f && speed < 3.0f)
@@ -534,13 +568,508 @@ public class PlayerController implements ActionInterface {
 				newspeed = 0;
 			}
 		}
+		*/
 
 		vel.scale(newspeed);
 		
 		pm.ps.setPlayerState_velocity(vel);
 	}
 	
-	void moveFlying(boolean clipAgainstWorld)
+	/*
+	==============
+	PM_CheckDuck
+
+	Sets mins, maxs, and pm->ps->viewheight
+	==============
+	*/
+	void checkDuck()
+	{
+		//trace_t         trace;
+
+		/*
+		if(pm->ps->powerups[PW_INVULNERABILITY])
+		{
+			if(pm->ps->pm_flags & PMF_INVULEXPAND)
+			{
+				// invulnerability sphere has a 42 units radius
+				VectorSet(pm->mins, -42, -42, -42);
+				VectorSet(pm->maxs, 42, 42, 42);
+			}
+			else
+			{
+				VectorSet(pm->mins, -15, -15, MINS_Z);
+				VectorSet(pm->maxs, 15, 15, 16);
+			}
+			pm->ps->pm_flags |= PMF_DUCKED;
+			pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+			return;
+		}
+		pm->ps->pm_flags &= ~PMF_INVULEXPAND;
+		*/
+
+		/*
+		pm->mins[0] = -15;
+		pm->mins[1] = -15;
+
+		pm->maxs[0] = 15;
+		pm->maxs[1] = 15;
+
+		pm->mins[2] = MINS_Z;
+
+		if(pm->ps->pm_type == PM_DEAD)
+		{
+			pm->maxs[2] = -8;
+			pm->ps->viewheight = DEAD_VIEWHEIGHT;
+			return;
+		}
+
+		if(pm->cmd.upmove < 0)
+		{							// duck
+			pm->ps->pm_flags |= PMF_DUCKED;
+		}
+		else
+		{							// stand up if possible
+			if(pm->ps->pm_flags & PMF_DUCKED)
+			{
+				// try to stand up
+				pm->maxs[2] = 32;
+				pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask);
+				if(!trace.allsolid)
+					pm->ps->pm_flags &= ~PMF_DUCKED;
+			}
+		}
+
+		if(pm->ps->pm_flags & PMF_DUCKED)
+		{
+			pm->maxs[2] = 16;
+			pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+		}
+		else
+		{
+			pm->maxs[2] = 32;
+			pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
+		}
+		*/
+	}
+	
+	private KinematicClosestNotMeConvexResultCallback traceAll(Vector3f startPos, Vector3f endPos)
+	{
+		//pm->trace(trace, start, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
+		
+		Transform start = new Transform();
+		Transform end = new Transform();
+
+		start.setIdentity();
+		end.setIdentity();
+
+		/* FIXME: Handle penetration properly */
+		start.origin.set(startPos);
+		end.origin.set(endPos);
+
+		KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject);
+		callback.collisionFilterGroup = ghostObject.getBroadphaseHandle().collisionFilterGroup;
+		callback.collisionFilterMask = ghostObject.getBroadphaseHandle().collisionFilterMask;
+
+		if (CVars.pm_useGhostObjectSweepTest.getBoolean()) 
+		{
+			ghostObject.convexSweepTest(convexShape, start, end, callback, collisionWorld.getDispatchInfo().allowedCcdPenetration);
+		}
+		else 
+		{
+			collisionWorld.convexSweepTest(convexShape, start, end, callback);
+		}
+		
+		return callback;
+	}
+	
+
+	/**
+	 * @return True if the velocity was clipped in some way
+	 */
+	boolean slideMove(boolean gravity)
+	{
+		int             bumpcount, numbumps;
+		Vector3f        dir = new Vector3f();
+		float           d;
+		int             numplanes;
+		Vector3f        primalVelocity;
+		Vector3f        clipVelocity = new Vector3f();
+		int             i, j, k;
+		
+		float           time_left;
+		float           into;
+		Vector3f        endVelocity = new Vector3f();
+
+		numbumps = 4;
+		
+		Vector3f planes[] = new Vector3f[MAX_CLIP_PLANES];
+		for(i = 0; i < planes.length; i++)
+		{
+			planes[i] = new Vector3f();
+		}
+
+		primalVelocity = pm.ps.getPlayerState_velocity();
+		
+		/*
+		if(gravity)
+		{
+			endVelocity = pm.ps.getPlayerState_velocity();
+			endVelocity.z -= pm.ps.getPlayerState_gravity() * pml.frametime;
+			
+			pm->ps->velocity[2] = (pm->ps->velocity[2] + endVelocity[2]) * 0.5;
+			primal_velocity[2] = endVelocity[2];
+			
+			if(pml.groundPlane)
+			{
+				// slide along the ground plane
+				PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
+			}
+		}
+		*/
+		
+
+		time_left = pml.frametime;
+
+		// never turn against the ground plane
+		if(pml.groundPlane)
+		{
+			numplanes = 1;
+			planes[0].set(pml.groundPlaneNormal);
+		}
+		else
+		{
+			numplanes = 0;
+		}
+
+		// never turn against original velocity
+		planes[numplanes] = pm.ps.getPlayerState_velocity();
+		planes[numplanes].normalize();
+		numplanes++;
+
+		for(bumpcount = 0; bumpcount < numbumps; bumpcount++)
+		{
+			Vector3f          endClipVelocity = new Vector3f();
+			
+			// calculate position we are trying to move to
+			Vector3f start = pm.ps.getPlayerState_origin();
+			Vector3f end = new Vector3f();
+			
+			end.scaleAdd(time_left, pm.ps.getPlayerState_velocity(), start);
+
+			// see if we can make it there
+			KinematicClosestNotMeConvexResultCallback callback = traceAll(start, end);
+			//
+
+			if(callback.closestHitFraction == 0)
+			{
+				// entity is completely trapped in another solid
+				
+				// don't build up falling damage, but allow sideways acceleration
+				//pm->ps->velocity[2] = 0;	
+				return true;
+			}
+
+			if (callback.hasHit()) 
+			{
+				// actually covered some distance
+				end.interpolate(start, end, callback.closestHitFraction);
+			}
+			
+			pm.ps.setPlayerState_origin(end);
+			
+			if(!callback.hasHit()) {
+				// moved the entire distance
+				break;
+			}
+
+			// save entity for contact
+			//PM_AddTouchEnt(trace.entityNum);
+
+			time_left -= time_left * callback.closestHitFraction;
+
+			if(numplanes >= MAX_CLIP_PLANES)
+			{
+				// this shouldn't really happen
+				pm.ps.setPlayerState_velocity(new Vector3f());
+				return true;
+			}
+
+			//
+			// if this is the same plane we hit before, nudge velocity
+			// out along it, which fixes some epsilon issues with
+			// non-axial planes
+			//
+			for(i = 0; i < numplanes; i++)
+			{
+				if(callback.hitNormalWorld.dot(planes[i]) > 0.99)
+				{
+					Vector3f nudgedVelocity = pm.ps.getPlayerState_velocity();
+					nudgedVelocity.add(callback.hitNormalWorld);
+					break;
+				}
+			}
+			if(i < numplanes)
+			{
+				continue;
+			}
+			
+			planes[numplanes++].set(callback.hitNormalWorld);
+
+			//
+			// modify velocity so it parallels all of the clip planes
+			//
+
+			// find a plane that it enters
+			for(i = 0; i < numplanes; i++)
+			{
+				Vector3f currentVelocity = pm.ps.getPlayerState_velocity(); 
+				
+				into = currentVelocity.dot(planes[i]);
+				if(into >= 0.1)
+				{
+					// move doesn't interact with the plane
+					continue;		
+				}
+
+				// see how hard we are hitting things
+				if(-into > pml.impactSpeed)
+				{
+					pml.impactSpeed = -into;
+				}
+
+				// slide along the plane
+				clipVelocity(currentVelocity, planes[i], clipVelocity, OVERCLIP);
+
+				// slide along the plane
+				clipVelocity(endVelocity, planes[i], endClipVelocity, OVERCLIP);
+
+				// see if there is a second plane that the new move enters
+				for(j = 0; j < numplanes; j++)
+				{
+					if(j == i)
+					{
+						continue;
+						
+					}
+					if(clipVelocity.dot(planes[j]) >= 0.1)
+					{
+						// move doesn't interact with the plane
+						continue;	
+					}
+
+					// try clipping the move to the plane
+					clipVelocity(clipVelocity, planes[j], clipVelocity, OVERCLIP);
+					clipVelocity(endClipVelocity, planes[j], endClipVelocity, OVERCLIP);
+
+					// see if it goes back into the first clip plane
+					if(clipVelocity.dot(planes[i]) >= 0)
+					{
+						continue;
+					}
+
+					// slide the original velocity along the crease
+					dir.cross(planes[i], planes[j]);
+					dir.normalize();
+					
+					d = dir.dot(currentVelocity);
+					clipVelocity.scale(d, dir);
+				
+					d = dir.dot(endVelocity);
+					endClipVelocity.scale(d, dir);
+
+					// see if there is a third plane the the new move enters
+					for(k = 0; k < numplanes; k++)
+					{
+						if(k == i || k == j)
+						{
+							continue;
+						}
+						
+						if(clipVelocity.dot(planes[k]) >= 0.1)
+						{
+							// move doesn't interact with the plane
+							continue;
+						}
+
+						// stop dead at a tripple plane interaction
+						pm.ps.setPlayerState_velocity(new Vector3f());
+						return true;
+					}
+				}
+
+				// if we have fixed all interactions, try another move
+				pm.ps.setPlayerState_velocity(clipVelocity);
+				endVelocity.set(endClipVelocity);
+				break;
+			}
+		}
+
+		if(gravity)
+		{
+			pm.ps.setPlayerState_velocity(endVelocity);
+		}
+
+		// don't change velocity if in a timer (FIXME: is this correct?)
+		if(pm.ps.getPlayerState_pm_time() > 0)
+		{
+			pm.ps.setPlayerState_velocity(primalVelocity);
+		}
+
+		return (bumpcount != 0);
+	}
+	
+	private void stepSlideMove(boolean gravity)
+	{
+		//vec3_t          start_o, start_v;
+		//vec3_t          down_o, down_v;
+		//trace_t         trace;
+
+	//  float       down_dist, up_dist;
+	//  vec3_t      delta, delta2;
+		//vec3_t          up, down;
+		float           stepSize;
+
+		Vector3f startOrigin = pm.ps.getPlayerState_origin();
+		Vector3f startVelocity = pm.ps.getPlayerState_velocity();
+
+		if(slideMove(gravity) == false)
+		{
+			// we got exactly where we wanted to go first try
+			if(CVars.pm_debug.getBoolean())
+			{
+				Engine.println(c_pmove + ":slided");
+			}
+			return;   
+		}
+
+		Vector3f down = new Vector3f(startOrigin);
+		down.z -= Config.STEPSIZE;
+		
+		KinematicClosestNotMeConvexResultCallback callback = traceAll(startOrigin, down);
+
+		Vector3f up = new Vector3f(0, 0, 1);
+		
+		// never step up when you still have up velocity
+		if(startVelocity.z > 0 && (!callback.hasHit() || callback.hitNormalWorld.dot(up) < 0.7))
+		{
+			return;
+		}
+
+		//Vector3f downOrigin = pm.ps.getPlayerState_origin();
+		//Vector3f downVelocity = pm.ps.getPlayerState_velocity();
+
+		up.set(startOrigin);
+		up.z += Config.STEPSIZE;
+
+		// test the player position if they were a stepheight higher
+		
+		callback = traceAll(startOrigin, up);
+
+		if (callback.closestHitFraction == 0) 
+		{
+			// can't step up
+			if(CVars.pm_debug.getBoolean())
+			{
+				Engine.println(c_pmove + ":bend can't step up");
+			}
+			return;
+		}
+		
+		// try slidemove from this position
+		if (callback.hasHit()) 
+		{
+			stepSize = callback.hitPointWorld.z - startOrigin.z;
+			
+			pm.ps.setPlayerState_origin(callback.hitPointWorld);
+		}
+		else
+		{
+			stepSize = up.z - startOrigin.z;
+			
+			pm.ps.setPlayerState_origin(up);
+		}
+		
+		
+		pm.ps.setPlayerState_velocity(startVelocity);
+		
+		slideMove(gravity);
+
+		// push down the final amount
+		down = pm.ps.getPlayerState_origin();
+		down.z -= stepSize;
+		
+		
+		callback = traceAll(startOrigin, down);
+
+		if(callback.hasHit())
+		{
+			pm.ps.setPlayerState_origin(callback.hitPointWorld);
+		}
+		else
+		{
+			pm.ps.setPlayerState_origin(down);
+		}
+		
+		if(callback.closestHitFraction < 1.0)
+		{
+			clipVelocity(pm.ps.getPlayerState_velocity(), callback.hitNormalWorld, startVelocity, OVERCLIP);
+			
+			pm.ps.setPlayerState_velocity(startVelocity);
+		}
+		
+	
+		/*
+		// if the down trace can trace back to the original position directly, don't step
+		pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, start_o, pm->ps->clientNum, pm->tracemask);
+		if(trace.fraction == 1.0)
+		{
+			// use the original move
+			VectorCopy(down_o, pm->ps->origin);
+			VectorCopy(down_v, pm->ps->velocity);
+			if(pm->debugLevel)
+			{
+				Com_Printf("%i:bend\n", c_pmove);
+			}
+		}
+		else
+	*/
+		
+		{
+			/*
+			// use the step move
+			float           delta;
+
+			delta = pm->ps->origin[2] - start_o[2];
+			if(delta > 2)
+			{
+				if(delta < 7)
+				{
+					PM_AddEvent(EV_STEP_4);
+				}
+				else if(delta < 11)
+				{
+					PM_AddEvent(EV_STEP_8);
+				}
+				else if(delta < 15)
+				{
+					PM_AddEvent(EV_STEP_12);
+				}
+				else
+				{
+					PM_AddEvent(EV_STEP_16);
+				}
+			}
+			*/
+			
+			if(CVars.pm_debug.getBoolean())
+			{
+				Engine.println(c_pmove + ":stepped");
+			}
+		}
+		
+	}
+	
+	void spectatorMove(boolean clipAgainstWorld)
 	{
 		float           speed, drop, friction, control, newspeed;
 		Vector3f        wishvel;
@@ -619,75 +1148,34 @@ public class PlayerController implements ActionInterface {
 			
 			pm.ps.setPlayerState_velocity(newVelocity);
 			
-			
-			
 			if(clipAgainstWorld)
 			{
-				Transform start = new Transform();
-				Transform end = new Transform();
+				Vector3f start = pm.ps.getPlayerState_origin();
+				Vector3f end = new Vector3f();
+
+				end.scaleAdd(pml.frametime, newVelocity, start);
 				
-				Vector3f currentPosition = pm.ps.getPlayerState_origin();
-				Vector3f targetPosition = new Vector3f();
+				KinematicClosestNotMeConvexResultCallback callback = traceAll(start, end);
 				
-				targetPosition.scaleAdd(pml.frametime, newVelocity, currentPosition);
-
-				start.setIdentity();
-				end.setIdentity();
-
-				/* FIXME: Handle penetration properly */
-				start.origin.set(currentPosition);
-				end.origin.set(targetPosition);
-
-				KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject);
-				callback.collisionFilterGroup = ghostObject.getBroadphaseHandle().collisionFilterGroup;
-				callback.collisionFilterMask = ghostObject.getBroadphaseHandle().collisionFilterMask;
-
-				if (CVars.pm_useGhostObjectSweepTest.getBoolean()) 
-				{
-					ghostObject.convexSweepTest(convexShape, start, end, callback, collisionWorld.getDispatchInfo().allowedCcdPenetration);
-				}
-				else 
-				{
-					collisionWorld.convexSweepTest(convexShape, start, end, callback);
-				}
-
 				if (callback.hasHit()) 
 				{
-					currentPosition.interpolate(currentPosition, targetPosition, callback.closestHitFraction);
-				}
-				else 
-				{
-					currentPosition.set(targetPosition);
+					end.interpolate(start, end, callback.closestHitFraction);
 				}
 				
-				pm.ps.setPlayerState_origin(currentPosition);
+				pm.ps.setPlayerState_origin(end);
 			}
 			else
 			{
-			
 				Vector3f origin = pm.ps.getPlayerState_origin();
 				
 				newVelocity.scale(pml.frametime);
 				origin.add(newVelocity);
 				pm.ps.setPlayerState_origin(origin);
 			}
-			
-			//Vector3f vel = pm.ps.getPlayerState_velocity();
-			//
-		
-			//org.scaleAdd(pml.frametime, vel);
-			//org.scaleAdd(pml.frametime, wishvel);
-			//org.z += 0.01f;
-		
-			//pm.ps.setPlayerState_velocity(wishvel);
-			//pm.ps.setPlayerState_origin(org);
-			
-			//Engine.println("moveWithoutClipping(): new velocity = " + newVelocity + ", new origin = " + origin);
 		}
 	}
 	
-	/*
-	void moveFlying()
+	void flyMove()
 	{
 		float           wishspeed;
 		Vector3f        wishvel;
@@ -696,7 +1184,7 @@ public class PlayerController implements ActionInterface {
 
 		
 		// normal slowdown
-		//friction();
+		applyFriction();
 
 		scale = calculateUserCommandScale(pm.cmd);
 		
@@ -723,7 +1211,13 @@ public class PlayerController implements ActionInterface {
 		wishdir = new Vector3f(wishvel);
 		wishspeed = wishdir.length();
 		
-		Vector3f newVelocity = accelerate(wishdir, wishspeed, pm_flyaccelerate);
+		if(wishspeed > 0)
+		{
+			wishdir.normalize();
+		}
+		wishspeed *= scale;
+		
+		Vector3f newVelocity = accelerate(wishdir, wishspeed, CVars.pm_flyaccelerate.getValue());
 		
 		if(newVelocity != null)
 		{
@@ -732,26 +1226,27 @@ public class PlayerController implements ActionInterface {
 			
 			pm.ps.setPlayerState_velocity(newVelocity);
 			
-			newVelocity.scale(pml.frametime);
+			stepSlideMove(false);
 			
-			Vector3f origin = pm.ps.getPlayerState_origin();
-			origin.add(newVelocity);
-			pm.ps.setPlayerState_origin(origin);
-			
-			//Vector3f vel = pm.ps.getPlayerState_velocity();
-			//
-		
-			//org.scaleAdd(pml.frametime, vel);
-			//org.scaleAdd(pml.frametime, wishvel);
-			//org.z += 0.01f;
-		
-			//pm.ps.setPlayerState_velocity(wishvel);
-			//pm.ps.setPlayerState_origin(org);
-			
-			//Engine.println("moveWithoutClipping(): new velocity = " + newVelocity + ", new origin = " + origin);
+			/*
+			{
+				Vector3f start = pm.ps.getPlayerState_origin();
+				Vector3f end = new Vector3f();
+
+				end.scaleAdd(pml.frametime, newVelocity, start);
+				
+				KinematicClosestNotMeConvexResultCallback callback = traceAll(start, end);
+				
+				if (callback.hasHit()) 
+				{
+					end.interpolate(start, end, callback.closestHitFraction);
+				}
+				
+				pm.ps.setPlayerState_origin(end);
+			}
+			*/
 		}
 	}
-	*/
 
 
 	@Override
