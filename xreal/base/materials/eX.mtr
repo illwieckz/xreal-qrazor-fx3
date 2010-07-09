@@ -321,7 +321,7 @@ textures/eX/eX_deswall_01
 
 	diffusemap	textures/eX/eX_rplates_01
 	specularmap	textures/eX/eX_rplates_01_s
-	bumpmap		displaceMap(textures/eX/eX_rplates_01_norm, _white)
+	bumpmap		displaceMap(addnormals(textures/eX/eX_rplates_01_norm, heightmap(textures/eX/eX_rplates_01_h, 1), _white)
 
 	{
 		stage	diffusemap
