@@ -58,7 +58,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	 * 
 	 * @param string
 	 */
-	public synchronized native static void sendClientCommand(int clientNum, String command);
+	public synchronized native static void sendServerCommand(int clientNum, String command);
 	
 	private synchronized static native String 	getUserInfo(int clientNum);
 	private synchronized static native void 	setUserInfo(int clientNum, String s);
@@ -184,7 +184,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	{
 		if(!CVars.sv_cheats.getBoolean())
 		{
-			sendClientCommand(getEntityState_number(), "print \"Cheats are not enabled on this server.\n\"");
+			sendServerCommand(getEntityState_number(), "print \"Cheats are not enabled on this server.\n\"");
 			return false;
 		}
 		
@@ -203,12 +203,14 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	public void clientCommand() {
 		//Engine.print("xreal.server.game.Player.clientCommand(clientNum = " + getEntityIndex() + ")\n");
 		
-		String cmd = Engine.getConsoleArgv(0);
+		String[] args = Engine.getConsoleArgs();
 		
-		Engine.print("xreal.server.game.Player.clientCommand(clientNum = " + getEntityState_number() + ", command '" + cmd + "')\n");
+		String cmd = args[0];
+		
+		//Engine.print("xreal.server.game.Player.clientCommand(clientNum = " + getEntityState_number() + ", command '" + cmd + "')\n");
 		
 		if (cmd.equals("say")) {
-			Server.broadcastClientCommand("chat \"" + _pers.netname + ": " + ConsoleColorStrings.GREEN + Engine.concatConsoleArgs(1) + "\n\"");
+			Server.broadcastServerCommand("chat \"" + _pers.netname + ": " + ConsoleColorStrings.GREEN + Engine.concatConsoleArgs(1) + "\n\"");
 
 		} else if (cmd.equals("shootbox")) {
 
@@ -253,10 +255,10 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 			
 			_noClip = !_noClip;
 
-			sendClientCommand(getEntityState_number(), "print \"" + msg + "\"");
+			sendServerCommand(getEntityState_number(), "print \"" + msg + "\"");
 			
 		} else {
-			sendClientCommand(getEntityState_number(), "print \"unknown cmd " + cmd + "\n\"");
+			sendServerCommand(getEntityState_number(), "print \"unknown cmd " + cmd + "\n\"");
 		}
 	}
 	
@@ -384,7 +386,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 
 		if (_pers.connected == ClientConnectionState.CONNECTED) {
 			if (!_pers.netname.equals(oldname)) {
-				Server.broadcastClientCommand("print \"" + oldname + ConsoleColorStrings.WHITE + " renamed to " + _pers.netname + "\n\"");
+				Server.broadcastServerCommand("print \"" + oldname + ConsoleColorStrings.WHITE + " renamed to " + _pers.netname + "\n\"");
 			}
 		}
 		

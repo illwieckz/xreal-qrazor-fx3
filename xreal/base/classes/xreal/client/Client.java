@@ -43,6 +43,16 @@ public class Client {
 	public synchronized native static Snapshot getSnapshot(int snapshotNumber);
 	
 	
+	
+	/**
+	 * Set up argc/argv for the given command
+	 * 
+	 * @param serverCommandNumber
+	 * @return Tokenized string or null.
+	 */
+	public synchronized native static String[] getServerCommand(int serverCommandNumber);
+	
+	
 	// keyboard and mouse event handling ----------------------------------------------------------
 	
 	/**

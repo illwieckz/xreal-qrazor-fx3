@@ -28,7 +28,7 @@ public class Server
 	 * 
 	 * @param string
 	 */
-	public synchronized native static void broadcastClientCommand(String command);
+	public synchronized native static void broadcastServerCommand(String command);
 
 	/*
 	public synchronized native static String getUserinfo(int num);

@@ -243,7 +243,7 @@ public class SnapshotManager {
 		// sort out solid entities
 		//TODO CG_BuildSolidList();
 
-		//TODO CG_ExecuteNewServerCommands(snap->serverCommandSequence);
+		ClientGame.executeNewServerCommands(snap.getServerCommandSequence());
 
 		// set our local weapon selection pointer to
 		// what the server has indicated the current weapon is
@@ -361,7 +361,7 @@ public class SnapshotManager {
 		}
 
 		// execute any server string commands before transitioning entities
-		// TODO CG_ExecuteNewServerCommands(cg.nextSnap->serverCommandSequence);
+		ClientGame.executeNewServerCommands(nextSnap.getServerCommandSequence());
 
 		// if we had a map_restart, set everything with initial
 		//if(!cg.snap)

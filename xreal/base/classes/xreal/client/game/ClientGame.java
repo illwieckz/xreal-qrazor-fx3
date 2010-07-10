@@ -129,10 +129,10 @@ public class ClientGame implements ClientGameListener {
 		
 		//Engine.print("xreal.client.game.ClientGame.consoleCommand()\n");
 		
-		String cmd = Engine.getConsoleArgv(0);
-		String args = Engine.getConsoleArgs();
+		//String cmd = Engine.getConsoleArgv(0);
+		String[] args = Engine.getConsoleArgs();
 		
-		Engine.print("xreal.client.game.ClientGame.consoleCommand(command = '" + cmd + "', args='" + args + "')\n");
+		//Engine.print("xreal.client.game.ClientGame.consoleCommand(command = '" + cmd + "', args='" + args + "')\n");
 		
 		return false;
 	}
@@ -557,16 +557,64 @@ public class ClientGame implements ClientGameListener {
 		}
 	}
 	
+	
+	
+	public static void executeNewServerCommands(int latestSequence)
+	{
+		while(serverCommandSequence < latestSequence)
+		{
+			String[] args = Client.getServerCommand(++serverCommandSequence);
+			
+			if(args != null)
+			{
+				String          cmd;
+				//char            text[MAX_SAY_TEXT];
+
+				cmd = args[0];
+
+				if(cmd.isEmpty())
+				{
+					// server claimed the command
+				}
+				else if(cmd.equals("cp"))
+				{
+					//TODO CG_CenterPrint(CG_Argv(1), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
+				}
+				else if(cmd.equals("cs"))
+				{
+					//TODO CG_ConfigStringModified();
+				}
+				else if(cmd.equals("print"))
+				{
+					Engine.print(args[1]);
+
+					/*
+					cmd = CG_Argv(1);		// yes, this is obviously a hack, but so is the way we hear about
+					 
+					// votes passing or failing
+					if(!Q_stricmpn(cmd, "vote failed", 11) || !Q_stricmpn(cmd, "team vote failed", 16))
+					{
+						trap_S_StartLocalSound(cgs.media.voteFailed, CHAN_ANNOUNCER);
+					}
+					else if(!Q_stricmpn(cmd, "vote passed", 11) || !Q_stricmpn(cmd, "team vote passed", 16))
+					{
+						trap_S_StartLocalSound(cgs.media.votePassed, CHAN_ANNOUNCER);
+					}
+					*/
+				}
+				else
+				{
+					Engine.println("Unknown client game command: " +  cmd);
+				}
+			}
+		}
+	}
+	
 	// --------------------------------------------------------------------------------------------
 	
 	
 	public static int getClientNum() {
 		return clientNum;
-	}
-
-	
-	public static int getServerCommandSequence() {
-		return serverCommandSequence;
 	}
 
 	/**

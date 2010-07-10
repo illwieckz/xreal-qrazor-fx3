@@ -61,28 +61,19 @@ public class Engine {
 	 * Return the current time using Sys_Milliseconds();
 	 */
 	public synchronized native static int getTimeInMilliseconds();
-
+	
 	/**
-	 * Get the number of console tokens.
+	 * Returns Cmd_Argv(0) to Cmd_Argv(Cmd_Argc()-1).
 	 */
-	public synchronized native static int getConsoleArgc();
-
-	/**
-	 * Get a console token by number.
-	 */
-	public synchronized native static String getConsoleArgv(int n);
-
-	/**
-	 * Returns a single string containing argv(1) to argv(argc()-1).
-	 */
-	public synchronized native static String getConsoleArgs();
+	public synchronized native static String[] getConsoleArgs();
 	
 	public synchronized static String concatConsoleArgs(int start) {
 		String line = "";
 
-		int c = Engine.getConsoleArgc();
+		String[] args = Engine.getConsoleArgs();
+		int c = args.length;
 		for (int i = start; i < c; i++) {
-			String arg = Engine.getConsoleArgv(i);
+			String arg = args[i];
 
 			line += arg;
 

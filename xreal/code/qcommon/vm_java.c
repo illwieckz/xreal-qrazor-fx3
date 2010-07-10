@@ -148,6 +148,9 @@ static jclass   class_Throwable = NULL;
 static jmethodID method_Throwable_printStackTrace = NULL;
 jmethodID method_Throwable_getMessage = NULL;
 
+// handles to java.lang.String class
+static jclass	class_String = NULL;
+
 // handles to the javax.vecmath.Tuple3f class
 static jclass   class_Tuple3f = NULL;
 static jmethodID method_Tuple3f_ctor = NULL;
@@ -172,11 +175,9 @@ static jmethodID method_Quat4f_ctor = NULL;
 static jclass   class_Trajectory = NULL;
 static jmethodID method_Trajectory_ctor = NULL;
 
-/**
- * @brief Convert a Java string (which is Unicode) to reasonable 7-bit ASCII.
- *
- * @author Berry Pederson
- */
+
+
+
 void Misc_javaRegister()
 {
 	class_Throwable = (*javaEnv)->FindClass(javaEnv, "java/lang/Throwable");
@@ -196,6 +197,16 @@ void Misc_javaRegister()
 	{
 		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable.getMessage() method");
 	}
+
+
+
+	class_String = (*javaEnv)->FindClass(javaEnv, "java/lang/String");
+	if(!class_String)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.lang.String");
+	}
+
+
 
 	// now that the java.lang.Class and java.lang.Throwable handles are obtained
 	// we can start checking for exceptions
@@ -291,6 +302,12 @@ void Misc_javaDetach()
 	{
 		(*javaEnv)->DeleteLocalRef(javaEnv, class_Throwable);
 		class_Throwable = NULL;
+	}
+
+	if(class_String)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_String);
+		class_String = NULL;
 	}
 
 	if(class_Tuple3f)
@@ -626,29 +643,69 @@ jint JNICALL Java_xreal_Engine_getTimeInMilliseconds(JNIEnv *env, jclass cls)
  * Method:    getConsoleArgc
  * Signature: ()I
  */
+/*
 jint JNICALL Java_xreal_Engine_getConsoleArgc(JNIEnv *env, jclass cls)
 {
 	return Cmd_Argc();
 }
+*/
 
 /*
  * Class:     xreal_Engine
  * Method:    getConsoleArgv
  * Signature: (I)Ljava/lang/String;
  */
+/*
 jstring JNICALL Java_xreal_Engine_getConsoleArgv(JNIEnv *env, jclass cls, jint arg)
 {
 	return (*env)->NewStringUTF(env, Cmd_Argv(arg));
 }
+*/
 
 /*
  * Class:     xreal_Engine
  * Method:    getConsoleArgs
  * Signature: ()Ljava/lang/String;
  */
+/*
 jstring JNICALL Java_xreal_Engine_getConsoleArgs(JNIEnv *env, jclass cls)
 {
 	return (*env)->NewStringUTF(env, Cmd_Args());
+}
+*/
+
+
+
+jobjectArray Java_NewConsoleArgs()
+{
+	int				i, argc;
+	jobjectArray 	argsArray = NULL;
+
+	argc = Cmd_Argc();
+
+	argsArray = (*javaEnv)->NewObjectArray(javaEnv, argc, class_String, NULL);
+
+	for(i = 0; i < argc; i++) {
+
+		jstring	argv = (*javaEnv)->NewStringUTF(javaEnv, Cmd_Argv(i));
+
+		(*javaEnv)->SetObjectArrayElement(javaEnv, argsArray, i, argv);
+	}
+
+	CheckException();
+
+	return argsArray;
+}
+
+
+/*
+ * Class:     xreal_Engine
+ * Method:    getConsoleArgs
+ * Signature: ()[Ljava/lang/String;
+ */
+jobjectArray JNICALL Java_xreal_Engine_getConsoleArgs(JNIEnv *env, jclass cls)
+{
+	return Java_NewConsoleArgs();
 }
 
 /*
@@ -733,9 +790,14 @@ static JNINativeMethod Engine_methods[] = {
 	{"print", "(Ljava/lang/String;)V", Java_xreal_Engine_print},
 	{"error", "(Ljava/lang/String;)V", Java_xreal_Engine_error},
 	{"getTimeInMilliseconds", "()I", Java_xreal_Engine_getTimeInMilliseconds},
-	{"getConsoleArgc", "()I", Java_xreal_Engine_getConsoleArgc},
-	{"getConsoleArgv", "(I)Ljava/lang/String;", Java_xreal_Engine_getConsoleArgv},
-	{"getConsoleArgs", "()Ljava/lang/String;", Java_xreal_Engine_getConsoleArgs},
+
+//	{"getConsoleArgc", "()I", Java_xreal_Engine_getConsoleArgc},
+//	{"getConsoleArgv", "(I)Ljava/lang/String;", Java_xreal_Engine_getConsoleArgv},
+//	{"getConsoleArgs", "()Ljava/lang/String;", Java_xreal_Engine_getConsoleArgs},
+
+	{"getConsoleArgs", "()[Ljava/lang/String;", Java_xreal_Engine_getConsoleArgs},
+
+
 	{"sendConsoleCommand", "(ILjava/lang/String;)V", Java_xreal_Engine_sendConsoleCommand},
 	{"readFile", "(Ljava/lang/String;)[B", Java_xreal_Engine_readFile},
 	{"writeFile", "(Ljava/lang/String;[B)V", Java_xreal_Engine_writeFile}

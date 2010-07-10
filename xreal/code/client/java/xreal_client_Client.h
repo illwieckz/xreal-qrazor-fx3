@@ -41,6 +41,14 @@ JNIEXPORT jobject JNICALL Java_xreal_client_Client_getSnapshot
 
 /*
  * Class:     xreal_client_Client
+ * Method:    getServerCommand
+ * Signature: (I)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_xreal_client_Client_getServerCommand
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_client_Client
  * Method:    getKeyCatchers
  * Signature: ()I
  */

@@ -77,18 +77,20 @@ public class Game implements GameListener {
 	public boolean consoleCommand() {
 		//Engine.print("xreal.server.game.Game.consoleCommand()\n");
 		
-		String cmd = Engine.getConsoleArgv(0);
+		String[] args = Engine.getConsoleArgs();
+		
+		String cmd = args[0];
 		
 		if(CVars.g_dedicated.getBoolean())
 		{
 			if(cmd.equals("say"))
 			{
-				Server.broadcastClientCommand("print \"server: " + Engine.concatConsoleArgs(1)  + "\n\"");
+				Server.broadcastServerCommand("print \"server: " + Engine.concatConsoleArgs(1)  + "\n\"");
 				return true;
 			}
 			
 			// everything else will also be printed as a say command
-			Server.broadcastClientCommand("print \"server: " + Engine.concatConsoleArgs(0) + "\n\"");
+			Server.broadcastServerCommand("print \"server: " + Engine.concatConsoleArgs(0) + "\n\"");
 			return true;
 		}
 		

@@ -413,10 +413,10 @@ void JNICALL Java_xreal_server_Server_setConfigString(JNIEnv *env, jclass cls, j
 
 /*
  * Class:     xreal_server_Server
- * Method:    broadcastClientCommand
+ * Method:    broadcastServerCommand
  * Signature: (Ljava/lang/String;)V
  */
-void JNICALL Java_xreal_server_Server_broadcastClientCommand(JNIEnv *env, jclass cls, jstring jcommand)
+void JNICALL Java_xreal_server_Server_broadcastServerCommand(JNIEnv *env, jclass cls, jstring jcommand)
 {
 	char           *command;
 
@@ -435,7 +435,7 @@ static jclass   class_Server;
 static JNINativeMethod Server_methods[] = {
 	{"getConfigString", "(I)Ljava/lang/String;", Java_xreal_server_Server_getConfigString},
 	{"setConfigString", "(ILjava/lang/String;)V", Java_xreal_server_Server_setConfigString},
-	{"broadcastClientCommand", "(Ljava/lang/String;)V", Java_xreal_server_Server_broadcastClientCommand},
+	{"broadcastServerCommand", "(Ljava/lang/String;)V", Java_xreal_server_Server_broadcastServerCommand},
 };
 
 void Server_javaRegister()
@@ -1899,16 +1899,16 @@ void Java_G_ShutdownGame(qboolean restart)
 
 /*
  * Class:     xreal_server_game_Player
- * Method:    sendClientCommand
+ * Method:    sendServerCommand
  * Signature: (ILjava/lang/String;)V
  */
-void JNICALL Java_xreal_server_game_Player_sendClientCommand(JNIEnv *env, jclass cls, jint clientNum, jstring jcommand)
+void JNICALL Java_xreal_server_game_Player_sendServerCommand(JNIEnv *env, jclass cls, jint clientNum, jstring jcommand)
 {
 	char           *command;
 
 	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
 	{
-		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_sendClientCommand: bad index %i\n", clientNum);
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_sendServerCommand: bad index %i\n", clientNum);
 	}
 
 	command = (char *)((*env)->GetStringUTFChars(env, jcommand, 0));
@@ -2436,7 +2436,7 @@ void JNICALL Java_xreal_server_game_Player_setPlayerState_1viewAngles(JNIEnv *en
 
 
 static JNINativeMethod Player_methods[] = {
-	{"sendClientCommand", "(ILjava/lang/String;)V", Java_xreal_server_game_Player_sendClientCommand},
+	{"sendServerCommand", "(ILjava/lang/String;)V", Java_xreal_server_game_Player_sendServerCommand},
 
 	{"getUserInfo", "(I)Ljava/lang/String;", Java_xreal_server_game_Player_getUserInfo},
 	{"setUserInfo", "(ILjava/lang/String;)V", Java_xreal_server_game_Player_setUserInfo},

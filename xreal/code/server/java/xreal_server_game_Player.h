@@ -9,10 +9,10 @@ extern "C" {
 #endif
 /*
  * Class:     xreal_server_game_Player
- * Method:    sendClientCommand
+ * Method:    sendServerCommand
  * Signature: (ILjava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_xreal_server_game_Player_sendClientCommand
+JNIEXPORT void JNICALL Java_xreal_server_game_Player_sendServerCommand
   (JNIEnv *, jclass, jint, jstring);
 
 /*

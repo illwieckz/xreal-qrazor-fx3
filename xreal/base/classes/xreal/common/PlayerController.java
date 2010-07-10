@@ -937,9 +937,9 @@ public class PlayerController implements ActionInterface {
 			// we got exactly where we wanted to go first try
 			if(CVars.pm_debug.getBoolean())
 			{
-				Engine.println(c_pmove + ":slided");
+				//Engine.println(c_pmove + ":slided");
 			}
-			return;   
+			return;
 		}
 
 		Vector3f down = new Vector3f(startOrigin);
