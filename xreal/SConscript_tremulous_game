@@ -55,6 +55,10 @@ elif env['arch'] == 'freebsd-i386':
 	game_env.SharedLibrary('game', [game_src, dll_src], LIBS=['m'])
 	game_env.InstallAs('#tremulous/qagamei386.so', 'libgame.so')
 
+elif env['arch'] == 'freebsd-amd64':
+	game_env.SharedLibrary('game', [game_src, dll_src], LIBS=['m'])
+	game_env.InstallAs('#tremulous/qagameamd64.so', 'libgame.so')
+
 elif env['arch'] == 'win32-mingw':
 	game_env.SharedLibrary('game', [game_src, dll_src], LIBS=['m'])
 	game_env.InstallAs('#tremulous/qagamex86.dll', 'game.dll')

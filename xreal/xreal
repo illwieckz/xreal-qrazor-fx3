@@ -17,6 +17,10 @@ case `uname -m` in
 		BINARY="$BIN.x86_64"
 		check_file "$@";
 		;;
+	amd64)
+		BINARY="$BIN.amd64"
+		check_file "$@";
+		;;
 	i386|i486|i586|i686)
 		BINARY="$BIN.i386"
 		check_file "$@";

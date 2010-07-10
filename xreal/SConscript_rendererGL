@@ -188,6 +188,23 @@ elif env['arch'] == 'opensolaris-i386':
 
 	rendererGL_env.SharedLibrary('rendererGL', rendererGL_src)
 	rendererGL_env.InstallAs('#rendererGLi386.so', 'librendererGL.so')
+	rendererGL_env.Append(LIBS=['GL'])
+	if env['smp'] == 1:
+		rendererGL_env.Append(CCFLAGS='-DSMP')
+		rendererGL_env.Append(LIBS=['pthread'])
+
+elif env['arch'] == 'freebsd-amd64':
+	rendererGL_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
+	rendererGL_env.ParseConfig('freetype-config --cflags --libs')
+	rendererGL_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	rendererGL_env.Append(LIBS=['GL'])
+
+	if env['smp'] == 1:
+		rendererGL_env.Append(CCFLAGS='-DSMP')
+		rendererGL_env.Append(LIBS=['pthread'])
+
+	rendererGL_env.SharedLibrary('rendererGL', rendererGL_src)
+	rendererGL_env.InstallAs('#rendererGLamd64.so', 'librendererGL.so')
 
 elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
 	rendererGL_env.ParseConfig('sdl-config --cflags --libs')

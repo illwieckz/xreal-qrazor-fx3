@@ -28,6 +28,14 @@ elif env['arch'] == 'linux-x86_64':
 	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
 	ui_env.InstallAs('#tremulous/uix86_64.so', 'libui.so')
 
+if env['arch'] == 'freebsd-i386':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#tremulous/uii386.so', 'libui.so')
+
+if env['arch'] == 'freebsd-amd64':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#tremulous/uiamd64.so', 'libui.so')
+
 
 
 

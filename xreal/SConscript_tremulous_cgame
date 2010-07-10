@@ -58,6 +58,10 @@ elif env['arch'] == 'freebsd-i386':
 	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src], LIBS=['m'])
 	cgame_env.InstallAs('#tremulous/cgamei386.so', 'libcgame.so')
 
+elif env['arch'] == 'freebsd-amd64':
+	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src], LIBS=['m'])
+	cgame_env.InstallAs('#tremulous/cgameamd64.so', 'libcgame.so')
+
 elif env['arch'] == 'win32-mingw':
 	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src], LIBS=['m'])
 	cgame_env.InstallAs('#tremulous/cgamex86.dll', 'cgame.dll')

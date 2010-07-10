@@ -494,12 +494,18 @@ module_env.Append(CCFLAGS='-Icode/xrealradiant/include')
 module_env.Append(CCFLAGS='-Icode/xrealradiant/libs')
 
 if env['arch'] == 'freebsd-i386':
-        module_env.Append(CCFLAGS='-I/usr/local/include')
+        module_env.Append(CCFLAGS='-I/usr/local/include -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
         module_env.Append(LIBPATH=['/usr/local/lib'])
+        module_env.Append(LDFLAGS='-L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
 
-if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] == 'freebsd-i386' :
+if env['arch'] == 'freebsd-amd64':
+        module_env.Append(CCFLAGS='-I/usr/local/include -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+        module_env.Append(LIBPATH=['/usr/local/lib'])
+        module_env.Append(LDFLAGS='-L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
 
-	module_env.Append(CCFLAGS='-DPOSIX')
+if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] == 'freebsd-i386' or env['arch'] == 'freebsd-amd64':
+
+	module_env.Append(CCFLAGS='-DPOSIX -fPIC')
 	module_env.Append(LIBPATH=['.'])
 	
 	scenegraphutil_env = module_env.Clone()
@@ -534,6 +540,10 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] =
 	elif env['arch'] == 'linux-x86_64':
 		xrealradiant_env.Program('xrealradiant', xrealradiant_src)
 		xrealradiant_env.InstallAs('#xrealradiant/xrealradiant.x86_64', 'xrealradiant')
+
+	if env['arch'] == 'freebsd-amd64':
+		xrealradiant_env.Program('xrealradiant', xrealradiant_src)
+		xrealradiant_env.InstallAs('#xrealradiant/xrealradiant.amd64', 'xrealradiant')
 	
 	archivezip_env = module_env.Clone()
 	archivezip_env.SharedLibrary('archivezip', archivezip_src, LIBS=['z'])
