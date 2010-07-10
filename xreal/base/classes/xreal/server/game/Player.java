@@ -131,7 +131,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		Game.getBroadphase().getOverlappingPairCache().setInternalGhostPairCallback(new GhostPairCallback());
 		
-		_collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH, Config.PLAYER_HEIGHT);
+		_collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH / 2, Config.PLAYER_HEIGHT / 2);
 		//_collisionShape = new BoxShape(new Vector3f(18, 18, 37));
 		
 		/*

@@ -33,8 +33,6 @@ public abstract class CEntity {
 
 	public int				snapShotTime;	// last time this entity was found in a snapshot
 
-	//playerEntity_t  pe;	// goes to ClientPlayer
-
 	public int				errorTime;	// decay the error from this time
 	public Vector3f			errorOrigin = new Vector3f();
 	public Vector3f			errorAngles = new Vector3f();

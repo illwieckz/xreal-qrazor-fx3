@@ -95,6 +95,9 @@ public class PredictionManager {
 		
 		predictedPlayerEntity.currentState = predictedPlayerState.createEntityState(false);
 		predictedPlayerEntity.nextState = predictedPlayerEntity.currentState;
+		
+		predictedPlayerEntity.ps = predictedPlayerState;
+		
 		//predictedPlayerEntity = new CEntity_Player(predictedPlayerState.createEntityState(false));
 
 		// TODO

@@ -237,7 +237,7 @@ public abstract class Renderer {
 			
 			addPolygonVertexToScene(v.pos.x, v.pos.y, v.pos.z,
 									v.st.x, v.st.y,
-									v.color.x, v.color.y, v.color.z, v.color.w);
+									v.color.red, v.color.green, v.color.blue, v.color.alpha);
 		}
 		
 		addPolygonToSceneEnd();

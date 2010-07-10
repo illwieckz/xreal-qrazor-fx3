@@ -81,60 +81,60 @@ public class CEntity_PhysicsBox extends CEntity {
 			case CollisionObject.ACTIVE_TAG:
 				for(i = 0; i < 4; i++)
 				{
-					verts[i].color.x = 1;
-					verts[i].color.y = 1;
-					verts[i].color.z = 1;
-					verts[i].color.w = 1;
+					verts[i].color.red = 1;
+					verts[i].color.green = 1;
+					verts[i].color.blue = 1;
+					verts[i].color.alpha = 1;
 				}
 				break;
 
 			case CollisionObject.ISLAND_SLEEPING:
 				for(i = 0; i < 4; i++)
 				{
-					verts[i].color.x = 0;
-					verts[i].color.y = 1;
-					verts[i].color.z = 0;
-					verts[i].color.w = 1;
+					verts[i].color.red = 0;
+					verts[i].color.green = 1;
+					verts[i].color.blue = 0;
+					verts[i].color.alpha = 1;
 				}
 				break;
 
 			case CollisionObject.WANTS_DEACTIVATION:
 				for(i = 0; i < 4; i++)
 				{
-					verts[i].color.x = 0;
-					verts[i].color.y = 1;
-					verts[i].color.z = 1;
-					verts[i].color.w = 1;
+					verts[i].color.red = 0;
+					verts[i].color.green = 1;
+					verts[i].color.blue = 1;
+					verts[i].color.alpha = 1;
 				}
 				break;
 
 			case CollisionObject.DISABLE_DEACTIVATION:
 				for(i = 0; i < 4; i++)
 				{
-					verts[i].color.x = 1;
-					verts[i].color.y = 0;
-					verts[i].color.z = 0;
-					verts[i].color.w = 1;
+					verts[i].color.red = 1;
+					verts[i].color.green = 0;
+					verts[i].color.blue = 0;
+					verts[i].color.alpha = 1;
 				}
 				break;
 
 			case CollisionObject.DISABLE_SIMULATION:
 				for(i = 0; i < 4; i++)
 				{
-					verts[i].color.x = 1;
-					verts[i].color.y = 1;
-					verts[i].color.z = 0;
-					verts[i].color.w = 1;
+					verts[i].color.red = 1;
+					verts[i].color.green = 1;
+					verts[i].color.blue = 0;
+					verts[i].color.alpha = 1;
 				}
 				break;
 
 			default:
 				for(i = 0; i < 4; i++)
 				{
-					verts[i].color.x = 1;
-					verts[i].color.y = 0;
-					verts[i].color.z = 0;
-					verts[i].color.w = 1;
+					verts[i].color.red = 1;
+					verts[i].color.green = 0;
+					verts[i].color.blue = 0;
+					verts[i].color.alpha = 1;
 				}
 				break;
 		}

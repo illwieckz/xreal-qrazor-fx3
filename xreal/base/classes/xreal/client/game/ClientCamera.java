@@ -318,7 +318,7 @@ public class ClientCamera extends Camera {
 	void offsetThirdPersonView(PlayerState ps)
 	{
 		Vector3f         forward, right, up;
-		Vector3f         view;
+		Vector3f         viewPos;
 		Angle3f          focusAngles;
 		//trace_t         trace;
 		//static Vector3f   mins = { -8, -8, -8 };
@@ -353,6 +353,12 @@ public class ClientCamera extends Camera {
 			focusAngles.y = ps.stats[PlayerStatsType.DEAD_YAW.ordinal()];
 			viewAngles.y = ps.stats[PlayerStatsType.DEAD_YAW.ordinal()];
 		}
+		
+		if(focusAngles.x > 45)
+		{
+			// don't go too far overhead
+			focusAngles.x = 45;
+		}
 
 		forward = new Vector3f();
 		right = new Vector3f();
@@ -363,20 +369,19 @@ public class ClientCamera extends Camera {
 		focusPoint = new Vector3f();
 		focusPoint.scaleAdd(FOCUS_DISTANCE, forward, position);
 
-		view = new Vector3f();
-		view.scaleAdd(12, surfNormal, position);
+		viewPos = new Vector3f();
+		viewPos.scaleAdd(12, surfNormal, position);
 
-		//cg.refdefViewAngles[PITCH] *= 0.5;
+		viewAngles.x *= 0.5;
+		
 		viewAngles.getVectors(forward, right, up);
 
-		forwardScale = (float) Math.cos(CVars.cg_thirdPersonAngle.getValue() / 180 * Math.PI);
-		sideScale = (float) Math.sin(CVars.cg_thirdPersonAngle.getValue() / 180 * Math.PI);
+		float angle = (float) (CVars.cg_thirdPersonAngle.getValue() / 180 * Math.PI);
+		forwardScale = (float) Math.cos(angle);
+		sideScale = (float) Math.sin(angle);
 		
-		forward.scale(forwardScale);
-		right.scale(sideScale);
-		
-		view.scaleAdd(-CVars.cg_thirdPersonRange.getValue() * forwardScale, forward, view);
-		view.scaleAdd(-CVars.cg_thirdPersonRange.getValue() * sideScale, right, view);
+		viewPos.scaleAdd(-CVars.cg_thirdPersonRange.getValue() * forwardScale, forward, viewPos);
+		viewPos.scaleAdd(-CVars.cg_thirdPersonRange.getValue() * sideScale, right, viewPos);
 
 		// trace a ray from the origin to the viewpoint to make sure the view isn't
 		// in a solid block.  Use an 8 by 8 block to prevent the view from near clipping anything
@@ -401,10 +406,12 @@ public class ClientCamera extends Camera {
 			*/
 		}
 
-		position.set(view);
+		position.set(viewPos);
 
 		// select pitch to look at focus point from vieword
-		focusPoint.sub(position);
+		Vector3f focusDirection = new Vector3f();
+		focusDirection.sub(focusPoint, viewPos);
+		
 		/*
 	#if 0
 		if(ps.pm_flags & PMF_WALLCLIMBING)
@@ -415,14 +422,14 @@ public class ClientCamera extends Camera {
 	#endif
 		*/
 		{
-			focusDist = (float) Math.sqrt(focusPoint.x * focusPoint.x + focusPoint.y * focusPoint.y);
+			focusDist = (float) Math.sqrt(focusDirection.x * focusDirection.x + focusDirection.y * focusDirection.y);
 		}
 		if(focusDist < 1)
 		{
 			focusDist = 1;			// should never happen
 		}
 		
-		viewAngles.x = (float) (-180 / Math.PI * Math.atan2(focusPoint.z, focusDist));
+		viewAngles.x = (float) (-180 / Math.PI * Math.atan2(focusDirection.z, focusDist));
 		viewAngles.y -= CVars.cg_thirdPersonAngle.getValue();
 	}
 	

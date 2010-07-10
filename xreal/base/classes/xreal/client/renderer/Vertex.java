@@ -4,6 +4,8 @@ import javax.vecmath.Color4f;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector2f;
 
+import xreal.Color;
+
 
 /**
  * Equivalent to polyVert_t
@@ -13,5 +15,5 @@ import javax.vecmath.Vector2f;
 public class Vertex {
 	public Point3f pos = new Point3f();
 	public Vector2f st = new Vector2f();
-	public Color4f	color = new Color4f();
+	public Color	color = new Color();
 }

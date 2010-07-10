@@ -11,6 +11,10 @@ public class Color {
 	public float blue;
 	public float alpha;
 
+	public Color() {
+		this(Color.White);
+	}
+	
 	public Color(float red, float green, float blue, float alpha) {
 		super();
 		this.red = red;
