@@ -994,7 +994,7 @@ void JVM_Init(void)
 
 	jvm_javaLib = Cvar_Get("jvm_javaLib", DEFAULT_JAVA_LIB, CVAR_ARCHIVE | CVAR_LATCH);
 	jvm_useJITCompiler = Cvar_Get("jvm_useJITCompiler", "1", CVAR_INIT);
-	jvm_useJAR = Cvar_Get("jvm_useJAR", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	jvm_useJAR = Cvar_Get("jvm_useJAR", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	jvm_remoteDebugging = Cvar_Get("jvm_remoteDebugging", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	jvm_profiling = Cvar_Get("jvm_profiling", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	jvm_verboseJNI = Cvar_Get("jvm_verboseJNI", "0", CVAR_ARCHIVE | CVAR_LATCH);
