@@ -89,30 +89,6 @@ JNIEXPORT void JNICALL Java_xreal_server_game_Player_setPlayerState_1pm_1flags
 
 /*
  * Class:     xreal_server_game_Player
- * Method:    addPlayerState_pm_flags
- * Signature: (II)V
- */
-JNIEXPORT void JNICALL Java_xreal_server_game_Player_addPlayerState_1pm_1flags
-  (JNIEnv *, jclass, jint, jint);
-
-/*
- * Class:     xreal_server_game_Player
- * Method:    delPlayerState_pm_flags
- * Signature: (II)V
- */
-JNIEXPORT void JNICALL Java_xreal_server_game_Player_delPlayerState_1pm_1flags
-  (JNIEnv *, jclass, jint, jint);
-
-/*
- * Class:     xreal_server_game_Player
- * Method:    hasPlayerState_pm_flags
- * Signature: (II)Z
- */
-JNIEXPORT jboolean JNICALL Java_xreal_server_game_Player_hasPlayerState_1pm_1flags
-  (JNIEnv *, jclass, jint, jint);
-
-/*
- * Class:     xreal_server_game_Player
  * Method:    getPlayerState_pm_time
  * Signature: (I)I
  */

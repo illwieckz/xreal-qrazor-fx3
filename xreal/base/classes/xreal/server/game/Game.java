@@ -222,6 +222,14 @@ public class Game implements GameListener {
 		// go through all allocated objects
 		int start = Engine.getTimeInMilliseconds();
 		
+		if(CVars.g_synchronousClients.getBoolean())
+		{
+			for(Player player : players)
+			{
+				player.runThink();
+			}
+		}
+		
 		for(GameEntity ent : entities)
 		{
 			/*

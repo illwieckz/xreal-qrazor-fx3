@@ -3,16 +3,6 @@ package xreal.server.game;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
-import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
-import com.bulletphysics.collision.dispatch.CollisionFlags;
-import com.bulletphysics.collision.dispatch.GhostPairCallback;
-import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
-import com.bulletphysics.collision.shapes.BoxShape;
-import com.bulletphysics.collision.shapes.CapsuleShape;
-import com.bulletphysics.collision.shapes.CapsuleShapeZ;
-import com.bulletphysics.collision.shapes.ConvexShape;
-import com.bulletphysics.linearmath.Transform;
-
 import xreal.Angle3f;
 import xreal.CVars;
 import xreal.ConsoleColorStrings;
@@ -20,7 +10,6 @@ import xreal.Engine;
 import xreal.PlayerStateAccess;
 import xreal.UserCommand;
 import xreal.UserInfo;
-import xreal.client.game.ClientGame;
 import xreal.common.Config;
 import xreal.common.ConfigStrings;
 import xreal.common.GameType;
@@ -29,6 +18,14 @@ import xreal.common.PlayerMove;
 import xreal.common.PlayerMovementType;
 import xreal.common.Team;
 import xreal.server.Server;
+
+import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
+import com.bulletphysics.collision.dispatch.CollisionFlags;
+import com.bulletphysics.collision.dispatch.GhostPairCallback;
+import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
+import com.bulletphysics.collision.shapes.CapsuleShapeZ;
+import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.linearmath.Transform;
 
 /**
  * Represents, uses and writes to a native gclient_t
@@ -50,6 +47,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	private int					_lastCmdTime;
 	
 	private boolean				_noClip;
+	private boolean				_isBot;
 	
 	// --------------------------------------------------------------------------------------------
 	
@@ -76,6 +74,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		// store the clientNum in the entityState_t::number
 		super(clientNum);
 		
+		_isBot = isBot;
 		_sess.sessionTeam = Team.SPECTATOR;
 		
 		String userinfo = getUserInfo(clientNum);
@@ -273,19 +272,91 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		//Engine.println(ucmd.toString());
 		
+		_pers.cmd = ucmd;
+		
 		// mark the time we got info, so we can display the
 		// phone jack if they don't get any for a while
 		_lastCmdTime = Game.getLevelTime();
 		
-		/*
-		//if(!CVars.g_synchronousClients.getBoolean())
+		if(!CVars.g_synchronousClients.getBoolean())
 		{
-			//ClientThink_real(ent);
+			clientThinkReal();
+		}
+	}
+	
+	@Override
+	public void runThink()
+	{
+		if(_isBot)
+		{
+			//TODO ACEAI_Think(ent);
+			return;
+		}
+
+		clientThinkSynchronous();
+	}
+	
+	private void clientThinkSynchronous()
+	{
+		if(CVars.g_synchronousClients.getBoolean())
+		{
+			// don't think if the client is not yet connected (and thus not yet spawned in)
+			if(_pers.connected != ClientConnectionState.CONNECTED)
+			{
+				return;
+			}
 			
-			// shut up client about outdated player states
-			setPlayerState_commandTime(ucmd.serverTime);
+			_pers.cmd.serverTime = Game.getLevelTime();
 			
-			setPlayerState_pm_type(PlayerMovementType.SPECTATOR);
+			clientThinkReal();
+		}
+	}
+	
+	private void clientThinkReal()
+	{
+		// don't think if the client is not yet connected (and thus not yet spawned in)
+		if(_pers.connected != ClientConnectionState.CONNECTED)
+		{
+			return;
+		}
+		
+		// mark the time, so the connection sprite can be removed
+		UserCommand ucmd = _pers.cmd;
+
+		// sanity check the command time to prevent speedup cheating
+		if(ucmd.serverTime > Game.getLevelTime() + 200)
+		{
+			ucmd.serverTime = Game.getLevelTime() + 200;
+			Engine.print("serverTime <<<<<\n");
+		}
+		
+		if(ucmd.serverTime < Game.getLevelTime() - 1000)
+		{
+			ucmd.serverTime = Game.getLevelTime() - 1000;
+			Engine.print("serverTime >>>>>\n");
+		}
+
+		int msec = ucmd.serverTime - getPlayerState_commandTime();
+		
+		// following others may result in bad times, but we still want
+		// to check for follow toggles
+		if(msec < 1 && _sess.spectatorState != SpectatorState.FOLLOW)
+		{
+			return;
+		}
+		
+		if(msec > 200)
+		{
+			msec = 200;
+		}
+
+		// check for exiting intermission
+		//
+		/*
+		if(level.intermissiontime)
+		{
+			ClientIntermissionThink(client);
+			return;
 		}
 		*/
 		
@@ -300,6 +371,50 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 			spectatorThink(ucmd);
 			return;
 		}
+		
+		// check for inactivity timer, but never drop the local client of a non-dedicated server
+		/*
+		if(!ClientInactivityTimer(client))
+		{
+			return;
+		}
+		*/
+
+		// clear the rewards if time
+		/*
+		if(level.time > client->rewardTime)
+		{
+			client->ps.eFlags &=
+				~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP |
+				  EF_AWARD_TELEFRAG);
+		}
+		*/
+
+		if(_noClip)
+		{
+			setPlayerState_pm_type(PlayerMovementType.NOCLIP);
+		}
+		/*
+		else if(client->ps.stats[STAT_HEALTH] <= 0)
+		{
+			client->ps.pm_type = PM_DEAD;
+		}
+		*/
+		else
+		{
+			setPlayerState_pm_type(PlayerMovementType.NORMAL);
+		}
+
+		//TODO setPlayerState_gravity(CVars.g_gravityZ);
+		
+		// set speed
+		setPlayerState_speed(CVars.g_speed.getInteger());
+		
+		
+		PlayerMove pm = new PlayerMove(this, ucmd, 0, 0, 0, 0, true, false, 0);
+		
+		// perform a pmove
+		_playerController.movePlayer(pm);
 		
 		// TODO more movement
 	}
@@ -467,12 +582,15 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	 */
 	private void spawn() {
 		
+		
+		
+		
 		// find a spawn point
 		// do it before setting health back up, so farthest
 		// ranging doesn't count this client
 		SpawnPoint spawnPoint = null;
 		
-		if(_sess.sessionTeam == Team.SPECTATOR)
+		//if(_sess.sessionTeam == Team.SPECTATOR)
 		{
 			spawnPoint = selectSpectatorSpawnPoint();
 		}
@@ -713,12 +831,6 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	private synchronized static native int getPlayerState_pm_flags(int clientNum);
 
 	private synchronized static native void setPlayerState_pm_flags(int clientNum, int pm_flags);
-	
-	private synchronized static native void addPlayerState_pm_flags(int clientNum, int pm_flags);
-	
-	private synchronized static native void delPlayerState_pm_flags(int clientNum, int pm_flags);
-	
-	private synchronized static native boolean hasPlayerState_pm_flags(int clientNum, int pm_flags);
 
 	private synchronized static native int getPlayerState_pm_time(int clientNum);
 
@@ -956,13 +1068,11 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	}
 	@Override
 	public int getPlayerState_gravity() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 0; //getPlayerState_gravity(getEntityState_number());
 	}
 	@Override
 	public int getPlayerState_groundEntityNum() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getPlayerState_groundEntityNum(getEntityState_number());
 	}
 	@Override
 	public int getPlayerState_jumppad_ent() {
@@ -1154,7 +1264,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	}
 	@Override
 	public void setPlayerState_groundEntityNum(int groundEntityNum) {
-		// TODO Auto-generated method stub
+		setPlayerState_groundEntityNum(getEntityState_number(), groundEntityNum);
 		
 	}
 	@Override

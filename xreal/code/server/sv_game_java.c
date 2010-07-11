@@ -2388,6 +2388,45 @@ void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaRoll(JNIEnv *env
 	client->ps.delta_angles[ROLL] = angle;
 }
 
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    getPlayerState_groundEntityNum
+ * Signature: (I)I
+ */
+jint JNICALL Java_xreal_server_game_Player_getPlayerState_1groundEntityNum(JNIEnv *env, jclass cls, jint clientNum)
+{
+	gclient_t	   *client;
+
+	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_getPlayerState_1groundEntityNum: bad index %i\n", clientNum);
+	}
+	client = &g_clients[clientNum];
+
+	return client->ps.groundEntityNum;
+}
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    setPlayerState_groundEntityNum
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_server_game_Player_setPlayerState_1groundEntityNum(JNIEnv *env, jclass cls, jint clientNum, jint groundEntityNum)
+{
+	gclient_t	   *client;
+
+	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_setPlayerState_1groundEntityNum: bad index %i\n", clientNum);
+	}
+	client = &g_clients[clientNum];
+
+	client->ps.groundEntityNum = groundEntityNum;
+}
+
+
+
 /*
  * Class:     xreal_server_game_Player
  * Method:    getPlayerState_viewAngles
@@ -2475,6 +2514,9 @@ static JNINativeMethod Player_methods[] = {
 
 	{"getPlayerState_deltaRoll", "(I)S", Java_xreal_server_game_Player_getPlayerState_1deltaRoll},
 	{"setPlayerState_deltaRoll", "(IS)V", Java_xreal_server_game_Player_setPlayerState_1deltaRoll},
+
+	{"getPlayerState_groundEntityNum", "(I)I", Java_xreal_server_game_Player_getPlayerState_1groundEntityNum},
+	{"setPlayerState_groundEntityNum", "(II)V", Java_xreal_server_game_Player_setPlayerState_1groundEntityNum},
 
 	{"getPlayerState_viewAngles", "(I)Lxreal/Angle3f;", Java_xreal_server_game_Player_getPlayerState_1viewAngles},
 	{"setPlayerState_viewAngles", "(IFFF)V", Java_xreal_server_game_Player_setPlayerState_1viewAngles},
