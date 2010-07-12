@@ -15,6 +15,7 @@ import xreal.common.ConfigStrings;
 import xreal.common.GameType;
 import xreal.common.PlayerController;
 import xreal.common.PlayerMove;
+import xreal.common.PlayerMovementFlags;
 import xreal.common.PlayerMovementType;
 import xreal.common.Team;
 import xreal.server.Server;
@@ -23,6 +24,7 @@ import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
 import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.GhostPairCallback;
 import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
+import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CapsuleShapeZ;
 import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.linearmath.Transform;
@@ -74,8 +76,10 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		// store the clientNum in the entityState_t::number
 		super(clientNum);
 		
+		_noClip = true; // for development
+		
 		_isBot = isBot;
-		_sess.sessionTeam = Team.SPECTATOR;
+//		_sess.sessionTeam = Team.SPECTATOR;
 		
 		String userinfo = getUserInfo(clientNum);
 		if(userinfo.length() == 0)
@@ -617,6 +621,10 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 			
 			_ghostObject.setWorldTransform(startTransform);
 		}
+		
+		
+		// the respawned flag will be cleared after the attack and jump keys come up
+		addPlayerState_pm_flags(PlayerMovementFlags.RESPAWNED);
 	}
 	
 	private void setViewAngles(Angle3f angles) {

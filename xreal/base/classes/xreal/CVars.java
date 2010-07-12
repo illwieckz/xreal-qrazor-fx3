@@ -45,7 +45,7 @@ public abstract class CVars {
 	// change anytime vars
 	
 	// turn off client side player movement prediction
-	public static final CVar g_synchronousClients = new CVar("g_synchronousClients", "1", CVar.SYSTEMINFO);
+	public static final CVar g_synchronousClients = new CVar("g_synchronousClients", "0", CVar.SYSTEMINFO);
 	
 	public static final CVar g_password = new CVar("g_password", "", CVar.USERINFO);
 	public static final CVar g_dedicated = new CVar("dedicated", "0", 0);
@@ -54,8 +54,8 @@ public abstract class CVars {
 	public static final CVar g_gravityX = new CVar("g_gravityX", "0", CVar.SYSTEMINFO);
 	public static final CVar g_gravityY = new CVar("g_gravityY", "0", CVar.SYSTEMINFO);
 	
-	// FIXME: should be 313.92 = 9.81 * 32 SI gravity in Quake units
-	public static final CVar g_gravityZ = new CVar("g_gravityZ", "-200", CVar.SYSTEMINFO);
+	// FIXME: should be 386 = SI gravity 9.81 * 39.27 inches for 1 meter
+	public static final CVar g_gravityZ = new CVar("g_gravityZ", "-800", CVar.SYSTEMINFO);
 	
 	// don't override the cheat state set by the system
 	public static final CVar sv_cheats = new CVar("sv_cheats", "", 0);
@@ -82,11 +82,7 @@ public abstract class CVars {
 	public static final CVar pm_waterFriction = new CVar("pm_waterFriction", "1", CVar.SYSTEMINFO);
 	public static final CVar pm_flightFriction = new CVar("pm_flightFriction", "3", CVar.SYSTEMINFO);
 	public static final CVar pm_spectatorFriction = new CVar("pm_spectatorFriction", "5", CVar.SYSTEMINFO);
-
-	// XreaL Movement Physics
-//	public static final CVar pm_airStopAccelerate = new CVar("pm_airStopAcceleration", "2.5", CVar.SYSTEMINFO);
-//	public static final CVar pm_airControlAmount = new CVar("pm_airStopAcceleration", "150", CVar.SYSTEMINFO);
-//	public static final CVar pm_strafeAccelerate = 70.0f;
-//	public static final CVar pm_wishSpeed = 30.0f;
+	
+	public static final CVar pm_jumpHeight = new CVar("pm_jumpHeight", "48", CVar.SYSTEMINFO);
 
 }

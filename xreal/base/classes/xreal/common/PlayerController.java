@@ -35,33 +35,56 @@ public class PlayerController implements ActionInterface {
 	
 	private class PlayerControllerLocals
 	{
-		public Vector3f forward = new Vector3f(0, 0, 0);
-		public Vector3f right = new Vector3f(0, 0, 0);
-		public Vector3f up = new Vector3f(0, 0, 0);
-	
-		public float frameTime;
+		public PlayerControllerLocals()
+		{
+			//gravityVector = new Vector3f(CVars.g_gravityX.getValue(), CVars.g_gravityY.getValue(), CVars.g_gravityZ.getValue());
+			gravityVector = new Vector3f(0, 0, CVars.g_gravityZ.getValue());
+			
+			gravityNormal = new Vector3f(gravityVector);
+			gravityNormal.normalize();
+			
+			gravityNormalFlipped = new Vector3f(gravityNormal);
+			gravityNormalFlipped.negate();
+		}
+		
+		public Vector3f										forward				= new Vector3f(0, 0, 0);
+		public Vector3f										right				= new Vector3f(0, 0, 0);
+		public Vector3f										up					= new Vector3f(0, 0, 0);
 
-		public int msec;
+		public float										frameTime;
 
-		public boolean walking;
-		public boolean groundPlane;
-		public Vector3f groundPlaneNormal = new Vector3f();
-		public KinematicClosestNotMeConvexResultCallback groundTrace;
+		public int											msec;
 
-		public float impactSpeed;
+		public boolean										walking;
+		public boolean										groundPlane;
+		public KinematicClosestNotMeConvexResultCallback	groundTrace;
 
-		public Vector3f previous_origin = new Vector3f(0, 0, 0);
-		public Vector3f previous_velocity = new Vector3f(0, 0, 0);
-		public int previous_waterlevel;
+		public float										impactSpeed;
+
+		public Vector3f										previousOrigin		= new Vector3f(0, 0, 0);
+		public Vector3f										previousVelocity	= new Vector3f(0, 0, 0);
+		public int											previousWaterlevel;
+		
+		public final Vector3f								gravityVector;
+		public final Vector3f								gravityNormal;
+		public final Vector3f								gravityNormalFlipped;
 	}
-	private PlayerControllerLocals pml = new PlayerControllerLocals();
+
+	private PlayerControllerLocals			pml				= new PlayerControllerLocals();
+
+	private static final int				MAX_CLIP_PLANES	= 5;
+	private static final float				OVERCLIP		= 1.001f;
+
+	/** can't walk on very steep slopes */
+	private static final float				MIN_WALK_NORMAL	= 0.7f;
+	private static final float				JUMP_VELOCITY	= 270;
+	private static final float				TIMER_LAND		= 130;
+	private static final float				TIMER_GESTURE	= (34 * 66 + 50);
 	
-	private static final int MAX_CLIP_PLANES = 5;
-	private static final float OVERCLIP	= 1.001f;
-	private static final float MIN_WALK_NORMAL = 0.7f;	// can't walk on very steep slopes
 	
-	private Queue<PlayerMove> playerMovements = new LinkedList<PlayerMove>();
+//	private Queue<PlayerMove> playerMovements = new LinkedList<PlayerMove>();
 	private PlayerMove pm;
+	
 	
 	private final PairCachingGhostObject ghostObject;
 	private final ConvexShape convexShape;
@@ -69,16 +92,19 @@ public class PlayerController implements ActionInterface {
 	
 	private int c_pmove;
 	
-	public PlayerController(PairCachingGhostObject ghostObject, ConvexShape convexShape, CollisionWorld collisionWorld) {
+	public PlayerController(PairCachingGhostObject ghostObject, ConvexShape convexShape, CollisionWorld collisionWorld)
+	{
 		this.ghostObject = ghostObject;
 		this.convexShape = convexShape;
 		this.collisionWorld = collisionWorld;
 	}
 	
+	/*
 	public void addPlayerMove(PlayerMove pmove)
 	{
-		//playerMovements.add(pmove);
+		playerMovements.add(pmove);
 	}
+	*/
 	
 	@Override
 	public void updateAction(CollisionWorld collisionWorld, float deltaTimeStep) {
@@ -126,15 +152,7 @@ public class PlayerController implements ActionInterface {
 			
 			pmove.cmd.serverTime = pmove.ps.getPlayerState_commandTime() + msec;
 			
-			try
-			{
-				movePlayerSingle(pmove);
-			}
-			catch(Exception e)
-			{
-				Engine.error("Something bad happened in Player.movePlayer(): " + e.getMessage());
-				return;
-			}
+			movePlayerSingle(pmove);
 
 			if(pmove.ps.hasPlayerState_pm_flags(PlayerMovementFlags.JUMP_HELD))
 			{
@@ -188,12 +206,10 @@ public class PlayerController implements ActionInterface {
 		*/
 
 		// clear the respawned flag if attack and use are cleared
-		/*
-		if(pm.ps->stats[STAT_HEALTH] > 0 && (pm.cmd.buttons & (UserCommand.BUTTON_ATTACK | UserCommand.BUTTON_ATTACK2 | UserCommand.BUTTON_USE_HOLDABLE)) > 0)
+		//if(pm.ps->stats[STAT_HEALTH] > 0 && (pm.cmd.buttons & (UserCommand.BUTTON_ATTACK | UserCommand.BUTTON_ATTACK2 | UserCommand.BUTTON_USE_HOLDABLE)) > 0)
 		{
-			pm.ps->pm_flags &= ~PMF_RESPAWNED;
+			pm.ps.delPlayerState_pm_flags(PlayerMovementFlags.RESPAWNED);
 		}
-		*/
 
 		// if talk button is down, dissallow all other input
 		// this is to prevent any possible intercept proxy from
@@ -227,10 +243,10 @@ public class PlayerController implements ActionInterface {
 		//Engine.println("PlayerController.movePlayerSingle() 3...");
 
 		// save old org in case we get stuck
-		pml.previous_origin.set(pm.ps.getPlayerState_origin()); 
+		pml.previousOrigin.set(pm.ps.getPlayerState_origin()); 
 
 		// save old velocity for crashlanding
-		pml.previous_velocity.set(pm.ps.getPlayerState_velocity());
+		pml.previousVelocity.set(pm.ps.getPlayerState_velocity());
 		
 		//Engine.println("PlayerController.movePlayerSingle() 4...");
 
@@ -288,12 +304,12 @@ public class PlayerController implements ActionInterface {
 				updateViewAngles(pm.ps, pm.cmd);
 				viewAngles = pm.ps.getPlayerState_viewAngles();
 				viewAngles.getVectors(pml.forward, pml.right, pml.up);
+				
+				checkDuck();
 				flyMove();
 				//spectatorMove(true);
 				
-				//PM_CheckDuck();
-				//PM_FlyMove();
-				//PM_DropTimers();
+				dropTimers();
 				return;
 				
 			case NOCLIP:
@@ -301,7 +317,7 @@ public class PlayerController implements ActionInterface {
 				viewAngles = pm.ps.getPlayerState_viewAngles();
 				viewAngles.getVectors(pml.forward, pml.right, pml.up);
 				spectatorMove(false);
-				//PM_DropTimers();
+				dropTimers();
 				return;
 				
 			case FREEZE:
@@ -309,154 +325,159 @@ public class PlayerController implements ActionInterface {
 			case SPINTERMISSION:
 				// no movement at all
 				return;
-		}
-		
-		
-
-		// set watertype, and waterlevel
-		//PM_SetWaterLevel();
-		//pml.previous_waterlevel = pmove->waterlevel;
-
-		// set mins, maxs, and viewheight
-		checkDuck();
-
-		// set groundentity
-		groundTrace();
-
-		// update the viewangles
-		updateViewAngles(pm.ps, pm.cmd);
-
-		if(pm_type == PlayerMovementType.DEAD)
-		{
-			//deadMove();
-		}
-
-		//PM_DropTimers();
-
-		/*
-	#ifdef MISSIONPACK
-		if(pm->ps->powerups[PW_INVULNERABILITY])
-		{
-			PM_InvulnerabilityMove();
-		}
-		else
-	#endif
-		if(pm->ps->powerups[PW_FLIGHT])
-		{
-			// flight powerup doesn't allow jump and has different friction
-			PM_FlyMove();
-		}
-		else if(pm->ps->pm_flags & PMF_GRAPPLE_PULL)
-		{
-			PM_GrappleMove();
-
-			// we can wiggle a bit
-			PM_AirMove();
-		}
-		else if(pm->ps->pm_flags & PMF_TIME_WATERJUMP)
-		{
-			PM_WaterJumpMove();
-		}
-		else if(pm->waterlevel > 1)
-		{
-			// swimming
-			PM_WaterMove();
-		}
-		else */if(pml.walking)
-		{
-			/*
-			if(pm->ps->pm_flags & PMF_WALLCLIMBING)
+				
+			case NORMAL:
 			{
-				// TA: walking on any surface
-				PM_ClimbMove();
-			}
-			else
-			*/
-			{
-				// walking on ground
-				//walkMove();
-			}
-		}
-		else
-		{
-			// airborne
-			airMove();
-		}
+				updateViewAngles(pm.ps, pm.cmd);
+				viewAngles = pm.ps.getPlayerState_viewAngles();
+				viewAngles.getVectors(pml.forward, pml.right, pml.up);
+				
+				// set watertype, and waterlevel
+				//PM_SetWaterLevel();
+				//pml.previous_waterlevel = pmove->waterlevel;
 
-		//PM_Animate();
+				// set mins, maxs, and viewheight
+				checkDuck();
 
-		// set groundentity, watertype, and waterlevel
-		groundTrace();
+				// set groundentity
+				groundTrace();
 
-		//TA: must update after every GroundTrace() - yet more clock cycles down the drain :( (14 vec rotations/frame)
-		// update the viewangles
-		updateViewAngles(pm.ps, pm.cmd);
+				// update the viewangles
+				updateViewAngles(pm.ps, pm.cmd);
 
-		//PM_SetWaterLevel();
-
-		// weapons
-		//PM_Weapon();
-
-		// torso animation
-		//PM_TorsoAnimation();
-
-		// footstep events / legs animations
-		//PM_Footsteps();
-
-		// entering / leaving water splashes
-		//PM_WaterEvents();
-
-		// snap some parts of playerstate to save network bandwidth
-		/*
-		if(pm->fixedPmove)
-		{
-			// the new way: don't care so much about 6 bytes/frame
-			// or so of network bandwidth, and add some mostly framerate-
-			// independent error to make up for the lack of rounding error
-
-			// halt if not going fast enough (0.5 units/sec)
-			if(VectorLengthSquared(pm->ps->velocity) < 0.25f)
-			{
-				VectorClear(pm->ps->velocity);
-			}
-			else
-			{
-				int             i;
-				float           fac;
-
-				fac = (float)pml.msec / (1000.0f / (float)pm->fixedPmoveFPS);
-
-				// add some error...
-				for(i = 0; i < 3; i++)
+				if(pm_type == PlayerMovementType.DEAD)
 				{
-					// ...if the velocity in this direction changed enough
-					if(fabs(pm->ps->velocity[i] - pml.previous_velocity[i]) > 0.5f / fac)
-					{
-						if(pm->ps->velocity[i] < 0)
-						{
-							pm->ps->velocity[i] -= 0.5f * fac;
-						}
-						else
-						{
-							pm->ps->velocity[i] += 0.5f * fac;
-						}
-					}
+					//deadMove();
 				}
 
-				// we can stand a little bit of rounding error for the sake
-				// of lower bandwidth
-				VectorScale(pm->ps->velocity, 64.0f, pm->ps->velocity);
-				SnapVector(pm->ps->velocity);
-				VectorScale(pm->ps->velocity, 1.0f / 64.0f, pm->ps->velocity);
+				dropTimers();
+
+				/*
+			#ifdef MISSIONPACK
+				if(pm.ps.powerups[PW_INVULNERABILITY])
+				{
+					PM_InvulnerabilityMove();
+				}
+				else
+			#endif
+				if(pm.ps.powerups[PW_FLIGHT])
+				{
+					// flight powerup doesn't allow jump and has different friction
+					PM_FlyMove();
+				}
+				else if(pm.ps.pm_flags & PMF_GRAPPLE_PULL)
+				{
+					PM_GrappleMove();
+
+					// we can wiggle a bit
+					PM_AirMove();
+				}
+				else if(pm.ps.pm_flags & PMF_TIME_WATERJUMP)
+				{
+					PM_WaterJumpMove();
+				}
+				else if(pm->waterlevel > 1)
+				{
+					// swimming
+					PM_WaterMove();
+				}
+				else */if(pml.walking)
+				{
+					/*
+					if(pm.ps.pm_flags & PMF_WALLCLIMBING)
+					{
+						// TA: walking on any surface
+						PM_ClimbMove();
+					}
+					else
+					*/
+					{
+						// walking on ground
+						walkMove();
+					}
+				}
+				else
+				{
+					// airborne
+					airMove();
+				}
+
+				//PM_Animate();
+
+				// set groundentity, watertype, and waterlevel
+				groundTrace();
+
+				//TA: must update after every GroundTrace() - yet more clock cycles down the drain :( (14 vec rotations/frame)
+				// update the viewangles
+				updateViewAngles(pm.ps, pm.cmd);
+
+				//PM_SetWaterLevel();
+
+				// weapons
+				//PM_Weapon();
+
+				// torso animation
+				//PM_TorsoAnimation();
+
+				// footstep events / legs animations
+				//PM_Footsteps();
+
+				// entering / leaving water splashes
+				//PM_WaterEvents();
+
+				// snap some parts of playerstate to save network bandwidth
+				/*
+				if(pm->fixedPmove)
+				{
+					// the new way: don't care so much about 6 bytes/frame
+					// or so of network bandwidth, and add some mostly framerate-
+					// independent error to make up for the lack of rounding error
+
+					// halt if not going fast enough (0.5 units/sec)
+					if(VectorLengthSquared(pm.ps.velocity) < 0.25f)
+					{
+						VectorClear(pm.ps.velocity);
+					}
+					else
+					{
+						int             i;
+						float           fac;
+
+						fac = (float)pml.msec / (1000.0f / (float)pm->fixedPmoveFPS);
+
+						// add some error...
+						for(i = 0; i < 3; i++)
+						{
+							// ...if the velocity in this direction changed enough
+							if(fabs(pm.ps.velocity[i] - pml.previous_velocity[i]) > 0.5f / fac)
+							{
+								if(pm.ps.velocity[i] < 0)
+								{
+									pm.ps.velocity[i] -= 0.5f * fac;
+								}
+								else
+								{
+									pm.ps.velocity[i] += 0.5f * fac;
+								}
+							}
+						}
+
+						// we can stand a little bit of rounding error for the sake
+						// of lower bandwidth
+						VectorScale(pm.ps.velocity, 64.0f, pm.ps.velocity);
+						SnapVector(pm.ps.velocity);
+						VectorScale(pm.ps.velocity, 1.0f / 64.0f, pm.ps.velocity);
+					}
+				}
+				else
+				*/
+				{
+					Vector3f snappedVelocity = pm.ps.getPlayerState_velocity();
+					
+					snappedVelocity.snap();
+					pm.ps.setPlayerState_velocity(snappedVelocity);
+				}
 			}
-		}
-		else
-		*/
-		{
-			Vector3f snappedVelocity = pm.ps.getPlayerState_velocity();
-			
-			snappedVelocity.snap();
-			pm.ps.setPlayerState_velocity(snappedVelocity);
 		}
 	}
 	
@@ -551,6 +572,149 @@ public class PlayerController implements ActionInterface {
 	}
 	
 	/**
+	 * Determine the rotation of the legs relative
+	 * to the facing direction.
+	 */
+	private void setMovementDir()
+	{
+		/*
+	// Ridah, changed this for more realistic angles (at the cost of more network traffic?)
+	#if 0
+		float           speed;
+		vec3_t          moved;
+		int             moveyaw;
+
+		VectorSubtract(pm.ps.origin, pml.previous_origin, moved);
+
+		if((pm.cmd.forwardmove || pm.cmd.rightmove) && (pm.ps.groundEntityNum != ENTITYNUM_NONE) && (speed = VectorLength(moved)) && (speed > pml.frametime * 5))	// if moving slower than 20 units per second, just face head angles
+		{
+
+			vec3_t          dir;
+
+
+			VectorNormalize2(moved, dir);
+			VectorToAngles(dir, dir);
+
+			moveyaw = (int)AngleDelta(dir[YAW], pm.ps.viewangles[YAW]);
+
+
+			if(pm.cmd.forwardmove < 0)
+				moveyaw = (int)AngleNormalize180(moveyaw + 180);
+
+
+			if(abs(moveyaw) > 75)
+			{
+				if(moveyaw > 0)
+				{
+					moveyaw = 75;
+				}
+				else
+				{
+					moveyaw = -75;
+
+				}
+			}
+
+			pm.ps.setPlayerState_movementDir((signed char)moveyaw;
+		}
+		else
+		{
+			pm.ps.setPlayerState_movementDir(0;
+		}
+
+	#else
+		*/
+		if(pm.cmd.forwardmove > 0 || pm.cmd.rightmove > 0)
+		{
+			if(pm.cmd.rightmove == 0 && pm.cmd.forwardmove > 0)
+			{
+				pm.ps.setPlayerState_movementDir(0);
+			}
+			else if(pm.cmd.rightmove < 0 && pm.cmd.forwardmove > 0)
+			{
+				pm.ps.setPlayerState_movementDir(1);
+			}
+			else if(pm.cmd.rightmove < 0 && pm.cmd.forwardmove == 0)
+			{
+				pm.ps.setPlayerState_movementDir(2);
+			}
+			else if(pm.cmd.rightmove < 0 && pm.cmd.forwardmove < 0)
+			{
+				pm.ps.setPlayerState_movementDir(3);
+			}
+			else if(pm.cmd.rightmove == 0 && pm.cmd.forwardmove < 0)
+			{
+				pm.ps.setPlayerState_movementDir(4);
+			}
+			else if(pm.cmd.rightmove > 0 && pm.cmd.forwardmove < 0)
+			{
+				pm.ps.setPlayerState_movementDir(5);
+			}
+			else if(pm.cmd.rightmove > 0 && pm.cmd.forwardmove == 0)
+			{
+				pm.ps.setPlayerState_movementDir(6);
+			}
+			else if(pm.cmd.rightmove > 0 && pm.cmd.forwardmove > 0)
+			{
+				pm.ps.setPlayerState_movementDir(7);
+			}
+		}
+		else
+		{
+			// if they aren't actively going directly sideways,
+			// change the animation to the diagonal so they
+			// don't stop too crooked
+			if(pm.ps.getPlayerState_movementDir() == 2)
+			{
+				pm.ps.setPlayerState_movementDir(1);
+			}
+			else if(pm.ps.getPlayerState_movementDir() == 6)
+			{
+				pm.ps.setPlayerState_movementDir(7);
+			}
+		}
+	//#endif
+	}
+	
+	private void dropTimers()
+	{
+		// drop misc timing counter
+		if(pm.ps.getPlayerState_pm_time() > 0)
+		{
+			if(pml.msec >= pm.ps.getPlayerState_pm_time())
+			{
+				pm.ps.delPlayerState_pm_flags(PlayerMovementFlags.ALL_TIMES);
+				pm.ps.setPlayerState_pm_time(0);
+			}
+			else
+			{
+				pm.ps.setPlayerState_pm_time(pm.ps.getPlayerState_pm_time() - pml.msec);
+			}
+		}
+
+		// drop animation counter
+		/*
+		if(pm->ps->legsTimer > 0)
+		{
+			pm->ps->legsTimer -= pml.msec;
+			if(pm->ps->legsTimer < 0)
+			{
+				pm->ps->legsTimer = 0;
+			}
+		}
+
+		if(pm->ps->torsoTimer > 0)
+		{
+			pm->ps->torsoTimer -= pml.msec;
+			if(pm->ps->torsoTimer < 0)
+			{
+				pm->ps->torsoTimer = 0;
+			}
+		}
+		*/
+	}
+	
+	/**
 	 * Handles user intended acceleration.
 	 * 
 	 * @param wishdir
@@ -597,7 +761,7 @@ public class PlayerController implements ActionInterface {
 		float           canPush;
 
 		VectorScale(wishdir, wishspeed, wishVelocity);
-		VectorSubtract(wishVelocity, pm->ps->velocity, pushDir);
+		VectorSubtract(wishVelocity, pm.ps.velocity, pushDir);
 		pushLen = VectorNormalize(pushDir);
 
 		canPush = accel * pml.frametime * wishspeed;
@@ -606,7 +770,7 @@ public class PlayerController implements ActionInterface {
 			canPush = pushLen;
 		}
 
-		VectorMA(pm->ps->velocity, canPush, pushDir, pm->ps->velocity);
+		VectorMA(pm.ps.velocity, canPush, pushDir, pm.ps.velocity);
 		*/
 	}
 	
@@ -640,7 +804,7 @@ public class PlayerController implements ActionInterface {
 	{
 		Vector3f        vec;
 		Vector3f		vel;
-		float           speed, newspeed, control;
+		float           speed, newspeed;
 		float           drop;
 
 		vel = pm.ps.getPlayerState_velocity();
@@ -654,7 +818,7 @@ public class PlayerController implements ActionInterface {
 		}
 
 		speed = vec.length();
-		if(speed < 1)				// && pm->ps->pm_type != PM_SPECTATOR && pm->ps->pm_type != PM_NOCLIP)
+		if(speed < 1)				// && pm.ps.pm_type != PM_SPECTATOR && pm.ps.pm_type != PM_NOCLIP)
 		{
 			vel.x = 0;
 			vel.y = 0;				// allow sinking underwater
@@ -667,20 +831,20 @@ public class PlayerController implements ActionInterface {
 		drop = 0;
 
 		// apply ground friction
-		/*
-		if(pm->waterlevel <= 1)
+		if(pm.waterlevel <= 1)
 		{
-			if(pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK))
+			if(pml.walking /* && !(pml.groundTrace.surfaceFlags & SURF_SLICK) */)
 			{
 				// if getting knocked back, no friction
-				if(!(pm->ps->pm_flags & PMF_TIME_KNOCKBACK))
+				if(!pm.ps.hasPlayerState_pm_flags(PlayerMovementFlags.TIME_KNOCKBACK))
 				{
-					control = speed < pm_stopspeed ? pm_stopspeed : speed;
-					drop += control * pm_friction * pml.frametime;
+					float control = speed < CVars.pm_stopSpeed.getValue() ? CVars.pm_stopSpeed.getValue() : speed;
+					drop += control * CVars.pm_friction.getValue() * pml.frameTime;
 				}
 			}
 		}
 
+		/*
 		// apply water friction even if just wading
 		if(pm->waterlevel)
 		{
@@ -688,7 +852,7 @@ public class PlayerController implements ActionInterface {
 		}
 
 		// apply flying friction
-		if(pm->ps->powerups[PW_FLIGHT])
+		if(pm.ps.powerups[PW_FLIGHT])
 		{
 			drop += speed * pm_flightfriction * pml.frametime;
 		}
@@ -732,7 +896,7 @@ public class PlayerController implements ActionInterface {
 	==============
 	PM_CheckDuck
 
-	Sets mins, maxs, and pm->ps->viewheight
+	Sets mins, maxs, and pm.ps.viewheight
 	==============
 	*/
 	private void checkDuck()
@@ -740,9 +904,9 @@ public class PlayerController implements ActionInterface {
 		//trace_t         trace;
 
 		/*
-		if(pm->ps->powerups[PW_INVULNERABILITY])
+		if(pm.ps.powerups[PW_INVULNERABILITY])
 		{
-			if(pm->ps->pm_flags & PMF_INVULEXPAND)
+			if(pm.ps.pm_flags & PMF_INVULEXPAND)
 			{
 				// invulnerability sphere has a 42 units radius
 				VectorSet(pm->mins, -42, -42, -42);
@@ -753,11 +917,11 @@ public class PlayerController implements ActionInterface {
 				VectorSet(pm->mins, -15, -15, MINS_Z);
 				VectorSet(pm->maxs, 15, 15, 16);
 			}
-			pm->ps->pm_flags |= PMF_DUCKED;
-			pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+			pm.ps.pm_flags |= PMF_DUCKED;
+			pm.ps.viewheight = CROUCH_VIEWHEIGHT;
 			return;
 		}
-		pm->ps->pm_flags &= ~PMF_INVULEXPAND;
+		pm.ps.pm_flags &= ~PMF_INVULEXPAND;
 		*/
 
 		/*
@@ -769,40 +933,102 @@ public class PlayerController implements ActionInterface {
 
 		pm->mins[2] = MINS_Z;
 
-		if(pm->ps->pm_type == PM_DEAD)
+		if(pm.ps.pm_type == PM_DEAD)
 		{
 			pm->maxs[2] = -8;
-			pm->ps->viewheight = DEAD_VIEWHEIGHT;
+			pm.ps.viewheight = DEAD_VIEWHEIGHT;
 			return;
 		}
 
-		if(pm->cmd.upmove < 0)
+		if(pm.cmd.upmove < 0)
 		{							// duck
-			pm->ps->pm_flags |= PMF_DUCKED;
+			pm.ps.pm_flags |= PMF_DUCKED;
 		}
 		else
 		{							// stand up if possible
-			if(pm->ps->pm_flags & PMF_DUCKED)
+			if(pm.ps.pm_flags & PMF_DUCKED)
 			{
 				// try to stand up
 				pm->maxs[2] = 32;
-				pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask);
+				pm->trace(&trace, pm.ps.origin, pm->mins, pm->maxs, pm.ps.origin, pm.ps.clientNum, pm->tracemask);
 				if(!trace.allsolid)
-					pm->ps->pm_flags &= ~PMF_DUCKED;
+					pm.ps.pm_flags &= ~PMF_DUCKED;
 			}
 		}
 
-		if(pm->ps->pm_flags & PMF_DUCKED)
+		if(pm.ps.pm_flags & PMF_DUCKED)
 		{
 			pm->maxs[2] = 16;
-			pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+			pm.ps.viewheight = CROUCH_VIEWHEIGHT;
 		}
 		else
 		{
 			pm->maxs[2] = 32;
-			pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
+			pm.ps.viewheight = DEFAULT_VIEWHEIGHT;
 		}
 		*/
+	}
+	
+	
+	private boolean checkJump()
+	{
+		if(pm.ps.hasPlayerState_pm_flags(PlayerMovementFlags.RESPAWNED))
+		{
+			// don't allow jump until all buttons are up
+			return false;			
+		}
+
+		if(pm.cmd.upmove < 10)
+		{
+			// not holding jump
+			return false;
+		}
+
+		// must wait for jump to be released
+		if(pm.ps.hasPlayerState_pm_flags(PlayerMovementFlags.JUMP_HELD))
+		{
+			// clear upmove so cmdscale doesn't lower running speed
+			pm.cmd.upmove = 0;
+			
+			return false;
+		}
+
+		pml.groundPlane = false;	// jumping away
+		pml.walking = false;
+		
+		pm.ps.addPlayerState_pm_flags(PlayerMovementFlags.JUMP_HELD);
+		pm.ps.setPlayerState_groundEntityNum(Engine.ENTITYNUM_NONE);
+		
+		Vector3f velocity = pm.ps.getPlayerState_velocity();
+		
+		//velocity.z = JUMP_VELOCITY;
+
+		Vector3f addVelocity = new Vector3f(pml.gravityNormal);
+		
+		//addVelocity.scale(-2.0f * CVars.pm_jumpHeight.getValue());
+		//addVelocity.scale(addVelocity.length());
+		
+		//addVelocity.scale(-CVars.pm_jumpHeight.getValue());
+		addVelocity.scale(-JUMP_VELOCITY);
+		
+		velocity.add(addVelocity);
+		
+		pm.ps.setPlayerState_velocity(velocity);
+		
+		// TODO PM_AddEvent(EV_JUMP);
+		
+		if(pm.cmd.forwardmove >= 0)
+		{
+			// TODO PM_ForceLegsAnim(LEGS_JUMP);
+			pm.ps.delPlayerState_pm_flags(PlayerMovementFlags.BACKWARDS_JUMP);
+		}
+		else
+		{
+			//TODO PM_ForceLegsAnim(LEGS_JUMPB);
+			pm.ps.addPlayerState_pm_flags(PlayerMovementFlags.BACKWARDS_JUMP);
+		}
+
+		return true;
 	}
 	
 	private boolean correctAllSolid()
@@ -901,19 +1127,9 @@ public class PlayerController implements ActionInterface {
 		Vector3f point = new Vector3f(playerOrigin);
 		point.z -= 0.25;
 
-		/*
-		pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
-		pml.groundTrace = trace;
-		*/
-
-		// do something corrective if the trace starts in a solid...
+		
 		KinematicClosestNotMeConvexResultCallback trace = traceAll(playerOrigin, point);
-
-		if(trace.closestHitFraction == 0)
-		{
-			if(!correctAllSolid())
-				return;
-		}
+		pml.groundTrace = trace;
 
 		// if the trace didn't hit anything, we are in free fall
 		if(!trace.hasHit())
@@ -924,11 +1140,20 @@ public class PlayerController implements ActionInterface {
 			pml.walking = false;
 			return;
 		}
+		
+		// do something corrective if the trace starts in a solid...
+		/*
+		if(trace.closestHitFraction == 0)
+		{
+			if(correctAllSolid())
+				return;
+		}
+		*/
 
 		// check if getting thrown off the ground
 		Vector3f playerVelocity = pm.ps.getPlayerState_velocity();
 		
-		if(playerVelocity.z > 0 && playerVelocity.dot(trace.hitNormalWorld) > 10)
+		if(playerVelocity.dot(pml.gravityNormalFlipped) > 0 && playerVelocity.dot(trace.hitNormalWorld) > 10)
 		{
 			if(CVars.pm_debug.getBoolean())
 			{
@@ -954,7 +1179,7 @@ public class PlayerController implements ActionInterface {
 		}
 
 		// slopes that are too steep will not be considered onground
-		if(trace.hitNormalWorld.z < MIN_WALK_NORMAL)
+		if(trace.hitNormalWorld.dot(pml.gravityNormalFlipped) < MIN_WALK_NORMAL)
 		{
 			if(CVars.pm_debug.getBoolean())
 			{
@@ -973,10 +1198,10 @@ public class PlayerController implements ActionInterface {
 
 		// hitting solid ground will end a waterjump
 		/*
-		if(pm->ps->pm_flags & PMF_TIME_WATERJUMP)
+		if(pm.ps.pm_flags & PMF_TIME_WATERJUMP)
 		{
-			pm->ps->pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND);
-			pm->ps->pm_time = 0;
+			pm.ps.pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND);
+			pm.ps.pm_time = 0;
 		}
 		*/
 
@@ -985,13 +1210,13 @@ public class PlayerController implements ActionInterface {
 			// just hit the ground
 			if(CVars.pm_debug.getBoolean())
 			{
-				Engine.print(c_pmove + ":Land\n");
+				Engine.print(c_pmove + ":land\n");
 			}
 
 			crashLand();
 
 			// don't do landing time if we were just going down a slope
-			if(pml.previous_velocity.z < -200)
+			if(pml.previousVelocity.z < -200)
 			{
 				// don't allow another jump for a little while
 				pm.ps.addPlayerState_pm_flags(PlayerMovementFlags.TIME_LAND);
@@ -1002,7 +1227,7 @@ public class PlayerController implements ActionInterface {
 		pm.ps.setPlayerState_groundEntityNum(trace.getEntityNum());
 
 		// don't reset the z velocity for slopes
-	//  pm->ps->velocity[2] = 0;
+	//  pm.ps.velocity[2] = 0;
 
 		// TODO PM_AddTouchEnt(trace.entityNum);
 	}
@@ -1020,7 +1245,7 @@ public class PlayerController implements ActionInterface {
 		float           a, b, c, den;
 
 		// decide which landing animation to use
-		if(pm->ps->pm_flags & PMF_BACKWARDS_JUMP)
+		if(pm.ps.pm_flags & PMF_BACKWARDS_JUMP)
 		{
 			PM_ForceLegsAnim(LEGS_LANDB);
 		}
@@ -1029,12 +1254,12 @@ public class PlayerController implements ActionInterface {
 			PM_ForceLegsAnim(LEGS_LAND);
 		}
 
-		pm->ps->legsTimer = TIMER_LAND;
+		pm.ps.legsTimer = TIMER_LAND;
 
 		// calculate the exact velocity on landing
-		dist = pm->ps->origin[2] - pml.previous_origin[2];
+		dist = pm.ps.origin[2] - pml.previous_origin[2];
 		vel = pml.previous_velocity[2];
-		acc = -pm->ps->gravity;
+		acc = -pm.ps.gravity;
 
 		a = acc / 2;
 		b = vel;
@@ -1051,7 +1276,7 @@ public class PlayerController implements ActionInterface {
 		delta = delta * delta * 0.0001;
 
 		// ducking while falling doubles damage
-		if(pm->ps->pm_flags & PMF_DUCKED)
+		if(pm.ps.pm_flags & PMF_DUCKED)
 		{
 			delta *= 2;
 		}
@@ -1090,7 +1315,7 @@ public class PlayerController implements ActionInterface {
 			else if(delta > 40)
 			{
 				// this is a pain grunt, so don't play it if dead
-				if(pm->ps->stats[STAT_HEALTH] > 0)
+				if(pm.ps.stats[STAT_HEALTH] > 0)
 				{
 					PM_AddEvent(EV_FALL_MEDIUM);
 				}
@@ -1106,13 +1331,13 @@ public class PlayerController implements ActionInterface {
 		}
 
 		// start footstep cycle over
-		pm->ps->bobCycle = 0;
+		pm.ps.bobCycle = 0;
 		*/
 	}
 	
 	private KinematicClosestNotMeConvexResultCallback traceAll(Vector3f startPos, Vector3f endPos)
 	{
-		//pm->trace(trace, start, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
+		//pm->trace(trace, start, pm->mins, pm->maxs, end, pm.ps.clientNum, pm->tracemask);
 		
 		Transform start = new Transform();
 		Transform end = new Transform();
@@ -1144,7 +1369,7 @@ public class PlayerController implements ActionInterface {
 	/**
 	 * @return True if the velocity was clipped in some way
 	 */
-	private boolean slideMove(boolean gravity)
+	private boolean slideMove(boolean gravity, boolean stepUp, boolean stepDown, boolean push)
 	{
 		int             bumpcount, numbumps;
 		Vector3f        dir = new Vector3f();
@@ -1178,11 +1403,16 @@ public class PlayerController implements ActionInterface {
 			// FIXME FIXME FIXME
 			
 			//endVelocity.z -= pm.ps.getPlayerState_gravity() * pml.frameTime;
-			endVelocity.z -= Math.abs(CVars.g_gravityZ.getValue()) * pml.frameTime;
+			//endVelocity.z -= Math.abs(CVars.g_gravityZ.getValue()) * pml.frameTime;
 			
-			curVelocity.z = (Math.abs(curVelocity.z) * endVelocity.z) * 0.5f;
+			//curVelocity.z = (Math.abs(curVelocity.z) * endVelocity.z) * 0.5f;
 				
-			primalVelocity.z = endVelocity.z;
+			//primalVelocity.z = endVelocity.z;
+			
+			endVelocity.scaleAdd(pml.frameTime, pml.gravityVector, curVelocity);
+			
+			curVelocity.add(endVelocity);
+			curVelocity.scale(0.5f);
 			 
 			if(pml.groundPlane)
 			{
@@ -1192,6 +1422,10 @@ public class PlayerController implements ActionInterface {
 			
 			pm.ps.setPlayerState_velocity(curVelocity);
 		}
+		else
+		{
+			endVelocity = pm.ps.getPlayerState_velocity();
+		}
 		
 
 		timeLeft = pml.frameTime;
@@ -1200,7 +1434,7 @@ public class PlayerController implements ActionInterface {
 		if(pml.groundPlane)
 		{
 			numplanes = 1;
-			planes[0].set(pml.groundPlaneNormal);
+			planes[0].set(pml.groundTrace.hitNormalWorld);
 		}
 		else
 		{
@@ -1223,10 +1457,10 @@ public class PlayerController implements ActionInterface {
 			end.scaleAdd(timeLeft, pm.ps.getPlayerState_velocity(), start);
 
 			// see if we can make it there
-			KinematicClosestNotMeConvexResultCallback callback = traceAll(start, end);
+			KinematicClosestNotMeConvexResultCallback trace = traceAll(start, end);
 			//
 
-			if(callback.closestHitFraction == 0)
+			if(trace.closestHitFraction == 0)
 			{
 				// entity is completely trapped in another solid
 				
@@ -1238,7 +1472,7 @@ public class PlayerController implements ActionInterface {
 				return true;
 			}
 
-			if (!callback.hasHit()) 
+			if (!trace.hasHit()) 
 			{
 				// moved the entire distance
 				pm.ps.setPlayerState_origin(end);
@@ -1247,15 +1481,106 @@ public class PlayerController implements ActionInterface {
 			else
 			{
 				// actually covered some distance
-				end.interpolate(start, end, callback.closestHitFraction);
+				end.interpolate(start, end, trace.closestHitFraction);
 			}
 			
 			pm.ps.setPlayerState_origin(end);
+			
+			boolean stepped = false;
+			boolean pushed = false;
+			
+			// test the player position if they were a stepheight higher
+			if(stepUp)
+			{
+				boolean nearGround = pml.groundPlane; // | pml.ladder
+				
+				KinematicClosestNotMeConvexResultCallback downTrace, stepTrace, upTrace;
+				
+				start = pm.ps.getPlayerState_origin();
+				
+				if(!nearGround)
+				{
+					end.scaleAdd(Config.STEPSIZE, pml.gravityNormal, pm.ps.getPlayerState_origin());
+					
+					downTrace = traceAll(start, end);
+					
+					nearGround = (downTrace.hasHit() && (downTrace.hitNormalWorld.dot(pml.gravityNormalFlipped) > MIN_WALK_NORMAL));
+				}
+				
+				// may only step up if near the ground or on a ladder
+				if(nearGround)
+				{
+					// step up, test the player position if they were a stepheight higher
+					end.scaleAdd(-Config.STEPSIZE, pml.gravityNormal, start);
+					
+					upTrace = traceAll(start, end);
+
+					if(upTrace.closestHitFraction == 0) 
+					{
+						// can't step up
+						if(CVars.pm_debug.getBoolean())
+						{
+							Engine.println(c_pmove + ":bend can't step up");
+						}
+						//return;
+					}
+					else
+					{
+						// try slidemove from this position
+						/*
+						if (upTrace.hasHit()) 
+						{
+							//stepSize = callback.hitPointWorld.z - startOrigin.z;
+							
+							up.interpolate(startOrigin, up, callback.closestHitFraction);
+						}
+						
+						stepSize = up.z - startOrigin.z;
+						
+						pm.ps.setPlayerState_origin(up);
+						pm.ps.setPlayerState_velocity(startVelocity);
+						
+						slideMove(gravity);
+						*/
+						
+						end.interpolate(start, end, upTrace.closestHitFraction);
+						
+						end.scaleAdd(timeLeft, pm.ps.getPlayerState_velocity(), end);
+						stepTrace = traceAll(start, end);
+						
+						
+						// push down the final amount
+						end.scaleAdd(Config.STEPSIZE, pml.gravityNormal, start);
+						downTrace = traceAll(start, end);
+						
+						
+						if(!downTrace.hasHit() && (downTrace.hitNormalWorld.dot(pml.gravityNormalFlipped) > MIN_WALK_NORMAL))
+						{
+							if(!stepTrace.hasHit())
+							{
+								// moved the entire distance
+								timeLeft = 0;
+								
+								end.interpolate(start, end, downTrace.closestHitFraction);
+								pm.ps.setPlayerState_origin(end);
+								break;
+							}
+							
+							// if the move is further when stepping up
+							if(stepTrace.closestHitFraction > trace.closestHitFraction)
+							{
+								timeLeft -= timeLeft * trace.closestHitFraction;
+								
+								end.interpolate(start, end, downTrace.closestHitFraction);
+								pm.ps.setPlayerState_origin(end);
+							}
+						}
+					}
+				}
+			}
 
 			// TODO save entity for contact
 			//PM_AddTouchEnt(trace.entityNum);
-
-			timeLeft -= timeLeft * callback.closestHitFraction;
 
 			if(numplanes >= MAX_CLIP_PLANES)
 			{
@@ -1271,10 +1596,10 @@ public class PlayerController implements ActionInterface {
 			//
 			for(i = 0; i < numplanes; i++)
 			{
-				if(callback.hitNormalWorld.dot(planes[i]) > 0.99)
+				if(trace.hitNormalWorld.dot(planes[i]) > 0.99)
 				{
 					Vector3f nudgedVelocity = pm.ps.getPlayerState_velocity();
-					nudgedVelocity.add(callback.hitNormalWorld);
+					nudgedVelocity.add(trace.hitNormalWorld);
 					break;
 				}
 			}
@@ -1283,7 +1608,7 @@ public class PlayerController implements ActionInterface {
 				continue;
 			}
 			
-			planes[numplanes++].set(callback.hitNormalWorld);
+			planes[numplanes++].set(trace.hitNormalWorld);
 
 			//
 			// modify velocity so it parallels all of the clip planes
@@ -1373,6 +1698,39 @@ public class PlayerController implements ActionInterface {
 				break;
 			}
 		}
+		
+		
+		if(stepDown && pml.groundPlane)
+		{
+			// push down the final amount
+			Vector3f start = pm.ps.getPlayerState_origin();
+			
+			Vector3f end = new Vector3f();
+			end.scaleAdd(Config.STEPSIZE, pml.gravityNormal, pm.ps.getPlayerState_origin());
+			
+			KinematicClosestNotMeConvexResultCallback callback = traceAll(start, end);
+
+			if(callback.hasHit())
+			{
+				end.interpolate(start, end, callback.closestHitFraction);
+				
+				if(CVars.pm_debug.getBoolean())
+				{
+					Engine.println(c_pmove + ":stepped");
+				}
+			}
+			
+			pm.ps.setPlayerState_origin(end);
+			
+			/*
+			if(callback.closestHitFraction < 1.0)
+			{
+				clipVelocity(pm.ps.getPlayerState_velocity(), callback.hitNormalWorld, startVelocity, OVERCLIP);
+				
+				pm.ps.setPlayerState_velocity(startVelocity);
+			}
+			*/
+		}
 
 		if(gravity)
 		{
@@ -1388,6 +1746,7 @@ public class PlayerController implements ActionInterface {
 		return (bumpcount != 0);
 	}
 	
+	
 	private void stepSlideMove(boolean gravity)
 	{
 		//vec3_t          start_o, start_v;
@@ -1402,7 +1761,7 @@ public class PlayerController implements ActionInterface {
 		Vector3f startOrigin = pm.ps.getPlayerState_origin();
 		Vector3f startVelocity = pm.ps.getPlayerState_velocity();
 
-		if(!slideMove(gravity))
+		if(!slideMove(gravity, false, false, false))
 		{
 			// we got exactly where we wanted to go first try
 			if(CVars.pm_debug.getBoolean())
@@ -1458,8 +1817,8 @@ public class PlayerController implements ActionInterface {
 		pm.ps.setPlayerState_origin(up);
 		pm.ps.setPlayerState_velocity(startVelocity);
 		
-		slideMove(gravity);
-
+		slideMove(gravity, false, false, false);
+		
 		
 		
 		// push down the final amount
@@ -1486,26 +1845,26 @@ public class PlayerController implements ActionInterface {
 	
 		/*
 		// if the down trace can trace back to the original position directly, don't step
-		pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, start_o, pm->ps->clientNum, pm->tracemask);
+		pm->trace(&trace, pm.ps.origin, pm->mins, pm->maxs, start_o, pm.ps.clientNum, pm->tracemask);
 		if(trace.fraction == 1.0)
 		{
 			// use the original move
-			VectorCopy(down_o, pm->ps->origin);
-			VectorCopy(down_v, pm->ps->velocity);
+			VectorCopy(down_o, pm.ps.origin);
+			VectorCopy(down_v, pm.ps.velocity);
 			if(pm->debugLevel)
 			{
 				Com_Printf("%i:bend\n", c_pmove);
 			}
 		}
 		else
-	*/
+			*/
 		
 		{
 			/*
 			// use the step move
 			float           delta;
 
-			delta = pm->ps->origin[2] - start_o[2];
+			delta = pm.ps.origin[2] - start_o[2];
 			if(delta > 2)
 			{
 				if(delta < 7)
@@ -1547,7 +1906,7 @@ public class PlayerController implements ActionInterface {
 
 		// friction
 		Vector3f curvel = pm.ps.getPlayerState_velocity();
-		Vector3f curpos = pm.ps.getPlayerState_origin();
+		//Vector3f curpos = pm.ps.getPlayerState_origin();
 		
 		//Engine.println("moveWithoutClipping(): old velocity = " + curvel + ", old origin = " + curpos);
 		
@@ -1605,7 +1964,7 @@ public class PlayerController implements ActionInterface {
 		
 
 		// move
-		//VectorMA(pm->ps->origin, pml.frametime, pm->ps->velocity, pm->ps->origin);
+		//VectorMA(pm.ps.origin, pml.frametime, pm.ps.velocity, pm.ps.origin);
 		
 		Vector3f playerVelocity = pm.ps.getPlayerState_velocity();
 			
@@ -1676,7 +2035,7 @@ public class PlayerController implements ActionInterface {
 		
 		accelerate(wishdir, wishspeed, CVars.pm_flyAccelerate.getValue());
 		
-		stepSlideMove(false);
+		slideMove(false, false, false, false);
 	}
 	
 	private void airMove()
@@ -1691,7 +2050,7 @@ public class PlayerController implements ActionInterface {
 		applyFriction();
 		
 		// set the movementDir so clients can rotate the legs for strafing
-		// TODO setMovementDir();
+		setMovementDir();
 
 		scale = calculateUserCommandScale(pm.cmd);
 		
@@ -1742,55 +2101,225 @@ public class PlayerController implements ActionInterface {
 			pm.ps.setPlayerState_velocity(velocity);
 		}
 			
-		stepSlideMove(true);
+		slideMove(true, false, false, false);
+	}
+	
+	private void walkMove()
+	{
+		/*
+		int             i;
+		vec3_t          wishvel;
+		float           fmove, smove;
+		vec3_t          wishdir;
+		float           wishspeed;
+		float           scale;
+		usercmd_t       cmd;
+		float           accelerate;
+		float           vel;
+		*/
+
+		/*
+		if(pm->waterlevel > 2 && DotProduct(pml.forward, pml.groundTrace.plane.normal) > 0)
+		{
+			// begin swimming
+			PM_WaterMove();
+			return;
+		}
+		*/
+
+		if(checkJump())
+		{
+			/*
+			// jumped away
+			if(pm->waterlevel > 1)
+			{
+				PM_WaterMove();
+			}
+			else
+			*/
+			{
+				airMove();
+			}
+			return;
+		}
+
+		
+		applyFriction();
+
+		float scale = calculateUserCommandScale(pm.cmd);
+
+		// set the movementDir so clients can rotate the legs for strafing
+		setMovementDir();
+
+		// project moves down to flat plane
+		pml.forward.z = 0;
+		pml.right.z = 0;
+
+		// project the forward and right directions onto the ground plane
+		clipVelocity(pml.forward, pml.groundTrace.hitNormalWorld, pml.forward, OVERCLIP);
+		clipVelocity(pml.right, pml.groundTrace.hitNormalWorld, pml.right, OVERCLIP);
+		//
+		pml.forward.normalize();
+		pml.right.normalize();
+		
+		Vector3f wishvel = new Vector3f(pml.forward.x * pm.cmd.forwardmove + pml.right.x * pm.cmd.rightmove,
+										pml.forward.y * pm.cmd.forwardmove + pml.right.y * pm.cmd.rightmove,
+										pml.forward.z * pm.cmd.forwardmove + pml.right.z * pm.cmd.rightmove);
+
+		// when going up or down slopes the wish velocity should Not be zero
+	//  wishvel[2] = 0;
+		
+		Vector3f wishdir = new Vector3f(wishvel);
+		float wishspeed = wishdir.length();
+		if(wishspeed > 0)
+		{
+			wishdir.normalize();
+		}
+		wishspeed *= scale;
+
+		// clamp the speed lower if ducking
+		if(pm.ps.hasPlayerState_pm_flags(PlayerMovementFlags.DUCKED))
+		{
+			if(wishspeed > pm.ps.getPlayerState_speed() * CVars.pm_duckScale.getValue())
+			{
+				wishspeed = pm.ps.getPlayerState_speed() * CVars.pm_duckScale.getValue();
+			}
+		}
+
+		// clamp the speed lower if wading or walking on the bottom
+		/*
+		if(pm.waterLevel)
+		{
+			float           waterScale;
+
+			waterScale = pm->waterlevel / 3.0;
+			waterScale = 1.0 - (1.0 - pm_swimScale) * waterScale;
+			if(wishspeed > pm.ps.speed * waterScale)
+			{
+				wishspeed = pm.ps.speed * waterScale;
+			}
+		}
+		*/
+
+		// when a player gets hit, they temporarily lose
+		// full control, which allows them to be moved a bit
+		float accelerate;
+		if( /* Tr3B: FIXME ADD (pml.groundTrace.surfaceFlags & SURF_SLICK)  ||*/ pm.ps.hasPlayerState_pm_flags(PlayerMovementFlags.TIME_KNOCKBACK))
+		{
+			accelerate = CVars.pm_airAccelerate.getValue();
+		}
+		else
+		{
+			accelerate = CVars.pm_accelerate.getValue();
+		}
+
+		accelerate(wishdir, wishspeed, accelerate);
+
+		
+		
+		Vector3f velocity = pm.ps.getPlayerState_velocity();
+		
+		if(CVars.pm_debug.getInteger() == 2)
+		{
+			Engine.print(String.format("wishvel = %1.1f %1.1f %1.1f\n", wishvel.x, wishvel.y, wishvel.z));
+			Engine.print(String.format("wishdir = %1.1f %1.1f %1.1f\n", wishdir.x, wishdir.y, wishdir.z));
+			Engine.print(String.format("wishspeed = %1.1f\n", wishspeed));
+			Engine.print(String.format("velocity = %1.1f %1.1f %1.1f\n", velocity.x, velocity.y, velocity.z));
+			Engine.print(String.format("velocity1 = %1.1f\n", velocity.length()));
+		}
+		
+		
+		if(/* Tr3B: FIXME ADD (pml.groundTrace.surfaceFlags & SURF_SLICK) ||*/ pm.ps.hasPlayerState_pm_flags(PlayerMovementFlags.TIME_KNOCKBACK))
+		{
+			//pm.ps.velocity[2] -= pm.ps.gravity * pml.frametime;
+			
+			velocity.z += CVars.g_gravityZ.getValue() * pml.frameTime;
+		}
+		else
+		{
+			// don't reset the z velocity for slopes
+//	      pm.ps.velocity[2] = 0;
+		}
+
+		float vel = velocity.length();
+
+		// slide along the ground plane
+		clipVelocity(velocity, pml.groundTrace.hitNormalWorld, velocity, OVERCLIP);
+
+		// don't decrease velocity when going up or down a slope
+		velocity.normalize();
+		velocity.scale(vel);
+		
+		pm.ps.setPlayerState_velocity(velocity);
+
+		// don't do anything if standing still
+		if(velocity.x <= 0 && velocity.y <= 0)
+		{
+			return;
+		}
+
+		//slideMove(false, true, true, true);
+		stepSlideMove(false);
+
+		if(CVars.pm_debug.getInteger() == 2)
+		{
+			Engine.print(String.format("velocity2 = %1.1f\n", velocity.length()));
+		}
 	}
 
 
 	@Override
-	public void debugDraw(IDebugDraw debugDrawer) {
+	public void debugDraw(IDebugDraw debugDrawer)
+	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
-	private static class KinematicClosestNotMeConvexResultCallback extends CollisionWorld.ClosestConvexResultCallback {
-		protected CollisionObject me;
+	private static class KinematicClosestNotMeConvexResultCallback extends CollisionWorld.ClosestConvexResultCallback
+	{
+		protected CollisionObject	me;
 
-		public KinematicClosestNotMeConvexResultCallback(CollisionObject me) {
+		public KinematicClosestNotMeConvexResultCallback(CollisionObject me)
+		{
 			super(new Vector3f(), new Vector3f());
 			this.me = me;
 		}
 
 		@Override
-		public float addSingleResult(CollisionWorld.LocalConvexResult convexResult, boolean normalInWorldSpace) {
-			if (convexResult.hitCollisionObject == me) {
+		public float addSingleResult(CollisionWorld.LocalConvexResult convexResult, boolean normalInWorldSpace)
+		{
+			if (convexResult.hitCollisionObject == me)
+			{
 				return 1.0f;
 			}
 
 			return super.addSingleResult(convexResult, normalInWorldSpace);
 		}
-		
-		
+
 		/**
-		 * Emulates trace_t::entityNum 
+		 * Emulates trace_t::entityNum
+		 * 
 		 * @return
 		 */
-		public int getEntityNum() {
-			
-			if(hasHit())
+		public int getEntityNum()
+		{
+
+			if (hasHit())
 			{
 				EntityStateAccess ent = (EntityStateAccess) hitCollisionObject.getUserPointer();
-				if (ent != null) {
-				
+				if (ent != null)
+				{
+
 					return ent.getEntityState_number();
 				}
-				
+
 				else
 				{
 					return Engine.ENTITYNUM_WORLD;
 				}
 			}
-			
+
 			return Engine.ENTITYNUM_NONE;
 		}
 	}
