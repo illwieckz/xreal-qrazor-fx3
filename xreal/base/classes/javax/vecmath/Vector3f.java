@@ -176,7 +176,7 @@ public class Vector3f extends Tuple3f implements java.io.Serializable {
     /**
      * Normalizes this vector in place.
      */
-    public final void normalize()
+    public final float normalize()
     {
     	/* original code
         float norm;
@@ -199,6 +199,8 @@ public class Vector3f extends Tuple3f implements java.io.Serializable {
     		this.y *= ilen;
     		this.z *= ilen;
     	}
+    	
+    	return len;
     }
     
     /**
@@ -228,6 +230,56 @@ public class Vector3f extends Tuple3f implements java.io.Serializable {
       return((float) (Math.acos( vDot )));
    }
    
-   
+   /**
+	 * 
+	 * @param dir
+	 * @param degrees
+	 */
+   /*
+	public void rotatePointAroundVector(final Vector3f dir, float degrees)
+	{
+		float           sin_a;
+		float           cos_a;
+		float           cos_ia;
+		float           i_i_ia;
+		float           j_j_ia;
+		float           k_k_ia;
+		float           i_j_ia;
+		float           i_k_ia;
+		float           j_k_ia;
+		float           a_sin;
+		float           b_sin;
+		float           c_sin;
+		Matrix3f        rot;
 
+		cos_ia = (float) Math.toRadians(degrees);
+		sin_a = (float) Math.sin(cos_ia);
+		cos_a = (float) Math.cos(cos_ia);
+		cos_ia = 1.0F - cos_a;
+
+		i_i_ia = dir.x * dir.x * cos_ia;
+		j_j_ia = dir.y * dir.y * cos_ia;
+		k_k_ia = dir.z * dir.z * cos_ia;
+		i_j_ia = dir.x * dir.y * cos_ia;
+		i_k_ia = dir.x * dir.z * cos_ia;
+		j_k_ia = dir.y * dir.z * cos_ia;
+
+		a_sin = dir.x * sin_a;
+		b_sin = dir.y * sin_a;
+		c_sin = dir.z * sin_a;
+
+		rot = new Matrix3f(
+				i_i_ia + cos_a,
+				i_j_ia - c_sin,
+				i_k_ia + b_sin,
+				i_j_ia + c_sin,
+				j_j_ia + cos_a,
+				j_k_ia - a_sin,
+				i_k_ia - b_sin,
+				j_k_ia + a_sin,
+				k_k_ia + cos_a);
+
+		rot.transform(this);
+	}
+	*/
 }

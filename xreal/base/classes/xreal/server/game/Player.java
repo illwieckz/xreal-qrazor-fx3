@@ -27,6 +27,8 @@ import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CapsuleShapeZ;
 import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.collision.shapes.CylinderShapeZ;
+import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.linearmath.Transform;
 
 /**
@@ -134,8 +136,10 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		Game.getBroadphase().getOverlappingPairCache().setInternalGhostPairCallback(new GhostPairCallback());
 		
-		_collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH / 2, Config.PLAYER_HEIGHT / 2);
+		//_collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH / 2, Config.PLAYER_HEIGHT / 2);
 		//_collisionShape = new BoxShape(new Vector3f(18, 18, 37));
+		_collisionShape = new CylinderShapeZ(new Vector3f(18, 18, 37));
+		//_collisionShape = new SphereShape(Config.PLAYER_WIDTH / 2);
 		
 		/*
 		Vector3f maxs = new Vector3f();
@@ -418,7 +422,14 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		PlayerMove pm = new PlayerMove(this, ucmd, 0, 0, 0, 0, true, false, 0);
 		
 		// perform a pmove
-		_playerController.movePlayer(pm);
+		if(CVars.g_synchronousClients.getBoolean())
+		{
+			_playerController.setPlayerMove(pm);
+		}
+		else
+		{
+			_playerController.movePlayer(pm);
+		}
 		
 		// TODO more movement
 	}

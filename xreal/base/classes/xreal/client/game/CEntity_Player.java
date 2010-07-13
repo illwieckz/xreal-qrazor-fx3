@@ -14,6 +14,8 @@ import xreal.common.Config;
 
 import com.bulletphysics.collision.shapes.CapsuleShapeZ;
 import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.collision.shapes.CylinderShapeZ;
+import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.linearmath.Transform;
 
 public class CEntity_Player extends CEntity {
@@ -107,6 +109,9 @@ public class CEntity_Player extends CEntity {
 
 		mins.set(Config.playerMins);
 		maxs.set(Config.playerMaxs);
+		
+		Matrix4f transform;
+		Matrix3f rotation;
 
 		// if it's us
 		if(currentState.getNumber() == ClientGame.getClientNum())
@@ -117,7 +122,11 @@ public class CEntity_Player extends CEntity {
 			// use the view height
 			//maxs[2] = cg.predictedPlayerState.viewheight + 6;
 			
-			ConvexShape collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH / 2, Config.PLAYER_HEIGHT / 2);
+			ConvexShape collisionShape;
+			
+			//collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH / 2, Config.PLAYER_HEIGHT / 2);
+			collisionShape = new CylinderShapeZ(new Vector3f(18, 18, 37));
+			//collisionShape = new SphereShape(Config.PLAYER_WIDTH / 2);
 			
 			//Matrix3f rotation = new Matrix3f();
 			//lerpAngles.get(rotation);
@@ -127,6 +136,15 @@ public class CEntity_Player extends CEntity {
 			Transform t = new Transform();
 			t.setIdentity();
 			collisionShape.getAabb(t, mins, maxs);
+			
+			rotation = new Matrix3f();
+			
+			Angle3f angles = new Angle3f(0, ps.viewAngles.y, 0);
+			angles.get(rotation);
+			//ps.viewAngles.get(rotation);
+			//currentState.angles.get(rotation);
+			
+			transform = new Matrix4f(rotation, lerpOrigin, 1);
 		}
 		else
 		{
@@ -141,29 +159,44 @@ public class CEntity_Player extends CEntity {
 			maxs.x = maxs.y = x;
 			mins.z = -zd;
 			maxs.z = zu;
+			
+			rotation = new Matrix3f();
+			lerpAngles.get(rotation);
+			
+			transform = new Matrix4f(rotation, lerpOrigin, 1);
 		}
 		
-		//Matrix3f rotation = new Matrix3f();
-		//lerpAngles.get(rotation);
-	
-		//collisionShape.getAabb(new Transform(new Matrix4f(rotation, lerpOrigin, 1)), mins, maxs);
 		
-		Matrix3f rotation = new Matrix3f();
-		lerpAngles.get(rotation);
-		
-		//MatrixFromAngles(rotation, cent->lerpAngles[PITCH], cent->lerpAngles[YAW], cent->lerpAngles[ROLL]);
-		//MatrixSetupTransformFromRotation(transform, rotation, cent->lerpOrigin);
-		
-		Matrix4f transform = new Matrix4f(rotation, lerpOrigin, 1);
 		
 		// draw outer collision box
-		RenderUtils.renderBox(transform, mins, maxs, Color.Green, ClientGame.getMedia().debugPlayerAABB_twoSided);
+		//RenderUtils.renderBox(transform, mins, maxs, Color.Green, ClientGame.getMedia().debugPlayerAABB_twoSided);
+		RenderUtils.renderCylinderShapeZ(transform, mins, maxs, Color.Green, ClientGame.getMedia().debugPlayerAABB_twoSided);
 		
 		// draw player origin
 		mins.set(-1, -1, -1);
 		maxs.set(1, 1, 1);
 		RenderUtils.renderBox(transform, mins, maxs, Color.Red, ClientGame.getMedia().debugPlayerAABB_twoSided);
 		
+		// draw legs
+		/*
+		{
+			ConvexShape legsShape = new SphereShape(Config.PLAYER_WIDTH / 2);
+			
+			Transform t = new Transform();
+			t.setIdentity();
+			legsShape.getAabb(t, mins, maxs);
+			
+			Vector3f gravityNormal = new Vector3f(CVars.g_gravityX.getValue(), CVars.g_gravityY.getValue(), CVars.g_gravityZ.getValue());
+			gravityNormal.normalize();
+			
+			Vector3f legsPosition = new Vector3f();
+			legsPosition.scaleAdd(Config.PLAYER_HEIGHT / 2 - Config.PLAYER_WIDTH / 2, gravityNormal, lerpOrigin);
+			
+			transform = new Matrix4f(rotation, legsPosition, 1);
+			
+			RenderUtils.renderBox(transform, mins, maxs, Color.Blue, ClientGame.getMedia().debugPlayerAABB_twoSided);
+		}
+		*/
 		// draw player head
 		if(ps != null)
 		{

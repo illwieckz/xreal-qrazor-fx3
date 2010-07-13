@@ -217,8 +217,6 @@ public class Game implements GameListener {
 		deltaTime = time - levelTime;
 		levelTime = time;
 		
-		runPhysics();
-		
 		// go through all allocated objects
 		int start = Engine.getTimeInMilliseconds();
 		
@@ -229,6 +227,8 @@ public class Game implements GameListener {
 				player.runThink();
 			}
 		}
+		
+		runPhysics();
 		
 		for(GameEntity ent : entities)
 		{
