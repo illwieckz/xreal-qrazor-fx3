@@ -2238,50 +2238,6 @@ void JNICALL Java_xreal_server_game_Player_setPlayerState_1speed(JNIEnv *env, jc
 
 /*
  * Class:     xreal_server_game_Player
- * Method:    getPlayerState_deltaAngles
- * Signature: (I)Ljavax/vecmath/Vector3f;
- */
-jobject JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaAngles(JNIEnv *env, jclass cls, jint clientNum)
-{
-	gclient_t	   *client;
-	vec3_t			v;
-
-	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
-	{
-		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_getPlayerState_1deltaAngles: bad index %i\n", clientNum);
-	}
-	client = &g_clients[clientNum];
-
-	v[0] = client->ps.delta_angles[0];
-	v[1] = client->ps.delta_angles[1];
-	v[2] = client->ps.delta_angles[2];
-
-	return Java_NewVector3f(v);
-}
-
-/*
- * Class:     xreal_server_game_Player
- * Method:    setPlayerState_deltaAngles
- * Signature: (IIII)V
- */
-void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaAngles(JNIEnv *env, jclass cls, jint clientNum, jint pitch, jint yaw, jint roll)
-{
-	gclient_t	   *client;
-
-	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
-	{
-		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_setPlayerState_1deltaAngles: bad index %i\n", clientNum);
-	}
-	client = &g_clients[clientNum];
-
-	client->ps.delta_angles[PITCH] = pitch;
-	client->ps.delta_angles[YAW] = yaw;
-	client->ps.delta_angles[ROLL] = roll;
-}
-
-
-/*
- * Class:     xreal_server_game_Player
  * Method:    getPlayerState_deltaPitch
  * Signature: (I)S
  */
@@ -2473,6 +2429,52 @@ void JNICALL Java_xreal_server_game_Player_setPlayerState_1viewAngles(JNIEnv *en
 	ent->s.angles[ROLL] = roll;
 }
 
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    getPlayerState_stat
+ * Signature: (II)I
+ */
+jint JNICALL Java_xreal_server_game_Player_getPlayerState_1stat(JNIEnv *env, jclass cls, jint clientNum, jint stat)
+{
+	gclient_t	   *client;
+
+	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_getPlayerState_1stat: bad index %i\n", clientNum);
+	}
+	client = &g_clients[clientNum];
+
+	if(stat < 0 || stat >= MAX_STATS)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_getPlayerState_1stat: bad stats index %i\n", stat);
+	}
+
+	return client->ps.stats[stat];
+}
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    setPlayerState_stat
+ * Signature: (III)V
+ */
+void JNICALL Java_xreal_server_game_Player_setPlayerState_1stat(JNIEnv *env, jclass cls, jint clientNum, jint stat, jint value)
+{
+	gclient_t	   *client;
+
+	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_setPlayerState_1stat: bad index %i\n", clientNum);
+	}
+	client = &g_clients[clientNum];
+
+	if(stat < 0 || stat >= MAX_STATS)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_setPlayerState_1stat: bad stats index %i\n", stat);
+	}
+
+	client->ps.stats[stat] = value;
+}
+
 
 static JNINativeMethod Player_methods[] = {
 	{"sendServerCommand", "(ILjava/lang/String;)V", Java_xreal_server_game_Player_sendServerCommand},
@@ -2503,9 +2505,6 @@ static JNINativeMethod Player_methods[] = {
 	{"getPlayerState_speed", "(I)I", Java_xreal_server_game_Player_getPlayerState_1speed},
 	{"setPlayerState_speed", "(II)V", Java_xreal_server_game_Player_setPlayerState_1speed},
 
-	{"getPlayerState_deltaAngles", "(I)Ljavax/vecmath/Vector3f;", Java_xreal_server_game_Player_getPlayerState_1deltaAngles},
-	{"setPlayerState_deltaAngles", "(IIII)V", Java_xreal_server_game_Player_setPlayerState_1deltaAngles},
-
 	{"getPlayerState_deltaPitch", "(I)S", Java_xreal_server_game_Player_getPlayerState_1deltaPitch},
 	{"setPlayerState_deltaPitch", "(IS)V", Java_xreal_server_game_Player_setPlayerState_1deltaPitch},
 
@@ -2520,6 +2519,9 @@ static JNINativeMethod Player_methods[] = {
 
 	{"getPlayerState_viewAngles", "(I)Lxreal/Angle3f;", Java_xreal_server_game_Player_getPlayerState_1viewAngles},
 	{"setPlayerState_viewAngles", "(IFFF)V", Java_xreal_server_game_Player_setPlayerState_1viewAngles},
+
+	{"getPlayerState_stat", "(II)I", Java_xreal_server_game_Player_getPlayerState_1stat},
+	{"setPlayerState_stat", "(III)V", Java_xreal_server_game_Player_setPlayerState_1stat}
 };
 
 char           *Java_G_ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)

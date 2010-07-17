@@ -55,6 +55,9 @@ public class Client {
 	
 	// keyboard and mouse event handling ----------------------------------------------------------
 	
+	public static final int	CMD_BACKUP	= 64;
+	public static final int	CMD_MASK	= (CMD_BACKUP - 1);
+	
 	/**
 	 * Get all current key catchers defined in KeyCatchers
 	 */

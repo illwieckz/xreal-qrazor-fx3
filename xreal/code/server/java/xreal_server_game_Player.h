@@ -201,22 +201,6 @@ JNIEXPORT void JNICALL Java_xreal_server_game_Player_setPlayerState_1speed
 
 /*
  * Class:     xreal_server_game_Player
- * Method:    getPlayerState_deltaAngles
- * Signature: (I)Ljavax/vecmath/Vector3f;
- */
-JNIEXPORT jobject JNICALL Java_xreal_server_game_Player_getPlayerState_1deltaAngles
-  (JNIEnv *, jclass, jint);
-
-/*
- * Class:     xreal_server_game_Player
- * Method:    setPlayerState_deltaAngles
- * Signature: (IIII)V
- */
-JNIEXPORT void JNICALL Java_xreal_server_game_Player_setPlayerState_1deltaAngles
-  (JNIEnv *, jclass, jint, jint, jint, jint);
-
-/*
- * Class:     xreal_server_game_Player
  * Method:    getPlayerState_deltaPitch
  * Signature: (I)S
  */
@@ -646,6 +630,22 @@ JNIEXPORT jint JNICALL Java_xreal_server_game_Player_getPlayerState_1ping
  */
 JNIEXPORT void JNICALL Java_xreal_server_game_Player_setPlayerState_1ping
   (JNIEnv *, jclass, jint, jint);
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    getPlayerState_stat
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_xreal_server_game_Player_getPlayerState_1stat
+  (JNIEnv *, jclass, jint, jint);
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    setPlayerState_stat
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_xreal_server_game_Player_setPlayerState_1stat
+  (JNIEnv *, jclass, jint, jint, jint);
 
 #ifdef __cplusplus
 }

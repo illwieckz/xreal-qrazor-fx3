@@ -178,7 +178,6 @@ public class CEntity_Player extends CEntity {
 		RenderUtils.renderBox(transform, mins, maxs, Color.Red, ClientGame.getMedia().debugPlayerAABB_twoSided);
 		
 		// draw legs
-		/*
 		{
 			ConvexShape legsShape = new SphereShape(Config.PLAYER_WIDTH / 2);
 			
@@ -196,7 +195,7 @@ public class CEntity_Player extends CEntity {
 			
 			RenderUtils.renderBox(transform, mins, maxs, Color.Blue, ClientGame.getMedia().debugPlayerAABB_twoSided);
 		}
-		*/
+		
 		// draw player head
 		if(ps != null)
 		{

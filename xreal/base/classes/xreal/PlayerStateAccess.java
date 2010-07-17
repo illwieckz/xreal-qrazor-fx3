@@ -3,6 +3,7 @@ package xreal;
 import javax.vecmath.Vector3f;
 
 import xreal.common.PlayerMovementType;
+import xreal.common.PlayerStatsType;
 
 //playerState_t is the information needed by both the client and server
 //to predict player motion and actions
@@ -86,8 +87,8 @@ import xreal.common.PlayerMovementType;
  } playerState_t;
  */
 
-public interface PlayerStateAccess {
-	
+public interface PlayerStateAccess
+{
 	public int getPlayerState_commandTime();
 
 	public void setPlayerState_commandTime(int commandTime);
@@ -99,11 +100,11 @@ public interface PlayerStateAccess {
 	public int getPlayerState_pm_flags();
 
 	public void setPlayerState_pm_flags(int pm_flags);
-	
+
 	public void addPlayerState_pm_flags(int pm_flags);
-	
+
 	public void delPlayerState_pm_flags(int pm_flags);
-	
+
 	public boolean hasPlayerState_pm_flags(int pm_flags);
 
 	public int getPlayerState_pm_time();
@@ -196,8 +197,6 @@ public interface PlayerStateAccess {
 
 	public int getPlayerState_clientNum();
 
-	public void setPlayerState_clientNum(int clientNum);
-
 	public int getPlayerState_weapon();
 
 	public void setPlayerState_weapon(int weapon);
@@ -209,7 +208,7 @@ public interface PlayerStateAccess {
 	public Angle3f getPlayerState_viewAngles();
 
 	public void setPlayerState_viewAngles(Angle3f viewAngles);
-	
+
 	public void setPlayerState_viewAngles(float pitch, float yaw, float roll);
 
 	public int getPlayerState_viewHeight();
@@ -219,8 +218,6 @@ public interface PlayerStateAccess {
 	public int getPlayerState_damageEvent();
 
 	public void setPlayerState_damageEvent(int damageEvent);
-	
-	public Vector3f getPlayerState_deltaAngles();
 
 	public int getPlayerState_damageYaw();
 
@@ -249,6 +246,10 @@ public interface PlayerStateAccess {
 	public int getPlayerState_ping();
 
 	public void setPlayerState_ping(int ping);
+	
+	public int getPlayerState_stat(PlayerStatsType stat);
+	
+	public void setPlayerState_stat(PlayerStatsType stat, int value);
 
 	/*
 	public int getPlayerState_pmove_framecount();

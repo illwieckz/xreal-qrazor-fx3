@@ -230,7 +230,7 @@ public class SnapshotManager {
 		
 		this.snap = snap;
 
-		int ownClientNum = snap.getPlayerState().clientNum;
+		int ownClientNum = snap.getPlayerState().getPlayerState_clientNum();
 		CEntity cent = ClientGame.getEntities().get(ownClientNum);
 		if(cent == null)
 		{
@@ -279,7 +279,7 @@ public class SnapshotManager {
 	{
 		this.nextSnap = snap;
 		
-		int ownClientNum = snap.getPlayerState().clientNum;
+		int ownClientNum = snap.getPlayerState().getPlayerState_clientNum();
 		CEntity cent = ClientGame.getEntities().get(ownClientNum);
 		if(cent == null)
 		{
@@ -327,7 +327,7 @@ public class SnapshotManager {
 		}
 
 		// if changing follow mode, don't interpolate
-		if(nextSnap.getPlayerState().clientNum != this.snap.getPlayerState().clientNum)
+		if(nextSnap.getPlayerState().getPlayerState_clientNum() != this.snap.getPlayerState().getPlayerState_clientNum())
 		{
 			nextFrameTeleport = true;
 		}
@@ -385,7 +385,7 @@ public class SnapshotManager {
 		Snapshot oldFrame = snap;
 		snap = nextSnap;
 
-		int ownClientNum = snap.getPlayerState().clientNum;
+		int ownClientNum = snap.getPlayerState().getPlayerState_clientNum();
 		CEntity_Player player = (CEntity_Player) ClientGame.getEntities().get(ownClientNum);
 		if(player == null)
 		{
@@ -416,7 +416,7 @@ public class SnapshotManager {
 
 			// if we are not doing client side movement prediction for any
 			// reason, then the client events and view changes will be issued now
-			if(ClientGame.isDemoPlayback() || ((snap.getPlayerState().pm_flags & PlayerMovementFlags.FOLLOW) != 0) || CVars.cg_nopredict.getBoolean() || CVars.g_synchronousClients.getBoolean())
+			if(ClientGame.isDemoPlayback() || (snap.getPlayerState().hasPlayerState_pm_flags(PlayerMovementFlags.FOLLOW) || CVars.cg_nopredict.getBoolean() || CVars.g_synchronousClients.getBoolean()))
 			{
 				// TODO player.transitionState()
 				//CG_TransitionPlayerState(ps, ops);
@@ -480,6 +480,15 @@ public class SnapshotManager {
 	
 	public Snapshot getNextSnapshot() {
 		return nextSnap;
+	}
+	
+	public void setThisFrameTeleport(boolean thisFrameTeleport)
+	{
+		this.thisFrameTeleport = thisFrameTeleport;
+	}
+	
+	public boolean isThisFrameTeleport() {
+		return thisFrameTeleport;
 	}
 	
 	public boolean isNextFrameTeleport() {

@@ -4,6 +4,7 @@ package xreal;
 public abstract class CVars {
 	
 	public static final CVar cl_paused = new CVar("cl_paused", "0", CVar.ROM);
+	public static final CVar cl_running = new CVar("cl_running", "0", CVar.ROM);
 	
 	public static final CVar ui_debug = new CVar("ui_debug", "0", 0);
 	
@@ -16,8 +17,10 @@ public abstract class CVars {
 	public static final CVar cg_drawPlayerCollision = new CVar("cg_drawPlayerCollision", "1", CVar.CHEAT);
 	
 	public static final CVar cg_lagometer = new CVar("cg_lagometer", "1", CVar.ARCHIVE);
-	public static final CVar cg_nopredict = new CVar("cg_nopredict", "1", 0);
 	
+	public static final CVar cg_errorDecay = new CVar("cg_errordecay", "100", 0);
+	public static final CVar cg_nopredict = new CVar("cg_nopredict", "0", 0);
+	public static final CVar cg_showmiss = new CVar("cg_showmiss", "1", 0);
 	public static final CVar cg_smoothClients = new CVar("cg_smoothClients", "0", CVar.USERINFO | CVar.ARCHIVE);
 	
 	public static final CVar cg_thirdPersonRange = new CVar("cg_thirdPersonRange", "40", CVar.CHEAT);

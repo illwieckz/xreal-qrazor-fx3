@@ -17,6 +17,7 @@ import xreal.common.PlayerController;
 import xreal.common.PlayerMove;
 import xreal.common.PlayerMovementFlags;
 import xreal.common.PlayerMovementType;
+import xreal.common.PlayerStatsType;
 import xreal.common.Team;
 import xreal.server.Server;
 
@@ -878,10 +879,6 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	private synchronized static native int getPlayerState_speed(int clientNum);
 
 	private synchronized static native void setPlayerState_speed(int clientNum, int speed);
-	
-	private synchronized static native Vector3f getPlayerState_deltaAngles(int clientNum);
-	
-	private synchronized static native void setPlayerState_deltaAngles(int clientNum, int pitch, int yaw, int roll);
 
 	private synchronized static native short getPlayerState_deltaPitch(int clientNum);
 
@@ -943,10 +940,6 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 
 	private synchronized static native void setPlayerState_externalEventTime(int clientNum, int externalEventTime);
 
-//	private synchronized static native int getPlayerState_clientNum(int clientNum);
-
-//	private synchronized static native void setPlayerState_clientNum(int clientNum, int clientNum);
-
 	private synchronized static native int getPlayerState_weapon(int clientNum);
 
 	private synchronized static native void setPlayerState_weapon(int clientNum, int weapon);
@@ -995,6 +988,12 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 
 	private synchronized static native void setPlayerState_ping(int clientNum, int ping);
 	
+	private synchronized static native int getPlayerState_stat(int clientNum, int stat);
+	
+	private synchronized static native void setPlayerState_stat(int clientNum, int stat, int value);
+	
+	
+	
 	@Override
 	public int getPlayerState_bobCycle() {
 		// TODO Auto-generated method stub
@@ -1028,11 +1027,6 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	public int getPlayerState_damageYaw() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-	
-	@Override
-	public Vector3f getPlayerState_deltaAngles() {
-		return getPlayerState_deltaAngles(getEntityState_number());
 	}
 	
 	@Override
@@ -1191,11 +1185,6 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	}
 	@Override
 	public void setPlayerState_bobCycle(int bobCycle) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void setPlayerState_clientNum(int clientNum) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -1403,6 +1392,18 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	@Override
 	public boolean hasPlayerState_pm_flags(int pm_flags) {
 		return (getPlayerState_pm_flags() & pm_flags) != 0;
+	}
+
+	@Override
+	public int getPlayerState_stat(PlayerStatsType stat)
+	{
+		return getPlayerState_stat(getEntityState_number(), stat.ordinal());
+	}
+
+	@Override
+	public void setPlayerState_stat(PlayerStatsType stat, int value)
+	{
+		setPlayerState_stat(getEntityState_number(), stat.ordinal(), value);
 	}
 	
 	// --------------------------------------------------------------------------------------------

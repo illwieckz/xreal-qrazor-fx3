@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
 import com.bulletphysics.collision.broadphase.BroadphasePair;
@@ -22,10 +24,13 @@ import com.bulletphysics.linearmath.Transform;
 
 import xreal.Angle3f;
 import xreal.CVars;
+import xreal.Color;
 import xreal.Engine;
 import xreal.EntityStateAccess;
 import xreal.PlayerStateAccess;
 import xreal.UserCommand;
+import xreal.client.game.ClientGame;
+import xreal.client.game.util.RenderUtils;
 import xreal.server.game.GameEntity;
 
 
@@ -39,20 +44,33 @@ public class PlayerController implements ActionInterface {
 	// pmove, just to make damn sure we don't have
 	// any differences when running on client or server
 	
+	private class ContactInfo
+	{
+		public Vector3f	position;
+		public Vector3f	normal;
+		
+		public ContactInfo(Vector3f position, Vector3f normal)
+		{
+			super();
+			this.position = position;
+			this.normal = normal;
+		}
+	}
+	
 	private class PlayerControllerLocals
 	{
 		public PlayerControllerLocals()
 		{
 			gravityVector = new Vector3f(CVars.g_gravityX.getValue(), CVars.g_gravityY.getValue(), CVars.g_gravityZ.getValue());
-			//gravityVector = new Vector3f(0, 0, CVars.g_gravityZ.getValue());
-			
+			// gravityVector = new Vector3f(0, 0, CVars.g_gravityZ.getValue());
+
 			gravityNormal = new Vector3f(gravityVector);
 			gravityNormal.normalize();
-			
+
 			gravityNormalFlipped = new Vector3f(gravityNormal);
 			gravityNormalFlipped.negate();
 		}
-		
+
 		public Vector3f										forward				= new Vector3f(0, 0, 0);
 		public Vector3f										right				= new Vector3f(0, 0, 0);
 		public Vector3f										up					= new Vector3f(0, 0, 0);
@@ -70,10 +88,12 @@ public class PlayerController implements ActionInterface {
 		public Vector3f										previousOrigin		= new Vector3f(0, 0, 0);
 		public Vector3f										previousVelocity	= new Vector3f(0, 0, 0);
 		public int											previousWaterlevel;
-		
+
 		public final Vector3f								gravityVector;
 		public final Vector3f								gravityNormal;
 		public final Vector3f								gravityNormalFlipped;
+
+		private Queue<ContactInfo>							contactInfos		= new LinkedList<ContactInfo>();
 	}
 
 	private PlayerControllerLocals			pml				= new PlayerControllerLocals();
@@ -136,6 +156,36 @@ public class PlayerController implements ActionInterface {
 		}
 	}
 	
+	private void renderContactInfos()
+	{
+		if(CVars.cl_running.getBoolean())
+		{
+			while (!pml.contactInfos.isEmpty()) {
+				ContactInfo ci = pml.contactInfos.remove();
+				
+				Matrix3f rotation = new Matrix3f();
+				Angle3f angles = new Angle3f(ci.normal);
+				angles.get(rotation);
+				
+				Matrix4f transform = new Matrix4f(rotation, ci.position, 1);
+			
+			
+				Vector3f mins = new Vector3f(-1, -1, -1);
+				Vector3f maxs = new Vector3f(1, 1, 1);
+				
+				try
+				{
+					RenderUtils.renderBox(transform, mins, maxs, Color.Red, ClientGame.getMedia().debugPlayerAABB_twoSided);
+				}
+				catch(Exception e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	public void movePlayer(PlayerMove pmove) 
 	{
 		//Engine.println("Player.movePlayer(cmd.serverTime = " + pmove.cmd.serverTime + ", ps.commandTime = " + pmove.ps.getPlayerState_commandTime() + " )");
@@ -169,6 +219,8 @@ public class PlayerController implements ActionInterface {
 			pmove.cmd.serverTime = pmove.ps.getPlayerState_commandTime() + msec;
 			
 			movePlayerSingle(pmove);
+			
+			//renderContactInfos();
 
 			if(pmove.ps.hasPlayerState_pm_flags(PlayerMovementFlags.JUMP_HELD))
 			{
@@ -178,7 +230,6 @@ public class PlayerController implements ActionInterface {
 
 		//PM_CheckStuck();
 	}
-	
 	
 	private void movePlayerSingle(PlayerMove pmove)
 	{
@@ -1380,6 +1431,8 @@ public class PlayerController implements ActionInterface {
 			pml.walking = false;
 			return;
 		}
+		
+		pml.contactInfos.add(new ContactInfo(pml.groundTrace.hitPointWorld, pml.groundTrace.hitNormalWorld));
 
 		// check if getting thrown off the ground
 		Vector3f playerVelocity = pm.ps.getPlayerState_velocity();
@@ -1616,7 +1669,6 @@ public class PlayerController implements ActionInterface {
 		return callback;
 	}
 	
-	/*
 	private KinematicClosestNotMeConvexResultCallback traceLegs(Vector3f startPos, Vector3f endPos)
 	{
 		ConvexShape legsShape = new SphereShape(Config.PLAYER_WIDTH / 2); 
@@ -1653,7 +1705,6 @@ public class PlayerController implements ActionInterface {
 		
 		return callback;
 	}
-	*/
 	
 
 	/**
@@ -2038,7 +2089,7 @@ public class PlayerController implements ActionInterface {
 		
 		Vector3f startVelocity = pm.ps.getPlayerState_velocity();
 		
-		//if(!nearGround)
+		if(!nearGround)
 		{
 			end.scaleAdd(Config.STEPSIZE, pml.gravityNormal, start);
 			

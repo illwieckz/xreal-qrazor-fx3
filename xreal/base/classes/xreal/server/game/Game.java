@@ -48,6 +48,7 @@ public class Game implements GameListener {
 	static private Set<GameEntity> entities;
 	static private Set<Player> players;
 	
+	// physics ------------------------------------------------------------------------------------
 	// keep the collision shapes, for deletion/cleanup
 	static private List<CollisionShape> collisionShapes;
 	static private BroadphaseInterface broadphase;
@@ -59,7 +60,10 @@ public class Game implements GameListener {
 	private static DynamicsWorld dynamicsWorld = null;
 	
 	// maximum number of objects (and allow user to shoot additional boxes)
-	private static final int MAX_PROXIES = 1024;
+	// private static final int MAX_PROXIES = 1024;
+	
+	// --------------------------------------------------------------------------------------------
+	
 	
 	//
 	private static Hashtable<String, Document> documentHashtable;
@@ -126,6 +130,8 @@ public class Game implements GameListener {
 		Engine.println("Game Type: " + GameType.values()[CVars.g_gametype.getInteger()]);
 		
 		initPhysics();
+		
+		loadBSPToCollisionWorld();
 		
 		documentHashtable = new Hashtable<String, Document>();
 		
@@ -414,48 +420,12 @@ public class Game implements GameListener {
 		// overlappingPairCache, solver, collisionConfiguration);
 
 		dynamicsWorld.setGravity(new Vector3f(CVars.g_gravityX.getValue(), CVars.g_gravityY.getValue(), CVars.g_gravityZ.getValue()));
-
-		// create a few basic rigid bodies
-		// CollisionShape groundShape = new BoxShape(new Vector3f(50f, 50f,
-		// 50f));
-		/*
-		CollisionShape groundShape = new StaticPlaneShape(new Vector3f(0, 0, 1), 0);
-
-		collisionShapes.add(groundShape);
-
-		Transform groundTransform = new Transform();
-		groundTransform.setIdentity();
-		groundTransform.origin.set(0, -56, 0);
-		
-		{
-			float mass = 0f;
-
-			// rigidbody is dynamic if and only if mass is non zero, otherwise static
-			boolean isDynamic = (mass != 0f);
-
-			Vector3f localInertia = new Vector3f(0, 0, 0);
-			if (isDynamic) {
-				groundShape.calculateLocalInertia(mass, localInertia);
-			}
-
-			// using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-			DefaultMotionState myMotionState = new DefaultMotionState(groundTransform);
-			RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(mass, myMotionState, groundShape, localInertia);
-			RigidBody body = new RigidBody(rbInfo);
-			//body.
-
-			// add the body to the dynamics world
-			dynamicsWorld.addRigidBody(body);
-		}
-		*/
-		
-		initCollisionWorld();
 		
 		//System.gc();
 	}
 	
-	private void initCollisionWorld() {
-		Engine.println("Game.initCollisionWorld()");
+	private void loadBSPToCollisionWorld() {
+		Engine.println("Game.loadBSPToCollisionWorld()");
 		
 		CollisionBspReader bsp = new CollisionBspReader("maps/" + CVars.g_mapname.getString() + ".bsp");
 		

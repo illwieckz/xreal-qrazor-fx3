@@ -61,7 +61,7 @@ public class ClientCamera extends Camera {
 		cg.xyspeed = sqrt(ps->velocity[0] * ps->velocity[0] + ps->velocity[1] * ps->velocity[1]);
 		*/
 
-		position = new Vector3f(ps.origin);
+		position = ps.getPlayerState_origin();
 
 		//if(BG_ClassHasAbility(ps->stats[STAT_PCLASS], SCA_WALLCLIMBER))
 //		{
@@ -347,11 +347,11 @@ public class ClientCamera extends Camera {
 		focusAngles = new Angle3f(viewAngles);
 
 		// if dead, look at killer
-		if(ps.stats[PlayerStatsType.HEALTH.ordinal()] <= 0)
+		if(ps.getPlayerState_stat(PlayerStatsType.HEALTH) <= 0)
 		{
 			// yaw
-			focusAngles.y = ps.stats[PlayerStatsType.DEAD_YAW.ordinal()];
-			viewAngles.y = ps.stats[PlayerStatsType.DEAD_YAW.ordinal()];
+			focusAngles.y = ps.getPlayerState_stat(PlayerStatsType.DEAD_YAW);
+			viewAngles.y = ps.getPlayerState_stat(PlayerStatsType.DEAD_YAW);
 		}
 		
 		if(focusAngles.x > 45)

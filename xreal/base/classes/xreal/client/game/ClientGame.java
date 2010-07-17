@@ -1,25 +1,35 @@
 package xreal.client.game;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.vecmath.Vector3f;
 
 import xreal.CVars;
+import xreal.CollisionBspReader;
 import xreal.Engine;
 import xreal.UserInfo;
 import xreal.client.Client;
 import xreal.client.EntityState;
 import xreal.client.renderer.Camera;
-import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
 import xreal.client.renderer.StereoFrame;
 import xreal.common.Config;
 import xreal.common.ConfigStrings;
 import xreal.common.EntityType;
 import xreal.common.GameType;
-import xreal.server.game.GameEntity;
+
+import com.bulletphysics.collision.broadphase.BroadphaseInterface;
+import com.bulletphysics.collision.broadphase.DbvtBroadphase;
+import com.bulletphysics.collision.dispatch.CollisionDispatcher;
+import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
+import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
+import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 
 
 /**
@@ -69,6 +79,20 @@ public class ClientGame implements ClientGameListener {
 	
 	static private Vector<CEntity> entities;
 	
+	// physics ------------------------------------------------------------------------------------
+	static private List<CollisionShape>				collisionShapes;
+	static private BroadphaseInterface				broadphase;
+	static private CollisionDispatcher				dispatcher;
+	static private ConstraintSolver					solver;
+	static private DefaultCollisionConfiguration	collisionConfiguration;
+
+	private static DynamicsWorld					dynamicsWorld	= null;
+
+	// maximum number of objects (and allow user to shoot additional boxes)
+	// private static final int MAX_PROXIES = 1024;
+
+	// --------------------------------------------------------------------------------------------
+	
 	
 	private ClientGame(int serverMessageNum, int serverCommandSequence, int clientNum) throws Exception {
 		
@@ -81,14 +105,18 @@ public class ClientGame implements ClientGameListener {
 		camera = new ClientCamera();
 		hud = new HUD();
 		snapshotManager = new SnapshotManager(serverMessageNum);
+		
+		initPhysics();
+		
+		// prediction manager requires set physics
 		predictionManager = new PredictionManager();
+		
 		lagometer = new Lagometer();
 		
 		entities = new Vector<CEntity>();
 		for(int i = 0; i < Engine.MAX_GENTITIES; i++) {
 			entities.add(null);
 		}
-		
 		
 		// create own player entity ---------------------------------------------------------------
 		// ----------------------------------------------------------------------------------------
@@ -112,6 +140,8 @@ public class ClientGame implements ClientGameListener {
 		
 		parseServerinfo();
 		
+		loadBSPToCollisionWorld();
+		
 		registerGraphics();
 		
 		// TODO
@@ -122,6 +152,63 @@ public class ClientGame implements ClientGameListener {
 		loadingProgress = 0;
 		
 		System.gc();
+	}
+	
+	private void initPhysics() {
+
+		Engine.println("ClientGame.initPhysics()");
+		
+		collisionShapes = new ArrayList<CollisionShape>();
+		
+		// collision configuration contains default setup for memory, collision
+		// setup
+		collisionConfiguration = new DefaultCollisionConfiguration();
+
+		// use the default collision dispatcher. For parallel processing you can
+		// use a diffent dispatcher (see Extras/BulletMultiThreaded)
+		dispatcher = new CollisionDispatcher(collisionConfiguration);
+
+		// the maximum size of the collision world. Make sure objects stay
+		// within these boundaries
+		
+		
+		// Don't make the world AABB size too large, it will harm simulation
+		// quality and performance
+		//Vector3f worldAabbMin = new Vector3f(-10000, -10000, -10000);
+		//Vector3f worldAabbMax = new Vector3f(10000, 10000, 10000);
+		//overlappingPairCache = new AxisSweep3(worldAabbMin, worldAabbMax);//, MAX_PROXIES);
+		
+		 //broadphase = new SimpleBroadphase(MAX_PROXIES);
+		
+		// new JBullet supports DbvtBroadphase
+		broadphase = new DbvtBroadphase();
+
+		// the default constraint solver. For parallel processing you can use a
+		// different solver (see Extras/BulletMultiThreaded)
+		SequentialImpulseConstraintSolver sol = new SequentialImpulseConstraintSolver();
+		solver = sol;
+
+		// TODO: needed for SimpleDynamicsWorld
+		// sol.setSolverMode(sol.getSolverMode() &
+		// ~SolverMode.SOLVER_CACHE_FRIENDLY.getMask());
+
+		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+		// dynamicsWorld = new SimpleDynamicsWorld(dispatcher,
+		// overlappingPairCache, solver, collisionConfiguration);
+
+		dynamicsWorld.setGravity(new Vector3f(CVars.g_gravityX.getValue(), CVars.g_gravityY.getValue(), CVars.g_gravityZ.getValue()));
+		
+		//System.gc();
+	}
+	
+	private void loadBSPToCollisionWorld() {
+		Engine.println("ClientGame.loadBSPToCollisionWorld()");
+		
+		CollisionBspReader bsp = new CollisionBspReader(mapFileName);
+		
+		bsp.addWorldBrushesToSimulation(collisionShapes, dynamicsWorld);
+		
+		//entitiesString = bsp.getEntitiesString();
 	}
 	
 	@Override
@@ -630,6 +717,10 @@ public class ClientGame implements ClientGameListener {
 		return time;
 	}
 	
+	public static int getOldTime() {
+		return oldTime;
+	}
+	
 	public static Media getMedia() {
 		return media;
 	}
@@ -652,5 +743,17 @@ public class ClientGame implements ClientGameListener {
 	
 	public static boolean isDemoPlayback() {
 		return demoPlayback;
+	}
+	
+	public static List<CollisionShape> getCollisionShapes() {
+		return collisionShapes;
+	}
+	
+	public static BroadphaseInterface getBroadphase() {
+		return broadphase;
+	}
+
+	public static DynamicsWorld getDynamicsWorld() {
+		return dynamicsWorld;
 	}
 }

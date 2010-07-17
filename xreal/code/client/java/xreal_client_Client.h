@@ -7,6 +7,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef xreal_client_Client_CMD_BACKUP
+#define xreal_client_Client_CMD_BACKUP 64L
+#undef xreal_client_Client_CMD_MASK
+#define xreal_client_Client_CMD_MASK 63L
 /*
  * Class:     xreal_client_Client
  * Method:    getConfigString
