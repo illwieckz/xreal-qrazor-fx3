@@ -39,6 +39,26 @@ textures/reflex/lights/strim01_blue
 	}
 }
 
+textures/reflex/lights/light01_white
+{
+	qer_editorimage  	textures/reflex/lights/light01.tga
+	xmap_surfaceLight	6000
+	xmap_lightRGB		0.94 0.94 0.94
+	xmap_lightImage		textures/reflex/lights/light01_glow
+	xmap_lightSubdivide	16
+
+	diffusemap		textures/reflex/lights/light01.tga
+	specularMap		textures/reflex/lights/light01_spec.tga
+	bumpmap			textures/reflex/lights/light01_local.tga
+
+	{
+		blend		add
+		map		textures/reflex/lights/light01_glow
+		color		0.94, 0.94, 0.94, 255
+	}
+	glowMap			textures/reflex/lights/light01_glow
+}
+
 textures/reflex/lights/light01_orange
 {
 	qer_editorimage  	textures/reflex/lights/light01.tga
@@ -56,13 +76,14 @@ textures/reflex/lights/light01_orange
 		map		textures/reflex/lights/light01_glow
 		color		0.94, 0.57, 0.13, 255
 	}
+	glowMap			textures/reflex/lights/light01_glow
 }
 
-textures/reflex/lights/light01_blue
+textures/reflex/lights/light01_yellow
 {
 	qer_editorimage  	textures/reflex/lights/light01.tga
 	xmap_surfaceLight	6000
-	xmap_lightRGB		0.13 0.57 0.94
+	xmap_lightRGB		0.94 0.94 0.13
 	xmap_lightImage		textures/reflex/lights/light01_glow
 	xmap_lightSubdivide	16
 
@@ -73,6 +94,47 @@ textures/reflex/lights/light01_blue
 	{
 		blend		add
 		map		textures/reflex/lights/light01_glow
-		color		0.13, 0.57, 0.94, 255
+		color		0.94, 0.94, 0.13, 255
 	}
+	glowMap			textures/reflex/lights/light01_glow
+}
+
+textures/reflex/lights/light01_blue
+{
+	qer_editorimage  	textures/reflex/lights/light01.tga
+	xmap_surfaceLight	6000
+	xmap_lightRGB		0.13 0.13 0.94
+	xmap_lightImage		textures/reflex/lights/light01_glow
+	xmap_lightSubdivide	16
+
+	diffusemap		textures/reflex/lights/light01.tga
+	specularMap		textures/reflex/lights/light01_spec.tga
+	bumpmap			textures/reflex/lights/light01_local.tga
+
+	{
+		blend		add
+		map		textures/reflex/lights/light01_glow
+		color		0.13, 0.13, 0.94, 255
+	}
+	glowMap			textures/reflex/lights/light01_glow
+}
+
+textures/reflex/lights/light01_red
+{
+	qer_editorimage  	textures/reflex/lights/light01.tga
+	xmap_surfaceLight	6000
+	xmap_lightRGB		0.94 0.13 0.13 
+	xmap_lightImage		textures/reflex/lights/light01_glow
+	xmap_lightSubdivide	16
+
+	diffusemap		textures/reflex/lights/light01.tga
+	specularMap		textures/reflex/lights/light01_spec.tga
+	bumpmap			textures/reflex/lights/light01_local.tga
+
+	{
+		blend		add
+		map		textures/reflex/lights/light01_glow
+		color		0.94, 0.13, 0.13, 255
+	}
+	glowMap			textures/reflex/lights/light01_glow
 }

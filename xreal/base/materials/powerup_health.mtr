@@ -9,12 +9,18 @@ models/powerups/health/small
 {
 	diffuseMap		gfx/2d/green
 	specularMap		gfx/2d/green
-	normalmap		_flat
+	normalMap		_flat
+	{
+		map		gfx/effect/envmap.png
+		tcGen		environment
+		color		0, 1, 0, 255
+		blend		add
+	}
 }
 
 models/powerups/health/small_sphere
 {
-	twosided
+//	twosided
 	{
 		clampmap	gfx/effect/effmap01.png
         	rotate		time * -0.4
@@ -34,7 +40,7 @@ models/powerups/health/small_sphere
 
 models/powerups/health/small_flare
 {
-	deformVertexes		autosprite
+/*	deformVertexes		autosprite
 	{
 		edgeClamp
 		map		gfx/effect/flare01.png
@@ -50,41 +56,45 @@ models/powerups/health/small_flare
        		rotate		time * -0.5
 		blend		add
 		green		0.7 + sinTable[time * 0.31] * 0.5
-	}
+	}*/
 }
 
 models/powerups/health/medium
 {
 	diffuseMap		gfx/2d/yellow
 	specularMap		gfx/2d/yellow
-	normalmap		_flat
+	normalMap		_flat
+	{
+		map		gfx/effect/envmap.png
+		tcGen		environment
+		color		1, 1, 0, 255
+		blend		add
+	}
 }
 
 models/powerups/health/medium_sphere
 {
-	twosided
+//	twosided
 	{
-		clampmap	gfx/effect/effmap01.png
-        	rotate		time * -0.4
-		blend		add
+		map		gfx/effect/effmap01.png
 		green		0.5 + sinTable[time * 0.3] * 0.56
 		red		0.52 + sinTable[time * 0.34] * 0.5
 		tcGen		environment
+		blend		add
 	}
 	{
-		clampmap	gfx/effect/effmap02.png
+		map		gfx/effect/effmap02.png
   		green		0.7 + sinTable[time * 0.2] * 0.46
       		red		0.62 + sinTable[time * 0.32] * 0.4
-      	  	scroll		sinTable[time * 0.23] * 0.5 + 0.5, 0
-		blend		add
 		tcGen		environment
+		blend		add
 	}
 	reflectionMapBlended	_autocube
 }
 
 models/powerups/health/medium_flare
 {
-	deformVertexes		autosprite
+/*	deformVertexes		autosprite
 	{
 		edgeClamp
 		map		gfx/effect/flare01.png
@@ -101,19 +111,25 @@ models/powerups/health/medium_flare
 		blend		add
 		red		0.7 + sinTable[time * 0.31] * 0.5
 		green		0.75 + sinTable[time * 0.331] * 0.5
-	}
+	}*/
 }
 
 models/powerups/health/large
 {
 	diffuseMap		gfx/2d/red
 	specularMap		gfx/2d/red
-	normalmap		_flat
+	normalMap		_flat
+	{
+		map		gfx/effect/envmap.png
+		tcGen		environment
+		color		1, 0, 0, 255
+		blend		add
+	}
 }
 
 models/powerups/health/large_sphere
 {
-	twosided
+//	twosided
 	{
 		clampmap	gfx/effect/effmap01.png
         	rotate		time * -0.4
@@ -133,7 +149,7 @@ models/powerups/health/large_sphere
 
 models/powerups/health/large_flare
 {
-	deformVertexes		autosprite
+/*	deformVertexes		autosprite
 	{
 		edgeClamp
 		map		gfx/effect/flare01.png
@@ -148,7 +164,7 @@ models/powerups/health/large_flare
 		rotate		time * -0.5
 		blend		add
 		red		0.77 + sinTable[time * 0.351] * 0.5
-	}
+	}*/
 }
 
 
@@ -156,12 +172,18 @@ models/powerups/health/mega
 {
 	diffuseMap		gfx/2d/teal
 	specularMap		gfx/2d/teal
-	normalmap		_flat
+	normalMap		_flat
+	{
+		map		gfx/effect/envmap.png
+		tcGen		environment
+		color		0, 1, 1, 255
+		blend		add
+	}
 }
 
 models/powerups/health/mega_sphere
 {
-	twosided
+//	twosided
 	{
 		clampmap	gfx/effect/effmap01.png
 		rotate		time * -0.4
@@ -181,7 +203,7 @@ models/powerups/health/mega_sphere
 
 models/powerups/health/mega_flare
 {
-	deformVertexes		autosprite
+/*	deformVertexes		autosprite
 	{
 		edgeClamp
 		map		gfx/effect/flare01.png
@@ -195,5 +217,5 @@ models/powerups/health/mega_flare
 		blend		add
        		rotate		time * -0.5
 		blue		0.67 + sinTable[time * 0.371] * 0.5
-	}
+	}*/
 }

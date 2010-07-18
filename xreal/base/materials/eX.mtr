@@ -724,6 +724,10 @@ textures/eX/eX_cretefloor_01b
 textures/eX/eX_lightpanel_01_orange
 {
 	qer_EditorImage		textures/eX/eX_lightpanel_01.tga
+	xmap_surfaceLight	15000
+	xmap_lightImage		textures/eX/eX_lightpanel_01_glow.tga
+	xmap_lightSubdivide	16
+	xmap_lightRGB		1.00 0.59 0.01
 	
 	nonSolid
 	noShadows
@@ -733,15 +737,20 @@ textures/eX/eX_lightpanel_01_orange
 	{
 		blend		add
 		map		textures/eX/eX_lightpanel_01_glow.tga
-		red		1.000000 
-		green		.59
+		red		1.00
+		green		0.59
 		blue		0.01
 	}
+	glowMap			textures/eX/eX_lightpanel_01_glow.tga
 }
 
 textures/eX/eX_light_u201_orange
 {
 	qer_EditorImage		textures/eX/eX_light_u201.tga
+	xmap_surfaceLight	15000
+	xmap_lightImage		textures/eX/eX_light_u201_glow.tga
+	xmap_lightSubdivide	16
+	xmap_lightRGB		1.00 0.59 0.01
 	
 	nonSolid
 	noShadows
@@ -751,8 +760,147 @@ textures/eX/eX_light_u201_orange
 	{
 		blend		add
 		map		textures/eX/eX_light_u201_glow.tga
-		red		1.000000 
-		green		.59
+		red		1.00
+		green		0.59
 		blue		0.01
 	}
+	glowMap			textures/eX/eX_light_u201_glow.tga
+}
+
+textures/eX/eX_lightpanel_01_red
+{
+	qer_EditorImage		textures/eX/eX_lightpanel_01.tga
+	xmap_surfaceLight	15000
+	xmap_lightImage		textures/eX/eX_lightpanel_01_glow.tga
+	xmap_lightSubdivide	16
+	xmap_lightRGB		1.00 0.01 0.01
+	
+	nonSolid
+	noShadows
+	diffuseMap		textures/eX/eX_lightpanel_01.tga
+	specularMap		textures/eX/eX_lightpanel_01_s.tga
+	bumpMap			addnormals ( textures/eX/eX_lightpanel_01_norm.tga, heightmap ( textures/eX/eX_lightpanel_01_h.tga, 1 ) )
+	{
+		blend		add
+		map		textures/eX/eX_lightpanel_01_glow.tga
+		red		1.00
+		green		0.01
+		blue		0.01
+	}
+	glowMap			textures/eX/eX_lightpanel_01_glow.tga
+}
+
+textures/eX/eX_light_u201_red
+{
+	qer_EditorImage		textures/eX/eX_light_u201.tga
+	xmap_surfaceLight	15000
+	xmap_lightImage		textures/eX/eX_light_u201_glow.tga
+	xmap_lightSubdivide	16
+	xmap_lightRGB		1.00 0.01 0.01
+	
+	nonSolid
+	noShadows
+	diffuseMap		textures/eX/eX_light_u201.tga
+	specularMap		textures/eX/eX_light_u201_s.tga
+	bumpMap			addnormals ( textures/eX/eX_light_u201_norm.tga, heightmap ( textures/eX/eX_light_u201_h.tga, 1 ) )
+	{
+		blend		add
+		map		textures/eX/eX_light_u201_glow.tga
+		red		1.00
+		green		0.01
+		blue		0.01
+	}
+	glowMap			textures/eX/eX_light_u201_glow.tga
+}
+
+textures/eX/eX_lightpanel_01_teal
+{
+	qer_EditorImage		textures/eX/eX_lightpanel_01.tga
+	xmap_surfaceLight	15000
+	xmap_lightImage		textures/eX/eX_lightpanel_01_glow.tga
+	xmap_lightSubdivide	16
+	xmap_lightRGB		0.01 0.59 1.00
+	
+	nonSolid
+	noShadows
+	diffuseMap		textures/eX/eX_lightpanel_01.tga
+	specularMap		textures/eX/eX_lightpanel_01_s.tga
+	bumpMap			addnormals ( textures/eX/eX_lightpanel_01_norm.tga, heightmap ( textures/eX/eX_lightpanel_01_h.tga, 1 ) )
+	{
+		blend		add
+		map		textures/eX/eX_lightpanel_01_glow.tga
+		red		0.01
+		green		0.59
+		blue		1.00
+	}
+	glowMap			textures/eX/eX_lightpanel_01_glow.tga
+}
+
+textures/eX/eX_light_u201_teal
+{
+	qer_EditorImage		textures/eX/eX_light_u201.tga
+	xmap_surfaceLight	15000
+	xmap_lightImage		textures/eX/eX_light_u201_glow.tga
+	xmap_lightSubdivide	16
+	xmap_lightRGB		0.01 0.59 1.00
+	
+	nonSolid
+	noShadows
+	diffuseMap		textures/eX/eX_light_u201.tga
+	specularMap		textures/eX/eX_light_u201_s.tga
+	bumpMap			addnormals ( textures/eX/eX_light_u201_norm.tga, heightmap ( textures/eX/eX_light_u201_h.tga, 1 ) )
+	{
+		blend		add
+		map		textures/eX/eX_light_u201_glow.tga
+		red		0.01
+		green		0.59
+		blue		1.00
+	}
+	glowMap			textures/eX/eX_light_u201_glow.tga
+}
+
+textures/eX/eX_lightpanel_01_blue
+{
+	qer_EditorImage		textures/eX/eX_lightpanel_01.tga
+	xmap_surfaceLight	15000
+	xmap_lightImage		textures/eX/eX_lightpanel_01_glow.tga
+	xmap_lightSubdivide	16
+	xmap_lightRGB		0.01 0.01 1.00
+	
+	nonSolid
+	noShadows
+	diffuseMap		textures/eX/eX_lightpanel_01.tga
+	specularMap		textures/eX/eX_lightpanel_01_s.tga
+	bumpMap			addnormals ( textures/eX/eX_lightpanel_01_norm.tga, heightmap ( textures/eX/eX_lightpanel_01_h.tga, 1 ) )
+	{
+		blend		add
+		map		textures/eX/eX_lightpanel_01_glow.tga
+		red		0.01
+		green		0.01
+		blue		1.00
+	}
+	glowMap			textures/eX/eX_lightpanel_01_glow.tga
+}
+
+textures/eX/eX_light_u201_blue
+{
+	qer_EditorImage		textures/eX/eX_light_u201.tga
+	xmap_surfaceLight	15000
+	xmap_lightImage		textures/eX/eX_light_u201_glow.tga
+	xmap_lightSubdivide	16
+	xmap_lightRGB		0.01 0.01 1.00
+	
+	nonSolid
+	noShadows
+	diffuseMap		textures/eX/eX_light_u201.tga
+	specularMap		textures/eX/eX_light_u201_s.tga
+	bumpMap			addnormals ( textures/eX/eX_light_u201_norm.tga, heightmap ( textures/eX/eX_light_u201_h.tga, 1 ) )
+	{
+		blend		add
+		map		textures/eX/eX_light_u201_glow.tga
+		red		0.01
+		green		0.01
+		blue		1.00
+	}
+	glowMap			textures/eX/eX_light_u201_glow.tga
 }
