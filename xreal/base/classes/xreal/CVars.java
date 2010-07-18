@@ -67,7 +67,10 @@ public abstract class CVars {
 	
 	
 	// player movement
-	public static final CVar pm_debug = new CVar("pm_debug", "0", 0);
+	public static final CVar pm_debugClient = new CVar("pm_debugClient", "0", 0);
+	public static final CVar pm_debugServer = new CVar("pm_debugServer", "0", 0);
+	
+	public static final CVar pm_drawContacts = new CVar("pm_drawContacts", "1", 0);
 	
 	public static final CVar pm_useGhostObjectSweepTest = new CVar("pm_useGhostObjectSweepTest", "0", CVar.SYSTEMINFO);
 	

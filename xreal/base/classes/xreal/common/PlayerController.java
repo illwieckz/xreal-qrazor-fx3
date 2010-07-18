@@ -158,7 +158,7 @@ public class PlayerController implements ActionInterface {
 	
 	private void renderContactInfos()
 	{
-		if(CVars.cl_running.getBoolean())
+		if(pm.runningOnClient && pm.debugLevel > 0 && CVars.pm_drawContacts.getBoolean())
 		{
 			while (!pml.contactInfos.isEmpty()) {
 				ContactInfo ci = pml.contactInfos.remove();
@@ -170,12 +170,27 @@ public class PlayerController implements ActionInterface {
 				Matrix4f transform = new Matrix4f(rotation, ci.position, 1);
 			
 			
-				Vector3f mins = new Vector3f(-1, -1, -1);
-				Vector3f maxs = new Vector3f(1, 1, 1);
-				
 				try
 				{
-					RenderUtils.renderBox(transform, mins, maxs, Color.Red, ClientGame.getMedia().debugPlayerAABB_twoSided);
+					// draw position
+					Vector3f mins = new Vector3f(-1, -1, -1);
+					Vector3f maxs = new Vector3f(1, 1, 1);
+					
+					RenderUtils.renderBox(transform, mins, maxs, Color.Blue, ClientGame.getMedia().debugPlayerAABB_twoSided);
+					
+					// draw normal
+					mins.set(-0.1f, -0.1f, -0.1f);
+					maxs.set(10, 0.1f, 0.1f);
+					
+					if(isNormalTooSteep(ci.normal))
+					{
+						RenderUtils.renderBox(transform, mins, maxs, Color.Red, ClientGame.getMedia().debugPlayerAABB_twoSided);
+					}
+					else
+					{
+						RenderUtils.renderBox(transform, mins, maxs, Color.Green, ClientGame.getMedia().debugPlayerAABB_twoSided);
+					}
+					
 				}
 				catch(Exception e)
 				{
@@ -220,7 +235,7 @@ public class PlayerController implements ActionInterface {
 			
 			movePlayerSingle(pmove);
 			
-			//renderContactInfos();
+			renderContactInfos();
 
 			if(pmove.ps.hasPlayerState_pm_flags(PlayerMovementFlags.JUMP_HELD))
 			{
@@ -1121,7 +1136,7 @@ public class PlayerController implements ActionInterface {
 	{
 		int             i, j, k;
 
-		if(CVars.pm_debug.getBoolean())
+		if(pm.debugLevel == 1)
 		{
 			Engine.println(c_pmove + ":allsolid");
 		}
@@ -1175,7 +1190,7 @@ public class PlayerController implements ActionInterface {
 		Vector3f currentPosition = pm.ps.getPlayerState_origin();
 		//currentPosition.set(ghostObject.getWorldTransform(new Transform()).origin);
 		
-		if(CVars.pm_debug.getBoolean())
+		if(pm.debugLevel == 1)
 		{
 			Engine.println("number of overlapping pairs = " + ghostObject.getOverlappingPairCache().getNumOverlappingPairs());
 		}
@@ -1194,7 +1209,7 @@ public class PlayerController implements ActionInterface {
 				collisionPair.algorithm.getAllContactManifolds(manifoldArray);
 			}
 			
-			if(CVars.pm_debug.getBoolean())
+			if(pm.debugLevel == 1)
 			{
 				Engine.println("number of contact manifolds = " + manifoldArray.size());
 			}
@@ -1228,7 +1243,7 @@ public class PlayerController implements ActionInterface {
 					}
 					else
 					{
-						if(CVars.pm_debug.getBoolean())
+						if(pm.debugLevel == 1)
 						{
 							Engine.println("touching: " + pt.getDistance());
 						}
@@ -1246,7 +1261,7 @@ public class PlayerController implements ActionInterface {
 		*/
 		setOrigin(currentPosition);
 		
-		if(CVars.pm_debug.getBoolean())
+		if(pm.debugLevel == 1)
 		{
 			/*
 			Engine.print(String.format("m_touchingNormal = %f,%f,%f\n", pml.groundTrace.hitNormalWorld.x,
@@ -1270,7 +1285,7 @@ public class PlayerController implements ActionInterface {
 
 		Vector3f currentPosition = pm.ps.getPlayerState_origin();
 		
-		if(CVars.pm_debug.getBoolean())
+		if(pm.debugLevel == 1)
 		{
 			Engine.println("number of overlapping pairs = " + ghostObject.getOverlappingPairCache().getNumOverlappingPairs());
 		}
@@ -1292,7 +1307,7 @@ public class PlayerController implements ActionInterface {
 			}
 			
 			
-			if(CVars.pm_debug.getBoolean())
+			if(pm.debugLevel == 1)
 			{
 				//Engine.println("number of contact manifolds = " + manifoldArray.size());
 			}
@@ -1321,7 +1336,7 @@ public class PlayerController implements ActionInterface {
 					}
 					else
 					{
-						if(CVars.pm_debug.getBoolean())
+						if(pm.debugLevel == 1)
 						{
 							Engine.println("touching: " + pt.getDistance());
 						}
@@ -1343,7 +1358,7 @@ public class PlayerController implements ActionInterface {
 		
 		setOrigin(currentPosition);
 		
-		if(CVars.pm_debug.getBoolean())
+		if(pm.debugLevel == 1)
 		{
 			/*
 			Engine.print(String.format("m_touchingNormal = %f,%f,%f\n", pml.groundTrace.hitNormalWorld.x,
@@ -1369,7 +1384,7 @@ public class PlayerController implements ActionInterface {
 		if(pm.ps.getPlayerState_groundEntityNum() != Engine.ENTITYNUM_NONE)
 		{
 			// we just transitioned into freefall
-			if(CVars.pm_debug.getBoolean())
+			if(pm.debugLevel == 1)
 			{
 				Engine.print(c_pmove + ":lift\n");
 			}
@@ -1439,7 +1454,7 @@ public class PlayerController implements ActionInterface {
 		
 		if(playerVelocity.dot(pml.gravityNormalFlipped) > 0 && playerVelocity.dot(trace.hitNormalWorld) > 10)
 		{
-			if(CVars.pm_debug.getBoolean())
+			if(pm.debugLevel == 1)
 			{
 				Engine.print(c_pmove + ":kickoff\n");
 			}
@@ -1465,7 +1480,7 @@ public class PlayerController implements ActionInterface {
 		// slopes that are too steep will not be considered onground
 		if(isNormalTooSteep(trace.hitNormalWorld))
 		{
-			if(CVars.pm_debug.getBoolean())
+			if(pm.debugLevel == 1)
 			{
 				Engine.print(c_pmove + ":steep\n");
 			}
@@ -1512,7 +1527,7 @@ public class PlayerController implements ActionInterface {
 		if(pm.ps.getPlayerState_groundEntityNum() == Engine.ENTITYNUM_NONE)
 		{
 			// just hit the ground
-			if(CVars.pm_debug.getBoolean())
+			if(pm.debugLevel == 1)
 			{
 				Engine.print(c_pmove + ":land\n");
 			}
@@ -1853,7 +1868,7 @@ public class PlayerController implements ActionInterface {
 					if(upTrace.closestHitFraction == 0) 
 					{
 						// can't step up
-						if(CVars.pm_debug.getBoolean())
+						if(pm.debugLevel == 1)
 						{
 							Engine.println(c_pmove + ":bend can't step up");
 						}
@@ -2034,7 +2049,7 @@ public class PlayerController implements ActionInterface {
 			{
 				end.interpolate(start, end, callback.closestHitFraction);
 				
-				if(CVars.pm_debug.getBoolean())
+				if(pm.debugLevel == 1)
 				{
 					Engine.println(c_pmove + ":stepped");
 				}
@@ -2072,7 +2087,7 @@ public class PlayerController implements ActionInterface {
 		if(!slideMove(gravity, false, false, false))
 		{
 			// we got exactly where we wanted to go first try
-			if(CVars.pm_debug.getBoolean())
+			if(pm.debugLevel == 1)
 			{
 				//Engine.println(c_pmove + ":slided");
 			}
@@ -2113,7 +2128,7 @@ public class PlayerController implements ActionInterface {
 			if(upTrace.closestHitFraction == 0) 
 			{
 				// can't step up
-				if(CVars.pm_debug.getBoolean())
+				if(pm.debugLevel == 1)
 				{
 					Engine.println(c_pmove + ":bend can't step up");
 				}
@@ -2121,7 +2136,7 @@ public class PlayerController implements ActionInterface {
 			}
 			else
 			{
-				if(CVars.pm_debug.getBoolean())
+				if(pm.debugLevel == 1)
 				{
 					Engine.println(c_pmove + ":step up");
 				}
@@ -2146,7 +2161,7 @@ public class PlayerController implements ActionInterface {
 				
 				if(!slideMove(gravity, false, false, false))
 				{
-					if(CVars.pm_debug.getBoolean())
+					if(pm.debugLevel == 1)
 					{
 						Engine.println(c_pmove + ":step");
 					}
@@ -2168,7 +2183,7 @@ public class PlayerController implements ActionInterface {
 				
 				setOrigin(end);
 				
-				if(CVars.pm_debug.getBoolean())
+				if(pm.debugLevel == 1)
 				{
 					Engine.println(c_pmove + ":step down");
 				}
@@ -2193,7 +2208,7 @@ public class PlayerController implements ActionInterface {
 		if(!slideMove(gravity, false, false, false))
 		{
 			// we got exactly where we wanted to go first try
-			if(CVars.pm_debug.getBoolean())
+			if(pm.debugLevel == 1)
 			{
 				//Engine.println(c_pmove + ":slided");
 			}
@@ -2226,7 +2241,7 @@ public class PlayerController implements ActionInterface {
 		if (callback.closestHitFraction == 0) 
 		{
 			// can't step up
-			if(CVars.pm_debug.getBoolean())
+			if(pm.debugLevel == 1)
 			{
 				Engine.println(c_pmove + ":bend can't step up");
 			}
@@ -2315,7 +2330,7 @@ public class PlayerController implements ActionInterface {
 			}
 			*/
 			
-			if(CVars.pm_debug.getBoolean())
+			if(pm.debugLevel == 1)
 			{
 				Engine.println(c_pmove + ":stepped");
 			}
@@ -2627,7 +2642,7 @@ public class PlayerController implements ActionInterface {
 		
 		Vector3f velocity = pm.ps.getPlayerState_velocity();
 		
-		if(CVars.pm_debug.getInteger() == 2)
+		if(pm.debugLevel == 2)
 		{
 			Engine.print(String.format("groundPlaneNormal = %1.1f %1.1f %1.1f\n", pml.groundTrace.hitNormalWorld.x, pml.groundTrace.hitNormalWorld.y, pml.groundTrace.hitNormalWorld.z));
 			Engine.print(String.format("wishvel = %1.1f %1.1f %1.1f\n", wishvel.x, wishvel.y, wishvel.z));
@@ -2674,7 +2689,7 @@ public class PlayerController implements ActionInterface {
 		//slideMove(false, true, true, true);
 		stepSlideMove(false);
 
-		if(CVars.pm_debug.getInteger() == 2)
+		if(CVars.pm_debugServer.getInteger() == 2)
 		{
 			Engine.print(String.format("velocity2 = %1.1f\n", velocity.length()));
 		}

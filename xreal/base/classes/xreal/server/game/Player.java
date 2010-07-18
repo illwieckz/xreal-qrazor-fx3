@@ -420,7 +420,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		setPlayerState_speed(CVars.g_speed.getInteger());
 		
 		
-		PlayerMove pm = new PlayerMove(this, ucmd, 0, 0, 0, 0, true, false, 0);
+		PlayerMove pm = new PlayerMove(this, ucmd, false, 0, CVars.pm_debugServer.getInteger(), 0, 0, true, false, 0);
 		
 		// perform a pmove
 		if(CVars.g_synchronousClients.getBoolean())
@@ -439,7 +439,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		//Engine.println("spectatorThink()");
 		
-		PlayerMove pm = new PlayerMove(this, ucmd, 0, 0, 0, 0, true, false, 0);
+		PlayerMove pm = new PlayerMove(this, ucmd, false, 0, CVars.pm_debugServer.getInteger(), 0, 0, true, false, 0);
 		
 		//if(_sess.spectatorState != SpectatorState.FOLLOW)
 		{

@@ -7,6 +7,7 @@ import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.GhostPairCallback;
 import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
 import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.collision.shapes.CapsuleShapeZ;
 import com.bulletphysics.collision.shapes.CylinderShapeZ;
 
 import xreal.CVars;
@@ -16,6 +17,7 @@ import xreal.client.Client;
 import xreal.client.EntityState;
 import xreal.client.PlayerState;
 import xreal.client.Snapshot;
+import xreal.common.Config;
 import xreal.common.PlayerController;
 import xreal.common.PlayerMove;
 import xreal.common.PlayerMovementFlags;
@@ -52,7 +54,7 @@ public class PredictionManager {
 		
 		ClientGame.getBroadphase().getOverlappingPairCache().setInternalGhostPairCallback(new GhostPairCallback());
 		
-		//_collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH / 2, Config.PLAYER_HEIGHT / 2);
+		//collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH / 2, Config.PLAYER_HEIGHT / 2);
 		//_collisionShape = new BoxShape(new Vector3f(18, 18, 37));
 		collisionShape = new CylinderShapeZ(new Vector3f(18, 18, 37));
 		//_collisionShape = new SphereShape(Config.PLAYER_WIDTH / 2);
@@ -325,9 +327,7 @@ public class PredictionManager {
 			
 			
 			
-			PlayerMove pm = new PlayerMove(predictedPlayerState, cmd, 0, 0, 0, 0, true, false, 0);
-			
-			predictedPlayerState.setPlayerState_pm_type(PlayerMovementType.NOCLIP);
+			PlayerMove pm = new PlayerMove(predictedPlayerState, cmd, true, 0, CVars.pm_debugClient.getInteger(), 0, 0, true, false, 0);
 			
 			// perform a pmove
 			playerController.movePlayer(pm);

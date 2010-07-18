@@ -30,10 +30,21 @@ import xreal.io.ByteArrayReader;
  */
 public class CollisionBspReader {
 
-	static final int BSP_IDENT = (('P' << 24) + ('S' << 16) + ('B' << 8) + 'X'); // little-endian
-																					// "XBSP"
-	static final String BSP_IDENT_STRING = "XBSP";
-	static final int BSP_VERSION = 48;
+	private enum BspType
+	{
+		Q3BSP,
+		XBSP
+	}
+	
+	private BspType	bspType;
+	
+	static final int	XBSP_IDENT			= (('P' << 24) + ('S' << 16) + ('B' << 8) + 'X');	// little-endian
+	static final String	XBSP_IDENT_STRING	= "XBSP";
+	static final int	XBSP_VERSION		= 48;
+	
+	static final int	Q3BSP_IDENT			= (('P' << 24) + ('S' << 16) + ('B' << 8) + 'I');	// little-endian
+	static final String	Q3BSP_IDENT_STRING	= "IBSP";
+	static final int	Q3BSP_VERSION		= 46;
 
 	enum LumpType {
 		ENTITIES, SHADERS, PLANES, NODES, LEAFS, LEAFSURFACES, LEAFBRUSHES, MODELS, BRUSHES, BRUSHSIDES, DRAWVERTS, DRAWINDEXES, FOGS, SURFACES, LIGHTMAPS, LIGHTGRID, VISIBILITY
@@ -114,11 +125,13 @@ public class CollisionBspReader {
 	
 	private String entitiesString;
 
-	public CollisionBspReader(String filename) {
+	public CollisionBspReader(String filename)
+	{
 		Engine.println("CollisionBspReader: loading '" + filename + "'");
 
 		byte byteArray[] = Engine.readFile(filename);
-		if (byteArray == null) {
+		if(byteArray == null)
+		{
 			throw new RuntimeException("Could not load '" + filename + "'");
 		}
 
@@ -128,31 +141,52 @@ public class CollisionBspReader {
 		// ByteArrayInputStream(byteArray)));
 		ByteArrayReader reader = new ByteArrayReader(byteArray);
 
-		try {
+		try
+		{
 
 			// int ident = reader.readInt();
 
-			byte[] identChars = { 'x', 'x', 'x', 'x' };
+			// read indent
+			byte[] identChars =
+			{ 'x', 'x', 'x', 'x' };
 			reader.read(identChars);
 			String ident = new String(identChars);
+			
+			// read header
+			Header header = new Header();
+			header.version = reader.readInt();
 
 			// Engine.println("'" + ident + "'");
 
 			// int indent = (('P'<<24)+('S'<<16)+('B'<<8)+'X');
 
-			if (!ident.equals(BSP_IDENT_STRING)) {
-				throw new RuntimeException("'" + filename + "' is not a XBSP file: " + ident);
+			if(ident.equals(Q3BSP_IDENT_STRING))
+			{
+				if(header.version != Q3BSP_VERSION)
+				{
+					throw new RuntimeException("'" + filename + "' has wrong version number (" + header.version + " should be " + Q3BSP_VERSION + ")");
+				}
+				
+				bspType = BspType.Q3BSP;
+			}
+			else if(ident.equals(XBSP_IDENT_STRING))
+			{
+				if(header.version != XBSP_VERSION)
+				{
+					throw new RuntimeException("'" + filename + "' has wrong version number (" + header.version + " should be " + XBSP_VERSION + ")");
+				}
+				
+				bspType = BspType.XBSP;
+			}
+			else
+			{
+				throw new RuntimeException("'" + filename + "' is not a BSP file: " + ident);
 			}
 
-			// read header
-			Header header = new Header();
-			header.version = reader.readInt();
+			
 
-			if (header.version != BSP_VERSION) {
-				throw new RuntimeException("'" + filename + "' has wrong version number (" + header.version + " should be " + BSP_VERSION + ")");
-			}
-
-			for (int i = 0; i < LumpType.values().length; i++) {
+			for(int i = 0; i < LumpType.values().length; i++)
+			{
 
 				Lump l = header.lumps[i] = new Lump();
 
@@ -169,12 +203,14 @@ public class CollisionBspReader {
 			loadBrushes(header.lumps[LumpType.BRUSHES.ordinal()], byteArray);
 			loadSurfaces(header.lumps[LumpType.SURFACES.ordinal()], header.lumps[LumpType.DRAWVERTS.ordinal()], header.lumps[LumpType.DRAWINDEXES.ordinal()],
 					byteArray);
-			
+
 			loadEntitiesString(header.lumps[LumpType.ENTITIES.ordinal()], byteArray);
 
 			reader.close();
 
-		} catch (IOException e) {
+		}
+		catch(IOException e)
+		{
 			// e.printStackTrace();
 			throw new RuntimeException("Reading Collision BSP failed: " + e.getMessage());
 		}
@@ -468,7 +504,45 @@ public class CollisionBspReader {
 		ByteArrayReader surfReader = new ByteArrayReader(buf, surfsLump.fileofs, surfsLump.filelen);
 		Engine.println("CollisionBspReader: loading " + count + " surfaces...");
 
-		int drawVert_t_size = (3 * 4 + 2 * 4 + 2 * 4 + 3 * 4 + 4 * 4 + 4 * 4 + 3 * 4);
+		
+		/*
+		 #if defined(COMPAT_Q3A)
+		typedef struct
+		{
+			vec3_t          xyz;
+			float           st[2];
+			float           lightmap[2];
+			vec3_t          normal;
+			byte            color[4];
+		} drawVert_t;
+		#else
+		typedef struct
+		{
+			float           xyz[3];
+			float           st[2];
+			float           lightmap[2];
+			float           normal[3];
+			float			paintColor[4];
+			float           lightColor[4];
+			float			lightDirection[3];
+		} drawVert_t;
+		#endif
+		 */
+		
+		int drawVert_t_size;
+		
+		switch(bspType)
+		{
+			case Q3BSP:
+				drawVert_t_size = (3 * 4 + 2 * 4 + 2 * 4 + 3 * 4 + 4 * 1);
+				break;
+				
+			default:
+			case XBSP:
+				drawVert_t_size = (3 * 4 + 2 * 4 + 2 * 4 + 3 * 4 + 4 * 4 + 4 * 4 + 3 * 4);
+				break;
+		}
+		
 		if (vertsLump.filelen % drawVert_t_size != 0) {
 			throw new RuntimeException("funny lump size");
 		}
@@ -536,8 +610,8 @@ public class CollisionBspReader {
 					surface.vertices.add(vertex);
 
 					// skip the rest of the current drawVert_t
-					for (int k = 0; k < (2 + 2 + 3 + 4 + 4 + 3); k++)
-						drawVertReader.readFloat();
+					for (int k = 0; k < (drawVert_t_size - (3 * 4)); k++)
+						drawVertReader.read();
 				}
 
 				// surface.numIndices = numIndexes;
@@ -1009,111 +1083,120 @@ public class CollisionBspReader {
 
 		if (totalVerts == 0 || totalIndices == 0)
 			return;
+		
+		
+		if(true)
+		{
+			ByteBuffer vertices = ByteBuffer.allocateDirect(totalVerts * 3 * 4).order(ByteOrder.nativeOrder());
+			ByteBuffer indices = ByteBuffer.allocateDirect(totalIndices * 4).order(ByteOrder.nativeOrder());
 
-		ByteBuffer vertices = ByteBuffer.allocateDirect(totalVerts * 3 * 4).order(ByteOrder.nativeOrder());
-		ByteBuffer indices = ByteBuffer.allocateDirect(totalIndices * 4).order(ByteOrder.nativeOrder());
+			checkcount++;
+			int numIndexes = 0;
 
-		checkcount++;
-		int numIndexes = 0;
+			final int vertStride = 3 * 4;
+			final int indexStride = 3 * 4;
 
-		final int vertStride = 3 * 4;
-		final int indexStride = 3 * 4;
+			for(int i = 0; i < leafs.length; i++)
+			{
 
-		for (int i = 0; i < leafs.length; i++) {
+				Leaf leaf = leafs[i];
 
-			Leaf leaf = leafs[i];
+				for(int j = 0; j < leaf.numLeafSurfaces; j++)
+				{
 
-			for (int j = 0; j < leaf.numLeafSurfaces; j++) {
+					int surfaceNum = leafSurfaces[leaf.firstLeafSurface + j];
 
-				int surfaceNum = leafSurfaces[leaf.firstLeafSurface + j];
+					Surface surface = surfaces[surfaceNum];
 
-				Surface surface = surfaces[surfaceNum];
+					if(surface != null)
+					{
 
-				if (surface != null) {
-
-					if (surface.checkcount == checkcount) {
-						continue;
-					} else {
-						surface.checkcount = checkcount;
-					}
-
-					if ((surface.contentFlags & ContentFlags.SOLID) == 0) {
-						continue;
-					}
-
-					if ((surface.surfaceFlags & SurfaceFlags.NONSOLID) != 0) {
-						continue;
-					}
-
-					// Engine.println("building BvhTriangleMeshShape: vertices = "
-					// + surface.vertices.size() + ", indices = " +
-					// surface.indices.size());
-
-					// vertices =
-					// ByteBuffer.allocateDirect(surface.vertices.size() * 3 *
-					// 4).order(ByteOrder.nativeOrder());
-					// indices =
-					// ByteBuffer.allocateDirect(surface.indices.size() *
-					// 4).order(ByteOrder.nativeOrder());
-
-					for (Vector3f vertex : surface.vertices) {
-						vertices.putFloat(vertex.x);
-						vertices.putFloat(vertex.y);
-						vertices.putFloat(vertex.z);
-					}
-
-					for (Integer index : surface.indices) {
-						int newIndex = numIndexes + index.intValue();
-
-						if (newIndex < 0 || newIndex >= totalVerts) {
-							throw new RuntimeException("bad index in trisoup surface: index = " + newIndex + ", totalVerts = " + totalVerts);
+						if(surface.checkcount == checkcount)
+						{
+							continue;
+						}
+						else
+						{
+							surface.checkcount = checkcount;
 						}
 
-						indices.putInt(newIndex);
-					}
-					numIndexes += surface.vertices.size();
+						if((surface.contentFlags & ContentFlags.SOLID) == 0)
+						{
+							continue;
+						}
 
-					/*
-					 * TriangleIndexVertexArray indexVertexArrays = new
-					 * TriangleIndexVertexArray(surface.indices.size() / 3,
-					 * indices, indexStride, surface.vertices.size(), vertices,
-					 * vertStride);
-					 * 
-					 * BvhTriangleMeshShape trimeshShape = new
-					 * BvhTriangleMeshShape(indexVertexArrays, true);
-					 * collisionShapes.add(trimeshShape);
-					 * 
-					 * // using motionstate is recommended, it provides //
-					 * interpolation // capabilities, and only synchronizes
-					 * 'active' objects DefaultMotionState myMotionState = new
-					 * DefaultMotionState(); RigidBodyConstructionInfo rbInfo =
-					 * new RigidBodyConstructionInfo(0, myMotionState,
-					 * trimeshShape); RigidBody body = new RigidBody(rbInfo);
-					 * 
-					 * // add the body to the dynamics world
-					 * dynamicsWorld.addRigidBody(body);
-					 */
+						if((surface.surfaceFlags & SurfaceFlags.NONSOLID) != 0)
+						{
+							continue;
+						}
+
+						// Engine.println("building BvhTriangleMeshShape: vertices = "
+						// + surface.vertices.size() + ", indices = " +
+						// surface.indices.size());
+
+						// vertices =
+						// ByteBuffer.allocateDirect(surface.vertices.size() * 3 *
+						// 4).order(ByteOrder.nativeOrder());
+						// indices =
+						// ByteBuffer.allocateDirect(surface.indices.size() *
+						// 4).order(ByteOrder.nativeOrder());
+
+						for(Vector3f vertex : surface.vertices)
+						{
+							vertices.putFloat(vertex.x);
+							vertices.putFloat(vertex.y);
+							vertices.putFloat(vertex.z);
+						}
+
+						for(Integer index : surface.indices)
+						{
+							int newIndex = numIndexes + index.intValue();
+
+							if(newIndex < 0 || newIndex >= totalVerts)
+							{
+								throw new RuntimeException("bad index in trisoup surface: index = " + newIndex + ", totalVerts = " + totalVerts);
+							}
+
+							indices.putInt(newIndex);
+						}
+						numIndexes += surface.vertices.size();
+
+						/*
+						 * TriangleIndexVertexArray indexVertexArrays = new
+						 * TriangleIndexVertexArray(surface.indices.size() / 3, indices, indexStride,
+						 * surface.vertices.size(), vertices, vertStride);
+						 * 
+						 * BvhTriangleMeshShape trimeshShape = new BvhTriangleMeshShape(indexVertexArrays, true);
+						 * collisionShapes.add(trimeshShape);
+						 * 
+						 * // using motionstate is recommended, it provides // interpolation // capabilities, and only
+						 * synchronizes 'active' objects DefaultMotionState myMotionState = new DefaultMotionState();
+						 * RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0, myMotionState,
+						 * trimeshShape); RigidBody body = new RigidBody(rbInfo);
+						 * 
+						 * // add the body to the dynamics world dynamicsWorld.addRigidBody(body);
+						 */
+					}
 				}
 			}
+
+			Engine.println("building BvhTriangleMeshShape for world: vertices = " + totalVerts + ", indices = " + totalIndices);
+			// indices.flip();
+	
+			TriangleIndexVertexArray indexVertexArrays = new TriangleIndexVertexArray(totalIndices / 3, indices, indexStride, totalVerts, vertices, vertStride);
+	
+			BvhTriangleMeshShape trimeshShape = new BvhTriangleMeshShape(indexVertexArrays, true);
+			collisionShapes.add(trimeshShape);
+	
+			// using motionstate is recommended, it provides
+			// interpolation
+			// capabilities, and only synchronizes 'active' objects
+			DefaultMotionState myMotionState = new DefaultMotionState();
+			RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0, myMotionState, trimeshShape);
+			RigidBody body = new RigidBody(rbInfo);
+	
+			// add the body to the dynamics world
+			dynamicsWorld.addRigidBody(body);
 		}
-
-		Engine.println("building BvhTriangleMeshShape for world: vertices = " + totalVerts + ", indices = " + totalIndices);
-		// indices.flip();
-
-		TriangleIndexVertexArray indexVertexArrays = new TriangleIndexVertexArray(totalIndices / 3, indices, indexStride, totalVerts, vertices, vertStride);
-
-		BvhTriangleMeshShape trimeshShape = new BvhTriangleMeshShape(indexVertexArrays, true);
-		collisionShapes.add(trimeshShape);
-
-		// using motionstate is recommended, it provides
-		// interpolation
-		// capabilities, and only synchronizes 'active' objects
-		DefaultMotionState myMotionState = new DefaultMotionState();
-		RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(0, myMotionState, trimeshShape);
-		RigidBody body = new RigidBody(rbInfo);
-
-		// add the body to the dynamics world
-		dynamicsWorld.addRigidBody(body);
-
 	}
 }

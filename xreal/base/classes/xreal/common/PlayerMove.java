@@ -5,13 +5,16 @@ import javax.vecmath.Vector3f;
 import xreal.PlayerStateAccess;
 import xreal.UserCommand;
 
-public class PlayerMove {
-	
-	public PlayerMove(PlayerStateAccess ps, UserCommand cmd, int tracemask, int debugLevel, int airControl, int fastWeaponSwitches, boolean noFootsteps,
-			boolean gauntletHit, int framecount) {
+public class PlayerMove
+{
+
+	public PlayerMove(PlayerStateAccess ps, UserCommand cmd, boolean runningOnClient, int tracemask, int debugLevel, int airControl, int fastWeaponSwitches, boolean noFootsteps,
+			boolean gauntletHit, int framecount)
+	{
 		super();
 		this.ps = ps;
 		this.cmd = new UserCommand(cmd);
+		this.runningOnClient = runningOnClient;
 		this.tracemask = tracemask;
 		this.debugLevel = debugLevel;
 		this.airControl = airControl;
@@ -20,38 +23,39 @@ public class PlayerMove {
 		this.gauntletHit = gauntletHit;
 		this.framecount = framecount;
 	}
-	
+
 	// state (in / out)
-	public PlayerStateAccess ps;
+	public PlayerStateAccess	ps;
 
 	// command (in)
-	public UserCommand cmd;
-	public int tracemask; // collide against these types of surfaces
-	public int debugLevel; // if set, diagnostic output will be printed
-	public int airControl; // if set, air control will be allowed
-	public int fastWeaponSwitches; // if set, weapon lower and raise animations
-									// will be skipped
-	public boolean noFootsteps; // if the game is setup for no footsteps by the
-								// server
-	public boolean gauntletHit; // true if a gauntlet attack would actually hit
-								// something
+	public UserCommand			cmd;
+	public boolean				runningOnClient;
+	public int					tracemask;			// collide against these types of surfaces
+	public int					debugLevel;			// if set, diagnostic output will be printed
+	public int					airControl;			// if set, air control will be allowed
+	public int					fastWeaponSwitches; // if set, weapon lower and raise animations
+	// will be skipped
+	public boolean				noFootsteps;		// if the game is setup for no footsteps by the
+	// server
+	public boolean				gauntletHit;		// true if a gauntlet attack would actually hit
+	// something
 
-	public int framecount;
+	public int					framecount;
 
 	// results (out)
-	public int numtouch;
+	public int					numtouch;
 	// int touchents[MAXTOUCH];
 
-	Vector3f mins, maxs; // bounding box size
+	Vector3f					mins, maxs;		// bounding box size
 
-	public int watertype;
-	public int waterlevel;
+	public int					watertype;
+	public int					waterlevel;
 
-	public float xyspeed;
+	public float				xyspeed;
 
 	// fixed pmove
-	public int fixedPmove;
-	public int fixedPmoveFPS;
+	public int					fixedPmove;
+	public int					fixedPmoveFPS;
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame
