@@ -1725,7 +1725,7 @@ public class PlayerController implements ActionInterface {
 	/**
 	 * @return True if the velocity was clipped in some way
 	 */
-	private boolean slideMove(boolean gravity, boolean stepUp, boolean stepDown, boolean push)
+	private boolean slideMove(boolean gravity)//, boolean stepUp, boolean stepDown, boolean push)
 	{
 		int             bumpcount, numbumps;
 		Vector3f        dir = new Vector3f();
@@ -1833,13 +1833,15 @@ public class PlayerController implements ActionInterface {
 				end.interpolate(start, end, trace.closestHitFraction);
 			}
 			
+			pml.contactInfos.add(new ContactInfo(trace.hitPointWorld, trace.hitNormalWorld));
+			
 			setOrigin(end);
 			
-			//boolean stepped = false;
-			//boolean pushed = false;
+			/*
+			boolean stepped = false;
+			boolean pushed = false;
 			
 			// test the player position if they were a stepheight higher
-			/*
 			if(stepUp)
 			{
 				boolean nearGround = pml.groundPlane; // | pml.ladder
@@ -1850,7 +1852,8 @@ public class PlayerController implements ActionInterface {
 				
 				if(!nearGround)
 				{
-					end.scaleAdd(Config.STEPSIZE, pml.gravityNormal, pm.ps.getPlayerState_origin());
+					// trace down to see if the player is near the ground
+					end.scaleAdd(CVars.pm_stepHeight.getValue(), pml.gravityNormal, pm.ps.getPlayerState_origin());
 					
 					downTrace = traceAll(start, end);
 					
@@ -1861,7 +1864,7 @@ public class PlayerController implements ActionInterface {
 				if(nearGround)
 				{
 					// step up, test the player position if they were a stepheight higher
-					end.scaleAdd(-Config.STEPSIZE, pml.gravityNormal, start);
+					end.scaleAdd(CVars.pm_stepHeight.getValue(), pml.gravityNormalFlipped, start);
 					
 					upTrace = traceAll(start, end);
 
@@ -1876,19 +1879,44 @@ public class PlayerController implements ActionInterface {
 					}
 					else
 					{
-						// try slidemove from this position
-						end.interpolate(start, end, upTrace.closestHitFraction);
+						if(pm.debugLevel == 1)
+						{
+							Engine.println(c_pmove + ":step up");
+						}
 						
+						if(upTrace.hasHit())
+						{
+							end.interpolate(start, end, upTrace.closestHitFraction);
+						}
+						
+						// calculate step size along the gravity normal
+						Vector3f stepVector = new Vector3f(end);
+						stepVector.sub(start);
+						
+						Vector3f stepNormal = new Vector3f(stepVector);
+						stepNormal.normalize();
+						
+						float stepSize = /*pml.gravityNormalFlipped.dot(stepNormal) *  stepVector.length();
+						
+						// try slidemove from this position
+						start.set(end);
 						end.scaleAdd(timeLeft, pm.ps.getPlayerState_velocity(), end);
+						
 						stepTrace = traceAll(start, end);
 						
-						
 						// push down the final amount
-						end.scaleAdd(Config.STEPSIZE, pml.gravityNormal, start);
+						if(stepTrace.hasHit())
+						{
+							end.interpolate(start, end, stepTrace.closestHitFraction);
+						}
+						
+						start.set(end);
+						end.scaleAdd(stepSize, pml.gravityNormal, start);
+						
 						downTrace = traceAll(start, end);
 						
 						
-						if(!downTrace.hasHit() && (downTrace.hitNormalWorld.dot(pml.gravityNormalFlipped) > MIN_WALK_NORMAL))
+						if(!downTrace.hasHit() || !isNormalTooSteep(downTrace.hitNormalWorld))
 						{
 							if(!stepTrace.hasHit())
 							{
@@ -1907,6 +1935,8 @@ public class PlayerController implements ActionInterface {
 								
 								end.interpolate(start, end, downTrace.closestHitFraction);
 								setOrigin(end);
+								
+								stepped = true;
 							}
 						}
 					}
@@ -2041,7 +2071,7 @@ public class PlayerController implements ActionInterface {
 			Vector3f start = pm.ps.getPlayerState_origin();
 			
 			Vector3f end = new Vector3f();
-			end.scaleAdd(Config.STEPSIZE, pml.gravityNormal, pm.ps.getPlayerState_origin());
+			end.scaleAdd(CVars.pm_stepHeight.getValue(), pml.gravityNormal, pm.ps.getPlayerState_origin());
 			
 			KinematicClosestNotMeConvexResultCallback callback = traceAll(start, end);
 
@@ -2063,8 +2093,7 @@ public class PlayerController implements ActionInterface {
 				clipVelocity(pm.ps.getPlayerState_velocity(), callback.hitNormalWorld, startVelocity, OVERCLIP);
 				
 				pm.ps.setPlayerState_velocity(startVelocity);
-			}
-			
+			}	
 		}
 		*/
 
@@ -2084,7 +2113,7 @@ public class PlayerController implements ActionInterface {
 	
 	private void stepSlideMove(boolean gravity)
 	{
-		if(!slideMove(gravity, false, false, false))
+		if(!slideMove(gravity))//, false, false, false))
 		{
 			// we got exactly where we wanted to go first try
 			if(pm.debugLevel == 1)
@@ -2106,7 +2135,7 @@ public class PlayerController implements ActionInterface {
 		
 		if(!nearGround)
 		{
-			end.scaleAdd(Config.STEPSIZE, pml.gravityNormal, start);
+			end.scaleAdd(CVars.pm_stepHeight.getValue(), pml.gravityNormal, start);
 			
 			downTrace = traceAll(start, end);	
 			
@@ -2121,7 +2150,7 @@ public class PlayerController implements ActionInterface {
 		if(nearGround)
 		{
 			// step up, test the player position if they were a stepheight higher
-			end.scaleAdd(-Config.STEPSIZE, pml.gravityNormal, start);
+			end.scaleAdd(CVars.pm_stepHeight.getValue(), pml.gravityNormalFlipped, start);
 			
 			upTrace = traceAll(start, end);
 
@@ -2153,17 +2182,24 @@ public class PlayerController implements ActionInterface {
 				Vector3f stepNormal = new Vector3f(stepVector);
 				stepNormal.normalize();
 				
-				float stepSize = pml.gravityNormalFlipped.dot(stepNormal) * stepVector.length();
+				float stepSize = /*pml.gravityNormalFlipped.dot(stepNormal) * */ stepVector.length();
 				
 				// try slidemove from this position
 				setOrigin(end);
 				pm.ps.setPlayerState_velocity(startVelocity);
 				
-				if(!slideMove(gravity, false, false, false))
+				if(!slideMove(gravity))//, false, false, false))
 				{
 					if(pm.debugLevel == 1)
 					{
 						Engine.println(c_pmove + ":step");
+					}
+				}
+				else
+				{
+					if(pm.debugLevel == 1)
+					{
+						Engine.println(c_pmove + ":step clipped");
 					}
 				}
 				
@@ -2191,6 +2227,7 @@ public class PlayerController implements ActionInterface {
 		}
 	}
 	
+	/*
 	private void stepSlideMoveOld(boolean gravity)
 	{
 		//vec3_t          start_o, start_v;
@@ -2287,7 +2324,7 @@ public class PlayerController implements ActionInterface {
 		}
 		
 	
-		/*
+		/
 		// if the down trace can trace back to the original position directly, don't step
 		pm->trace(&trace, pm.ps.origin, pm->mins, pm->maxs, start_o, pm.ps.clientNum, pm->tracemask);
 		if(trace.fraction == 1.0)
@@ -2301,10 +2338,10 @@ public class PlayerController implements ActionInterface {
 			}
 		}
 		else
-			*/
+			/
 		
 		{
-			/*
+			
 			// use the step move
 			float           delta;
 
@@ -2328,15 +2365,15 @@ public class PlayerController implements ActionInterface {
 					PM_AddEvent(EV_STEP_16);
 				}
 			}
-			*/
+			
 			
 			if(pm.debugLevel == 1)
 			{
 				Engine.println(c_pmove + ":stepped");
 			}
-		}
-		
+		}	
 	}
+	*/
 	
 	private void spectatorMove(boolean clipAgainstWorld)
 	{
@@ -2657,7 +2694,7 @@ public class PlayerController implements ActionInterface {
 		{
 			//pm.ps.velocity[2] -= pm.ps.gravity * pml.frametime;
 			
-			velocity.z += CVars.g_gravityZ.getValue() * pml.frameTime;
+			velocity.scaleAdd(pml.frameTime, pml.gravityVector, velocity);
 		}
 		else
 		{
@@ -2686,7 +2723,6 @@ public class PlayerController implements ActionInterface {
 			return;
 		}
 
-		//slideMove(false, true, true, true);
 		stepSlideMove(false);
 
 		if(CVars.pm_debugServer.getInteger() == 2)

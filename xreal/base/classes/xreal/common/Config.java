@@ -13,8 +13,6 @@ public class Config {
 
 	
 	// Tr3B: changed to HL 2 / Quake 4 properties
-	public static final int STEPSIZE = 18;
-
 	public static final int DEFAULT_VIEWHEIGHT = 44; // 68 // Tr3B: was 26
 
 	public static final int CROUCH_VIEWHEIGHT = 16; // 32 // Tr3B: was 12

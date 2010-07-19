@@ -47,7 +47,7 @@ public abstract class CVars {
 
 	// change anytime vars
 	
-	// turn off client side player movement prediction
+	/** turns off client side player movement prediction */
 	public static final CVar g_synchronousClients = new CVar("g_synchronousClients", "0", CVar.SYSTEMINFO);
 	
 	public static final CVar g_password = new CVar("g_password", "", CVar.USERINFO);
@@ -67,10 +67,10 @@ public abstract class CVars {
 	
 	
 	// player movement
-	public static final CVar pm_debugClient = new CVar("pm_debugClient", "0", 0);
-	public static final CVar pm_debugServer = new CVar("pm_debugServer", "0", 0);
+	public static final CVar pm_debugClient = new CVar("pm_debugClient", "0", CVar.CHEAT);
+	public static final CVar pm_debugServer = new CVar("pm_debugServer", "0", CVar.CHEAT);
 	
-	public static final CVar pm_drawContacts = new CVar("pm_drawContacts", "1", 0);
+	public static final CVar pm_drawContacts = new CVar("pm_drawContacts", "1", CVar.CHEAT);
 	
 	public static final CVar pm_useGhostObjectSweepTest = new CVar("pm_useGhostObjectSweepTest", "0", CVar.SYSTEMINFO);
 	
@@ -90,5 +90,6 @@ public abstract class CVars {
 	public static final CVar pm_spectatorFriction = new CVar("pm_spectatorFriction", "5", CVar.SYSTEMINFO);
 	
 	public static final CVar pm_jumpHeight = new CVar("pm_jumpHeight", "48", CVar.SYSTEMINFO);
+	public static final CVar pm_stepHeight = new CVar("pm_stepHeight", "16", CVar.SYSTEMINFO);
 
 }
