@@ -56,7 +56,7 @@ public class PredictionManager {
 		
 		//collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH / 2, Config.PLAYER_HEIGHT / 2);
 		//_collisionShape = new BoxShape(new Vector3f(18, 18, 37));
-		collisionShape = new CylinderShapeZ(new Vector3f(18, 18, 37));
+		collisionShape = new CylinderShapeZ(new Vector3f(CVars.pm_bodyWidth.getValue() / 2, CVars.pm_bodyWidth.getValue() / 2, CVars.pm_normalHeight.getValue() / 2));
 		//_collisionShape = new SphereShape(Config.PLAYER_WIDTH / 2);
 		
 		/*

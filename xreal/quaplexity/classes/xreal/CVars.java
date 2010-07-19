@@ -53,12 +53,10 @@ public abstract class CVars {
 	public static final CVar g_password = new CVar("g_password", "", CVar.USERINFO);
 	public static final CVar g_dedicated = new CVar("dedicated", "0", 0);
 	
-	public static final CVar g_speed = new CVar("g_speed", "400", 0);
+	// SI gravity = 9.81 m / s^2
 	public static final CVar g_gravityX = new CVar("g_gravityX", "0", CVar.SYSTEMINFO);
 	public static final CVar g_gravityY = new CVar("g_gravityY", "0", CVar.SYSTEMINFO);
-	
-	// FIXME: should be 386 = SI gravity 9.81 * 39.27 inches for 1 meter
-	public static final CVar g_gravityZ = new CVar("g_gravityZ", "-800", CVar.SYSTEMINFO);
+	public static final CVar g_gravityZ = new CVar("g_gravityZ", "-981", CVar.SYSTEMINFO);
 	
 	// don't override the cheat state set by the system
 	public static final CVar sv_cheats = new CVar("sv_cheats", "", 0);
@@ -73,6 +71,9 @@ public abstract class CVars {
 	public static final CVar pm_drawContacts = new CVar("pm_drawContacts", "1", CVar.CHEAT);
 	
 	public static final CVar pm_useGhostObjectSweepTest = new CVar("pm_useGhostObjectSweepTest", "0", CVar.SYSTEMINFO);
+	
+	// 20 km / h = 5.56 m / s
+	public static final CVar pm_runSpeed = new CVar("pm_runSpeed", "556", 0);
 	
 	public static final CVar pm_stopSpeed = new CVar("pm_stopSpeed", "100", CVar.SYSTEMINFO);
 	public static final CVar pm_duckScale = new CVar("pm_duckScale", "0.25", CVar.SYSTEMINFO);
@@ -89,7 +90,13 @@ public abstract class CVars {
 	public static final CVar pm_flightFriction = new CVar("pm_flightFriction", "3", CVar.SYSTEMINFO);
 	public static final CVar pm_spectatorFriction = new CVar("pm_spectatorFriction", "5", CVar.SYSTEMINFO);
 	
-	public static final CVar pm_jumpHeight = new CVar("pm_jumpHeight", "48", CVar.SYSTEMINFO);
-	public static final CVar pm_stepHeight = new CVar("pm_stepHeight", "16", CVar.SYSTEMINFO);
+	
+	public static final CVar pm_bodyWidth = new CVar("pm_bodyWidth", "91", CVar.SYSTEMINFO);
+	
+	public static final CVar pm_normalHeight = new CVar("pm_normalheight", "185", CVar.SYSTEMINFO);
+	public static final CVar pm_normalViewHeight = new CVar("pm_normalViewHeight", "172", CVar.SYSTEMINFO);
+	
+	public static final CVar pm_jumpHeight = new CVar("pm_jumpHeight", "120", CVar.SYSTEMINFO);
+	public static final CVar pm_stepHeight = new CVar("pm_stepHeight", "40", CVar.SYSTEMINFO);
 
 }

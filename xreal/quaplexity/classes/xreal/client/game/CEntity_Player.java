@@ -107,8 +107,8 @@ public class CEntity_Player extends CEntity {
 		Vector3f        mins = new Vector3f();
 		Vector3f        maxs = new Vector3f();
 
-		mins.set(Config.playerMins);
-		maxs.set(Config.playerMaxs);
+		//mins.set(Config.playerMins);
+		//maxs.set(Config.playerMaxs);
 		
 		Matrix4f transform;
 		Matrix3f rotation;
@@ -125,7 +125,7 @@ public class CEntity_Player extends CEntity {
 			ConvexShape collisionShape;
 			
 			//collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH / 2, Config.PLAYER_HEIGHT / 2);
-			collisionShape = new CylinderShapeZ(new Vector3f(18, 18, 37));
+			collisionShape = new CylinderShapeZ(new Vector3f(CVars.pm_bodyWidth.getValue() / 2, CVars.pm_bodyWidth.getValue() / 2, CVars.pm_normalHeight.getValue() / 2));
 			//collisionShape = new SphereShape(Config.PLAYER_WIDTH / 2);
 			
 			//Matrix3f rotation = new Matrix3f();
@@ -180,7 +180,7 @@ public class CEntity_Player extends CEntity {
 		// draw legs
 		if(false)
 		{
-			ConvexShape legsShape = new SphereShape(Config.PLAYER_WIDTH / 2);
+			ConvexShape legsShape = new SphereShape(CVars.pm_bodyWidth.getInteger() / 2);
 			
 			Transform t = new Transform();
 			t.setIdentity();
@@ -190,7 +190,7 @@ public class CEntity_Player extends CEntity {
 			gravityNormal.normalize();
 			
 			Vector3f legsPosition = new Vector3f();
-			legsPosition.scaleAdd(Config.PLAYER_HEIGHT / 2 - Config.PLAYER_WIDTH / 2, gravityNormal, lerpOrigin);
+			legsPosition.scaleAdd(CVars.pm_normalHeight.getInteger() / 2 - CVars.pm_bodyWidth.getInteger() / 2, gravityNormal, lerpOrigin);
 			
 			transform = new Matrix4f(rotation, legsPosition, 1);
 			
@@ -200,12 +200,13 @@ public class CEntity_Player extends CEntity {
 		// draw player head
 		if(ps != null)
 		{
-			mins.set(-3, -3, -3);
-			maxs.set(3, 3, 3);
+			mins.set(-6, -6, -6);
+			maxs.set(6, 6, 6);
 		
 			Vector3f headPosition = new Vector3f(lerpOrigin);
 			//headPosition.z += Config.playerMins.z;
-			headPosition.z += ps.viewHeight + 6;
+			//headPosition.z += ps.viewHeight + 6;
+			headPosition.z += ps.viewHeight;
 			
 			transform = new Matrix4f(rotation, headPosition, 1);
 			

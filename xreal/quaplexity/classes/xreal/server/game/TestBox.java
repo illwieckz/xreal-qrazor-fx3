@@ -117,7 +117,7 @@ public class TestBox extends GameEntity {
 		Transform startTransform = new Transform();
 		startTransform.setIdentity();
 
-		float mass = 100.0f;
+		float mass = 200.0f;
 
 		// rigidbody is dynamic if and only if mass is non zero, otherwise static
 		boolean isDynamic = (mass != 0f);
@@ -139,6 +139,11 @@ public class TestBox extends GameEntity {
 		Vector3f vel = new Vector3f(dir);
 		vel.scale(150);
 		rigidBody.setLinearVelocity(vel);
+		
+		//enable CCD if the object moves more than 1 meter in one simulation frame
+		rigidBody.setCcdMotionThreshold(100);
+		
+		//rigidBody.setCcdSweptSphereRadius(20);
 
 		Game.getDynamicsWorld().addRigidBody(rigidBody);
 	}

@@ -36,7 +36,7 @@ public class BulletGlobals {
 	
 	public static final boolean DEBUG = false;
 	
-	public static final float CONVEX_DISTANCE_MARGIN = 0.04f;
+	public static final float CONVEX_DISTANCE_MARGIN = 4; // Tr3B: was 0.04f, changed for meter -> centimeter;
 	public static final float FLT_EPSILON = 1.19209290e-07f;
 	public static final float SIMD_EPSILON = FLT_EPSILON;
 	
@@ -60,7 +60,7 @@ public class BulletGlobals {
 	private ContactAddedCallback gContactAddedCallback;
 	private ContactProcessedCallback gContactProcessedCallback;
 
-	private float contactBreakingThreshold = 0.02f;
+	private float contactBreakingThreshold = 2; // Tr3B: was 0.02f, changed for meter -> centimeter;
 	// RigidBody
 	private float deactivationTime = 2f;
 	private boolean disableDeactivation = false;

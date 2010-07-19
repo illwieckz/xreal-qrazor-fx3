@@ -139,7 +139,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		
 		//_collisionShape = new CapsuleShapeZ(Config.PLAYER_WIDTH / 2, Config.PLAYER_HEIGHT / 2);
 		//_collisionShape = new BoxShape(new Vector3f(18, 18, 37));
-		_collisionShape = new CylinderShapeZ(new Vector3f(18, 18, 37));
+		_collisionShape = new CylinderShapeZ(new Vector3f(CVars.pm_bodyWidth.getValue() / 2, CVars.pm_bodyWidth.getValue() / 2, CVars.pm_normalHeight.getValue() / 2));
 		//_collisionShape = new SphereShape(Config.PLAYER_WIDTH / 2);
 		
 		/*
@@ -417,7 +417,7 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 		//TODO setPlayerState_gravity(CVars.g_gravityZ);
 		
 		// set speed
-		setPlayerState_speed(CVars.g_speed.getInteger());
+		setPlayerState_speed(CVars.pm_runSpeed.getInteger());
 		
 		
 		PlayerMove pm = new PlayerMove(this, ucmd, false, 0, CVars.pm_debugServer.getInteger(), 0, 0, true, false, 0);

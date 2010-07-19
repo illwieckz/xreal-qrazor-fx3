@@ -1056,7 +1056,9 @@ public class PlayerController implements ActionInterface {
 					pm.ps.pm_flags &= ~PMF_DUCKED;
 			}
 		}
+		*/
 
+		/*
 		if(pm.ps.pm_flags & PMF_DUCKED)
 		{
 			pm->maxs[2] = 16;
@@ -1065,9 +1067,11 @@ public class PlayerController implements ActionInterface {
 		else
 		{
 			pm->maxs[2] = 32;
-			pm.ps.viewheight = DEFAULT_VIEWHEIGHT;
-		}
-		*/
+			*/
+		
+			// view height relative to player origin
+			pm.ps.setPlayerState_viewHeight((-CVars.pm_normalHeight.getInteger() / 2) + CVars.pm_normalViewHeight.getInteger());
+		//}
 	}
 	
 	
@@ -1423,7 +1427,7 @@ public class PlayerController implements ActionInterface {
 		Vector3f playerOrigin = pm.ps.getPlayerState_origin();
 		
 		Vector3f point = new Vector3f();
-		point.scaleAdd(0.25f, pml.gravityNormal, playerOrigin);
+		point.scaleAdd(0.65f, pml.gravityNormal, playerOrigin);
 		
 		KinematicClosestNotMeConvexResultCallback trace = traceAll(playerOrigin, point);
 		pml.groundTrace = trace;
@@ -1686,11 +1690,11 @@ public class PlayerController implements ActionInterface {
 	
 	private KinematicClosestNotMeConvexResultCallback traceLegs(Vector3f startPos, Vector3f endPos)
 	{
-		ConvexShape legsShape = new SphereShape(Config.PLAYER_WIDTH / 2); 
+		ConvexShape legsShape = new SphereShape(CVars.pm_bodyWidth.getInteger() / 2); 
 		
 		// place it to the exact same position of the lower sphere in the CapsuleShapeZ
 		Vector3f offset = new Vector3f(pml.gravityNormal);
-		offset.scale(Config.PLAYER_HEIGHT / 2);
+		offset.scale(CVars.pm_normalHeight.getInteger() / 2 - CVars.pm_bodyWidth.getInteger() / 2);
 		
 		Transform start = new Transform();
 		Transform end = new Transform();
@@ -2383,7 +2387,7 @@ public class PlayerController implements ActionInterface {
 		float           wishspeed;
 		float           scale;
 
-		pm.ps.setPlayerState_viewHeight(Config.DEFAULT_VIEWHEIGHT);
+		pm.ps.setPlayerState_viewHeight(CVars.pm_normalViewHeight.getInteger());
 
 		// friction
 		Vector3f curvel = pm.ps.getPlayerState_velocity();
