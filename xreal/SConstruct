@@ -114,21 +114,21 @@ Export('env')
 
 # export the Java -> C interfaces first because the engine requires them
 if env['java'] == 1:
-	env.Java(target = 'base/classes', source = 'base/classes')
-	env.Jar(target = 'base/game.jar', source = ['base/classes/com', 'base/classes/javax', 'base/classes/xreal'], JARCHDIR = 'base/classes')
+	env.Java(target = 'quaplexity/classes', source = 'quaplexity/classes')
+	env.Jar(target = 'quaplexity/game.jar', source = ['quaplexity/classes/com', 'quaplexity/classes/javax', 'quaplexity/classes/xreal'], JARCHDIR = 'quaplexity/classes')
 	
-	classFileList = ['base/classes/xreal/Engine.class',
-					 'base/classes/xreal/CVar.class']
-	env.JavaH(target = 'code/qcommon/java', source = classFileList, JAVACLASSDIR = 'base/classes')
+	classFileList = ['quaplexity/classes/xreal/Engine.class',
+					 'quaplexity/classes/xreal/CVar.class']
+	env.JavaH(target = 'code/qcommon/java', source = classFileList, JAVACLASSDIR = 'quaplexity/classes')
 	
-	classFileList = ['base/classes/xreal/server/Server.class',
-					 'base/classes/xreal/server/game/GameEntity.class',
-					 'base/classes/xreal/server/game/Player.class']
-	env.JavaH(target = 'code/server/java', source = classFileList, JAVACLASSDIR = 'base/classes')
+	classFileList = ['quaplexity/classes/xreal/server/Server.class',
+					 'quaplexity/classes/xreal/server/game/GameEntity.class',
+					 'quaplexity/classes/xreal/server/game/Player.class']
+	env.JavaH(target = 'code/server/java', source = classFileList, JAVACLASSDIR = 'quaplexity/classes')
 	
-	classFileList = ['base/classes/xreal/client/Client.class',
-					 'base/classes/xreal/client/renderer/Renderer.class']
-	env.JavaH(target = 'code/client/java', source = classFileList, JAVACLASSDIR = 'base/classes')
+	classFileList = ['quaplexity/classes/xreal/client/Client.class',
+					 'quaplexity/classes/xreal/client/renderer/Renderer.class']
+	env.JavaH(target = 'code/client/java', source = classFileList, JAVACLASSDIR = 'quaplexity/classes')
 
 
 
@@ -160,9 +160,10 @@ if env['master'] == 1:
 
 
 if env['tremulous'] == 1:
-	SConscript('SConscript_tremulous_cgame', build_dir='build/tremulous/cgame', duplicate=0)
-	SConscript('SConscript_tremulous_game', build_dir='build/tremulous/game', duplicate=0)
-	SConscript('SConscript_tremulous_ui', build_dir='build/tremulous/ui', duplicate=0)
+	if env['java'] == 0:
+		SConscript('SConscript_tremulous_cgame', build_dir='build/tremulous/cgame', duplicate=0)
+		SConscript('SConscript_tremulous_game', build_dir='build/tremulous/game', duplicate=0)
+		SConscript('SConscript_tremulous_ui', build_dir='build/tremulous/ui', duplicate=0)
 
 
 
