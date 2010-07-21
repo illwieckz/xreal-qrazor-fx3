@@ -1283,7 +1283,7 @@ jobjectArray JNICALL Java_xreal_client_Client_getServerCommand(JNIEnv *env, jcla
 	if(serverCommandNumber > clc.serverCommandSequence)
 	{
 		Com_Error(ERR_DROP, "Java_xreal_client_Client_getServerCommand: requested a command not received");
-		return qfalse;
+		return NULL;
 	}
 
 	s = clc.serverCommands[serverCommandNumber & (MAX_RELIABLE_COMMANDS - 1)];
