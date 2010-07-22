@@ -494,14 +494,20 @@ module_env.Append(CCFLAGS='-Icode/xrealradiant/include')
 module_env.Append(CCFLAGS='-Icode/xrealradiant/libs')
 
 if env['arch'] == 'freebsd-i386':
-        module_env.Append(CCFLAGS='-I/usr/local/include -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
-        module_env.Append(LIBPATH=['/usr/local/lib'])
-        module_env.Append(LDFLAGS='-L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+	module_env.Append(CCFLAGS='-I/usr/local/include -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+	module_env.Append(LIBPATH=['/usr/local/lib'])
+	module_env.Append(LDFLAGS='-L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+	xrealradiant_env.Append(CCFLAGS='-I/usr/local/include -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+	xrealradiant_env.Append(LIBPATH=['/usr/local/lib'])
+	xrealradiant_env.Append(LDFLAGS='-L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
 
 if env['arch'] == 'freebsd-amd64':
-        module_env.Append(CCFLAGS='-I/usr/local/include -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
-        module_env.Append(LIBPATH=['/usr/local/lib'])
-        module_env.Append(LDFLAGS='-L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+	module_env.Append(CCFLAGS='-I/usr/local/include -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+	module_env.Append(LIBPATH=['/usr/local/lib'])
+	module_env.Append(LDFLAGS='-L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+	xrealradiant_env.Append(CCFLAGS='-I/usr/local/include -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+	xrealradiant_env.Append(LIBPATH=['/usr/local/lib'])
+	xrealradiant_env.Append(LDFLAGS='-L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
 
 if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] == 'freebsd-i386' or env['arch'] == 'freebsd-amd64':
 
