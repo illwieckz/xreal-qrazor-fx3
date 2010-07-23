@@ -20,7 +20,7 @@ public abstract class CVars {
 	
 	public static final CVar cg_errorDecay = new CVar("cg_errordecay", "100", 0);
 	public static final CVar cg_nopredict = new CVar("cg_nopredict", "0", 0);
-	public static final CVar cg_showmiss = new CVar("cg_showmiss", "1", 0);
+	public static final CVar cg_showmiss = new CVar("cg_showmiss", "0", 0);
 	public static final CVar cg_smoothClients = new CVar("cg_smoothClients", "0", CVar.USERINFO | CVar.ARCHIVE);
 	
 	public static final CVar cg_thirdPersonRange = new CVar("cg_thirdPersonRange", "40", CVar.CHEAT);
@@ -43,6 +43,7 @@ public abstract class CVars {
 	public static final CVar g_motd = new CVar("g_motd", "", 0);	
 	
 	public static final CVar g_threadEntities = new CVar("g_threadEntities", "0", CVar.LATCH);
+	public static final CVar g_threadPhysics = new CVar("g_threadPhysics", "0", CVar.LATCH);
 	
 
 	// change anytime vars

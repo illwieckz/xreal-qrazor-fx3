@@ -119,6 +119,7 @@ public class Lagometer extends Component {
 		disconnectPic.render();
 	}
 	
+	@Override
 	public void render()
 	{
 		int             a, x, y, i;

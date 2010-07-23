@@ -646,4 +646,18 @@ public class AxisAngle4f implements java.io.Serializable, Cloneable {
 		this.z = z;
 	}
 
+
+	/**
+	 * @author Robert Beckebans
+	 * @param a
+	 */
+	public void set(Vector4f a)
+	{
+		this.x = a.x;
+		this.y = a.y;
+		this.z = a.z;
+		this.angle = a.w;
+		
+	}
+
 }

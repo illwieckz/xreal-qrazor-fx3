@@ -249,5 +249,17 @@ public class Vector4f extends Tuple4f implements java.io.Serializable {
     	this.z = Math.round(this.z);
     	this.w = Math.round(this.w);
     }
+    
+    /**
+	 * @author Robert Beckebans
+	 * @param t1	the axis angle
+	 */
+	public final void set(AxisAngle4f t1)
+	{
+		this.x = t1.x;
+		this.y = t1.y;
+		this.z = t1.z;
+		this.w = t1.angle;
+	}
 
 }

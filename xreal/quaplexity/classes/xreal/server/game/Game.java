@@ -8,7 +8,11 @@ import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 import javax.xml.transform.TransformerConfigurationException;
 
@@ -42,39 +46,60 @@ import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSo
 
 public class Game implements GameListener {
 	
-	static private int levelTime = 0;
-	static private int deltaTime = 0;
-	
-	static private Set<GameEntity> entities;
-	static private Set<Player> players;
+	static private int								levelTime		= 0;
+	static private int								deltaTime		= 0;
+
+	static private Set<GameEntity>					entities;
+	static private Set<Player>						players;
 	
 	// physics ------------------------------------------------------------------------------------
 	// keep the collision shapes, for deletion/cleanup
-	static private List<CollisionShape> collisionShapes;
-	static private BroadphaseInterface broadphase;
-	static private CollisionDispatcher dispatcher;
-	static private ConstraintSolver solver;
-	static private DefaultCollisionConfiguration collisionConfiguration;
-	
+	static private List<CollisionShape>				collisionShapes;
+	static private BroadphaseInterface				broadphase;
+	static private CollisionDispatcher				dispatcher;
+	static private ConstraintSolver					solver;
+	static private DefaultCollisionConfiguration	collisionConfiguration;
+
 	// 
-	private static DynamicsWorld dynamicsWorld = null;
-	
+	private static GameDynamicsWorld				dynamicsWorld	= null;
+
+	private static ExecutorService					dynamicsExecutor;
+	public static List<RigidBodyMotionState>		entityMotionStates;
+
+	public static synchronized void updateEntityPhysicsState(int entityNumber, Vector3f origin, Quat4f rotation, Vector3f linearVelocity,
+			Vector3f angularVelocity)
+	{
+		RigidBodyMotionState motionState = entityMotionStates.get(entityNumber);
+
+		motionState.origin.set(origin);
+
+		if(rotation != null)
+			motionState.rotation.set(rotation);
+
+		if(linearVelocity != null)
+			motionState.linearVelocity.set(linearVelocity);
+
+		if(angularVelocity != null)
+			motionState.angularVelocity.set(angularVelocity);
+	}
+
 	// maximum number of objects (and allow user to shoot additional boxes)
 	// private static final int MAX_PROXIES = 1024;
-	
+
 	// --------------------------------------------------------------------------------------------
 	
 	
 	//
-	private static Hashtable<String, Document> documentHashtable;
-	
-	/**  */
-	private static String entitiesString;
-	
-	private static GameClassFactory classFactory = null;
+	private static Hashtable<String, Document>	documentHashtable;
 
-	private Game() {
-		
+	/**  */
+	private static String						entitiesString;
+
+	private static GameClassFactory				classFactory	= null;
+
+	private Game()
+	{
+
 	}
 
 	@Override
@@ -371,6 +396,11 @@ public class Game implements GameListener {
 			}
 		}
 		*/
+		
+		if(CVars.g_threadPhysics.getBoolean())
+		{
+			dynamicsExecutor.shutdown();
+		}
 	}
 	
 	static public int getLevelTime() {
@@ -380,6 +410,16 @@ public class Game implements GameListener {
 	private void initPhysics() {
 
 		Engine.println("Game.initPhysics()");
+		
+		if(CVars.g_threadPhysics.getBoolean())
+		{
+			entityMotionStates = new ArrayList<RigidBodyMotionState>();
+			for(int i = 0; i < Engine.MAX_GENTITIES; i++)
+			{
+				entityMotionStates.add(new RigidBodyMotionState(i));
+				//entityMotionStates.set(i, new RigidBodyMotionState());
+			}
+		}
 		
 		collisionShapes = new ArrayList<CollisionShape>();
 		
@@ -415,11 +455,18 @@ public class Game implements GameListener {
 		// sol.setSolverMode(sol.getSolverMode() &
 		// ~SolverMode.SOLVER_CACHE_FRIENDLY.getMask());
 
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+		dynamicsWorld = new GameDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+		
 		// dynamicsWorld = new SimpleDynamicsWorld(dispatcher,
 		// overlappingPairCache, solver, collisionConfiguration);
 
 		dynamicsWorld.setGravity(new Vector3f(CVars.g_gravityX.getValue(), CVars.g_gravityY.getValue(), CVars.g_gravityZ.getValue()));
+		
+		if(CVars.g_threadPhysics.getBoolean())
+		{
+			dynamicsExecutor = Executors.newSingleThreadExecutor();
+			dynamicsExecutor.execute(dynamicsWorld);
+		}
 		
 		//System.gc();
 	}
@@ -476,33 +523,47 @@ public class Game implements GameListener {
 	}
 	
 	private void runPhysics() {
-		dynamicsWorld.stepSimulation(deltaTime * 0.001f, 10);
 		
-		//Engine.println("Game.runPhysics(): collision objects = " + dynamicsWorld.getNumCollisionObjects());
+		if(CVars.g_threadPhysics.getBoolean())
+		{
+			for(GameEntity ent : entities)
+			{
+				ent.updateEntityStateByPhysics();
+			}
+			
+		}
+		else
+		{
+			dynamicsWorld.stepSimulation(deltaTime * 0.001f, 10);
 		
-		dynamicsWorld.setGravity(new Vector3f(CVars.g_gravityX.getValue(), CVars.g_gravityY.getValue(), CVars.g_gravityZ.getValue()));
-
-		// print positions of all objects
-		for (int j = dynamicsWorld.getNumCollisionObjects() - 1; j >= 0; j--) {
+			//Engine.println("Game.runPhysics(): collision objects = " + dynamicsWorld.getNumCollisionObjects());
+		
+			dynamicsWorld.setGravity(new Vector3f(CVars.g_gravityX.getValue(), CVars.g_gravityY.getValue(), CVars.g_gravityZ.getValue()));
+	
+			// print positions of all objects
 			
-			CollisionObject obj = dynamicsWorld.getCollisionObjectArray().get(j);
-			RigidBody body = RigidBody.upcast(obj);
 			
-			if (body != null && body.getMotionState() != null) {
+			for (int j = dynamicsWorld.getNumCollisionObjects() - 1; j >= 0; j--) {
 				
-				GameEntity ent = (GameEntity) body.getUserPointer();
-				if (ent != null) {
+				CollisionObject obj = dynamicsWorld.getCollisionObjectArray().get(j);
+				RigidBody body = RigidBody.upcast(obj);
+				
+				if (body != null && body.getMotionState() != null) {
 					
-					ent.updateEntityStateByPhysics();
-					
-					/*
-					if(body.isActive() && !ent.isAlive()) {
-						ent.start();
+					GameEntity ent = (GameEntity) body.getUserPointer();
+					if (ent != null) {
+						
+						ent.updateEntityStateByPhysics();
+						
+						//if(body.isActive() && !ent.isAlive()) {
+						//	ent.start();
+						//}
+						
 					}
-					*/
 				}
 			}
 		}
+		
 	}
 	
 	private void crashTest() {

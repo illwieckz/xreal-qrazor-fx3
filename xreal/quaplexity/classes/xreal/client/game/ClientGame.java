@@ -594,6 +594,10 @@ public class ClientGame implements ClientGameListener {
 			case PHYSICS_BOX:
 				cent = new CEntity_PhysicsBox(es);
 				break;
+				
+			case PHYSICS_CYLINDER:
+				cent = new CEntity_PhysicsCylinder(es);
+				break;
 		}
 		
 		// puts itself in the correct slot

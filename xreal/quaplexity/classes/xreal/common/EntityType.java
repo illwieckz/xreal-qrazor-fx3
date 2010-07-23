@@ -39,6 +39,7 @@ public enum EntityType {
 	 * JBullet visualization tool
 	 */
 	PHYSICS_BOX,
+	PHYSICS_CYLINDER,
 	
 	/**
 	 * Any of the EV_* events can be added free standing by setting eType to ET_EVENTS + eventNum.

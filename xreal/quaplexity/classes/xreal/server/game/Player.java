@@ -208,64 +208,97 @@ public class Player extends GameEntity implements ClientListener, PlayerStateAcc
 	}
 
 	@Override
-	public void clientCommand() {
-		//Engine.print("xreal.server.game.Player.clientCommand(clientNum = " + getEntityIndex() + ")\n");
-		
+	public void clientCommand()
+	{
+		// Engine.print("xreal.server.game.Player.clientCommand(clientNum = " + getEntityIndex() + ")\n");
+
 		String[] args = Engine.getConsoleArgs();
-		
+
 		String cmd = args[0];
-		
-		//Engine.print("xreal.server.game.Player.clientCommand(clientNum = " + getEntityState_number() + ", command '" + cmd + "')\n");
-		
-		if (cmd.equals("say")) {
+
+		// Engine.print("xreal.server.game.Player.clientCommand(clientNum = " + getEntityState_number() + ", command '"
+		// + cmd + "')\n");
+
+		if(cmd.equals("say"))
+		{
 			Server.broadcastServerCommand("chat \"" + _pers.netname + ": " + ConsoleColorStrings.GREEN + Engine.concatConsoleArgs(1) + "\n\"");
 
-		} else if (cmd.equals("shootbox")) {
+		}
+		else if(cmd.equals("shootbox"))
+		{
 
 			Vector3f forward = new Vector3f();
 			getPlayerState_viewAngles().getVectors(forward, null, null);
-			
-			GameEntity ent = new TestBox(getPlayerState_origin(), forward);
-			//ent.start();
-			
-		} else if (cmd.equals("shootboxes")) {
+
+			Vector3f newOrigin = new Vector3f();
+			newOrigin.scaleAdd(CVars.pm_bodyWidth.getValue() / 2 + 5, forward, getPlayerState_origin());
+
+			GameEntity ent = new TestBox(newOrigin, forward);
+			// ent.start();
+
+		}
+		else if(cmd.equals("shootboxes"))
+		{
 
 			// spawn multiple boxes in front of the player
-			
+
 			Vector3f forward = new Vector3f();
 			Vector3f right = new Vector3f();
 			Vector3f up = new Vector3f();
-			
+
 			getPlayerState_viewAngles().getVectors(forward, right, up);
-			
+
 			Vector3f origin = getPlayerState_origin();
 			Vector3f newOrigin = new Vector3f();
-			
+
 			for(int i = -48; i < 48; i += 12)
 			{
 				newOrigin.scaleAdd(i, right, origin);
+				newOrigin.scaleAdd(CVars.pm_bodyWidth.getValue() / 2 + 5, forward, newOrigin);
+
 				GameEntity ent = new TestBox(newOrigin, forward);
-				//ent.start();
+				// ent.start();
 			}
-			
-		} else if (cmd.equals("noclip")) {
-			
-			if(!cheatsOk()) {
+
+		}
+		else if(cmd.equals("shootcylinder"))
+		{
+
+			Vector3f forward = new Vector3f();
+			getPlayerState_viewAngles().getVectors(forward, null, null);
+
+			Vector3f newOrigin = new Vector3f();
+			newOrigin.scaleAdd(CVars.pm_bodyWidth.getValue() / 2 + 5, forward, getPlayerState_origin());
+
+			GameEntity ent = new TestCylinder(newOrigin, forward);
+			// ent.start();
+
+		}
+		else if(cmd.equals("noclip"))
+		{
+
+			if(!cheatsOk())
+			{
 				return;
 			}
 
 			String msg;
-			if(_noClip)	{
+			if(_noClip)
+			{
 				msg = "noclip OFF\n";
-			} else  {
+			}
+			else
+			{
 				msg = "noclip ON\n";
 			}
-			
+
 			_noClip = !_noClip;
 
 			sendServerCommand(getEntityState_number(), "print \"" + msg + "\"");
-			
-		} else {
+
+		}
+		else
+		{
 			sendServerCommand(getEntityState_number(), "print \"unknown cmd " + cmd + "\n\"");
 		}
 	}

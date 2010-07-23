@@ -233,8 +233,12 @@ public class Trajectory {
 			case LINEAR:
 				deltaTime = (atTime - trTime) * 0.001f;	// milliseconds to seconds
 				
+				
 				AxisAngle4f deltaAxisAngle = new AxisAngle4f();
-				deltaAxisAngle.set(new Quat4f(trDelta));
+				
+				//deltaAxisAngle.set(new Quat4f(trDelta));
+				deltaAxisAngle.set(trDelta);
+				
 				deltaAxisAngle.angle *= deltaTime;
 				
 				Quat4f deltaQuat = new Quat4f();
@@ -242,6 +246,7 @@ public class Trajectory {
 				
 				rotation.set(trBase);
 				rotation.mul(deltaQuat);
+				
 				break;
 		}
 		
