@@ -36,7 +36,7 @@ public class Lagometer extends Component {
 	private Image	disconnectPic;
 	private int		whiteMaterial;
 	
-	public Lagometer()
+	public Lagometer() throws Exception
 	{
 		// place it into the lower right corner
 		setX(UserInterface.SCREEN_WIDTH - 48);
@@ -91,8 +91,9 @@ public class Lagometer extends Component {
 	
 	/**
 	 * Should we draw something different for long lag vs no packets?
+	 * @throws Exception 
 	 */
-	public void renderDisconnect()	
+	public void renderDisconnect()
 	{
 		float           x, y;
 		UserCommand     cmd;
@@ -143,8 +144,8 @@ public class Lagometer extends Component {
 		Renderer.setColor(new Color(1.0f, 1.0f, 1.0f, 0.80f));
 		lagometerPic.render();
 
-		x = (int) Math.floor(bounds.x);
-		y = (int) Math.floor(bounds.y);
+		x = (int) Math.floor(getX());
+		y = (int) Math.floor(getY());
 		
 		Rectangle rect = new Rectangle(x, y, 48, 48);
 		UserInterface.adjustFrom640(rect);

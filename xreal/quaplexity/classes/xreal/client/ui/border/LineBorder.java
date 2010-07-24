@@ -10,34 +10,33 @@ public class LineBorder extends Border {
 
 	private int whiteMaterial = Renderer.registerMaterialNoMip("white");
 	
-	protected Color lineColor = Color.White;
 	protected float thickness;
 	protected boolean roundedCorners;
 	
 	public LineBorder(Color lineColor) {
 		super();
-		this.lineColor = lineColor;
+		this.borderColor = lineColor;
 		this.thickness = 1;
 		this.roundedCorners = false;
 	}
 	
 	public LineBorder(Color lineColor, float thickness) {
 		super();
-		this.lineColor = lineColor;
+		this.borderColor = lineColor;
 		this.thickness = thickness;
 		this.roundedCorners = false;
 	}
 	
 	public LineBorder(Color lineColor, float thickness, boolean roundedCorners) {
 		super();
-		this.lineColor = lineColor;
+		this.borderColor = lineColor;
 		this.thickness = thickness;
 		this.roundedCorners = roundedCorners;
 	}
 
 	public void paintBorder(float x, float y, float width, float height) {
 		
-		Renderer.setColor(lineColor);
+		Renderer.setColor(borderColor);
 		
 		Rectangle rect = new Rectangle(x, y, width, height);
 		UserInterface.adjustFrom640(rect);
@@ -52,7 +51,7 @@ public class LineBorder extends Border {
 	
 	public void paintBorder(Component c, float x, float y, float width, float height) {
 		
-		Renderer.setColor(lineColor);
+		Renderer.setColor(borderColor);
 		
 		Rectangle rect = new Rectangle(x, y, width, height);
 		rect.setLocation(c.getX(), c.getY());

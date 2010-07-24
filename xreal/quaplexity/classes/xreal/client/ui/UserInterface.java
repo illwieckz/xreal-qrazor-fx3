@@ -177,7 +177,7 @@ public class UserInterface implements UserInterfaceListener {
 	}
 
 	@Override
-	public void refresh(int time) {
+	public void refresh(int time) throws Exception {
 		// Engine.println("UserInterface.refresh(time = " + time + ")");
 		
 		UserInterface.frameTime = time - realTime;

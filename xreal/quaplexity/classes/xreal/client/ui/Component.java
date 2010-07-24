@@ -21,6 +21,7 @@ import xreal.client.ui.event.MouseMotionListener;
 public class Component implements EventListener
 {
 
+	/*
 	public static final int				QMF_BLINK				= 0x00000001;
 	public static final int				QMF_SMALLFONT			= 0x00000002;
 	public static final int				QMF_LEFT_JUSTIFY		= 0x00000004;
@@ -63,8 +64,22 @@ public class Component implements EventListener
 	public static final int				QMF_SILENT				= 0x00100000;
 
 	public int							flags;
+	*/
+	
+	public boolean						active					= true;
+	public boolean						grayed					= false;
+	public boolean						silent					= false;
+	public boolean						hasMouseFocus			= false;
+	
+	public float						width					= 0;	// 0 == Auto
+	public float						height					= 0;	// 0 == Auto
+	
+	public Color						backgroundColor			= Color.Black;
+	public Color						foregroundColor			= Color.White;
 
 	protected Rectangle					bounds					= new Rectangle(0, 0, 0, 0);
+	protected Thickness					margin					= new Thickness();
+	
 	protected Border					border;
 
 	private boolean						focusable				= true;
@@ -72,7 +87,7 @@ public class Component implements EventListener
 	protected HorizontalAlignment		horizontalAlignment		= HorizontalAlignment.Stretch;
 	protected VerticalAlignment			verticalAlignment		= VerticalAlignment.Stretch;
 
-	private Component					parent;
+	protected Component					parent;
 	protected Vector<Component>			children				= new Vector<Component>();
 
 	private Set<KeyListener>			keyListeners			= new LinkedHashSet<KeyListener>();
@@ -131,8 +146,9 @@ public class Component implements EventListener
 	{
 	}
 
-	public Rectangle getBounds()
+	public Rectangle getBounds() throws Exception
 	{
+		//return new Rectangle(bounds.x + margin.left, bounds.y + margin.top, bounds.width + margin.right, bounds.height + margin.bottom);
 		return bounds;
 	}
 
@@ -160,16 +176,88 @@ public class Component implements EventListener
 	{
 		return bounds.contains(x, y);
 	}
+	
+	protected void alignChildrenAndUpdateBounds()
+	{
+		for(Component c : children)
+		{
+			Rectangle rect;
+			try
+			{
+				rect = c.getBounds();
+			}
+			catch(Exception e)
+			{
+				c.active = false;
+				e.printStackTrace();
+				continue;
+			}
+			
+			//if(c.parent != this)
+			//	continue;
+			
+			switch(c.horizontalAlignment)
+			{
+				case Stretch:
+					c.bounds.x = bounds.x + c.margin.left;
+					c.bounds.width = bounds.width - c.margin.right;
+					break;
+					
+				case Left:
+					c.bounds.x = bounds.x + c.margin.left;
+					c.bounds.width = rect.width;
+					break;
+			
+				case Center:
+					c.bounds.x = (bounds.x + bounds.width / 2) - (rect.width / 2);
+					c.bounds.width = rect.width;
+					break;
+					
+				case Right:
+					c.bounds.x = (bounds.x + bounds.width) - rect.width - c.margin.right;
+					c.bounds.width = rect.width;
+					break;
+			}
+			
+			switch(c.verticalAlignment)
+			{
+				case Stretch:
+					c.bounds.y = bounds.y + c.margin.top;
+					c.bounds.height = bounds.height - c.margin.bottom;
+					break;
+					
+				case Top:
+					c.bounds.y = bounds.y + c.margin.top;
+					c.bounds.height = rect.height;
+					break;
+					
+				case Center:
+					c.bounds.y = (bounds.y + bounds.height / 2) - (rect.height / 2);
+					c.bounds.height = rect.height;
+					break;
+					
+				case Bottom:
+					c.bounds.y = (bounds.y + bounds.height) - rect.height - c.margin.bottom;
+					c.bounds.height = rect.height;
+					break;
+			}
+		}
+	}
 
 	public void render()
 	{
-
 		if(CVars.ui_debug.getBoolean())
 		{
 			LineBorder border = new LineBorder(Color.White);
 			border.paintBorder(this, bounds.x, bounds.y, bounds.width, bounds.height);
+			
+			if(margin.left != 0 || margin.top != 0 || margin.right != 0 || margin.bottom != 0)
+			{
+				border.borderColor = Color.Magenta;
+				border.paintBorder(bounds.x - margin.left, bounds.y - margin.top, bounds.width + margin.left + margin.right, bounds.height + margin.top + margin.bottom);
+			}
 		}
-
+		
 		for(Component c : children)
 		{
 			c.render();
@@ -218,7 +306,10 @@ public class Component implements EventListener
 
 	public void setBounds(Rectangle bounds)
 	{
-		this.bounds = bounds;
+		this.bounds.x = bounds.x;
+		this.bounds.y = bounds.y;
+		this.bounds.width = bounds.width;
+		this.bounds.height = bounds.height;
 	}
 
 	public void setBorder(Border border)
@@ -231,6 +322,7 @@ public class Component implements EventListener
 		return border;
 	}
 
+	/*
 	public void addFlags(int flags)
 	{
 		this.flags |= flags;
@@ -245,6 +337,7 @@ public class Component implements EventListener
 	{
 		return (this.flags & flags) != 0;
 	}
+	*/
 
 	public void setFocusable(boolean focusable)
 	{
@@ -255,10 +348,15 @@ public class Component implements EventListener
 	{
 		return focusable;
 	}
+	
+	public void addChild(Component c)
+	{
+		c.parent = this;
+		children.add(c);
+	}
 
 	protected void fireEvent(Event e)
 	{
-
 		processEvent(e);
 
 		for(Component l : children)

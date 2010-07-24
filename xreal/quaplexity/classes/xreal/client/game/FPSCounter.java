@@ -1,31 +1,46 @@
 package xreal.client.game;
 
+import xreal.CVars;
 import xreal.Color;
 import xreal.Engine;
 import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
+import xreal.client.ui.Component;
+import xreal.client.ui.HorizontalAlignment;
+import xreal.client.ui.Label;
+import xreal.client.ui.Rectangle;
+import xreal.client.ui.VerticalAlignment;
 
-public class FPSCounter {
-
-	private final int	FPS_FRAMES = 40;	
+public class FPSCounter extends Label
+{
+	private final int	FPS_FRAMES	= 40;
 	private int			previousTimes[];
 	private int			index;
 	private int			previous;
-	
-	private Font		font;
-	
-	public FPSCounter() {
+
+	public FPSCounter()
+	{
+		super();
+		
+		foregroundColor = Color.White;
+		
+		horizontalAlignment = HorizontalAlignment.Right;
+		verticalAlignment = VerticalAlignment.Top;
 		
 		previousTimes = new int[FPS_FRAMES];
-		
-		font = Renderer.registerFont("fonts/Vera.ttf", 48);
 	}
 	
-	public float render(float y)
+	private void updateText()
 	{
-		int             i, total;
-		int             fps;
-		int             t, frameTime;
+		int i, total;
+		int fps;
+		int t, frameTime;
+		
+		if(!CVars.cg_drawFPS.getBoolean())
+		{
+			text = null;
+			return;
+		}
 
 		// don't use serverTime, because that will be drifting to
 		// correct for internet lag changes, timescales, timedemos, etc
@@ -44,21 +59,22 @@ public class FPSCounter {
 			{
 				total += previousTimes[i];
 			}
-			
+
 			if(total <= 0)
 			{
 				total = 1;
 			}
 			fps = 1000 * FPS_FRAMES / total;
 
-			String s = fps + "fps";
-
-			font.paintText(635, y, 10, Color.White, s, 0, 0, Font.RIGHT | Font.DROPSHADOW);
-		}
+			text = fps + "fps";
+		}	
+	}
+	
+	@Override
+	public Rectangle getBounds() throws Exception
+	{
+		updateText();
 		
-		// test
-		//ClientGame.getMedia().fontVera = null;
-
-		return y + 16;
+		return super.getBounds();
 	}
 }

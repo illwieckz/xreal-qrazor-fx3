@@ -14,6 +14,7 @@ public abstract class CVars {
 	
 	public static final CVar cg_draw2D = new CVar("cg_draw2D", "1", CVar.ARCHIVE);
 	public static final CVar cg_drawFPS = new CVar("cg_drawFPS", "0", CVar.ARCHIVE);
+	public static final CVar cg_drawBulletStats = new CVar("cg_drawBulletStats", "0", CVar.CHEAT);
 	public static final CVar cg_drawPlayerCollision = new CVar("cg_drawPlayerCollision", "1", CVar.CHEAT);
 	
 	public static final CVar cg_lagometer = new CVar("cg_lagometer", "1", CVar.ARCHIVE);

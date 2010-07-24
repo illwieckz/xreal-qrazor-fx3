@@ -13,7 +13,7 @@ public interface UserInterfaceListener {
 
 	public void mouseEvent(int time, int dx, int dy);
 
-	public void refresh(int time);
+	public void refresh(int time) throws Exception;
 
 	public boolean isFullscreen();
 

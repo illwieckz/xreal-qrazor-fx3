@@ -5,32 +5,39 @@ import xreal.Engine;
 import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
 
-public class Button extends AbstractButton {
+/**
+ * @author Robert Beckebans
+ */
+public class Button extends AbstractButton
+{
 
-	private Color color = Color.White;
+	private Color	color		= Color.White;
 
-	private Font font = Renderer.registerFont("fonts/GOODTIME.ttf", 48);
+	private Font	font		= Renderer.registerFont("fonts/GOODTIME.ttf", 48);
 	// private Font font = Renderer.registerFont("fonts/VeraBd.ttf", 48);
-	private float fontSize = 24;
-	private int fontStyle;
+	private float	fontSize	= 24;
+	private int		fontStyle;
 
-	private String text = "<Button>";
+	private String	text		= "<Button>";
 
-	Button() {
+	Button()
+	{
 		super();
-		
+
 		calcBounds();
 	}
 
-	Button(String text) {
+	Button(String text)
+	{
 		super();
 
 		this.text = text;
 
 		calcBounds();
 	}
-	
-	Button(String text, float fontSize, int fontStyle) {
+
+	Button(String text, float fontSize, int fontStyle)
+	{
 		super();
 
 		this.text = text;
@@ -41,22 +48,25 @@ public class Button extends AbstractButton {
 	}
 
 	@Override
-	public void render() {
-		//Rectangle rect = new Rectangle(bounds);
-		//UserInterface.adjustFrom640(rect);
-		
-		//if(hasFlags(QMF_HASMOUSEFOCUS))
-		//	Engine.println("button has focus");
+	public void render()
+	{
+		// Rectangle rect = new Rectangle(bounds);
+		// UserInterface.adjustFrom640(rect);
 
-		font.paintText(bounds.x, bounds.y, fontSize, color, text, 0, 0, fontStyle | (hasFlags(QMF_HASMOUSEFOCUS) ? Font.PULSE : 0));
+		// if(hasFlags(QMF_HASMOUSEFOCUS))
+		// Engine.println("button has focus");
 
-		if(border != null) {
-			border.paintBorder(this, bounds.x, bounds.y, bounds.width, bounds.height);
+		font.paintText(getX(), getY(), fontSize, color, text, 0, 0, fontStyle | (hasMouseFocus ? Font.PULSE : 0));
+
+		if(border != null)
+		{
+			border.paintBorder(this, getX(), getY(), getWidth(), getHeight());
 		}
 	}
 
-	private void calcBounds() {
-		bounds.width = font.getTextWidth(text, fontSize, 0);
-		bounds.height = font.getTextHeight(text, fontSize, 0);
+	private void calcBounds()
+	{
+		setWidth(font.getTextWidth(text, fontSize, 0));
+		setHeight(font.getTextHeight(text, fontSize, 0));
 	}
 }

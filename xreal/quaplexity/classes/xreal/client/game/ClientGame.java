@@ -103,7 +103,6 @@ public class ClientGame implements ClientGameListener {
 		// clear everything
 		media = new Media();
 		camera = new ClientCamera();
-		hud = new HUD();
 		snapshotManager = new SnapshotManager(serverMessageNum);
 		
 		initPhysics();
@@ -112,6 +111,8 @@ public class ClientGame implements ClientGameListener {
 		predictionManager = new PredictionManager();
 		
 		lagometer = new Lagometer();
+		hud = new HUD(lagometer);
+		
 		
 		entities = new Vector<CEntity>();
 		for(int i = 0; i < Engine.MAX_GENTITIES; i++) {
@@ -569,7 +570,6 @@ public class ClientGame implements ClientGameListener {
 
 		// draw status bar and other floating elements
 		hud.render();
-		lagometer.render();
 	}
 	
 	

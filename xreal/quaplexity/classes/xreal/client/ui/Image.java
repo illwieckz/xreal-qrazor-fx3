@@ -23,9 +23,18 @@ public class Image extends Component {
 	{
 		super.render();
 		
-		Rectangle rect = new Rectangle(bounds);
-		UserInterface.adjustFrom640(rect);
-		
-		Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, 0, 0, 1, 1, hMaterial);
+		Rectangle rect;
+		try
+		{
+			rect = new Rectangle(getBounds());
+			UserInterface.adjustFrom640(rect);
+			
+			Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, 0, 0, 1, 1, hMaterial);
+		}
+		catch(Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

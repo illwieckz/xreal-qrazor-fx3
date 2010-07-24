@@ -7,52 +7,69 @@ import xreal.client.ui.event.KeyListener;
 import xreal.client.ui.event.MouseEvent;
 import xreal.client.ui.event.MouseMotionListener;
 
-public abstract class AbstractButton extends Component implements MouseMotionListener, KeyListener {
-	
+
+/**
+ * @author Robert Beckebans
+ */
+public abstract class AbstractButton extends Component implements MouseMotionListener, KeyListener
+{
+
 	@Override
-	public void mouseMoved(MouseEvent e) {
-		//Engine.println("AbstractButton.mouseMoved()");
-		
+	public void mouseMoved(MouseEvent e)
+	{
+		// Engine.println("AbstractButton.mouseMoved()");
+
 		MouseMotionListener listeners[] = getMouseMotionListeners();
-		
-		for(MouseMotionListener l : listeners) {
+
+		for(MouseMotionListener l : listeners)
+		{
 			l.mouseMoved(e);
 		}
 	}
-	
+
 	@Override
-	public void keyPressed(KeyEvent e) {
-		//Engine.println("AbstractButton.keyPressed()");
-		
+	public void keyPressed(KeyEvent e)
+	{
+		// Engine.println("AbstractButton.keyPressed()");
+
 		KeyListener listeners[] = getKeyListeners();
-		
-		for(KeyListener l : listeners) {
+
+		for(KeyListener l : listeners)
+		{
 			l.keyPressed(e);
 		}
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e) {
-		//Engine.println("AbstractButton.keyReleased()");
-		
+	public void keyReleased(KeyEvent e)
+	{
+		// Engine.println("AbstractButton.keyReleased()");
+
 		KeyListener listeners[] = getKeyListeners();
-		
-		for(KeyListener l : listeners) {
+
+		for(KeyListener l : listeners)
+		{
 			l.keyReleased(e);
 		}
 	}
 
 	@Override
-	public void processEvent(Event e) {
-		
-		if (hasFlags(QMF_HASMOUSEFOCUS)) {
-
-			if (e instanceof MouseEvent) {
+	public void processEvent(Event e)
+	{
+		if(hasMouseFocus)
+		{
+			if(e instanceof MouseEvent)
+			{
 				mouseMoved((MouseEvent) e);
-			} else if (e instanceof KeyEvent) {
-				if (((KeyEvent) e).isDown()) {
+			}
+			else if(e instanceof KeyEvent)
+			{
+				if(((KeyEvent) e).isDown())
+				{
 					keyPressed((KeyEvent) e);
-				} else {
+				}
+				else
+				{
 					keyReleased((KeyEvent) e);
 				}
 			}
