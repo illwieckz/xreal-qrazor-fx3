@@ -129,14 +129,28 @@ textures/eX/eX_floor_tread_01
 	bumpmap		addnormals ( textures/eX/eX_floor_tread_01_norm, heightmap ( textures/eX/eX_floor_tread_01_h, 1 ) )
 } 
 
-textures/eX/eX_floor_grate03_2rescale
+textures/eX/eX_floor_grate03
 {
 
-	qer_EditorImage	textures/eX/eX_floor_grate_03.tga
-	
-	diffuseMap	textures/eX/eX_floor_grate_03.tga
-	specularMap	textures/eX/eX_floor_grate_03_s.tga
-	bumpMap		addnormals (textures/eX/eX_floor_grate_03_norm.tga, heightmap ( textures/eX/eX_floor_grate_03_h.tga,1 ) )
+	qer_EditorImage	textures/eX/eX_floor_grate03
+	parallax
+
+	diffusemap	textures/eX/eXmetalBase01
+	specularmap	textures/eX/eXmetalBase01_s
+	bumpmap		displaceMap(addnormals(textures/eX/eX_eXmetalBase01_norm, heightmap(textures/eX/eX_eXmetalBase01_h, 1)), _white)
+	{
+		stage	diffusemap
+		map	textures/eX/eX_floor_grate03_shadow
+		blend	blend
+	}
+	bumpmap		displaceMap(_flat, _white)
+	{
+		stage	diffusemap
+		map	textures/eX/eX_floor_grate03
+		alphaTest	0.5
+	}
+	specularMap	textures/eX/eX_floor_grate03_s
+	bumpMap		addnormals(textures/eX/eX_floor_grate03_norm, heightmap(textures/eX/eX_floor_grate03_h, 1))
 }
 
 textures/eX/eX_clangfloor_rusted
@@ -167,13 +181,13 @@ textures/eX/eX_floorpanel_01
 	bumpmap		addnormals ( textures/eX/eX_floorpanel_01_norm, heightmap ( textures/eX/eX_floorpanel_01_h, 1 ) )
 }
 
-textures/eX/eX_floor_grate03 
+textures/eX/eX_floor_grate_03 
 {
-	qer_editorimage textures/eX/eX_floor_grate03
+	qer_editorimage textures/eX/eX_floor_grate_03
 
-	diffusemap	textures/eX/eX_floor_grate03
-	specularmap	textures/eX/eX_floor_grate03_s
-	bumpmap		addnormals ( textures/eX/eX_floor_grate03_norm, heightmap ( textures/eX/eX_floor_grate03_h, 1 ) )
+	diffusemap	textures/eX/eX_floor_grate_03
+	specularmap	textures/eX/eX_floor_grate_03_s
+	bumpmap		addnormals ( textures/eX/eX_floor_grate_03_norm, heightmap ( textures/eX/eX_floor_grate_03_h, 1 ) )
 }
 
 textures/eX/eX_floor_simple_05 
@@ -187,11 +201,16 @@ textures/eX/eX_floor_simple_05
 
 textures/eX/eX_floor_grate_03_128 
 {
-	qer_editorimage textures/eX/eX_floor_grate_03_128
+	qer_editorimage		textures/eX/eX_floor_grate_03_128
+	twosided
 
-	diffusemap	textures/eX/eX_floor_grate_03_128
-	specularmap	textures/eX/eX_floor_grate_03_128_s
-	bumpmap		addnormals ( textures/eX/eX_floor_grate_03_128_norm, heightmap ( textures/eX/eX_floor_grate_03_128_h, 1 ) )
+	{
+		stage		diffusemap
+		map		textures/eX/eX_floor_grate_03_128
+		alphaTest	0.5
+	}
+	specularmap		textures/eX/eX_floor_grate_03_128_s
+	bumpmap			addnormals ( textures/eX/eX_floor_grate_03_128_norm, heightmap ( textures/eX/eX_floor_grate_03_128_h, 1 ) )
 }
 
 textures/eX/eX_floor_tile_03 
@@ -271,10 +290,11 @@ textures/eX/eX_rndfloor_02
 textures/eX/eXmetalrib01 
 {
 	qer_editorimage textures/eX/eXmetalrib01
+	parallax
 
 	diffusemap	textures/eX/eXmetalrib01
 	specularmap	textures/eX/eXmetalrib01_s
-	bumpmap		addnormals ( textures/eX/eXmetalrib01_norm, heightmap ( textures/eX/eXmetalrib01_h, 1 ) )
+	bumpmap		textures/eX/eXmetalrib01_norm
 }
 
 textures/eX/eX_wall_01b
@@ -319,20 +339,18 @@ textures/eX/eX_deswall_01
 	qer_editorimage textures/eX/eX_deswall_01
 	parallax
 
-	diffusemap	textures/eX/eX_rplates_01
+	diffusemap	textures/eX/eX_rplates_01_d
 	specularmap	textures/eX/eX_rplates_01_s
-	bumpmap		displaceMap(addnormals(textures/eX/eX_rplates_01_norm, heightmap(textures/eX/eX_rplates_01_h, 1), _white)
-
+	bumpmap		displaceMap(addnormals(textures/eX/eX_rplates_01_norm, heightmap(textures/eX/eX_rplates_01_h, 1)), _white)
 	{
 		stage	diffusemap
 		map	textures/eX/eX_deswall_01_shadow
-		blend	filter
+		blend	blend
 	}
 	bumpmap		displaceMap(_flat, _white)
-
 	{
 		stage	diffusemap
-		map	textures/eX/eX_deswall_01
+		map	textures/eX/eX_deswall_01_d
 		alphaTest	0.5
 	}
 	specularmap	textures/eX/eX_deswall_01_s
@@ -405,10 +423,11 @@ textures/eX/eXmetal_plate01B
 textures/eX/eX_metalSupp01 
 {
 	qer_editorimage textures/eX/eX_metalSupp01
+	parallax
 
 	diffusemap	textures/eX/eX_metalSupp01
-	specularmap	textures/eX/eX_metalSupp01_s
-	bumpmap		addnormals ( textures/eX/eX_metalSupp01_norm, heightmap ( textures/eX/eX_metalSupp01_h, 1 ) )
+	specularmap	textures/eX/eX_metalSupp01
+	bumpmap		textures/eX/eX_metalSupp01_norm
 }
 
 textures/eX/eX_metalplate_01 
@@ -728,17 +747,65 @@ textures/eX/eX_lightpanel_01_orange
 	xmap_lightImage		textures/eX/eX_lightpanel_01_glow.tga
 	xmap_lightSubdivide	16
 	xmap_lightRGB		1.00 0.59 0.01
+	parallax
 	
 	nonSolid
 	noShadows
 	diffuseMap		textures/eX/eX_lightpanel_01.tga
 	specularMap		textures/eX/eX_lightpanel_01_s.tga
-	bumpMap			addnormals ( textures/eX/eX_lightpanel_01_norm.tga, heightmap ( textures/eX/eX_lightpanel_01_h.tga, 1 ) )
+	bumpMap			textures/eX/eX_lightpanel_01_norm.tga
 	{
 		blend		add
 		map		textures/eX/eX_lightpanel_01_glow.tga
 		red		1.00
 		green		0.59
+		blue		0.01
+	}
+	glowMap			textures/eX/eX_lightpanel_01_glow.tga
+}
+
+textures/eX/eX_light_u201_yellow
+{
+	qer_EditorImage		textures/eX/eX_light_u201.tga
+	xmap_surfaceLight	15000
+	xmap_lightImage		textures/eX/eX_light_u201_glow.tga
+	xmap_lightSubdivide	16
+	xmap_lightRGB		1.00 1.00 0.01
+	
+	nonSolid
+	noShadows
+	diffuseMap		textures/eX/eX_light_u201.tga
+	specularMap		textures/eX/eX_light_u201_s.tga
+	bumpMap			addnormals ( textures/eX/eX_light_u201_norm.tga, heightmap ( textures/eX/eX_light_u201_h.tga, 1 ) )
+	{
+		blend		add
+		map		textures/eX/eX_light_u201_glow.tga
+		red		1.00
+		green		1.00
+		blue		0.01
+	}
+	glowMap			textures/eX/eX_light_u201_glow.tga
+}
+
+textures/eX/eX_lightpanel_01_yellow
+{
+	qer_EditorImage		textures/eX/eX_lightpanel_01.tga
+	xmap_surfaceLight	15000
+	xmap_lightImage		textures/eX/eX_lightpanel_01_glow.tga
+	xmap_lightSubdivide	16
+	xmap_lightRGB		1.00 1.00 0.01
+	parallax
+	
+	nonSolid
+	noShadows
+	diffuseMap		textures/eX/eX_lightpanel_01.tga
+	specularMap		textures/eX/eX_lightpanel_01_s.tga
+	bumpMap			textures/eX/eX_lightpanel_01_norm.tga
+	{
+		blend		add
+		map		textures/eX/eX_lightpanel_01_glow.tga
+		red		1.00
+		green		1.00
 		blue		0.01
 	}
 	glowMap			textures/eX/eX_lightpanel_01_glow.tga
@@ -774,12 +841,13 @@ textures/eX/eX_lightpanel_01_red
 	xmap_lightImage		textures/eX/eX_lightpanel_01_glow.tga
 	xmap_lightSubdivide	16
 	xmap_lightRGB		1.00 0.01 0.01
+	parallax
 	
 	nonSolid
 	noShadows
 	diffuseMap		textures/eX/eX_lightpanel_01.tga
 	specularMap		textures/eX/eX_lightpanel_01_s.tga
-	bumpMap			addnormals ( textures/eX/eX_lightpanel_01_norm.tga, heightmap ( textures/eX/eX_lightpanel_01_h.tga, 1 ) )
+	bumpMap			textures/eX/eX_lightpanel_01_norm.tga
 	{
 		blend		add
 		map		textures/eX/eX_lightpanel_01_glow.tga
@@ -820,12 +888,13 @@ textures/eX/eX_lightpanel_01_teal
 	xmap_lightImage		textures/eX/eX_lightpanel_01_glow.tga
 	xmap_lightSubdivide	16
 	xmap_lightRGB		0.01 0.59 1.00
+	parallax
 	
 	nonSolid
 	noShadows
 	diffuseMap		textures/eX/eX_lightpanel_01.tga
 	specularMap		textures/eX/eX_lightpanel_01_s.tga
-	bumpMap			addnormals ( textures/eX/eX_lightpanel_01_norm.tga, heightmap ( textures/eX/eX_lightpanel_01_h.tga, 1 ) )
+	bumpMap			textures/eX/eX_lightpanel_01_norm.tga
 	{
 		blend		add
 		map		textures/eX/eX_lightpanel_01_glow.tga
@@ -866,12 +935,13 @@ textures/eX/eX_lightpanel_01_blue
 	xmap_lightImage		textures/eX/eX_lightpanel_01_glow.tga
 	xmap_lightSubdivide	16
 	xmap_lightRGB		0.01 0.01 1.00
+	parallax
 	
 	nonSolid
 	noShadows
 	diffuseMap		textures/eX/eX_lightpanel_01.tga
 	specularMap		textures/eX/eX_lightpanel_01_s.tga
-	bumpMap			addnormals ( textures/eX/eX_lightpanel_01_norm.tga, heightmap ( textures/eX/eX_lightpanel_01_h.tga, 1 ) )
+	bumpMap			textures/eX/eX_lightpanel_01_norm.tga
 	{
 		blend		add
 		map		textures/eX/eX_lightpanel_01_glow.tga

@@ -73,3 +73,5 @@ odin_decals
 odin_terrain
 odin_walls
 odin_floors
+odin_pipes
+odin_misc

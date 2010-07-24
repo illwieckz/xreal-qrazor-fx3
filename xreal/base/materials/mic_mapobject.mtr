@@ -13,6 +13,25 @@ models/mapobjects/mic/tele-frame
 	}
 }
 
+models/mapobjects/mic/tele-frame_chrome
+{
+	qer_editorimage		models/mapobjects/mic/tele01_diff
+	diffusemap		_black
+	specularmap		_white
+	bumpmap			models/mapobjects/mic/tele01_height2b_NRM
+	{
+		stage		reflectionmap
+		cubemap		_autocube
+		blend		add
+	}
+	bumpmap			models/mapobjects/mic/tele01_height2b_NRM
+	{
+		map		models/mapobjects/mic/tele01_glo.tga
+		blend		add
+		rgb		1.25 + sinTable[time * 1.0]
+	}
+}
+
 models/mapobjects/mic/tele-fx
 {
 	qer_editorimage		models/mapobjects/mic/tele01_tele-FX

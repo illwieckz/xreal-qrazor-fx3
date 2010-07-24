@@ -40,6 +40,21 @@ models/mapobjects/gw/teleporter_01
 	bumpmap			models/mapobjects/gw/teleporter_01_local.tga
 }
 
+models/mapobjects/gw/teleporter_01_chrome
+{ 
+	qer_editorimage		models/mapobjects/gw/teleporter_01_d.tga
+	
+	diffusemap		_black
+	specularmap		_white
+	bumpmap			models/mapobjects/gw/teleporter_01_local.tga
+	{
+		stage		reflectionmap
+		cubemap		_autocube
+		blend		add
+	}
+	bumpmap			models/mapobjects/gw/teleporter_01_local.tga
+}
+
 models/mapobjects/gw/chainlink_fence
 {
 	qer_editorimage		models/mapobjects/gw/chainlink_fence_d.tga
