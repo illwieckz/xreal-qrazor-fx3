@@ -8,70 +8,68 @@ import xreal.client.PlayerState;
 import xreal.client.Snapshot;
 import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
+import xreal.client.ui.HorizontalAlignment;
 import xreal.client.ui.Image;
 import xreal.client.ui.Rectangle;
 import xreal.client.ui.UserInterface;
 import xreal.client.ui.Component;
+import xreal.client.ui.VerticalAlignment;
 
 /**
  * 
  * @author Robert Beckebans
  */
-public class Lagometer extends Component {
-	
-	static private final int LAG_SAMPLES = 128;
-	
-	static private final int MAX_LAGOMETER_PING	= 900;
-	static private final int MAX_LAGOMETER_RANGE = 300;
-	
-	//static private final int
+public class Lagometer extends Component
+{
 
-	private int	frameSamples[] = new int[LAG_SAMPLES];
-	private int	frameCount;
-	private int	snapshotFlags[] = new int[LAG_SAMPLES];
-	private int snapshotSamples[] = new int[LAG_SAMPLES];
-	private int snapshotCount;
-	
-	private Image	lagometerPic;
-	private Image	disconnectPic;
-	private int		whiteMaterial;
-	
+	static private final int	LAG_SAMPLES			= 128;
+
+	static private final int	MAX_LAGOMETER_PING	= 900;
+	static private final int	MAX_LAGOMETER_RANGE	= 300;
+
+	// static private final int
+
+	private int					frameSamples[]		= new int[LAG_SAMPLES];
+	private int					frameCount;
+	private int					snapshotFlags[]		= new int[LAG_SAMPLES];
+	private int					snapshotSamples[]	= new int[LAG_SAMPLES];
+	private int					snapshotCount;
+
+	private Image				lagometerPic;
+	private Image				disconnectPic;
+	private int					whiteMaterial;
+
 	public Lagometer() throws Exception
 	{
+		width = height = 64;
+		
 		// place it into the lower right corner
-		setX(UserInterface.SCREEN_WIDTH - 48);
-		setY(UserInterface.SCREEN_HEIGHT - 48);
-		setWidth(48);
-		setHeight(48);
-		
+		horizontalAlignment = HorizontalAlignment.Right;
+		verticalAlignment = VerticalAlignment.Bottom;
+
 		lagometerPic = new Image("lagometer2");
-		lagometerPic.setBounds(this.getBounds());
-		
 		disconnectPic = new Image("gfx/2d/net.tga");
-		disconnectPic.setBounds(this.getBounds());
-	
-		
+
 		whiteMaterial = Renderer.registerMaterialNoMip("white");
 	}
-	
+
 	/**
 	 * Adds the current interpolate / extrapolate bar for this frame
 	 */
 	void addFrameInfo(int latestSnapshotTime)
 	{
-		int             offset;
+		int offset;
 
 		offset = ClientGame.getTime() - latestSnapshotTime;
 		frameSamples[frameCount & (LAG_SAMPLES - 1)] = offset;
 		frameCount++;
 	}
 
-	
 	/**
-	 * Each time a snapshot is received, log its ping time and
-	 * the number of snapshots that were dropped before it.
+	 * Each time a snapshot is received, log its ping time and the number of snapshots that were dropped before it.
 	 * 
-	 * @param snap	Pass NULL for a dropped packet.
+	 * @param snap
+	 *            Pass NULL for a dropped packet.
 	 */
 	void addSnapshotInfo(Snapshot snap)
 	{
@@ -88,17 +86,18 @@ public class Lagometer extends Component {
 		snapshotFlags[snapshotCount & (LAG_SAMPLES - 1)] = snap.getSnapFlags();
 		snapshotCount++;
 	}
-	
+
 	/**
 	 * Should we draw something different for long lag vs no packets?
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	public void renderDisconnect()
 	{
-		float           x, y;
-		UserCommand     cmd;
-		String			msg;
-		int             w;
+		float x, y;
+		UserCommand cmd;
+		String msg;
+		int w;
 
 		// draw the phone jack if we are completely past our buffers
 		cmd = Client.getOldestUserCommand();
@@ -113,43 +112,45 @@ public class Lagometer extends Component {
 		ClientGame.getMedia().fontVera.paintText(UserInterface.SCREEN_WIDTH / 2, UserInterface.SCREEN_HEIGHT / 2, 16, Color.White, msg, 0, 0, Font.CENTER);
 
 		// blink the icon
-		if(((ClientGame.getTime() >> 9) & 1) != 0) {
+		if(((ClientGame.getTime() >> 9) & 1) != 0)
+		{
 			return;
 		}
-		
+
 		disconnectPic.render();
 	}
-	
+
 	@Override
 	public void render()
 	{
-		int             a, x, y, i;
-		float           v;
-		float			mid, range;
-		int             color;
-		float           vscale;
-		boolean         lag = false;
+		int a, x, y, i;
+		float v;
+		float mid, range;
+		int color;
+		float vscale;
+		boolean lag = false;
 
-		//PlayerState ps = ClientGame.getSnapshotManager().getSnapshot().getPlayerState();
-		//cent = &cg_entities[cg.snap->ps.clientNum];
+		// PlayerState ps = ClientGame.getSnapshotManager().getSnapshot().getPlayerState();
+		// cent = &cg_entities[cg.snap->ps.clientNum];
 
 		// Tr3B: even draw the lagometer when connected to a local server
-		if(!CVars.cg_lagometer.getBoolean()) //|| cgs.localServer  )
+		if(!CVars.cg_lagometer.getBoolean()) // || cgs.localServer )
 		{
 			renderDisconnect();
 			return;
 		}
 		
-		
+		lagometerPic.setBounds(this.bounds);
+		disconnectPic.setBounds(this.bounds);
+
 		Renderer.setColor(new Color(1.0f, 1.0f, 1.0f, 0.80f));
 		lagometerPic.render();
 
 		x = (int) Math.floor(getX());
 		y = (int) Math.floor(getY());
-		
-		Rectangle rect = new Rectangle(x, y, 48, 48);
+
+		Rectangle rect = new Rectangle(bounds);
 		UserInterface.adjustFrom640(rect);
-		
 
 		color = -1;
 		range = rect.height / 3;
@@ -206,7 +207,7 @@ public class Lagometer extends Component {
 				{
 					if(color != 5)
 					{
-						color = 5;	// YELLOW for rate delay
+						color = 5; // YELLOW for rate delay
 						Renderer.setColor(Color.Yellow);
 					}
 				}
@@ -229,7 +230,7 @@ public class Lagometer extends Component {
 			{
 				if(color != 4)
 				{
-					color = 4;		// RED for dropped snapshots
+					color = 4; // RED for dropped snapshots
 					Renderer.setColor(Color.Red);
 				}
 				Renderer.drawStretchPic(rect.x + rect.width - a, rect.y + rect.height - range, 1, range, 0, 0, 0, 0, whiteMaterial);
@@ -239,12 +240,12 @@ public class Lagometer extends Component {
 		Renderer.setColor(Color.White);
 
 		/*
-		if(cg_nopredict.integer || cg_synchronousClients.integer)
-		{
-			//CG_Drrect.widthBigString(rect.x, rect.y, "snc", 1.0);
-		}
-		*/
+		 * if(cg_nopredict.integer || cg_synchronousClients.integer) { //CG_Drrect.widthBigString(rect.x, rect.y, "snc",
+		 * 1.0); }
+		 */
 
 		renderDisconnect();
+
+		super.render();
 	}
 }

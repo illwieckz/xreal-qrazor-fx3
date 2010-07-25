@@ -66,7 +66,7 @@ public class Button extends AbstractButton
 
 	private void calcBounds()
 	{
-		setWidth(font.getTextWidth(text, fontSize, 0));
-		setHeight(font.getTextHeight(text, fontSize, 0));
+		//setWidth(font.getTextWidth(text, fontSize, 0));
+		//setHeight(font.getTextHeight(text, fontSize, 0));
 	}
 }

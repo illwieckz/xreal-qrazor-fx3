@@ -8,14 +8,18 @@ import xreal.client.renderer.Renderer;
  */
 public class Label extends Component
 {
-	public Font		font;
-	public String	text;
+	public final TextBlock	textBlock;
+	public String			text;
 
 	public Label()
 	{
-		font = Renderer.registerFont("fonts/Vera.ttf", 48);
+		textBlock = new TextBlock();
+		textBlock.horizontalAlignment = HorizontalAlignment.Center;
+		textBlock.verticalAlignment = VerticalAlignment.Center;
+		
+		addChild(textBlock);
+		
 		text = "Label";
-		margin = new Thickness(2);
 	}
 
 	public Label(String text)
@@ -25,16 +29,32 @@ public class Label extends Component
 	}
 
 	@Override
-	public Rectangle getBounds() throws Exception
+	public Rectangle getSize() throws Exception
 	{
 		if(text == null || text.isEmpty())
 		{
 			throw new Exception("empty label text");
 		}
+		else
+		{
+			textBlock.text = text;
+		}
 
-		bounds = font.getTextBounds(text, 10, 0);
+		/*
+		Rectangle rect = textBlock.getSize();
 
-		return super.getBounds();
+		if(width != 0)
+		{
+			rect.width = width;
+		}
+
+		if(height != 0)
+		{
+			rect.height = height;
+		}
+		*/
+
+		return super.getSize();
 	}
 
 	@Override
@@ -42,7 +62,7 @@ public class Label extends Component
 	{
 		if(text != null)
 		{
-			font.paintText(getX(), getY(), 10, foregroundColor, text, 0, 0, Font.LEFT | Font.DROPSHADOW);
+			textBlock.text = text;
 		}
 
 		super.render();

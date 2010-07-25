@@ -14,8 +14,11 @@ public class StackPanel extends Component
 	public Orientation	orientation = Orientation.Vertical;
 	
 	@Override
-	public Rectangle getBounds() throws Exception
+	public Rectangle getSize() throws Exception
 	{
+		bounds.x = 0;
+		bounds.y = 0;
+		
 		alignChildrenAndUpdateBounds();
 		
 		return super.getBounds();
@@ -32,7 +35,7 @@ public class StackPanel extends Component
 			Rectangle rect;
 			try
 			{
-				rect = c.getBounds();
+				rect = c.getSize();
 			}
 			catch(Exception e)
 			{
@@ -45,20 +48,23 @@ public class StackPanel extends Component
 			switch(orientation)
 			{
 				case Vertical:
-					c.bounds.y = y;
+					c.bounds.x = bounds.x;
+					c.bounds.y = y + c.margin.top;
 					y += rect.height + c.margin.top + c.margin.bottom;
 					
-					if(rect.width + c.margin.left + c.margin.right > x)
+					if((rect.width + c.margin.left + c.margin.right) > x)
 					{
 						x = rect.width + c.margin.left + c.margin.right;
 					}
 					break;
 					
 				case Horizontal:
-					c.bounds.x = x;
-					x += rect.width;
+					c.bounds.x = x + c.margin.left;
+					x += rect.width + c.margin.left + c.margin.right;
 					break;
 			}
+			
+			c.alignChildrenAndUpdateBounds();
 		}
 		
 		if(width != 0)

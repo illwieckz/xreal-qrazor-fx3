@@ -41,10 +41,10 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 
 	protected MenuFrame()
 	{
-		setX(0);
-		setY(0);
-		setWidth(UserInterface.SCREEN_WIDTH);
-		setHeight(UserInterface.SCREEN_HEIGHT);
+		bounds.x = 0;
+		bounds.y = 0;
+		bounds.width = width = UserInterface.SCREEN_WIDTH;
+		bounds.height = height = UserInterface.SCREEN_HEIGHT;
 
 		children.add(UserInterface.getCursor());
 

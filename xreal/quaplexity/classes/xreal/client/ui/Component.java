@@ -145,10 +145,31 @@ public class Component implements EventListener
 	public void processEvent(Event e)
 	{
 	}
-
-	public Rectangle getBounds() throws Exception
+	
+	/**
+	 * @return Rectangle with the size of this Component excluding the margin. 
+	 * @throws Exception
+	 */
+	public Rectangle getSize() throws Exception
 	{
-		//return new Rectangle(bounds.x + margin.left, bounds.y + margin.top, bounds.width + margin.right, bounds.height + margin.bottom);
+		bounds.x = 0;
+		bounds.y = 0;
+		
+		alignChildrenAndUpdateBounds();
+		
+		return new Rectangle(bounds);
+		
+		//return new Rectangle(0, 0, width, height);
+	}
+
+	/**
+	 * Should be called after alignChildrenAndUpdateBounds
+	 * 
+	 * @return The absolute aligned rectangle in the user interface excluding the margin to its parent. 
+	 * @throws Exception
+	 */
+	public Rectangle getBounds()
+	{
 		return bounds;
 	}
 
@@ -179,12 +200,15 @@ public class Component implements EventListener
 	
 	protected void alignChildrenAndUpdateBounds()
 	{
+		float w = 0;
+		float h = 0;
+		
 		for(Component c : children)
 		{
 			Rectangle rect;
 			try
 			{
-				rect = c.getBounds();
+				rect = c.getSize();
 			}
 			catch(Exception e)
 			{
@@ -241,6 +265,36 @@ public class Component implements EventListener
 					c.bounds.height = rect.height;
 					break;
 			}
+			
+			if((/*c.bounds.x +*/ c.bounds.width + c.margin.left + c.margin.right) > w)
+			{
+				w = /*c.bounds.x +*/ c.bounds.width + c.margin.left + c.margin.right;
+			}
+			
+			if((/*c.bounds.y +*/ c.bounds.height + c.margin.top + c.margin.bottom) > h)
+			{
+				h = /*c.bounds.y +*/ c.bounds.height + c.margin.top + c.margin.bottom;
+			}
+			
+			c.alignChildrenAndUpdateBounds();
+		}
+		
+		if(width != 0)
+		{
+			bounds.width = width;
+		}
+		else if(children.size() > 0)
+		{
+			bounds.width = w;
+		}
+		
+		if(height != 0)
+		{
+			bounds.height = height;
+		}
+		else if(children.size() > 0)
+		{
+			bounds.height = h;
 		}
 	}
 
@@ -294,6 +348,7 @@ public class Component implements EventListener
 		bounds.y = f;
 	}
 
+	/*
 	public void setWidth(float f)
 	{
 		bounds.width = f;
@@ -303,6 +358,7 @@ public class Component implements EventListener
 	{
 		bounds.height = f;
 	}
+	*/
 
 	public void setBounds(Rectangle bounds)
 	{

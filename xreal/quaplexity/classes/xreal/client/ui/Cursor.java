@@ -19,8 +19,8 @@ public class Cursor extends Component implements MouseMotionListener
 	{
 		material = Renderer.registerMaterialNoMip("cursors/Azenis/Wait");
 
-		setWidth(24);
-		setHeight(24);
+		width = 24;
+		height = 24;
 	}
 
 	public void render()

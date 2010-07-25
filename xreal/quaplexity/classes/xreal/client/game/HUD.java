@@ -11,21 +11,17 @@ import xreal.client.ui.UserInterface;
 public class HUD extends Component
 {
 	private FPSCounter		fpsCounter;
-	private Lagometer		lagometer;
 	private BulletStatsView	bulletStatsView;
 
 	public HUD(Lagometer lagometer) throws Exception
 	{
-		setX(0);
-		setY(0);
-		setWidth(UserInterface.SCREEN_WIDTH);
-		setHeight(UserInterface.SCREEN_HEIGHT);
+		width = UserInterface.SCREEN_WIDTH;
+		height = UserInterface.SCREEN_HEIGHT;
 		
-		this.lagometer = lagometer;
 		fpsCounter = new FPSCounter();
 		bulletStatsView = new BulletStatsView();
 		
-		//addChild(this.lagometer);
+		addChild(lagometer);
 		addChild(fpsCounter);
 		addChild(bulletStatsView);
 	}
@@ -38,7 +34,5 @@ public class HUD extends Component
 		alignChildrenAndUpdateBounds();
 
 		super.render();
-		
-		// TODO bulletStatsView.render();
 	}
 }

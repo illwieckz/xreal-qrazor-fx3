@@ -71,10 +71,17 @@ public class FPSCounter extends Label
 	}
 	
 	@Override
-	public Rectangle getBounds() throws Exception
+	public Rectangle getSize() throws Exception
 	{
 		updateText();
 		
-		return super.getBounds();
+		return super.getSize();
+	}
+	
+	@Override
+	public void render()
+	{
+		// TODO Auto-generated method stub
+		super.render();
 	}
 }
