@@ -56,7 +56,7 @@ public class RefEntity {
 	/**
 	 * colors used by rgbgen entity shaders
 	 */
-	public Color materialRGBA = Color.White;
+	public Color materialRGBA = new Color(Color.White);
 	public float materialTexCoordU; // texture coordinates used by tcMod entity
 									// modifiers
 	public float materialTexCoordV;

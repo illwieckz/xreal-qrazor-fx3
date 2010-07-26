@@ -41,15 +41,15 @@ public class BulletStatsView extends StackPanel
 		backgroundImage = new Image("lagometer2");
 		
 		numDeepPenetrationChecksLabel = new Label();
-		numDeepPenetrationChecksLabel.textBlock.foregroundColor = Color.Green;
+		numDeepPenetrationChecksLabel.textBlock.color.set(Color.Green);
 		numDeepPenetrationChecksLabel.textBlock.fontSize = 8;
 		
 		numGjkChecksLabel = new Label();
-		numGjkChecksLabel.textBlock.foregroundColor = Color.Green;
+		numGjkChecksLabel.textBlock.color.set(Color.Green);
 		numGjkChecksLabel.textBlock.fontSize = 8;
 		
 		numSplitImpulseRecoveries = new Label();
-		numSplitImpulseRecoveries.textBlock.foregroundColor = Color.Green;
+		numSplitImpulseRecoveries.textBlock.color.set(Color.Green);
 		numSplitImpulseRecoveries.textBlock.fontSize = 8;
 		
 		

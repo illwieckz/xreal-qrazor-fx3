@@ -11,8 +11,6 @@ import xreal.client.renderer.Renderer;
 public class Button extends AbstractButton
 {
 
-	private Color	color		= Color.White;
-
 	private Font	font		= Renderer.registerFont("fonts/GOODTIME.ttf", 48);
 	// private Font font = Renderer.registerFont("fonts/VeraBd.ttf", 48);
 	private float	fontSize	= 24;

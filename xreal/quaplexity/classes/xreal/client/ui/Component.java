@@ -74,18 +74,17 @@ public class Component implements EventListener
 	public float						width					= 0;	// 0 == Auto
 	public float						height					= 0;	// 0 == Auto
 	
-	public Color						backgroundColor			= Color.Black;
-	public Color						foregroundColor			= Color.White;
+	public Color						color					= new Color(Color.White);
 
 	protected Rectangle					bounds					= new Rectangle(0, 0, 0, 0);
-	protected Thickness					margin					= new Thickness();
+	public final Thickness				margin					= new Thickness();
 	
 	protected Border					border;
 
 	private boolean						focusable				= true;
 	
-	protected HorizontalAlignment		horizontalAlignment		= HorizontalAlignment.Stretch;
-	protected VerticalAlignment			verticalAlignment		= VerticalAlignment.Stretch;
+	public HorizontalAlignment			horizontalAlignment		= HorizontalAlignment.Stretch;
+	public VerticalAlignment			verticalAlignment		= VerticalAlignment.Stretch;
 
 	protected Component					parent;
 	protected Vector<Component>			children				= new Vector<Component>();
@@ -161,6 +160,18 @@ public class Component implements EventListener
 		
 		//return new Rectangle(0, 0, width, height);
 	}
+	
+	public Rectangle getSizeWithMargin() throws Exception
+	{
+		bounds.x = 0;
+		bounds.y = 0;
+		
+		alignChildrenAndUpdateBounds();
+		
+		return new Rectangle(bounds.x, bounds.y, bounds.width + margin.left + margin.right, bounds.height + margin.top + margin.bottom);
+		
+		//return new Rectangle(0, 0, width, height);
+	}
 
 	/**
 	 * Should be called after alignChildrenAndUpdateBounds
@@ -203,6 +214,70 @@ public class Component implements EventListener
 		float w = 0;
 		float h = 0;
 		
+		if(width == 0 || height == 0)
+		{
+			// we need to calculate the size of this component
+			for(Component c : children)
+			{
+				Rectangle rect;
+				try
+				{
+					rect = c.getSizeWithMargin();
+				}
+				catch(Exception e)
+				{
+					c.active = false;
+					e.printStackTrace();
+					continue;
+				}
+				
+				// add margin
+				//rect.width += c.margin.left + c.margin.right;
+				//rect.height += c.margin.top + c.margin.bottom;
+				
+				if(rect.width > w)
+				{
+					w = rect.width;
+				}
+				
+				if(rect.height > h)
+				{
+					h = rect.height;
+				}
+			}
+			
+			if(width == 0 && children.size() > 0)
+			{
+				bounds.width = w;
+			}
+			
+			if(height == 0 && children.size() > 0)
+			{
+				bounds.height = h;
+			}
+		}
+		
+		/*
+		if(horizontalAlignment == HorizontalAlignment.Stretch && parent != null)
+		{
+			bounds.width = parent.bounds.width;
+		}
+		else */if(width != 0)
+		{
+			bounds.width = width;
+		}
+		
+		/*
+		if(verticalAlignment == VerticalAlignment.Stretch && parent != null)
+		{
+			bounds.height = parent.bounds.height;
+		}
+		else*/ if(height != 0)
+		{
+			bounds.height = height;
+		}
+		
+		// align
 		for(Component c : children)
 		{
 			Rectangle rect;
@@ -266,35 +341,7 @@ public class Component implements EventListener
 					break;
 			}
 			
-			if((/*c.bounds.x +*/ c.bounds.width + c.margin.left + c.margin.right) > w)
-			{
-				w = /*c.bounds.x +*/ c.bounds.width + c.margin.left + c.margin.right;
-			}
-			
-			if((/*c.bounds.y +*/ c.bounds.height + c.margin.top + c.margin.bottom) > h)
-			{
-				h = /*c.bounds.y +*/ c.bounds.height + c.margin.top + c.margin.bottom;
-			}
-			
 			c.alignChildrenAndUpdateBounds();
-		}
-		
-		if(width != 0)
-		{
-			bounds.width = width;
-		}
-		else if(children.size() > 0)
-		{
-			bounds.width = w;
-		}
-		
-		if(height != 0)
-		{
-			bounds.height = height;
-		}
-		else if(children.size() > 0)
-		{
-			bounds.height = h;
 		}
 	}
 
@@ -307,8 +354,8 @@ public class Component implements EventListener
 			
 			if(margin.left != 0 || margin.top != 0 || margin.right != 0 || margin.bottom != 0)
 			{
-				border.borderColor = Color.Magenta;
-				border.paintBorder(bounds.x - margin.left, bounds.y - margin.top, bounds.width + margin.left + margin.right, bounds.height + margin.top + margin.bottom);
+				border.borderColor.set(Color.Magenta);
+				//border.paintBorder(bounds.x - margin.left, bounds.y - margin.top, bounds.width + margin.left + margin.right, bounds.height + margin.top + margin.bottom);
 			}
 		}
 		

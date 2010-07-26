@@ -1,84 +1,65 @@
 package xreal.client.ui;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.util.Stack;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.Port;
-
 import xreal.CVars;
-import xreal.Color;
-import xreal.ConsoleColorStrings;
 import xreal.Engine;
 import xreal.client.Client;
 import xreal.client.KeyCatchers;
 import xreal.client.KeyCode;
-import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
 import xreal.client.ui.event.KeyEvent;
 import xreal.client.ui.event.MouseEvent;
+import xreal.client.ui.menu.MainMenu;
 import xreal.client.ui.menu.MenuFrame;
 
 /**
  * @author Robert Beckebans
  */
-public class UserInterface implements UserInterfaceListener {
-	
+public class UserInterface implements UserInterfaceListener
+{
+
 	// all drawing is done to a 640*480 virtual screen size
 	// and will be automatically scaled to the real resolution
-	public static final int SCREEN_WIDTH = 640;
-	public static final int SCREEN_HEIGHT = 480;
-	
+	public static final int	SCREEN_WIDTH	= 640;
+	public static final int	SCREEN_HEIGHT	= 480;
+
 	private enum MenuCommand
 	{
-		NONE,
-		MAIN,
-		INGAME,
-		TEAM,
-		POSTGAME
+		NONE, MAIN, INGAME, TEAM, POSTGAME
 	}
 
-	private static int vidWidth;
-	private static int vidHeight;
-	private static float windowAspect;
+	private static int		vidWidth;
+	private static int		vidHeight;
+	private static float	windowAspect;
 
-	private static float screenScale;
-	private static float screenXBias;
-	private static float screenYBias;
-	private static float screenXScale;
-	private static float screenYScale;
-	
-	private static int realTime;
-	private static int frameTime;
-	
-	static Stack<MenuFrame> menuStack;
-	
-	MenuFrame mainMenu;
+	private static float	screenScale;
+	private static float	screenXBias;
+	private static float	screenYBias;
+	private static float	screenXScale;
+	private static float	screenYScale;
 
-	private int backgroundMaterial;
-	
-	private static Cursor cursor;
-	public static Cursor getCursor() {
+	private static int		realTime;
+	private static int		frameTime;
+
+	static Stack<MenuFrame>	menuStack;
+
+	MenuFrame				mainMenu;
+
+	private static Cursor	cursor;
+
+	public static Cursor getCursor()
+	{
 		return cursor;
 	}
 
-	public UserInterface(int vidWidth, int vidHeight, float windowAspect) {
+	public UserInterface(int vidWidth, int vidHeight, float windowAspect)
+	{
 		super();
 		UserInterface.vidWidth = vidWidth;
 		UserInterface.vidHeight = vidHeight;
 		UserInterface.windowAspect = windowAspect;
-		
+
 		// for 640x480 virtualized screen
 		screenXScale = vidWidth / 640.0f;
 		screenYScale = vidHeight / 480.0f;
@@ -101,18 +82,16 @@ public class UserInterface implements UserInterfaceListener {
 			// no wide screen
 			screenXBias = screenYBias = 0;
 		}
-		
-		
-		backgroundMaterial = Renderer.registerMaterialNoMip("menuback");
-		
+
 		menuStack = new Stack<MenuFrame>();
 		cursor = new Cursor();
-		
+
 		mainMenu = new MainMenu();
 	}
 
 	@Override
-	public boolean consoleCommand(int realTime) {
+	public boolean consoleCommand(int realTime)
+	{
 		// Engine.println("UserInterface.consoleCommand(realTime = " + realTime
 		// + ")");
 
@@ -122,170 +101,179 @@ public class UserInterface implements UserInterfaceListener {
 	}
 
 	@Override
-	public void drawConnectScreen(boolean overlay) {
+	public void drawConnectScreen(boolean overlay)
+	{
 		Engine.println("UserInterface.drawConnectScreen(overlay = " + overlay + ")");
 
 		// TODO
 	}
 
 	@Override
-	public void initUserInterface() {
+	public void initUserInterface()
+	{
 		Engine.println("UserInterface.initUserInterface()");
 	}
 
 	@Override
-	public boolean isFullscreen() {
+	public boolean isFullscreen()
+	{
 		// Engine.println("UserInterface.isFullscreen()");
 
 		if(!menuStack.isEmpty() && (Client.getKeyCatchers() & KeyCatchers.UI) != 0)
 		{
 			MenuFrame activeMenu = menuStack.peek();
-			
-			return activeMenu.isFullscreen();	
+
+			return activeMenu.isFullscreen();
 		}
 
 		return false;
 	}
 
 	@Override
-	public void keyEvent(int time, int key, boolean down) {
-		//Engine.println("UserInterface.keyEvent(time = " + time + ", key = " + key + ", down = " + down + ")");
+	public void keyEvent(int time, int key, boolean down)
+	{
+		// Engine.println("UserInterface.keyEvent(time = " + time + ", key = " + key + ", down = " + down + ")");
 
 		if(!menuStack.isEmpty())
 		{
 			MenuFrame activeMenu = menuStack.peek();
-			
+
 			KeyCode keyCode = KeyCode.findKeyCode(key);
-			//Engine.println("KeyCode = " + keyCode + ", text = '" + (keyCode != null ? keyCode.getText() : "") + "'");
-		
-			if(keyCode != null) {
+			// Engine.println("KeyCode = " + keyCode + ", text = '" + (keyCode != null ? keyCode.getText() : "") + "'");
+
+			if(keyCode != null)
+			{
 				activeMenu.fireEvent(new KeyEvent(activeMenu, time, keyCode, down));
 			}
 		}
 	}
 
 	@Override
-	public void mouseEvent(int time, int dx, int dy) {
-		//Engine.println("UserInterface.mouseEvent(time = " + time + ", dx = " + dx + ", dy = " + dy + ")");
-		
+	public void mouseEvent(int time, int dx, int dy)
+	{
+		// Engine.println("UserInterface.mouseEvent(time = " + time + ", dx = " + dx + ", dy = " + dy + ")");
+
 		if(!menuStack.isEmpty())
 		{
 			MenuFrame activeMenu = menuStack.peek();
-			
+
 			activeMenu.fireEvent(new MouseEvent(activeMenu, time, 0, dx, dy));
 		}
 	}
 
 	@Override
-	public void refresh(int time) throws Exception {
+	public void refresh(int time) throws Exception
+	{
 		// Engine.println("UserInterface.refresh(time = " + time + ")");
-		
+
 		UserInterface.frameTime = time - realTime;
 		UserInterface.realTime = time;
-		
+
 		if(!menuStack.isEmpty())
 		{
 			MenuFrame activeMenu = menuStack.peek();
-			
-			//if(activeMenu.isFullscreen())
+
+			// if(activeMenu.isFullscreen())
 			{
-//	          // draw the background
-//	          if(uis.activemenu->showlogo)
-//	          {
-	//FIXME: non 4:3 resolutions are causeing black bars
-				
+				// // draw the background
+				// if(uis.activemenu->showlogo)
+				// {
+				// FIXME: non 4:3 resolutions are causeing black bars
+
 				// render background
 				Rectangle rect = new Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 				adjustFrom640(rect);
-				Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, 0, 0, 1, 1, backgroundMaterial);
-//	          }
-//	          else
-//	          {
-//	              UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackNoLogoShader);
-//	          }
+				//Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, 0, 0, 1, 1, backgroundMaterial);
+				// }
+				// else
+				// {
+				// UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackNoLogoShader);
+				// }
 			}
 
+			activeMenu.alignChildrenAndUpdateBounds();
 			activeMenu.render();
 
 			/*
-			if(uis.firstdraw)
-			{
-				UI_MouseEvent(0, 0);
-				uis.firstdraw = qfalse;
-			}
-			*/
+			 * if(uis.firstdraw) { UI_MouseEvent(0, 0); uis.firstdraw = qfalse; }
+			 */
 		}
 	}
-	
+
 	public static void pushMenu(MenuFrame menu)
 	{
 		// avoid stacking menus invoked by hotkeys
-		if(menuStack.search(menu) == -1) {
+		if(menuStack.search(menu) == -1)
+		{
 			menuStack.push(menu);
 		}
-		
-		//Engine.println("pushMenu stack size = " + stack.size());
+
+		// Engine.println("pushMenu stack size = " + stack.size());
 
 		// default cursor position
-		//menu->cursor = 0;
-		//menu->cursor_prev = 0;
+		// menu->cursor = 0;
+		// menu->cursor_prev = 0;
 
-		//m_entersound = qtrue;
+		// m_entersound = qtrue;
 
 		Client.setKeyCatchers(KeyCatchers.UI);
 	}
-	
+
 	public static void popMenu()
 	{
-		//trap_S_StartLocalSound(menu_out_sound, CHAN_LOCAL_SOUND);
+		// trap_S_StartLocalSound(menu_out_sound, CHAN_LOCAL_SOUND);
 
 		menuStack.pop();
 		forceMenuOff();
 	}
-	
+
 	private static void forceMenuOff()
 	{
-		while(!menuStack.isEmpty()) {
+		while(!menuStack.isEmpty())
+		{
 			menuStack.pop();
 		}
 
 		Client.setKeyCatchers(Client.getKeyCatchers() & ~KeyCatchers.UI);
 		Client.clearKeyStates();
-		
+
 		CVars.cl_paused.set("0");
-		
+
 		Client.stopBackgroundTrack();
 	}
-	
-	private void activateMainMenu() {
+
+	private void activateMainMenu()
+	{
 		CVars.sv_killserver.set("1");
-		
+
 		pushMenu(mainMenu);
-		
-		Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
+
+		//Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
 	}
-	
-	private void activateInGameMenu() {
+
+	private void activateInGameMenu()
+	{
 		Engine.println("UserInterface.activateInGameMenu() TODO");
-		
-		//Cvars.cl_paused.set("1")
+
+		// Cvars.cl_paused.set("1")
 	}
 
 	@Override
-	public void setActiveMenu(int menu) {
-		//Engine.println("UserInterface.setActiveMenu(menu = " + menu + ")");
+	public void setActiveMenu(int menu)
+	{
+		// Engine.println("UserInterface.setActiveMenu(menu = " + menu + ")");
 
 		MenuCommand cmd = MenuCommand.values()[menu];
-		switch (cmd)
+		switch(cmd)
 		{
 			case NONE:
 				forceMenuOff();
 				return;
-				
+
 			case MAIN:
 				activateMainMenu();
 				return;
-				
+
 			case INGAME:
 				activateInGameMenu();
 				return;
@@ -293,7 +281,8 @@ public class UserInterface implements UserInterfaceListener {
 	}
 
 	@Override
-	public void shutdownUserInterface() {
+	public void shutdownUserInterface()
+	{
 		Engine.println("UserInterface.shutdownUserInterface()");
 
 		// TODO
@@ -302,35 +291,36 @@ public class UserInterface implements UserInterfaceListener {
 	/**
 	 * Adjusted for resolution and screen aspect ratio
 	 */
-	public static void adjustFrom640(Rectangle r) {
+	public static void adjustFrom640(Rectangle r)
+	{
 		r.x *= screenXScale;
 		r.y *= screenYScale;
 		r.width *= screenXScale;
 		r.height *= screenYScale;
-		
+
 		/*
-		 * original code
-		 *x = *x * uis.screenScale + uis.screenXBias;
-		 *y = *y * uis.screenScale + uis.screenYBias;
-		 *w *= uis.screenScale;
-		 *h *= uis.screenScale;
+		 * original codex = *x * uis.screenScale + uis.screenXBias;y = *y * uis.screenScale + uis.screenYBias;w *=
+		 * uis.screenScale;h *= uis.screenScale;
 		 */
 	}
-	
-	public static int getRealTime() {
+
+	public static int getRealTime()
+	{
 		return realTime;
 	}
-	
-	public static int getFrameTime() {
+
+	public static int getFrameTime()
+	{
 		return frameTime;
 	}
 
-	
-	public static int getVidWidth() {
+	public static int getVidWidth()
+	{
 		return vidWidth;
 	}
-	
-	public static int getVidHeight() {
+
+	public static int getVidHeight()
+	{
 		return vidHeight;
 	}
 }

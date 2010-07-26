@@ -35,4 +35,12 @@ public class Thickness
 		this.right = right;
 		this.bottom = bottom;
 	}
+	
+	public void set(float size)
+	{
+		this.left = size;
+		this.top = size;
+		this.right = size;
+		this.bottom = size;
+	}
 }

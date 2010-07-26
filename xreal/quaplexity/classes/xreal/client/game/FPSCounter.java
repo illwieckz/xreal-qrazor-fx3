@@ -22,7 +22,7 @@ public class FPSCounter extends Label
 	{
 		super();
 		
-		foregroundColor = Color.White;
+		color.set(Color.White);
 		
 		horizontalAlignment = HorizontalAlignment.Right;
 		verticalAlignment = VerticalAlignment.Top;

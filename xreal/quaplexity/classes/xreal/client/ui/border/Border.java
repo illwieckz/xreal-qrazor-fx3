@@ -5,7 +5,7 @@ import xreal.client.ui.Component;
 
 public abstract class Border
 {
-	public Color	borderColor	= Color.White;
+	public Color	borderColor	= new Color(Color.White);
 
 	public abstract void paintBorder(float x, float y, float width, float height);
 

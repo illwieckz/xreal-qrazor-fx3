@@ -7,13 +7,13 @@ import xreal.client.ui.event.MouseMotionListener;
 
 public class Cursor extends Component implements MouseMotionListener
 {
-
 	private int	x;
 	private int	y;
 
 	private int	material;
 
 	private int	frame	= 0;
+	private int time;
 
 	Cursor()
 	{
@@ -27,7 +27,11 @@ public class Cursor extends Component implements MouseMotionListener
 	{
 		// Engine.println("Cursor.render()");
 
-		frame--;
+		time += UserInterface.getFrameTime();
+		int numFrames = time / (1000 / 24);
+		time -= numFrames * (1000 / 24);
+		
+		frame -= numFrames;
 		frame %= 10;
 
 		Rectangle rect;

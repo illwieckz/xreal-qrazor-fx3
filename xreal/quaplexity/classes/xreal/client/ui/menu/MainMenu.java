@@ -1,43 +1,44 @@
-package xreal.client.ui;
+package xreal.client.ui.menu;
 
-import java.io.File;
-import java.io.IOException;
-
-import javax.vecmath.Vector3f;
-
-import xreal.Angle3f;
 import xreal.Color;
-import xreal.ConsoleColorStrings;
-import xreal.Engine;
 import xreal.client.Client;
 import xreal.client.KeyCode;
 import xreal.client.SoundChannel;
-import xreal.client.renderer.Camera;
 import xreal.client.renderer.Font;
-import xreal.client.renderer.RefEntity;
-import xreal.client.renderer.Renderer;
-import xreal.client.ui.border.Border;
-import xreal.client.ui.border.LineBorder;
+import xreal.client.ui.Button;
+import xreal.client.ui.HorizontalAlignment;
+import xreal.client.ui.Label;
+import xreal.client.ui.StackPanel;
+import xreal.client.ui.VerticalAlignment;
 import xreal.client.ui.event.KeyEvent;
-import xreal.client.ui.menu.MenuFrame;
 
-public class MainMenu extends MenuFrame {
-
+public class MainMenu extends MenuFrame 
+{
 	private static final int MAIN_MENU_VERTICAL_SPACING = 34;
+
+	StackPanel					stackPanel;
+	Button						singlePlayer;
+
+	Label						centerLabel;
+
+//	private int					podiumModel;
 	
-	Button singlePlayer;
-	
-	private int podiumModel;
-	
-	MainMenu() 
+	public MainMenu() 
 	{
-		super();
+		super("menuback");
 		
 		fullscreen = true;
 		wrapAround = true;
 		showlogo = true;
 		
-		podiumModel = Renderer.registerModel("models/meshes/ppodium.md5mesh", true);
+		centerLabel = new Label();
+		centerLabel.horizontalAlignment = HorizontalAlignment.Center;
+		centerLabel.verticalAlignment = VerticalAlignment.Center;
+		
+		addChild(centerLabel);
+		
+		
+		//podiumModel = Renderer.registerModel("models/meshes/ppodium.md5mesh", true);
 		
 		/*
 		int y = 134;
@@ -174,11 +175,13 @@ public class MainMenu extends MenuFrame {
 	}
 
 	@Override
-	public void render() {
-		
+	public void render()
+	{
 		String message = "Use the console with Shift + Escape";
 		
-		fontVera.paintText(UserInterface.SCREEN_WIDTH / 2, UserInterface.SCREEN_HEIGHT / 2, 16, Color.White, message, 0, 0, Font.CENTER);
+		centerLabel.text = message;
+		
+		//fontVera.paintText(UserInterface.SCREEN_WIDTH / 2, UserInterface.SCREEN_HEIGHT / 2, 16, Color.White, message, 0, 0, Font.CENTER);
 		
 		/*
 		Rectangle rect = fontVera.getTextBounds(message, 16, 0);
@@ -213,8 +216,8 @@ public class MainMenu extends MenuFrame {
 		
 		fontVera.paintText(320, 470, 12, Color.White, count + " letters drawn", 0, 0,  Font.CENTER);
 		*/
-		fontVera.paintText(320, 470, 12, Color.White, "XreaL(c) 2005-2009, XreaL Team - http://xreal.sourceforge.net", 0, 0,
-				  Font.CENTER | Font.DROPSHADOW);
+		//fontVera.paintText(320, 470, 12, Color.White, "XreaL(c) 2005-2009, XreaL Team - http://xreal.sourceforge.net", 0, 0,
+		//		  Font.CENTER | Font.DROPSHADOW);
 		
 		//renderViewTest(320, UserInterface.SCREEN_HEIGHT / 2, 200, 300, UserInterface.getRealTime());
 		
@@ -222,6 +225,39 @@ public class MainMenu extends MenuFrame {
 	}
 	
 	
+	
+	@Override
+	public void keyPressed(KeyEvent e) {
+		KeyCode key = e.getKey();
+		
+		if(!e.isDown())
+			return;
+		
+		//Engine.println("MainMenu.keyPressed(event = " + e + ")");
+		
+		switch(key)
+		{
+			case CHAR_b:
+				Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
+				break;
+		
+			case CHAR_m:
+				Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
+				break;
+		}
+		
+		//Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
+		//super.keyPressed(e);
+		
+		//
+	}
+	
+	
+	
+	
+	
+	
+	/*
 	void renderViewTest(float x, float y, float w, float h, int time)
 	{
 		//     body;
@@ -290,50 +326,50 @@ public class MainMenu extends MenuFrame {
 		// get the rotation information
 
 		// Quake 2 style
-		/*
-		legsAngles.x = Angle3f.normalize360(((float)(uis.realtime / 30.0)); //180 - 30;
-		legsAngles[PITCH] = 0;
-		legsAngles[ROLL] = 0;
-
-		AnglesToAxis(legsAngles, body.axis);
-
-		renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
-
-		// add the body
-		VectorCopy(origin, body.origin);
-		VectorCopy(body.origin, body.oldorigin);
-
-		body.hModel = pi->bodyModel;
-		body.customSkin = pi->bodySkin;
-		body.shaderTime = 1.0f;
-
-		body.renderfx = renderfx;
-		VectorCopy(origin, body.lightingOrigin);
-		body.lightingOrigin[0] -= 150;			// + = behind, - = in front
-		body.lightingOrigin[1] += 150;			// + = left, - = right
-		body.lightingOrigin[2] += 3000;			// + = above, - = below
-
-		body.backlerp = 1.0f;
-		body.frame = 1;
-		body.oldframe = 0;
-
-		// modify bones and set proper local bounds for culling
-		if(!trap_R_BuildSkeleton(&body.skeleton, pi->animations[LEGS_IDLE].handle, body.oldframe, body.frame, 1.0 - body.backlerp, qfalse))
-		{
-			Com_Printf("Can't build animation\n");
-			return;
-		}
-
-		if(body.skeleton.type == SK_RELATIVE)
-		{
-			// transform relative bones to absolute ones required for vertex skinning
-			UI_XPPM_TransformSkeleton(&body.skeleton, NULL);
-		}
-
-
-		//UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
-		trap_R_AddRefEntityToScene(&body);
-		*/
+		
+//		legsAngles.x = Angle3f.normalize360(((float)(uis.realtime / 30.0)); //180 - 30;
+//		legsAngles[PITCH] = 0;
+//		legsAngles[ROLL] = 0;
+//
+//		AnglesToAxis(legsAngles, body.axis);
+//
+//		renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
+//
+//		// add the body
+//		VectorCopy(origin, body.origin);
+//		VectorCopy(body.origin, body.oldorigin);
+//
+//		body.hModel = pi->bodyModel;
+//		body.customSkin = pi->bodySkin;
+//		body.shaderTime = 1.0f;
+//
+//		body.renderfx = renderfx;
+//		VectorCopy(origin, body.lightingOrigin);
+//		body.lightingOrigin[0] -= 150;			// + = behind, - = in front
+//		body.lightingOrigin[1] += 150;			// + = left, - = right
+//		body.lightingOrigin[2] += 3000;			// + = above, - = below
+//
+//		body.backlerp = 1.0f;
+//		body.frame = 1;
+//		body.oldframe = 0;
+//
+//		// modify bones and set proper local bounds for culling
+//		if(!trap_R_BuildSkeleton(&body.skeleton, pi->animations[LEGS_IDLE].handle, body.oldframe, body.frame, 1.0 - body.backlerp, qfalse))
+//		{
+//			Com_Printf("Can't build animation\n");
+//			return;
+//		}
+//
+//		if(body.skeleton.type == SK_RELATIVE)
+//		{
+//			// transform relative bones to absolute ones required for vertex skinning
+//			UI_XPPM_TransformSkeleton(&body.skeleton, NULL);
+//		}
+//
+//
+//		//UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
+//		trap_R_AddRefEntityToScene(&body);
+		
 
 		//VectorCopy(legsAngles, podiumAngles);
 		//AnglesToAxis(podiumAngles, podium.axis);
@@ -380,30 +416,5 @@ public class MainMenu extends MenuFrame {
 
 		Renderer.renderScene(refdef);
 	}
-	
-	@Override
-	public void keyPressed(KeyEvent e) {
-		KeyCode key = e.getKey();
-		
-		if(!e.isDown())
-			return;
-		
-		//Engine.println("MainMenu.keyPressed(event = " + e + ")");
-		
-		switch(key)
-		{
-			case CHAR_b:
-				Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
-				break;
-		
-			case CHAR_m:
-				Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
-				break;
-		}
-		
-		//Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
-		//super.keyPressed(e);
-		
-		//
-	}
+	*/
 }

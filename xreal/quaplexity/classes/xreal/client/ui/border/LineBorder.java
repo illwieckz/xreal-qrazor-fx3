@@ -15,21 +15,21 @@ public class LineBorder extends Border {
 	
 	public LineBorder(Color lineColor) {
 		super();
-		this.borderColor = lineColor;
+		this.borderColor.set(lineColor);
 		this.thickness = 1;
 		this.roundedCorners = false;
 	}
 	
 	public LineBorder(Color lineColor, float thickness) {
 		super();
-		this.borderColor = lineColor;
+		this.borderColor.set(lineColor);
 		this.thickness = thickness;
 		this.roundedCorners = false;
 	}
 	
 	public LineBorder(Color lineColor, float thickness, boolean roundedCorners) {
 		super();
-		this.borderColor = lineColor;
+		this.borderColor.set(lineColor);
 		this.thickness = thickness;
 		this.roundedCorners = roundedCorners;
 	}

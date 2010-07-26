@@ -15,7 +15,7 @@ public class TextBlock extends Component
 		fontSize = 10;
 		
 		text = "TextBlock";
-		margin = new Thickness(3);
+		margin.set(3);
 	}
 
 	public TextBlock(String text)
@@ -56,7 +56,7 @@ public class TextBlock extends Component
 	{
 		if(text != null)
 		{
-			font.paintText(bounds.x, bounds.y, fontSize, foregroundColor, text, 0, 0, Font.LEFT | Font.DROPSHADOW);
+			font.paintText(bounds.x, bounds.y, fontSize, color, text, 0, 0, Font.LEFT | Font.DROPSHADOW);
 		}
 
 		super.render();
