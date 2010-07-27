@@ -227,7 +227,7 @@ public class Component implements EventListener
 				catch(Exception e)
 				{
 					c.active = false;
-					e.printStackTrace();
+					//e.printStackTrace();
 					continue;
 				}
 				

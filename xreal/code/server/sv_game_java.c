@@ -627,7 +627,7 @@ jboolean JNICALL Java_xreal_server_game_GameEntity_freeEntity0(JNIEnv *env, jcla
 	e->inUse = qfalse;
 	e->s.number = index;
 
-	return qtrue;
+	return (jboolean) qtrue;
 }
 
 /*

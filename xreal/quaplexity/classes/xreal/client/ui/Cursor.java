@@ -46,7 +46,7 @@ public class Cursor extends Component implements MouseMotionListener
 		catch(Exception e)
 		{
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		
 	}

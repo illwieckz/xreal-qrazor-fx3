@@ -145,6 +145,9 @@ if env['compatq3a'] == 1:
 
 if env['experimental'] == 1:
 	rendererGL_env.Append(CCFLAGS='-DEXPERIMENTAL')
+	
+if env['java'] == 1:
+	rendererGL_env.Append(CCFLAGS='-DUSE_JAVA')
 
 if env['arch'] == 'linux-i386':
 	rendererGL_env.ParseConfig('sdl-config --cflags --libs')

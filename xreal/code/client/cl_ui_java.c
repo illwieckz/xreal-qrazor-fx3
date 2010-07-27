@@ -827,7 +827,7 @@ static jobject Java_NewEntityState(const entityState_t * ent)
 {
 	jobject obj = NULL;
 
-	if(class_PlayerState)
+	if(class_EntityState)
 	{
 		/*
 		public EntityState(int number, int eType, int eFlags,
@@ -1451,7 +1451,7 @@ void JNICALL Java_xreal_client_Client_setKeyBinding(JNIEnv *env, jclass cls, jin
  */
 jboolean JNICALL Java_xreal_client_Client_isKeyDown(JNIEnv *env, jclass cls, jint keynum)
 {
-	return Key_IsDown(keynum);
+	return (jboolean) Key_IsDown(keynum);
 }
 
 /*

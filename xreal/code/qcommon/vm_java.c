@@ -678,10 +678,13 @@ jstring JNICALL Java_xreal_Engine_getConsoleArgs(JNIEnv *env, jclass cls)
 
 jobjectArray Java_NewConsoleArgs()
 {
+#if 1
 	int				i, argc;
 	jobjectArray 	argsArray = NULL;
 
 	argc = Cmd_Argc();
+	if(argc <= 0)
+		return NULL;
 
 	argsArray = (*javaEnv)->NewObjectArray(javaEnv, argc, class_String, NULL);
 
@@ -695,6 +698,9 @@ jobjectArray Java_NewConsoleArgs()
 	CheckException();
 
 	return argsArray;
+#else
+	return NULL;
+#endif
 }
 
 

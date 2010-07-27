@@ -67,18 +67,23 @@ public class Engine {
 	 */
 	public synchronized native static String[] getConsoleArgs();
 	
-	public synchronized static String concatConsoleArgs(int start) {
+	public synchronized static String concatConsoleArgs(int start) 
+	{
 		String line = "";
 
 		String[] args = Engine.getConsoleArgs();
-		int c = args.length;
-		for (int i = start; i < c; i++) {
-			String arg = args[i];
-
-			line += arg;
-
-			if (i != c - 1) {
-				line += ' ';
+		
+		if(args != null)
+		{
+			int c = args.length;
+			for (int i = start; i < c; i++) {
+				String arg = args[i];
+	
+				line += arg;
+	
+				if (i != c - 1) {
+					line += ' ';
+				}
 			}
 		}
 

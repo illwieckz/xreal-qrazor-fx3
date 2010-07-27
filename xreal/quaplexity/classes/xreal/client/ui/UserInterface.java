@@ -200,7 +200,7 @@ public class UserInterface implements UserInterfaceListener
 		}
 	}
 
-	public static void pushMenu(MenuFrame menu)
+	public void pushMenu(MenuFrame menu)
 	{
 		// avoid stacking menus invoked by hotkeys
 		if(menuStack.search(menu) == -1)
@@ -219,7 +219,7 @@ public class UserInterface implements UserInterfaceListener
 		Client.setKeyCatchers(KeyCatchers.UI);
 	}
 
-	public static void popMenu()
+	public void popMenu()
 	{
 		// trap_S_StartLocalSound(menu_out_sound, CHAN_LOCAL_SOUND);
 
@@ -227,7 +227,7 @@ public class UserInterface implements UserInterfaceListener
 		forceMenuOff();
 	}
 
-	private static void forceMenuOff()
+	private void forceMenuOff()
 	{
 		while(!menuStack.isEmpty())
 		{

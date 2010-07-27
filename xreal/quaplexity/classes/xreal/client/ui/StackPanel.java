@@ -97,7 +97,7 @@ public class StackPanel extends Component
 			catch(Exception e)
 			{
 				c.active = false;
-				e.printStackTrace();
+				//e.printStackTrace();
 				continue;
 			}
 			

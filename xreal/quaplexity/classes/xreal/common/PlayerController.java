@@ -195,7 +195,7 @@ public class PlayerController implements ActionInterface {
 				catch(Exception e)
 				{
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 		}
