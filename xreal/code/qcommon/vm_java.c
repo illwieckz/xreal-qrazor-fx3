@@ -385,7 +385,7 @@ jobject Java_NewQuat4f(const quat_t q)
 
 	if(class_Quat4f)
 	{
-		obj = (*javaEnv)->NewObject(javaEnv, class_Quat4f, method_Quat4f_ctor, q[0], q[1], q[2]);
+		obj = (*javaEnv)->NewObject(javaEnv, class_Quat4f, method_Quat4f_ctor, q[0], q[1], q[2], q[3]);
 	}
 
 	return obj;
