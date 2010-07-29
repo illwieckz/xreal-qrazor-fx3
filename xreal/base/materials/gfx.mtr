@@ -1048,7 +1048,6 @@ gfx/misc/tracer
 burnMark
 {
 	polygonOffset
-	parallax
 	sort decal
 	{
 		stage colorMap
@@ -1061,7 +1060,6 @@ burnMark
 gfx/damage/bullet_mrk
 {
 	polygonOffset
-	parallax
 	sort decal
 
 	{
@@ -1075,7 +1073,6 @@ gfx/damage/bullet_mrk
 gfx/damage/burn_med_mrk
 {
 	polygonOffset
-	parallax
 	sort decal
 	{
 		stage colorMap

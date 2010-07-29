@@ -41,7 +41,7 @@ textures/eX/eX_floor_mtl_wrn_01
 
 	diffusemap		textures/eX/eX_floor_mtl_wrn_01
 	specularmap		textures/eX/eX_floor_mtl_wrn_01_s
-	bumpmap			addnormals ( textures/eX/eX_floor_mtl_wrn_01_norm, heightmap ( textures/eX/eX_floor_mtl_wrn_01_h, 1 ) )
+	bumpmap			_flat
 }
 
 textures/eX/eXmetalBase01 
@@ -50,7 +50,7 @@ textures/eX/eXmetalBase01
 
 	diffusemap		textures/eX/eXmetalBase01
 	specularmap		textures/eX/eXmetalBase01_s
-	bumpmap			addnormals ( textures/eX/eXmetalBase01_norm, heightmap ( textures/eX/eXmetalBase01_h, 1 ) )
+	bumpmap			_flat
 }
 
 textures/eX/eXmetalBase02 
@@ -59,7 +59,7 @@ textures/eX/eXmetalBase02
 
 	diffusemap		textures/eX/eXmetalBase02
 	specularmap		textures/eX/eXmetalBase02_s
-	bumpmap			addnormals ( textures/eX/eXmetalBase02_norm, heightmap ( textures/eX/eXmetalBase02_h, 1 ) )
+	bumpmap			_flat
 }
 
 textures/eX/eXmetalBase03 
@@ -68,37 +68,17 @@ textures/eX/eXmetalBase03
 
 	diffusemap		textures/eX/eXmetalBase03
 	specularmap		textures/eX/eXmetalBase03_s
-	bumpmap			addnormals ( textures/eX/eXmetalBase03_norm, heightmap ( textures/eX/eXmetalBase03_h, 1 ) )
+	bumpmap			_flat
 }
 
 textures/eX/eXmetalBase04
 {
 
-	qer_EditorImage		textures/eX/eXmetalBase04.tga
+	qer_EditorImage		textures/eX/eXmetalBase04
 	
-	diffuseMap		textures/eX/eXmetalBase04.tga
-	specularMap		textures/eX/eXmetalBase04_s.tga
-	bumpMap			addnormals (textures/eX/eXmetalBase01_norm.tga, heightmap ( textures/eX/eXmetalBase01_h.tga,1 ) )
-}
-
-textures/eX/eXmetalBase06rust
-{
-
-	qer_EditorImage		textures/eX/eXmetalBase06rust.tga
-	
-	diffuseMap		textures/eX/eXmetalBase06rust.tga
-	specularMap		textures/eX/eXmetalBase06rust_s.tga
-	bumpMap			addnormals (textures/eX/eXmetalBase01_norm.tga, heightmap ( textures/eX/eXmetalBase01_h.tga,1 ) )
-}
-
-textures/eX/eXmetalBase07rust
-{
-
-	qer_EditorImage		textures/eX/eXmetalBase07rust.tga
-	
-	diffuseMap		textures/eX/eXmetalBase07rust.tga
-	specularMap		textures/eX/eXmetalBase07rust_s.tga
-	bumpMap			addnormals (textures/eX/eXmetalBase01_norm.tga, heightmap ( textures/eX/eXmetalBase01_h.tga,3 ) )
+	diffuseMap		textures/eX/eXmetalBase04
+	specularMap		textures/eX/eXmetalBase04_s
+	bumpmap			_flat
 }
 
 textures/eX/eXmetalBase05Rust 
@@ -107,8 +87,28 @@ textures/eX/eXmetalBase05Rust
 
 	diffusemap		textures/eX/eXmetalBase05Rust
 	specularmap		textures/eX/eXmetalBase05Rust_s
-	bumpmap			addnormals ( textures/eX/eXmetalBase05Rust_norm, heightmap ( textures/eX/eXmetalBase05Rust_h, 1 ) )
+	bumpmap			_flat
 } 
+
+textures/eX/eXmetalBase06rust
+{
+
+	qer_EditorImage		textures/eX/eXmetalBase06rust
+	
+	diffuseMap		textures/eX/eXmetalBase06rust
+	specularMap		textures/eX/eXmetalBase06rust_s
+	bumpmap			_flat
+}
+
+textures/eX/eXmetalBase07rust
+{
+
+	qer_EditorImage		textures/eX/eXmetalBase07rust
+	
+	diffuseMap		textures/eX/eXmetalBase07rust
+	specularMap		textures/eX/eXmetalBase07rust_s
+	bumpmap			_flat
+}
 
 // floors
 textures/eX/eX_steptop_01 
@@ -622,10 +622,11 @@ textures/eX/eX_trim_simple03
 textures/eX/eX_trim_psimple_04 
 {
 	qer_editorimage textures/eX/eX_trim_psimple_04
+	parallax
 
 	diffusemap	textures/eX/eX_trim_psimple_04
 	specularmap	textures/eX/eX_trim_psimple_04_s
-	bumpmap		addnormals ( textures/eX/eX_trim_psimple_04_norm, heightmap ( textures/eX/eX_trim_psimple_04_h, 1 ) )
+	bumpmap		textures/eX/eX_trim_psimple_04_norm
 }
 
 textures/eX/eX_trim_psimple_05 
