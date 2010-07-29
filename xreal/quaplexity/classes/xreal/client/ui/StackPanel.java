@@ -143,13 +143,11 @@ public class StackPanel extends Component
 		{
 			bounds.width = width;
 		}
-		/*
 		else if(horizontalAlignment == HorizontalAlignment.Stretch && parent != null)
 		{
 			// stretch to parent width
-			bounds.width = parent.bounds.width;
+			bounds.width = parent.bounds.width - margin.right;
 		}
-		*/
 		else if(children.size() > 0)
 		{
 			// only as big as children require it
@@ -159,6 +157,11 @@ public class StackPanel extends Component
 		if(height != 0)
 		{
 			bounds.height = height;
+		}
+		else if(verticalAlignment == VerticalAlignment.Stretch && parent != null)
+		{
+			// stretch to parent width
+			bounds.height = parent.bounds.height - margin.bottom;
 		}
 		else if(children.size() > 0)
 		{

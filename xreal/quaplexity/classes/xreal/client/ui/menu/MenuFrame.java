@@ -20,6 +20,10 @@ import xreal.client.ui.event.KeyListener;
 import xreal.client.ui.event.MouseEvent;
 import xreal.client.ui.event.MouseMotionListener;
 
+
+/**
+ * @author Robert Beckebans
+ */
 public class MenuFrame extends Component implements MouseMotionListener, KeyListener
 {
 	protected Font		fontVera;

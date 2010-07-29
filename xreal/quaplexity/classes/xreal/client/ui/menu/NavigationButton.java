@@ -3,11 +3,17 @@ package xreal.client.ui.menu;
 import xreal.Color;
 import xreal.client.renderer.Renderer;
 import xreal.client.ui.Component;
+import xreal.client.ui.HorizontalAlignment;
 import xreal.client.ui.Image;
 import xreal.client.ui.Label;
+import xreal.client.ui.Rectangle;
 import xreal.client.ui.StackPanel;
 import xreal.client.ui.VerticalAlignment;
 
+
+/**
+ * @author Robert Beckebans
+ */
 public class NavigationButton extends StackPanel
 {
 	private Image	image;
@@ -17,22 +23,35 @@ public class NavigationButton extends StackPanel
 	{
 		orientation = Orientation.Horizontal;
 		
+		horizontalAlignment = HorizontalAlignment.Left;
+		verticalAlignment = VerticalAlignment.Top;
+		
 		image = new Image(imageName);
 		image.width = 24;
 		image.height = 24;
-		image.margin.set(4);
+		image.margin.set(2);
 		image.verticalAlignment = VerticalAlignment.Center;
 		
 		Component canvas = new Component();
 		canvas.addChild(image);
 		
 		label = new Label(labelText);
-		label.height = 32;
-		label.textBlock.font = Renderer.registerFont("fonts/Vera.ttf", 48);
-		label.textBlock.fontSize = 20;
+		label.height = 28;
+		label.textBlock.font = Renderer.registerFont("fonts/FreeSans.ttf", 48);
+		label.textBlock.fontSize = 22;
 		label.textBlock.color.set(Color.MdGrey);
+		//label.verticalAlignment = VerticalAlignment.Center;
 		
 		addChild(canvas);
 		addChild(label);
+	}
+	
+	@Override
+	public void render()
+	{
+		label.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
+		label.textBlock.fontSize = 18;
+		
+		super.render();
 	}
 }

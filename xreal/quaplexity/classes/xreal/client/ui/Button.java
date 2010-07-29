@@ -4,67 +4,47 @@ import xreal.Color;
 import xreal.Engine;
 import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
+import xreal.client.ui.menu.NavigationBar;
 
 /**
  * @author Robert Beckebans
  */
 public class Button extends AbstractButton
 {
-
-	private Font	font		= Renderer.registerFont("fonts/GOODTIME.ttf", 48);
-	// private Font font = Renderer.registerFont("fonts/VeraBd.ttf", 48);
-	private float	fontSize	= 24;
-	private int		fontStyle;
-
-	private String	text		= "<Button>";
-
-	Button()
+	public Button()
 	{
 		super();
 
-		calcBounds();
+		text = "<Button>";
 	}
 
-	Button(String text)
+	public Button(String text)
 	{
 		super();
 
 		this.text = text;
-
-		calcBounds();
 	}
 
-	Button(String text, float fontSize, int fontStyle)
+	public Button(String text, float fontSize, int fontStyle)
 	{
 		super();
 
 		this.text = text;
-		this.fontStyle = fontStyle;
-		this.fontSize = fontSize;
-
-		calcBounds();
+		this.textBlock.fontSize = fontSize;
+		this.textBlock.fontStyle = fontStyle;
 	}
 
 	@Override
 	public void render()
 	{
-		// Rectangle rect = new Rectangle(bounds);
-		// UserInterface.adjustFrom640(rect);
-
-		// if(hasFlags(QMF_HASMOUSEFOCUS))
-		// Engine.println("button has focus");
-
-		font.paintText(getX(), getY(), fontSize, color, text, 0, 0, fontStyle | (hasMouseFocus ? Font.PULSE : 0));
-
+		//if(hasMouseFocus)
+		//fontStyle | ( ? Font.PULSE : 0)
+		
 		if(border != null)
 		{
 			border.paintBorder(this, getX(), getY(), getWidth(), getHeight());
 		}
-	}
-
-	private void calcBounds()
-	{
-		//setWidth(font.getTextWidth(text, fontSize, 0));
-		//setHeight(font.getTextHeight(text, fontSize, 0));
+		
+		super.render();
 	}
 }

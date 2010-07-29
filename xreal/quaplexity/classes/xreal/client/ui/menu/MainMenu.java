@@ -5,21 +5,31 @@ import xreal.client.Client;
 import xreal.client.KeyCode;
 import xreal.client.SoundChannel;
 import xreal.client.renderer.Font;
+import xreal.client.renderer.Renderer;
 import xreal.client.ui.Button;
 import xreal.client.ui.HorizontalAlignment;
+import xreal.client.ui.Image;
 import xreal.client.ui.Label;
 import xreal.client.ui.StackPanel;
 import xreal.client.ui.VerticalAlignment;
 import xreal.client.ui.event.KeyEvent;
 
+
+/**
+ * @author Robert Beckebans
+ */
 public class MainMenu extends MenuFrame 
 {
-	private static final int MAIN_MENU_VERTICAL_SPACING = 34;
+	//private static final int MAIN_MENU_VERTICAL_SPACING = 34;
 
+	Label						label;
 	StackPanel					stackPanel;
-	Button						singlePlayer;
+	Button						singleplayerButton;
+	Button						optionsButton;
+	Button						extrasButton;
+	Button						quitButton;
 
-	Label						centerLabel;
+//	Label						centerLabel;
 
 //	private int					podiumModel;
 	
@@ -27,15 +37,79 @@ public class MainMenu extends MenuFrame
 	{
 		super("menuback");
 		
+		backgroundImage.color.set(Color.LtGrey);
+		
 		fullscreen = true;
 		wrapAround = true;
 		showlogo = true;
 		
-		centerLabel = new Label();
-		centerLabel.horizontalAlignment = HorizontalAlignment.Center;
-		centerLabel.verticalAlignment = VerticalAlignment.Center;
+//		centerLabel = new Label();
+//		centerLabel.horizontalAlignment = HorizontalAlignment.Center;
+//		centerLabel.verticalAlignment = VerticalAlignment.Center;		
+//		addChild(centerLabel);
 		
-		addChild(centerLabel);
+		Color backgroundColor = new Color(0.1f, 0.1f, 0.1f, 0.7f);
+		
+		
+		label = new Label("MAIN MENU");
+		label.height = 32;
+		label.margin.bottom = 26;
+		label.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
+		label.textBlock.fontSize = 34;
+		label.textBlock.color.set(Color.LtGrey);
+		label.backgroundImage = new Image("white");
+		label.backgroundImage.color.set(backgroundColor);
+		
+		
+		singleplayerButton = new MenuButton("START GAME");
+		singleplayerButton.hasMouseFocus = true;
+		singleplayerButton.height = 28;
+		singleplayerButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
+		singleplayerButton.textBlock.fontSize = 22;
+		singleplayerButton.textBlock.color.set(Color.LtGrey);
+		singleplayerButton.backgroundImage = new Image("white");
+		singleplayerButton.backgroundImage.color.set(backgroundColor);
+		
+		optionsButton = new Button("OPTIONS");
+		optionsButton.height = 28;
+		optionsButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
+		optionsButton.textBlock.fontSize = 22;
+		optionsButton.textBlock.color.set(Color.LtGrey);
+		optionsButton.backgroundImage = new Image("white");
+		optionsButton.backgroundImage.color.set(backgroundColor);
+		
+		extrasButton = new Button("EXTRAS");
+		extrasButton.height = 28;
+		extrasButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
+		extrasButton.textBlock.fontSize = 22;
+		extrasButton.textBlock.color.set(Color.LtGrey);
+		extrasButton.backgroundImage = new Image("white");
+		extrasButton.backgroundImage.color.set(backgroundColor);
+		
+		quitButton = new Button("QUIT");
+		quitButton.height = 28;
+		quitButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
+		quitButton.textBlock.fontSize = 22;
+		quitButton.textBlock.color.set(Color.LtGrey);
+		quitButton.backgroundImage = new Image("white");
+		quitButton.backgroundImage.color.set(backgroundColor);
+		
+		
+		
+		
+		stackPanel = new StackPanel();
+		stackPanel.horizontalAlignment = HorizontalAlignment.Left;
+		stackPanel.verticalAlignment = VerticalAlignment.Bottom;
+		stackPanel.margin.bottom = 100;
+		stackPanel.margin.left = 30;
+		
+		stackPanel.addChild(label);
+		stackPanel.addChild(singleplayerButton);
+		stackPanel.addChild(optionsButton);
+		stackPanel.addChild(extrasButton);
+		stackPanel.addChild(quitButton);
+		
+		addChild(stackPanel);
 		
 		
 		//podiumModel = Renderer.registerModel("models/meshes/ppodium.md5mesh", true);
@@ -177,9 +251,9 @@ public class MainMenu extends MenuFrame
 	@Override
 	public void render()
 	{
-		String message = "Use the console with Shift + Escape";
+		//String message = "Use the console with Shift + Escape";
 		
-		centerLabel.text = message;
+		//centerLabel.text = message;
 		
 		//fontVera.paintText(UserInterface.SCREEN_WIDTH / 2, UserInterface.SCREEN_HEIGHT / 2, 16, Color.White, message, 0, 0, Font.CENTER);
 		

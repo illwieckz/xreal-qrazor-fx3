@@ -11,7 +11,7 @@ import xreal.client.ui.event.MouseMotionListener;
 /**
  * @author Robert Beckebans
  */
-public abstract class AbstractButton extends Component implements MouseMotionListener, KeyListener
+public abstract class AbstractButton extends Label implements MouseMotionListener, KeyListener
 {
 
 	@Override

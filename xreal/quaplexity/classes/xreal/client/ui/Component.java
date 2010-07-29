@@ -76,10 +76,11 @@ public class Component implements EventListener
 	
 	public Color						color					= new Color(Color.White);
 
-	protected Rectangle					bounds					= new Rectangle(0, 0, 0, 0);
+	public final Rectangle				bounds					= new Rectangle(0, 0, 0, 0);
 	public final Thickness				margin					= new Thickness();
 	
-	protected Border					border;
+	public Border						border;
+	public Image						backgroundImage;
 
 	private boolean						focusable				= true;
 	
@@ -357,6 +358,12 @@ public class Component implements EventListener
 				border.borderColor.set(Color.Magenta);
 				//border.paintBorder(bounds.x - margin.left, bounds.y - margin.top, bounds.width + margin.left + margin.right, bounds.height + margin.top + margin.bottom);
 			}
+		}
+		
+		if(backgroundImage != null)
+		{
+			backgroundImage.setBounds(bounds);
+			backgroundImage.render();
 		}
 		
 		for(Component c : children)

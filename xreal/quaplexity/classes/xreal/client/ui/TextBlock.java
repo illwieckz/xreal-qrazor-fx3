@@ -7,12 +7,14 @@ public class TextBlock extends Component
 {
 	public Font		font;
 	public float	fontSize;
+	public int		fontStyle;
 	public String	text;
 
 	public TextBlock()
 	{
 		font = Renderer.registerFont("fonts/Vera.ttf", 48);
 		fontSize = 10;
+		fontStyle = Font.LEFT | Font.DROPSHADOW;
 		
 		text = "TextBlock";
 		margin.set(3);
@@ -56,7 +58,7 @@ public class TextBlock extends Component
 	{
 		if(text != null)
 		{
-			font.paintText(bounds.x, bounds.y, fontSize, color, text, 0, 0, Font.LEFT | Font.DROPSHADOW);
+			font.paintText(bounds.x, bounds.y, fontSize, color, text, 0, 0, fontStyle);
 		}
 
 		super.render();

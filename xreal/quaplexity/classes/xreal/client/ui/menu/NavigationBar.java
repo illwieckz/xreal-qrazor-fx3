@@ -1,14 +1,15 @@
 package xreal.client.ui.menu;
 
-import xreal.CVars;
-import xreal.Color;
-import xreal.client.ui.Component;
 import xreal.client.ui.HorizontalAlignment;
 import xreal.client.ui.Image;
 import xreal.client.ui.StackPanel;
-import xreal.client.ui.StackPanel.Orientation;
+import xreal.client.ui.VerticalAlignment;
 
-public class NavigationBar extends Component
+
+/**
+ * @author Robert Beckebans
+ */
+public class NavigationBar extends StackPanel
 {
 	Image				backgroundImage;
 	StackPanel			stackPanel;
@@ -18,6 +19,9 @@ public class NavigationBar extends Component
 	public NavigationBar()
 	{
 		horizontalAlignment = HorizontalAlignment.Stretch;
+		verticalAlignment = VerticalAlignment.Bottom;
+		
+		orientation = Orientation.Horizontal;
 		
 		backgroundImage = new Image("white");
 		backgroundImage.color.red = 0.1f;
@@ -25,19 +29,19 @@ public class NavigationBar extends Component
 		backgroundImage.color.blue = 0.1f;
 		backgroundImage.color.alpha = 0.8f;
 		
-		stackPanel = new StackPanel();
-		stackPanel.orientation = Orientation.Horizontal;
+		//stackPanel = new StackPanel();
+		//stackPanel.orientation = Orientation.Horizontal;
 		
 		select = new NavigationButton("ui/keyboard_keys/standard_104/enter.png", "SELECT");
-		select.margin.left = 10;
+		select.margin.left = 30;
 		
 		back = new NavigationButton("ui/keyboard_keys/standard_104/esc.png", "BACK");
 		back.margin.left = 10;
 		
-		stackPanel.addChild(select);
-		stackPanel.addChild(back);
+		addChild(select);
+		addChild(back);
 		
-		this.addChild(stackPanel);
+		//this.addChild(stackPanel);
 	}
 	
 	@Override
