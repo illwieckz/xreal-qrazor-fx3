@@ -724,9 +724,8 @@ textures/trak/trak5/pipe1a
 
 	diffuseMap		textures/trak/trak5/pipe1a.png
 	specularMap		textures/trak/trak5/pipe1a.png
-	normalMap		textures/trak/trak5/pipe1a_nm.png
+	normalMap		_flat
 	reflectionMapBlended	_autocube
-	normalMap		textures/trak/trak5/pipe1a_nm.png
 }
 
 textures/trak/trak5/pipe1b
@@ -736,9 +735,8 @@ textures/trak/trak5/pipe1b
 
 	diffuseMap		textures/trak/trak5/pipe1b.png
 	specularMap		textures/trak/trak5/pipe1b.png
-	normalMap		textures/trak/trak5/pipe1b_nm.png
+	normalMap		_flat
 	reflectionMapBlended	_autocube
-	normalMap		textures/trak/trak5/pipe1b_nm.png
 }
 
 textures/trak/trak5/pipe1c
@@ -748,9 +746,8 @@ textures/trak/trak5/pipe1c
 
 	diffuseMap		textures/trak/trak5/pipe1c.png
 	specularMap		textures/trak/trak5/pipe1c.png
-	normalMap		textures/trak/trak5/pipe1c_nm.png
+	normalMap		_flat
 	reflectionMapBlended	_autocube
-	normalMap		textures/trak/trak5/pipe1c_nm.png
 }
 
 textures/trak/trak5/pipe1d
@@ -760,14 +757,15 @@ textures/trak/trak5/pipe1d
 
 	diffuseMap		textures/trak/trak5/pipe1d.png
 	specularMap		textures/trak/trak5/pipe1d.png
-	normalMap		textures/trak/trak5/pipe1d_nm.png
+	normalMap		_flat
 	reflectionMapBlended	_autocube
-	normalMap		textures/trak/trak5/pipe1d_nm.png
 }
 
 textures/trak/trak5/pipez1a
 {
 	qer_editorImage		textures/trak/trak5/pipez1a.png
+
+	parallax
 
 	diffuseMap		textures/trak/trak5/pipez1a.png
 	specularMap		textures/trak/trak5/pipez1a.png
@@ -1432,7 +1430,7 @@ textures/trak/trak5/trim7e
 
 	parallax
 
-	diffuseMaptextures/trak/trak5/trim7e.png
+	diffuseMap		textures/trak/trak5/trim7e.png
 	specularMap		textures/trak/trak5/trim7e.png
 	normalMap		textures/trak/trak5/trim7e_nm.png
 }
