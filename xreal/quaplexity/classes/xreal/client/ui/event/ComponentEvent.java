@@ -6,16 +6,18 @@ import xreal.client.ui.Component;
  * 
  * @author Robert Beckebans
  */
-public class ComponentEvent extends Event {
+public class ComponentEvent extends Event
+{
+	private Component	component;
 
-	private Component component;
-	
-	protected ComponentEvent(Component source) {
+	protected ComponentEvent(Component source)
+	{
 		super(source);
 		this.component = source;
 	}
-	
-	public Component getComponent() {
+
+	public Component getComponent()
+	{
 		return component;
 	}
 }

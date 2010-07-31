@@ -56,7 +56,7 @@ public abstract class AbstractButton extends Label implements MouseMotionListene
 	@Override
 	public void processEvent(Event e)
 	{
-		if(hasMouseFocus)
+		if(isFocusOwner())
 		{
 			if(e instanceof MouseEvent)
 			{

@@ -1,5 +1,6 @@
 package xreal.client.ui;
 
+import xreal.Engine;
 import xreal.client.renderer.Renderer;
 import xreal.client.ui.event.Event;
 import xreal.client.ui.event.MouseEvent;
@@ -54,7 +55,7 @@ public class Cursor extends Component implements MouseMotionListener
 	@Override
 	public void mouseMoved(MouseEvent e)
 	{
-		// Engine.println("Cursor.mouseMoved()");
+		Engine.println("Cursor.mouseMoved()");
 
 		x += e.getX();
 		y += e.getY();

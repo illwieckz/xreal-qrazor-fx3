@@ -7,6 +7,7 @@ public abstract class CVars {
 	public static final CVar cl_running = new CVar("cl_running", "0", CVar.ROM);
 	
 	public static final CVar ui_debug = new CVar("ui_debug", "0", 0);
+	public static final CVar ui_drawFocus = new CVar("ui_drawFocus", "1", 0);
 	
 	public static final CVar cg_stereoSeparation = new CVar("cg_stereoSeparation", "0.4", CVar.ARCHIVE);
 	public static final CVar cg_fov = new CVar("cg_fov", "90", CVar.ARCHIVE);

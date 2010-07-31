@@ -11,6 +11,8 @@ import xreal.client.ui.border.Border;
 import xreal.client.ui.border.LineBorder;
 import xreal.client.ui.event.Event;
 import xreal.client.ui.event.EventListener;
+import xreal.client.ui.event.FocusEvent;
+import xreal.client.ui.event.FocusListener;
 import xreal.client.ui.event.KeyListener;
 import xreal.client.ui.event.MouseMotionListener;
 
@@ -18,7 +20,7 @@ import xreal.client.ui.event.MouseMotionListener;
  * 
  * @author Robert Beckebans
  */
-public class Component implements EventListener
+public class Component implements EventListener, FocusListener, FocusTraversalPolicy
 {
 
 	/*
@@ -69,7 +71,8 @@ public class Component implements EventListener
 	public boolean						active					= true;
 	public boolean						grayed					= false;
 	public boolean						silent					= false;
-	public boolean						hasMouseFocus			= false;
+	public boolean						mouseOnly				= false;
+	
 	
 	public float						width					= 0;	// 0 == Auto
 	public float						height					= 0;	// 0 == Auto
@@ -81,8 +84,11 @@ public class Component implements EventListener
 	
 	public Border						border;
 	public Image						backgroundImage;
-
+	
 	private boolean						focusable				= true;
+	private boolean						focusOwner				= false;
+	
+	private FocusTraversalPolicy		focusTraversalPolicy	= new DefaultFocusTraversalPolicy();
 	
 	public HorizontalAlignment			horizontalAlignment		= HorizontalAlignment.Stretch;
 	public VerticalAlignment			verticalAlignment		= VerticalAlignment.Stretch;
@@ -93,6 +99,7 @@ public class Component implements EventListener
 	private Set<KeyListener>			keyListeners			= new LinkedHashSet<KeyListener>();
 	private Set<MouseMotionListener>	mouseMotionListeners	= new LinkedHashSet<MouseMotionListener>();
 
+	
 	public void addKeyListener(KeyListener l)
 	{
 		if(l != null)
@@ -360,6 +367,12 @@ public class Component implements EventListener
 			}
 		}
 		
+		if(isFocusOwner() && CVars.ui_drawFocus.getBoolean())
+		{
+			LineBorder border = new LineBorder(Color.Red);
+			border.paintBorder(this, bounds.x, bounds.y, bounds.width, bounds.height);
+		}
+		
 		if(backgroundImage != null)
 		{
 			backgroundImage.setBounds(bounds);
@@ -449,15 +462,7 @@ public class Component implements EventListener
 	}
 	*/
 
-	public void setFocusable(boolean focusable)
-	{
-		this.focusable = focusable;
-	}
-
-	public boolean isFocusable()
-	{
-		return focusable;
-	}
+	
 	
 	public void addChild(Component c)
 	{
@@ -473,5 +478,86 @@ public class Component implements EventListener
 		{
 			l.processEvent(e);
 		}
+	}
+	
+	// focus handling -----------------------------------------------------------------------------
+
+	@Override
+	public void focusGained(FocusEvent e)
+	{
+		focusOwner = true;
+		
+		Engine.println("focus gained: " + this.getClass().getName() + ", event = " + e);
+	}
+
+	@Override
+	public void focusLost(FocusEvent e)
+	{
+		focusOwner = false;
+	}
+	
+	public void setFocusable(boolean focusable)
+	{
+		this.focusable = focusable;
+	}
+
+	public boolean isFocusable()
+	{
+		return focusable && active && !grayed;
+	}
+	
+
+	/**
+	 * @return the focusOwner
+	 */
+	public boolean isFocusOwner()
+	{
+		return focusOwner;
+	}
+
+	/**
+	 * @param focusTraversalPolicy the focusTraversalPolicy to set
+	 */
+	public void setFocusTraversalPolicy(FocusTraversalPolicy focusTraversalPolicy)
+	{
+		this.focusTraversalPolicy = focusTraversalPolicy;
+	}
+
+	/**
+	 * @return the focusTraversalPolicy
+	 */
+	public FocusTraversalPolicy getFocusTraversalPolicy()
+	{
+		return focusTraversalPolicy;
+	}
+
+	@Override
+	public Component getComponentAfter(Component container, Component component)
+	{
+		return focusTraversalPolicy.getComponentAfter(container, component);
+	}
+
+	@Override
+	public Component getComponentBefore(Component container, Component component)
+	{
+		return focusTraversalPolicy.getComponentBefore(container, component);
+	}
+
+	@Override
+	public Component getDefaultComponent(Component container)
+	{
+		return focusTraversalPolicy.getDefaultComponent(container);
+	}
+
+	@Override
+	public Component getFirstComponent(Component container)
+	{
+		return focusTraversalPolicy.getFirstComponent(container);
+	}
+
+	@Override
+	public Component getLastComponent(Component container)
+	{
+		return focusTraversalPolicy.getLastComponent(container);
 	}
 }

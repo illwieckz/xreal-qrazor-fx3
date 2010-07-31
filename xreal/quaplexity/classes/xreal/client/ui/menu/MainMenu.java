@@ -1,18 +1,24 @@
 package xreal.client.ui.menu;
 
+import java.util.Vector;
+
 import xreal.Color;
+import xreal.Engine;
 import xreal.client.Client;
 import xreal.client.KeyCode;
 import xreal.client.SoundChannel;
 import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
 import xreal.client.ui.Button;
+import xreal.client.ui.Component;
 import xreal.client.ui.HorizontalAlignment;
 import xreal.client.ui.Image;
 import xreal.client.ui.Label;
 import xreal.client.ui.StackPanel;
 import xreal.client.ui.VerticalAlignment;
+import xreal.client.ui.event.FocusEvent;
 import xreal.client.ui.event.KeyEvent;
+import xreal.client.ui.event.FocusEvent.FocusType;
 
 
 /**
@@ -20,22 +26,19 @@ import xreal.client.ui.event.KeyEvent;
  */
 public class MainMenu extends MenuFrame 
 {
-	//private static final int MAIN_MENU_VERTICAL_SPACING = 34;
-
 	Label						label;
 	StackPanel					stackPanel;
 	Button						singleplayerButton;
+	Button						multiplayerButton;
 	Button						optionsButton;
 	Button						extrasButton;
 	Button						quitButton;
-
-//	Label						centerLabel;
-
-//	private int					podiumModel;
 	
 	public MainMenu() 
 	{
 		super("menuback");
+		//super("screenshots/MainMenu");
+		//super("ui/wallpapers/retro_cans");
 		
 		backgroundImage.color.set(Color.LtGrey);
 		
@@ -43,12 +46,7 @@ public class MainMenu extends MenuFrame
 		wrapAround = true;
 		showlogo = true;
 		
-//		centerLabel = new Label();
-//		centerLabel.horizontalAlignment = HorizontalAlignment.Center;
-//		centerLabel.verticalAlignment = VerticalAlignment.Center;		
-//		addChild(centerLabel);
-		
-		Color backgroundColor = new Color(0.1f, 0.1f, 0.1f, 0.7f);
+		Color backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.5f);
 		
 		
 		label = new Label("MAIN MENU");
@@ -61,8 +59,7 @@ public class MainMenu extends MenuFrame
 		label.backgroundImage.color.set(backgroundColor);
 		
 		
-		singleplayerButton = new MenuButton("START GAME");
-		singleplayerButton.hasMouseFocus = true;
+		singleplayerButton = new MenuButton("SINGLEPLAYER");
 		singleplayerButton.height = 28;
 		singleplayerButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
 		singleplayerButton.textBlock.fontSize = 22;
@@ -70,23 +67,53 @@ public class MainMenu extends MenuFrame
 		singleplayerButton.backgroundImage = new Image("white");
 		singleplayerButton.backgroundImage.color.set(backgroundColor);
 		
-		optionsButton = new Button("OPTIONS");
+		multiplayerButton = new MenuButton("MULTIPLAYER");
+		multiplayerButton.height = 28;
+		multiplayerButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
+		multiplayerButton.textBlock.fontSize = 22;
+		multiplayerButton.textBlock.color.set(Color.LtGrey);
+		multiplayerButton.backgroundImage = new Image("white");
+		multiplayerButton.backgroundImage.color.set(backgroundColor);
+		
+		optionsButton = new MenuButton("OPTIONS");
+		optionsButton.setFocusable(false);
 		optionsButton.height = 28;
 		optionsButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
 		optionsButton.textBlock.fontSize = 22;
-		optionsButton.textBlock.color.set(Color.LtGrey);
+		optionsButton.textBlock.color.set(Color.DkGrey);
 		optionsButton.backgroundImage = new Image("white");
 		optionsButton.backgroundImage.color.set(backgroundColor);
 		
-		extrasButton = new Button("EXTRAS");
+		extrasButton = new MenuButton("EXTRAS");
+		extrasButton.setFocusable(false);
 		extrasButton.height = 28;
 		extrasButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
 		extrasButton.textBlock.fontSize = 22;
-		extrasButton.textBlock.color.set(Color.LtGrey);
+		extrasButton.textBlock.color.set(Color.DkGrey);
 		extrasButton.backgroundImage = new Image("white");
 		extrasButton.backgroundImage.color.set(backgroundColor);
 		
-		quitButton = new Button("QUIT");
+		quitButton = new MenuButton("QUIT")
+		{
+			public void keyPressed(KeyEvent e)
+			{
+				KeyCode key = e.getKey();
+				
+				if(!e.isDown())
+					return;
+				
+				Engine.println("quitButton.keyPressed(event = " + e + ")");
+				
+				switch(key)
+				{
+					case ENTER:
+						// TODO
+						e.consume();
+						break;
+				}
+			}
+		};
+		
 		quitButton.height = 28;
 		quitButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
 		quitButton.textBlock.fontSize = 22;
@@ -112,140 +139,14 @@ public class MainMenu extends MenuFrame
 		addChild(stackPanel);
 		
 		
-		//podiumModel = Renderer.registerModel("models/meshes/ppodium.md5mesh", true);
+		Vector<Component> order = new Vector<Component>();
+		order.add(singleplayerButton);
+		order.add(optionsButton);
+		order.add(extrasButton);
+		order.add(quitButton);
+		setCursorOrder(order);
 		
-		/*
-		int y = 134;
-		singlePlayer = new Button("SINGLEPLAYER", 27, Font.DROPSHADOW) {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				Engine.println("clicked single player button");
-				
-				Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
-				//super.keyPressed(e);
-			}
-		};
-		singlePlayer.setXCenter(UserInterface.SCREEN_WIDTH / 2);
-		singlePlayer.setYCenter(y);
-		//singlePlayer.setCenter(0, 0);
-		singlePlayer.setBorder(new LineBorder(Color.Red));
-		
-		children.add(singlePlayer);
-		*/
-
-		/*
-		y = 134;
-		s_main.singleplayer.generic.type = MTYPE_PTEXT;
-		s_main.singleplayer.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-		s_main.singleplayer.generic.x = 320;
-		s_main.singleplayer.generic.y = y;
-		s_main.singleplayer.generic.id = ID_SINGLEPLAYER;
-		s_main.singleplayer.generic.callback = Main_MenuEvent;
-		s_main.singleplayer.string = "SINGLEPLAYER";
-		s_main.singleplayer.color = color_white;
-		s_main.singleplayer.style = style;
-
-		y += MAIN_MENU_VERTICAL_SPACING;
-		s_main.multiplayer.generic.type = MTYPE_PTEXT;
-		s_main.multiplayer.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-		s_main.multiplayer.generic.x = 320;
-		s_main.multiplayer.generic.y = y;
-		s_main.multiplayer.generic.id = ID_MULTIPLAYER;
-		s_main.multiplayer.generic.callback = Main_MenuEvent;
-		s_main.multiplayer.string = "MULTIPLAYER";
-		s_main.multiplayer.color = color_white;
-		s_main.multiplayer.style = style;
-
-		y += MAIN_MENU_VERTICAL_SPACING;
-		s_main.setup.generic.type = MTYPE_PTEXT;
-		s_main.setup.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-		s_main.setup.generic.x = 320;
-		s_main.setup.generic.y = y;
-		s_main.setup.generic.id = ID_SETUP;
-		s_main.setup.generic.callback = Main_MenuEvent;
-		s_main.setup.string = "SETUP";
-		s_main.setup.color = color_white;
-		s_main.setup.style = style;
-
-		y += MAIN_MENU_VERTICAL_SPACING;
-		s_main.demos.generic.type = MTYPE_PTEXT;
-		s_main.demos.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-		s_main.demos.generic.x = 320;
-		s_main.demos.generic.y = y;
-		s_main.demos.generic.id = ID_DEMOS;
-		s_main.demos.generic.callback = Main_MenuEvent;
-		s_main.demos.string = "DEMOS";
-		s_main.demos.color = color_white;
-		s_main.demos.style = style;
-		*/
-
-	/*	y += MAIN_MENU_VERTICAL_SPACING;
-		s_main.cinematics.generic.type = MTYPE_PTEXT;
-		s_main.cinematics.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-		s_main.cinematics.generic.x = 320;
-		s_main.cinematics.generic.y = y;
-		s_main.cinematics.generic.id = ID_CINEMATICS;
-		s_main.cinematics.generic.callback = Main_MenuEvent;
-		s_main.cinematics.string = "CINEMATICS";
-		s_main.cinematics.color = color_white;
-		s_main.cinematics.style = style;
-	*/
-	/*	if(UI_TeamArenaExists())
-		{
-			  Tr3B - don't need it
-			   teamArena = qtrue;
-			   y += MAIN_MENU_VERTICAL_SPACING;
-			   s_main.teamArena.generic.type            = MTYPE_PTEXT;
-			   s_main.teamArena.generic.flags           = QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
-			   s_main.teamArena.generic.x               = 320;
-			   s_main.teamArena.generic.y               = y;
-			   s_main.teamArena.generic.id              = ID_TEAMARENA;
-			   s_main.teamArena.generic.callback        = Main_MenuEvent;
-			   s_main.teamArena.string                  = "TEAM ARENA";
-			   s_main.teamArena.color                   = color_white;
-			   s_main.teamArena.style                   = style;
-
-		}
-	*/
-		
-		/*
-		y += MAIN_MENU_VERTICAL_SPACING;
-		s_main.mods.generic.type = MTYPE_PTEXT;
-		s_main.mods.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-		s_main.mods.generic.x = 320;
-		s_main.mods.generic.y = y;
-		s_main.mods.generic.id = ID_MODS;
-		s_main.mods.generic.callback = Main_MenuEvent;
-		s_main.mods.string = "MODS";
-		s_main.mods.color = color_white;
-		s_main.mods.style = style;
-
-		y += MAIN_MENU_VERTICAL_SPACING;
-		s_main.exit.generic.type = MTYPE_PTEXT;
-		s_main.exit.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-		s_main.exit.generic.x = 320;
-		s_main.exit.generic.y = y;
-		s_main.exit.generic.id = ID_EXIT;
-		s_main.exit.generic.callback = Main_MenuEvent;
-		s_main.exit.string = "EXIT";
-		s_main.exit.color = color_white;
-		s_main.exit.style = style;
-
-		Menu_AddItem(&s_main.menu, &s_main.singleplayer);
-		Menu_AddItem(&s_main.menu, &s_main.multiplayer);
-		Menu_AddItem(&s_main.menu, &s_main.setup);
-		Menu_AddItem(&s_main.menu, &s_main.demos);
-		//Menu_AddItem(&s_main.menu, &s_main.cinematics);
-		//if(teamArena)
-		//{
-		//  Menu_AddItem(&s_main.menu, &s_main.teamArena);
-		//}
-		Menu_AddItem(&s_main.menu, &s_main.mods);
-		Menu_AddItem(&s_main.menu, &s_main.exit);
-
-		trap_Key_SetCatcher(KEYCATCH_UI);
-		UI_PushMenu(&s_main.menu);
-		*/
+		setCursor(singleplayerButton);
 	}
 
 	@Override
@@ -301,7 +202,8 @@ public class MainMenu extends MenuFrame
 	
 	
 	@Override
-	public void keyPressed(KeyEvent e) {
+	public void keyPressed(KeyEvent e)
+	{
 		KeyCode key = e.getKey();
 		
 		if(!e.isDown())
@@ -321,9 +223,7 @@ public class MainMenu extends MenuFrame
 		}
 		
 		//Client.startLocalSound(soundMove, SoundChannel.LOCAL_SOUND);
-		//super.keyPressed(e);
-		
-		//
+		super.keyPressed(e);
 	}
 	
 	

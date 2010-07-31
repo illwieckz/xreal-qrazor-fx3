@@ -8,6 +8,7 @@ import xreal.client.ui.Image;
 import xreal.client.ui.Rectangle;
 import xreal.client.ui.UserInterface;
 import xreal.client.ui.border.LineBorder;
+import xreal.client.ui.event.FocusEvent;
 
 /**
  * @author Robert Beckebans
@@ -45,35 +46,40 @@ public class MenuButton extends Button
 	}
 	
 	@Override
+	public void focusGained(FocusEvent e)
+	{
+		textBlock.color.invertRGB();
+		
+		oldAlpha = backgroundImage.color.alpha;
+		backgroundImage.color.alpha = 0;
+		
+		super.focusGained(e);
+	}
+	
+	@Override
+	public void focusLost(FocusEvent e)
+	{
+		textBlock.color.invertRGB();
+		backgroundImage.color.alpha = oldAlpha;
+		
+		super.focusLost(e);
+	}
+	
+	
+	@Override
 	public void render()
 	{
-		if(hasMouseFocus)
+		if(isFocusOwner())
 		{
 			//border.paintBorder(0, bounds.y, UserInterface.SCREEN_WIDTH, bounds.height);
-			
+		
 			// draw selection
 			selectionImage.bounds.x = 0;
 			selectionImage.bounds.y = bounds.y;
 			selectionImage.bounds.width = UserInterface.SCREEN_WIDTH;
 			selectionImage.bounds.height = bounds.height;
-			
-			selectionImage.render();
 		
-			if(!savedOldAlpha)
-			{
-				oldAlpha = backgroundImage.color.alpha;
-				savedOldAlpha = true;
-				
-				textBlock.color.invertRGB();
-			}
-			
-			backgroundImage.color.alpha = 0;
-			
-		}
-		else
-		{
-			savedOldAlpha = false;
-			backgroundImage.color.alpha = oldAlpha;
+			selectionImage.render();
 		}
 		
 		super.render();

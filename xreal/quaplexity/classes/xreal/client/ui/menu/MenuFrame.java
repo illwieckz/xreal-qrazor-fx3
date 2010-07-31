@@ -1,5 +1,7 @@
 package xreal.client.ui.menu;
 
+import java.util.Vector;
+
 import xreal.Engine;
 import xreal.client.Client;
 import xreal.client.KeyCode;
@@ -10,15 +12,18 @@ import xreal.client.ui.Component;
 import xreal.client.ui.Cursor;
 import xreal.client.ui.HorizontalAlignment;
 import xreal.client.ui.Image;
+import xreal.client.ui.LinearFocusTraversalPolicy;
 import xreal.client.ui.Rectangle;
 import xreal.client.ui.StackPanel;
 import xreal.client.ui.UserInterface;
 import xreal.client.ui.VerticalAlignment;
 import xreal.client.ui.event.Event;
+import xreal.client.ui.event.FocusEvent;
 import xreal.client.ui.event.KeyEvent;
 import xreal.client.ui.event.KeyListener;
 import xreal.client.ui.event.MouseEvent;
 import xreal.client.ui.event.MouseMotionListener;
+import xreal.client.ui.event.FocusEvent.FocusType;
 
 
 /**
@@ -36,11 +41,15 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	protected int		soundOut;
 	protected int		soundBuzz;
 
-	protected boolean	wrapAround;
+	protected boolean	wrapAround	= true;
 	protected boolean	fullscreen;
-	
+
 	Image				backgroundImage;
 	NavigationBar		navigationBar;
+	
+	private Component	cursor;
+	private Component	cursorPrev;
+	
 
 	public boolean isFullscreen()
 	{
@@ -60,7 +69,9 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 		backgroundImage = new Image(backgroundImageName);
 		addChild(backgroundImage);
 
-		addChild(UserInterface.getCursor());
+		Cursor cursor = UserInterface.getCursor();
+		//cursor.addMouseMotionListener(this);
+		addChild(cursor);
 
 		fontVera = Renderer.registerFont("fonts/Vera.ttf", 48);
 		fontVeraSe = Renderer.registerFont("fonts/VeraSe.ttf", 48);
@@ -140,18 +151,111 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
-		Engine.println("MenuFrame.keyPressed()");
+		KeyCode key = e.getKey();
+		
+		if(!e.isDown())
+			return;
+		
+		//Engine.println("MenuFrame.keyPressed(event = " + e + ")");
+		
+		if(cursor != null)
+		{
+			if(cursor.isFocusOwner() && cursor instanceof KeyListener)
+			{
+				((KeyListener)cursor).keyPressed(e);
+				
+				if(e.isConsumed())
+					return;
+			}
+		}
+		
+		switch(key)
+		{
+			case F12:
+				Engine.sendConsoleCommand(Engine.EXEC_APPEND, "screenshotJPEG\n");
+				break;
+	
+			case KP_UPARROW:
+			case UPARROW:
+				adjustCursorPrev();
+				break;
 
-		// KeyCode key = e.getKey();
-		/*
-		 * for(Component c : children) { if(c instanceof Cursor) continue;
-		 * 
-		 * if(c.hasFlags(Component.QMF_GRAYED | Component.QMF_INACTIVE)) continue;
-		 * 
-		 * if(!c.hasFlags(Component.QMF_HASMOUSEFOCUS)) continue;
-		 * 
-		 * c.processEvent(e); }
-		 */
+			case TAB:
+			case KP_DOWNARROW:
+			case DOWNARROW:
+				adjustCursorNext();
+				break;
+		}
+	}
+	
+	protected void setCursor(Component c)
+	{
+		if(cursor == c)
+			return;
+		
+		cursorPrev = cursor;
+		cursor = c; //children.indexOf(c);
+		
+		cursorMoved();
+	}
+	
+	protected void setCursorOrder(Vector<Component> order)
+	{
+		setFocusTraversalPolicy(new LinearFocusTraversalPolicy(order));
+	}
+	
+	void adjustCursorNext()
+	{
+		Component c, start;
+		c = start = getComponentAfter(this, cursor);
+		do
+		{
+			if(c.isFocusable() && c.active && !c.grayed)
+				break;
+			
+			c = getComponentAfter(this, c);
+		}
+		while(c != null && c != start);
+			
+		if(cursor != c)
+		{
+			setCursor(c);
+		}
+	}
+	
+	void adjustCursorPrev()
+	{
+		Component c, start;
+		c = start = getComponentBefore(this, cursor);
+		do
+		{
+			if(c.isFocusable() && c.active && !c.grayed)
+				break;
+			
+			c = getComponentBefore(this, c);
+		}
+		while(c != null && c != start);
+			
+		if(cursor != c)
+		{
+			setCursor(c);
+		}
+	}
+	
+	private void cursorMoved()
+	{
+		if(cursorPrev == cursor)
+			return;
+		
+		if(cursorPrev != null)
+		{
+			cursorPrev.focusLost(new FocusEvent(this, FocusType.LOST));
+		}
+		
+		if(cursor != null)
+		{
+			cursor.focusGained(new FocusEvent(this, FocusType.GAINED));
+		}
 	}
 
 	@Override
