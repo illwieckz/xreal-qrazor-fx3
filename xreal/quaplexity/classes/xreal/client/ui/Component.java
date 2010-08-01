@@ -90,8 +90,8 @@ public class Component implements EventListener, FocusListener, FocusTraversalPo
 	
 	private FocusTraversalPolicy		focusTraversalPolicy	= new DefaultFocusTraversalPolicy();
 	
-	public HorizontalAlignment			horizontalAlignment		= HorizontalAlignment.Stretch;
-	public VerticalAlignment			verticalAlignment		= VerticalAlignment.Stretch;
+	public HorizontalAlignment			horizontalAlignment		= HorizontalAlignment.Left;
+	public VerticalAlignment			verticalAlignment		= VerticalAlignment.Top;
 
 	protected Component					parent;
 	protected Vector<Component>			children				= new Vector<Component>();
@@ -254,33 +254,33 @@ public class Component implements EventListener, FocusListener, FocusTraversalPo
 				}
 			}
 			
-			if(width == 0 && children.size() > 0)
+			if(horizontalAlignment == HorizontalAlignment.Stretch && parent != null)
+			{
+				//bounds.width = parent.bounds.width;
+			}
+			else if(width == 0 && children.size() > 0)
 			{
 				bounds.width = w;
 			}
 			
-			if(height == 0 && children.size() > 0)
+			
+			if(verticalAlignment == VerticalAlignment.Stretch && parent != null)
+			{
+				//bounds.height = parent.bounds.height;
+			}
+			else if(height == 0 && children.size() > 0)
 			{
 				bounds.height = h;
 			}
 		}
 		
-		/*
-		if(horizontalAlignment == HorizontalAlignment.Stretch && parent != null)
-		{
-			bounds.width = parent.bounds.width;
-		}
-		else */if(width != 0)
+		
+		if(width != 0)
 		{
 			bounds.width = width;
 		}
 		
-		/*
-		if(verticalAlignment == VerticalAlignment.Stretch && parent != null)
-		{
-			bounds.height = parent.bounds.height;
-		}
-		else*/ if(height != 0)
+		if(height != 0)
 		{
 			bounds.height = height;
 		}
@@ -468,6 +468,16 @@ public class Component implements EventListener, FocusListener, FocusTraversalPo
 	{
 		c.parent = this;
 		children.add(c);
+	}
+	
+	public void clearChildren()
+	{
+		for(Component c : children)
+		{
+			c.parent = null;
+		}
+		
+		children.clear();
 	}
 
 	protected void fireEvent(Event e)

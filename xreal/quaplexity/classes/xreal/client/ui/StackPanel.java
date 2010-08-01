@@ -13,6 +13,14 @@ public class StackPanel extends Component
 
 	public Orientation	orientation = Orientation.Vertical;
 	
+	public StackPanel()
+	{
+		super();
+		
+		horizontalAlignment = HorizontalAlignment.Left;
+		verticalAlignment = VerticalAlignment.Top;
+	}
+	
 	@Override
 	public Rectangle getSize() throws Exception
 	{

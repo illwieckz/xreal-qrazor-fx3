@@ -18,7 +18,7 @@ public class Image extends Component
 
 	public Image(String materialName, Color color)
 	{
-		hMaterial = Renderer.registerMaterial(materialName);
+		this(materialName);
 		this.color = color;
 	}
 

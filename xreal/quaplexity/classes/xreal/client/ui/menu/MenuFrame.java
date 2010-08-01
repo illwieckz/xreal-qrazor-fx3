@@ -1,5 +1,7 @@
 package xreal.client.ui.menu;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import xreal.Engine;
@@ -44,7 +46,6 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	protected boolean	wrapAround	= true;
 	protected boolean	fullscreen;
 
-	Image				backgroundImage;
 	NavigationBar		navigationBar;
 	
 	private Component	cursor;
@@ -67,7 +68,6 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 		
 		// background image
 		backgroundImage = new Image(backgroundImageName);
-		addChild(backgroundImage);
 
 		Cursor cursor = UserInterface.getCursor();
 		//cursor.addMouseMotionListener(this);
@@ -85,8 +85,6 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 		
 		// navigation bar
 		navigationBar = new NavigationBar();
-		navigationBar.horizontalAlignment = HorizontalAlignment.Stretch;
-		navigationBar.verticalAlignment = VerticalAlignment.Bottom;
 		navigationBar.margin.bottom = 20;
 		
 		addChild(navigationBar);
@@ -177,12 +175,14 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	
 			case KP_UPARROW:
 			case UPARROW:
+			case XBOX360_DPAD_UP:
 				adjustCursorPrev();
 				break;
 
 			case TAB:
 			case KP_DOWNARROW:
 			case DOWNARROW:
+			case XBOX360_DPAD_DOWN:
 				adjustCursorNext();
 				break;
 		}

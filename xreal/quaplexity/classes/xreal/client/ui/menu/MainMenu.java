@@ -1,5 +1,7 @@
 package xreal.client.ui.menu;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import xreal.Color;
@@ -37,17 +39,22 @@ public class MainMenu extends MenuFrame
 	public MainMenu() 
 	{
 		super("menuback");
-		//super("screenshots/MainMenu");
+		//super("screenshots_640x480/MainMenu");
+		//super("screenshots_1024x768/MainMenu");
 		//super("ui/wallpapers/retro_cans");
 		
 		backgroundImage.color.set(Color.LtGrey);
+		
+		Map<String, String> navButtons = new HashMap<String, String>();
+		navButtons.put("SELECT", "ui/keyboard_keys/standard_104/enter.png");
+		navButtons.put("QUIT", "ui/keyboard_keys/standard_104/esc.png");
+		navigationBar.set(navButtons);
 		
 		fullscreen = true;
 		wrapAround = true;
 		showlogo = true;
 		
 		Color backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.5f);
-		
 		
 		label = new Label("MAIN MENU");
 		label.height = 32;
@@ -80,7 +87,7 @@ public class MainMenu extends MenuFrame
 		optionsButton.height = 28;
 		optionsButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
 		optionsButton.textBlock.fontSize = 22;
-		optionsButton.textBlock.color.set(Color.DkGrey);
+		optionsButton.textBlock.color.set(Color.LtGrey);
 		optionsButton.backgroundImage = new Image("white");
 		optionsButton.backgroundImage.color.set(backgroundColor);
 		
@@ -89,7 +96,7 @@ public class MainMenu extends MenuFrame
 		extrasButton.height = 28;
 		extrasButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
 		extrasButton.textBlock.fontSize = 22;
-		extrasButton.textBlock.color.set(Color.DkGrey);
+		extrasButton.textBlock.color.set(Color.LtGrey);
 		extrasButton.backgroundImage = new Image("white");
 		extrasButton.backgroundImage.color.set(backgroundColor);
 		
@@ -128,7 +135,7 @@ public class MainMenu extends MenuFrame
 		stackPanel.horizontalAlignment = HorizontalAlignment.Left;
 		stackPanel.verticalAlignment = VerticalAlignment.Bottom;
 		stackPanel.margin.bottom = 100;
-		stackPanel.margin.left = 30;
+		stackPanel.margin.left = 43;
 		
 		stackPanel.addChild(label);
 		stackPanel.addChild(singleplayerButton);

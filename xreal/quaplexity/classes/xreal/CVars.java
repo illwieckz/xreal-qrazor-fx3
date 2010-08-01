@@ -6,6 +6,8 @@ public abstract class CVars {
 	public static final CVar cl_paused = new CVar("cl_paused", "0", CVar.ROM);
 	public static final CVar cl_running = new CVar("cl_running", "0", CVar.ROM);
 	
+	public static final CVar in_xbox360ControllerAvailable = new CVar("in_xbox360ControllerAvailable", "", CVar.ROM);
+	
 	public static final CVar ui_debug = new CVar("ui_debug", "0", 0);
 	public static final CVar ui_drawFocus = new CVar("ui_drawFocus", "1", 0);
 	
