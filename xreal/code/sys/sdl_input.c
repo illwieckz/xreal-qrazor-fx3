@@ -774,7 +774,8 @@ static void IN_InitJoystick(void)
 	SDL_JoystickEventState(SDL_QUERY);
 
 	// XBox 360 controller support
-	if(!Q_stricmp(SDL_JoystickName(in_joystickNo->integer), "Microsoft X-Box 360 pad"))
+	if(	!Q_stricmp(SDL_JoystickName(in_joystickNo->integer), "Microsoft X-Box 360 pad") ||
+		!Q_stricmp(SDL_JoystickName(in_joystickNo->integer), "Controller (XBOX 360 For Windows)"))
 	{
 		Cvar_Set("in_xbox360ControllerAvailable", "1");
 	}
@@ -1245,6 +1246,18 @@ static void IN_Xbox360ControllerMove(void)
 	// save hat state
 	stick_state.oldhats = hat;
 
+#if defined(WIN32)
+	// use left stick for strafing
+	IN_XBox360Axis(0, AXIS_SIDE, 127);
+	IN_XBox360Axis(1, AXIS_FORWARD, -127);
+
+	// use right stick for viewing
+	IN_XBox360Axis(4, AXIS_YAW, 127);
+	IN_XBox360Axis(3, AXIS_PITCH, 127);
+
+	axes |= IN_XBox360AxisToButton(2, K_XBOX360_LT, -1, 0);
+	axes |= IN_XBox360AxisToButton(5, K_XBOX360_RT, -1, 0);
+#else
 	// use left stick for strafing
 	IN_XBox360Axis(0, AXIS_SIDE, 127);
 	IN_XBox360Axis(1, AXIS_FORWARD, -127);
@@ -1255,6 +1268,7 @@ static void IN_Xbox360ControllerMove(void)
 
 	axes |= IN_XBox360AxisToButton(2, K_XBOX360_LT, -1, 0);
 	axes |= IN_XBox360AxisToButton(5, K_XBOX360_RT, -1, 0);
+#endif
 
 	/* Save for future generations. */
 	stick_state.oldaxes = axes;

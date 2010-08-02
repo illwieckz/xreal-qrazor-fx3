@@ -693,7 +693,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\sys\con_passive.c"
+				RelativePath=".\sys\con_win32.c"
 				>
 			</File>
 			<File
