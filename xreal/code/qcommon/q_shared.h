@@ -41,7 +41,7 @@ extern "C" {
 #endif
 #endif
 
-#if 1
+#if 0
 #if !defined(USE_JAVA)
 #define USE_JAVA 1
 #endif
