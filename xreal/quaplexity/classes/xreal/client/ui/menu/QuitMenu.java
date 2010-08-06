@@ -81,6 +81,8 @@ public class QuitMenu extends MenuFrame
 				switch(key)
 				{
 					case ENTER:
+					case MOUSE1:
+					case XBOX360_A:
 						Engine.sendConsoleCommand(Engine.EXEC_APPEND, "quit");
 						e.consume();
 						break;
@@ -109,6 +111,8 @@ public class QuitMenu extends MenuFrame
 				switch(key)
 				{
 					case ENTER:
+					case MOUSE1:
+					case XBOX360_A:
 						UserInterface.popMenu();
 						e.consume();
 						break;

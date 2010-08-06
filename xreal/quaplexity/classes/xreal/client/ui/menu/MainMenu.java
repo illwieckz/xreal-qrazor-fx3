@@ -115,6 +115,8 @@ public class MainMenu extends MenuFrame
 				switch(key)
 				{
 					case ENTER:
+					case MOUSE1:
+					case XBOX360_A:
 						UserInterface.pushMenu(new QuitMenu());
 						e.consume();
 						break;

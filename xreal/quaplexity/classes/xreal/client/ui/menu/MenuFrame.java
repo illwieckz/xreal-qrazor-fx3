@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import xreal.CVars;
 import xreal.Engine;
 import xreal.client.Client;
 import xreal.client.KeyCode;
@@ -269,7 +270,7 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	@Override
 	public void keyReleased(KeyEvent e)
 	{
-		// Engine.println("MenuFrame.keyReleased()");
+		//Engine.println("MenuFrame.keyReleased()");
 	}
 
 	@Override
@@ -281,14 +282,7 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 		}
 		else if(e instanceof CharEvent)
 		{
-			if(((CharEvent) e).isDown())
-			{
-				charPressed((CharEvent) e);
-			}
-			else
-			{
-				charReleased((CharEvent) e);
-			}
+			charPressed((CharEvent) e);
 		}
 		else if(e instanceof KeyEvent)
 		{
@@ -310,12 +304,17 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	{
 		Engine.println("MenuFrame.charPressed(event = " + e + ")");
 		
-	}
-
-	@Override
-	public void charReleased(CharEvent e)
-	{
-		Engine.println("MenuFrame.charReleased(event = " + e + ")");
+		KeyCode key = e.getKey();
 		
+		if(cursor != null)
+		{
+			if(cursor.isFocusOwner() && cursor instanceof CharListener)
+			{
+				((CharListener)cursor).charPressed(e);
+				
+				if(e.isConsumed())
+					return;
+			}
+		}
 	}
 }

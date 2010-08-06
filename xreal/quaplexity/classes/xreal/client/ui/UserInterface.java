@@ -133,7 +133,7 @@ public class UserInterface implements UserInterfaceListener
 	@Override
 	public void keyEvent(int time, int key, boolean down)
 	{
-		Engine.println("UserInterface.keyEvent(time = " + time + ", key = " + key + ", down = " + down + ")");
+		//Engine.println("UserInterface.keyEvent(time = " + time + ", key = " + key + ", down = " + down + ")");
 
 		if(!menuStack.isEmpty())
 		{
