@@ -572,7 +572,9 @@ Display an error message
 */
 void Sys_ErrorDialog(const char *error)
 {
-#if 0
+#if 1
+	CON_SetVisibility(1);
+
 	if(Sys_Dialog(DT_YES_NO, va("%s. Copy console log to clipboard?", error), "Error") == DR_YES)
 	{
 		HGLOBAL         memoryHandle;
@@ -603,6 +605,7 @@ void Sys_ErrorDialog(const char *error)
 		}
 	}
 #else
+	// for use with con_win32old.c
 	MSG             msg;
 
 	CON_SetVisibility(1);

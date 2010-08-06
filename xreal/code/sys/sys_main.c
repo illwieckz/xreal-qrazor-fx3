@@ -344,6 +344,16 @@ void Sys_Print(const char *msg)
 
 /*
 =================
+Sys_SetConsoleVisibility
+=================
+*/
+void Sys_SetConsoleVisibility(int visLevel)
+{
+	CON_SetVisibility(visLevel);
+}
+
+/*
+=================
 Sys_Error
 =================
 */

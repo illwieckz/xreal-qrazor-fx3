@@ -324,8 +324,8 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	}
 	else if(code == ERR_DROP)
 	{
-		Com_Printf("********************\nERROR: %s\n********************\n", com_errorMessage);
-		SV_Shutdown(va("Server crashed: %s", com_errorMessage));
+		Com_Printf(S_COLOR_RED "********************\n" S_COLOR_RED "ERROR: %s\n" S_COLOR_RED "********************\n", com_errorMessage);
+		SV_Shutdown(va(S_COLOR_RED "Server crashed: %s" S_COLOR_WHITE, com_errorMessage));
 		CL_Disconnect(qtrue);
 		VM_Forced_Unload_Start();
 		CL_FlushMemory();
@@ -336,8 +336,8 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	}
 	else
 	{
-		CL_Shutdown(va("Client fatal crashed: %s", com_errorMessage));
-		SV_Shutdown(va("Server fatal crashed: %s", com_errorMessage));
+		CL_Shutdown(va(S_COLOR_RED "Client fatal crashed: %s" S_COLOR_WHITE, com_errorMessage));
+		SV_Shutdown(va(S_COLOR_RED "Server fatal crashed: %s" S_COLOR_WHITE, com_errorMessage));
 
 #if defined(USE_JAVA)
 		JVM_Shutdown();
@@ -4101,7 +4101,7 @@ void Com_Frame(void)
 	{
 		//if(!com_dedicated->value)
 		{
-			CON_SetVisibility(com_viewlog->integer);
+			Sys_SetConsoleVisibility(com_viewlog->integer);
 		}
 		com_viewlog->modified = qfalse;
 	}

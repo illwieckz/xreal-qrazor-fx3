@@ -911,7 +911,7 @@ qboolean CheckException_(char *filename, int linenum)
 
 	(*javaEnv)->ExceptionClear(javaEnv);
 
-	Com_Printf("%s line: %d\n-----------------\n", filename, linenum);
+	Com_Printf(S_COLOR_RED "%s line: %d\n-----------------\n", filename, linenum);
 
 	(*javaEnv)->CallVoidMethod(javaEnv, ex, method_Throwable_printStackTrace);
 
