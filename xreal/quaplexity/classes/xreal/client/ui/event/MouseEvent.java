@@ -3,6 +3,8 @@ package xreal.client.ui.event;
 import xreal.client.ui.Component;
 
 /**
+ * SE_MOUSE system event
+ * 
  * @author Robert Beckebans
  */
 public class MouseEvent extends InputEvent

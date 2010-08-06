@@ -8,6 +8,7 @@ import xreal.client.Client;
 import xreal.client.KeyCatchers;
 import xreal.client.KeyCode;
 import xreal.client.renderer.Renderer;
+import xreal.client.ui.event.CharEvent;
 import xreal.client.ui.event.KeyEvent;
 import xreal.client.ui.event.MouseEvent;
 import xreal.client.ui.menu.MainMenu;
@@ -132,7 +133,7 @@ public class UserInterface implements UserInterfaceListener
 	@Override
 	public void keyEvent(int time, int key, boolean down)
 	{
-		// Engine.println("UserInterface.keyEvent(time = " + time + ", key = " + key + ", down = " + down + ")");
+		Engine.println("UserInterface.keyEvent(time = " + time + ", key = " + key + ", down = " + down + ")");
 
 		if(!menuStack.isEmpty())
 		{
@@ -143,7 +144,15 @@ public class UserInterface implements UserInterfaceListener
 
 			if(keyCode != null)
 			{
-				activeMenu.fireEvent(new KeyEvent(activeMenu, time, keyCode, down));
+				// the char events are just distinguished by or'ing in K_CHAR_FLAG 1024 (ugly)
+				if(KeyCode.isCharacterKeyCode(key))
+				{
+					activeMenu.fireEvent(new CharEvent(activeMenu, time, keyCode, down));
+				}
+				else
+				{
+					activeMenu.fireEvent(new KeyEvent(activeMenu, time, keyCode, down));
+				}
 			}
 		}
 	}
@@ -181,8 +190,8 @@ public class UserInterface implements UserInterfaceListener
 				// FIXME: non 4:3 resolutions are causeing black bars
 
 				// render background
-				Rectangle rect = new Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-				adjustFrom640(rect);
+				//Rectangle rect = new Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+				//adjustFrom640(rect);
 				//Renderer.drawStretchPic(rect.x, rect.y, rect.width, rect.height, 0, 0, 1, 1, backgroundMaterial);
 				// }
 				// else
@@ -200,7 +209,7 @@ public class UserInterface implements UserInterfaceListener
 		}
 	}
 
-	public void pushMenu(MenuFrame menu)
+	public static void pushMenu(MenuFrame menu)
 	{
 		// avoid stacking menus invoked by hotkeys
 		if(menuStack.search(menu) == -1)
@@ -219,7 +228,7 @@ public class UserInterface implements UserInterfaceListener
 		Client.setKeyCatchers(KeyCatchers.UI);
 	}
 
-	public void popMenu()
+	public static void popMenu()
 	{
 		// trap_S_StartLocalSound(menu_out_sound, CHAN_LOCAL_SOUND);
 
@@ -227,7 +236,7 @@ public class UserInterface implements UserInterfaceListener
 		forceMenuOff();
 	}
 
-	private void forceMenuOff()
+	private static void forceMenuOff()
 	{
 		while(!menuStack.isEmpty())
 		{

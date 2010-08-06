@@ -13,6 +13,8 @@ import xreal.UserCommand;
  */
 public class Client {
 	
+	public static final int K_CHAR_FLAG = 1024;
+	
 	// networking ---------------------------------------------------------------------------------
 	
 	/**

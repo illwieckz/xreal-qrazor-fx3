@@ -17,6 +17,7 @@ import xreal.client.ui.HorizontalAlignment;
 import xreal.client.ui.Image;
 import xreal.client.ui.Label;
 import xreal.client.ui.StackPanel;
+import xreal.client.ui.UserInterface;
 import xreal.client.ui.VerticalAlignment;
 import xreal.client.ui.event.FocusEvent;
 import xreal.client.ui.event.KeyEvent;
@@ -47,7 +48,7 @@ public class MainMenu extends MenuFrame
 		
 		Map<String, String> navButtons = new HashMap<String, String>();
 		navButtons.put("SELECT", "ui/keyboard_keys/standard_104/enter.png");
-		navButtons.put("QUIT", "ui/keyboard_keys/standard_104/esc.png");
+		//navButtons.put("QUIT", "ui/keyboard_keys/standard_104/esc.png");
 		navigationBar.set(navButtons);
 		
 		fullscreen = true;
@@ -114,7 +115,7 @@ public class MainMenu extends MenuFrame
 				switch(key)
 				{
 					case ENTER:
-						// TODO
+						UserInterface.pushMenu(new QuitMenu());
 						e.consume();
 						break;
 				}

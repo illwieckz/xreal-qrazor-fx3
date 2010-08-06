@@ -19,6 +19,8 @@ import xreal.client.ui.Rectangle;
 import xreal.client.ui.StackPanel;
 import xreal.client.ui.UserInterface;
 import xreal.client.ui.VerticalAlignment;
+import xreal.client.ui.event.CharEvent;
+import xreal.client.ui.event.CharListener;
 import xreal.client.ui.event.Event;
 import xreal.client.ui.event.FocusEvent;
 import xreal.client.ui.event.KeyEvent;
@@ -31,7 +33,7 @@ import xreal.client.ui.event.FocusEvent.FocusType;
 /**
  * @author Robert Beckebans
  */
-public class MenuFrame extends Component implements MouseMotionListener, KeyListener
+public class MenuFrame extends Component implements MouseMotionListener, KeyListener, CharListener
 {
 	protected Font		fontVera;
 	protected Font		fontVeraSe;
@@ -169,6 +171,12 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 		
 		switch(key)
 		{
+			case ESCAPE:
+			case MOUSE2:
+			case XBOX360_B:
+				UserInterface.popMenu();
+				break;
+		
 			case F12:
 				Engine.sendConsoleCommand(Engine.EXEC_APPEND, "screenshotJPEG\n");
 				break;
@@ -271,6 +279,17 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 		{
 			mouseMoved((MouseEvent) e);
 		}
+		else if(e instanceof CharEvent)
+		{
+			if(((CharEvent) e).isDown())
+			{
+				charPressed((CharEvent) e);
+			}
+			else
+			{
+				charReleased((CharEvent) e);
+			}
+		}
 		else if(e instanceof KeyEvent)
 		{
 			if(((KeyEvent) e).isDown())
@@ -284,5 +303,19 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 		}
 
 		// super.processEvent(e);
+	}
+
+	@Override
+	public void charPressed(CharEvent e)
+	{
+		Engine.println("MenuFrame.charPressed(event = " + e + ")");
+		
+	}
+
+	@Override
+	public void charReleased(CharEvent e)
+	{
+		Engine.println("MenuFrame.charReleased(event = " + e + ")");
+		
 	}
 }

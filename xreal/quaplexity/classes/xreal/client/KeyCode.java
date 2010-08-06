@@ -369,7 +369,7 @@ public enum KeyCode
 	static public KeyCode findKeyCode(int code) {
 		
 		// the char events are just distinguished by or'ing in K_CHAR_FLAG 1024 (ugly)
-		code &= ~1024;
+		code &= ~Client.K_CHAR_FLAG;
 		
 		for(KeyCode k : KeyCode.values()) {
 			if(k.code == code)
@@ -377,6 +377,11 @@ public enum KeyCode
 		}
 		
 		return null;
+	}
+	
+	static public boolean isCharacterKeyCode(int code)
+	{
+		return (code & Client.K_CHAR_FLAG) != 0;
 	}
 	
 	/**
