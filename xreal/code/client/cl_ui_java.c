@@ -1915,7 +1915,13 @@ jobject JNICALL Java_xreal_client_renderer_Renderer_registerFont(JNIEnv *env, jc
 
 	name = (char *)((*env)->GetStringUTFChars(env, jname, 0));
 
+	Com_Memset(&font, 0, sizeof(font));
+
 	re.RegisterFont(name, pointSize, &font);
+	if(font.name[0] == '\0')
+	{
+		Com_Error(ERR_DROP, "Java_xreal_client_renderer_Renderer_registerFont: Couldn't register font '%s'", name);
+	}
 
 	(*env)->ReleaseStringUTFChars(env, jname, name);
 
