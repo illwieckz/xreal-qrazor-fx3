@@ -2,6 +2,9 @@ package xreal.client.ui.menu;
 
 
 import xreal.Color;
+import xreal.client.Client;
+import xreal.client.SoundChannel;
+import xreal.client.renderer.Font;
 import xreal.client.renderer.Renderer;
 import xreal.client.ui.Button;
 import xreal.client.ui.Image;
@@ -17,24 +20,18 @@ public class MenuButton extends Button
 {
 	private Image	selectionImage;
 	
-	private boolean	savedOldAlpha;
 	private float	oldAlpha;
+	
+	private int		focusSound;
 
 	public MenuButton()
 	{
-		super();
-
-		text = "<Button>";
-		selectionImage = new Image("white");
-		selectionImage.color.set(1, 1, 0, 0.7f);
+		this("<Button>", 20, 0);
 	}
 
 	public MenuButton(String text)
 	{
-		super(text);
-		
-		selectionImage = new Image("white");
-		selectionImage.color.set(1, 1, 0, 0.7f);
+		this(text, 20, Font.DROPSHADOW);
 	}
 
 	public MenuButton(String text, float fontSize, int fontStyle)
@@ -43,6 +40,16 @@ public class MenuButton extends Button
 
 		selectionImage = new Image("white");
 		selectionImage.color.set(1, 1, 0, 0.7f);
+		
+		height = 26;
+		
+		textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
+		textBlock.color.set(Color.LtGrey);
+		
+		backgroundImage = new Image("white");
+		backgroundImage.color.set(0.0f, 0.0f, 0.0f, 0.5f);
+		
+		focusSound = Client.registerSound("sound/misc/menu2.wav");
 	}
 	
 	@Override
@@ -52,6 +59,11 @@ public class MenuButton extends Button
 		
 		oldAlpha = backgroundImage.color.alpha;
 		backgroundImage.color.alpha = 0;
+		
+		if(!silent)
+		{
+			//Client.startLocalSound(focusSound, SoundChannel.LOCAL);
+		}
 		
 		super.focusGained(e);
 	}

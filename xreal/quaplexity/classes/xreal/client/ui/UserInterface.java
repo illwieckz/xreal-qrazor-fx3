@@ -207,6 +207,8 @@ public class UserInterface implements UserInterfaceListener
 			 * if(uis.firstdraw) { UI_MouseEvent(0, 0); uis.firstdraw = qfalse; }
 			 */
 		}
+		
+		cursor.render();
 	}
 
 	public static void pushMenu(MenuFrame menu)
@@ -233,7 +235,11 @@ public class UserInterface implements UserInterfaceListener
 		// trap_S_StartLocalSound(menu_out_sound, CHAN_LOCAL_SOUND);
 
 		menuStack.pop();
-		forceMenuOff();
+		
+		if(menuStack.empty())
+		{
+			forceMenuOff();
+		}
 	}
 
 	private static void forceMenuOff()

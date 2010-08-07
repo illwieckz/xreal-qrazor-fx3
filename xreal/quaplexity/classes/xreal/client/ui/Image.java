@@ -13,7 +13,7 @@ public class Image extends Component
 
 	public Image(String materialName)
 	{
-		hMaterial = Renderer.registerMaterial(materialName);
+		hMaterial = Renderer.registerMaterialNoMip(materialName);
 	}
 
 	public Image(String materialName, Color color)

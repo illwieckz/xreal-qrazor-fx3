@@ -22,6 +22,9 @@ public class Cursor extends Component implements MouseMotionListener
 
 		width = 24;
 		height = 24;
+		
+		horizontalAlignment = HorizontalAlignment.None;
+		verticalAlignment = VerticalAlignment.None;
 	}
 
 	public void render()
@@ -50,12 +53,23 @@ public class Cursor extends Component implements MouseMotionListener
 			//e.printStackTrace();
 		}
 		
+		super.render();
+	}
+	
+	@Override
+	public Rectangle getSize() throws Exception
+	{
+		// don't call super.getSize() because it resets bounds.x, bounds.y to 0
+		return new Rectangle(0, 0, 24, 24);
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e)
 	{
-		Engine.println("Cursor.mouseMoved()");
+		//Engine.println("Cursor.mouseMoved()");
+		
+		//Engine.println("Cursor.mouseMoved(): x = " + x + ", y = " + y);
+		//Engine.println("Cursor.mouseMoved(): x = " + bounds.x + ", y = " + bounds.y);
 
 		x += e.getX();
 		y += e.getY();

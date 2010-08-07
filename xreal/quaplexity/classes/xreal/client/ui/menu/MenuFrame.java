@@ -46,7 +46,6 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	protected int		soundOut;
 	protected int		soundBuzz;
 
-	protected boolean	wrapAround	= true;
 	protected boolean	fullscreen;
 
 	NavigationBar		navigationBar;
@@ -59,8 +58,6 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	{
 		return fullscreen;
 	}
-
-	protected boolean	showlogo;
 
 	protected MenuFrame(String backgroundImageName)
 	{
@@ -99,6 +96,23 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 		//Engine.println("MenuFrame.mouseMoved()");
 
 		Cursor cursor = UserInterface.getCursor();
+		
+		Component c, start;
+		c = start = this.cursor;
+		do
+		{
+			if(c.isFocusable() && c.contains(cursor.getX(), cursor.getY()))
+				break;
+			
+			c = getComponentAfter(this, c);
+		}
+		while(c != null && c != start);
+			
+		if(this.cursor != c)
+		{
+			Engine.println("MenuFrame.mouseMoved(): new cursor");
+			setCursor(c);
+		}
 
 		// region test the active menu items
 		/*
@@ -178,6 +192,10 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 				UserInterface.popMenu();
 				break;
 		
+			case F4:
+				Engine.sendConsoleCommand(Engine.EXEC_APPEND, "toggle ui_debug\n");
+				break;
+				
 			case F12:
 				Engine.sendConsoleCommand(Engine.EXEC_APPEND, "screenshotJPEG\n");
 				break;
@@ -219,7 +237,7 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 		c = start = getComponentAfter(this, cursor);
 		do
 		{
-			if(c.isFocusable() && c.active && !c.grayed)
+			if(c.isFocusable())
 				break;
 			
 			c = getComponentAfter(this, c);
@@ -276,6 +294,8 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	@Override
 	public void processEvent(Event e)
 	{
+		//Engine.println("MenuFrame.processEvent(event = " + e + ")");
+		
 		if(e instanceof MouseEvent)
 		{
 			mouseMoved((MouseEvent) e);
@@ -302,7 +322,7 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	@Override
 	public void charPressed(CharEvent e)
 	{
-		Engine.println("MenuFrame.charPressed(event = " + e + ")");
+		//Engine.println("MenuFrame.charPressed(event = " + e + ")");
 		
 		KeyCode key = e.getKey();
 		

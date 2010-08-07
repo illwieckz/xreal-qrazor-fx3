@@ -34,15 +34,13 @@ public class QuitMenu extends MenuFrame
 	{
 		super("menuback");
 		
+		fullscreen = false;
+		
 		backgroundImage.color.set(0, 0, 0, 0.5f);
 		
 		Map<String, String> navButtons = new HashMap<String, String>();
 		navButtons.put("SELECT", "ui/keyboard_keys/standard_104/enter.png");
 		navigationBar.set(navButtons);
-		
-		fullscreen = true;
-		wrapAround = true;
-		showlogo = true;
 		
 		Color backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.5f);
 		
@@ -73,9 +71,6 @@ public class QuitMenu extends MenuFrame
 			{
 				KeyCode key = e.getKey();
 				
-				if(!e.isDown())
-					return;
-				
 				Engine.println("yesButton.keyPressed(event = " + e + ")");
 				
 				switch(key)
@@ -90,10 +85,12 @@ public class QuitMenu extends MenuFrame
 			}
 		};
 		
-		yesButton.height = 28;
+		yesButton.width = UserInterface.SCREEN_WIDTH * 0.8f;
+		yesButton.height = 20;
 		yesButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
-		yesButton.textBlock.fontSize = 22;
+		yesButton.textBlock.fontSize = 16;
 		yesButton.textBlock.color.set(Color.LtGrey);
+		yesButton.textBlock.horizontalAlignment = HorizontalAlignment.Left;
 		yesButton.backgroundImage = new Image("white");
 		yesButton.backgroundImage.color.set(backgroundColor);
 		
@@ -102,9 +99,6 @@ public class QuitMenu extends MenuFrame
 			public void keyPressed(KeyEvent e)
 			{
 				KeyCode key = e.getKey();
-				
-				if(!e.isDown())
-					return;
 				
 				Engine.println("noButton.keyPressed(event = " + e + ")");
 				
@@ -120,10 +114,12 @@ public class QuitMenu extends MenuFrame
 			}
 		};
 		
-		noButton.height = 28;
+		noButton.width = UserInterface.SCREEN_WIDTH * 0.8f;
+		noButton.height = 20;
 		noButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
-		noButton.textBlock.fontSize = 22;
+		noButton.textBlock.fontSize = 16;
 		noButton.textBlock.color.set(Color.LtGrey);
+		noButton.textBlock.horizontalAlignment = HorizontalAlignment.Left;
 		noButton.backgroundImage = new Image("white");
 		noButton.backgroundImage.color.set(backgroundColor);
 		

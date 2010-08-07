@@ -29,7 +29,7 @@ import xreal.client.ui.event.FocusEvent.FocusType;
  */
 public class MainMenu extends MenuFrame 
 {
-	Label						label;
+	Label						title;
 	StackPanel					stackPanel;
 	Button						singleplayerButton;
 	Button						multiplayerButton;
@@ -44,6 +44,8 @@ public class MainMenu extends MenuFrame
 		//super("screenshots_1024x768/MainMenu");
 		//super("ui/wallpapers/retro_cans");
 		
+		fullscreen = true;
+		
 		backgroundImage.color.set(Color.LtGrey);
 		
 		Map<String, String> navButtons = new HashMap<String, String>();
@@ -51,64 +53,37 @@ public class MainMenu extends MenuFrame
 		//navButtons.put("QUIT", "ui/keyboard_keys/standard_104/esc.png");
 		navigationBar.set(navButtons);
 		
-		fullscreen = true;
-		wrapAround = true;
-		showlogo = true;
-		
 		Color backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.5f);
 		
-		label = new Label("MAIN MENU");
-		label.height = 32;
-		label.margin.bottom = 26;
-		label.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
-		label.textBlock.fontSize = 34;
-		label.textBlock.color.set(Color.LtGrey);
-		label.backgroundImage = new Image("white");
-		label.backgroundImage.color.set(backgroundColor);
-		
-		
+		title = new MenuTitle("MAIN MENU");
 		singleplayerButton = new MenuButton("SINGLEPLAYER");
-		singleplayerButton.height = 28;
-		singleplayerButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
-		singleplayerButton.textBlock.fontSize = 22;
-		singleplayerButton.textBlock.color.set(Color.LtGrey);
-		singleplayerButton.backgroundImage = new Image("white");
-		singleplayerButton.backgroundImage.color.set(backgroundColor);
-		
 		multiplayerButton = new MenuButton("MULTIPLAYER");
-		multiplayerButton.height = 28;
-		multiplayerButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
-		multiplayerButton.textBlock.fontSize = 22;
-		multiplayerButton.textBlock.color.set(Color.LtGrey);
-		multiplayerButton.backgroundImage = new Image("white");
-		multiplayerButton.backgroundImage.color.set(backgroundColor);
 		
-		optionsButton = new MenuButton("OPTIONS");
-		optionsButton.setFocusable(false);
-		optionsButton.height = 28;
-		optionsButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
-		optionsButton.textBlock.fontSize = 22;
-		optionsButton.textBlock.color.set(Color.LtGrey);
-		optionsButton.backgroundImage = new Image("white");
-		optionsButton.backgroundImage.color.set(backgroundColor);
+		optionsButton = new MenuButton("OPTIONS")
+		{
+			public void keyPressed(KeyEvent e)
+			{
+				KeyCode key = e.getKey();
+				
+				switch(key)
+				{
+					case ENTER:
+					case MOUSE1:
+					case XBOX360_A:
+						UserInterface.pushMenu(new OptionsMenu());
+						e.consume();
+						break;
+				}
+			}
+		};
 		
 		extrasButton = new MenuButton("EXTRAS");
-		extrasButton.setFocusable(false);
-		extrasButton.height = 28;
-		extrasButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
-		extrasButton.textBlock.fontSize = 22;
-		extrasButton.textBlock.color.set(Color.LtGrey);
-		extrasButton.backgroundImage = new Image("white");
-		extrasButton.backgroundImage.color.set(backgroundColor);
 		
 		quitButton = new MenuButton("QUIT")
 		{
 			public void keyPressed(KeyEvent e)
 			{
 				KeyCode key = e.getKey();
-				
-				if(!e.isDown())
-					return;
 				
 				Engine.println("quitButton.keyPressed(event = " + e + ")");
 				
@@ -124,23 +99,13 @@ public class MainMenu extends MenuFrame
 			}
 		};
 		
-		quitButton.height = 28;
-		quitButton.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
-		quitButton.textBlock.fontSize = 22;
-		quitButton.textBlock.color.set(Color.LtGrey);
-		quitButton.backgroundImage = new Image("white");
-		quitButton.backgroundImage.color.set(backgroundColor);
-		
-		
-		
-		
 		stackPanel = new StackPanel();
 		stackPanel.horizontalAlignment = HorizontalAlignment.Left;
 		stackPanel.verticalAlignment = VerticalAlignment.Bottom;
 		stackPanel.margin.bottom = 100;
 		stackPanel.margin.left = 43;
 		
-		stackPanel.addChild(label);
+		stackPanel.addChild(title);
 		stackPanel.addChild(singleplayerButton);
 		stackPanel.addChild(optionsButton);
 		stackPanel.addChild(extrasButton);

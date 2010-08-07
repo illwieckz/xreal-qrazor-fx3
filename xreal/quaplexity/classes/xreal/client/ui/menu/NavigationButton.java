@@ -37,21 +37,12 @@ public class NavigationButton extends StackPanel
 		
 		label = new Label(labelText);
 		label.height = 28;
-		label.textBlock.font = Renderer.registerFont("fonts/FreeSans.ttf", 48);
-		label.textBlock.fontSize = 22;
+		label.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
+		label.textBlock.fontSize = 18;
 		label.textBlock.color.set(Color.MdGrey);
 		//label.verticalAlignment = VerticalAlignment.Center;
 		
 		addChild(canvas);
 		addChild(label);
-	}
-	
-	@Override
-	public void render()
-	{
-		label.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
-		label.textBlock.fontSize = 18;
-		
-		super.render();
 	}
 }

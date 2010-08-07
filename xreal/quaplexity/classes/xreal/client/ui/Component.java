@@ -239,6 +239,13 @@ public class Component implements EventListener, FocusListener, FocusTraversalPo
 					continue;
 				}
 				
+				if( c.horizontalAlignment == HorizontalAlignment.None ||
+					c.verticalAlignment == VerticalAlignment.None)
+				{
+					continue;
+				}
+					
+				
 				// add margin
 				//rect.width += c.margin.left + c.margin.right;
 				//rect.height += c.margin.top + c.margin.bottom;
@@ -307,7 +314,7 @@ public class Component implements EventListener, FocusListener, FocusTraversalPo
 			{
 				case Stretch:
 					c.bounds.x = bounds.x + c.margin.left;
-					c.bounds.width = bounds.width - c.margin.right;
+					c.bounds.width = bounds.width - (c.margin.left + c.margin.right);
 					break;
 					
 				case Left:
@@ -330,7 +337,7 @@ public class Component implements EventListener, FocusListener, FocusTraversalPo
 			{
 				case Stretch:
 					c.bounds.y = bounds.y + c.margin.top;
-					c.bounds.height = bounds.height - c.margin.bottom;
+					c.bounds.height = bounds.height - (c.margin.top + c.margin.bottom);
 					break;
 					
 				case Top:
