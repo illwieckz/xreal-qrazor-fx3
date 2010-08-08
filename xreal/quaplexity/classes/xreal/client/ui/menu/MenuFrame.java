@@ -54,7 +54,7 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	private Component		cursor;
 	private Component		cursorPrev;
 
-	private UIControlsType	controlsType = UIControlsType.PC;
+	private UIControlsType	controlsType = null;// = UIControlsType.PC;
 	
 
 	public boolean isFullscreen()
