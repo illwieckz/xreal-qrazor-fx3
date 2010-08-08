@@ -72,6 +72,7 @@ static cvar_t  *in_joystickNo = NULL;
 
 static cvar_t  *in_fullscreen = NULL;
 
+static cvar_t  *in_xbox360Controller = NULL;
 static cvar_t  *in_xbox360ControllerAvailable = NULL;
 static cvar_t  *in_xbox360ControllerDebug = NULL;
 
@@ -730,9 +731,15 @@ static void IN_InitJoystick(void)
 	stick = NULL;
 	memset(&stick_state, '\0', sizeof(stick_state));
 
-	if(!in_joystick->integer)
+	if(!in_joystick->integer && !in_xbox360Controller->integer)
 	{
 		Com_DPrintf("Joystick is not active.\n");
+
+		if(!in_xbox360Controller->integer)
+		{
+			Com_DPrintf("Gamepad is not active.\n");
+			Cvar_Set("in_xbox360ControllerAvailable", "0");
+		}
 		return;
 	}
 
@@ -815,6 +822,9 @@ static void IN_JoyMove(void)
 	int             i = 0;
 
 	if(!stick)
+		return;
+
+	if(!in_joystick->integer)
 		return;
 
 	SDL_JoystickUpdate();
@@ -1443,6 +1453,7 @@ void IN_Init(void)
 
 	in_fullscreen = Cvar_Get("r_fullscreen", "", 0);
 
+	in_xbox360Controller = Cvar_Get("in_xbox360Controller", "1", CVAR_TEMP);
 	in_xbox360ControllerAvailable = Cvar_Get("in_xbox360ControllerAvailable", "0", CVAR_ROM);
 	in_xbox360ControllerDebug = Cvar_Get("in_xbox360ControllerDebug", "0", CVAR_TEMP);
 
