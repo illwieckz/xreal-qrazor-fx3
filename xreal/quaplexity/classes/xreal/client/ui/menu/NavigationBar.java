@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
-import xreal.Pair;
 import xreal.client.ui.Component;
 import xreal.client.ui.HorizontalAlignment;
 import xreal.client.ui.Image;
