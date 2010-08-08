@@ -345,7 +345,7 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 	{
 		if(CVars.in_xbox360ControllerAvailable.getBoolean())
 		{
-			if(controlsType == UIControlsType.PC)
+			if(controlsType != UIControlsType.XBOX360)
 			{
 				updateNavigationBar360();
 			}
