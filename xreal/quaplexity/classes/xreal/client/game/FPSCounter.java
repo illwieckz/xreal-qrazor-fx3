@@ -38,7 +38,6 @@ public class FPSCounter extends Label
 		
 		if(!CVars.cg_drawFPS.getBoolean())
 		{
-			text = null;
 			return;
 		}
 
@@ -66,7 +65,7 @@ public class FPSCounter extends Label
 			}
 			fps = 1000 * FPS_FRAMES / total;
 
-			text = fps + "fps";
+			textBlock.text = fps + "fps";
 		}	
 	}
 	
@@ -81,7 +80,11 @@ public class FPSCounter extends Label
 	@Override
 	public void render()
 	{
-		// TODO Auto-generated method stub
+		if(!CVars.cg_drawFPS.getBoolean())
+		{
+			return;
+		}
+		
 		super.render();
 	}
 }

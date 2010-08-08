@@ -43,11 +43,6 @@ public class OptionsMenu extends MenuFrame
 		
 		backgroundImage.color.set(Color.LtGrey);
 		
-		Map<String, String> navButtons = new HashMap<String, String>();
-		navButtons.put("BACK", "ui/keyboard_keys/standard_104/esc.png");
-		navButtons.put("SELECT", "ui/keyboard_keys/standard_104/enter.png");
-		navigationBar.set(navButtons);
-		
 		fullscreen = true;
 		
 		title = new MenuTitle("OPTIONS");
@@ -123,6 +118,26 @@ public class OptionsMenu extends MenuFrame
 		setCursorOrder(order);
 		
 		setCursor(audioButton);
+	}
+	
+	@Override
+	protected void updateNavigationBarPC()
+	{
+		navigationBar.clear();
+		navigationBar.add("SELECT", "ui/keyboard_keys/standard_104/enter.png");
+		navigationBar.add("BACK", "ui/keyboard_keys/standard_104/esc.png");
+		
+		super.updateNavigationBarPC();
+	}
+	
+	@Override
+	protected void updateNavigationBar360()
+	{
+		navigationBar.clear();
+		navigationBar.add("SELECT", "ui/xbox360/xna/buttons/xboxControllerButtonA.png");
+		navigationBar.add("BACK", "ui/xbox360/xna/buttons/xboxControllerButtonB.png");
+		
+		super.updateNavigationBar360();
 	}
 }
 

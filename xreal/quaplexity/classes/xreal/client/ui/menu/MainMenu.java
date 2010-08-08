@@ -48,10 +48,7 @@ public class MainMenu extends MenuFrame
 		
 		backgroundImage.color.set(Color.LtGrey);
 		
-		Map<String, String> navButtons = new HashMap<String, String>();
-		navButtons.put("SELECT", "ui/keyboard_keys/standard_104/enter.png");
-		//navButtons.put("QUIT", "ui/keyboard_keys/standard_104/esc.png");
-		navigationBar.set(navButtons);
+		
 		
 		Color backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.5f);
 		
@@ -202,9 +199,25 @@ public class MainMenu extends MenuFrame
 	}
 	
 	
+	@Override
+	protected void updateNavigationBarPC()
+	{
+		navigationBar.clear();
+		navigationBar.add("SELECT", "ui/keyboard_keys/standard_104/enter.png");
+		//navigationBar.add("QUIT", "ui/keyboard_keys/standard_104/esc.png");
+		
+		super.updateNavigationBarPC();
+	}
 	
-	
-	
+	@Override
+	protected void updateNavigationBar360()
+	{
+		navigationBar.clear();
+		navigationBar.add("SELECT", "ui/xbox360/xna/buttons/xboxControllerButtonA.png");
+		//navigationBar.add("QUIT", "ui/xbox360/xna/buttons/xboxControllerButtonB.png");
+		
+		super.updateNavigationBar360();
+	}
 	
 	/*
 	void renderViewTest(float x, float y, float w, float h, int time)

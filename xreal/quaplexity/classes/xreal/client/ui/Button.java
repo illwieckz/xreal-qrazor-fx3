@@ -15,23 +15,23 @@ public class Button extends AbstractButton
 	{
 		super();
 
-		text = "<Button>";
+		textBlock.text = "<Button>";
 	}
 
 	public Button(String text)
 	{
 		super();
 
-		this.text = text;
+		textBlock.text = text;
 	}
 
 	public Button(String text, float fontSize, int fontStyle)
 	{
 		super();
 
-		this.text = text;
-		this.textBlock.fontSize = fontSize;
-		this.textBlock.fontStyle = fontStyle;
+		textBlock.text = text;
+		textBlock.fontSize = fontSize;
+		textBlock.fontStyle = fontStyle;
 	}
 
 	@Override

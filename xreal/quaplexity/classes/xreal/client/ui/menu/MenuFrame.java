@@ -18,6 +18,7 @@ import xreal.client.ui.Image;
 import xreal.client.ui.LinearFocusTraversalPolicy;
 import xreal.client.ui.Rectangle;
 import xreal.client.ui.StackPanel;
+import xreal.client.ui.UIControlsType;
 import xreal.client.ui.UserInterface;
 import xreal.client.ui.VerticalAlignment;
 import xreal.client.ui.event.CharEvent;
@@ -36,22 +37,24 @@ import xreal.client.ui.event.FocusEvent.FocusType;
  */
 public class MenuFrame extends Component implements MouseMotionListener, KeyListener, CharListener
 {
-	protected Font		fontVera;
-	protected Font		fontVeraSe;
-	protected Font		fontVeraBold;
-	protected Font		fontVeraSerifBold;
+	protected Font			fontVera;
+	protected Font			fontVeraSe;
+	protected Font			fontVeraBold;
+	protected Font			fontVeraSerifBold;
 
-	protected int		soundIn;
-	protected int		soundMove;
-	protected int		soundOut;
-	protected int		soundBuzz;
+	protected int			soundIn;
+	protected int			soundMove;
+	protected int			soundOut;
+	protected int			soundBuzz;
 
-	protected boolean	fullscreen;
+	protected boolean		fullscreen;
 
-	NavigationBar		navigationBar;
-	
-	private Component	cursor;
-	private Component	cursorPrev;
+	NavigationBar			navigationBar;
+
+	private Component		cursor;
+	private Component		cursorPrev;
+
+	private UIControlsType	controlsType = UIControlsType.PC;
 	
 
 	public boolean isFullscreen()
@@ -231,7 +234,7 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 		setFocusTraversalPolicy(new LinearFocusTraversalPolicy(order));
 	}
 	
-	void adjustCursorNext()
+	private void adjustCursorNext()
 	{
 		Component c, start;
 		c = start = getComponentAfter(this, cursor);
@@ -250,7 +253,7 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 		}
 	}
 	
-	void adjustCursorPrev()
+	private void adjustCursorPrev()
 	{
 		Component c, start;
 		c = start = getComponentBefore(this, cursor);
@@ -336,5 +339,33 @@ public class MenuFrame extends Component implements MouseMotionListener, KeyList
 					return;
 			}
 		}
+	}
+	
+	public void checkNavigationBarControls()
+	{
+		if(CVars.in_xbox360ControllerAvailable.getBoolean())
+		{
+			if(controlsType == UIControlsType.PC)
+			{
+				updateNavigationBar360();
+			}
+		}
+		else
+		{
+			if(controlsType != UIControlsType.PC)
+			{
+				updateNavigationBarPC();
+			}
+		}
+	}
+	
+	protected void updateNavigationBarPC()
+	{
+		controlsType = UIControlsType.PC;
+	}
+	
+	protected void updateNavigationBar360()
+	{
+		controlsType = UIControlsType.XBOX360;
 	}
 }

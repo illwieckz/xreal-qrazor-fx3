@@ -88,9 +88,9 @@ public class BulletStatsView extends StackPanel
 		backgroundImage.setBounds(bounds);
 		backgroundImage.render();
 		
-		numDeepPenetrationChecksLabel.text = "gNumDeepPenetrationChecks = " + BulletStats.gNumDeepPenetrationChecks;
-		numGjkChecksLabel.text = "gNumGjkChecks = " + BulletStats.gNumGjkChecks;
-		numSplitImpulseRecoveries.text = "gNumSplitImpulseRecoveries = " + BulletStats.gNumSplitImpulseRecoveries;
+		numDeepPenetrationChecksLabel.textBlock.text = "gNumDeepPenetrationChecks = " + BulletStats.gNumDeepPenetrationChecks;
+		numGjkChecksLabel.textBlock.text = "gNumGjkChecks = " + BulletStats.gNumGjkChecks;
+		numSplitImpulseRecoveries.textBlock.text = "gNumSplitImpulseRecoveries = " + BulletStats.gNumSplitImpulseRecoveries;
 
 		super.render();
 	}

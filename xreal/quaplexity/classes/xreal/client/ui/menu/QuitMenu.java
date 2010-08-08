@@ -38,10 +38,6 @@ public class QuitMenu extends MenuFrame
 		
 		backgroundImage.color.set(0, 0, 0, 0.5f);
 		
-		Map<String, String> navButtons = new HashMap<String, String>();
-		navButtons.put("SELECT", "ui/keyboard_keys/standard_104/enter.png");
-		navigationBar.set(navButtons);
-		
 		Color backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.5f);
 		
 		label = new Label("WARNING");
@@ -148,4 +144,23 @@ public class QuitMenu extends MenuFrame
 		setCursor(yesButton);
 	}
 
+	@Override
+	protected void updateNavigationBarPC()
+	{
+		navigationBar.clear();
+		navigationBar.add("SELECT", "ui/keyboard_keys/standard_104/enter.png");
+		//navigationBar.add("QUIT", "ui/keyboard_keys/standard_104/esc.png");
+		
+		super.updateNavigationBarPC();
+	}
+	
+	@Override
+	protected void updateNavigationBar360()
+	{
+		navigationBar.clear();
+		navigationBar.add("SELECT", "ui/xbox360/xna/buttons/xboxControllerButtonA.png");
+		//navigationBar.add("BACK", "ui/xbox360/xna/buttons/xboxControllerButtonB.png");
+		
+		super.updateNavigationBar360();
+	}
 }

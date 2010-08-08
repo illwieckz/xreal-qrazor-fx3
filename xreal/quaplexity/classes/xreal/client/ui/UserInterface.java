@@ -200,6 +200,7 @@ public class UserInterface implements UserInterfaceListener
 				// }
 			}
 
+			activeMenu.checkNavigationBarControls();
 			activeMenu.alignChildrenAndUpdateBounds();
 			activeMenu.render();
 

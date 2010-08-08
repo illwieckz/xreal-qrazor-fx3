@@ -28,12 +28,6 @@ public class OptionsMenu_Audio extends MenuFrame
 		
 		backgroundImage.color.set(Color.LtGrey);
 		
-		Map<String, String> navButtons = new HashMap<String, String>();
-		navButtons.put("RESTORE DEFAULT SETTINGS", "ui/keyboard_keys/standard_104/f2.png");
-		navButtons.put("BACK", "ui/keyboard_keys/standard_104/esc.png");
-		navButtons.put("ACCEPT/SAVE", "ui/keyboard_keys/standard_104/enter.png");
-		navigationBar.set(navButtons);
-		
 		fullscreen = true;
 		
 		title = new MenuTitle("AUDIO");
@@ -83,5 +77,27 @@ public class OptionsMenu_Audio extends MenuFrame
 		setCursorOrder(order);
 		
 		setCursor(effectsSlider);
+	}
+	
+	@Override
+	protected void updateNavigationBarPC()
+	{
+		navigationBar.clear();
+		navigationBar.add("ACCEPT/SAVE", "ui/keyboard_keys/standard_104/enter.png");
+		navigationBar.add("BACK", "ui/keyboard_keys/standard_104/esc.png");
+		navigationBar.add("RESTORE DEFAULT SETTINGS", "ui/keyboard_keys/standard_104/f2.png");
+		
+		super.updateNavigationBarPC();
+	}
+	
+	@Override
+	protected void updateNavigationBar360()
+	{
+		navigationBar.clear();
+		navigationBar.add("ACCEPT/SAVE", "ui/xbox360/xna/buttons/xboxControllerButtonA.png");
+		navigationBar.add("BACK", "ui/xbox360/xna/buttons/xboxControllerButtonB.png");
+		navigationBar.add("RESTORE DEFAULT SETTINGS", "ui/xbox360/xna/buttons/xboxControllerButtonY.png");
+		
+		super.updateNavigationBar360();
 	}
 }

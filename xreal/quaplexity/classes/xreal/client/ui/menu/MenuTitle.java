@@ -11,10 +11,9 @@ public class MenuTitle extends Label
 	{
 		super();
 		
-		text = title;
-		
 		height = 32;
 		margin.bottom = 26;
+		textBlock.text = title;
 		textBlock.font = Renderer.registerFont("fonts/FreeSansBoldOblique.ttf", 48);
 		textBlock.fontSize = 34;
 		textBlock.color.set(Color.LtGrey);
