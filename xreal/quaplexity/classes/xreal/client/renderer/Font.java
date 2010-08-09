@@ -87,7 +87,7 @@ public class Font
 		Color drawColor = new Color(1, 1, 1, 1);
 
 		int textWidth = (int) getTextWidth(text, fontSize, 0);
-		int textHeight = (int) getTextHeight(text, fontSize, 0);
+		int textHeight = (int) getTextHeight(text, fontSize, 0, false);
 
 		if((style & BLINK) != 0 && ((UserInterface.getRealTime() / BLINK_DIVISOR) & 1) != 0)
 			return;
@@ -113,7 +113,7 @@ public class Font
 			border.paintBorder(x, y, textWidth, textHeight);
 		}
 
-		y += textHeight;// / 2.0f;
+		//y += textHeight;// / 2.0f;
 
 		drawColor.set(color);
 
@@ -142,6 +142,8 @@ public class Font
 				len = limit;
 			}
 
+			float xStart = x;
+			y += getTextHeight(text, fontSize, 0, true);
 			for(int i = 0; i < len;)
 			{
 				char ch = text.charAt(i);
@@ -195,6 +197,14 @@ public class Font
 					i += 2;
 					continue;
 				}
+				else if(ch == '\n')
+				{
+					x = xStart;
+					String s = text.substring(i + 1);
+					float lineHeight = getTextHeight(s, fontSize, 0, true);
+					y += lineHeight;
+					i++;
+				}
 				else
 				{
 					if(chNumber < 32 || chNumber > 126)
@@ -237,12 +247,14 @@ public class Font
 	public float getTextWidth(String text, float fontSize, int limit)
 	{
 		int len;
-		float out;
+		float max;
+		float width;
 		Glyph glyph;
 		float useScale;
 
 		useScale = (fontSize / 48.0f) * glyphScale;
-		out = 0;
+		max = 0;
+		width = 0;
 		if(text != null)
 		{
 			len = text.length();
@@ -268,25 +280,35 @@ public class Font
 					if(chNumber < 32 || chNumber > 126)
 						chNumber = 32;
 
-					glyph = glyphs[chNumber];
-					out += glyph.xSkip;
+					if(ch == '\n')
+					{
+						max = 0;
+					}
+					else
+					{
+						glyph = glyphs[chNumber];
+						max += glyph.xSkip;
+					}
 					i++;
 				}
 			}
+			width = max;
 		}
 
-		return out * useScale;
+		return width * useScale;
 	}
 
-	public float getTextHeight(String text, float fontSize, int limit)
+	public float getTextHeight(String text, float fontSize, int limit, boolean stopAtNewLine)
 	{
 		int len;
 		float max;
+		float height;
 		Glyph glyph;
 		float useScale;
 
 		useScale = (fontSize / 48.0f) * glyphScale;
 		max = 0;
+		height = 0;
 		if(text != null)
 		{
 			len = text.length();
@@ -297,7 +319,6 @@ public class Font
 
 			for(int i = 0; i < len;)
 			{
-
 				// check if a color string begins
 				if(((len - i) > 2 && text.charAt(i) == Q_COLOR_ESCAPE) && (text.charAt(i + 1) != Q_COLOR_ESCAPE))
 				{
@@ -313,23 +334,36 @@ public class Font
 						chNumber = 32;
 
 					glyph = glyphs[chNumber];
-					if(max < glyph.height)
+					
+					if(ch == '\n')
 					{
-						max = glyph.height;
+						if(stopAtNewLine)
+							break;
+						
+						height += max;
+						max = 0;
+					}
+					else
+					{
+						if(max < glyph.height)
+						{
+							max = glyph.height;
+						}
 					}
 					i++;
 				}
 			}
+			height += max;
 		}
 
-		return max * useScale;
+		return height * useScale;
 	}
 
 	public Rectangle getTextBounds(String text, float fontSize, int limit)
 	{
 
 		float w = getTextWidth(text, fontSize, limit);
-		float h = getTextHeight(text, fontSize, limit);
+		float h = getTextHeight(text, fontSize, limit, false);
 
 		Rectangle rect = new Rectangle(0, 0, w, h);
 
