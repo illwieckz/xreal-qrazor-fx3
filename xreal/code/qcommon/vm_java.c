@@ -523,6 +523,24 @@ void JNICALL Java_xreal_CVar_set0(JNIEnv * env, jclass cls, jstring jname, jstri
 
 /*
  * Class:     xreal_CVar
+ * Method:    set0
+ * Signature: (Ljava/lang/String;)V
+ */
+void JNICALL Java_xreal_CVar_reset0(JNIEnv * env, jclass cls, jstring jname)
+{
+	char           *varName;
+
+	varName = (char *)((*env)->GetStringUTFChars(env, jname, 0));
+	
+	Cvar_Reset(varName);
+
+	(*env)->ReleaseStringUTFChars(env, jname, varName);
+
+	//CheckException();
+}
+
+/*
+ * Class:     xreal_CVar
  * Method:    getString0
  * Signature: (I)Ljava/lang/String;
  */
@@ -564,6 +582,7 @@ static jclass   class_CVar;
 static JNINativeMethod CVar_methods[] = {
 	{"register0", "(Ljava/lang/String;Ljava/lang/String;I)I", Java_xreal_CVar_register0},
 	{"set0", "(Ljava/lang/String;Ljava/lang/String;)V", Java_xreal_CVar_set0},
+	{"reset0", "(Ljava/lang/String;)V", Java_xreal_CVar_reset0},
 	{"getString0", "(I)Ljava/lang/String;", Java_xreal_CVar_getString0},
 	{"getValue0", "(I)F", Java_xreal_CVar_getValue0},
 	{"getInteger0", "(I)I", Java_xreal_CVar_getInteger0},
