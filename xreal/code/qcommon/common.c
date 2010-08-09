@@ -271,7 +271,7 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 		if(!calledSysError)
 		{
 			calledSysError = qtrue;
-			Sys_Error("recursive error after: %s", com_errorMessage);
+			Sys_Error(S_COLOR_RED "recursive error after: %s" S_COLOR_WHITE, com_errorMessage);
 		}
 
 		return;
