@@ -146,7 +146,20 @@ static qboolean JVM_JNI_Init()
 // handles to java.lang.Throwable class
 static jclass   class_Throwable = NULL;
 static jmethodID method_Throwable_printStackTrace = NULL;
+//static jmethodID method_Throwable_fillInStackTrace = NULL;
+static jmethodID method_Throwable_toString = NULL;
 jmethodID method_Throwable_getMessage = NULL;
+
+
+// handles to java.io.StringWriter class
+static jclass	class_StringWriter = NULL;
+static jmethodID method_StringWriter_ctor = NULL;
+static jmethodID method_StringWriter_toString = NULL;
+
+// handles to java.io.PrintWriter class
+static jclass	class_PrintWriter = NULL;
+static jmethodID method_PrintWriter_ctor = NULL;
+
 
 // handles to java.lang.String class
 static jclass	class_String = NULL;
@@ -186,11 +199,19 @@ void Misc_javaRegister()
 		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable");
 	}
 
-	method_Throwable_printStackTrace = (*javaEnv)->GetMethodID(javaEnv, class_Throwable, "printStackTrace", "()V");
+	method_Throwable_printStackTrace = (*javaEnv)->GetMethodID(javaEnv, class_Throwable, "printStackTrace", "(Ljava/io/PrintWriter;)V");
 	if(!method_Throwable_printStackTrace)
 	{
 		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable.printStackTrace() method");
 	}
+
+	/*
+	method_Throwable_fillInStackTrace = (*javaEnv)->GetMethodID(javaEnv, class_Throwable, "fillInStackTrace", "()Ljava/lang/Throwable;");
+	if(!method_Throwable_fillInStackTrace)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable.fillInStackTrace() method");
+	}
+	*/
 
 	method_Throwable_getMessage = (*javaEnv)->GetMethodID(javaEnv, class_Throwable, "getMessage", "()Ljava/lang/String;");
 	if(!method_Throwable_getMessage)
@@ -198,8 +219,51 @@ void Misc_javaRegister()
 		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable.getMessage() method");
 	}
 
+	method_Throwable_toString = (*javaEnv)->GetMethodID(javaEnv, class_Throwable, "toString", "()Ljava/lang/String;");
+	if(!method_Throwable_toString)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable.toString() method");
+	}
 
 
+	// get class java.io.StringWriter
+	class_StringWriter = (*javaEnv)->FindClass(javaEnv, "java/io/StringWriter");
+	if(!class_StringWriter)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.io.StringWriter");
+	}
+
+	method_StringWriter_ctor = (*javaEnv)->GetMethodID(javaEnv, class_StringWriter, "<init>", "()V");
+	if(!method_StringWriter_ctor)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.io.StringWriter constructor method");
+	}
+
+	method_StringWriter_toString = (*javaEnv)->GetMethodID(javaEnv, class_StringWriter, "toString", "()Ljava/lang/String;");
+	if(!method_StringWriter_toString)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.io.StringWriter.toString() method");
+	}
+
+
+
+
+	// get class java.io.PrintWriter
+	class_PrintWriter = (*javaEnv)->FindClass(javaEnv, "java/io/PrintWriter");
+	if(!class_PrintWriter)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.io.PrintWriter");
+	}
+
+	method_PrintWriter_ctor = (*javaEnv)->GetMethodID(javaEnv, class_PrintWriter, "<init>", "(Ljava/io/Writer;)V");
+	if(!method_PrintWriter_ctor)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.io.PrintWriter constructor method");
+	}
+
+
+
+	// get class java.lang.String
 	class_String = (*javaEnv)->FindClass(javaEnv, "java/lang/String");
 	if(!class_String)
 	{
@@ -208,7 +272,7 @@ void Misc_javaRegister()
 
 
 
-	// now that the java.lang.Class and java.lang.Throwable handles are obtained
+	// now that the java.lang.Class, java.lang.Throwable handles are obtained
 	// we can start checking for exceptions
 
 	class_Tuple3f = (*javaEnv)->FindClass(javaEnv, "javax/vecmath/Tuple3f");
@@ -898,12 +962,50 @@ void ConvertJavaString(char *dest, jstring jstr, int destsize)
 //  return result;
 }
 
-/**
- * @author Berry Pederson
- */
+
+
+static void GetExceptionMessage(jthrowable ex, char *dest, int destsize)
+{
+	char           *message;
+	jstring			msgObject;
+	
+
+	//(*javaEnv)->CallVoidMethod(javaEnv, ex, method_Throwable_fillInStackTrace);
+
+	msgObject = (*javaEnv)->CallObjectMethod(javaEnv, ex, method_Throwable_toString);
+	message = (char *)((*javaEnv)->GetStringUTFChars(javaEnv, msgObject, 0));
+
+	Q_strncpyz(dest, message, destsize);
+
+	(*javaEnv)->ReleaseStringUTFChars(javaEnv, msgObject, message);
+}
+
+static void GetExceptionStackTrace(jthrowable ex, char *dest, int destsize)
+{
+	char           *message;
+	jstring			stringObject;
+	jobject			stringWriter;
+	jobject			printWriter;
+
+	//(*javaEnv)->CallVoidMethod(javaEnv, ex, method_Throwable_fillInStackTrace);
+
+	stringWriter = (*javaEnv)->NewObject(javaEnv, class_StringWriter, method_StringWriter_ctor);
+	printWriter = (*javaEnv)->NewObject(javaEnv, class_PrintWriter, method_PrintWriter_ctor, stringWriter);
+
+	(*javaEnv)->CallVoidMethod(javaEnv, ex, method_Throwable_printStackTrace, printWriter);
+	stringObject = (*javaEnv)->CallObjectMethod(javaEnv, stringWriter, method_StringWriter_toString);
+	
+	message = (char *)((*javaEnv)->GetStringUTFChars(javaEnv, stringObject, 0));
+
+	Q_strncpyz(dest, message, destsize);
+
+	(*javaEnv)->ReleaseStringUTFChars(javaEnv, stringObject, message);
+}
+
 qboolean CheckException_(char *filename, int linenum)
 {
 	jthrowable      ex;
+	char			message[MAXPRINTMSG];
 
 	ex = (*javaEnv)->ExceptionOccurred(javaEnv);
 	if(!ex)
@@ -913,10 +1015,18 @@ qboolean CheckException_(char *filename, int linenum)
 
 	Com_Printf(S_COLOR_RED "%s line: %d\n-----------------\n", filename, linenum);
 
-	(*javaEnv)->CallVoidMethod(javaEnv, ex, method_Throwable_printStackTrace);
+	//(*javaEnv)->CallVoidMethod(javaEnv, ex, method_Throwable_printStackTrace);
+
+	GetExceptionMessage(ex, message, sizeof(message));
+	Com_Printf(S_COLOR_RED "message: %s\n", message);
+
+	GetExceptionStackTrace(ex, message, sizeof(message));
+	Com_Printf(S_COLOR_RED "stacktrace: %s\n", message);
+	Cvar_Set("com_stackTrace", message);
 
 	return qtrue;
 }
+
 
 
 
