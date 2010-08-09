@@ -115,6 +115,7 @@ public class ErrorMenu extends MenuFrame
 	{
 		navigationBar.clear();
 		navigationBar.add("RETURN", "ui/keyboard_keys/standard_104/enter.png");
+		navigationBar.add("TAKE SCREENSHOT", "ui/keyboard_keys/standard_104/f12.png");
 		
 		super.updateNavigationBarPC();
 	}
@@ -124,6 +125,7 @@ public class ErrorMenu extends MenuFrame
 	{
 		navigationBar.clear();
 		navigationBar.add("RETURN", "ui/xbox360/xna/buttons/xboxControllerButtonA.png");
+		navigationBar.add("TAKE SCREENSHOT", "ui/xbox360/xna/buttons/xboxControllerButtonX.png");
 		
 		super.updateNavigationBar360();
 	}
@@ -145,6 +147,7 @@ public class ErrorMenu extends MenuFrame
 				break;
 				
 			case F12:
+			case XBOX360_X:
 				Engine.sendConsoleCommand(Engine.EXEC_APPEND, "screenshotJPEG\n");
 				break;
 		}

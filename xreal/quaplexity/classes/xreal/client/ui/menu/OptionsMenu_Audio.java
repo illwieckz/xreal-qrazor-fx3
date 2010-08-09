@@ -4,10 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
+
 import xreal.CVars;
 import xreal.Color;
 import xreal.Engine;
+import xreal.client.Client;
 import xreal.client.KeyCode;
+import xreal.client.SoundChannel;
 import xreal.client.ui.Button;
 import xreal.client.ui.Component;
 import xreal.client.ui.HorizontalAlignment;
@@ -15,7 +20,9 @@ import xreal.client.ui.Label;
 import xreal.client.ui.StackPanel;
 import xreal.client.ui.UserInterface;
 import xreal.client.ui.VerticalAlignment;
+import xreal.client.ui.event.FocusEvent;
 import xreal.client.ui.event.KeyEvent;
+import xreal.client.ui.event.KeyListener;
 
 /**
  * @author Robert Beckebans
@@ -26,6 +33,7 @@ public class OptionsMenu_Audio extends MenuFrame
 	StackPanel					stackPanel;
 	MenuSlider					effectsSlider;
 	MenuSlider					musicSlider;
+	int							radioSignalSound;
 	
 	public OptionsMenu_Audio() 
 	{
@@ -34,49 +42,73 @@ public class OptionsMenu_Audio extends MenuFrame
 		backgroundImage.color.set(Color.LtGrey);
 		
 		fullscreen = true;
-		
+
 		title = new MenuTitle("AUDIO");
 		
-		effectsSlider = new MenuSlider("EFFECTS", 0, 1, CVars.s_volume.getValue(), 0.1f)
+		radioSignalSound = Client.registerSound("sound/misc/69310__uair01__LS100421_radio_signal_beep_859Hz_5sec_7340Khz_AM.ogg");
+		
+		effectsSlider = new MenuSlider("EFFECTS", 0, 1, CVars.s_volume.getValue(), 0.01f)
 		{
 			public void keyPressed(KeyEvent e)
 			{
-				Engine.println("effectsSlider.keyPressed(event = " + e + ")");
+				super.keyPressed(e);
 				
-				KeyCode key = e.getKey();
-				switch(key)
-				{
-					case ENTER:
-					case MOUSE1:
-					case XBOX360_A:
-						e.consume();
-						break;
-				}
+				CVars.s_volume.set(Float.toString(effectsSlider.getCurValue()));
+			}
+			
+			
+			
+			@Override
+			public void focusGained(FocusEvent e)
+			{
+				//Client.startLocalSound(radioSignalSound, SoundChannel.LOCAL);
 				
-				if(!e.isConsumed())
-				{
-					super.keyPressed(e);
-				}
+				Client.stopBackgroundTrack();
+				Client.addLoopingSound(Engine.ENTITYNUM_WORLD, 0, 0, 0, 0, 0, 0, radioSignalSound);
+				Client.respatialize(Engine.ENTITYNUM_NONE, new Vector3f(), new Quat4f(), false);
+				
+				super.focusGained(e);
+			}
+			
+			@Override
+			public void focusLost(FocusEvent e)
+			{
+				//Client.stopLoopingSound(Engine.ENTITYNUM_NONE);
+				Client.clearLoopingSounds(true);
+				
+				Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
+				
+				super.focusLost(e);
 			}
 		};
 		
 		
-		musicSlider = new MenuSlider("MUSIC", 0, 1, CVars.s_musicvolume.getValue(), 0.1f)
+		musicSlider = new MenuSlider("MUSIC", 0, 1, CVars.s_musicvolume.getValue(), 0.01f)
 		{
+			@Override
 			public void keyPressed(KeyEvent e)
 			{
-				Engine.println("musicSlider.keyPressed(event = " + e + ")");
+				super.keyPressed(e);
 				
-				KeyCode key = e.getKey();
-				switch(key)
-				{
-					case ENTER:
-					case MOUSE1:
-					case XBOX360_A:
-						//UserInterface.pushMenu(new QuitMenu());
-						e.consume();
-						break;
-				}
+				CVars.s_musicvolume.set(Float.toString(musicSlider.getCurValue()));
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e)
+			{
+				//Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/05-Motor.ogg", "");
+				Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
+				
+				super.focusGained(e);
+			}
+			
+			@Override
+			public void focusLost(FocusEvent e)
+			{
+				//Client.stopBackgroundTrack();
+				Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
+				
+				super.focusLost(e);
 			}
 		};
 		
@@ -87,25 +119,52 @@ public class OptionsMenu_Audio extends MenuFrame
 		stackPanel.margin.left = 43;
 		
 		stackPanel.addChild(title);
-		stackPanel.addChild(effectsSlider);
 		stackPanel.addChild(musicSlider);
+		stackPanel.addChild(effectsSlider);
 		
 		addChild(stackPanel);
 		
 		
 		Vector<Component> order = new Vector<Component>();
-		order.add(effectsSlider);
 		order.add(musicSlider);
+		order.add(effectsSlider);
 		setCursorOrder(order);
 		
-		setCursor(effectsSlider);
+		setCursor(musicSlider);
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent e)
+	{
+		KeyCode key = e.getKey();
+		
+		switch(key)
+		{
+			case ESCAPE:
+			case MOUSE2:
+			case XBOX360_B:
+				Client.stopBackgroundTrack();
+				Client.clearLoopingSounds(true);
+				break;
+				
+			case F2:
+			case XBOX360_Y:
+				CVars.s_volume.reset();
+				effectsSlider.setCurValue(CVars.s_volume.getValue());
+				
+				CVars.s_musicvolume.reset();
+				musicSlider.setCurValue(CVars.s_musicvolume.getValue());
+				break;
+		}
+				
+		super.keyPressed(e);
 	}
 	
 	@Override
 	protected void updateNavigationBarPC()
 	{
 		navigationBar.clear();
-		navigationBar.add("ACCEPT/SAVE", "ui/keyboard_keys/standard_104/enter.png");
+		//navigationBar.add("ACCEPT/SAVE", "ui/keyboard_keys/standard_104/enter.png");
 		navigationBar.add("BACK", "ui/keyboard_keys/standard_104/esc.png");
 		navigationBar.add("RESTORE DEFAULT SETTINGS", "ui/keyboard_keys/standard_104/f2.png");
 		
@@ -116,7 +175,7 @@ public class OptionsMenu_Audio extends MenuFrame
 	protected void updateNavigationBar360()
 	{
 		navigationBar.clear();
-		navigationBar.add("ACCEPT/SAVE", "ui/xbox360/xna/buttons/xboxControllerButtonA.png");
+		//navigationBar.add("ACCEPT/SAVE", "ui/xbox360/xna/buttons/xboxControllerButtonA.png");
 		navigationBar.add("BACK", "ui/xbox360/xna/buttons/xboxControllerButtonB.png");
 		navigationBar.add("RESTORE DEFAULT SETTINGS", "ui/xbox360/xna/buttons/xboxControllerButtonY.png");
 		

@@ -1,5 +1,8 @@
 package xreal.client.ui;
 
+import xreal.Color;
+import xreal.client.renderer.Renderer;
+
 
 /**
  * @author Robert Beckebans
@@ -8,7 +11,7 @@ public class Slider extends Component
 {
 	//public Image		bar;
 	public Image		barImage;
-	public Image		thumb;
+	//public Image		thumb;
 	
 	public Slider()
 	{
@@ -31,7 +34,11 @@ public class Slider extends Component
 		barImage.margin.right = 0;
 		barImage.margin.bottom = 5;
 		
-		thumb = new Image("ui/sliderbutt_1");
+		//thumb = new Image("ui/sliderbutt_1");
+		//thumb.horizontalAlignment = HorizontalAlignment.None;
+		//thumb.verticalAlignment = VerticalAlignment.None;
+		//thumb.width = 4;
+		//thumb.height = 26;
 		
 		addChild(barImage);
 		//addChild(thumb);

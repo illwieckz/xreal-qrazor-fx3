@@ -504,7 +504,7 @@ public class Component implements EventListener, FocusListener, FocusTraversalPo
 	{
 		focusOwner = true;
 		
-		Engine.println("focus gained: " + this.getClass().getName() + ", event = " + e);
+		//Engine.println("focus gained: " + this.getClass().getName() + ", event = " + e);
 	}
 
 	@Override

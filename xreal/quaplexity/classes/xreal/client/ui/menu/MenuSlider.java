@@ -10,6 +10,7 @@ import xreal.client.ui.Component;
 import xreal.client.ui.HorizontalAlignment;
 import xreal.client.ui.Image;
 import xreal.client.ui.Label;
+import xreal.client.ui.Rectangle;
 import xreal.client.ui.Slider;
 import xreal.client.ui.StackPanel;
 import xreal.client.ui.UserInterface;
@@ -34,10 +35,35 @@ public abstract class MenuSlider extends Component implements KeyListener
 	private float		oldTextLabelAlpha;
 	
 	private Image		selectionImage;
+	private Image		thumbImage;
 	
 	private float		minValue;
 	private float		maxValue;
 	private float		curValue;
+	
+	public void setCurValue(float curValue)
+	{
+		if(curValue < minValue)
+		{
+			this.curValue = minValue;
+		}
+		else if(curValue > maxValue)
+		{
+			this.curValue = maxValue;
+		}
+		else
+		{
+			this.curValue = curValue;
+		}
+		
+		updateValueLabel(this.curValue);
+	}
+
+	public float getCurValue()
+	{
+		return curValue;
+	}
+
 	private float 		stepSize;
 	
 	private int			moveSound;
@@ -55,6 +81,9 @@ public abstract class MenuSlider extends Component implements KeyListener
 		selectionImage = new Image("white");
 		selectionImage.color.set(1, 1, 0, 0.7f);
 		
+		thumbImage = new Image("white");
+		thumbImage.color.set(1, 0, 0, 0.9f);
+		
 		//backgroundImage = new Image("white");
 		//backgroundImage.color.set(0.0f, 0.0f, 0.0f, 0.5f);
 		
@@ -64,6 +93,7 @@ public abstract class MenuSlider extends Component implements KeyListener
 		width = 320;
 		
 		slider = new Slider();
+		
 		slider.verticalAlignment = VerticalAlignment.Stretch;
 		slider.width = 140;
 		//slider.height = 26;
@@ -142,8 +172,6 @@ public abstract class MenuSlider extends Component implements KeyListener
 	{
 		if(isFocusOwner())
 		{
-			//border.paintBorder(0, bounds.y, UserInterface.SCREEN_WIDTH, bounds.height);
-		
 			// draw selection until stack panel
 			selectionImage.bounds.x = 0;
 			selectionImage.bounds.y = bounds.y;
@@ -160,6 +188,15 @@ public abstract class MenuSlider extends Component implements KeyListener
 		}
 		
 		super.render();
+		
+		{
+			// draw thumb
+			thumbImage.bounds.x = slider.bounds.x + slider.bounds.width * (curValue / maxValue);
+			thumbImage.bounds.y = bounds.y;
+			thumbImage.bounds.width = 4;
+			thumbImage.bounds.height = bounds.height;
+			thumbImage.render();
+		}
 	}
 	
 	@Override
@@ -173,7 +210,7 @@ public abstract class MenuSlider extends Component implements KeyListener
 		//if(step < 1)
 		//	step = 1;
 		
-		Engine.println("MenuSlider.keyPressed(event = " + e + ")");
+		//Engine.println("MenuSlider.keyPressed(event = " + e + ")");
 		
 		KeyCode key = e.getKey();
 		switch(key)
@@ -184,10 +221,11 @@ public abstract class MenuSlider extends Component implements KeyListener
 				if(curValue > minValue)
 				{
 					curValue -= stepSize;
+					curValue = Math.round(curValue * 100.0f) / 100.0f;
 					curValue = Math.max(curValue, minValue);
 					updateValueLabel(curValue);
 					
-					Client.startLocalSound(moveSound, SoundChannel.LOCAL);
+					//Client.startLocalSound(moveSound, SoundChannel.LOCAL);
 				}
 				else
 				{
@@ -202,10 +240,11 @@ public abstract class MenuSlider extends Component implements KeyListener
 				if(curValue < maxValue)
 				{
 					curValue += stepSize;
+					curValue = Math.round(curValue * 100.0f) / 100.0f;
 					curValue = Math.min(curValue, maxValue);
 					updateValueLabel(curValue);
 					
-					Client.startLocalSound(moveSound, SoundChannel.LOCAL);
+					//Client.startLocalSound(moveSound, SoundChannel.LOCAL);
 				}
 				else
 				{
