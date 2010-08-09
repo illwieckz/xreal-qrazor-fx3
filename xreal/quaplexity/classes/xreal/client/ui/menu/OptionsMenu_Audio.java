@@ -33,6 +33,9 @@ public class OptionsMenu_Audio extends MenuFrame
 	StackPanel					stackPanel;
 	MenuSlider					effectsSlider;
 	MenuSlider					musicSlider;
+//	MenuSpinControl				soundQuality;
+	MenuSpinControl				useOpenAL;
+	
 	int							radioSignalSound;
 	
 	public OptionsMenu_Audio() 
@@ -56,8 +59,6 @@ public class OptionsMenu_Audio extends MenuFrame
 				CVars.s_volume.set(Float.toString(effectsSlider.getCurValue()));
 			}
 			
-			
-			
 			@Override
 			public void focusGained(FocusEvent e)
 			{
@@ -76,7 +77,7 @@ public class OptionsMenu_Audio extends MenuFrame
 				//Client.stopLoopingSound(Engine.ENTITYNUM_NONE);
 				Client.clearLoopingSounds(true);
 				
-				Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
+				//Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
 				
 				super.focusLost(e);
 			}
@@ -105,10 +106,70 @@ public class OptionsMenu_Audio extends MenuFrame
 			@Override
 			public void focusLost(FocusEvent e)
 			{
-				//Client.stopBackgroundTrack();
-				Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
+				Client.stopBackgroundTrack();
+				//Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
 				
 				super.focusLost(e);
+			}
+		};
+		
+		/*
+		String[] qualityItems = {"LOW", "HIGH"};
+		soundQuality = new MenuSpinControl("SOUND QUALITY", qualityItems, CVars.s_khz.getString().equals("22") ? 1 : 0)
+		{
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				super.keyPressed(e);
+				
+				KeyCode key = e.getKey();
+				switch(key)
+				{
+					case ENTER:
+					case XBOX360_A:
+						if(soundQuality.getCurValue().equals("HIGH"))
+						{
+							CVars.s_khz.set("22");
+						}
+						else
+						{
+							CVars.s_khz.set("11");
+						}
+						
+						UserInterface.forceMenuOff();
+						Engine.sendConsoleCommand(Engine.EXEC_APPEND, "snd_restart\n");
+						break;
+				}
+			}
+		};
+		*/
+		
+		String[] yesNo = {"NO", "YES"};
+		useOpenAL = new MenuSpinControl("USE OPENAL", yesNo, CVars.s_useOpenAL.getBoolean() ? 1 : 0)
+		{
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				super.keyPressed(e);
+				
+				KeyCode key = e.getKey();
+				switch(key)
+				{
+					case ENTER:
+					case XBOX360_A:
+						if(useOpenAL.getCurValue().equals("YES"))
+						{
+							CVars.s_useOpenAL.set("1");
+						}
+						else
+						{
+							CVars.s_useOpenAL.set("0");
+						}
+						
+						UserInterface.forceMenuOff();
+						Engine.sendConsoleCommand(Engine.EXEC_APPEND, "snd_restart\n");
+						break;
+				}
 			}
 		};
 		
@@ -121,6 +182,8 @@ public class OptionsMenu_Audio extends MenuFrame
 		stackPanel.addChild(title);
 		stackPanel.addChild(musicSlider);
 		stackPanel.addChild(effectsSlider);
+		//stackPanel.addChild(soundQuality);
+		stackPanel.addChild(useOpenAL);
 		
 		addChild(stackPanel);
 		
@@ -128,6 +191,8 @@ public class OptionsMenu_Audio extends MenuFrame
 		Vector<Component> order = new Vector<Component>();
 		order.add(musicSlider);
 		order.add(effectsSlider);
+		//order.add(soundQuality);
+		order.add(useOpenAL);
 		setCursorOrder(order);
 		
 		setCursor(musicSlider);
@@ -164,7 +229,7 @@ public class OptionsMenu_Audio extends MenuFrame
 	protected void updateNavigationBarPC()
 	{
 		navigationBar.clear();
-		//navigationBar.add("ACCEPT/SAVE", "ui/keyboard_keys/standard_104/enter.png");
+		navigationBar.add("ACCEPT/SAVE", "ui/keyboard_keys/standard_104/enter.png");
 		navigationBar.add("BACK", "ui/keyboard_keys/standard_104/esc.png");
 		navigationBar.add("RESTORE DEFAULT SETTINGS", "ui/keyboard_keys/standard_104/f2.png");
 		
@@ -175,7 +240,7 @@ public class OptionsMenu_Audio extends MenuFrame
 	protected void updateNavigationBar360()
 	{
 		navigationBar.clear();
-		//navigationBar.add("ACCEPT/SAVE", "ui/xbox360/xna/buttons/xboxControllerButtonA.png");
+		navigationBar.add("ACCEPT/SAVE", "ui/xbox360/xna/buttons/xboxControllerButtonA.png");
 		navigationBar.add("BACK", "ui/xbox360/xna/buttons/xboxControllerButtonB.png");
 		navigationBar.add("RESTORE DEFAULT SETTINGS", "ui/xbox360/xna/buttons/xboxControllerButtonY.png");
 		

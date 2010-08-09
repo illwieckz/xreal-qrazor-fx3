@@ -246,7 +246,7 @@ public class UserInterface implements UserInterfaceListener
 		}
 	}
 
-	private static void forceMenuOff()
+	public static void forceMenuOff()
 	{
 		while(!menuStack.isEmpty())
 		{

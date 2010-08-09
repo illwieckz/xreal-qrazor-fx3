@@ -108,6 +108,8 @@ public abstract class CVars {
 	// sound system -------------------------------------------------------------------------------
 	public static final CVar s_volume = new CVar("s_volume", "0.8", CVar.ARCHIVE);
 	public static final CVar s_musicvolume = new CVar("s_musicvolume", "0.25", CVar.ARCHIVE);
+	public static final CVar s_khz = new CVar("s_khz", "22", CVar.ARCHIVE);
+	public static final CVar s_useOpenAL = new CVar("s_useOpenAL", "1", CVar.ARCHIVE);
 	
 	// engine -------------------------------------------------------------------------------------
 	public static final CVar com_errorMessage = new CVar("com_errorMessage", "", CVar.ROM);

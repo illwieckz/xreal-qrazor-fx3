@@ -90,7 +90,7 @@ public abstract class MenuSlider extends Component implements KeyListener
 		textLabel = new MenuButton(labelText);
 		//label.backgroundImage = null;
 		
-		width = 320;
+		width = 400;
 		
 		slider = new Slider();
 		
