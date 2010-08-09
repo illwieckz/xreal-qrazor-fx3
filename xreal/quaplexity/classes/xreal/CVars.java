@@ -69,7 +69,7 @@ public abstract class CVars {
 	public static final CVar sv_fps = new CVar("sv_fps", "", 0);
 	
 	
-	// player movement
+	// player movement ----------------------------------------------------------------------------
 	public static final CVar pm_debugClient = new CVar("pm_debugClient", "0", CVar.CHEAT);
 	public static final CVar pm_debugServer = new CVar("pm_debugServer", "0", CVar.CHEAT);
 	
@@ -103,5 +103,13 @@ public abstract class CVars {
 	
 	public static final CVar pm_jumpHeight = new CVar("pm_jumpHeight", "120", CVar.SYSTEMINFO);
 	public static final CVar pm_stepHeight = new CVar("pm_stepHeight", "40", CVar.SYSTEMINFO);
-
+	
+	
+	// sound system -------------------------------------------------------------------------------
+	public static final CVar s_volume = new CVar("s_volume", "0.8", CVar.ARCHIVE);
+	public static final CVar s_musicvolume = new CVar("s_musicvolume", "0.25", CVar.ARCHIVE);
+	
+	// engine -------------------------------------------------------------------------------------
+	public static final CVar com_errorMessage = new CVar("com_errorMessage", "", CVar.ROM);
+	public static final CVar com_stackTrace = new CVar("com_stackTrace", "", CVar.ROM);
 }

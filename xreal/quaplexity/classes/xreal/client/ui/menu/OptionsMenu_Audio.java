@@ -4,13 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import xreal.CVars;
 import xreal.Color;
+import xreal.Engine;
+import xreal.client.KeyCode;
 import xreal.client.ui.Button;
 import xreal.client.ui.Component;
 import xreal.client.ui.HorizontalAlignment;
 import xreal.client.ui.Label;
 import xreal.client.ui.StackPanel;
+import xreal.client.ui.UserInterface;
 import xreal.client.ui.VerticalAlignment;
+import xreal.client.ui.event.KeyEvent;
 
 /**
  * @author Robert Beckebans
@@ -32,30 +37,47 @@ public class OptionsMenu_Audio extends MenuFrame
 		
 		title = new MenuTitle("AUDIO");
 		
-		effectsSlider = new MenuSlider("EFFECTS");
-		musicSlider = new MenuSlider("MUSIC");
+		effectsSlider = new MenuSlider("EFFECTS", 0, 1, CVars.s_volume.getValue(), 0.1f)
 		{
-			/*
 			public void keyPressed(KeyEvent e)
 			{
-				if(!e.isDown())
-					return;
-			
+				Engine.println("effectsSlider.keyPressed(event = " + e + ")");
+				
 				KeyCode key = e.getKey();
-				
-				Engine.println("keyboardSetupButton.keyPressed(event = " + e + ")");
-				
 				switch(key)
 				{
 					case ENTER:
 					case MOUSE1:
 					case XBOX360_A:
-						UserInterface.pushMenu(new QuitMenu());
+						e.consume();
+						break;
+				}
+				
+				if(!e.isConsumed())
+				{
+					super.keyPressed(e);
+				}
+			}
+		};
+		
+		
+		musicSlider = new MenuSlider("MUSIC", 0, 1, CVars.s_musicvolume.getValue(), 0.1f)
+		{
+			public void keyPressed(KeyEvent e)
+			{
+				Engine.println("musicSlider.keyPressed(event = " + e + ")");
+				
+				KeyCode key = e.getKey();
+				switch(key)
+				{
+					case ENTER:
+					case MOUSE1:
+					case XBOX360_A:
+						//UserInterface.pushMenu(new QuitMenu());
 						e.consume();
 						break;
 				}
 			}
-			*/
 		};
 		
 		stackPanel = new StackPanel();

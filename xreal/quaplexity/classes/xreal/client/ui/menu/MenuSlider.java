@@ -1,6 +1,10 @@
 package xreal.client.ui.menu;
 
 import xreal.Color;
+import xreal.Engine;
+import xreal.client.Client;
+import xreal.client.KeyCode;
+import xreal.client.SoundChannel;
 import xreal.client.renderer.Renderer;
 import xreal.client.ui.Component;
 import xreal.client.ui.HorizontalAlignment;
@@ -11,13 +15,15 @@ import xreal.client.ui.StackPanel;
 import xreal.client.ui.UserInterface;
 import xreal.client.ui.StackPanel.Orientation;
 import xreal.client.ui.event.FocusEvent;
+import xreal.client.ui.event.KeyEvent;
+import xreal.client.ui.event.KeyListener;
 import xreal.client.ui.VerticalAlignment;
 
 
 /**
  * @author Robert Beckebans
  */
-public class MenuSlider extends Component
+public abstract class MenuSlider extends Component implements KeyListener
 {
 	private MenuButton	textLabel;
 	
@@ -29,9 +35,22 @@ public class MenuSlider extends Component
 	
 	private Image		selectionImage;
 	
-	public MenuSlider(String labelText)
+	private float		minValue;
+	private float		maxValue;
+	private float		curValue;
+	private float 		stepSize;
+	
+	private int			moveSound;
+	private int			buzzSound;
+	
+	public MenuSlider(String labelText, float minValue, float maxValue, float curValue, float stepSize)
 	{
 		super();
+		
+		this.minValue = minValue;
+		this.maxValue = maxValue;
+		this.curValue = curValue;
+		this.stepSize = stepSize;
 		
 		selectionImage = new Image("white");
 		selectionImage.color.set(1, 1, 0, 0.7f);
@@ -51,9 +70,11 @@ public class MenuSlider extends Component
 		
 		valueLabel = new Label("100");
 		valueLabel.height = 26;
+		valueLabel.width = 40;
 		valueLabel.textBlock.font = Renderer.registerFont("fonts/FreeSansBold.ttf", 48);
 		valueLabel.textBlock.color.set(Color.LtGrey);
 		valueLabel.textBlock.fontSize = 20;
+		updateValueLabel(curValue);
 		
 		stackPanel = new StackPanel();
 		stackPanel.orientation = Orientation.Horizontal;
@@ -67,6 +88,15 @@ public class MenuSlider extends Component
 		
 		addChild(textLabel);
 		addChild(stackPanel);
+		
+		
+		moveSound = Client.registerSound("sound/misc/menu2.wav");
+		buzzSound = Client.registerSound("sound/misc/menu4.wav");
+	}
+	
+	private void updateValueLabel(float value)
+	{
+		valueLabel.textBlock.text = Integer.toString((int) ((value / maxValue) * 100));
 	}
 	
 	@Override
@@ -130,5 +160,65 @@ public class MenuSlider extends Component
 		}
 		
 		super.render();
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent e)
+	{
+		//int x;
+		//int oldvalue;
+		//float step;
+
+		//step = this.step;
+		//if(step < 1)
+		//	step = 1;
+		
+		Engine.println("MenuSlider.keyPressed(event = " + e + ")");
+		
+		KeyCode key = e.getKey();
+		switch(key)
+		{
+			case LEFTARROW:
+			case KP_LEFTARROW:
+			case XBOX360_DPAD_LEFT:
+				if(curValue > minValue)
+				{
+					curValue -= stepSize;
+					curValue = Math.max(curValue, minValue);
+					updateValueLabel(curValue);
+					
+					Client.startLocalSound(moveSound, SoundChannel.LOCAL);
+				}
+				else
+				{
+					Client.startLocalSound(buzzSound, SoundChannel.LOCAL);
+				}
+				break;
+				
+				
+			case RIGHTARROW:
+			case KP_RIGHTARROW:
+			case XBOX360_DPAD_RIGHT:
+				if(curValue < maxValue)
+				{
+					curValue += stepSize;
+					curValue = Math.min(curValue, maxValue);
+					updateValueLabel(curValue);
+					
+					Client.startLocalSound(moveSound, SoundChannel.LOCAL);
+				}
+				else
+				{
+					Client.startLocalSound(buzzSound, SoundChannel.LOCAL);
+				}
+				break;
+			
+		}
+	}
+	
+	@Override
+	public void keyReleased(KeyEvent e)
+	{
+		// TODO Auto-generated method stub
 	}
 }

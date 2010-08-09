@@ -11,6 +11,7 @@ import xreal.client.renderer.Renderer;
 import xreal.client.ui.event.CharEvent;
 import xreal.client.ui.event.KeyEvent;
 import xreal.client.ui.event.MouseEvent;
+import xreal.client.ui.menu.ErrorMenu;
 import xreal.client.ui.menu.MainMenu;
 import xreal.client.ui.menu.MenuFrame;
 
@@ -46,6 +47,7 @@ public class UserInterface implements UserInterfaceListener
 	static Stack<MenuFrame>	menuStack;
 
 	MenuFrame				mainMenu;
+	ErrorMenu				errorMenu;
 
 	private static Cursor	cursor;
 
@@ -88,6 +90,7 @@ public class UserInterface implements UserInterfaceListener
 		cursor = new Cursor();
 
 		mainMenu = new MainMenu();
+		errorMenu = new ErrorMenu();
 	}
 
 	@Override
@@ -262,7 +265,17 @@ public class UserInterface implements UserInterfaceListener
 	{
 		CVars.sv_killserver.set("1");
 
-		pushMenu(mainMenu);
+		
+		String errorMessage = CVars.com_errorMessage.getString();
+		if(!errorMessage.isEmpty())
+		{
+			errorMenu.setErrorMessage(errorMessage, CVars.com_stackTrace.getString());
+			pushMenu(errorMenu);
+		}
+		else
+		{
+			pushMenu(mainMenu);
+		}
 
 		//Client.startBackgroundTrack("music/jamendo.com/Vate/Motor/02-Parabellum.ogg", "");
 	}
