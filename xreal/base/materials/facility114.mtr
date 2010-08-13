@@ -6,7 +6,25 @@ textures/facility114/base
 	parallax
 	qer_editorImage		textures/facility114/base
 	diffuseMap		textures/facility114/base
-	specularMap		textures/facility114/base_s
+	specularMap		textures/facility114/basegray
+	normalMap		_flat
+}
+
+textures/facility114/base_bumps
+{
+	parallax
+	qer_editorImage		textures/facility114/base
+	diffuseMap		textures/facility114/base
+	specularMap		textures/facility114/basegray
+	normalMap		textures/facility114/base_bumps_local
+}
+
+textures/facility114/base_wrn
+{
+	parallax
+	qer_editorImage		textures/facility114/base_wrn
+	diffuseMap		textures/facility114/base_wrn
+	specularMap		textures/facility114/basegray_wrn
 	normalMap		_flat
 }
 
@@ -15,7 +33,52 @@ textures/facility114/baseblue
 	parallax
 	qer_editorImage		textures/facility114/baseblue
 	diffuseMap		textures/facility114/baseblue
-	specularMap		textures/facility114/base_s
+	specularMap		textures/facility114/basegray
+	normalMap		_flat
+}
+
+textures/facility114/baseblue_bumps
+{
+	parallax
+	qer_editorImage		textures/facility114/baseblue
+	diffuseMap		textures/facility114/baseblue
+	specularMap		textures/facility114/basegray
+	normalMap		textures/facility114/base_bumps_local
+}
+
+textures/facility114/baseblue_wrn
+{
+	parallax
+	qer_editorImage		textures/facility114/baseblue_wrn
+	diffuseMap		textures/facility114/baseblue_wrn
+	specularMap		textures/facility114/basegray_wrn
+	normalMap		_flat
+}
+
+textures/facility114/basegray
+{
+	parallax
+	qer_editorImage		textures/facility114/basegray
+	diffuseMap		textures/facility114/basegray
+	specularMap		textures/facility114/basegray
+	normalMap		_flat
+}
+
+textures/facility114/basegray_bumps
+{
+	parallax
+	qer_editorImage		textures/facility114/basegray
+	diffuseMap		textures/facility114/basegray
+	specularMap		textures/facility114/basegray
+	normalMap		textures/facility114/base_bumps_local
+}
+
+textures/facility114/basegray_wrn
+{
+	parallax
+	qer_editorImage		textures/facility114/basegray_wrn
+	diffuseMap		textures/facility114/basegray_wrn
+	specularMap		textures/facility114/basegray_wrn
 	normalMap		_flat
 }
 
@@ -24,7 +87,25 @@ textures/facility114/basered
 	parallax
 	qer_editorImage		textures/facility114/basered
 	diffuseMap		textures/facility114/basered
-	specularMap		textures/facility114/base_s
+	specularMap		textures/facility114/basegray
+	normalMap		_flat
+}
+
+textures/facility114/basered_bumps
+{
+	parallax
+	qer_editorImage		textures/facility114/basered
+	diffuseMap		textures/facility114/basered
+	specularMap		textures/facility114/basegray
+	normalMap		textures/facility114/base_bumps_local
+}
+
+textures/facility114/basered_wrn
+{
+	parallax
+	qer_editorImage		textures/facility114/basered_wrn
+	diffuseMap		textures/facility114/basered_wrn
+	specularMap		textures/facility114/basegray_wrn
 	normalMap		_flat
 }
 
@@ -33,7 +114,25 @@ textures/facility114/baseyellow
 	parallax
 	qer_editorImage		textures/facility114/baseyellow
 	diffuseMap		textures/facility114/baseyellow
-	specularMap		textures/facility114/base_s
+	specularMap		textures/facility114/basegray
+	normalMap		_flat
+}
+
+textures/facility114/baseyellow_bumps
+{
+	parallax
+	qer_editorImage		textures/facility114/baseyellow
+	diffuseMap		textures/facility114/baseyellow
+	specularMap		textures/facility114/basegray
+	normalMap		textures/facility114/base_bumps_local
+}
+
+textures/facility114/baseyellow_wrn
+{
+	parallax
+	qer_editorImage		textures/facility114/baseyellow_wrn
+	diffuseMap		textures/facility114/baseyellow_wrn
+	specularMap		textures/facility114/basegray_wrn
 	normalMap		_flat
 }
 

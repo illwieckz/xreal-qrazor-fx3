@@ -7,12 +7,12 @@ models\weapons\railgun\body
 		stage		normalMap
 		map		models\weapons\railgun\body_NRM
 	}
-	reflectionMapBlended	_autocube
 	{
-		forceHighQuality
-		stage		normalMap
-		map		models\weapons\railgun\body_NRM
+		stage		reflectionMap
+		cubeMap		_autocube
+		blend		GL_ONE_MINUS_DST_ALPHA, GL_ONE
 	}
+	normalMap		models\weapons\railgun\body_NRM
 	{
 		blend 		add
 		map		models\weapons\railgun\body_glo
@@ -26,6 +26,10 @@ models\weapons\railgun\bgf
 	diffusemap		models\weapons\railgun\bgf_diffuse
 	specularmap		models\weapons\railgun\bgf_spec
 	normalmap		models\weapons\railgun\bgf_NRM
-	reflectionMapBlended	_autocube
+	{
+		stage		reflectionMap
+		cubeMap		_autocube
+		blend		GL_DST_ALPHA, GL_ONE
+	}
 	normalmap		models\weapons\railgun\bgf_NRM
 }

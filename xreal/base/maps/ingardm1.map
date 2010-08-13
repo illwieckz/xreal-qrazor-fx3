@@ -3,14 +3,13 @@ Version 2
 {
 "classname" "worldspawn"
 "_lightMapScale" "0.5"
-"_keeplights" "1"
 "fogColor" "0.405081 0.378088 0.25214"
 "fogDensity" "0.0005"
 "give" "armor 10,machinegun"
 "message" "^1Ingar DM1 ^7by Ingar^3=^7KCT^3="
-"editor_drLastCameraPos" "-1578.82 16.3298 481.907"
-"editor_drLastCameraAngle" "-0.899998 97.8 0"
-"xmap_lightopts" "-fast -filter -samplesize 1 -lightmapsize 1024 -super 2 -pointscale 7.0 -skyscale 2.0 -areascale 3.0 -bounce 0"
+"xmap_lightopts" "-fast -filter -samplesize 1 -lightmapsize 1024 -samples 4 -pointscale 7.0 -skyscale 2.0 -areascale 3.0"
+"editor_drLastCameraPos" "1934 256 562"
+"editor_drLastCameraAngle" "-30 0 0"
 // primitive 0
 {
 brushDef3
@@ -3125,674 +3124,466 @@ brushDef3
 // entity 28
 {
 "classname" "light"
-"name" "light_8"
-"_color" "1 0.584314 0.2"
-"light" "200"
-"origin" "-1472 256 512"
-}
-// entity 29
-{
-"classname" "light"
 "name" "light_9"
 "_color" "1 0.584314 0.2"
 "light" "200"
 "origin" "1984 256 512"
 }
-// entity 30
+// entity 29
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_5"
 "angle" "-90"
 "origin" "256 1216 448"
 }
-// entity 31
+// entity 30
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_6"
 "angle" "90"
 "origin" "256 -704 448"
 }
-// entity 32
+// entity 31
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_7"
 "angle" "-90"
 "origin" "-640 896 448"
 }
-// entity 33
+// entity 32
 {
 "classname" "item_health"
 "name" "item_health_0"
 "origin" "1216 -320 64"
 }
-// entity 34
+// entity 33
 {
 "classname" "item_health"
 "name" "item_health_1"
 "origin" "-768 -256 64"
 }
-// entity 35
+// entity 34
 {
 "classname" "ammo_shells"
 "name" "ammo_shells_0"
 "origin" "1344 -192 64"
 }
-// entity 36
+// entity 35
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_8"
 "angle" "-180"
 "origin" "768 1088 64"
 }
-// entity 37
+// entity 36
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_9"
 "angle" "180"
 "origin" "768 -576 64"
 }
-// entity 38
+// entity 37
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_10"
 "angle" "-3.50835e-15"
 "origin" "-256 -576 64"
 }
-// entity 39
+// entity 38
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_11"
 "angle" "-1.40334e-14"
 "origin" "-256 1088 64"
 }
-// entity 40
+// entity 39
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_12"
 "origin" "-1472 256 480"
 }
-// entity 41
+// entity 40
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_13"
 "angle" "180"
 "origin" "1984 256 480"
 }
-// entity 42
+// entity 41
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_0"
 "origin" "-960 -64 64"
 }
-// entity 43
+// entity 42
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_1"
 "origin" "-832 -192 64"
 }
-// entity 44
+// entity 43
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_2"
 "origin" "-864 -160 64"
 }
-// entity 45
+// entity 44
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_3"
 "origin" "-896 -128 64"
 }
-// entity 46
+// entity 45
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_4"
 "origin" "-928 -96 64"
 }
-// entity 47
+// entity 46
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_5"
 "origin" "384 1216 416"
 }
-// entity 48
+// entity 47
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_6"
 "origin" "576 1216 416"
 }
-// entity 49
+// entity 48
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_7"
 "origin" "480 1216 416"
 }
-// entity 50
+// entity 49
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_8"
 "origin" "448 1216 416"
 }
-// entity 51
+// entity 50
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_9"
 "origin" "416 1216 416"
 }
-// entity 52
+// entity 51
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_10"
 "origin" "512 1216 416"
 }
-// entity 53
+// entity 52
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_11"
 "origin" "544 1216 416"
 }
-// entity 54
-{
-"classname" "light"
-"name" "light_10"
-"light" "200"
-"origin" "768 -608 512"
-}
-// entity 55
-{
-"classname" "light"
-"name" "light_11"
-"light" "200"
-"origin" "256 -608 512"
-}
-// entity 56
-{
-"classname" "light"
-"name" "light_12"
-"light" "200"
-"origin" "768 -608 128"
-}
-// entity 57
-{
-"classname" "light"
-"name" "light_13"
-"light" "200"
-"origin" "1984 256 160"
-}
-// entity 58
-{
-"classname" "light"
-"name" "light_14"
-"_color" "1 0.584314 0.2"
-"light" "200"
-"origin" "1056 -416 576"
-}
-// entity 59
-{
-"classname" "light"
-"name" "light_15"
-"light" "200"
-"origin" "-544 -416 160"
-}
-// entity 60
-{
-"classname" "light"
-"name" "light_16"
-"_color" "1 0.584314 0.2"
-"light" "200"
-"origin" "-544 -416 576"
-}
-// entity 61
-{
-"classname" "light"
-"name" "light_17"
-"light" "200"
-"origin" "-256 -608 512"
-}
-// entity 62
-{
-"classname" "light"
-"name" "light_18"
-"light" "200"
-"origin" "-256 -608 128"
-}
-// entity 63
-{
-"classname" "light"
-"name" "light_19"
-"light" "200"
-"origin" "256 -608 128"
-}
-// entity 64
-{
-"classname" "light"
-"name" "light_20"
-"light" "200"
-"origin" "1056 -416 160"
-}
-// entity 65
-{
-"classname" "light"
-"name" "light_21"
-"light" "200"
-"origin" "1376 256 160"
-}
-// entity 66
-{
-"classname" "light"
-"name" "light_22"
-"light" "200"
-"origin" "768 1120 128"
-}
-// entity 67
-{
-"classname" "light"
-"name" "light_23"
-"light" "200"
-"origin" "256 1120 128"
-}
-// entity 68
-{
-"classname" "light"
-"name" "light_24"
-"light" "200"
-"origin" "-800 -160 160"
-}
-// entity 69
-{
-"classname" "light"
-"name" "light_25"
-"light" "200"
-"origin" "-544 928 160"
-}
-// entity 70
-{
-"classname" "light"
-"name" "light_26"
-"light" "200"
-"origin" "-256 1120 128"
-}
-// entity 71
-{
-"classname" "light"
-"name" "light_27"
-"light" "200"
-"origin" "768 1120 512"
-}
-// entity 72
-{
-"classname" "light"
-"name" "light_28"
-"light" "200"
-"origin" "256 1120 512"
-}
-// entity 73
-{
-"classname" "light"
-"name" "light_29"
-"_color" "1 0.584314 0.2"
-"light" "200"
-"origin" "1056 928 576"
-}
-// entity 74
-{
-"classname" "light"
-"name" "light_30"
-"_color" "1 0.584314 0.2"
-"light" "200"
-"origin" "-544 928 576"
-}
-// entity 75
-{
-"classname" "light"
-"name" "light_31"
-"light" "200"
-"origin" "-256 1120 512"
-}
-// entity 76
-{
-"classname" "light"
-"name" "light_32"
-"light" "200"
-"origin" "1056 928 160"
-}
-// entity 77
-{
-"classname" "light"
-"name" "light_33"
-"light" "200"
-"origin" "-800 672 160"
-}
-// entity 78
-{
-"classname" "light"
-"name" "light_34"
-"light" "200"
-"origin" "1312 672 160"
-}
-// entity 79
-{
-"classname" "light"
-"name" "light_35"
-"light" "200"
-"origin" "1312 -160 160"
-}
-// entity 80
+// entity 53
 {
 "classname" "item_health_small"
 "name" "item_health_small_0"
 "origin" "1472 576 64"
 }
-// entity 81
+// entity 54
 {
 "classname" "item_health_small"
 "name" "item_health_small_1"
 "origin" "1408 640 64"
 }
-// entity 82
+// entity 55
 {
 "classname" "item_health_small"
 "name" "item_health_small_2"
 "origin" "1440 608 64"
 }
-// entity 83
+// entity 56
 {
 "classname" "item_health_small"
 "name" "item_health_small_3"
 "origin" "1376 672 64"
 }
-// entity 84
+// entity 57
 {
 "classname" "item_health_small"
 "name" "item_health_small_4"
 "origin" "1344 704 64"
 }
-// entity 85
+// entity 58
 {
 "classname" "ammo_slugs"
 "name" "ammo_slugs_2"
 "origin" "1248 800 416"
 }
-// entity 86
+// entity 59
 {
 "classname" "item_health_small"
 "name" "item_health_small_5"
 "origin" "128 -704 416"
 }
-// entity 87
+// entity 60
 {
 "classname" "item_health_small"
 "name" "item_health_small_6"
 "origin" "96 -704 416"
 }
-// entity 88
+// entity 61
 {
 "classname" "item_health_small"
 "name" "item_health_small_7"
 "origin" "64 -704 416"
 }
-// entity 89
+// entity 62
 {
 "classname" "item_health_small"
 "name" "item_health_small_8"
 "origin" "32 -704 416"
 }
-// entity 90
+// entity 63
 {
 "classname" "item_health_small"
 "name" "item_health_small_9"
 "origin" "0 -704 416"
 }
-// entity 91
+// entity 64
 {
 "classname" "item_health_small"
 "name" "item_health_small_10"
 "origin" "-32 -704 416"
 }
-// entity 92
+// entity 65
 {
 "classname" "item_health_small"
 "name" "item_health_small_11"
 "origin" "-64 -704 416"
 }
-// entity 93
+// entity 66
 {
 "classname" "ammo_rockets"
 "name" "ammo_rockets_4"
 "origin" "1344 -192 416"
 }
-// entity 94
+// entity 67
 {
 "classname" "ammo_rockets"
 "name" "ammo_rockets_5"
 "origin" "-704 768 416"
 }
-// entity 95
+// entity 68
 {
 "classname" "item_health_large"
 "name" "item_health_large_0"
 "origin" "992 -544 416"
 }
-// entity 96
+// entity 69
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_12"
 "origin" "1856 32 64"
 }
-// entity 97
+// entity 70
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_13"
 "origin" "1728 32 64"
 }
-// entity 98
+// entity 71
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_14"
 "origin" "1760 32 64"
 }
-// entity 99
+// entity 72
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_15"
 "origin" "1792 32 64"
 }
-// entity 100
+// entity 73
 {
 "classname" "item_armor_shard"
 "name" "item_armor_shard_16"
 "origin" "1824 32 64"
 }
-// entity 101
+// entity 74
 {
 "classname" "item_health_small"
 "name" "item_health_small_12"
 "origin" "-1312 480 64"
 }
-// entity 102
+// entity 75
 {
 "classname" "item_health_small"
 "name" "item_health_small_13"
 "origin" "-1216 480 64"
 }
-// entity 103
+// entity 76
 {
 "classname" "item_health_small"
 "name" "item_health_small_14"
 "origin" "-1248 480 64"
 }
-// entity 104
+// entity 77
 {
 "classname" "item_health_small"
 "name" "item_health_small_15"
 "origin" "-1280 480 64"
 }
-// entity 105
+// entity 78
 {
 "classname" "item_health_small"
 "name" "item_health_small_16"
 "origin" "-1344 480 64"
 }
-// entity 106
-{
-"classname" "light"
-"name" "light_36"
-"light" "200"
-"origin" "-864 256 160"
-}
-// entity 107
-{
-"classname" "light"
-"name" "light_37"
-"light" "200"
-"origin" "-1472 256 160"
-}
-// entity 108
+// entity 79
 {
 "classname" "ammo_bullets"
 "name" "ammo_bullets_0"
 "origin" "-704 768 64"
 }
-// entity 109
+// entity 80
 {
 "classname" "ammo_bullets"
 "name" "ammo_bullets_1"
 "origin" "256 768 64"
 }
-// entity 110
+// entity 81
 {
 "classname" "ammo_bullets"
 "name" "ammo_bullets_2"
 "origin" "1248 800 64"
 }
-// entity 111
+// entity 82
 {
 "classname" "ammo_bullets"
 "name" "ammo_bullets_3"
 "origin" "1088 -448 64"
 }
-// entity 112
+// entity 83
 {
 "classname" "ammo_bullets"
 "name" "ammo_bullets_4"
 "origin" "256 -256 64"
 }
-// entity 113
+// entity 84
 {
 "classname" "ammo_bullets"
 "name" "ammo_bullets_5"
 "origin" "1376 672 416"
 }
-// entity 114
+// entity 85
 {
 "classname" "ammo_bullets"
 "name" "ammo_bullets_6"
 "origin" "-256 1184 416"
 }
-// entity 115
+// entity 86
 {
 "classname" "ammo_bullets"
 "name" "ammo_bullets_7"
 "origin" "-896 -128 416"
 }
-// entity 116
+// entity 87
 {
 "classname" "ammo_bullets"
 "name" "ammo_bullets_8"
 "origin" "768 -672 416"
 }
-// entity 117
+// entity 88
 {
 "classname" "item_flag_team1"
 "name" "item_flag_team1_0"
 "origin" "-1296 256 476"
 }
-// entity 118
+// entity 89
 {
 "classname" "item_flag_team2"
 "name" "item_flag_team2_0"
 "angle" "180"
 "origin" "1808 256 480"
 }
-// entity 119
+// entity 90
 {
 "classname" "info_player_team2"
 "name" "info_player_team2_0"
 "angle" "180"
 "origin" "1920 256 64"
 }
-// entity 120
+// entity 91
 {
 "classname" "info_player_team1"
 "name" "info_player_team1_0"
 "origin" "-1408 256 64"
 }
-// entity 121
+// entity 92
 {
 "classname" "info_player_team1"
 "name" "info_player_team1_1"
 "angle" "-90"
 "origin" "-1408 448 64"
 }
-// entity 122
+// entity 93
 {
 "classname" "info_player_team2"
 "name" "info_player_team2_1"
 "angle" "-90"
 "origin" "1920 448 64"
 }
-// entity 123
+// entity 94
 {
 "classname" "info_player_team1"
 "name" "info_player_team1_2"
 "angle" "90"
 "origin" "-1408 64 64"
 }
-// entity 124
+// entity 95
 {
 "classname" "info_player_team2"
 "name" "info_player_team2_2"
 "angle" "90"
 "origin" "1920 64 64"
 }
-// entity 125
+// entity 96
 {
 "classname" "weapon_railgun"
 "name" "weapon_railgun_2"
 "origin" "256 -512 448"
 }
-// entity 126
+// entity 97
 {
 "classname" "weapon_railgun"
 "name" "weapon_railgun_3"
 "origin" "256 1024 448"
 }
-// entity 127
+// entity 98
 {
 "classname" "ammo_slugs"
 "name" "ammo_slugs_3"
 "origin" "704 -672 416"
 }
-// entity 128
+// entity 99
 {
 "classname" "ammo_slugs"
 "name" "ammo_slugs_4"
 "origin" "-192 1184 416"
 }
-// entity 129
+// entity 100
 {
 "classname" "func_static"
 "name" "func_static_6"
 "model" "models/mapobjects/mic/jumppad/jumppad01.ase"
 "origin" "2176 256 0"
 }
-// entity 130
+// entity 101
 {
 "classname" "func_static"
 "name" "func_static_8"
 "model" "models/mapobjects/mic/jumppad/jumppad01.ase"
 "origin" "-1664 256 0"
 }
-// entity 131
+// entity 102
 {
 "classname" "trigger_hurt"
 "name" "trigger_hurt_1"
@@ -3813,7 +3604,7 @@ brushDef3
 }
 }
 }
-// entity 132
+// entity 103
 {
 "classname" "func_static"
 "name" "func_static_9"
@@ -3821,15 +3612,7 @@ brushDef3
 "origin" "256 256 -72"
 "rotation" "1 0 0 0 -1 0 0 0 -1"
 }
-// entity 133
-{
-"classname" "light"
-"name" "light_38"
-"light_center" "0 0 0"
-"light_radius" "512 512 512"
-"origin" "256 256 448"
-}
-// entity 134
+// entity 104
 {
 "classname" "func_static"
 "name" "func_static_10"
@@ -3863,9 +3646,9 @@ brushDef3
 {
 brushDef3
 {
-( 0 -0.2425360956247253 0.9701423824981127 -211.4913807060247 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 -0.2425360956247253 0.9701423824981127 -211.4913807060253 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 -0.4472139954999092 0 -103.7540090598808 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0 -0.2425360956247253 -0.9701423824981127 98.95342257895217 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0 -0.2425360956247253 -0.9701423824981127 98.95342257895314 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 -0.4472139954999092 -0 -103.7539056275268 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 -200 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 1 0 168 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -4410,7 +4193,7 @@ brushDef3
 }
 }
 }
-// entity 135
+// entity 105
 {
 "classname" "func_static"
 "name" "func_static_12"
@@ -4673,7 +4456,7 @@ brushDef3
 }
 }
 }
-// entity 136
+// entity 106
 {
 "classname" "func_static"
 "name" "func_static_13"
@@ -4689,7 +4472,7 @@ brushDef3
 ( -0.600001759997844 -0.799998679998592 0 -113.7999338415041 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.1940279070881097 -0.1455219303156035 0.970142535439112 -15.42554415100408 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944279909984768 0.4472119954992586 0 44.72114657932526 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.4245619470708 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.42456194707038 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1788859661998576 -0.983869814099784 0 -101.6069008086824 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.799998679998592 -0.600001759997844 0 -31.59916587179612 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8 0.6 0 -16.40004900000018 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -4705,7 +4488,7 @@ brushDef3
 ( -0.600000639999424 -0.799999520000032 0 -193.7999537613357 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.1940279070881097 -0.1455219303156035 0.970142535439112 -15.42554415100408 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944279909984768 0.4472119954992586 0 116.2753477396898 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.4245619470708 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.42456194707038 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1788869341992261 -0.9838696380988703 0 -173.1608568001406 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.799998679998592 -0.600001759997844 0 -31.59916587179612 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8 0.6 0 -16.40004900000018 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -4721,8 +4504,8 @@ brushDef3
 ( -0.6 -0.8 0 46.19971899999985 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.1940279070881097 -0.1455219303156035 0.970142535439112 -15.42554415100408 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944279909984768 0.4472119954992586 0 -98.38721074140241 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.4245619470708 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.1788880782004932 -0.9838694300961557 0 41.50088863429294 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.42456194707038 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.1788880782004932 -0.9838694300961557 0 41.50088863429389 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.799998679998592 -0.600001759997844 0 -31.59916587179612 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8 0.6 0 -16.40004900000018 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -4737,7 +4520,7 @@ brushDef3
 ( -0.600001759997844 -0.799998679998592 0 126.2003381603345 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.1940279070881097 -0.1455219303156035 0.970142535439112 -15.42554415100408 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944279909984768 0.4472119954992586 0 -169.9407429017467 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.4245619470708 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.42456194707038 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1788859661998576 -0.983869814099784 0 113.0557878715159 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.799998679998592 -0.600001759997844 0 -31.59916587179612 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8 0.6 0 -16.40004900000018 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -4753,14 +4536,14 @@ brushDef3
 ( -0.600001119999636 -0.799999159999048 0 -33.79991107851868 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.1940279070881097 -0.1455219303156035 0.970142535439112 -15.42554415100408 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944275909993752 0.4472127955001449 0 -26.83275278053634 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.4245619470708 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.1788880782004932 -0.9838694300961557 0 -30.05327752642973 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.42456194707038 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.1788880782004932 -0.9838694300961557 0 -30.05327752642927 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.799998679998592 -0.600001759997844 0 -31.59916587179612 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8 0.6 0 -16.40004900000018 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 }
-// entity 137
+// entity 107
 {
 "classname" "func_static"
 "name" "func_static_14"
@@ -4777,7 +4560,7 @@ brushDef3
 ( -1 0 0 -72 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -0.2425360956247253 0.9701423824981127 -13.58224667637294 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 -0.4472139954999092 0 10.73283722045039 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0 -0.2425360956247253 -0.9701423824981127 -13.58300579079469 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0 -0.2425360956247253 -0.9701423824981127 -13.58300579079398 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 -0.4472139954999092 0 -60.82142549188961 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 -24 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -4793,13 +4576,13 @@ brushDef3
 ( -1 0 0 8 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -0.2425360956247253 0.9701423824981127 -13.58224667637294 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 -0.4472139954999092 0 -60.82133393959106 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0 -0.2425360956247253 -0.9701423824981127 -13.58300579079469 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0 -0.2425360956247253 -0.9701423824981127 -13.58300579079398 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 -0.4472139954999092 0 10.73275366815176 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 -24 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
 }
 }
-// entity 138
+// entity 108
 {
 "classname" "func_static"
 "name" "func_static_15"
@@ -4817,7 +4600,7 @@ brushDef3
 ( 0.8944279909984768 -0.4472119954992586 0 44.72135979685102 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.1940279070881097 0.1455219303156035 -0.970142535439112 -15.42464266072932 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1788880782004932 0.9838694300961557 0 -101.606616850736 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.7999983199961921 0.6000022399985441 0 -31.60052359208395 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.7999983199961921 0.6000022399985441 0 -31.60052359208348 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8 -0.6 0 -16.4000060000001 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -4830,10 +4613,10 @@ brushDef3
 ( 0 0 -1 -16 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.600001119999636 0.799999159999048 0 -193.7998074008643 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.1940279070881097 0.1455219303156035 0.970142535439112 -15.42564086468505 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.8944279909984768 -0.4472119954992586 0 116.2755309572153 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.8944279909984768 -0.4472119954992586 0 116.2755309572159 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.1940279070881097 0.1455219303156035 -0.970142535439112 -15.42464266072932 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.1788869341992261 0.9838696380988703 0 -173.1614149738629 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.7999983199961921 0.6000022399985441 0 -31.60052359208395 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.1788869341992261 0.9838696380988703 0 -173.1614149738633 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.7999983199961921 0.6000022399985441 0 -31.60052359208348 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8 -0.6 0 -16.4000060000001 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -4848,8 +4631,8 @@ brushDef3
 ( 0.1940279070881097 0.1455219303156035 0.970142535439112 -15.42564086468505 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944279909984768 -0.4472119954992586 0 -98.38704352387875 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.1940279070881097 0.1455219303156035 -0.970142535439112 -15.42464266072932 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.1788869341992261 0.9838696380988703 0 41.50128990696735 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.7999983199961921 0.6000022399985441 0 -31.60052359208395 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.1788869341992261 0.9838696380988703 0 41.50128990696756 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.7999983199961921 0.6000022399985441 0 -31.60052359208348 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8 -0.6 0 -16.4000060000001 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -4864,8 +4647,8 @@ brushDef3
 ( 0.1940279070881097 0.1455219303156035 0.970142535439112 -15.42564086468505 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944279909984768 -0.4472119954992586 0 -169.9410456842372 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.1940279070881097 0.1455219303156035 -0.970142535439112 -15.42464266072932 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.1788869341992261 0.9838696380988703 0 113.0557428674846 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.7999983199961921 0.6000022399985441 0 -31.60052359208395 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.1788869341992261 0.9838696380988703 0 113.0557428674849 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.7999983199961921 0.6000022399985441 0 -31.60052359208348 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8 -0.6 0 -16.4000060000001 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -4880,13 +4663,13 @@ brushDef3
 ( 0.1940279070881097 0.1455219303156035 0.970142535439112 -15.42564086468505 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944275909993752 -0.4472127955001449 0 -26.8322599644444 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.1940279070881097 0.1455219303156035 -0.970142535439112 -15.42464266072932 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.1788869341992261 0.9838696380988703 0 -30.05282705317925 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.7999983199961921 0.6000022399985441 0 -31.60052359208395 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.1788869341992261 0.9838696380988703 0 -30.05282705317932 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.7999983199961921 0.6000022399985441 0 -31.60052359208348 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8 -0.6 0 -16.4000060000001 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 }
-// entity 139
+// entity 109
 {
 "classname" "func_static"
 "name" "func_static_16"
@@ -4901,7 +4684,7 @@ brushDef3
 ( 1 0 0 8 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 0 -1 -16 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 -72 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0 0.2425360956247253 0.9701423824981127 -13.58187183726406 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 0.9701423824981127 -13.58187183726428 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 0.4472139954999092 0 10.73303800427077 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 0.2425360956247253 -0.9701423824981127 -13.58260095172243 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 0.4472139954999092 0 -60.82122470806974 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
@@ -4917,7 +4700,7 @@ brushDef3
 ( 1 0 0 -72 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 0 -1 -16 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 8 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0 0.2425360956247253 0.9701423824981127 -13.58187183726406 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 0.9701423824981127 -13.58187183726428 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 0.4472139954999092 0 -60.82113315577077 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 0.2425360956247253 -0.9701423824981127 -13.58260095172243 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 0.4472139954999092 0 10.7329504519719 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
@@ -4925,7 +4708,7 @@ brushDef3
 }
 }
 }
-// entity 140
+// entity 110
 {
 "classname" "func_static"
 "name" "func_static_17"
@@ -4959,9 +4742,9 @@ brushDef3
 {
 brushDef3
 {
-( 0 0.2425360956247253 0.9701423824981127 -211.4910058669153 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 0.9701423824981127 -211.4910058669158 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 0.4472139954999092 0 -103.7538082760606 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0 0.2425360956247253 -0.9701423824981127 98.95382741802578 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 -0.9701423824981127 98.95382741802626 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 0.4472139954999092 0 -103.7537048437063 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 1 0 -200 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 168 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -5108,7 +4891,7 @@ brushDef3
 ( 0 0.4472139954999092 -0.8944269909998285 -3.577850123691803 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 96 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 -128 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eX_rndfloor_02" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -214.9604564786791 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eX_rndfloor_02" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -214.9604564786792 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eX_rndfloor_02" 134217728 0 0
 }
 }
 // primitive 15
@@ -5132,7 +4915,7 @@ brushDef3
 ( 0 0.4472139954999092 -0.8944269909998285 -3.577850123691803 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 -352 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 -128 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eX_rndfloor_02" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -214.9604564786791 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eX_rndfloor_02" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -214.9604564786792 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eX_rndfloor_02" 134217728 0 0
 }
 }
 // primitive 17
@@ -5219,7 +5002,7 @@ brushDef3
 ( -0.7071067811865476 -0.7071067811865476 0 401.6368617952438 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0 -1 16 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0.4472139954999092 -0.8944269909998285 0 35.77705432758142 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -435.5780253043976 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -435.5780253043978 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 }
 }
 // primitive 24
@@ -5506,7 +5289,7 @@ brushDef3
 }
 }
 }
-// entity 141
+// entity 111
 {
 "classname" "func_static"
 "name" "func_static_18"
@@ -5521,7 +5304,7 @@ brushDef3
 ( 1 0 0 8 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 0 -1 -16 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 -72 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0 0.2425360956247253 0.9701423824981127 -13.58187183726406 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 0.9701423824981127 -13.58187183726428 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 0.4472139954999092 0 10.73282801961705 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 0.2425360956247253 -0.9701423824981127 -13.58260095172243 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 0.4472139954999092 0 -60.82901772365778 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
@@ -5537,7 +5320,7 @@ brushDef3
 ( 1 0 0 -72 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 0 -1 -16 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 8 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0 0.2425360956247253 0.9701423824981127 -13.58187183726406 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 0.9701423824981127 -13.58187183726428 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 0.4472139954999092 0 -60.82131214042343 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 0.2425360956247253 -0.9701423824981127 -13.58260095172243 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 0.4472139954999092 0 10.73317943662596 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
@@ -5545,7 +5328,7 @@ brushDef3
 }
 }
 }
-// entity 142
+// entity 112
 {
 "classname" "func_static"
 "name" "func_static_19"
@@ -5561,8 +5344,8 @@ brushDef3
 ( 0.5999993599994239 0.800000480000032 0 -113.7988669231219 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1940280953229222 0.145522071492683 0.9701424766155935 -15.42487132081765 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944273909999139 -0.4472131954997384 -0 44.72023062671479 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.1940280953229222 0.145522071492683 -0.9701424766155935 -15.42588046982839 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1788880782004932 0.9838694300961557 0 -101.6062396965164 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.1940280953229222 0.145522071492683 -0.9701424766155935 -15.42588046982791 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1788880782004932 0.9838694300961557 0 -101.6062396965165 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.799999159999048 0.600001119999636 0 -31.60051047602053 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8 -0.6 0 -16.400012 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -5574,11 +5357,11 @@ brushDef3
 ( 0 0 1 -16 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.600002879995536 -0.7999978399952481 0 129.8006429784096 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 0 -1 -16 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.600002879995536 0.7999978399952481 0 -193.8006203796277 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.600002879995536 0.7999978399952481 0 -193.8006203796284 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1940280953229222 0.145522071492683 0.9701424766155935 -15.42487132081765 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944273909999139 -0.4472131954997384 -0 116.2743357867664 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.1940280953229222 0.145522071492683 -0.9701424766155935 -15.42588046982839 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1788869341992261 0.9838696380988703 0 -173.1616307340122 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.1940280953229222 0.145522071492683 -0.9701424766155935 -15.42588046982791 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1788869341992261 0.9838696380988703 0 -173.1616307340126 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.799999159999048 0.600001119999636 0 -31.60051047602053 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8 -0.6 0 -16.400012 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -5593,8 +5376,8 @@ brushDef3
 ( 0.600001119999636 0.799999159999048 0 46.20015335913547 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1940280953229222 0.145522071492683 0.9701424766155935 -15.42487132081765 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944273909999139 -0.4472131954997384 -0 -98.38816369314694 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.1940280953229222 0.145522071492683 -0.9701424766155935 -15.42588046982839 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1788869341992261 0.9838696380988703 0 41.50101614675465 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.1940280953229222 0.145522071492683 -0.9701424766155935 -15.42588046982791 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1788869341992261 0.9838696380988703 0 41.5010161467547 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.799999159999048 0.600001119999636 0 -31.60051047602053 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8 -0.6 0 -16.400012 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -5609,8 +5392,8 @@ brushDef3
 ( 0.5999993599994239 0.800000480000032 0 -33.79901092296028 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1940280953229222 0.145522071492683 0.9701424766155935 -15.42487132081765 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944273909999139 -0.4472131954997384 -0 -26.8339365332555 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.1940280953229222 0.145522071492683 -0.9701424766155935 -15.42588046982839 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1788869341992261 0.9838696380988703 0 -30.05311281340565 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.1940280953229222 0.145522071492683 -0.9701424766155935 -15.42588046982791 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1788869341992261 0.9838696380988703 0 -30.05311281340585 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.799999159999048 0.600001119999636 0 -31.60051047602053 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8 -0.6 0 -16.400012 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -5625,14 +5408,14 @@ brushDef3
 ( 0.600001119999636 0.799999159999048 0 126.2001053593804 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1940280953229222 0.145522071492683 0.9701424766155935 -15.42487132081765 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944279909984768 -0.4472119954992586 -0 -169.9409442491142 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.1940280953229222 0.145522071492683 -0.9701424766155935 -15.42588046982839 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1788869341992261 0.9838696380988703 0 113.0556761075 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.1940280953229222 0.145522071492683 -0.9701424766155935 -15.42588046982791 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1788869341992261 0.9838696380988703 0 113.0556761075003 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.799999159999048 0.600001119999636 0 -31.60051047602053 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8 -0.6 0 -16.400012 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 }
-// entity 143
+// entity 113
 {
 "classname" "func_static"
 "name" "func_static_20"
@@ -5895,7 +5678,7 @@ brushDef3
 }
 }
 }
-// entity 144
+// entity 114
 {
 "classname" "func_static"
 "name" "func_static_23"
@@ -5914,7 +5697,7 @@ brushDef3
 }
 }
 }
-// entity 145
+// entity 115
 {
 "classname" "func_static"
 "name" "func_static_24"
@@ -5957,7 +5740,7 @@ brushDef3
 }
 }
 }
-// entity 146
+// entity 116
 {
 "classname" "func_static"
 "name" "func_static_25"
@@ -6000,7 +5783,7 @@ brushDef3
 }
 }
 }
-// entity 147
+// entity 117
 {
 "classname" "func_static"
 "name" "func_static_26"
@@ -6043,7 +5826,7 @@ brushDef3
 }
 }
 }
-// entity 148
+// entity 118
 {
 "classname" "func_static"
 "name" "func_static_27"
@@ -6086,7 +5869,7 @@ brushDef3
 }
 }
 }
-// entity 149
+// entity 119
 {
 "classname" "func_static"
 "name" "func_static_28"
@@ -6134,7 +5917,7 @@ brushDef3
 {
 ( 0 0 1 -320 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0.5298130305453115 -0.5298130305453115 -0.6622660381816251 8.477026886840662 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -14.14168544491566 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -14.14168544491534 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.5298130305453115 0.5298130305453115 0.6622660381816251 -76.29308615744115 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 -0 -31.11317756726743 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 45.25487501219494 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -6160,7 +5943,7 @@ brushDef3
 ( -0.5298130305453115 0.5298130305453115 -0.6622660381816251 8.477026886840633 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 -0 -31.11317756726743 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.5298130305453115 -0.5298130305453115 0.6622660381816251 -76.29308615744117 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -14.14168544491566 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -14.14168544491534 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 45.25487501219494 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -6172,7 +5955,7 @@ brushDef3
 ( -0.7071067811865476 -0.7071067811865476 -0 -31.11317756726743 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -45.25487501219494 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -14.14168544491566 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -14.14168544491534 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -45.25487501219494 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 }
 }
@@ -6193,11 +5976,11 @@ brushDef3
 brushDef3
 {
 ( 0 0 1 -320 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 14.14168544491566 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 14.14168544491534 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -22.62743800609795 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -53.73968420557096 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -22.62743800609795 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.5773502691896258 -0.5773502691896258 -0.5773502691896258 -62.35347068483505 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.5773502691896258 -0.5773502691896258 -0.5773502691896258 -62.35347068483561 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 9
@@ -6208,7 +5991,7 @@ brushDef3
 ( -0.7071067811865476 -0.7071067811865476 -0 -31.11317756726743 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -45.25487501219494 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0 0 -1 0 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -14.14168544491566 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -14.14168544491534 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -45.25487501219494 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 }
 }
@@ -6216,7 +5999,7 @@ brushDef3
 {
 brushDef3
 {
-( 0.4850710736020225 0.4850710736020225 0.7276071104031095 110.5963700838365 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.4850710736020225 0.4850710736020225 0.7276071104031095 110.5963700838366 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.8944269909998285 -0.4472139954999092 0 -40.24900369889983 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 59.39654945710092 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.4472139954999092 0.8944269909998285 0 -40.24900369889983 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
@@ -6229,10 +6012,10 @@ brushDef3
 brushDef3
 {
 ( 0.4850710736020225 0.4850710736020225 0.7276071104031095 166.8646094703265 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.9805807141524286 -0.1961159428305441 0 -86.29100033785843 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.9805807141524286 -0.1961159428305441 0 -86.29100033785821 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 104.6514434693141 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0.1961159428305441 0.9805807141524286 0 -86.29100033785843 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.1961159428305441 0.9805807141524286 0 -86.29100033785821 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -138.5925769784392 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
@@ -6240,9 +6023,9 @@ brushDef3
 {
 brushDef3
 {
-( 0.5773502691896258 0.5773502691896258 0.5773502691896258 62.35347068483505 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
+( 0.5773502691896258 0.5773502691896258 0.5773502691896258 62.35347068483561 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -45.25487501219494 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 14.14168544491566 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 14.14168544491534 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -45.25487501219494 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -59.39654945710092 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
@@ -6261,7 +6044,7 @@ brushDef3
 }
 }
 }
-// entity 150
+// entity 120
 {
 "classname" "func_static"
 "name" "func_static_29"
@@ -6280,7 +6063,7 @@ brushDef3
 }
 }
 }
-// entity 151
+// entity 121
 {
 "classname" "func_static"
 "name" "func_static_30"
@@ -6391,7 +6174,7 @@ brushDef3
 ( -0.7071067811865476 -0.7071067811865476 -0 -22.62710187604302 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -53.73938507555091 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -22.62776213614148 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.5773502691896258 0.5773502691896258 -0.5773502691896258 -62.35302138472566 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.5773502691896258 0.5773502691896258 -0.5773502691896258 -62.35302138472569 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 9
@@ -6415,7 +6198,7 @@ brushDef3
 ( -0.7071067811865476 0.7071067811865476 0 59.39625032708091 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.4472139954999092 -0.8944269909998285 0 -40.24890026654589 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -93.33738283620507 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.2357020381732446 0.2357020381732446 -0.9428091526931401 -251.7302405008139 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.2357020381732446 0.2357020381732446 -0.9428091526931401 -251.7302405008144 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 11
@@ -6423,10 +6206,10 @@ brushDef3
 brushDef3
 {
 ( 0.4850710736020225 -0.4850710736020225 0.7276071104031095 166.8645977333567 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.9805807141524286 0.1961159428305441 0 -86.29119442102289 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.9805807141524286 0.1961159428305441 0 -86.29119442102274 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 104.651114339265 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0.1961159428305441 -0.9805807141524286 0 -86.29058992192778 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.1961159428305441 -0.9805807141524286 0 -86.29058992192732 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -138.5922468483899 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
@@ -6434,7 +6217,7 @@ brushDef3
 {
 brushDef3
 {
-( 0.5773502691896258 -0.5773502691896258 0.5773502691896258 62.35302138472566 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
+( 0.5773502691896258 -0.5773502691896258 0.5773502691896258 62.35302138472569 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -45.25519414223391 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 14.14132531483779 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -6446,7 +6229,7 @@ brushDef3
 {
 brushDef3
 {
-( 0.2357020381732446 -0.2357020381732446 0.9428091526931401 251.7302405008139 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
+( 0.2357020381732446 -0.2357020381732446 0.9428091526931401 251.7302405008144 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -45.25519414223391 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 59.39625032708091 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -6455,7 +6238,7 @@ brushDef3
 }
 }
 }
-// entity 152
+// entity 122
 {
 "classname" "func_static"
 "name" "func_static_31"
@@ -6566,7 +6349,7 @@ brushDef3
 ( 0.7071067811865476 0.7071067811865476 0 -22.62776213614148 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -53.73938507555091 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 -0 -22.62710187604302 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.5773502691896258 -0.5773502691896258 -0.5773502691896258 -62.35302138472584 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.5773502691896258 -0.5773502691896258 -0.5773502691896258 -62.35302138472669 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 9
@@ -6590,7 +6373,7 @@ brushDef3
 ( 0.7071067811865476 -0.7071067811865476 0 59.39625032708091 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0.4472139954999092 0.8944269909998285 0 -40.24880291507981 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -93.33738283620507 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.2357020381732446 -0.2357020381732446 -0.9428091526931401 -251.7302405008139 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.2357020381732446 -0.2357020381732446 -0.9428091526931401 -251.7302405008144 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 11
@@ -6598,10 +6381,10 @@ brushDef3
 brushDef3
 {
 ( -0.4850710736020225 0.4850710736020225 0.7276071104031095 166.8645977333567 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.9805807141524286 -0.1961159428305441 -0 -86.29058992192778 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.9805807141524286 -0.1961159428305441 -0 -86.29058992192732 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 104.651114339265 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.1961159428305441 0.9805807141524286 0 -86.29119442102289 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.1961159428305441 0.9805807141524286 0 -86.29119442102274 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -138.5922468483899 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
@@ -6609,7 +6392,7 @@ brushDef3
 {
 brushDef3
 {
-( -0.5773502691896258 0.5773502691896258 0.5773502691896258 62.35302138472584 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
+( -0.5773502691896258 0.5773502691896258 0.5773502691896258 62.35302138472669 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 -45.2545338821355 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 14.14132531483779 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -6621,7 +6404,7 @@ brushDef3
 {
 brushDef3
 {
-( -0.2357020381732446 0.2357020381732446 0.9428091526931401 251.7302405008139 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
+( -0.2357020381732446 0.2357020381732446 0.9428091526931401 251.7302405008144 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 -45.2545338821355 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 59.39625032708091 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -6630,7 +6413,7 @@ brushDef3
 }
 }
 }
-// entity 153
+// entity 123
 {
 "classname" "func_static"
 "name" "func_static_32"
@@ -6753,7 +6536,7 @@ brushDef3
 ( 0.7071067811865476 -0.7071067811865476 0 -22.62743800609781 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 -53.73908494552986 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -22.62743800609781 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.5773502691896258 0.5773502691896258 -0.5773502691896258 -62.35260208457477 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.5773502691896258 0.5773502691896258 -0.5773502691896258 -62.35260208457594 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 10
@@ -6765,14 +6548,14 @@ brushDef3
 ( 0.7071067811865476 0.7071067811865476 0 59.39595119705974 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0.4472139954999092 -0.8944269909998285 0 -40.2486994827255 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 -93.337022706128 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.2357020381732446 0.2357020381732446 -0.9428091526931401 -251.7302883219672 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.2357020381732446 0.2357020381732446 -0.9428091526931401 -251.7302883219674 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 11
 {
 brushDef3
 {
-( -0.4850710736020225 -0.4850710736020225 0.7276071104031095 166.864539996408 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.4850710736020225 -0.4850710736020225 0.7276071104031095 166.8645399964082 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.9805807141524286 0.1961159428305441 0 -86.29075300506476 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 104.6507532091871 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -6784,7 +6567,7 @@ brushDef3
 {
 brushDef3
 {
-( -0.5773502691896258 -0.5773502691896258 0.5773502691896258 62.35260208457477 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
+( -0.5773502691896258 -0.5773502691896258 0.5773502691896258 62.35260208457594 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -45.25487501219494 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 14.1410261848182 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -6796,7 +6579,7 @@ brushDef3
 {
 brushDef3
 {
-( -0.2357020381732446 -0.2357020381732446 0.9428091526931401 251.7302883219672 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
+( -0.2357020381732446 -0.2357020381732446 0.9428091526931401 251.7302883219674 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -45.25487501219494 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase02" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 59.39595119705974 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -384 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -6805,7 +6588,7 @@ brushDef3
 }
 }
 }
-// entity 154
+// entity 124
 {
 "classname" "func_static"
 "name" "func_static_33"
@@ -6854,7 +6637,7 @@ brushDef3
 ( -0.1940279070881097 -0.1455219303156035 0.970142535439112 -15.42533586729076 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 0.4472139954999092 0 -98.38662830958907 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.42436066336731 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1788880782004932 -0.9838694300961557 0 41.50122078857159 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1788880782004932 -0.9838694300961557 0 41.50122078857205 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.799998679998592 -0.600001759997844 -0 -31.59863350866685 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8 0.6 0 -16.40002400000001 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -6870,7 +6653,7 @@ brushDef3
 ( -0.1940279070881097 -0.1455219303156035 0.970142535439112 -15.42533586729076 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 0.4472139954999092 0 -26.83236614954473 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.42436066336731 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1788880782004932 -0.9838694300961557 0 -30.05322037179052 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1788880782004932 -0.9838694300961557 0 -30.05322037178961 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.799998679998592 -0.600001759997844 -0 -31.59863350866685 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8 0.6 0 -16.40002400000001 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -6886,13 +6669,13 @@ brushDef3
 ( -0.1940279070881097 -0.1455219303156035 0.970142535439112 -15.42533586729076 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944279909984768 0.4472119954992586 0 -169.9406384666242 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.1940279070881097 -0.1455219303156035 -0.970142535439112 -15.42436066336731 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.1788859661998576 -0.983869814099784 0 113.0557516488243 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.1788859661998576 -0.983869814099784 0 113.0557516488248 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.799998679998592 -0.600001759997844 -0 -31.59863350866685 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8 0.6 0 -16.40002400000001 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 }
-// entity 155
+// entity 125
 {
 "classname" "func_static"
 "name" "func_static_34"
@@ -6909,7 +6692,7 @@ brushDef3
 ( -1 0 0 -72 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -0.2425360956247253 0.9701423824981127 -13.58224667637294 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 -0.4472139954999092 0 10.73262723579706 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0 -0.2425360956247253 -0.9701423824981127 -13.5830057907948 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0 -0.2425360956247253 -0.9701423824981127 -13.58300579079412 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 -0.4472139954999092 0 -60.82119250723548 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 -24 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -6925,13 +6708,13 @@ brushDef3
 ( -1 0 0 8 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -0.2425360956247253 0.9701423824981127 -13.58224667637294 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 -0.4472139954999092 0 -60.82154292424451 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0 -0.2425360956247253 -0.9701423824981127 -13.5830057907948 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0 -0.2425360956247253 -0.9701423824981127 -13.58300579079412 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 -0.4472139954999092 0 10.73294765280511 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 -24 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
 }
 }
-// entity 156
+// entity 126
 {
 "classname" "func_static"
 "name" "func_static_35"
@@ -7086,7 +6869,7 @@ brushDef3
 }
 }
 }
-// entity 157
+// entity 127
 {
 "classname" "func_static"
 "name" "func_static_36"
@@ -7129,7 +6912,7 @@ brushDef3
 }
 }
 }
-// entity 158
+// entity 128
 {
 "classname" "func_static"
 "name" "func_static_37"
@@ -7220,7 +7003,7 @@ brushDef3
 }
 }
 }
-// entity 159
+// entity 129
 {
 "classname" "func_static"
 "name" "func_static_38"
@@ -7263,7 +7046,7 @@ brushDef3
 }
 }
 }
-// entity 160
+// entity 130
 {
 "classname" "func_static"
 "name" "func_static_39"
@@ -7354,7 +7137,7 @@ brushDef3
 }
 }
 }
-// entity 161
+// entity 131
 {
 "classname" "func_static"
 "name" "func_static_40"
@@ -7433,7 +7216,7 @@ brushDef3
 }
 }
 }
-// entity 162
+// entity 132
 {
 "classname" "func_static"
 "name" "func_static_41"
@@ -7447,7 +7230,7 @@ brushDef3
 ( 0 0 -1 96 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 -192.3337797672368 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
 ( 1 0 0 48 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0.7071067811865476 0 0.7071067811865476 -124.4517388546133 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
+( -0.7071067811865476 0 0.7071067811865476 -124.4517388546141 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
 }
 }
 // primitive 1
@@ -7493,10 +7276,10 @@ brushDef3
 ( 0.9486831980504455 0.3162280660168847 0 -136.6107084316956 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
 ( 0 0 -1 96 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 16 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -271.5295291788472 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -271.529529178848 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
 ( 0.7071067811865476 0 0.7071067811865476 -124.4503142937731 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
 ( 0.9486831980504455 -0.3162280660168847 0 -136.610948634168 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
-( 0 -0.7071067811865476 0.7071067811865476 -271.5291840487826 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 -271.5291840487827 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
 }
 }
 // primitive 5
@@ -7526,7 +7309,7 @@ brushDef3
 }
 }
 }
-// entity 163
+// entity 133
 {
 "classname" "func_static"
 "name" "func_static_42"
@@ -7588,7 +7371,7 @@ brushDef3
 ( -0.7071067811865476 0.7071067811865476 0 -316.785066475468 ) ( ( 9.567237139237322e-19 0.015625 0.00390625 ) ( -0.0078125 4.783618569618661e-19 0.03125 ) ) "textures/eX/eX_trim_psimple_05" 134217728 0 0
 ( 1 0 0 224 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -188 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eX_rndfloor_01" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -316.7848283455056 ) ( ( 9.567237139237322e-19 0.015625 0.00390625 ) ( -0.0078125 4.783618569618661e-19 -0.3515625 ) ) "textures/eX/eX_trim_psimple_05" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -316.7848283455065 ) ( ( 9.567237139237322e-19 0.015625 0.00390625 ) ( -0.0078125 4.783618569618661e-19 -0.3515625 ) ) "textures/eX/eX_trim_psimple_05" 134217728 0 0
 ( -1 0 0 -256 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.0078125 4.783618569618661e-19 0 ) ) "textures/eX/eX_trim_psimple_05" 134217728 0 0
 }
 }
@@ -7691,7 +7474,7 @@ brushDef3
 }
 }
 }
-// entity 164
+// entity 134
 {
 "classname" "func_static"
 "name" "func_static_22"
@@ -7738,7 +7521,7 @@ brushDef3
 brushDef3
 {
 ( 0 0 1 128 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eX_rndfloor_02" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -316.7854276055477 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.0078125 4.783618569618661e-19 0.15625 ) ) "textures/eX/eX_trim_psimple_05" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -316.7854276055493 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.0078125 4.783618569618661e-19 0.15625 ) ) "textures/eX/eX_trim_psimple_05" 134217728 0 0
 ( -1 0 0 224 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -192 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eX_rndfloor_01" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -316.7850664754678 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.0078125 4.783618569618661e-19 0.15625 ) ) "textures/eX/eX_trim_psimple_05" 134217728 0 0
@@ -7844,7 +7627,7 @@ brushDef3
 }
 }
 }
-// entity 165
+// entity 135
 {
 "classname" "func_static"
 "name" "func_static_21"
@@ -7857,10 +7640,10 @@ brushDef3
 ( -0.9486831980504455 0.3162280660168847 0 -136.6109190390042 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
 ( 0 0 -1 96 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 16 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -271.5295291788472 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -271.529529178848 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -124.4499531636949 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
 ( -0.9486831980504455 -0.3162280660168847 -0 -136.6112202414367 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
-( 0 -0.7071067811865476 0.7071067811865476 -271.5291840487826 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 -271.5291840487827 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
 }
 }
 // primitive 1
@@ -7937,7 +7720,7 @@ brushDef3
 }
 }
 }
-// entity 166
+// entity 136
 {
 "classname" "func_static"
 "name" "func_static_43"
@@ -7963,12 +7746,12 @@ brushDef3
 ( 0 0 -1 -4 ) ( ( -0.02209944057065737 0.02209944057065738 44.34530135125075 ) ( -0.005517239116251852 -0.005517239116251851 508.9689659935471 ) ) "textures/eX/eX_lightpanel_01_orange" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 116.9381226563784 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -15.99953435586146 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( 0.7071067811865476 -0.7071067811865476 0 -245.1013586362429 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.7071067811865476 -0.7071067811865476 0 -245.1013586362431 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 -0 -15.99707734807354 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
 }
 }
-// entity 167
+// entity 137
 {
 "classname" "func_static"
 "name" "func_static_44"
@@ -7987,7 +7770,7 @@ brushDef3
 }
 }
 }
-// entity 168
+// entity 138
 {
 "classname" "func_static"
 "name" "func_static_45"
@@ -8018,7 +7801,7 @@ brushDef3
 }
 }
 }
-// entity 169
+// entity 139
 {
 "classname" "func_static"
 "name" "func_static_46"
@@ -8037,7 +7820,7 @@ brushDef3
 }
 }
 }
-// entity 170
+// entity 140
 {
 "classname" "func_static"
 "name" "func_static_47"
@@ -8063,12 +7846,12 @@ brushDef3
 ( -0.7071067811865476 -0.7071067811865476 0 -15.9989360958206 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 0 -1 -4 ) ( ( 0.02209944057065709 -0.02209944057065708 21.71546951483735 ) ( 0.005517239116251847 0.005517239116251848 508.9689659935471 ) ) "textures/eX/eX_lightpanel_01_orange" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -15.99767560811513 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
-( -0.7071067811865476 0.7071067811865476 0 -245.1013586362442 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.7071067811865476 0.7071067811865476 0 -245.1013586362444 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 116.9381226563787 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
 }
 }
-// entity 171
+// entity 141
 {
 "classname" "func_static"
 "name" "func_static_48"
@@ -8099,7 +7882,7 @@ brushDef3
 }
 }
 }
-// entity 172
+// entity 142
 {
 "classname" "func_static"
 "name" "func_static_49"
@@ -8118,7 +7901,7 @@ brushDef3
 }
 }
 }
-// entity 173
+// entity 143
 {
 "classname" "func_static"
 "name" "func_static_50"
@@ -8166,14 +7949,14 @@ brushDef3
 ( 0 -1 0 -104 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.00390625 2.391809284809331e-19 0 ) ) "textures/eX/eX_trim_support_03" 134217728 0 0
 ( 1 0 0 -104 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.00390625 2.391809284809331e-19 0 ) ) "textures/eX/eX_trim_support_03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -135.7646220365821 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.00390625 2.391809284809331e-19 0 ) ) "textures/eX/eX_trim_support_03" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -135.7649521666325 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.00390625 2.391809284809331e-19 0 ) ) "textures/eX/eX_trim_support_03" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -135.764952166633 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.00390625 2.391809284809331e-19 0 ) ) "textures/eX/eX_trim_support_03" 134217728 0 0
 ( -1 0 0 -104 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.00390625 2.391809284809331e-19 0 ) ) "textures/eX/eX_trim_support_03" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 -135.7642919065329 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.00390625 2.391809284809331e-19 0 ) ) "textures/eX/eX_trim_support_03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -135.7646220365821 ) ( ( 9.567237139237322e-19 0.015625 -0 ) ( -0.00390625 2.391809284809331e-19 0 ) ) "textures/eX/eX_trim_support_03" 134217728 0 0
 }
 }
 }
-// entity 174
+// entity 144
 {
 "classname" "func_static"
 "name" "func_static_51"
@@ -8183,10 +7966,10 @@ brushDef3
 {
 brushDef3
 {
-( 0 -0.2425360956247253 0.9701423824981127 50.44711845102175 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 -0.2425360956247253 0.9701423824981127 50.44711845102199 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 -0.4472139954999092 0 21.46610003992527 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0 -0.2425360956247253 -0.9701423824981127 50.44718537051713 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0 -0.2425360956247253 -0.9701423824981127 50.44718537051727 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 -0.4472139954999092 0 135.9528859283461 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8195,10 +7978,10 @@ brushDef3
 {
 brushDef3
 {
-( -0.2425360956247253 0 0.9701423824981127 50.44711845102175 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.2425360956247253 0 0.9701423824981127 50.44711845102199 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.4472139954999092 0.8944269909998285 0 250.4394579520583 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 1 0 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0.2425360956247253 -0 -0.9701423824981127 50.44718537051713 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.2425360956247253 -0 -0.9701423824981127 50.44718537051727 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.4472139954999092 -0.8944269909998285 0 -93.02047898378723 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8207,10 +7990,10 @@ brushDef3
 {
 brushDef3
 {
-( -0.2425360956247253 0 0.9701423824981127 50.44711845102175 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.2425360956247253 0 0.9701423824981127 50.44711845102199 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.4472139954999092 0.8944269909998285 0 21.46610003992527 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 1 0 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0.2425360956247253 -0 -0.9701423824981127 50.44718537051713 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.2425360956247253 -0 -0.9701423824981127 50.44718537051727 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.4472139954999092 -0.8944269909998285 0 135.9528859283461 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8219,10 +8002,10 @@ brushDef3
 {
 brushDef3
 {
-( -0.2425360956247253 0 0.9701423824981127 50.44711845102175 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.2425360956247253 0 0.9701423824981127 50.44711845102199 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.4472139954999092 0.8944269909998285 0 135.9527784959918 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 1 0 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0.2425360956247253 -0 -0.9701423824981127 50.44718537051713 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.2425360956247253 -0 -0.9701423824981127 50.44718537051727 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.4472139954999092 -0.8944269909998285 0 21.46621847227994 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8231,10 +8014,10 @@ brushDef3
 {
 brushDef3
 {
-( -0.2425360956247253 0 0.9701423824981127 50.44711845102175 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.2425360956247253 0 0.9701423824981127 50.44711845102199 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.4472139954999092 0.8944269909998285 0 -93.02059041614167 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 1 0 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0.2425360956247253 -0 -0.9701423824981127 50.44718537051713 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0.2425360956247253 -0 -0.9701423824981127 50.44718537051727 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.4472139954999092 -0.8944269909998285 0 250.4395833844133 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8243,10 +8026,10 @@ brushDef3
 {
 brushDef3
 {
-( 0.2425360956247253 0 0.9701423824981127 50.44751029011114 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.2425360956247253 0 0.9701423824981127 50.44751029011119 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.4472139954999092 0.8944269909998285 0 250.4396657358789 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.2425360956247253 0 -0.9701423824981127 50.44757920960411 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.2425360956247253 0 -0.9701423824981127 50.44757920960414 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.4472139954999092 -0.8944269909998285 0 -93.0202751999669 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 1 0 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8255,10 +8038,10 @@ brushDef3
 {
 brushDef3
 {
-( 0.2425360956247253 0 0.9701423824981127 50.44751029011114 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.2425360956247253 0 0.9701423824981127 50.44751029011119 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.4472139954999092 0.8944269909998285 0 21.46008282355781 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.2425360956247253 0 -0.9701423824981127 50.44757920960411 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.2425360956247253 0 -0.9701423824981127 50.44757920960414 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.4472139954999092 -0.8944269909998285 0 135.9530867121664 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 1 0 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8267,10 +8050,10 @@ brushDef3
 {
 brushDef3
 {
-( 0.2425360956247253 0 0.9701423824981127 50.44751029011114 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.2425360956247253 0 0.9701423824981127 50.44751029011119 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.4472139954999092 0.8944269909998285 0 135.9529752798118 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.2425360956247253 0 -0.9701423824981127 50.44757920960411 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.2425360956247253 0 -0.9701423824981127 50.44757920960414 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.4472139954999092 -0.8944269909998285 0 21.46640425609966 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 1 0 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8279,10 +8062,10 @@ brushDef3
 {
 brushDef3
 {
-( 0.2425360956247253 0 0.9701423824981127 50.44751029011114 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.2425360956247253 0 0.9701423824981127 50.44751029011119 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.4472139954999092 0.8944269909998285 0 -93.02038963232138 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -1 0 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.2425360956247253 0 -0.9701423824981127 50.44757920960411 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0.2425360956247253 0 -0.9701423824981127 50.44757920960414 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.4472139954999092 -0.8944269909998285 0 250.4397841682334 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 1 0 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8291,10 +8074,10 @@ brushDef3
 {
 brushDef3
 {
-( 0 0.2425360956247253 0.9701423824981127 50.44751029011114 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 0.9701423824981127 50.44751029011119 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 0.4472139954999092 0 250.4396657358789 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.2425360956247253 -0.9701423824981127 50.44757920960411 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 -0.9701423824981127 50.44757920960414 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 0.4472139954999092 0 -93.0202751999669 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 1 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8303,10 +8086,10 @@ brushDef3
 {
 brushDef3
 {
-( 0 0.2425360956247253 0.9701423824981127 50.44751029011114 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 0.9701423824981127 50.44751029011119 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 0.4472139954999092 0 21.46008282355781 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.2425360956247253 -0.9701423824981127 50.44757920960411 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 -0.9701423824981127 50.44757920960414 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 0.4472139954999092 0 135.9530867121664 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 1 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8315,10 +8098,10 @@ brushDef3
 {
 brushDef3
 {
-( 0 0.2425360956247253 0.9701423824981127 50.44751029011114 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 0.9701423824981127 50.44751029011119 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 0.4472139954999092 0 135.9529752798118 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.2425360956247253 -0.9701423824981127 50.44757920960411 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 -0.9701423824981127 50.44757920960414 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 0.4472139954999092 0 21.46640425609966 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 1 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8327,10 +8110,10 @@ brushDef3
 {
 brushDef3
 {
-( 0 0.2425360956247253 0.9701423824981127 50.44751029011114 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 0.9701423824981127 50.44751029011119 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 0.4472139954999092 0 -93.02038963232138 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.2425360956247253 -0.9701423824981127 50.44757920960411 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 0.2425360956247253 -0.9701423824981127 50.44757920960414 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 0.4472139954999092 0 250.4397841682334 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 1 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8339,10 +8122,10 @@ brushDef3
 {
 brushDef3
 {
-( 0 -0.2425360956247253 0.9701423824981127 50.44711845102175 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 -0.2425360956247253 0.9701423824981127 50.44711845102199 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 -0.4472139954999092 0 250.4394579520583 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0 -0.2425360956247253 -0.9701423824981127 50.44718537051713 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0 -0.2425360956247253 -0.9701423824981127 50.44718537051727 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 -0.4472139954999092 0 -93.02047898378723 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8351,10 +8134,10 @@ brushDef3
 {
 brushDef3
 {
-( 0 -0.2425360956247253 0.9701423824981127 50.44711845102175 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 -0.2425360956247253 0.9701423824981127 50.44711845102199 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 -0.4472139954999092 0 135.9527784959918 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0 -0.2425360956247253 -0.9701423824981127 50.44718537051713 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0 -0.2425360956247253 -0.9701423824981127 50.44718537051727 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 -0.4472139954999092 0 21.46621847227994 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
@@ -8363,16 +8146,16 @@ brushDef3
 {
 brushDef3
 {
-( 0 -0.2425360956247253 0.9701423824981127 50.44711845102175 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( 0 -0.2425360956247253 0.9701423824981127 50.44711845102199 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0.8944269909998285 -0.4472139954999092 0 -93.02059041614167 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( -0 -0.2425360956247253 -0.9701423824981127 50.44718537051713 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
+( -0 -0.2425360956247253 -0.9701423824981127 50.44718537051727 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( -0.8944269909998285 -0.4472139954999092 0 250.4395833844133 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 ( 0 -1 0 240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase01" 134217728 0 0
 }
 }
 }
-// entity 175
+// entity 145
 {
 "classname" "func_static"
 "name" "func_static_52"
@@ -8427,7 +8210,7 @@ brushDef3
 }
 }
 }
-// entity 176
+// entity 146
 {
 "classname" "func_static"
 "name" "func_static_53"
@@ -8446,7 +8229,7 @@ brushDef3
 }
 }
 }
-// entity 177
+// entity 147
 {
 "classname" "func_static"
 "name" "func_static_54"
@@ -8465,7 +8248,7 @@ brushDef3
 }
 }
 }
-// entity 178
+// entity 148
 {
 "classname" "func_static"
 "name" "func_static_55"
@@ -8484,7 +8267,7 @@ brushDef3
 }
 }
 }
-// entity 179
+// entity 149
 {
 "classname" "func_static"
 "name" "func_static_56"
@@ -8503,7 +8286,7 @@ brushDef3
 }
 }
 }
-// entity 180
+// entity 150
 {
 "classname" "func_static"
 "name" "func_static_57"
@@ -8558,7 +8341,7 @@ brushDef3
 }
 }
 }
-// entity 181
+// entity 151
 {
 "classname" "func_static"
 "name" "func_static_58"
@@ -8654,7 +8437,7 @@ brushDef3
 {
 ( 0 -0.7071067811865476 0.7071067811865476 220.6174397769446 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -1 0 0 280 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0 0.7071067811865476 -0.7071067811865476 -231.9311552799906 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0 0.7071067811865476 -0.7071067811865476 -231.9311552799909 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -0.7071067811865476 -0.7071067811865476 -220.6171096468951 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 -296 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 50.91130910114588 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -8846,7 +8629,7 @@ brushDef3
 {
 brushDef3
 {
-( 0 -0.7071067811865476 0.7071067811865476 231.9311552799906 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 231.9311552799909 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 130.1073666225116 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -1 0 0 280 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0.7071067811865476 -0.7071067811865476 -311.1271828013279 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -9016,7 +8799,7 @@ brushDef3
 brushDef3
 {
 ( 0 0 -1 184 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( -0.7071067811865476 0 -0.7071067811865476 237.5896071594106 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 0 -0.7071067811865476 237.5896071594119 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0 1 -192 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 1 0 0 -168 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -9030,7 +8813,7 @@ brushDef3
 ( 0.7071067811865476 0 0.7071067811865476 -147.0798791350383 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -124.4499051332424 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( -0.7071067811865476 -0 -0.7071067811865476 67.88388261373179 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 -0 -0.7071067811865476 67.88388261373302 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0.7071067811865476 0 -0.7071067811865476 113.1361736301818 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -9041,10 +8824,10 @@ brushDef3
 {
 ( -0.7071067811865476 0 0.7071067811865476 -33.94017810887374 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( -0.7071067811865476 -0 -0.7071067811865476 67.88388261373179 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 -0 -0.7071067811865476 67.88388261373302 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0.7071067811865476 0 -0.7071067811865476 22.62644660581293 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.7071067811865476 0 0.7071067811865476 -237.5896071594106 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -237.5896071594119 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 40
@@ -9075,9 +8858,9 @@ brushDef3
 {
 brushDef3
 {
-( 0.7071067811865476 0 0.7071067811865476 -67.88388261373179 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -67.88388261373302 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( -0.7071067811865476 0 -0.7071067811865476 56.5701511106712 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( -0.7071067811865476 0 -0.7071067811865476 56.57015111067245 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0.7071067811865476 0 -0.7071067811865476 33.94017810887374 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -203.6459016545512 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -9099,7 +8882,7 @@ brushDef3
 {
 brushDef3
 {
-( 0.7071067811865476 0 0.7071067811865476 -56.5701511106712 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -56.57015111067245 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -124.4499051332424 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 -0 -0.7071067811865476 -22.62596641075345 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -9126,7 +8909,7 @@ brushDef3
 ( 1 0 0 -32 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -33.94017810887374 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.7071067811865476 0 0.7071067811865476 -67.88388261373179 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -67.88388261373302 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 16 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0 -1 16 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -9136,7 +8919,7 @@ brushDef3
 {
 brushDef3
 {
-( 0.7071067811865476 0 0.7071067811865476 -158.3936106381018 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -158.3936106381024 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -22.62644660581293 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 -0 -0.7071067811865476 147.0798791350383 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
@@ -9160,7 +8943,7 @@ brushDef3
 {
 brushDef3
 {
-( 0.7071067811865476 0 0.7071067811865476 -158.3936106381018 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -158.3936106381024 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -113.1361736301818 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 -0 -0.7071067811865476 147.0798791350383 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
@@ -9848,9 +9631,9 @@ brushDef3
 {
 brushDef3
 {
-( 0.7071067811865476 0 0.7071067811865476 -67.88388261373179 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -67.88388261373302 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( -0.7071067811865476 0 -0.7071067811865476 56.5701511106712 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( -0.7071067811865476 0 -0.7071067811865476 56.57015111067245 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0.7071067811865476 0 -0.7071067811865476 33.94017810887374 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -203.6459016545512 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -9900,7 +9683,7 @@ brushDef3
 ( 1 0 0 -32 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -33.94017810887374 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.7071067811865476 0 0.7071067811865476 -67.88388261373179 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -67.88388261373302 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 16 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0 -1 16 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -9910,7 +9693,7 @@ brushDef3
 {
 brushDef3
 {
-( 0.7071067811865476 0 0.7071067811865476 -158.3936106381018 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -158.3936106381024 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -22.62644660581293 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 -0 -0.7071067811865476 147.0798791350383 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
@@ -9947,7 +9730,7 @@ brushDef3
 brushDef3
 {
 ( 0 0 -1 184 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( -0.7071067811865476 0 -0.7071067811865476 237.5896071594106 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 0 -0.7071067811865476 237.5896071594119 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0 1 -192 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 1 0 0 -168 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -9961,7 +9744,7 @@ brushDef3
 ( 0.7071067811865476 0 0.7071067811865476 -147.0798791350383 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -124.4499051332424 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( -0.7071067811865476 -0 -0.7071067811865476 67.88388261373179 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 -0 -0.7071067811865476 67.88388261373302 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0.7071067811865476 0 -0.7071067811865476 113.1361736301818 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -9972,10 +9755,10 @@ brushDef3
 {
 ( -0.7071067811865476 0 0.7071067811865476 -33.94017810887374 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( -0.7071067811865476 -0 -0.7071067811865476 67.88388261373179 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 -0 -0.7071067811865476 67.88388261373302 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0.7071067811865476 0 -0.7071067811865476 22.62644660581293 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -1 0 -272 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.7071067811865476 0 0.7071067811865476 -237.5896071594106 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -237.5896071594119 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 117
@@ -10018,7 +9801,7 @@ brushDef3
 {
 brushDef3
 {
-( 0.7071067811865476 0 0.7071067811865476 -56.5701511106712 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -56.57015111067245 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -124.4499051332424 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 -0 -0.7071067811865476 -22.62596641075345 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -10030,7 +9813,7 @@ brushDef3
 {
 brushDef3
 {
-( 0.7071067811865476 0 0.7071067811865476 -158.3936106381018 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 -158.3936106381024 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -113.1361736301818 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 -0 -0.7071067811865476 147.0798791350383 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
@@ -10083,7 +9866,7 @@ brushDef3
 ( 0 0.7071067811865476 -0.7071067811865476 39.59810379318814 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -0.7071067811865476 -0.7071067811865476 50.91214942628332 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 -296 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -220.6179339720189 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -220.6179339720191 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 126
@@ -10115,7 +9898,7 @@ brushDef3
 brushDef3
 {
 ( 0 0 -1 184 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0 -0.7071067811865476 -0.7071067811865476 220.6179339720189 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 -0.7071067811865476 -0.7071067811865476 220.6179339720191 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 280 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0 1 -192 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 1 0 -144 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -10128,7 +9911,7 @@ brushDef3
 {
 ( 0 -1 0 -8 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -1 0 0 280 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0 0.7071067811865476 -0.7071067811865476 130.1078468175722 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 0.7071067811865476 -0.7071067811865476 130.1078468175724 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -0.7071067811865476 -0.7071067811865476 130.1082069476488 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 -296 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 -8 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
@@ -10155,7 +9938,7 @@ brushDef3
 ( 0 -0.7071067811865476 0.7071067811865476 -141.4215623206174 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 -39.59841792322246 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 280 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0 0.7071067811865476 -0.7071067811865476 130.1078468175722 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0 0.7071067811865476 -0.7071067811865476 130.1078468175724 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -0.7071067811865476 -0.7071067811865476 -39.59760859811433 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 -296 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -10165,7 +9948,7 @@ brushDef3
 brushDef3
 {
 ( 0 0 -1 184 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0 0.7071067811865476 -0.7071067811865476 220.6176048419699 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 0.7071067811865476 -0.7071067811865476 220.6176048419701 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 280 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0 1 -192 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -1 0 -144 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -10176,8 +9959,8 @@ brushDef3
 {
 brushDef3
 {
-( 0 -0.7071067811865476 0.7071067811865476 -130.1078468175722 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -141.4218774506534 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 -130.1078468175724 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -141.4218774506538 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -1 0 0 280 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0.7071067811865476 -0.7071067811865476 50.91181929623387 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -0.7071067811865476 -0.7071067811865476 130.1082069476488 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
@@ -10193,7 +9976,7 @@ brushDef3
 ( 0 0.7071067811865476 -0.7071067811865476 50.91181929623387 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -0.7071067811865476 -0.7071067811865476 39.59841792322246 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 1 0 0 -296 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 -0.7071067811865476 0.7071067811865476 -220.6176048419699 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 -220.6176048419701 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 135
@@ -10213,7 +9996,7 @@ brushDef3
 brushDef3
 {
 ( 0 -0.7071067811865476 0.7071067811865476 -39.59810379318814 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -141.4218774506534 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -141.4218774506538 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -1 0 0 280 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0.7071067811865476 -0.7071067811865476 -39.59793472815978 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -0.7071067811865476 -0.7071067811865476 130.1082069476488 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
@@ -10227,7 +10010,7 @@ brushDef3
 ( 0 -0.7071067811865476 0.7071067811865476 -141.4215623206174 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 -130.1082069476488 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 280 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0 0.7071067811865476 -0.7071067811865476 130.1078468175722 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0 0.7071067811865476 -0.7071067811865476 130.1078468175724 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -0.7071067811865476 -0.7071067811865476 50.91214942628332 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 -296 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -10269,7 +10052,7 @@ brushDef3
 }
 }
 }
-// entity 182
+// entity 152
 {
 "classname" "func_static"
 "name" "func_static_59"
@@ -10484,7 +10267,7 @@ brushDef3
 {
 brushDef3
 {
-( 0 -0.7071067811865476 0.7071067811865476 231.9310677545695 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 231.9310677545698 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 130.1075661804614 ) ( ( -0.00390625 0 510 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 1 0 0 280 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0.7071067811865476 -0.7071067811865476 -311.1270462616746 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -10523,7 +10306,7 @@ brushDef3
 {
 ( -1 0 0 -32 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -1 0 256 ) ( ( -0.00390625 0 2 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0.7071067811865476 0 -0.7071067811865476 147.0787623106636 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 11.31370849898475 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0 -0.7071067811865476 147.0787623106648 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 11.31370849898475 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 0 -0.7071067811865476 113.1367933101551 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 52.68629150101525 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 -272 ) ( ( -0.03125 0 48 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 16 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
@@ -10575,7 +10358,7 @@ brushDef3
 ( 0 0.7071067811865476 -0.7071067811865476 50.91173177081248 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0 -0.7071067811865476 -0.7071067811865476 39.59811333476723 ) ( ( -0.00390625 0 2 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -1 0 0 -296 ) ( ( -0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 -0.7071067811865476 0.7071067811865476 -220.6174122860424 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 -220.6174122860427 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 25
@@ -10609,7 +10392,7 @@ brushDef3
 ( -0.7071067811865476 0 0.7071067811865476 -158.3924868116815 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0.7071067811865476 0 0.7071067811865476 -22.62712230204113 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 52.68629150101525 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 256 ) ( ( -0.00390625 0 510 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0.7071067811865476 0 -0.7071067811865476 147.0787623106636 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0.7071067811865476 0 -0.7071067811865476 147.0787623106648 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 0 -0.7071067811865476 -56.56882520505429 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 52.68629150101525 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 -272 ) ( ( -0.03125 0 16 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -10741,7 +10524,7 @@ brushDef3
 ( 0 -1 0 -8 ) ( ( -0.00390625 0 2 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 1 0 0 280 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 220.6172531885807 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 -0.7071067811865476 0.7071067811865476 220.617359253555 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 220.6173592535553 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 -296 ) ( ( -0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 -8 ) ( ( -0.00390625 0 510 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0 -1 -368 ) ( ( 0.03125 0 0 ) ( 0 -0.03125 48 ) ) "textures/common/caulk" 134217728 0 0
@@ -10754,7 +10537,7 @@ brushDef3
 ( -0.7071067811865476 0 0.7071067811865476 -158.3924868116815 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0.7071067811865476 0 0.7071067811865476 -113.1367933101551 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 52.68629150101525 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 256 ) ( ( -0.00390625 0 2 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0.7071067811865476 0 -0.7071067811865476 147.0787623106636 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0.7071067811865476 0 -0.7071067811865476 147.0787623106648 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 0 -0.7071067811865476 33.94084680306094 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 52.68629150101525 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 -272 ) ( ( -0.03125 0 48 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -10958,7 +10741,7 @@ brushDef3
 brushDef3
 {
 ( 0 0 -1 184 ) ( ( 0.00390625 0 0 ) ( 0 -0.00390625 510 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0 0.7071067811865476 -0.7071067811865476 220.6174122860424 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 0.7071067811865476 -0.7071067811865476 220.6174122860427 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 280 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0 1 -192 ) ( ( 0.00390625 0 0 ) ( 0 -0.00390625 2 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -1 0 -144 ) ( ( -0.03125 0 16 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -10969,7 +10752,7 @@ brushDef3
 {
 brushDef3
 {
-( -0.7071067811865476 0 0.7071067811865476 -147.0787623106636 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 11.31370849898475 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 0 0.7071067811865476 -147.0787623106648 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 11.31370849898475 ) ) "textures/common/caulk" 134217728 0 0
 ( 0.7071067811865476 0 0.7071067811865476 -124.4505178111749 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 510.5857864376269 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 1 0 256 ) ( ( -0.00390625 0 510 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0.7071067811865476 0 -0.7071067811865476 67.88281480356626 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 11.31370849898475 ) ) "textures/common/caulk" 134217728 0 0
@@ -10981,9 +10764,9 @@ brushDef3
 {
 brushDef3
 {
-( 0 -0.7071067811865476 0.7071067811865476 220.617359253555 ) ( ( -0.00390625 0 2 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 220.6173592535553 ) ( ( -0.00390625 0 2 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 1 0 0 280 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0 0.7071067811865476 -0.7071067811865476 -231.9310677545695 ) ( ( -0.00390625 0 510 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0 0.7071067811865476 -0.7071067811865476 -231.9310677545698 ) ( ( -0.00390625 0 510 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0 -0.7071067811865476 -0.7071067811865476 -220.6172531885807 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 -296 ) ( ( -0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 50.91155767334737 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -11032,7 +10815,7 @@ brushDef3
 ( -0.7071067811865476 0 0.7071067811865476 -158.3924868116815 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0.7071067811865476 0 0.7071067811865476 -113.1367933101551 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 52.68629150101525 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 256 ) ( ( -0.00390625 0 510 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0.7071067811865476 0 -0.7071067811865476 147.0787623106636 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0.7071067811865476 0 -0.7071067811865476 147.0787623106648 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 0 -0.7071067811865476 33.94084680306094 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 52.68629150101525 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 -272 ) ( ( -0.03125 0 16 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -11224,7 +11007,7 @@ brushDef3
 ( -0.7071067811865476 0 0.7071067811865476 -158.3924868116815 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0.7071067811865476 0 0.7071067811865476 -22.62712230204113 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 52.68629150101525 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 256 ) ( ( -0.00390625 0 2 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0.7071067811865476 0 -0.7071067811865476 147.0787623106636 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0.7071067811865476 0 -0.7071067811865476 147.0787623106648 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 1.414213562373094 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0.7071067811865476 0 -0.7071067811865476 -56.56882520505429 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 52.68629150101525 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 -272 ) ( ( -0.03125 0 48 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -11319,7 +11102,7 @@ brushDef3
 {
 ( 0 0.7071067811865476 0.7071067811865476 220.6172531885807 ) ( ( -0.00390625 0 510 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 1 0 0 280 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0 0.7071067811865476 -0.7071067811865476 -220.617359253555 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 0.7071067811865476 -0.7071067811865476 -220.6173592535553 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0 -0.7071067811865476 -0.7071067811865476 -231.9309616895953 ) ( ( -0.00390625 0 2 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -1 0 0 -296 ) ( ( -0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -0.7071067811865476 0.7071067811865476 50.91167573832463 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -11513,7 +11296,7 @@ brushDef3
 ( 0 -0.7071067811865476 0.7071067811865476 141.4213697464461 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 130.1075661804614 ) ( ( -0.00390625 0 510 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 1 0 0 280 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0 0.7071067811865476 -0.7071067811865476 -220.617359253555 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 0.7071067811865476 -0.7071067811865476 -220.6173592535553 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0 -0.7071067811865476 -0.7071067811865476 -141.4212596814711 ) ( ( -0.00390625 0 2 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -1 0 0 -296 ) ( ( -0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -11563,7 +11346,7 @@ brushDef3
 ( 0 0.7071067811865476 -0.7071067811865476 39.5980232697982 ) ( ( -0.00390625 0 510 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( -0 -0.7071067811865476 -0.7071067811865476 50.91183783578642 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 -296 ) ( ( -0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -220.617517351016 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -220.6175173510163 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 107
@@ -11608,7 +11391,7 @@ brushDef3
 {
 ( -1 0 0 -32 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 1 0 256 ) ( ( -0.00390625 0 510 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( 0.7071067811865476 0 -0.7071067811865476 147.0787623106636 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 11.31370849898475 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0 -0.7071067811865476 147.0787623106648 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 11.31370849898475 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 0 -0.7071067811865476 113.1367933101551 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 52.68629150101525 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 -272 ) ( ( -0.03125 0 16 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 16 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
@@ -11643,7 +11426,7 @@ brushDef3
 {
 brushDef3
 {
-( -0.7071067811865476 0 0.7071067811865476 -147.0787623106636 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 11.31370849898475 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 0 0.7071067811865476 -147.0787623106648 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 11.31370849898475 ) ) "textures/common/caulk" 134217728 0 0
 ( 0.7071067811865476 0 0.7071067811865476 -124.4505178111749 ) ( ( -0.00390625 0 0 ) ( 0 0.003906250000000001 510.5857864376269 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 -1 0 256 ) ( ( -0.00390625 0 2 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0.7071067811865476 0 -0.7071067811865476 67.88281480356626 ) ( ( -0.03125 0 0 ) ( 0 0.03125000000000001 11.31370849898475 ) ) "textures/common/caulk" 134217728 0 0
@@ -11705,7 +11488,7 @@ brushDef3
 brushDef3
 {
 ( 0 0 -1 184 ) ( ( 0.00390625 0 0 ) ( 0 -0.00390625 510 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
-( -0 -0.7071067811865476 -0.7071067811865476 220.617517351016 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0 -0.7071067811865476 -0.7071067811865476 220.6175173510163 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 280 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0 1 -192 ) ( ( 0.00390625 0 0 ) ( 0 -0.00390625 2 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 1 0 -144 ) ( ( -0.03125 0 48 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -11753,7 +11536,7 @@ brushDef3
 brushDef3
 {
 ( 0 -0.7071067811865476 0.7071067811865476 -130.1077102779178 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -141.4215098439014 ) ( ( -0.00390625 0 510 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -141.4215098439016 ) ( ( -0.00390625 0 510 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 1 0 0 280 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0.7071067811865476 -0.7071067811865476 50.91173177081248 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0 -0.7071067811865476 -0.7071067811865476 130.107846342901 ) ( ( -0.00390625 0 2 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
@@ -11912,7 +11695,7 @@ brushDef3
 brushDef3
 {
 ( 0 -0.7071067811865476 0.7071067811865476 -39.5980232697982 ) ( ( -0.03125 0 16 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -141.4215098439014 ) ( ( -0.00390625 0 510 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -141.4215098439016 ) ( ( -0.00390625 0 510 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 1 0 0 280 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
 ( 0 0.7071067811865476 -0.7071067811865476 -39.59796623731015 ) ( ( -0.03125 0 48 ) ( 0 0.03125000000000001 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0 -0.7071067811865476 -0.7071067811865476 130.107846342901 ) ( ( -0.00390625 0 2 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase04" 134217728 0 0
@@ -11980,7 +11763,7 @@ brushDef3
 }
 }
 }
-// entity 183
+// entity 153
 {
 "classname" "func_static"
 "name" "func_static_60"
@@ -12184,7 +11967,7 @@ brushDef3
 }
 }
 }
-// entity 184
+// entity 154
 {
 "classname" "func_static"
 "name" "func_static_61"
@@ -12388,7 +12171,7 @@ brushDef3
 }
 }
 }
-// entity 185
+// entity 155
 {
 "classname" "func_static"
 "name" "func_static_62"
@@ -12592,7 +12375,7 @@ brushDef3
 }
 }
 }
-// entity 186
+// entity 156
 {
 "classname" "func_static"
 "name" "func_static_63"
@@ -12796,7 +12579,7 @@ brushDef3
 }
 }
 }
-// entity 187
+// entity 157
 {
 "classname" "func_static"
 "name" "func_static_64"
@@ -13316,9 +13099,9 @@ brushDef3
 {
 ( 0 -1 0 -176 ) ( ( -0.00390625 0 1.999998292377427 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 128 ) ( ( 0.00390625 0 0 ) ( 0 -0.00390625 510.0000017076226 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 -0.7071067811865476 0 -357.7962173546533 ) ( ( -0.003906250000000001 0 1.414212354901622 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.7071067811865476 -0.7071067811865476 0 -357.7962173546544 ) ( ( -0.003906250000000001 0 1.414212354901622 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 1 -144 ) ( ( 0.00390625 0 0 ) ( 0 -0.00390625 1.999998292377427 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 86.26727341150978 ) ( ( -0.003906250000000001 0 1.414212354901637 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 86.26727341150992 ) ( ( -0.003906250000000001 0 1.414212354901637 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 -345.999562848617 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 281.999562848617 ) ( ( -0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 1 0 112 ) ( ( -0.00390625 0 510.0000017076226 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
@@ -13370,7 +13153,7 @@ brushDef3
 ( 0.7071067811865476 0.7071067811865476 0 140.007344718611 ) ( ( -0.003906250000000001 0 510.5857876450984 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -41.01193823265834 ) ( ( -0.03125000000000001 0 11.31369883921267 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 128 ) ( ( 0.00390625 0 0 ) ( 0 -0.00390625 510.0000017076226 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -162.6347627206391 ) ( ( -0.003906250000000001 0 1.414212354901637 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -162.634762720639 ) ( ( -0.003906250000000001 0 1.414212354901637 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -49.4977487754606 ) ( ( -0.03125000000000001 0 52.68630116078734 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -13498,11 +13281,11 @@ brushDef3
 ( 0 0 -1 128 ) ( ( 0.00390625 0 510.875 ) ( 0 -0.00390625 510.0000017076226 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -154.1494643729256 ) ( ( -0.003906250000000001 0 2.209707483736509 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 1 -144 ) ( ( 0.00390625 0 510.875 ) ( 0 -0.00390625 1.999998292377427 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 289.9140263932366 ) ( ( -0.003906250000000001 0 0.6187172260667507 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 289.9140263932377 ) ( ( -0.003906250000000001 0 0.6187172260667507 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 -345.999562848617 ) ( ( -0.00390625 0 1.125 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 281.999562848617 ) ( ( -0.00390625 0 510.875 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 1 0 -176 ) ( ( -0.00390625 0 510.0000017076226 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -357.7963524115424 ) ( ( -0.003906250000000001 0 511.3812827739333 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -357.7963524115432 ) ( ( -0.003906250000000001 0 511.3812827739333 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 86.26713835462074 ) ( ( -0.003906250000000001 0 509.7902925162636 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
@@ -13511,10 +13294,10 @@ brushDef3
 brushDef3
 {
 ( 0 0 1 -144 ) ( ( 0.00390625 0 0 ) ( 0 -0.00390625 1.999998292377427 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.6401843013037727 0.7682213615646214 0 71.44505422030515 ) ( ( -0.00390625 0 510.4635585887029 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.6401843013037727 0.7682213615646214 0 71.44505422030529 ) ( ( -0.00390625 0 510.4635585887029 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 -294.000437151383 ) ( ( -0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 128 ) ( ( 0.00390625 0 0 ) ( 0 -0.00390625 510.0000017076226 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.6401843013037727 -0.7682213615646214 0 -83.73658243527539 ) ( ( -0.00390625 0 1.536441411297058 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.6401843013037727 -0.7682213615646214 0 -83.73658243527559 ) ( ( -0.00390625 0 1.536441411297058 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 150.000437151383 ) ( ( -0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -13538,7 +13321,7 @@ brushDef3
 ( 0.6401843013037727 -0.7682213615646214 0 71.44480897816075 ) ( ( -0.00390625 0 1.536441411297075 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 -294.000437151383 ) ( ( -0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 128 ) ( ( 0.00390625 0 0 ) ( 0 -0.00390625 510.0000017076226 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.6401843013037727 0.7682213615646214 0 -83.73634119312941 ) ( ( -0.00390625 0 510.4635585887029 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.6401843013037727 0.7682213615646214 0 -83.73634119312975 ) ( ( -0.00390625 0 510.4635585887029 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 150.000437151383 ) ( ( -0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -13566,7 +13349,7 @@ brushDef3
 ( 1 0 0 294 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 -1 0 48 ) ( ( 0.00390625 0 506.25 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 1 280 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 506.25 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 0 0.7071067811865476 417.1930309122532 ) ( ( 0.00390625 0 0 ) ( 0 0.003906250000000001 507.9341360081773 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 417.193030912253 ) ( ( 0.00390625 0 0 ) ( 0 0.003906250000000001 507.9341360081773 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -43.84160282776055 ) ( ( 0.00390625 0 0 ) ( 0 0.003906250000000001 4.065863991822648 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 -358 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 -344 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 5.75 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
@@ -13598,7 +13381,7 @@ brushDef3
 ( 1 0 0 294 ) ( ( 0.00390625 0 0.4375 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 -1 0 -64 ) ( ( 0.00390625 0 506.25 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 1 280 ) ( ( 0.00390625 0 0.4375 ) ( 0 0.00390625 506.25 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 0 0.7071067811865476 417.1930309122532 ) ( ( 0.00390625 0 0.4375 ) ( 0 0.003906250000000001 507.9341360081773 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.7071067811865476 0 0.7071067811865476 417.193030912253 ) ( ( 0.00390625 0 0.4375 ) ( 0 0.003906250000000001 507.9341360081773 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0 0.7071067811865476 -43.84160282776055 ) ( ( 0.00390625 0 511.5625 ) ( 0 0.003906250000000001 4.065863991822648 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 -358 ) ( ( 0.00390625 0 511.5625 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 -344 ) ( ( 0.00390625 0 0.4375 ) ( 0 0.00390625 5.75 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
@@ -13783,7 +13566,7 @@ brushDef3
 }
 }
 }
-// entity 188
+// entity 158
 {
 "classname" "func_static"
 "name" "func_static_65"
@@ -14065,11 +13848,11 @@ brushDef3
 ( 1 0 0 64 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 121.6219572237237 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 -80 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0 -0.7071067811865476 0.7071067811865476 -319.6139857004275 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 -319.6139857004285 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 1 0 280 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 -1 0 -344 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 60 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0 0.7071067811865476 -0.7071067811865476 251.7316786699805 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0 0.7071067811865476 -0.7071067811865476 251.7316786699813 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 -0.7071067811865476 -0.7071067811865476 -189.5043262542661 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
@@ -14081,11 +13864,11 @@ brushDef3
 ( 1 0 0 -80 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 121.6221182706031 ) ( ( 0.00390625 0 0.5625 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 64 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0 -0.7071067811865476 0.7071067811865476 -319.6132924986662 ) ( ( 0.00390625 0 511.4375 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 -319.6132924986674 ) ( ( 0.00390625 0 511.4375 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 1 0 280 ) ( ( 0.00390625 0 0.5625 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 -1 0 -344 ) ( ( 0.00390625 0 511.4375 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 60 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0.5625 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0 0.7071067811865476 -0.7071067811865476 251.7310274804196 ) ( ( 0.00390625 0 0.5625 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0 0.7071067811865476 -0.7071067811865476 251.7310274804202 ) ( ( 0.00390625 0 0.5625 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 -0.7071067811865476 -0.7071067811865476 -189.5044452889093 ) ( ( 0.00390625 0 511.4375 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
@@ -14116,7 +13899,7 @@ brushDef3
 }
 }
 }
-// entity 189
+// entity 159
 {
 "classname" "func_static"
 "name" "func_static_66"
@@ -14407,7 +14190,7 @@ brushDef3
 ( 0 -1 0 280 ) ( ( 0.00390625 0 511.4375 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 60 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0.5625 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0.7071067811865476 -0.7071067811865476 -189.5047744189574 ) ( ( 0.00390625 0 0.5625 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0 -0.7071067811865476 -0.7071067811865476 251.7312656103824 ) ( ( 0.00390625 0 511.4375 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0 -0.7071067811865476 -0.7071067811865476 251.7312656103834 ) ( ( 0.00390625 0 511.4375 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
 // primitive 22
@@ -14449,7 +14232,7 @@ brushDef3
 }
 }
 }
-// entity 190
+// entity 160
 {
 "classname" "func_static"
 "name" "func_static_67"
@@ -14496,10 +14279,10 @@ brushDef3
 brushDef3
 {
 ( 0 0 1 -144 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.6401843013037727 0.7682213615646214 0 71.44518509991255 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.6401843013037727 0.7682213615646214 0 71.44518509991302 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 -294 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 128 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.6401843013037727 -0.7682213615646214 0 -83.73670174483003 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.6401843013037727 -0.7682213615646214 0 -83.73670174483057 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 150 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -14508,10 +14291,10 @@ brushDef3
 brushDef3
 {
 ( 0 0 1 -144 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.6401843013037727 -0.7682213615646214 0 71.44456961591423 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.6401843013037727 -0.7682213615646214 0 71.44456961591436 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 -294 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 128 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.6401843013037727 0.7682213615646214 0 -83.7360902608261 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.6401843013037727 0.7682213615646214 0 -83.73609026082617 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 150 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -14652,7 +14435,7 @@ brushDef3
 brushDef3
 {
 ( 0 0 1 -144 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 -0.7071067811865476 0 131.5224455363999 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.7071067811865476 -0.7071067811865476 0 131.5224455364002 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -49.49736964241618 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 128 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -154.14990854252 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
@@ -15181,14 +14964,14 @@ brushDef3
 {
 ( 0 -1 0 -176 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 128 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -357.7968485611176 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -357.7968485611179 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 1 -144 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 86.2679606342635 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 -346 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 282 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 1 0 112 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -154.1503286648048 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 289.9144805305765 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 289.9144805305768 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
 // primitive 60
@@ -15197,13 +14980,13 @@ brushDef3
 {
 ( 0 -1 0 112 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 128 ) ( ( 0.00390625 0 510.875 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -154.1497734856332 ) ( ( 0.003906250000000001 0 0.7954951288348662 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -154.1497734856335 ) ( ( 0.003906250000000001 0 0.7954951288348662 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 1 -144 ) ( ( 0.00390625 0 510.875 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 289.9143355059414 ) ( ( 0.003906250000000001 0 511.2045048711651 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 -346 ) ( ( 0.00390625 0 1.125 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 282 ) ( ( 0.00390625 0 510.875 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 1 0 -176 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 0.7071067811865476 0 -357.7966615242485 ) ( ( 0.003906250000000001 0 0.7954951288348662 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.7071067811865476 0.7071067811865476 0 -357.796661524249 ) ( ( 0.003906250000000001 0 0.7954951288348662 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 86.26744746732753 ) ( ( 0.003906250000000001 0 511.2045048711651 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
@@ -15436,7 +15219,7 @@ brushDef3
 }
 }
 }
-// entity 191
+// entity 161
 {
 "classname" "func_static"
 "name" "func_static_68"
@@ -15570,7 +15353,7 @@ brushDef3
 ( 0 -1 0 -144 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 64 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -228 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
-( 0.7071067811865476 -0.7071067811865476 0 -237.5880955640257 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 -0.7071067811865476 0 -237.5880955640258 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 64 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 -224 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -15583,7 +15366,7 @@ brushDef3
 ( 0 1 0 -144 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 64 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -228 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
-( -0.7071067811865476 0.7071067811865476 0 -237.5880955640257 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 0.7071067811865476 0 -237.5880955640258 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 64 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 -224 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -15593,11 +15376,11 @@ brushDef3
 brushDef3
 {
 ( 0 0 1 216 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 -0.7071067811865476 0 237.5880955640257 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.7071067811865476 -0.7071067811865476 0 237.5880955640258 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 -232 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 0.7071067811865476 0 -260.2155435701333 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.7071067811865476 0.7071067811865476 0 -260.2155435701334 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 -79.19569739128853 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 33.9408333791034 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 33.94083337910319 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 13
@@ -15621,7 +15404,7 @@ brushDef3
 ( 1 0 0 64 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -232 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 -1 0 144 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 -0 -33.9408333791034 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 -0 -33.94083337910319 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 15
@@ -15632,7 +15415,7 @@ brushDef3
 ( 0 1 0 -144 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 64 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -228 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -237.5884106940614 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -237.5884106940621 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 -1 0 64 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 -224 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -15642,9 +15425,9 @@ brushDef3
 brushDef3
 {
 ( 0 0 1 216 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 -0 237.5884106940614 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 -0 237.5884106940621 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 -232 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -260.2158727001816 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -260.215872700182 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -79.19603452134437 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 33.94115550914552 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -15681,7 +15464,7 @@ brushDef3
 ( 0 -1 0 -144 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 1 0 0 64 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -228 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase06rust" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -237.5877664339773 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -237.5877664339774 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 1 0 64 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -1 0 0 -224 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
@@ -15691,7 +15474,7 @@ brushDef3
 brushDef3
 {
 ( 0 0 1 216 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 237.5877664339773 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 237.5877664339774 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 -232 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 -260.2152054400758 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -79.19603452134437 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -15727,10 +15510,10 @@ brushDef3
 brushDef3
 {
 ( 0 0 1 216 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 0.7071067811865476 0 237.5880955640257 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.7071067811865476 0.7071067811865476 0 237.5880955640258 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 -232 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 -0.7071067811865476 0 -260.2155435701333 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -79.19635665138657 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 -0.7071067811865476 0 -260.2155435701334 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -79.19635665138686 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 33.9414926392013 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -15743,7 +15526,7 @@ brushDef3
 ( 0 1 0 64 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 -232 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 -240 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 79.19635665138657 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 79.19635665138686 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 25
@@ -15776,7 +15559,7 @@ brushDef3
 {
 ( 0 0 1 -232 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 1 0 128 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 45.25453388213533 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 45.25453388213524 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 216 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 -1 0 -144 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 45.25487501219504 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -15791,7 +15574,7 @@ brushDef3
 ( 0.7071067811865476 -0.7071067811865476 0 45.25487501219504 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 216 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 -144 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 45.25453388213533 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 45.25453388213524 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 29
@@ -15812,7 +15595,7 @@ brushDef3
 {
 ( 0 0 1 -232 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 135.7646220365821 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -45.25453388213533 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -45.25453388213524 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 216 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -158.3920690426885 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -45.25519414223399 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
@@ -15823,10 +15606,10 @@ brushDef3
 brushDef3
 {
 ( 0 0 1 -232 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 135.7649521666318 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 135.7649521666322 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -45.25487501219504 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 216 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( 0.7071067811865476 0.7071067811865476 0 -158.3924141727523 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0.7071067811865476 0.7071067811865476 0 -158.3924141727524 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -45.25487501219504 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
@@ -15863,7 +15646,7 @@ brushDef3
 ( 0.7071067811865476 0.7071067811865476 0 -45.25519414223399 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0 -1 216 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -158.3920690426885 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -45.25453388213533 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -45.25453388213524 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 }
 }
 // primitive 35
@@ -16159,10 +15942,10 @@ brushDef3
 brushDef3
 {
 ( 0 0.7071067811865476 -0.7071067811865476 -39.59759358999145 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -288.5006051284959 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -288.5006051284969 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 48 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 -0.7071067811865476 0.7071067811865476 -39.59846393137412 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 -0.7071067811865476 -0.7071067811865476 265.8731431223753 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0 -0.7071067811865476 -0.7071067811865476 265.8731431223763 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 -64 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
@@ -16219,10 +16002,10 @@ brushDef3
 brushDef3
 {
 ( 0 0.7071067811865476 -0.7071067811865476 -39.59759358999145 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 0.7071067811865476 0.7071067811865476 -288.5006051284959 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0 0.7071067811865476 0.7071067811865476 -288.5006051284969 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 48 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 -0.7071067811865476 0.7071067811865476 -39.59846393137412 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 -0.7071067811865476 -0.7071067811865476 265.8731431223753 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0 -0.7071067811865476 -0.7071067811865476 265.8731431223763 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 -64 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
@@ -16267,7 +16050,7 @@ brushDef3
 brushDef3
 {
 ( 0 -0.7071067811865476 -0.7071067811865476 -39.59723345991353 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 -0.7071067811865476 0.7071067811865476 -288.5002449984185 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 -288.500244998419 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 1 0 0 48 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 -39.59876306139467 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0.7071067811865476 -0.7071067811865476 265.8728439923542 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
@@ -16279,7 +16062,7 @@ brushDef3
 brushDef3
 {
 ( 0 -0.7071067811865476 -0.7071067811865476 -39.59723345991353 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
-( 0 -0.7071067811865476 0.7071067811865476 -288.5002449984185 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( 0 -0.7071067811865476 0.7071067811865476 -288.500244998419 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( -1 0 0 48 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0.7071067811865476 0.7071067811865476 -39.59876306139467 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 134217728 0 0
 ( 0 0.7071067811865476 -0.7071067811865476 265.8728439923542 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
@@ -16322,7 +16105,7 @@ brushDef3
 ( 0 -1 0 192 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 1 0 -256 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 -32 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0 -0.7071067811865476 -0.7071067811865476 124.4522810075265 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0 -0.7071067811865476 -0.7071067811865476 124.4522810075273 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0.7071067811865476 -0.7071067811865476 -192.3326073301847 ) ( ( 0.00390625 0 -0 ) ( -0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
@@ -16338,7 +16121,7 @@ brushDef3
 ( 0 -1 0 192 ) ( ( 0.00390625 0 0.4375 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 1 0 -256 ) ( ( 0.00390625 0 511.5625 ) ( 0 0.00390625 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0 -1 -32 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 511.5625 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
-( -0 -0.7071067811865476 -0.7071067811865476 124.4516858342915 ) ( ( 0.00390625 0 0.4375 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
+( -0 -0.7071067811865476 -0.7071067811865476 124.4516858342921 ) ( ( 0.00390625 0 0.4375 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 ( 0 0.7071067811865476 -0.7071067811865476 -192.3327823811359 ) ( ( 0.00390625 0 511.5625 ) ( 0 0.003906250000000001 0 ) ) "textures/eX/eXmetalBase03" 134217728 0 0
 }
 }
@@ -16375,7 +16158,7 @@ brushDef3
 }
 }
 }
-// entity 192
+// entity 162
 {
 "classname" "func_static"
 "name" "func_static_69"
@@ -16394,7 +16177,7 @@ brushDef3
 }
 }
 }
-// entity 193
+// entity 163
 {
 "classname" "func_static"
 "name" "func_static_71"
@@ -16413,7 +16196,7 @@ brushDef3
 }
 }
 }
-// entity 194
+// entity 164
 {
 "classname" "func_static"
 "name" "func_static_70"
@@ -16432,7 +16215,7 @@ brushDef3
 }
 }
 }
-// entity 195
+// entity 165
 {
 "classname" "func_static"
 "name" "func_static_73"
@@ -16451,7 +16234,7 @@ brushDef3
 }
 }
 }
-// entity 196
+// entity 166
 {
 "classname" "func_static"
 "name" "func_static_75"
@@ -16470,7 +16253,7 @@ brushDef3
 }
 }
 }
-// entity 197
+// entity 167
 {
 "classname" "func_static"
 "name" "func_static_72"
@@ -16489,7 +16272,7 @@ brushDef3
 }
 }
 }
-// entity 198
+// entity 168
 {
 "classname" "func_static"
 "name" "func_static_79"
@@ -16508,7 +16291,7 @@ brushDef3
 }
 }
 }
-// entity 199
+// entity 169
 {
 "classname" "func_static"
 "name" "func_static_74"
@@ -16527,7 +16310,7 @@ brushDef3
 }
 }
 }
-// entity 200
+// entity 170
 {
 "classname" "func_static"
 "name" "func_static_76"
@@ -16546,7 +16329,7 @@ brushDef3
 }
 }
 }
-// entity 201
+// entity 171
 {
 "classname" "func_static"
 "name" "func_static_77"
@@ -16565,7 +16348,7 @@ brushDef3
 }
 }
 }
-// entity 202
+// entity 172
 {
 "classname" "func_static"
 "name" "func_static_80"
@@ -16584,7 +16367,7 @@ brushDef3
 }
 }
 }
-// entity 203
+// entity 173
 {
 "classname" "func_static"
 "name" "func_static_81"
@@ -16603,7 +16386,7 @@ brushDef3
 }
 }
 }
-// entity 204
+// entity 174
 {
 "classname" "func_static"
 "name" "func_static_83"
@@ -16622,7 +16405,7 @@ brushDef3
 }
 }
 }
-// entity 205
+// entity 175
 {
 "classname" "func_static"
 "name" "func_static_78"
@@ -16641,7 +16424,7 @@ brushDef3
 }
 }
 }
-// entity 206
+// entity 176
 {
 "classname" "func_static"
 "name" "func_static_85"
@@ -16660,7 +16443,7 @@ brushDef3
 }
 }
 }
-// entity 207
+// entity 177
 {
 "classname" "func_static"
 "name" "func_static_82"
@@ -16679,143 +16462,7 @@ brushDef3
 }
 }
 }
-// entity 208
-{
-"classname" "light"
-"name" "light_39"
-"light_center" "0 0 0"
-"light_radius" "128 192 192"
-"origin" "-1104 256 128"
-}
-// entity 209
-{
-"classname" "light"
-"name" "light_41"
-"light_center" "0 0 0"
-"light_radius" "128 192 192"
-"origin" "-1104 256 512"
-}
-// entity 210
-{
-"classname" "light"
-"name" "light_43"
-"light_center" "0 0 0"
-"light_radius" "128 192 192"
-"origin" "1616 256 128"
-}
-// entity 211
-{
-"classname" "light"
-"name" "light_40"
-"light_center" "0 0 0"
-"light_radius" "128 192 192"
-"origin" "1616 256 512"
-}
-// entity 212
-{
-"classname" "light"
-"name" "light_42"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "64 1056 1392"
-}
-// entity 213
-{
-"classname" "light"
-"name" "light_45"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "448 1056 1392"
-}
-// entity 214
-{
-"classname" "light"
-"name" "light_47"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "448 768 1392"
-}
-// entity 215
-{
-"classname" "light"
-"name" "light_44"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "64 768 1392"
-}
-// entity 216
-{
-"classname" "light"
-"name" "light_51"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "64 -256 1392"
-}
-// entity 217
-{
-"classname" "light"
-"name" "light_46"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "448 -544 1392"
-}
-// entity 218
-{
-"classname" "light"
-"name" "light_48"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "64 -544 1392"
-}
-// entity 219
-{
-"classname" "light"
-"name" "light_49"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "448 -256 1392"
-}
-// entity 220
-{
-"classname" "light"
-"name" "light_52"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "-480 32 1392"
-}
-// entity 221
-{
-"classname" "light"
-"name" "light_53"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "-480 480 1392"
-}
-// entity 222
-{
-"classname" "light"
-"name" "light_55"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "992 480 1392"
-}
-// entity 223
-{
-"classname" "light"
-"name" "light_50"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "992 32 1392"
-}
-// entity 224
-{
-"classname" "light"
-"name" "light_54"
-"light_center" "0 0 0"
-"light_radius" "320 320 320"
-"origin" "-688 256 688"
-}
-// entity 225
+// entity 178
 {
 "classname" "trigger_push"
 "name" "trigger_push_1"
@@ -16839,19 +16486,19 @@ brushDef3
 }
 }
 }
-// entity 226
+// entity 179
 {
 "classname" "target_position"
 "name" "target_position_1"
 "origin" "2112 256 448"
 }
-// entity 227
+// entity 180
 {
 "classname" "target_position"
 "name" "target_position_2"
 "origin" "-1600 256 448"
 }
-// entity 228
+// entity 181
 {
 "classname" "trigger_push"
 "name" "trigger_push_3"
@@ -16875,14 +16522,14 @@ brushDef3
 }
 }
 }
-// entity 229
+// entity 182
 {
 "classname" "func_static"
 "name" "func_static_1"
 "model" "models/mapobjects/mic/jumppad/jumppad01.ase"
 "origin" "256 -408 384"
 }
-// entity 230
+// entity 183
 {
 "classname" "trigger_push"
 "name" "trigger_push_2"
@@ -16899,20 +16546,20 @@ brushDef3
 ( 0 0 -1 -4.000000000000114 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
 ( 0 -1 0 -56 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
 ( -1 0 0 -56 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( -0.7071067811865476 0.7071067811865476 0 -56.56854249492373 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( -0.7071067811865476 0.7071067811865476 0 -56.56854249492341 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -56.56854249492382 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -56.56854249492397 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
 ( -0.7071067811865476 -0.7071067811865476 -0 -56.56854249492382 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
 }
 }
 }
-// entity 231
+// entity 184
 {
 "classname" "target_position"
 "name" "target_position_3"
 "origin" "256 -56 768"
 }
-// entity 232
+// entity 185
 {
 "classname" "func_static"
 "name" "func_static_3"
@@ -16920,14 +16567,14 @@ brushDef3
 "origin" "254 922 384"
 "rotation" "-1 0 0 0 -1 0 0 0 1"
 }
-// entity 233
+// entity 186
 {
 "classname" "target_position"
 "name" "target_position_5"
 "angle" "180"
 "origin" "254 570 768"
 }
-// entity 234
+// entity 187
 {
 "classname" "trigger_push"
 "name" "trigger_push_4"
@@ -16945,13 +16592,13 @@ brushDef3
 ( 0 1 0 -56 ) ( ( 0.03125 0 15.9375 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
 ( 1 0 0 -56 ) ( ( 0.03125 0 47.9375 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -56.56854249492159 ) ( ( 0.03125 0 41.37258300203048 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -56.56854249492029 ) ( ( 0.03125 0 0.08838834764831915 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -56.56854249491997 ) ( ( 0.03125 0 0.08838834764831915 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -56.56854249492523 ) ( ( 0.03125 0 22.62741699796952 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( 0.7071067811865476 0.7071067811865476 0 -56.56854249492702 ) ( ( 0.03125 0 63.91161165235168 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( 0.7071067811865476 0.7071067811865476 0 -56.56854249492768 ) ( ( 0.03125 0 63.91161165235168 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
 }
 }
 }
-// entity 235
+// entity 188
 {
 "classname" "item_quad"
 "name" "item_quad_1"
