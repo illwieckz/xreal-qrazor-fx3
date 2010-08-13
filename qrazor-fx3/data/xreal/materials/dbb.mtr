@@ -1,7 +1,0 @@
-textures/dbb/logo // Name der Textur
-{
-qer_editorimage textures/dbb/logo.tga //Name der Textur, die im D3Radianten angezeigt werden soll.
-diffusemap textures/dbb/logo.tga // Diffusemap
-specularmap textures/dbb/logo_s.tga // Specularmap
-bumpmap textures/dbb/logo_b.tga // Normalmap
-}
