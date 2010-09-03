@@ -54,6 +54,7 @@ reflex_ugly
 sfx
 #sky
 #skybox_spring
+tech_panel
 tr3b_fog
 tr3b_lava
 tr3b_parallax

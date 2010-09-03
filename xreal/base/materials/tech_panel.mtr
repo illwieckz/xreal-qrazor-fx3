@@ -1,0 +1,91 @@
+// Tech Panel
+// Textures by theShadow
+// Materials by Odin
+
+textures/theShadow/tech_panel/tech_crate
+{
+	qer_editorImage	textures/theShadow/tech_panel/tech_crate_d
+	diffuseMap	textures/theShadow/tech_panel/tech_crate_d
+	specularMap	textures/theShadow/tech_panel/tech_crate_d
+	normalMap	textures/theShadow/tech_panel/tech_crate_local
+}
+
+textures/theShadow/tech_panel/tech_flr1
+{
+	qer_editorImage	textures/theShadow/tech_panel/tech_flr1_d
+	diffuseMap	textures/theShadow/tech_panel/tech_flr1_d
+	specularMap	textures/theShadow/tech_panel/tech_flr1_d
+	normalMap	textures/theShadow/tech_panel/tech_flr1_local
+}
+
+textures/theShadow/tech_panel/tech_pnl1
+{
+	qer_editorImage	textures/theShadow/tech_panel/tech_pnl1_d
+	diffuseMap	textures/theShadow/tech_panel/tech_pnl1_d
+	specularMap	textures/theShadow/tech_panel/tech_pnl1_d
+	normalMap	textures/theShadow/tech_panel/tech_pnl1_local
+}
+
+textures/theShadow/tech_panel/tech_pnl2
+{
+	qer_editorImage	textures/theShadow/tech_panel/tech_pnl2_d
+	diffuseMap	textures/theShadow/tech_panel/tech_pnl2_d
+	specularMap	textures/theShadow/tech_panel/tech_pnl2_d
+	normalMap	textures/theShadow/tech_panel/tech_pnl2_local
+}
+
+textures/theShadow/tech_panel/tech_pnl3
+{
+	qer_editorImage	textures/theShadow/tech_panel/tech_pnl3_d
+	diffuseMap	textures/theShadow/tech_panel/tech_pnl3_d
+	specularMap	textures/theShadow/tech_panel/tech_pnl3_d
+	normalMap	textures/theShadow/tech_panel/tech_pnl3_local
+}
+
+textures/theShadow/tech_panel/tech_pnl4
+{
+	qer_editorImage	textures/theShadow/tech_panel/tech_pnl4_d
+	diffuseMap	textures/theShadow/tech_panel/tech_pnl4_d
+	specularMap	textures/theShadow/tech_panel/tech_pnl4_d
+	normalMap	textures/theShadow/tech_panel/tech_pnl4_local
+}
+
+textures/theShadow/tech_panel/tech_pnlflr1
+{
+	qer_editorImage	textures/theShadow/tech_panel/tech_pnlflr1_d
+	diffuseMap	textures/theShadow/tech_panel/tech_pnlflr1_d
+	specularMap	textures/theShadow/tech_panel/tech_pnlflr1_d
+	normalMap	textures/theShadow/tech_panel/tech_pnlflr1_local
+}
+
+textures/theShadow/tech_panel/tech_pnlflr2
+{
+	qer_editorImage	textures/theShadow/tech_panel/tech_pnlflr2_d
+	diffuseMap	textures/theShadow/tech_panel/tech_pnlflr2_d
+	specularMap	textures/theShadow/tech_panel/tech_pnlflr2_d
+	normalMap	textures/theShadow/tech_panel/tech_pnlflr2_local
+}
+
+textures/theShadow/tech_panel/tech_wall1
+{
+	qer_editorImage	textures/theShadow/tech_panel/tech_wall1_d
+	diffuseMap	textures/theShadow/tech_panel/tech_wall1_d
+	specularMap	textures/theShadow/tech_panel/tech_wall1_d
+	normalMap	textures/theShadow/tech_panel/tech_wall1_local
+}
+
+textures/theShadow/tech_panel/tech_wall2
+{
+	qer_editorImage	textures/theShadow/tech_panel/tech_wall2_d
+	diffuseMap	textures/theShadow/tech_panel/tech_wall2_d
+	specularMap	textures/theShadow/tech_panel/tech_wall2_d
+	normalMap	textures/theShadow/tech_panel/tech_wall2_local
+}
+
+textures/theShadow/tech_panel/tech_wall3
+{
+	qer_editorImage	textures/theShadow/tech_panel/tech_wall3_d
+	diffuseMap	textures/theShadow/tech_panel/tech_wall3_d
+	specularMap	textures/theShadow/tech_panel/tech_wall3_d
+	normalMap	textures/theShadow/tech_panel/tech_wall3_local
+}
