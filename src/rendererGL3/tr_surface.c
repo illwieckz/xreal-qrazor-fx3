@@ -209,7 +209,7 @@ void Tess_AddQuadStampExt2(vec4_t quadVerts[4], const vec4_t color, float s1, fl
 
 	GLimp_LogComment("--- Tess_AddQuadStampExt2 ---\n");
 
-//  Tess_CheckOverflow(4, 6);
+	Tess_CheckOverflow(4, 6);
 
 	ndx = tess.numVertexes;
 
@@ -294,6 +294,8 @@ void Tess_AddQuadStamp2WithNormals(vec4_t quadVerts[4], const vec4_t color)
 void Tess_AddTetrahedron(vec4_t tetraVerts[4], const vec4_t color)
 {
 	int             k;
+
+	Tess_CheckOverflow(12, 12);
 
 	// ground triangle
 	for(k = 0; k < 3; k++)
@@ -904,6 +906,99 @@ static void Tess_SurfacePolychain(srfPoly_t * p)
 
 	tess.numIndexes += numIndexes;
 	tess.numVertexes += numVertexes;
+}
+
+
+void Tess_SurfacePolybuffer(srfPolyBuffer_t * surf)
+{
+	int             i;
+	int				numIndexes;
+	int				numVertexes;
+	float          *xyzw;
+	float          *st;
+	byte           *color;
+
+	GLimp_LogComment("--- Tess_SurfacePolybuffer ---\n");
+
+	if(tess.shadowVolume)
+	{
+		return;
+	}
+
+	Tess_CheckOverflow(surf->pPolyBuffer->numVerts, surf->pPolyBuffer->numIndicies);
+
+	numIndexes = Q_min(surf->pPolyBuffer->numIndicies, MAX_PB_INDICIES);
+	for(i = 0; i < numIndexes; i++)
+	{
+		tess.indexes[tess.numIndexes + i] = tess.numVertexes + i;
+	}
+	tess.numIndexes += numIndexes;
+
+	
+	numVertexes = Q_min(surf->pPolyBuffer->numVerts, MAX_PB_VERTS);
+	xyzw = surf->pPolyBuffer->xyz;
+	st = surf->pPolyBuffer->st;
+	color = surf->pPolyBuffer->color;
+	for(i = 0; i < surf->pPolyBuffer->numVerts; i++, xyzw += 4, st += 2, color += 4)
+	{
+		VectorCopy(xyzw, tess.xyz[tess.numVertexes + i]);
+		tess.xyz[tess.numVertexes + i][3] = 1;
+
+		tess.texCoords[tess.numVertexes + i][0] = st[0];
+		tess.texCoords[tess.numVertexes + i][1] = st[1];
+		tess.texCoords[tess.numVertexes + i][2] = 0;
+		tess.texCoords[tess.numVertexes + i][3] = 1;
+
+		tess.colors[tess.numVertexes + i][0] = color[0] * (1.0 / 255.0);
+		tess.colors[tess.numVertexes + i][1] = color[1] * (1.0 / 255.0);
+		tess.colors[tess.numVertexes + i][2] = color[2] * (1.0 / 255.0);
+		tess.colors[tess.numVertexes + i][3] = color[3] * (1.0 / 255.0);
+	}
+	tess.numVertexes += numVertexes;
+}
+
+
+// ydnar: decal surfaces
+void Tess_SurfaceDecal(srfDecal_t * srf)
+{
+	int             i;
+
+	GLimp_LogComment("--- Tess_SurfaceDecal ---\n");
+
+	if(tess.shadowVolume)
+	{
+		return;
+	}
+
+	Tess_CheckOverflow(srf->numVerts, 3 * (srf->numVerts - 2));
+
+	// fan triangles into the tess array
+	for(i = 0; i < srf->numVerts; i++)
+	{
+		VectorCopy(srf->verts[i].xyz, tess.xyz[tess.numVertexes + i]);
+		tess.xyz[tess.numVertexes + i][3] = 1;
+
+		tess.texCoords[tess.numVertexes + i][0] = srf->verts[i].st[0];
+		tess.texCoords[tess.numVertexes + i][1] = srf->verts[i].st[1];
+		tess.texCoords[tess.numVertexes + i][2] = 0;
+		tess.texCoords[tess.numVertexes + i][3] = 1;
+
+		tess.colors[tess.numVertexes + i][0] = srf->verts[i].modulate[0] * (1.0 / 255.0);
+		tess.colors[tess.numVertexes + i][1] = srf->verts[i].modulate[1] * (1.0 / 255.0);
+		tess.colors[tess.numVertexes + i][2] = srf->verts[i].modulate[2] * (1.0 / 255.0);
+		tess.colors[tess.numVertexes + i][3] = srf->verts[i].modulate[3] * (1.0 / 255.0);
+	}
+
+	// generate fan indexes into the tess array
+	for(i = 0; i < srf->numVerts - 2; i++)
+	{
+		tess.indexes[tess.numIndexes + 0] = tess.numVertexes;
+		tess.indexes[tess.numIndexes + 1] = tess.numVertexes + i + 1;
+		tess.indexes[tess.numIndexes + 2] = tess.numVertexes + i + 2;
+		tess.numIndexes += 3;
+	}
+
+	tess.numVertexes += srf->numVerts;
 }
 
 /*
@@ -2922,15 +3017,17 @@ static void Tess_SurfaceSkip(void *surf)
 {
 }
 
-
+// *INDENT-OFF*
 void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *) =
 {
-	(void (*)(void *))Tess_SurfaceBad,	// SF_BAD,
+		(void (*)(void *))Tess_SurfaceBad,	// SF_BAD,
 		(void (*)(void *))Tess_SurfaceSkip,	// SF_SKIP,
 		(void (*)(void *))Tess_SurfaceFace,	// SF_FACE,
 		(void (*)(void *))Tess_SurfaceGrid,	// SF_GRID,
 		(void (*)(void *))Tess_SurfaceTriangles,	// SF_TRIANGLES,
 		(void (*)(void *))Tess_SurfacePolychain,	// SF_POLY,
+		(void (*)(void *))Tess_SurfacePolybuffer,	// SF_POLYBUFFER,
+		(void (*)(void *))Tess_SurfaceDecal,	// SF_DECAL
 		(void (*)(void *))Tess_SurfaceMDX,	// SF_MDX,
 
 		(void (*)(void *))Tess_MDM_SurfaceAnim,	// SF_MDM,

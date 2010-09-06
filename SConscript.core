@@ -1,0 +1,458 @@
+# -*- mode: python -*-
+# Enemy Territory build script
+# TTimo <ttimo@idsoftware.com>
+# http://scons.sourceforge.net
+
+import sys, os
+import scons_utils
+
+Import( 'GLOBALS' )
+Import( GLOBALS )
+
+jpeg_list = [
+'src/jpeg-6/jcapimin.c',
+'src/jpeg-6/jchuff.c',
+'src/jpeg-6/jcinit.c',
+'src/jpeg-6/jccoefct.c',
+'src/jpeg-6/jccolor.c',
+'src/jpeg-6/jfdctflt.c',
+'src/jpeg-6/jcdctmgr.c',
+'src/jpeg-6/jcphuff.c',
+'src/jpeg-6/jcmainct.c',
+'src/jpeg-6/jcmarker.c',
+'src/jpeg-6/jcmaster.c',
+'src/jpeg-6/jcomapi.c',
+'src/jpeg-6/jcparam.c',
+'src/jpeg-6/jcprepct.c',
+'src/jpeg-6/jcsample.c',
+'src/jpeg-6/jdapimin.c',
+'src/jpeg-6/jdapistd.c',
+'src/jpeg-6/jdatasrc.c',
+'src/jpeg-6/jdcoefct.c',
+'src/jpeg-6/jdcolor.c',
+'src/jpeg-6/jddctmgr.c',
+'src/jpeg-6/jdhuff.c',
+'src/jpeg-6/jdinput.c',
+'src/jpeg-6/jdmainct.c',
+'src/jpeg-6/jdmarker.c',
+'src/jpeg-6/jdmaster.c',
+'src/jpeg-6/jdpostct.c',
+'src/jpeg-6/jdsample.c',
+'src/jpeg-6/jdtrans.c',
+'src/jpeg-6/jerror.c',
+'src/jpeg-6/jidctflt.c',
+'src/jpeg-6/jmemmgr.c',
+'src/jpeg-6/jmemnobs.c',
+'src/jpeg-6/jutils.c',
+]
+
+png_list = [
+'src/png/png.c',
+'src/png/pngset.c',
+'src/png/pngget.c',
+'src/png/pngrutil.c',
+'src/png/pngtrans.c',
+'src/png/pngwutil.c',
+'src/png/pngread.c',
+'src/png/pngrio.c',
+'src/png/pngwio.c',
+'src/png/pngwrite.c',
+'src/png/pngrtran.c',
+'src/png/pngwtran.c',
+'src/png/pngmem.c',
+'src/png/pngerror.c',
+'src/png/pngpread.c',
+]
+
+zlib_list = [
+'src/zlib/adler32.c',
+'src/zlib/compress.c',
+'src/zlib/crc32.c',
+'src/zlib/gzio.c',
+'src/zlib/uncompr.c',
+'src/zlib/deflate.c',
+'src/zlib/trees.c',
+'src/zlib/zutil.c',
+'src/zlib/inflate.c',
+'src/zlib/infback.c',
+'src/zlib/inftrees.c',
+'src/zlib/inffast.c',
+'src/zlib/ioapi.c',
+]
+
+freetype_list = [
+#'src/freetype/src/autofit/autofit.c',
+#'src/freetype/src/bdf/bdf.c',
+#'src/freetype/src/cff/cff.c',
+#'src/freetype/src/base/ftbase.c',
+#'src/freetype/src/base/ftbitmap.c',
+#'src/freetype/src/cache/ftcache.c',
+#'src/freetype/src/base/ftdebug.c',
+#'src/freetype/src/base/ftgasp.c',
+#'src/freetype/src/base/ftglyph.c',
+#'src/freetype/src/gzip/ftgzip.c',
+#'src/freetype/src/base/ftinit.c',
+#'src/freetype/src/lzw/ftlzw.c',
+#'src/freetype/src/base/ftstroke.c',
+#'src/freetype/src/base/ftsystem.c',
+#'src/freetype/src/smooth/smooth.c',
+#'src/freetype/src/base/ftbbox.c',
+#'src/freetype/src/base/ftmm.c',
+#'src/freetype/src/base/ftpfr.c',
+#'src/freetype/src/base/ftsynth.c',
+#'src/freetype/src/base/fttype1.c',
+#'src/freetype/src/base/ftwinfnt.c',
+#'src/freetype/src/pcf/pcf.c',
+#'src/freetype/src/pfr/pfr.c',
+#'src/freetype/src/psaux/psaux.c',
+#'src/freetype/src/pshinter/pshinter.c',
+#'src/freetype/src/psnames/psmodule.c',
+#'src/freetype/src/raster/raster.c',
+#'src/freetype/src/sfnt/sfnt.c',
+#'src/freetype/src/truetype/truetype.c',
+#'src/freetype/src/type1/type1.c',
+#'src/freetype/src/cid/type1cid.c',
+#'src/freetype/src/type42/type42.c',
+#'src/freetype/src/winfonts/winfnt.c',
+]
+
+openexr_list = [
+'src/openexr/half.cpp',
+]
+
+renderer_list = [
+'src/renderer/tr_animation_mdm.c',
+'src/renderer/tr_animation_mds.c',
+'src/renderer/tr_backend.c',
+'src/renderer/tr_bsp.c',
+'src/renderer/tr_cmds.c',
+'src/renderer/tr_cmesh.c',
+'src/renderer/tr_curve.c',
+'src/renderer/tr_decals.c',
+'src/renderer/tr_flares.c',
+'src/renderer/tr_font.c',
+'src/renderer/tr_image.c',
+'src/renderer/tr_init.c',
+'src/renderer/tr_light.c',
+'src/renderer/tr_main.c',
+'src/renderer/tr_marks.c',
+'src/renderer/tr_mesh.c',
+'src/renderer/tr_model.c',
+'src/renderer/tr_noise.c',
+'src/renderer/tr_scene.c',
+'src/renderer/tr_shade.c',
+'src/renderer/tr_shade_calc.c',
+'src/renderer/tr_shader.c',
+'src/renderer/tr_shadows.c',
+'src/renderer/tr_skin.c',
+'src/renderer/tr_sky.c',
+'src/renderer/tr_surface.c',
+'src/renderer/tr_world.c'
+]
+
+rendererGL3_list = [
+'src/rendererGL3/tr_animation_mdm.c',
+'src/rendererGL3/tr_animation.c',
+'src/rendererGL3/tr_backend.c',
+'src/rendererGL3/tr_bsp.c',
+'src/rendererGL3/tr_cmds.c',
+'src/rendererGL3/tr_curve.c',
+'src/rendererGL3/tr_decals.c',
+'src/rendererGL3/tr_fbo.c',
+'src/rendererGL3/tr_flares.c',
+'src/rendererGL3/tr_fog.c',
+'src/rendererGL3/tr_font.c',
+'src/rendererGL3/tr_image.c',
+'src/rendererGL3/tr_image_dds.c',
+'src/rendererGL3/tr_image_exr.cpp',
+'src/rendererGL3/tr_image_jpg.c',
+'src/rendererGL3/tr_image_png.c',
+'src/rendererGL3/tr_image_tga.c',
+'src/rendererGL3/tr_init.c',
+'src/rendererGL3/tr_light.c',
+'src/rendererGL3/tr_main.c',
+'src/rendererGL3/tr_marks.c',
+'src/rendererGL3/tr_mesh.c',
+'src/rendererGL3/tr_model.c',
+'src/rendererGL3/tr_model_md3.c',
+'src/rendererGL3/tr_model_mdc.c',
+'src/rendererGL3/tr_noise.c',
+'src/rendererGL3/tr_scene.c',
+'src/rendererGL3/tr_shade.c',
+'src/rendererGL3/tr_shade_calc.c',
+'src/rendererGL3/tr_shader.c',
+'src/rendererGL3/tr_shadows.c',
+'src/rendererGL3/tr_skin.c',
+'src/rendererGL3/tr_sky.c',
+'src/rendererGL3/tr_surface.c',
+'src/rendererGL3/tr_vbo.c',
+'src/rendererGL3/tr_world.c',
+]
+
+server_list = [
+'src/server/sv_bot.c',
+'src/server/sv_ccmds.c',
+'src/server/sv_client.c',
+'src/server/sv_game.c',
+'src/server/sv_init.c',
+'src/server/sv_main.c',
+'src/server/sv_net_chan.c',
+'src/server/sv_snapshot.c',
+'src/server/sv_world.c'
+]
+
+qcommon_list = [
+'src/qcommon/cm_load.c',
+'src/qcommon/cm_patch.c',
+'src/qcommon/cm_polylib.c',
+'src/qcommon/cm_test.c',
+'src/qcommon/cm_trace.c',
+'src/qcommon/cmd.c',
+'src/qcommon/common.c',
+'src/qcommon/cvar.c',
+'src/qcommon/files.c',
+'src/qcommon/huffman.c',
+'src/qcommon/md4.c',
+'src/qcommon/msg.c',
+'src/qcommon/net_chan.c',
+'src/qcommon/unzip.c',
+'src/qcommon/vm.c',
+'src/qcommon/vm_interpreted.c'
+]
+
+if ( cpu == 'x86' ):
+	qcommon_list += 'src/qcommon/vm_x86.c'
+	
+#if ( cpu == 'x86_64' ):
+#	qcommon_list += 'src/qcommon/vm_x86.c'
+
+
+splines_list = [
+'src/splines/math_angles.cpp',
+'src/splines/math_matrix.cpp',
+'src/splines/math_quaternion.cpp',
+'src/splines/math_vector.cpp',
+'src/splines/q_parse.cpp',
+'src/splines/q_shared.c',
+'src/splines/splines.cpp',
+'src/splines/util_str.cpp',
+]
+
+client_list = [
+'src/client/cl_cgame.c',
+'src/client/cl_cin.c',
+'src/client/cl_console.c',
+'src/client/cl_input.c',
+'src/client/cl_keys.c',
+'src/client/cl_main.c',
+'src/client/cl_net_chan.c',
+'src/client/cl_parse.c',
+'src/client/cl_scrn.c',
+'src/client/cl_ui.c',
+'src/client/snd_adpcm.c',
+'src/client/snd_dma.c',
+'src/client/snd_mem.c',
+'src/client/snd_mix.c',
+'src/client/snd_wavelet.c'
+]
+
+
+linux_sources = [
+        'src/unix/linux_signals.c',
+        'src/unix/unix_main.c',
+        'src/unix/unix_net.c',
+        'src/unix/unix_shared.c',
+        'src/shared/q_shared.c',
+        'src/shared/q_math.c',
+#        'unix/matha.S'
+]
+
+linux_full_sources = [
+		'src/glew/src/glew.c',
+        'src/unix/linux_gl3imp.c',
+        #'src/unix/linux_qgl.c',
+        'src/unix/linux_snd.c',
+        'src/unix/linux_joystick.c',
+#        'unix/snd_mixa.S'
+]
+
+mac_sources = [
+	'game/q_shared.c',
+	'game/q_math.c',
+	'mac/mac_main.cpp',
+	'mac/mac_input.cpp',
+	'mac/mac_glimp.cpp',
+	'mac/mac_files.cpp',
+	'mac/mac_net.cpp',
+	'mac/mac_console.c',
+	'mac/mac_snddma.c',
+	'mac/CarbonMouse.cpp',
+	'mac/mac_event.cpp',
+#	'mac/HID Manager/HID_Configure.c',
+#	'mac/HID Manager/HID_CFM.c',
+	'mac/MacPrefs.cpp',
+	'mac/PickMonitor/pickmonitor.cpp',
+	'mac/PickMonitor/userpane.cpp',
+	'mac/mac_qgl.c',
+	'mac/mac_specific.cpp',
+	'mac/AGLUtils.cpp',
+	'mac/CDrawSprocket.cpp'
+]
+
+win32_sources = [
+	'win32/win_main.c',
+	'win32/win_net.c',
+	'win32/win_shared.c',
+	'win32/win_wndproc.c',
+	'win32/win_syscon.c',
+        'game/q_shared.c',
+        'game/q_math.c',
+]
+
+win32_full_sources = [
+	'win32/win_input.c',
+	'win32/win_gl3imp.c',
+	#'win32/win_qgl.c',
+	'win32/win_gamma.c',
+	'win32/win_snd.c',
+]
+
+botlib_list = [
+	'src/botlib/be_aas_bspq3.c',
+	'src/botlib/be_aas_cluster.c',
+	'src/botlib/be_aas_debug.c',
+	'src/botlib/be_aas_entity.c',
+	'src/botlib/be_aas_file.c',
+	'src/botlib/be_aas_main.c',
+	'src/botlib/be_aas_move.c',
+	'src/botlib/be_aas_optimize.c',
+	'src/botlib/be_aas_reach.c',
+	'src/botlib/be_aas_route.c',
+	'src/botlib/be_aas_routealt.c',
+	'src/botlib/be_aas_routetable.c',
+	'src/botlib/be_aas_sample.c',
+	'src/botlib/be_ai_char.c',
+	'src/botlib/be_ai_chat.c',
+	'src/botlib/be_ai_gen.c',
+	'src/botlib/be_ai_goal.c',
+	'src/botlib/be_ai_move.c',
+	'src/botlib/be_ai_weap.c',
+	'src/botlib/be_ai_weight.c',
+	'src/botlib/be_ea.c',
+	'src/botlib/be_interface.c',
+	'src/botlib/l_crc.c',
+	'src/botlib/l_libvar.c',
+	'src/botlib/l_log.c',
+	'src/botlib/l_memory.c',
+	'src/botlib/l_precomp.c',
+	'src/botlib/l_script.c',
+	'src/botlib/l_struct.c'
+]
+
+botlib_env = g_env.Clone()
+botlib_env.Append( CPPDEFINES = [ 'BOTLIB' ] )
+
+botlib_objs = []
+for i in botlib_list:
+	botlib_objs.append( botlib_env.StaticObject( i ) )
+
+#
+#staticx11_libs = [ 'libXxf86dga.a', 'libXxf86vm.a' ]
+#if ( os.path.exists( os.path.join( '/usr/lib', staticx11_libs[0] ) ) ):
+#	staticx11_libs = [ os.path.join( '/usr/lib', i ) for i in staticx11_libs ]
+#else:
+#	staticx11_libs = [ os.path.join( '/usr/X11R6/lib', i ) for i in staticx11_libs ]
+#
+
+#
+#if ( g_os == 'Linux' ):
+#	nasm_env = Environment( tools = [ 'nasm' ] )
+#	nasm_env['ASFLAGS'] = '-f elf'
+#	snapvector = nasm_env.StaticObject( 'src/unix/snapvector.asm' )
+
+#	# gas assembly, with preprocessing
+#	gas_env = Environment( tools = [ 'gcc', 'gas' ] )
+#	gas_env.Append( CPPDEFINES = [ 'ELF' ] )
+#	gas_env.Append( ASFLAGS = [ '-m32', '-x', 'assembler-with-cpp' ] )
+#	matha = gas_env.StaticObject( 'src/unix/matha.spp' )
+#        snd_mixa = gas_env.StaticObject( 'src/unix/snd_mixa.spp' )
+#
+
+splines_env = g_env.Clone()
+splines_lib = splines_env.StaticLibrary( splines_list )
+
+local_env = g_env.Clone()
+
+if ( g_os == 'Linux' ):
+	local_env.Append( LIBS = [ 'dl' ] )
+	if ( local_dedicated == 0 ):
+		local_env.Append( LIBS = [ 'm', 'GL' ] )
+		local_env.Append( LIBPATH = [ '/usr/X11R6/lib' ] )
+		local_env.Append( CPPPATH = [ 'src/curl-7.12.2/include' ] )
+		local_env.Append( CPPPATH = [ 'src/glew/include' ] )
+		local_env.Append( CPPDEFINES = [ 'REF_HARD_LINKED' ] )
+		local_env.ParseConfig('pkg-config --cflags --libs x11')
+		local_env.ParseConfig('pkg-config --cflags --libs xext')
+		local_env.ParseConfig('pkg-config --cflags --libs xxf86dga')
+		local_env.ParseConfig('pkg-config --cflags --libs xxf86vm')
+	else:
+		local_env.Append( CPPDEFINES = [ 'DEDICATED' ] )
+		local_env.Append( LIBS = [ 'm' ] )
+
+	if gcc3 == 0:
+		g_env.Append(LINKFLAGS=[ os.popen( g_env['CXX'] + ' -print-file-name=libstdc++.a' ).read().rstrip() ])
+	else:
+		local_env['ENV']['CC'] = g_env['CC']
+		local_env['LINK'] = 'src/unix/staticlinkcpp.sh'
+elif ( g_os == 'win32' ):
+	local_env.Append( LIBS = [ 'm', 'winmm', 'wsock32', 'gdi32', 'ole32', 'iphlpapi' ] )
+	if ( local_dedicated == 0 ):
+		local_env.Append( LIBS = [ 'dinput', 'dsound' ] )
+		local_env.Append( CPPPATH = [ 'curl-7.12.2/include' ] )
+	else:
+		local_env.Append( CPPDEFINES = [ 'DEDICATED' ] )
+	local_env['LINK'] = g_env['CXX']
+elif ( g_os == 'Darwin' ):
+	local_env.Append( LINKFLAGS = [ '-framework', 'AGL', '-framework', 'OpenGL', '-framework', 'Carbon', '-framework', 'IOKit', '-framework', 'DrawSprocket', '-lcurl' ] )
+
+if ( MASTER != '' ):
+	local_env.Append( CPPDEFINES = [ 'MASTER_SERVER_NAME=\\"%s\\"' % MASTER ] )
+
+source_list = server_list + qcommon_list
+if ( g_os == 'Linux' ):
+	source_list += linux_sources #+ snapvector + matha
+elif ( g_os == 'win32' ):
+	source_list += win32_sources
+elif ( g_os == 'Darwin' ):
+	if ( BUILD == 'release' ):
+		local_env.Append( CPPFLAGS = [ '-include', 'mac/MacPrefix.h' ] )
+	else:
+		local_env.Append( CPPFLAGS = [ '-include', 'mac/MacPrefixDebug.h' ] )
+	mac_objects = []
+	for i in mac_sources:
+		mac_objects.append( local_env.StaticObject( i ) )
+	source_list += mac_objects
+
+source_list += botlib_objs
+
+if ( local_dedicated == 0 ):
+	source_list += jpeg_list
+	source_list += png_list
+	source_list += zlib_list
+	source_list += openexr_list
+	source_list += rendererGL3_list
+	source_list += client_list
+	source_list += [ 'src/qcommon/dl_main_curl.c' ]
+	source_list += curl_lib
+	if ( g_os == 'Linux' ):
+		#source_list += snd_mixa
+		source_list += linux_full_sources
+		#source_list += staticx11_libs
+	if ( g_os == 'win32' ):
+		source_list += win32_full_sources
+else:
+	source_list += [ 'src/null/null_client.c', 'src/null/null_input.c', 'src/null/null_snddma.c', 'src/qcommon/dl_main_stubs.c' ]
+source_list += splines_lib
+
+ret = local_env.Program( target = 'et-xreal', source = source_list )
+Return( 'ret' )

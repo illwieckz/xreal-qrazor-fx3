@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TR_LOCAL_H
 #define TR_LOCAL_H
 
-#include "../game/q_shared.h"
+#include "../shared/q_shared.h"
 #include "../qcommon/qfiles.h"
 #include "../qcommon/qcommon.h"
 #include "../renderer/tr_public.h"
@@ -2437,6 +2437,16 @@ typedef struct
 	int             numPolys;
 	struct srfPoly_s *polys;
 
+	int             numPolybuffers;
+	struct srfPolyBuffer_s *polybuffers;
+
+	int             decalBits;	// ydnar: optimization
+	int             numDecalProjectors;
+	struct decalProjector_s *decalProjectors;
+
+	int             numDecals;
+	struct srfDecal_s *decals;
+
 	int             numDrawSurfs;
 	struct drawSurf_s *drawSurfs;
 
@@ -2564,12 +2574,16 @@ typedef enum
 {
 	SF_BAD,
 	SF_SKIP,					// ignore
+	
 	SF_FACE,
 	SF_GRID,
 	SF_TRIANGLES,
+	
 	SF_POLY,
-	SF_MDV,
+	SF_POLYBUFFER,
+	SF_DECAL,					// ydnar: decal surfaces
 
+	SF_MDV,
 	SF_MDM,
 
 #if defined(USE_REFENTITY_ANIMATIONSYSTEM)
@@ -2689,6 +2703,13 @@ typedef struct srfPoly_s
 	polyVert_t     *verts;
 } srfPoly_t;
 
+typedef struct srfPolyBuffer_s
+{
+	surfaceType_t   surfaceType;
+//	int             fogIndex;
+	polyBuffer_t   *pPolyBuffer;
+} srfPolyBuffer_t;
+
 // ydnar: decals
 #define MAX_DECAL_VERTS         10	// worst case is triangle clipped by 6 planes
 #define MAX_WORLD_DECALS        1024
@@ -2735,14 +2756,33 @@ typedef struct
 	qboolean        degenerated;
 } srfTriangle_t;
 
-typedef struct srfGridMesh_s
+// ydnar: normal map drawsurfaces must match this header
+typedef struct srfGeneric_s
 {
 	surfaceType_t   surfaceType;
 
 	// culling information
-	vec3_t          meshBounds[2];
-	vec3_t          localOrigin;
-	float           meshRadius;
+	vec3_t          bounds[2];
+	vec3_t          origin;
+	float           radius;
+	cplane_t        plane;
+
+	// dynamic lighting information
+//	int             dlightBits[SMP_FRAMES];
+}
+srfGeneric_t;
+
+typedef struct srfGridMesh_s
+{
+	// srfGeneric_t BEGIN
+	surfaceType_t   surfaceType;
+
+	vec3_t          bounds[2];
+	vec3_t          origin;
+	float           radius;
+	cplane_t        plane;
+
+	// srfGeneric_t END
 
 	// lod information, which may be different
 	// than the culling information to allow for
@@ -2774,11 +2814,15 @@ typedef struct srfGridMesh_s
 
 typedef struct
 {
+	// srfGeneric_t BEGIN
 	surfaceType_t   surfaceType;
 
-	// culling information
-	cplane_t        plane;
 	vec3_t          bounds[2];
+	vec3_t          origin;
+	float           radius;
+	cplane_t        plane;
+
+	// srfGeneric_t END
 
 	// triangle definitions
 	int             numTriangles;
@@ -2800,10 +2844,15 @@ typedef struct
 // misc_models in maps are turned into direct geometry by xmap
 typedef struct
 {
+	// srfGeneric_t BEGIN
 	surfaceType_t   surfaceType;
 
-	// culling information
 	vec3_t          bounds[2];
+	vec3_t          origin;
+	float           radius;
+	cplane_t        plane;
+
+	// srfGeneric_t END
 
 	// triangle definitions
 	int             numTriangles;
@@ -2889,6 +2938,7 @@ typedef struct bspSurface_s
 	int             lightCount;
 	struct shader_s *shader;
 	int16_t         lightmapNum;	// -1 = no lightmap
+	int16_t			fogIndex;
 
 	surfaceType_t  *data;		// any of srf*_t
 } bspSurface_t;
@@ -2914,6 +2964,7 @@ typedef struct bspNode_s
 	int             visCounts[MAX_VISCOUNTS];	// node needs to be traversed if current
 	int             lightCount;
 	vec3_t          mins, maxs;	// for bounding box culling
+	vec3_t          surfMins, surfMaxs;	// ydnar: bounding box including surfaces
 	vec3_t			origin;		// center of the bounding box
 	struct bspNode_s *parent;
 
@@ -2986,13 +3037,17 @@ typedef struct
 
 	uint32_t        numVBOSurfaces;
 	srfVBOMesh_t  **vboSurfaces;
+
+	// ydnar: decals
+	decal_t        *decals;
 } bspModel_t;
 
 typedef struct
 {
-	vec4_t          ambient;
-	vec4_t          directed;
-	byte            latLong[2];
+	vec3_t			origin;
+	vec4_t          ambientColor;
+	vec4_t          directedColor;
+	vec3_t			direction;
 } bspGridPoint_t;
 
 typedef struct
@@ -3045,6 +3100,7 @@ typedef struct
 	vec3_t          lightGridInverseSize;
 	int             lightGridBounds[3];
 	bspGridPoint_t *lightGridData;
+	int				numLightGridPoints;
 
 	int             numLights;
 	trRefLight_t   *lights;
@@ -3380,6 +3436,8 @@ typedef struct
 	int				c_occlusionQueriesMulti;
 	int				c_occlusionQueriesSaved;
 	int             c_CHCTime;
+
+	int             c_decalProjectors, c_decalTestSurfaces, c_decalClipSurfaces, c_decalSurfaces, c_decalSurfacesCreated;
 } frontEndCounters_t;
 
 #define FUNCTABLE_SIZE		1024
@@ -3736,6 +3794,11 @@ typedef struct
 	vec3_t          sunLight;	// from the sky shader for this level
 	vec3_t          sunDirection;
 
+//----(SA)  added
+	float           lightGridMulAmbient;	// lightgrid multipliers specified in sky shader
+	float           lightGridMulDirected;	//
+//----(SA)  end
+
 	vec3_t          fogColor;
 	float           fogDensity;
 
@@ -3998,6 +4061,7 @@ extern cvar_t  *r_showLightTransforms;
 extern cvar_t  *r_showLightInteractions;
 extern cvar_t  *r_showLightScissors;
 extern cvar_t  *r_showLightBatches;
+extern cvar_t  *r_showLightGrid;
 extern cvar_t  *r_showOcclusionQueries;
 extern cvar_t  *r_showBatches;
 extern cvar_t  *r_showLightMaps;	// render lightmaps only
@@ -4006,6 +4070,7 @@ extern cvar_t  *r_showAreaPortals;
 extern cvar_t  *r_showCubeProbes;
 extern cvar_t  *r_showBspNodes;
 extern cvar_t  *r_showParallelShadowSplits;
+extern cvar_t  *r_showDecalProjectors;
 
 extern cvar_t  *r_showDeferredDiffuse;
 extern cvar_t  *r_showDeferredNormal;
@@ -4093,6 +4158,7 @@ void            R_AddRailSurfaces(trRefEntity_t * e, qboolean isUnderwater);
 void            R_AddLightningBoltSurfaces(trRefEntity_t * e);
 
 void            R_AddPolygonSurfaces(void);
+void            R_AddPolygonBufferSurfaces(void);
 
 void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum);
 
@@ -4409,6 +4475,7 @@ void            Tess_CheckOverflow(int verts, int indexes);
 
 void            Tess_ComputeColor(shaderStage_t * pStage);
 
+void            Tess_StageIteratorDebug();
 void            Tess_StageIteratorGeneric();
 void            Tess_StageIteratorGBuffer();
 void            Tess_StageIteratorDepthFill();
@@ -4898,6 +4965,13 @@ typedef enum
 } renderCommand_t;
 
 
+// ydnar: max decal projectors per frame, each can generate lots of polys
+#define MAX_DECAL_PROJECTORS    32	// uses bitmasks, don't increase
+#define DECAL_PROJECTOR_MASK    ( MAX_DECAL_PROJECTORS - 1 )
+#define MAX_DECALS              1024
+#define DECAL_MASK              ( MAX_DECALS - 1 )
+
+
 // all of the information needed by the back end must be
 // contained in a backEndData_t.  This entire structure is
 // duplicated so the front and back end can run in parallel
@@ -4912,6 +4986,10 @@ typedef struct
 
 	srfPoly_t      *polys;		//[MAX_POLYS];
 	polyVert_t     *polyVerts;	//[MAX_POLYVERTS];
+	srfPolyBuffer_t *polybuffers; //[MAX_POLYS];
+
+	decalProjector_t decalProjectors[MAX_DECAL_PROJECTORS];
+	srfDecal_t      decals[MAX_DECALS];
 
 	renderCommandList_t commands;
 } backEndData_t;
