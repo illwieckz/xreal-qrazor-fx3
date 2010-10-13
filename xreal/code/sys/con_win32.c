@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define QCONSOLE_HISTORY 32
 
-static HWND		qconsole_window = 0;
-static int		qconsole_visLevel = 0;
+static HWND     qconsole_window = 0;
+static int      qconsole_visLevel = 0;
 static WORD     qconsole_attrib;
 
 // saved console status
