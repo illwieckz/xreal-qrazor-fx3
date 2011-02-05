@@ -1,146 +1,259 @@
-textures/trak/trak6/light1
+textures/trak/trak6/base1a
 {
-	qer_editorImage		textures/trak/trak6/light1.png
-	xmap_surfaceLight	5000
-	xmap_lightImage		textures/trak/trak6/light1.blend.png
+	qer_editorImage		textures/trak/trak6/base1a
+
+	diffuseMap		textures/trak/trak6/base1a
+	specularMap		textures/trak/trak6/base1a
+	bumpMap			_flat
+}
+
+textures/trak/trak6/base1b
+{
+	qer_editorImage		textures/trak/trak6/base1b
+
+	diffuseMap		textures/trak/trak6/base1b
+	specularMap		textures/trak/trak6/base1b
+	bumpMap			_flat
+}
+
+textures/trak/trak6/base1b_dirty
+{
+	qer_editorImage		textures/trak/trak6/base1b_dirty
+
+	diffuseMap		textures/trak/trak6/base1b_dirty
+	specularMap		textures/trak/trak6/base1b_dirty
+	bumpMap			_flat
+}
+
+textures/trak/trak6/base1c
+{
+	qer_editorImage		textures/trak/trak6/base1c
+
+	diffuseMap		textures/trak/trak6/base1c
+	specularMap		textures/trak/trak6/base1c
+	bumpMap			_flat
+}
+
+textures/trak/trak6/base_pitted1
+{
+	qer_editorImage		textures/trak/trak6/base_pitted1
+
+	diffuseMap		textures/trak/trak6/base_pitted1
+	specularMap		textures/trak/trak6/base_pitted1
+	bumpMap			textures/trak/trak6/base_pitted1_nm
+}
+
+textures/trak/trak6/base_pitted1a
+{
+	qer_editorImage		textures/trak/trak6/base_pitted1a
+
+	diffuseMap		textures/trak/trak6/base_pitted1a
+	specularMap		textures/trak/trak6/base_pitted1a
+	bumpMap			textures/trak/trak6/base_pitted1a_nm
+}
+
+textures/trak/trak6/base1a
+{
+	qer_editorImage		textures/trak/trak6/base1a
+
+	diffuseMap		textures/trak/trak6/base1a
+	specularMap		textures/trak/trak6/base1a
+	bumpMap			textures/trak/trak6/base1a_nm
+}
+
+textures/trak/trak6/crate1
+{
+	qer_editorImage		textures/trak/trak6/crate1
 
 	parallax
+	diffuseMap		textures/trak/trak6/crate1
+	specularMap		textures/trak/trak6/crate1_gloss
+	bumpMap			textures/trak/trak6/crate1_nm
+}
+
+textures/trak/trak6/grate2
+{
+	qer_editorImage		textures/trak/trak6/grate2
+
+	parallax
+	diffuseMap		textures/trak/trak6/grate2
+	specularMap		textures/trak/trak6/grate2_gloss
+	bumpMap			textures/trak/trak6/grate2_nm
+}
+
+textures/trak/trak6/greeble
+{
+	qer_editorImage		textures/trak/trak6/greeble
+
+	parallax
+	diffuseMap		textures/trak/trak6/greeble
+	specularMap		textures/trak/trak6/greeble
+	bumpMap			textures/trak/trak6/greeble_nm
+}
+
+textures/trak/trak6/light1
+{
+	qer_editorImage		textures/trak/trak6/light1
+	xmap_surfaceLight	5000
+	xmap_lightImage		textures/trak/trak6/light1.blend
+
+	parallax
+	diffuseMap		textures/trak/trak6/light1
+	specularMap		textures/trak/trak6/light1
+	bumpMap			textures/trak/trak6/light1_nm
 	{
-		stage		diffuseMap
-		map		textures/trak/trak6/light1.png
-		depthScale	-0.05
-	}
-	specularMap		textures/trak/trak6/light1.png
-	bumpMap			textures/trak/trak6/light1_nm.png
-	{
-		map		textures/trak/trak6/light1.blend.png
+		map		textures/trak/trak6/light1.blend
 		rgb		0.5
 		blend		add
 	}
 }
 
-textures/trak/trak6/tile2
-{
-	qer_editorImage		textures/trak/trak6/tile2.png
-
-	parallax
-	{
-		stage		diffuseMap
-		map		textures/trak/trak6/tile2.png
-		depthScale	-0.05
-	}
-	specularMap		textures/trak/trak6/tile2_gloss.png
-	bumpMap			textures/trak/trak6/tile2_nm.png
-}
-
-textures/trak/trak6/wall2
-{
-	qer_editorImage		textures/trak/trak6/wall2.png
-
-	parallax
-	{
-		stage		diffuseMap
-		map		textures/trak/trak6/wall2.png
-		depthScale	-0.05
-	}
-	specularMap		textures/trak/trak6/wall2_gloss.png
-	bumpMap			textures/trak/trak6/wall2_nm.png
-}
-
-textures/trak/trak6/trim1
-{
-	qer_editorImage		textures/trak/trak6/trim1.png
-
-	parallax
-	{
-		stage		diffuseMap
-		map		textures/trak/trak6/trim1.png
-		depthScale	-0.05
-	}
-	specularMap		textures/trak/trak6/trim1_gloss.png
-	bumpMap			textures/trak/trak6/trim1_nm.png
-}
-
 textures/trak/trak6/panel1
 {
-	qer_editorImage		textures/trak/trak6/panel1.png
+	qer_editorImage		textures/trak/trak6/panel1
 
 	parallax
-	{
-		stage		diffuseMap
-		map		textures/trak/trak6/panel1.png
-		depthScale	-0.05
-	}
-	specularMap		textures/trak/trak6/panel1_gloss.png
-	bumpMap			textures/trak/trak6/panel1_nm.png
-}
-
-textures/trak/trak6/crate1
-{
-	qer_editorImage		textures/trak/trak6/crate1.png
-
-	parallax
-	{
-		stage		diffuseMap
-		map		textures/trak/trak6/crate1.png
-		depthScale	-0.05
-	}
-	specularMap		textures/trak/trak6/crate1_gloss.png
-	bumpMap			textures/trak/trak6/crate1_nm.png
+	diffuseMap		textures/trak/trak6/panel1
+	specularMap		textures/trak/trak6/panel1_gloss
+	bumpMap			textures/trak/trak6/panel1_nm
 }
 
 textures/trak/trak6/pipe2
 {
-	qer_editorImage		textures/trak/trak6/pipe2.png
+	qer_editorImage		textures/trak/trak6/pipe2
 
 	parallax
-	{
-		stage		diffuseMap
-		map		textures/trak/trak6/pipe2.png
-		depthScale	-0.05
-	}
-	specularMap		textures/trak/trak6/pipe2_gloss.png
-	bumpMap			textures/trak/trak6/pipe2_nm.png
+	diffuseMap		textures/trak/trak6/pipe2
+	specularMap		textures/trak/trak6/pipe2_gloss
+	bumpMap			textures/trak/trak6/pipe2_nm
 }
 
-textures/trak/trak6/grate2
+textures/trak/trak6/tile2
 {
-	qer_editorImage		textures/trak/trak6/grate2.png
+	qer_editorImage		textures/trak/trak6/tile2
 
 	parallax
-	{
-		stage		diffuseMap
-		map		textures/trak/trak6/grate2.png
-		depthScale	-0.05
-	}
-	specularMap		textures/trak/trak6/grate2_gloss.png
-	bumpMap			textures/trak/trak6/grate2_nm.png
-}
-
-textures/trak/trak6/trim2
-{
-	qer_editorImage		textures/trak/trak6/trim2.png
-
-	parallax
-	{
-		stage		diffuseMap
-		map		textures/trak/trak6/trim2.png
-		depthScale	-0.05
-	}
-	specularMap		textures/trak/trak6/trim2_gloss.png
-	bumpMap			textures/trak/trak6/trim2_nm.png
+	diffuseMap		textures/trak/trak6/tile2
+	specularMap		textures/trak/trak6/tile2_gloss
+	bumpMap			textures/trak/trak6/tile2_nm
 }
 
 textures/trak/trak6/tile3
 {
-	qer_editorImage		textures/trak/trak6/tile3.png
+	qer_editorImage		textures/trak/trak6/tile3
 
 	parallax
-	{
-		stage		diffuseMap
-		map		textures/trak/trak6/tile3.png
-		depthScale	-0.05
-	}
-	specularMap		textures/trak/trak6/tile3_gloss.png
-	bumpMap			textures/trak/trak6/tile3_nm.png
+	diffuseMap		textures/trak/trak6/tile3
+	specularMap		textures/trak/trak6/tile3_gloss
+	bumpMap			textures/trak/trak6/tile3_nm
+}
+
+textures/trak/trak6/tile4a
+{
+	qer_editorImage		textures/trak/trak6/tile4a
+
+	parallax
+	diffuseMap		textures/trak/trak6/tile4a
+	specularMap		textures/trak/trak6/tile4a
+	bumpMap			textures/trak/trak6/tile4a_nm
+}
+
+textures/trak/trak6/trim1
+{
+	qer_editorImage		textures/trak/trak6/trim1
+
+	parallax
+	diffuseMap		textures/trak/trak6/trim1
+	specularMap		textures/trak/trak6/trim1_gloss
+	bumpMap			textures/trak/trak6/trim1_nm
+}
+
+textures/trak/trak6/trim2
+{
+	qer_editorImage		textures/trak/trak6/trim2
+
+	parallax
+	diffuseMap		textures/trak/trak6/trim2
+	specularMap		textures/trak/trak6/trim2_gloss
+	bumpMap			textures/trak/trak6/trim2_nm
+}
+
+textures/trak/trak6/trim3a
+{
+	qer_editorImage		textures/trak/trak6/trim3a
+
+	parallax
+	diffuseMap		textures/trak/trak6/trim3a
+	specularMap		textures/trak/trak6/trim3a
+	bumpMap			textures/trak/trak6/trim3_nm
+}
+
+textures/trak/trak6/trim3b
+{
+	qer_editorImage		textures/trak/trak6/trim3b
+
+	parallax
+	diffuseMap		textures/trak/trak6/trim3b
+	specularMap		textures/trak/trak6/trim3b
+	bumpMap			textures/trak/trak6/trim3_nm
+}
+
+textures/trak/trak6/trim4
+{
+	qer_editorImage		textures/trak/trak6/trim4
+
+	parallax
+	diffuseMap		textures/trak/trak6/trim4
+	specularMap		textures/trak/trak6/trim4
+	bumpMap			textures/trak/trak6/trim4_nm
+}
+
+textures/trak/trak6/wall2
+{
+	qer_editorImage		textures/trak/trak6/wall2
+
+	parallax
+	diffuseMap		textures/trak/trak6/wall2
+	specularMap		textures/trak/trak6/wall2_gloss
+	bumpMap			textures/trak/trak6/wall2_nm
+}
+
+textures/trak/trak6/wall3
+{
+	qer_editorImage		textures/trak/trak6/wall3
+
+	parallax
+	diffuseMap		textures/trak/trak6/wall3
+	specularMap		textures/trak/trak6/wall3
+	bumpMap			textures/trak/trak6/wall3_nm
+}
+
+textures/trak/trak6/wall5
+{
+	qer_editorImage		textures/trak/trak6/wall5
+
+	parallax
+	diffuseMap		textures/trak/trak6/wall5
+	specularMap		textures/trak/trak6/wall5
+	bumpMap			textures/trak/trak6/wall5_nm
+}
+
+textures/trak/trak6/wall6
+{
+	qer_editorImage		textures/trak/trak6/wall6
+
+	parallax
+	diffuseMap		textures/trak/trak6/wall6
+	specularMap		textures/trak/trak6/wall6
+	bumpMap			textures/trak/trak6/wall6_nm
+}
+
+textures/trak/trak6/wall6
+{
+	qer_editorImage		textures/trak/trak6/wall6a
+
+	parallax
+	diffuseMap		textures/trak/trak6/wall6a
+	specularMap		textures/trak/trak6/wall6a
+	bumpMap			textures/trak/trak6/wall6_nm
 }
