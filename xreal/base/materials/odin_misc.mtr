@@ -2,13 +2,9 @@ textures/odin/misc/chrome
 {
 	qer_editorImage		textures/odin/misc/chrome
 
-	diffuseMap		_black
+	diffuseMap		_white
 	specularMap		_white
 	normalMap		_flat
-	{
-		stage		reflectionMap
-		map		_autocube
-		blend		add
-	}
+	reflectionMapBlended	_autocube
 	normalMap		_flat
 }

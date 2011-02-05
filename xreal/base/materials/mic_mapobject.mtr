@@ -19,11 +19,7 @@ models/mapobjects/mic/tele-frame_chrome
 	diffusemap		_black
 	specularmap		_white
 	bumpmap			models/mapobjects/mic/tele01_height2b_NRM
-	{
-		stage		reflectionmap
-		cubemap		_autocube
-		blend		add
-	}
+	reflectionMapBlended	_autocube
 	bumpmap			models/mapobjects/mic/tele01_height2b_NRM
 	{
 		map		models/mapobjects/mic/tele01_glo.tga

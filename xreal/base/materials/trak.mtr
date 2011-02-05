@@ -723,7 +723,7 @@ textures/trak/trak5/pipe1a
 	xmap_shadeAngle		180
 
 	diffuseMap		textures/trak/trak5/pipe1a.png
-	specularMap		textures/trak/trak5/pipe1a.png
+	specularMap		_white
 	normalMap		_flat
 	reflectionMapBlended	_autocube
 }
@@ -734,7 +734,7 @@ textures/trak/trak5/pipe1b
 	xmap_shadeAngle		180
 
 	diffuseMap		textures/trak/trak5/pipe1b.png
-	specularMap		textures/trak/trak5/pipe1b.png
+	specularMap		_white
 	normalMap		_flat
 	reflectionMapBlended	_autocube
 }
@@ -745,7 +745,7 @@ textures/trak/trak5/pipe1c
 	xmap_shadeAngle		180
 
 	diffuseMap		textures/trak/trak5/pipe1c.png
-	specularMap		textures/trak/trak5/pipe1c.png
+	specularMap		_white
 	normalMap		_flat
 	reflectionMapBlended	_autocube
 }
@@ -756,7 +756,7 @@ textures/trak/trak5/pipe1d
 	xmap_shadeAngle		180
 
 	diffuseMap		textures/trak/trak5/pipe1d.png
-	specularMap		textures/trak/trak5/pipe1d.png
+	specularMap		_white
 	normalMap		_flat
 	reflectionMapBlended	_autocube
 }
