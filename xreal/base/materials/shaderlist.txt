@@ -64,6 +64,7 @@ tr3b_water
 trak
 trak6
 trak7
+trak_extra
 #zogg_floor
 #zogg_mapobject
 #zogg_misc

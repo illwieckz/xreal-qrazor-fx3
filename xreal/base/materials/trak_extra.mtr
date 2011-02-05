@@ -1,0 +1,26 @@
+textures/trak/trak_extra/panel2
+{
+	qer_editorImage		textures/trak/trak_extra/panel2
+
+	diffuseMap		textures/trak/trak_extra/panel2
+	specularMap		textures/trak/trak_extra/panel2_gloss
+	bumpMap			textures/trak/trak_extra/panel2_nm
+}
+
+textures/trak/trak_extra/tile2
+{
+	qer_editorImage		textures/trak/trak_extra/tile2
+
+	diffuseMap		textures/trak/trak_extra/tile2
+	specularMap		textures/trak/trak_extra/tile2_gloss
+	bumpMap			textures/trak/trak_extra/tile2_nm
+}
+
+textures/trak/trak_extra/treadplate1
+{
+	qer_editorImage		textures/trak/trak_extra/treadplate1
+
+	diffuseMap		textures/trak/trak_extra/treadplate1
+	specularMap		textures/trak/trak_extra/treadplate1_gloss
+	bumpMap			textures/trak/trak_extra/treadplate1_nm
+}
