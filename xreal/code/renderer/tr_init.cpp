@@ -2105,6 +2105,7 @@ refexport_t* QCALL GetRefAPI(int apiVersion, refimport_t * rimp)
 
 	re.DrawRotatedPic = RE_RotatedPic;
 	re.TakeVideoFrame = RE_TakeVideoFrame;
+	re.TakeScreenshotPNG = RB_TakeScreenshotPNG;
 
 	return &re;
 }

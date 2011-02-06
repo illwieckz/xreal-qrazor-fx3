@@ -112,6 +112,7 @@ typedef struct
 	qboolean		(*inPVS) (const vec3_t p1, const vec3_t p2);
 
 	void            (*TakeVideoFrame) (int h, int w, byte * captureBuffer, byte * encodeBuffer, qboolean motionJpeg);
+	void            (*TakeScreenshotPNG) (int x, int y, int width, int height, char *fileName);
 } refexport_t;
 
 //
