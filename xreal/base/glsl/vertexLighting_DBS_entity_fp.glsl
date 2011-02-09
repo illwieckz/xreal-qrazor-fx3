@@ -102,7 +102,8 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 
 void	main()
 {
-	if(bool(u_PortalClipping))
+#if defined(USE_PORTAL_CLIPPING)
+	//(bool(u_PortalClipping))
 	{
 		float dist = dot(var_Position.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
 		if(dist < 0.0)
@@ -111,6 +112,7 @@ void	main()
 			return;
 		}
 	}
+#endif
 
 #if defined(r_NormalMapping)
 	// invert tangent space for two sided surfaces
@@ -131,7 +133,7 @@ void	main()
 #endif
 
 #if defined(r_ParallaxMapping)
-	if(bool(u_ParallaxMapping))
+#if defined(USE_PARALLAX_MAPPING)
 	{
 		// ray intersect in view direction
 		
@@ -151,7 +153,7 @@ void	main()
 		// size and start position of search in texture space
 		vec2 S = V.xy * -u_DepthScale / V.z;
 			
-#if 1
+#if 0
 		vec2 texOffset = vec2(0.0);
 		for(int i = 0; i < 4; i++) {
 			vec4 Normal = texture2D(u_NormalMap, texNormal.st + texOffset);
@@ -168,11 +170,13 @@ void	main()
 		texDiffuse.st += texOffset;
 		texNormal.st += texOffset;
 		texSpecular.st += texOffset;
-	}
+#endif // USE_PARALLAX_MAPPING
 #endif
 
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
+	
+#if defined(USE_ALPHA_TESTING)
 	if(u_AlphaTest == ATEST_GT_0 && diffuse.a <= 0.0)
 	{
 		discard;
@@ -188,6 +192,7 @@ void	main()
 		discard;
 		return;
 	}
+#endif
 
 #if defined(r_NormalMapping)
 	// compute normal in world space from normalmap
@@ -222,6 +227,7 @@ void	main()
 	color.rgb += specular;
 	
 	gl_FragColor = color;
+	//gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
 #else
 	
 	vec3 N;
@@ -232,6 +238,23 @@ void	main()
 	
 	vec3 L = u_LightDir;
 	
-	gl_FragColor = vec4(diffuse.rgb * (u_AmbientColor + u_LightColor * clamp(dot(N, L), 0.0, 1.0)), diffuse.a);
+	// compute the light term
+#if defined(r_halfLambertLighting)
+	// http://developer.valvesoftware.com/wiki/Half_Lambert
+	float NL = dot(N, L) * 0.5 + 0.5;
+	NL *= NL;
+#elif defined(r_WrapAroundLighting)
+	float NL = clamp(dot(N, L) + r_WrapAroundLighting, 0.0, 1.0) / clamp(1.0 + r_WrapAroundLighting, 0.0, 1.0);
+#else
+	float NL = clamp(dot(N, L), 0.0, 1.0);
+#endif
+	
+	gl_FragColor = vec4(diffuse.rgb * (u_AmbientColor + u_LightColor * NL), diffuse.a);
+	//gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
+
+//#if defined(USE_DEFORM_VERTEXES)
+//	gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
+//#endif
+	
 #endif
 }

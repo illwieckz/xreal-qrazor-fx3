@@ -66,6 +66,7 @@ void            (APIENTRY * qglDisable) (GLenum cap);
 void            (APIENTRY * qglDrawArrays) (GLenum mode, GLint first, GLsizei count);
 void            (APIENTRY * qglDrawBuffer) (GLenum mode);
 void            (APIENTRY * qglDrawElements) (GLenum mode, GLsizei count, GLenum type, const GLvoid * indices);
+void            (APIENTRY * qglMultiDrawElements) (GLenum mode, const GLsizei* count, GLenum type, const GLvoid ** indices, GLsizei primcount);
 void            (APIENTRY * qglEnable) (GLenum cap);
 void            (APIENTRY * qglFinish) (void);
 void            (APIENTRY * qglFlush) (void);
@@ -292,6 +293,7 @@ static void     (APIENTRY * dllDisable) (GLenum cap);
 static void     (APIENTRY * dllDrawArrays) (GLenum mode, GLint first, GLsizei count);
 static void     (APIENTRY * dllDrawBuffer) (GLenum mode);
 static void     (APIENTRY * dllDrawElements) (GLenum mode, GLsizei count, GLenum type, const GLvoid * indices);
+static void     (APIENTRY * dllMultiDrawElements) (GLenum mode, const GLsizei* count, GLenum type, const GLvoid ** indices, GLsizei primcount);
 static void     (APIENTRY * dllEnable) (GLenum cap);
 static void     (APIENTRY * dllFinish) (void);
 static void     (APIENTRY * dllFlush) (void);
@@ -637,6 +639,12 @@ static void APIENTRY logDrawElements(GLenum mode, GLsizei count, GLenum type, co
 	dllDrawElements(mode, count, type, indices);
 }
 
+static void APIENTRY logMultiDrawElements(GLenum mode, const GLsizei* count, GLenum type, const GLvoid ** indices, GLsizei primcount)
+{
+	fprintf(log_fp, "glMultiDrawElements( %s, %d, %s, MEM, %d )\n", PrimToString(mode), count, TypeToString(type), primcount);
+	dllMultiDrawElements(mode, count, type, indices, primcount);
+}
+
 static void APIENTRY logEnable(GLenum cap)
 {
 	fprintf(log_fp, "glEnable( %s )\n", CapToString(cap));
@@ -864,6 +872,7 @@ void QGL_Shutdown(void)
 	qglDrawArrays                = NULL;
 	qglDrawBuffer                = NULL;
 	qglDrawElements              = NULL;
+	qglMultiDrawElements         = NULL;
 	qglEnable                    = NULL;
 	qglFinish                    = NULL;
 	qglFlush                     = NULL;
@@ -955,6 +964,7 @@ int QGL_Init()
 	qglDrawArrays                = dllDrawArrays = GPA( "glDrawArrays" );
 	qglDrawBuffer                = dllDrawBuffer = GPA( "glDrawBuffer" );
 	qglDrawElements              = dllDrawElements = GPA( "glDrawElements" );
+	qglMultiDrawElements         = dllMultiDrawElements = GPA( "glMultiDrawElements" );
 	qglEnable                    = dllEnable                    = GPA( "glEnable" );
 	qglFinish                    = dllFinish                    = GPA( "glFinish" );
 	qglFlush                     = dllFlush                     = GPA( "glFlush" );
@@ -1065,6 +1075,7 @@ void QGL_EnableLogging(int enable)
 		qglDrawArrays                = logDrawArrays;
 		qglDrawBuffer                = logDrawBuffer;
 		qglDrawElements              = logDrawElements;
+		qglMultiDrawElements         = logMultiDrawElements;
 		qglEnable                    = logEnable;
 		qglFinish                    = logFinish;
 		qglFlush                     = logFlush;
@@ -1127,6 +1138,7 @@ void QGL_EnableLogging(int enable)
 		qglDrawArrays                = dllDrawArrays;
 		qglDrawBuffer                = dllDrawBuffer;
 		qglDrawElements              = dllDrawElements;
+		qglMultiDrawElements         = dllMultiDrawElements;
 		qglEnable                    = dllEnable;
 		qglFinish                    = dllFinish;
 		qglFlush                     = dllFlush;

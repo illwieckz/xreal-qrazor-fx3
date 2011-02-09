@@ -76,6 +76,11 @@ VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize,
 	vbo->ofsBoneIndexes = 0;
 	vbo->ofsBoneWeights = 0;
 
+	vbo->sizeXYZ = 0;
+	vbo->sizeTangents = 0;
+	vbo->sizeBinormals = 0;
+	vbo->sizeNormals = 0;
+
 	vbo->vertexesSize = vertexesSize;
 
 	qglGenBuffersARB(1, &vbo->vertexesVBO);
@@ -94,6 +99,8 @@ VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize,
 /*
 ============
 R_CreateVBO2
+
+RB: OPTIMIZE rewrite to not use memcpy
 ============
 */
 VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * verts, unsigned int stateBits, vboUsage_t usage)
@@ -153,6 +160,11 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	vbo->ofsLightDirections = 0;
 	vbo->ofsBoneIndexes = 0;
 	vbo->ofsBoneWeights = 0;
+
+	vbo->sizeXYZ = 0;
+	vbo->sizeTangents = 0;
+	vbo->sizeBinormals = 0;
+	vbo->sizeNormals = 0;
 
 	// create VBO
 	dataSize = numVertexes * (sizeof(vec4_t) * 9);
@@ -434,9 +446,11 @@ IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t *
 
 	Q_strncpyz(ibo->name, name, sizeof(ibo->name));
 
-	indexesSize = numTriangles * 3 * sizeof(int);
+	indexesSize = numTriangles * 3 * sizeof(glIndex_t);
 	indexes = ri.Hunk_AllocateTempMemory(indexesSize);
 	indexesOfs = 0;
+
+	//ri.Printf(PRINT_ALL, "sizeof(glIndex_t) = %i\n", sizeof(glIndex_t));
 
 	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
 	{
@@ -492,6 +506,10 @@ void R_BindVBO(VBO_t * vbo)
 	{
 		glState.currentVBO = vbo;
 		glState.vertexAttribPointersSet = 0;
+
+		glState.vertexAttribsInterpolation = 0;
+		glState.vertexAttribsOldFrame = 0;
+		glState.vertexAttribsNewFrame = 0;
 
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
 
@@ -610,6 +628,11 @@ void R_InitVBOs(void)
 	tess.vbo->ofsBoneIndexes = tess.vbo->ofsLightDirections + sizeof(tess.lightDirections);
 	tess.vbo->ofsBoneWeights = tess.vbo->ofsBoneIndexes + sizeof(tess.boneIndexes);
 #endif
+
+	tess.vbo->sizeXYZ = sizeof(tess.xyz);
+	tess.vbo->sizeTangents = sizeof(tess.tangents);
+	tess.vbo->sizeBinormals = sizeof(tess.binormals);
+	tess.vbo->sizeNormals = sizeof(tess.normals);
 
 	Com_Dealloc(data);
 

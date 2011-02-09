@@ -258,7 +258,7 @@ void RB_TestFlare(flare_t * f)
 
 	backEnd.pc.c_flareTests++;
 
-	// doing a readpixels is as good as doing a glFinish(), so
+	// doing a readpixels is as good as doing a qglFinish(), so
 	// don't bother with another sync
 	glState.finishCalled = qfalse;
 

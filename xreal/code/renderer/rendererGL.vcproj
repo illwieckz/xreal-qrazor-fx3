@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="rendererGL"
 	ProjectGUID="{A78CE356-910C-4C0E-886D-5E3F09F40082}"
 	RootNamespace="rendererGL"
@@ -38,12 +38,6 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\..\debug/ref_gl.tlb"
-				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -75,22 +69,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib SDL.lib"
-				OutputFile="$(OutDir)/rendererGL.dll"
 				LinkIncremental="1"
-				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\sdl\lib"
-				GenerateManifest="false"
-				ManifestFile="$(TargetDir)\$(TargetFileName).intermediate.manifest"
 				ModuleDefinitionFile="rendererGL.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(IntDir)\$(TargetName).pdb"
-				GenerateMapFile="false"
-				MapFileName=""
-				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary="$(IntDir)\$(TargetFileName).lib"
-				TargetMachine="1"
+				GenerateMapFile="true"
+				MapFileName="$(TargetDir)$(TargetName).map"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -124,6 +108,7 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -139,19 +124,13 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\..\release/ref_gl.tlb"
-				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\freetype\include;..\sdl\include;..\zlib"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;BUILD_FREETYPE;FT2_BUILD_LIBRARY"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;BUILD_FREETYPE;FT2_BUILD_LIBRARY"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="false"
@@ -163,6 +142,7 @@
 				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
+				DebugInformationFormat="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -178,17 +158,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib SDL.lib"
-				OutputFile="$(OutDir)/rendererGL.dll"
 				LinkIncremental="1"
-				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\sdl\lib"
-				GenerateManifest="false"
-				ManifestFile="$(TargetDir)\$(TargetFileName).intermediate.manifest"
 				ModuleDefinitionFile="rendererGL.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(IntDir)\$(TargetName).pdb"
-				GenerateMapFile="false"
-				SubSystem="2"
+				GenerateMapFile="true"
+				MapFileName="$(TargetDir)$(TargetName).map"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				ImportLibrary="$(IntDir)\$(TargetFileName).lib"
@@ -227,6 +202,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
 			>
 			<File
+				RelativePath=".\gl_shader.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\qcommon\q_math.c"
 				>
 			</File>
@@ -251,7 +230,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tr_backend.c"
+				RelativePath=".\tr_backend.cpp"
 				>
 			</File>
 			<File
@@ -303,7 +282,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tr_init.cpp"
+				RelativePath=".\tr_init.c"
 				>
 			</File>
 			<File
@@ -327,6 +306,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tr_model_md3.c"
+				>
+			</File>
+			<File
+				RelativePath=".\tr_model_md5.c"
+				>
+			</File>
+			<File
+				RelativePath=".\tr_model_psk.c"
+				>
+			</File>
+			<File
+				RelativePath=".\tr_model_skel.c"
+				>
+			</File>
+			<File
 				RelativePath=".\tr_noise.c"
 				>
 			</File>
@@ -335,7 +330,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tr_shade.c"
+				RelativePath=".\tr_shade.cpp"
 				>
 			</File>
 			<File
@@ -351,7 +346,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tr_sky.c"
+				RelativePath=".\tr_skin.c"
+				>
+			</File>
+			<File
+				RelativePath=".\tr_sky.cpp"
 				>
 			</File>
 			<File
@@ -363,7 +362,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tr_world.c"
+				RelativePath=".\tr_world.cpp"
 				>
 			</File>
 		</Filter>
@@ -371,6 +370,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;fi;fd"
 			>
+			<File
+				RelativePath=".\gl_shader.h"
+				>
+			</File>
 			<File
 				RelativePath="..\qcommon\q_platform.h"
 				>
@@ -1009,6 +1012,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\base\glsl\debugShadowMap_fp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\base\glsl\debugShadowMap_vp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\base\glsl\deferredLighting_DBS_directional_fp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\base\glsl\deferredLighting_DBS_directional_vp.glsl"
+				>
+			</File>
+			<File
 				RelativePath="..\..\base\glsl\deferredLighting_DBS_omni_fp.glsl"
 				>
 			</File>
@@ -1081,11 +1100,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\base\glsl\forwardLighting_DBS_directional_fp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\base\glsl\forwardLighting_DBS_directional_vp.glsl"
+				>
+			</File>
+			<File
 				RelativePath="..\..\base\glsl\forwardLighting_DBS_omni_fp.glsl"
 				>
 			</File>
 			<File
 				RelativePath="..\..\base\glsl\forwardLighting_DBS_omni_vp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\base\glsl\forwardLighting_DBS_post_fp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\base\glsl\forwardLighting_DBS_post_vp.glsl"
 				>
 			</File>
 			<File

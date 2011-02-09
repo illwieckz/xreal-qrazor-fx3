@@ -1098,11 +1098,11 @@ void CG_DrawStatusBarNew(void)
 
 
 	if(ps->persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorCopy4(blueTeamColor, basecolor);
+		Vector4Copy(blueTeamColor, basecolor);
 	else if(ps->persistant[PERS_TEAM] == TEAM_RED)
-		VectorCopy4(redTeamColor, basecolor);
+		Vector4Copy(redTeamColor, basecolor);
 	else
-		VectorCopy4(baseTeamColor, basecolor);
+		Vector4Copy(baseTeamColor, basecolor);
 
 	colorOverlay[3] = basecolor[3];
 
@@ -1119,7 +1119,7 @@ void CG_DrawStatusBarNew(void)
 		CG_DrawPic(320 - 40, 0, 80, 40, cgs.media.hud_top_team_middle);
 		trap_R_SetColor(NULL);
 
-		VectorCopy4(color, scorecolor);
+		Vector4Copy(color, scorecolor);
 		scorecolor[3] = 0.8f;
 
 		// tdm/ctf frag/capturelimit
@@ -1141,7 +1141,7 @@ void CG_DrawStatusBarNew(void)
 
 
 		// background left - red team
-		VectorCopy4(redTeamColor, color);
+		Vector4Copy(redTeamColor, color);
 
 		score = cgs.scores1;
 
@@ -1158,7 +1158,7 @@ void CG_DrawStatusBarNew(void)
 			trap_R_SetColor(NULL);
 		}
 
-		VectorSet4(scorecolor, 1.0f, 1.0f, 1.0f, 0.80f);
+		Vector4Set(scorecolor, 1.0f, 1.0f, 1.0f, 0.80f);
 
 		// digits
 		s = va("%i", score);
@@ -1171,7 +1171,7 @@ void CG_DrawStatusBarNew(void)
 		trap_R_SetColor(NULL);
 
 		// background right - blue team
-		VectorCopy4(blueTeamColor, color);
+		Vector4Copy(blueTeamColor, color);
 		score = cgs.scores2;
 
 		if(cgs.gametype >= GT_CTF)
@@ -1187,7 +1187,7 @@ void CG_DrawStatusBarNew(void)
 			trap_R_SetColor(NULL);
 		}
 
-		VectorSet4(scorecolor, 1.0f, 1.0f, 1.0f, 0.80f);
+		Vector4Set(scorecolor, 1.0f, 1.0f, 1.0f, 0.80f);
 
 		// digits
 		s = va("%i", score);
@@ -1211,7 +1211,7 @@ void CG_DrawStatusBarNew(void)
 		trap_R_SetColor(NULL);
 
 		// blink your score if on first or second place
-		VectorCopy4(colorWhite, scorecolor);
+		Vector4Copy(colorWhite, scorecolor);
 
 		scorecolor[3] = 0.8f;
 
@@ -1246,7 +1246,7 @@ void CG_DrawStatusBarNew(void)
 
 
 		// blink fraglimit if close enough
-		VectorCopy4(colorWhite, scorecolor);
+		Vector4Copy(colorWhite, scorecolor);
 		scorecolor[3] = 0.8f;
 
 		if(score > 0 && score - cgs.scores1 < 5)
@@ -1277,7 +1277,7 @@ void CG_DrawStatusBarNew(void)
 		CG_DrawPic(320 + 25, 0, 66, 40, cgs.media.hud_top_ffa_right);
 		trap_R_SetColor(NULL);
 
-		VectorCopy4(colorWhite, scorecolor);
+		Vector4Copy(colorWhite, scorecolor);
 		scorecolor[3] = 0.8f;
 
 		// digits
@@ -1368,7 +1368,7 @@ void CG_DrawStatusBarNew(void)
 		pickup = 0;
 	}
 
-	VectorCopy4(basecolor, color);
+	Vector4Copy(basecolor, color);
 	color[3] = 0.75f + 0.25f * sin(cg.time / 400.0f);
 
 	trap_R_SetColor(color);
@@ -1376,7 +1376,7 @@ void CG_DrawStatusBarNew(void)
 	trap_R_SetColor(NULL);
 
 	//middle, ammo, ammo types, weaponselection
-	VectorCopy4(basecolor, fadecolor);
+	Vector4Copy(basecolor, fadecolor);
 	fadecolor[3] = 0.8f;
 
 	fadecolor[3] *= 1.0f - cg.bar_offset;
@@ -1439,7 +1439,7 @@ void CG_DrawStatusBarNew(void)
 	CG_DrawPic(510 - HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, cgs.media.hud_bar_right_overlay);
 	trap_R_SetColor(NULL);
 
-	VectorCopy4(basecolor, color);
+	Vector4Copy(basecolor, color);
 	color[3] = 0.75f + 0.25f * sin(cg.time / 300.0f);
 
 	trap_R_SetColor(color);
@@ -1525,11 +1525,11 @@ static void CG_DrawSideBarItem(int x, int y, int i)
 
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorCopy4(blueTeamColor, basecolor);
+		Vector4Copy(blueTeamColor, basecolor);
 	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-		VectorCopy4(redTeamColor, basecolor);
+		Vector4Copy(redTeamColor, basecolor);
 	else
-		VectorCopy4(baseTeamColor, basecolor);
+		Vector4Copy(baseTeamColor, basecolor);
 
 
 	CG_RegisterWeapon(i);
@@ -1584,11 +1584,11 @@ static void CG_DrawSideBarPowerup(int x, int y, int i)
 	gitem_t        *item;
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorCopy4(blueTeamColor, basecolor);
+		Vector4Copy(blueTeamColor, basecolor);
 	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-		VectorCopy4(redTeamColor, basecolor);
+		Vector4Copy(redTeamColor, basecolor);
 	else
-		VectorCopy4(baseTeamColor, basecolor);
+		Vector4Copy(baseTeamColor, basecolor);
 
 	item = BG_FindItemForPowerup(i);
 
@@ -1624,11 +1624,11 @@ static void CG_DrawSideBarHoldable(int x, int y, int i)
 		return;
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorCopy4(blueTeamColor, basecolor);
+		Vector4Copy(blueTeamColor, basecolor);
 	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-		VectorCopy4(redTeamColor, basecolor);
+		Vector4Copy(redTeamColor, basecolor);
 	else
-		VectorCopy4(baseTeamColor, basecolor);
+		Vector4Copy(baseTeamColor, basecolor);
 
 	trap_R_SetColor(basecolor);
 	CG_DrawPic(x - 72, y, 72, 32, cgs.media.sideBarPowerupShader);
@@ -2830,11 +2830,11 @@ static void CG_DrawLagometer(void)
 	y = 480 - 120;
 
 	if(ps->persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorCopy4(blueTeamColor, basecolor);
+		Vector4Copy(blueTeamColor, basecolor);
 	else if(ps->persistant[PERS_TEAM] == TEAM_RED)
-		VectorCopy4(redTeamColor, basecolor);
+		Vector4Copy(redTeamColor, basecolor);
 	else
-		VectorCopy4(baseTeamColor, basecolor);
+		Vector4Copy(baseTeamColor, basecolor);
 
 
 	trap_R_SetColor(basecolor);
@@ -2865,7 +2865,7 @@ static void CG_DrawLagometer(void)
 			if(color != 1)
 			{
 				color = 1;
-				VectorCopy4(g_color_table[ColorIndex(COLOR_YELLOW)], fadecolor);
+				Vector4Copy(g_color_table[ColorIndex(COLOR_YELLOW)], fadecolor);
 				fadecolor[3] = (float)((aw - a) / aw);
 				trap_R_SetColor(fadecolor);
 			}
@@ -2880,7 +2880,7 @@ static void CG_DrawLagometer(void)
 			if(color != 2)
 			{
 				color = 2;
-				VectorCopy4(g_color_table[ColorIndex(COLOR_BLUE)], fadecolor);
+				Vector4Copy(g_color_table[ColorIndex(COLOR_BLUE)], fadecolor);
 				fadecolor[3] = (float)((aw - a) / aw);
 				trap_R_SetColor(fadecolor);
 
@@ -2909,7 +2909,7 @@ static void CG_DrawLagometer(void)
 				if(color != 5)
 				{
 					color = 5;	// YELLOW for rate delay
-					VectorCopy4(g_color_table[ColorIndex(COLOR_YELLOW)], fadecolor);
+					Vector4Copy(g_color_table[ColorIndex(COLOR_YELLOW)], fadecolor);
 					fadecolor[3] = (float)((aw - a) / aw);
 					trap_R_SetColor(fadecolor);
 				}
@@ -2919,7 +2919,7 @@ static void CG_DrawLagometer(void)
 				if(color != 3)
 				{
 					color = 3;
-					VectorCopy4(g_color_table[ColorIndex(COLOR_GREEN)], fadecolor);
+					Vector4Copy(g_color_table[ColorIndex(COLOR_GREEN)], fadecolor);
 					fadecolor[3] = (float)((aw - a) / aw) * 0.5f;
 					trap_R_SetColor(fadecolor);
 				}
@@ -2936,7 +2936,7 @@ static void CG_DrawLagometer(void)
 			if(color != 4)
 			{
 				color = 4;		// RED for dropped snapshots
-				VectorCopy4(g_color_table[ColorIndex(COLOR_RED)], fadecolor);
+				Vector4Copy(g_color_table[ColorIndex(COLOR_RED)], fadecolor);
 				//fadecolor[3] = (float)((aw - a) / aw);
 				fadecolor[3] = 1.0f;
 				trap_R_SetColor(fadecolor);
@@ -3856,7 +3856,7 @@ static void CG_Draw2D(void)
 		return;
 	}
 
-	VectorSet4(baseTeamColor, cg_hudRed.value, cg_hudGreen.value, cg_hudBlue.value, cg_hudAlpha.value);
+	Vector4Set(baseTeamColor, cg_hudRed.value, cg_hudGreen.value, cg_hudBlue.value, cg_hudAlpha.value);
 
 	redTeamColor[3] = cg_hudAlpha.value;
 	blueTeamColor[3] = cg_hudAlpha.value;

@@ -536,7 +536,6 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 	int             sdlcolorbits;
 	int             colorbits, depthbits, stencilbits;
 	int             tcolorbits, tdepthbits, tstencilbits;
-	int             samples;
 	int             i = 0;
 	SDL_Surface    *vidscreen = NULL;
 	Uint32          flags = SDL_OPENGL;
@@ -869,9 +868,9 @@ static void GLimp_InitExtensions(void)
 		qglActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) SDL_GL_GetProcAddress("glActiveTextureARB");
 		if(qglActiveTextureARB)
 		{
-			qglGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxTextureUnits);
+			qglGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxActiveTextures);
 
-			if(glConfig.maxTextureUnits > 1)
+			if(glConfig.maxActiveTextures > 1)
 			{
 				ri.Printf(PRINT_ALL, "...using GL_ARB_multitexture\n");
 			}
@@ -1229,7 +1228,7 @@ static void GLimp_InitExtensions(void)
 	qglGetCompressedTexImageARB = NULL;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_compression"))
 	{
-		if(r_ext_texture_compression->integer)
+		if(r_ext_compressed_textures->integer)
 		{
 			qglCompressedTexImage3DARB = SDL_GL_GetProcAddress("glCompressedTexImage3DARB");
 			qglCompressedTexImage2DARB = SDL_GL_GetProcAddress("glCompressedTexImage2DARB");
@@ -1281,7 +1280,7 @@ static void GLimp_InitExtensions(void)
 	// GL_EXT_texture_compression_s3tc
 	if(Q_stristr(glConfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
 	{
-		if(r_ext_texture_compression->integer)
+		if(r_ext_compressed_textures->integer)
 		{
 			glConfig.textureCompression = TC_S3TC;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n");

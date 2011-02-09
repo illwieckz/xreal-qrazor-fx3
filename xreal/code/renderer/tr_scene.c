@@ -35,8 +35,16 @@ static int      r_firstSceneEntity;
 static int      r_numPolys;
 static int      r_firstScenePoly;
 
-static int      r_numPolyVerts;
+int				r_numPolyVerts;
 
+int             r_firstScenePolybuffer;
+int             r_numPolybuffers;
+
+// ydnar: decals
+int             r_firstSceneDecalProjector;
+int             r_numDecalProjectors;
+int             r_firstSceneDecal;
+int             r_numDecals;
 
 /*
 ====================
@@ -71,6 +79,15 @@ void R_ToggleSmpFrame(void)
 	r_firstScenePoly = 0;
 
 	r_numPolyVerts = 0;
+
+	r_numPolybuffers = 0;
+	r_firstScenePolybuffer = 0;
+
+	// ydnar: decals
+	r_numDecalProjectors = 0;
+	r_firstSceneDecalProjector = 0;
+	r_numDecals = 0;
+	r_firstSceneDecal = 0;
 }
 
 
@@ -121,10 +138,35 @@ void R_AddPolygonSurfaces(void)
 
 /*
 =====================
-RE_AddPolyToScene
+R_AddPolygonSurfaces
+
+Adds all the scene's polys into this view's drawsurf list
 =====================
 */
-void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int numPolys)
+void R_AddPolygonBufferSurfaces(void)
+{
+	int             i;
+	shader_t       *sh;
+	srfPolyBuffer_t *polybuffer;
+
+	tr.currentEntity = &tr.worldEntity;
+
+	for(i = 0, polybuffer = tr.refdef.polybuffers; i < tr.refdef.numPolybuffers; i++, polybuffer++)
+	{
+		sh = R_GetShaderByHandle(polybuffer->pPolyBuffer->shader);
+
+		//R_AddDrawSurf((void *)polybuffer, sh, polybuffer->fogIndex, 0, 0);
+		R_AddDrawSurf((void *)polybuffer, sh, -1);
+	}
+}
+
+
+/*
+=====================
+R_AddPolysToScene
+=====================
+*/
+static void R_AddPolysToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int numPolys)
 {
 	srfPoly_t      *poly;
 	int             j;
@@ -169,6 +211,68 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts
 		r_numPolys++;
 		r_numPolyVerts += numVerts;
 	}
+}
+
+/*
+=====================
+RE_AddPolyToScene
+=====================
+*/
+void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int num)
+{
+	R_AddPolysToScene(hShader, numVerts, verts, num);
+}
+
+/*
+=====================
+RE_AddPolyBufferToScene
+=====================
+*/
+void RE_AddPolyBufferToScene(polyBuffer_t * pPolyBuffer)
+{
+	srfPolyBuffer_t *pPolySurf;
+//	int             fogIndex;
+//	fog_t          *fog;
+	vec3_t          bounds[2];
+	int             i;
+
+	if(r_numPolybuffers >= r_maxPolyVerts->integer)
+	{
+		return;
+	}
+
+	pPolySurf = &backEndData[tr.smpFrame]->polybuffers[r_numPolybuffers];
+	r_numPolybuffers++;
+
+	pPolySurf->surfaceType = SF_POLYBUFFER;
+	pPolySurf->pPolyBuffer = pPolyBuffer;
+
+	VectorCopy(pPolyBuffer->xyz[0], bounds[0]);
+	VectorCopy(pPolyBuffer->xyz[0], bounds[1]);
+	for(i = 1; i < pPolyBuffer->numVerts; i++)
+	{
+		AddPointToBounds(pPolyBuffer->xyz[i], bounds[0], bounds[1]);
+	}
+
+#if 0
+	for(fogIndex = 1; fogIndex < tr.world->numfogs; fogIndex++)
+	{
+		fog = &tr.world->fogs[fogIndex];
+		if(bounds[1][0] >= fog->bounds[0][0]
+		   && bounds[1][1] >= fog->bounds[0][1]
+		   && bounds[1][2] >= fog->bounds[0][2]
+		   && bounds[0][0] <= fog->bounds[1][0] && bounds[0][1] <= fog->bounds[1][1] && bounds[0][2] <= fog->bounds[1][2])
+		{
+			break;
+		}
+	}
+	if(fogIndex == tr.world->numfogs)
+	{
+		fogIndex = 0;
+	}
+
+	pPolySurf->fogIndex = fogIndex;
+#endif
 }
 
 
@@ -309,9 +413,11 @@ static void R_AddWorldLightsToScene()
 /*
 =====================
 RE_AddDynamicLightToScene
+
+ydnar: modified dlight system to support seperate radius and intensity
 =====================
 */
-static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r, float g, float b, int additive)
+void RE_AddDynamicLightToScene(const vec3_t org, float radius, float intensity, float r, float g, float b, qhandle_t hShader, int flags)
 {
 	trRefLight_t   *light;
 
@@ -325,7 +431,7 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 		return;
 	}
 
-	if(intensity <= 0)
+	if(intensity <= 0 || radius <= 0)
 	{
 		return;
 	}
@@ -340,11 +446,18 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 	VectorClear(light->l.center);
 
 	// HACK: this will tell the renderer backend to use tr.defaultLightShader
+#if 0
+	dl->shader = R_GetShaderByHandle(hShader);
+	if(dl->shader == tr.defaultShader)
+	{
+		dl->shader = NULL;
+	}
+#endif
 	light->l.attenuationShader = 0;
 
-	light->l.radius[0] = intensity;
-	light->l.radius[1] = intensity;
-	light->l.radius[2] = intensity;
+	light->l.radius[0] = radius;
+	light->l.radius[1] = radius;
+	light->l.radius[2] = radius;
 
 	light->l.color[0] = r;
 	light->l.color[1] = g;
@@ -354,33 +467,50 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 	light->l.inverseShadows = qfalse;
 
 	light->isStatic = qfalse;
-	light->additive = additive;
+	light->additive = qtrue;
 
-	if(light->l.scale <= 0)
+	light->l.scale = intensity;
+#if 0
+	if(light->l.scale <= r_lightScale->value)
 	{
 		light->l.scale = r_lightScale->value;
 	}
+#endif
 }
 
-/*
-=====================
-RE_AddLightToScene
-=====================
-*/
-void RE_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b)
-{
-	RE_AddDynamicLightToScene(org, intensity, r, g, b, qfalse);
-}
 
 /*
-=====================
-RE_AddAdditiveLightToScene
-=====================
+==============
+RE_AddCoronaToScene
+
+RB: TODO
+==============
 */
-void RE_AddAdditiveLightToScene(const vec3_t org, float intensity, float r, float g, float b)
+void RE_AddCoronaToScene(const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible)
 {
-	RE_AddDynamicLightToScene(org, intensity, r, g, b, qtrue);
+#if 0
+	corona_t       *cor;
+
+	if(!tr.registered)
+	{
+		return;
+	}
+	if(r_numcoronas >= MAX_CORONAS)
+	{
+		return;
+	}
+
+	cor = &backEndData[tr.smpFrame]->coronas[r_numcoronas++];
+	VectorCopy(org, cor->origin);
+	cor->color[0] = r;
+	cor->color[1] = g;
+	cor->color[2] = b;
+	cor->scale = scale;
+	cor->id = id;
+	cor->visible = visible;
+#endif
 }
+
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -433,10 +563,17 @@ void RE_RenderScene(const refdef_t * fd)
 	tr.refdef.time = fd->time;
 	tr.refdef.rdflags = fd->rdflags;
 
+	/*
+	if(fd->rdflags & RDF_SKYBOXPORTAL)
+	{
+		ri.Printf(PRINT_ALL, "skyboxportal = 1\n");
+	}
+	*/
+
 	// copy the areamask data over and note if it has changed, which
 	// will force a reset of the visible leafs even if the view hasn't moved
 	tr.refdef.areamaskModified = qfalse;
-	if(!(tr.refdef.rdflags & RDF_NOWORLDMODEL))
+	if(!(tr.refdef.rdflags & RDF_NOWORLDMODEL) && !((tr.refdef.rdflags & RDF_SKYBOXPORTAL) && tr.world->numSkyNodes > 0))
 	{
 		int             areaDiff;
 		int             i;
@@ -475,6 +612,16 @@ void RE_RenderScene(const refdef_t * fd)
 
 	tr.refdef.numPolys = r_numPolys - r_firstScenePoly;
 	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
+
+	tr.refdef.numPolybuffers = r_numPolybuffers - r_firstScenePolybuffer;
+	tr.refdef.polybuffers = &backEndData[tr.smpFrame]->polybuffers[r_firstScenePolybuffer];	
+
+	tr.refdef.numDecalProjectors = r_numDecalProjectors - r_firstSceneDecalProjector;
+	tr.refdef.decalProjectors = &backEndData[tr.smpFrame]->decalProjectors[r_firstSceneDecalProjector];
+
+	tr.refdef.numDecals = r_numDecals - r_firstSceneDecal;
+	tr.refdef.decals = &backEndData[tr.smpFrame]->decals[r_firstSceneDecal];
+
 
 	// a single frame may have multiple scenes draw inside it --
 	// a 3D game view, 3D status bar renderings, 3D menus, etc.
@@ -519,10 +666,10 @@ void RE_RenderScene(const refdef_t * fd)
 	parms.viewportWidth = tr.refdef.width;
 	parms.viewportHeight = tr.refdef.height;
 
-	VectorSet4(parms.viewportVerts[0], parms.viewportX, parms.viewportY, 0, 1);
-	VectorSet4(parms.viewportVerts[1], parms.viewportX + parms.viewportWidth, parms.viewportY, 0, 1);
-	VectorSet4(parms.viewportVerts[2], parms.viewportX + parms.viewportWidth, parms.viewportY + parms.viewportHeight, 0, 1);
-	VectorSet4(parms.viewportVerts[3], parms.viewportX, parms.viewportY + parms.viewportHeight, 0, 1);
+	Vector4Set(parms.viewportVerts[0], parms.viewportX, parms.viewportY, 0, 1);
+	Vector4Set(parms.viewportVerts[1], parms.viewportX + parms.viewportWidth, parms.viewportY, 0, 1);
+	Vector4Set(parms.viewportVerts[2], parms.viewportX + parms.viewportWidth, parms.viewportY + parms.viewportHeight, 0, 1);
+	Vector4Set(parms.viewportVerts[3], parms.viewportX, parms.viewportY + parms.viewportHeight, 0, 1);
 
 	parms.isPortal = qfalse;
 
@@ -544,6 +691,41 @@ void RE_RenderScene(const refdef_t * fd)
 	r_firstSceneEntity = r_numEntities;
 	r_firstSceneLight = r_numLights;
 	r_firstScenePoly = r_numPolys;
+	r_firstScenePolybuffer = r_numPolybuffers;
 
 	tr.frontEndMsec += ri.Milliseconds() - startTime;
+}
+
+
+// Temp storage for saving view paramters.  Drawing the animated head in the corner
+// was creaming important view info.
+static viewParms_t     g_oldViewParms;
+
+/*
+================
+RE_SaveViewParms
+
+Save out the old render info to a temp place so we don't kill the LOD system
+when we do a second render.
+================
+*/
+void RE_SaveViewParms()
+{
+	// save old viewParms so we can return to it after the mirror view
+	g_oldViewParms = tr.viewParms;
+}
+
+
+/*
+================
+RE_RestoreViewParms
+
+Restore the old render info so we don't kill the LOD system
+when we do a second render.
+================
+*/
+void RE_RestoreViewParms()
+{
+	// This was killing the LOD computation
+	tr.viewParms = g_oldViewParms;
 }

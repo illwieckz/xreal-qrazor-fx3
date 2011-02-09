@@ -304,8 +304,10 @@ void R_CalcTangentSpaceFast(vec3_t tangent, vec3_t binormal, vec3_t normal,
 	// Gram-Schmidt orthogonalize
 		//tangent[a] = (t - n * Dot(n, t)).Normalize();
 	VectorMA(tangent, -DotProduct(faceNormal, tangent), faceNormal, tangent);
-	VectorNormalize(tangent);
+	VectorNormalizeFast(tangent);
 #endif
+
+	VectorCopy(faceNormal, normal);
 }
 
 /*
@@ -619,7 +621,7 @@ R_CullLocalBox
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
-int R_CullLocalBox(vec3_t localBounds[2])
+cullResult_t R_CullLocalBox(vec3_t localBounds[2])
 {
 #if 0
 	int             i, j;
@@ -1106,8 +1108,8 @@ Sets up the modelview matrix for a given viewParm
 void R_RotateForViewer(void)
 {
 	matrix_t        transformMatrix;
-	axis_t			viewAxis;
-	vec3_t			forward, right, up;
+//	axis_t			viewAxis;
+//	vec3_t			forward, right, up;
 	matrix_t        viewMatrix;
 
 	Com_Memset(&tr.orientation, 0, sizeof(tr.orientation));
@@ -1232,9 +1234,9 @@ static void SetFarClip(void)
 {
 	float           farthestCornerDistance;
 	int             i, j;
-	vec3_t          v;
-	vec3_t          eye;
-	float          *modelMatrix;
+//	vec3_t          v;
+//	vec3_t          eye;
+//	float          *modelMatrix;
 
 	// if not rendering the world (icons, menus, etc)
 	// set a 2k far clip plane
@@ -1464,7 +1466,7 @@ static void R_SetupProjection(qboolean infiniteFarClip)
 		zFar = tr.viewParms.zFar = r_zfar->value;
 	}
 
-//	if(r_shadows->integer == 3)
+//	if(r_shadows->integer == SHADOWING_STENCIL)
 //		zFar = 0;
 
 	yMax = zNear * tan(tr.refdef.fov_y * M_PI / 360.0f);
@@ -1516,9 +1518,9 @@ static void R_SetupProjection(qboolean infiniteFarClip)
 	MatrixMultiply(tr.viewParms.projectionMatrix, tr.orientation.modelViewMatrix, mvp);
 	MatrixCopy(tr.orientation.modelViewMatrix, mvp);
 
-	VectorSet4(axis[0], 1, 0, 0, 1);
-	VectorSet4(axis[1], 0, 1, 0, 1);
-	VectorSet4(axis[2], 0, 0, 1, 1);
+	Vector4Set(axis[0], 1, 0, 0, 1);
+	Vector4Set(axis[1], 0, 1, 0, 1);
+	Vector4Set(axis[2], 0, 0, 1, 1);
 
 	for(i = 0; i < 3; i++)
 	{
@@ -2424,7 +2426,7 @@ void R_AddEntitySurfaces(void)
 #if 0
 		if(ent->e.renderfx & RF_THIRD_PERSON)
 		{
-			if(r_shadows->integer == 3 && tr.viewParms.isPortal)
+			if(r_shadows->integer == SHADOWING_STENCIL && tr.viewParms.isPortal)
 			{
 				ent->needZFail = qtrue;
 			}
@@ -2443,9 +2445,11 @@ void R_AddEntitySurfaces(void)
 			case RT_PORTALSURFACE:
 				break;			// don't draw anything
 			case RT_SPRITE:
+			case RT_SPLASH:
 			case RT_BEAM:
 			case RT_LIGHTNING:
 			case RT_RAIL_CORE:
+			case RT_RAIL_CORE_TAPER:
 			case RT_RAIL_RINGS:
 				// self blood sprites, talk balloons, etc should not be drawn in the primary
 				// view.  We can't just do this check for all entities, because md3
@@ -2471,13 +2475,16 @@ void R_AddEntitySurfaces(void)
 				{
 					switch (tr.currentModel->type)
 					{
+						case MOD_MESH:
 						case MOD_MDX:
-							R_AddMDXSurfaces(ent);
+							R_AddMDVSurfaces(ent);
 							break;
 
+#if defined(USE_REFENTITY_ANIMATIONSYSTEM)
 						case MOD_MD5:
 							R_AddMD5Surfaces(ent);
 							break;
+#endif
 
 						case MOD_BSP:
 							R_AddBSPModelSurfaces(ent);
@@ -2545,9 +2552,11 @@ void R_AddEntityInteractions(trRefLight_t * light)
 			case RT_PORTALSURFACE:
 				break;			// don't draw anything
 			case RT_SPRITE:
+			case RT_SPLASH:
 			case RT_BEAM:
 			case RT_LIGHTNING:
 			case RT_RAIL_CORE:
+			case RT_RAIL_CORE_TAPER:
 			case RT_RAIL_RINGS:
 				break;
 
@@ -2561,13 +2570,16 @@ void R_AddEntityInteractions(trRefLight_t * light)
 				{
 					switch (tr.currentModel->type)
 					{
+						case MOD_MESH:
 						case MOD_MDX:
-							R_AddMDXInteractions(ent, light);
+							R_AddMDVInteractions(ent, light);
 							break;
 
+#if defined(USE_REFENTITY_ANIMATIONSYSTEM)
 						case MOD_MD5:
 							R_AddMD5Interactions(ent, light);
 							break;
+#endif
 
 						case MOD_BSP:
 							R_AddBrushModelInteractions(ent, light);
@@ -2827,7 +2839,7 @@ void R_AddLightInteractions()
 		light->numLightOnlyInteractions = 0;
 		light->noSort = qfalse;
 
-		if(r_deferredShading->integer && r_shadows->integer <= 3)
+		if(r_deferredShading->integer && r_shadows->integer <= SHADOWING_STENCIL)
 		{
 			// add one fake interaction for this light
 			// because the renderer backend only loops through interactions
@@ -3058,23 +3070,23 @@ void R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix)
 	VectorMA(origin, 16, up, up);
 
 	// draw axis
-	qglLineWidth(3);
-	qglBegin(GL_LINES);
+	glLineWidth(3);
+	glBegin(GL_LINES);
 
-	qglColor3f(1, 0, 0);
-	qglVertex3fv(origin);
-	qglVertex3fv(forward);
+	glColor3f(1, 0, 0);
+	glVertex3fv(origin);
+	glVertex3fv(forward);
 
-	qglColor3f(0, 1, 0);
-	qglVertex3fv(origin);
-	qglVertex3fv(left);
+	glColor3f(0, 1, 0);
+	glVertex3fv(origin);
+	glVertex3fv(left);
 
-	qglColor3f(0, 0, 1);
-	qglVertex3fv(origin);
-	qglVertex3fv(up);
+	glColor3f(0, 0, 1);
+	glVertex3fv(origin);
+	glVertex3fv(up);
 
-	qglEnd();
-	qglLineWidth(1);
+	glEnd();
+	glLineWidth(1);
 #endif
 }
 
@@ -3108,23 +3120,23 @@ void R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const vec3_t max
 		corners[4 + i][2] = origin[2] + mins[2];
 
 	// draw bounding box
-	qglBegin(GL_LINES);
+	glBegin(GL_LINES);
 	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, color);
 	for(i = 0; i < 4; i++)
 	{
 		// top plane
-		qglVertex3fv(corners[i]);
-		qglVertex3fv(corners[(i + 1) & 3]);
+		glVertex3fv(corners[i]);
+		glVertex3fv(corners[(i + 1) & 3]);
 
 		// bottom plane
-		qglVertex3fv(corners[4 + i]);
-		qglVertex3fv(corners[4 + ((i + 1) & 3)]);
+		glVertex3fv(corners[4 + i]);
+		glVertex3fv(corners[4 + ((i + 1) & 3)]);
 
 		// vertical lines
-		qglVertex3fv(corners[i]);
-		qglVertex3fv(corners[4 + i]);
+		glVertex3fv(corners[i]);
+		glVertex3fv(corners[4 + i]);
 	}
-	qglEnd();
+	glEnd();
 #endif
 }
 
@@ -3143,27 +3155,56 @@ void R_DebugPolygon(int color, int numPoints, float *points)
 	GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 
 	// draw solid shade
-	qglColor3f(color & 1, (color >> 1) & 1, (color >> 2) & 1);
-	qglBegin(GL_POLYGON);
+	glColor3f(color & 1, (color >> 1) & 1, (color >> 2) & 1);
+	glBegin(GL_POLYGON);
 	for(i = 0; i < numPoints; i++)
 	{
-		qglVertex3fv(points + i * 3);
+		glVertex3fv(points + i * 3);
 	}
-	qglEnd();
+	glEnd();
 
 	// draw wireframe outline
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 	qglDepthRange(0, 0);
-	qglColor3f(1, 1, 1);
-	qglBegin(GL_POLYGON);
+	glColor3f(1, 1, 1);
+	glBegin(GL_POLYGON);
 	for(i = 0; i < numPoints; i++)
 	{
-		qglVertex3fv(points + i * 3);
+		glVertex3fv(points + i * 3);
 	}
-	qglEnd();
+	glEnd();
 	qglDepthRange(0, 1);
 #endif
 }
+
+/*
+================
+R_DebugText
+================
+*/
+void R_DebugText(const vec3_t org, float r, float g, float b, const char *text, qboolean neverOcclude)
+{
+#if 0
+	if(neverOcclude)
+	{
+		qglDepthRange(0, 0);	// never occluded
+
+	}
+	glColor3f(r, g, b);
+	glRasterPos3fv(org);
+	glPushAttrib(GL_LIST_BIT);
+	glListBase(gl_NormalFontBase);
+	glCallLists(strlen(text), GL_UNSIGNED_BYTE, text);
+	glListBase(0);
+	glPopAttrib();
+
+	if(neverOcclude)
+	{
+		qglDepthRange(0, 1);
+	}
+#endif
+}
+
 
 /*
 ====================
@@ -3241,6 +3282,8 @@ void R_RenderView(viewParms_t * parms)
 	R_AddWorldSurfaces();
 
 	R_AddPolygonSurfaces();
+
+	R_AddPolygonBufferSurfaces();
 
 	// we have tr.viewParms.visBounds set and now we need to add the light bounds
 	// or we get wrong occlusion query results

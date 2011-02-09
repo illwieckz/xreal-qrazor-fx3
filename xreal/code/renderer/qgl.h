@@ -71,6 +71,7 @@ extern void     (APIENTRY * qglDisable) (GLenum cap);
 extern void     (APIENTRY * qglDrawArrays) (GLenum mode, GLint first, GLsizei count);
 extern void     (APIENTRY * qglDrawBuffer) (GLenum mode);
 extern void     (APIENTRY * qglDrawElements) (GLenum mode, GLsizei count, GLenum type, const GLvoid * indices);
+extern void     (APIENTRY * qglMultiDrawElements) (GLenum mode, const GLsizei* count, GLenum type, const GLvoid ** indices, GLsizei primcount);
 extern void     (APIENTRY * qglEnable) (GLenum cap);
 extern void     (APIENTRY * qglFinish) (void);
 extern void     (APIENTRY * qglFlush) (void);

@@ -413,7 +413,7 @@ void CG_DrawScoreboardStatNew(clientInfo_t * ci, score_t * score, int count, int
 		bgcolor[3] = 0.0f;
 
 	// set font color
-	VectorSet4(fontcolor, 1.0f, 1.0f, 1.0f, 0.80f);
+	Vector4Set(fontcolor, 1.0f, 1.0f, 1.0f, 0.80f);
 
 	fontcolor[3] -= (num - cg.scoreboard_offset) * 0.033f;
 
@@ -534,11 +534,11 @@ qboolean CG_DrawScoreboardNew(void)
 		return qfalse;
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorCopy4(blueTeamColor, basecolor);
+		Vector4Copy(blueTeamColor, basecolor);
 	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-		VectorCopy4(redTeamColor, basecolor);
+		Vector4Copy(redTeamColor, basecolor);
 	else
-		VectorCopy4(baseTeamColor, basecolor);
+		Vector4Copy(baseTeamColor, basecolor);
 
 
 	if(cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD || cg.predictedPlayerState.pm_type == PM_INTERMISSION)
@@ -632,7 +632,7 @@ qboolean CG_DrawScoreboardNew(void)
 			ci = &cgs.clientinfo[score->client];
 
 
-			VectorCopy4(basecolor, bgcolor);
+			Vector4Copy(basecolor, bgcolor);
 
 			if((ci->team == TEAM_BLUE) || (ci->team == TEAM_SPECTATOR && (i & 1) == 0))
 			{
@@ -671,7 +671,7 @@ qboolean CG_DrawScoreboardNew(void)
 			score = &cg.scores[i + cg.scoreboard_offset];
 			ci = &cgs.clientinfo[score->client];
 
-			VectorCopy4(basecolor, bgcolor);
+			Vector4Copy(basecolor, bgcolor);
 
 			if(ci->team != TEAM_SPECTATOR)
 				count++;
