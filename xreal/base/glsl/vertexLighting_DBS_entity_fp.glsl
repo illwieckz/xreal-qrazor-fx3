@@ -170,7 +170,7 @@ void	main()
 		texDiffuse.st += texOffset;
 		texNormal.st += texOffset;
 		texSpecular.st += texOffset;
-#endif // USE_PARALLAX_MAPPING
+#endif
 #endif
 
 	// compute the diffuse term
