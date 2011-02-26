@@ -170,6 +170,7 @@ void	main()
 		texDiffuse.st += texOffset;
 		texNormal.st += texOffset;
 		texSpecular.st += texOffset;
+	}
 #endif
 #endif
 
