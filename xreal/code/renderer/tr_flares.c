@@ -258,12 +258,12 @@ void RB_TestFlare(flare_t * f)
 
 	backEnd.pc.c_flareTests++;
 
-	// doing a readpixels is as good as doing a qglFinish(), so
+	// doing a readpixels is as good as doing a glFinish(), so
 	// don't bother with another sync
 	glState.finishCalled = qfalse;
 
 	// read back the z buffer contents
-	qglReadPixels(f->windowX, f->windowY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+	glReadPixels(f->windowX, f->windowY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
 
 	screenZ = backEnd.viewParms.projectionMatrix[14] /
 		((2 * depth - 1) * backEnd.viewParms.projectionMatrix[11] - backEnd.viewParms.projectionMatrix[10]);
@@ -514,7 +514,7 @@ void RB_RenderFlares(void)
 
 	if(backEnd.viewParms.isPortal)
 	{
-		qglDisable(GL_CLIP_PLANE0);
+		glDisable(GL_CLIP_PLANE0);
 	}
 
 	GL_CheckErrors();

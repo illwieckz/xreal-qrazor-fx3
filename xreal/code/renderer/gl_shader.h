@@ -58,7 +58,7 @@ public:
 	{
 		for(std::size_t i = 0; i < _shaderPrograms.size(); i++)
 		{
-			qglDeleteObjectARB(_shaderPrograms[i].program);
+			glDeleteObjectARB(_shaderPrograms[i].program);
 		}
 	}
 
@@ -620,7 +620,7 @@ public:
 
 	void SetUniform_BoneMatrix(int numBones, const matrix_t boneMatrices[MAX_BONES])
 	{
-		qglUniformMatrix4fvARB(_shader->GetProgram()->u_BoneMatrix, numBones, GL_FALSE, &boneMatrices[0][0]);
+		glUniformMatrix4fvARB(_shader->GetProgram()->u_BoneMatrix, numBones, GL_FALSE, &boneMatrices[0][0]);
 	}
 };
 

@@ -480,7 +480,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			{
 				GLimp_LogComment(va("glBufferSubDataARB( ATTR_POSITION, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes));
 			}
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsXYZ, tess.numVertexes * sizeof(vec4_t), tess.xyz);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsXYZ, tess.numVertexes * sizeof(vec4_t), tess.xyz);
 		}
 
 		if(attribBits & ATTR_TEXCOORD)
@@ -489,7 +489,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			{
 				GLimp_LogComment(va("glBufferSubDataARB( ATTR_TEXCOORD, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes));
 			}
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTexCoords, tess.numVertexes * sizeof(vec4_t), tess.texCoords);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTexCoords, tess.numVertexes * sizeof(vec4_t), tess.texCoords);
 		}
 
 		if(attribBits & ATTR_LIGHTCOORD)
@@ -498,7 +498,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			{
 				GLimp_LogComment(va("glBufferSubDataARB( ATTR_LIGHTCOORD, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes));
 			}
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
 		}
 
 		if(attribBits & ATTR_TANGENT)
@@ -507,7 +507,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			{
 				GLimp_LogComment(va("glBufferSubDataARB( ATTR_TANGENT, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes));
 			}
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTangents, tess.numVertexes * sizeof(vec4_t), tess.tangents);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTangents, tess.numVertexes * sizeof(vec4_t), tess.tangents);
 		}
 
 		if(attribBits & ATTR_BINORMAL)
@@ -516,7 +516,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			{
 				GLimp_LogComment(va("glBufferSubDataARB( ATTR_BINORMAL, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes));
 			}
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBinormals, tess.numVertexes * sizeof(vec4_t), tess.binormals);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBinormals, tess.numVertexes * sizeof(vec4_t), tess.binormals);
 		}
 
 		if(attribBits & ATTR_NORMAL)
@@ -525,7 +525,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			{
 				GLimp_LogComment(va("glBufferSubDataARB( ATTR_NORMAL, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes));
 			}
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsNormals, tess.numVertexes * sizeof(vec4_t), tess.normals);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsNormals, tess.numVertexes * sizeof(vec4_t), tess.normals);
 		}
 
 		if(attribBits & ATTR_COLOR)
@@ -534,7 +534,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			{
 				GLimp_LogComment(va("glBufferSubDataARB( ATTR_COLOR, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes));
 			}
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsColors, tess.numVertexes * sizeof(vec4_t), tess.colors);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsColors, tess.numVertexes * sizeof(vec4_t), tess.colors);
 		}
 
 #if !defined(COMPAT_Q3A)
@@ -544,7 +544,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			{
 				GLimp_LogComment(va("glBufferSubDataARB( ATTR_PAINTCOLOR, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes));
 			}
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsPaintColors, tess.numVertexes * sizeof(vec4_t), tess.paintColors);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsPaintColors, tess.numVertexes * sizeof(vec4_t), tess.paintColors);
 		}
 
 		if(attribBits & ATTR_LIGHTDIRECTION)
@@ -553,7 +553,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			{
 				GLimp_LogComment(va("glBufferSubDataARB( ATTR_LIGHTDIRECTION, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes));
 			}
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightDirections, tess.numVertexes * sizeof(vec4_t), tess.lightDirections);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightDirections, tess.numVertexes * sizeof(vec4_t), tess.lightDirections);
 		}
 #endif
 		if(attribBits & ATTR_BONE_INDEXES)
@@ -562,7 +562,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			{
 				GLimp_LogComment(va("glBufferSubDataARB( ATTR_BONE_INDEXES, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes));
 			}
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneIndexes, tess.numVertexes * sizeof(vec4_t), tess.boneIndexes);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneIndexes, tess.numVertexes * sizeof(vec4_t), tess.boneIndexes);
 		}
 
 		if(attribBits & ATTR_BONE_WEIGHTS)
@@ -571,7 +571,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			{
 				GLimp_LogComment(va("glBufferSubDataARB( ATTR_BONE_WEIGHTS, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes));
 			}
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneWeights, tess.numVertexes * sizeof(vec4_t), tess.boneWeights);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneWeights, tess.numVertexes * sizeof(vec4_t), tess.boneWeights);
 		}
 	}
 
@@ -582,7 +582,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 	{
 		R_BindIBO(tess.ibo);
 
-		qglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, tess.numIndexes * sizeof(glIndex_t), tess.indexes);
+		glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, tess.numIndexes * sizeof(glIndex_t), tess.indexes);
 	}
 
 	GL_CheckErrors();

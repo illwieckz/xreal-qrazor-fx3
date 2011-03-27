@@ -1027,7 +1027,7 @@ static void R_UpdateClusterSurfaces()
 				/*
 				   if(ibo->indexesVBO)
 				   {
-				   qglDeleteBuffersARB(1, &ibo->indexesVBO);
+				   glDeleteBuffersARB(1, &ibo->indexesVBO);
 				   ibo->indexesVBO = 0;
 				   }
 				 */
@@ -1046,7 +1046,7 @@ static void R_UpdateClusterSurfaces()
 #if defined(USE_D3D10)
 				// TODO
 #else
-				qglGenBuffersARB(1, &ibo->indexesVBO);
+				glGenBuffersARB(1, &ibo->indexesVBO);
 #endif
 
 				Com_AddToGrowList(&tr.world->clusterVBOSurfaces[tr.visIndex], vboSurf);
@@ -1077,7 +1077,7 @@ static void R_UpdateClusterSurfaces()
 #if defined(USE_D3D10)
 		// TODO
 #else
-			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_DYNAMIC_DRAW_ARB);
+			glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_DYNAMIC_DRAW_ARB);
 #endif
 			R_BindNullIBO();
 
@@ -1390,14 +1390,14 @@ static void IssueOcclusionQuery(link_t * queue, bspNode_t * node, qboolean reset
 	GL_CheckErrors();
 
 #if 0
-	if(qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
+	if(glIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 	{
 		ri.Error(ERR_FATAL, "IssueOcclusionQuery: node %i has already an occlusion query object in slot %i: %i", node - tr.world->nodes, tr.viewCount, node->occlusionQueryObjects[tr.viewCount]);
 	}
 #endif
 
 	// begin the occlusion query
-	qglBeginQueryARB(GL_SAMPLES_PASSED, node->occlusionQueryObjects[tr.viewCount]);
+	glBeginQueryARB(GL_SAMPLES_PASSED, node->occlusionQueryObjects[tr.viewCount]);
 
 	GL_CheckErrors();
 
@@ -1412,10 +1412,10 @@ static void IssueOcclusionQuery(link_t * queue, bspNode_t * node, qboolean reset
 	Tess_DrawElements();
 
 	// end the query
-	qglEndQueryARB(GL_SAMPLES_PASSED);
+	glEndQueryARB(GL_SAMPLES_PASSED);
 
 #if 1
-	if(!qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
+	if(!glIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 	{
 		ri.Error(ERR_FATAL, "IssueOcclusionQuery: node %i has no occlusion query object in slot %i: %i", node - tr.world->nodes, tr.viewCount, node->occlusionQueryObjects[tr.viewCount]);
 	}
@@ -1462,13 +1462,13 @@ static void IssueMultiOcclusionQueries(link_t * multiQueue, link_t * individualQ
 	GL_CheckErrors();
 
 #if 0
-	if(!qglIsQueryARB(multiQueryNode->occlusionQueryObjects[tr.viewCount]))
+	if(!glIsQueryARB(multiQueryNode->occlusionQueryObjects[tr.viewCount]))
 	{
 		ri.Error(ERR_FATAL, "IssueMultiOcclusionQueries: node %i has already occlusion query object in slot %i: %i", multiQueryNode - tr.world->nodes, tr.viewCount, multiQueryNode->occlusionQueryObjects[tr.viewCount]);
 	}
 #endif
 
-	qglBeginQueryARB(GL_SAMPLES_PASSED, multiQueryNode->occlusionQueryObjects[tr.viewCount]);
+	glBeginQueryARB(GL_SAMPLES_PASSED, multiQueryNode->occlusionQueryObjects[tr.viewCount]);
 
 	GL_CheckErrors();
 #endif
@@ -1511,13 +1511,13 @@ static void IssueMultiOcclusionQueries(link_t * multiQueue, link_t * individualQ
 #if defined(USE_D3D10)
 	// TODO
 #else
-	qglEndQueryARB(GL_SAMPLES_PASSED);
+	glEndQueryARB(GL_SAMPLES_PASSED);
 
 	GL_CheckErrors();
 #endif
 
 #if 0
-	if(!qglIsQueryARB(multiQueryNode->occlusionQueryObjects[tr.viewCount]))
+	if(!glIsQueryARB(multiQueryNode->occlusionQueryObjects[tr.viewCount]))
 	{
 		ri.Error(ERR_FATAL, "IssueMultiOcclusionQueries: node %i has no occlusion query object in slot %i: %i", multiQueryNode - tr.world->nodes, tr.viewCount, multiQueryNode->occlusionQueryObjects[tr.viewCount]);
 	}
@@ -1544,12 +1544,12 @@ static qboolean ResultAvailable(bspNode_t *node)
 #else
 	GLint			available;
 
-	qglFinish();
+	glFinish();
 
 	available = 0;
-	//if(qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
+	//if(glIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 	{
-		qglGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+		glGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 		GL_CheckErrors();
 	}
 
@@ -1569,10 +1569,10 @@ static void GetOcclusionQueryResult(bspNode_t *node)
 
 	GLimp_LogComment("--- GetOcclusionQueryResult ---\n");
 
-	qglFinish();
+	glFinish();
 
 #if 0
-	if(!qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
+	if(!glIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 	{
 		ri.Error(ERR_FATAL, "GetOcclusionQueryResult: node %i has no occlusion query object in slot %i: %i", node - tr.world->nodes, tr.viewCount, node->occlusionQueryObjects[tr.viewCount]);
 	}
@@ -1581,14 +1581,14 @@ static void GetOcclusionQueryResult(bspNode_t *node)
 	available = 0;
 	while(!available)
 	{
-		//if(qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
+		//if(glIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 		{
-			qglGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+			glGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 			//GL_CheckErrors();
 		}
 	}
 
-	qglGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT, &ocSamples);
+	glGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT, &ocSamples);
 
 	//ri.Printf(PRINT_ALL, "GetOcclusionQueryResult(%i): available = %i, samples = %i\n", node - tr.world->nodes, available, ocSamples);
 
@@ -1745,7 +1745,7 @@ static void R_CoherentHierachicalCulling()
 
 	if(r_speeds->integer)
 	{
-		qglFinish();
+		glFinish();
 		startTime = ri.Milliseconds();
 	}
 
@@ -1802,7 +1802,7 @@ static void R_CoherentHierachicalCulling()
 
 #if 0
 	GL_ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	qglClear(GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	GL_State(GLS_COLORMASK_BITS | GLS_DEPTHMASK_TRUE);
 
@@ -2049,7 +2049,7 @@ static void R_CoherentHierachicalCulling()
 
 	if(r_speeds->integer)
 	{
-		qglFinish();
+		glFinish();
 		endTime = ri.Milliseconds();
 		tr.pc.c_CHCTime = endTime - startTime;
 	}
@@ -2246,7 +2246,7 @@ static void R_CoherentHierachicalCulling2()
 	int             avCount;
 	GLint           available;
 
-	qglFinish();
+	glFinish();
 
 	ocCount = 0;
 	sentinel = &tr.occlusionQueryList;
@@ -2254,7 +2254,7 @@ static void R_CoherentHierachicalCulling2()
 	{
 		node = (bspNode_t *) l->data;
 
-		if(qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
+		if(glIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 		{
 			ocCount++;
 		}
@@ -2272,9 +2272,9 @@ static void R_CoherentHierachicalCulling2()
 			if(node->issueOcclusionQuery)
 			{
 				available = 0;
-				if(qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
+				if(glIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 				{
-					qglGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+					glGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 					GL_CheckErrors();
 				}
 
@@ -2297,9 +2297,9 @@ static void R_CoherentHierachicalCulling2()
 	{
 		node = (bspNode_t *) l->data;
 
-		if(qglIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
+		if(glIsQueryARB(node->occlusionQueryObjects[tr.viewCount]))
 		{
-			qglGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT, &node->occlusionQuerySamples[tr.viewCount]);
+			glGetQueryObjectivARB(node->occlusionQueryObjects[tr.viewCount], GL_QUERY_RESULT, &node->occlusionQuerySamples[tr.viewCount]);
 		}
 	}
 

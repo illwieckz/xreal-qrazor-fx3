@@ -1182,7 +1182,7 @@ qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, sh
 #if defined(USE_D3D10)
 	// TODO
 #else
-	if(r_shadows->integer == SHADOWING_STENCIL && qglDepthBoundsEXT)
+	if(r_shadows->integer == SHADOWING_STENCIL && glDepthBoundsEXT)
 	{
 		ia->depthNear = light->depthNear;
 		ia->depthFar = light->depthFar;
@@ -1576,7 +1576,7 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 #if defined(USE_D3D10)
 	// TODO
 #else
-	if(r_shadows->integer == SHADOWING_STENCIL && qglDepthBoundsEXT)
+	if(r_shadows->integer == SHADOWING_STENCIL && glDepthBoundsEXT)
 	{
 		tr.pc.c_depthBoundsTestsRejected++;
 

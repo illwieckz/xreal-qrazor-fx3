@@ -3121,7 +3121,7 @@ void R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const vec3_t max
 
 	// draw bounding box
 	glBegin(GL_LINES);
-	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, color);
+	glVertexAttrib4fvARB(ATTR_INDEX_COLOR, color);
 	for(i = 0; i < 4; i++)
 	{
 		// top plane
@@ -3165,7 +3165,7 @@ void R_DebugPolygon(int color, int numPoints, float *points)
 
 	// draw wireframe outline
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
-	qglDepthRange(0, 0);
+	glDepthRange(0, 0);
 	glColor3f(1, 1, 1);
 	glBegin(GL_POLYGON);
 	for(i = 0; i < numPoints; i++)
@@ -3173,7 +3173,7 @@ void R_DebugPolygon(int color, int numPoints, float *points)
 		glVertex3fv(points + i * 3);
 	}
 	glEnd();
-	qglDepthRange(0, 1);
+	glDepthRange(0, 1);
 #endif
 }
 
@@ -3187,7 +3187,7 @@ void R_DebugText(const vec3_t org, float r, float g, float b, const char *text, 
 #if 0
 	if(neverOcclude)
 	{
-		qglDepthRange(0, 0);	// never occluded
+		glDepthRange(0, 0);	// never occluded
 
 	}
 	glColor3f(r, g, b);
@@ -3200,7 +3200,7 @@ void R_DebugText(const vec3_t org, float r, float g, float b, const char *text, 
 
 	if(neverOcclude)
 	{
-		qglDepthRange(0, 1);
+		glDepthRange(0, 1);
 	}
 #endif
 }

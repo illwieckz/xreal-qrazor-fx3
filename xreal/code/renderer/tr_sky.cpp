@@ -378,11 +378,11 @@ static void DrawSkySide(struct image_s *image, const int mins[2], const int maxs
 
 		for(s = mins[0] + HALF_SKY_SUBDIVISIONS; s <= maxs[0] + HALF_SKY_SUBDIVISIONS; s++)
 		{
-			qglVertexAttrib4fvARB(ATTR_INDEX_TEXCOORD0, s_skyTexCoords[t][s]);
-			qglVertexAttrib4fvARB(ATTR_INDEX_POSITION, s_skyPoints[t][s]);
+			glVertexAttrib4fvARB(ATTR_INDEX_TEXCOORD0, s_skyTexCoords[t][s]);
+			glVertexAttrib4fvARB(ATTR_INDEX_POSITION, s_skyPoints[t][s]);
 
-			qglVertexAttrib4fvARB(ATTR_INDEX_TEXCOORD0, s_skyTexCoords[t + 1][s]);
-			qglVertexAttrib4fvARB(ATTR_INDEX_POSITION, s_skyPoints[t + 1][s]);
+			glVertexAttrib4fvARB(ATTR_INDEX_TEXCOORD0, s_skyTexCoords[t + 1][s]);
+			glVertexAttrib4fvARB(ATTR_INDEX_POSITION, s_skyPoints[t + 1][s]);
 		}
 
 		glEnd();
@@ -773,7 +773,7 @@ void RB_DrawSun(void)
 	VectorScale(vec2, size, vec2);
 
 	// farthest depth range
-	qglDepthRange(1.0, 1.0);
+	glDepthRange(1.0, 1.0);
 
 	// FIXME: use quad stamp
 	Tess_Begin(Tess_StageIteratorGeneric, tr.sunShader, NULL, tess.skipTangentSpaces, qfalse, -1);
@@ -843,7 +843,7 @@ void RB_DrawSun(void)
 	Tess_End();
 
 	// back to normal depth range
-	qglDepthRange(0.0, 1.0);
+	glDepthRange(0.0, 1.0);
 
 	GL_PopMatrix();
 #endif
@@ -899,11 +899,11 @@ void Tess_StageIteratorSky(void)
 	// much sky is getting sucked in
 	if(r_showSky->integer)
 	{
-		qglDepthRange(0.0, 0.0);
+		glDepthRange(0.0, 0.0);
 	}
 	else
 	{
-		qglDepthRange(1.0, 1.0);
+		glDepthRange(1.0, 1.0);
 	}
 
 	// draw the outer skybox
@@ -944,7 +944,7 @@ void Tess_StageIteratorSky(void)
 	}
 
 	// back to normal depth range
-	qglDepthRange(0.0, 1.0);
+	glDepthRange(0.0, 1.0);
 
 	// note that sky was drawn so we will draw a sun later
 	backEnd.skyRenderedThisView = qtrue;

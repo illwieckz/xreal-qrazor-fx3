@@ -429,7 +429,7 @@ void Tess_StageIteratorGeneric()
 #if defined(COMPAT_Q3A)
 			case ST_LIGHTMAP:
 			{
-				Render_lightMapping(stage, qtrue);
+				//Render_lightMapping(stage, qtrue);
 				break;
 			}
 #endif

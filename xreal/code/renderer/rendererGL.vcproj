@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="rendererGL"
 	ProjectGUID="{A78CE356-910C-4C0E-886D-5E3F09F40082}"
 	RootNamespace="rendererGL"
@@ -42,8 +42,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\freetype\include;..\sdl\include;..\zlib"
-				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;BUILD_FREETYPE;FT2_BUILD_LIBRARY"
+				AdditionalIncludeDirectories="..\freetype\include;..\sdl\include;..\zlib;..\glew\include"
+				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;BUILD_FREETYPE;FT2_BUILD_LIBRARY;GLEW_STATIC"
 				MinimalRebuild="true"
 				RuntimeLibrary="1"
 				PrecompiledHeaderFile=""
@@ -68,7 +68,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib SDL.lib"
+				AdditionalDependencies="winmm.lib SDL.lib opengl32.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\sdl\lib"
 				ModuleDefinitionFile="rendererGL.def"
@@ -129,8 +129,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\freetype\include;..\sdl\include;..\zlib"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;BUILD_FREETYPE;FT2_BUILD_LIBRARY"
+				AdditionalIncludeDirectories="..\freetype\include;..\sdl\include;..\zlib;..\glew\include"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;BUILD_FREETYPE;FT2_BUILD_LIBRARY;GLEW_STATIC"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="false"
@@ -157,7 +157,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib SDL.lib"
+				AdditionalDependencies="winmm.lib SDL.lib opengl32.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\sdl\lib"
 				ModuleDefinitionFile="rendererGL.def"
@@ -211,10 +211,6 @@
 			</File>
 			<File
 				RelativePath="..\qcommon\q_shared.c"
-				>
-			</File>
-			<File
-				RelativePath=".\qgl.c"
 				>
 			</File>
 			<File
@@ -380,10 +376,6 @@
 			</File>
 			<File
 				RelativePath="..\qcommon\q_shared.h"
-				>
-			</File>
-			<File
-				RelativePath=".\qgl.h"
 				>
 			</File>
 			<File
@@ -966,6 +958,30 @@
 					RelativePath="..\openexr\toFloat.h"
 					>
 				</File>
+			</Filter>
+			<Filter
+				Name="glew"
+				>
+				<Filter
+					Name="Header Files"
+					>
+					<File
+						RelativePath="..\glew\include\GL\glew.h"
+						>
+					</File>
+					<File
+						RelativePath="..\glew\include\GL\wglew.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Source Files"
+					>
+					<File
+						RelativePath="..\glew\src\glew.c"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter

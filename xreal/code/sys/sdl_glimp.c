@@ -50,6 +50,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../sys/sys_local.h"
 #include "sdl_icon.h"
 #include "SDL_syswm.h"
+#include <GL/wglew.h>
 
 /* Just hack it for now. */
 #ifdef MACOS_X
@@ -432,8 +433,6 @@ void GLimp_Shutdown(void)
 {
 	ri.IN_Shutdown();
 
-	QGL_Shutdown();
-
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	screen = NULL;
 
@@ -525,6 +524,133 @@ static void GLimp_DetectAvailableModes(void)
 	}
 }
 
+static void GLimp_InitOpenGL3xContext()
+{
+	int				retVal;
+	const char     *success[] = { "failed", "success" };
+
+	if(!r_glCoreProfile->integer)
+		return;
+
+	// try to initialize an OpenGL 3.0 context
+#if defined(WIN32)
+	if(WGLEW_ARB_create_context || wglewIsSupported("WGL_ARB_create_context"))
+	{
+		int				attribs[256];	// should be really enough
+		int				numAttribs;
+
+		/*
+		int             attribs[] =
+		{
+			WGL_CONTEXT_MAJOR_VERSION_ARB, r_glMinMajorVersion->integer,
+			WGL_CONTEXT_MINOR_VERSION_ARB, r_glMinMinorVersion->integer,
+			WGL_CONTEXT_FLAGS_ARB,
+			WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,// | WGL_CONTEXT_DEBUG_BIT_ARB,
+			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+			0
+		};
+		*/
+
+		memset(attribs, 0, sizeof(attribs));
+		numAttribs = 0;
+
+		attribs[numAttribs++] = WGL_CONTEXT_MAJOR_VERSION_ARB;
+		attribs[numAttribs++] = r_glMinMajorVersion->integer;
+
+		attribs[numAttribs++] = WGL_CONTEXT_MINOR_VERSION_ARB;
+		attribs[numAttribs++] = r_glMinMinorVersion->integer;
+
+
+		if(WGLEW_ARB_create_context_profile)
+		{
+			attribs[numAttribs++] = WGL_CONTEXT_FLAGS_ARB;
+
+#if 0
+			if(GLXEW_ARB_debug_output)
+			{
+				attribs[numAttribs++] = WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB |  WGL_CONTEXT_DEBUG_BIT_ARB;
+			}
+			else
+#endif
+			{
+				attribs[numAttribs++] = WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
+			}
+
+			attribs[numAttribs++] = WGL_CONTEXT_PROFILE_MASK_ARB;
+			attribs[numAttribs++] = WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
+		}
+
+		// set current context to NULL
+		retVal = wglMakeCurrent(opengl_context.hDC, NULL) != 0;
+		ri.Printf(PRINT_ALL, "...wglMakeCurrent( %p, %p ): %s\n", opengl_context.hDC, NULL, success[retVal]);
+
+		// delete HGLRC
+		if(opengl_context.hGLRC)
+		{
+			retVal = wglDeleteContext(opengl_context.hGLRC) != 0;
+			ri.Printf(PRINT_ALL, "...deleting standard GL context: %s\n", success[retVal]);
+			opengl_context.hGLRC = NULL;
+		}
+
+		ri.Printf(PRINT_ALL, "...initializing OpenGL %i.%i context ", r_glMinMajorVersion->integer, r_glMinMinorVersion->integer);
+
+		opengl_context.hGLRC = wglCreateContextAttribsARB(opengl_context.hDC, 0, attribs);
+		
+		if(wglMakeCurrent(opengl_context.hDC, opengl_context.hGLRC))
+		{
+			ri.Printf(PRINT_ALL, " done\n");
+			glConfig.driverType = GLDRV_OPENGL3;
+		}
+		else
+		{
+			ri.Error(ERR_FATAL, "Could not initialize OpenGL %i.%i context\n"
+								"Make sure your graphics card supports OpenGL %i.%i or newer",
+								r_glMinMajorVersion->integer, r_glMinMinorVersion->integer,
+								r_glMinMajorVersion->integer, r_glMinMinorVersion->integer);
+		}
+	}
+#elif 0 //defined(__linux__)
+
+	// TODO
+
+	/*
+// GLX_ARB_create_context
+#ifndef GLX_ARB_create_context
+#define GLX_CONTEXT_DEBUG_BIT_ARB          0x00000001
+#define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x00000002
+#define GLX_CONTEXT_MAJOR_VERSION_ARB      0x2091
+#define GLX_CONTEXT_MINOR_VERSION_ARB      0x2092
+#define GLX_CONTEXT_FLAGS_ARB              0x2094
+
+extern GLXContext	(APIENTRY * glXCreateContextAttribsARB) (Display *dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
+*/
+
+	glXCreateContextAttribsARB = SDL_GL_GetProcAddress("glXCreateContextAttribsARB");
+	if(glXCreateContextAttribsARB)
+	{
+		int             attribs[3];
+
+		ri.Printf(PRINT_ALL, "Initializing OpenGL 3.0 context...");
+
+		attribs[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
+		attribs[1] = 3;
+		attribs[2] = 0;			//terminate first pair
+
+		opengl_context->hGLRC = glXCreateContextAttribsARB(opengl_context->, attribs);
+		if(wglMakeCurrent(opengl_context->hDC, opengl_context->hGLRC))
+		{
+			ri.Printf(PRINT_ALL, " done\n");
+			glConfig.driverType = GLDRV_OPENGL3;
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, " failed\n");
+		}
+	}
+#endif
+}
+
+
 /*
 ===============
 GLimp_SetMode
@@ -539,6 +665,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 	int             i = 0;
 	SDL_Surface    *vidscreen = NULL;
 	Uint32          flags = SDL_OPENGL;
+	GLenum			glewResult;
 
 	ri.Printf(PRINT_ALL, "Initializing OpenGL display\n");
 
@@ -715,76 +842,18 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 		break;
 	}
 
-	// try to initialize an OpenGL 3.0 context
-#if 0//defined(WIN32)
-	qwglCreateContextAttribsARB = SDL_GL_GetProcAddress("wglCreateContextAttribsARB");
-	if(qwglCreateContextAttribsARB)
+	glewResult = glewInit();
+	if(GLEW_OK != glewResult)
 	{
-		int             attribs[] =
-		{
-			WGL_CONTEXT_MAJOR_VERSION_ARB,
-			3,
-			WGL_CONTEXT_MINOR_VERSION_ARB,
-			1,
-			WGL_CONTEXT_FLAGS_ARB,
-			0,//WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-			0
-		};
-
-		ri.Printf(PRINT_ALL, "Initializing OpenGL 3.1 context...");
-
-		opengl_context.hGLRC = qwglCreateContextAttribsARB(opengl_context.hDC, opengl_context.hGLRC, attribs);
-		if(wglMakeCurrent(opengl_context.hDC, opengl_context.hGLRC))
-		{
-			ri.Printf(PRINT_ALL, " done\n");
-			glConfig.driverType = GLDRV_OPENGL3;
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, " failed\n");
-		}
+		// glewInit failed, something is seriously wrong
+		ri.Error(ERR_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem: %s", glewGetErrorString(glewResult));
 	}
-#elif 0 //defined(__linux__)
-
-	// TODO
-
-	/*
-// GLX_ARB_create_context
-#ifndef GLX_ARB_create_context
-#define GLX_CONTEXT_DEBUG_BIT_ARB          0x00000001
-#define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x00000002
-#define GLX_CONTEXT_MAJOR_VERSION_ARB      0x2091
-#define GLX_CONTEXT_MINOR_VERSION_ARB      0x2092
-#define GLX_CONTEXT_FLAGS_ARB              0x2094
-
-extern GLXContext	(APIENTRY * qglXCreateContextAttribsARB) (Display *dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
-*/
-
-	qglXCreateContextAttribsARB = SDL_GL_GetProcAddress("glXCreateContextAttribsARB");
-	if(qglXCreateContextAttribsARB)
+	else
 	{
-		int             attribs[3];
-
-		ri.Printf(PRINT_ALL, "Initializing OpenGL 3.0 context...");
-
-		attribs[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
-		attribs[1] = 3;
-		attribs[2] = 0;			//terminate first pair
-
-		opengl_context->hGLRC = qglXCreateContextAttribsARB(opengl_context->, attribs);
-		if(wglMakeCurrent(opengl_context->hDC, opengl_context->hGLRC))
-		{
-			ri.Printf(PRINT_ALL, " done\n");
-			glConfig.driverType = GLDRV_OPENGL3;
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, " failed\n");
-		}
+		ri.Printf(PRINT_ALL, "Using GLEW %s\n", glewGetString(GLEW_VERSION));
 	}
-#endif
 
-	QGL_Init();
+	GLimp_InitOpenGL3xContext();
 
 	GLimp_DetectAvailableModes();
 
@@ -796,7 +865,7 @@ extern GLXContext	(APIENTRY * qglXCreateContextAttribsARB) (Display *dpy, GLXFBC
 
 	screen = vidscreen;
 
-	glstring = (char *)qglGetString(GL_RENDERER);
+	glstring = (char *)glGetString(GL_RENDERER);
 	ri.Printf(PRINT_ALL, "GL_RENDERER: %s\n", glstring);
 
 	return RSERR_OK;
@@ -862,13 +931,11 @@ static void GLimp_InitExtensions(void)
 	ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
 
 	// GL_ARB_multitexture
-	qglActiveTextureARB = NULL;
-	//if(Q_stristr(glConfig.extensions_string, "GL_ARB_multitexture"))
+	if(glConfig.driverType != GLDRV_OPENGL3)
 	{
-		qglActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) SDL_GL_GetProcAddress("glActiveTextureARB");
-		if(qglActiveTextureARB)
+		if(GLEW_ARB_multitexture)
 		{
-			qglGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxActiveTextures);
+			glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxActiveTextures);
 
 			if(glConfig.maxActiveTextures > 1)
 			{
@@ -876,20 +943,18 @@ static void GLimp_InitExtensions(void)
 			}
 			else
 			{
-				qglActiveTextureARB = NULL;
 				ri.Error(ERR_FATAL, "...not using GL_ARB_multitexture, < 2 texture units\n");
 			}
 		}
+		else
+		{
+			ri.Error(ERR_FATAL, "...GL_ARB_multitexture not found\n");
+		}
 	}
-	/*
-	   else
-	   {
-	   ri.Error(ERR_FATAL, "...GL_ARB_multitexture not found\n");
-	   }
-	 */
+	
 
 	// GL_ARB_depth_texture
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_depth_texture"))
+	if(GLEW_ARB_depth_texture)
 	{
 		ri.Printf(PRINT_ALL, "...using GL_ARB_depth_texture\n");
 	}
@@ -899,31 +964,20 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_texture_cube_map
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_cube_map"))
+	if(GLEW_ARB_texture_cube_map)
 	{
-		qglGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, &glConfig.maxCubeMapTextureSize);
+		glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, &glConfig.maxCubeMapTextureSize);
 		ri.Printf(PRINT_ALL, "...using GL_ARB_texture_cube_map\n");
 	}
 	else
 	{
 		ri.Error(ERR_FATAL, "...GL_ARB_texture_cube_map not found\n");
 	}
+	GL_CheckErrors();
 
 	// GL_ARB_vertex_program
-	qglVertexAttrib4fARB = NULL;
-	qglVertexAttrib4fvARB = NULL;
-	qglVertexAttribPointerARB = NULL;
-	qglEnableVertexAttribArrayARB = NULL;
-	qglDisableVertexAttribArrayARB = NULL;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_program"))
+	if(GLEW_ARB_vertex_program)
 	{
-		qglVertexAttrib4fARB = (PFNGLVERTEXATTRIB4FARBPROC) SDL_GL_GetProcAddress("glVertexAttrib4fARB");
-		qglVertexAttrib4fvARB = (PFNGLVERTEXATTRIB4FVARBPROC) SDL_GL_GetProcAddress("glVertexAttrib4fvARB");
-		qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC) SDL_GL_GetProcAddress("glVertexAttribPointerARB");
-		qglEnableVertexAttribArrayARB =
-			(PFNGLENABLEVERTEXATTRIBARRAYARBPROC) SDL_GL_GetProcAddress("glEnableVertexAttribArrayARB");
-		qglDisableVertexAttribArrayARB =
-			(PFNGLDISABLEVERTEXATTRIBARRAYARBPROC) SDL_GL_GetProcAddress("glDisableVertexAttribArrayARB");
 		ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_program\n");
 	}
 	else
@@ -932,26 +986,8 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_vertex_buffer_object
-	qglBindBufferARB = NULL;
-	qglDeleteBuffersARB = NULL;
-	qglGenBuffersARB = NULL;
-	qglIsBufferARB = NULL;
-	qglBufferDataARB = NULL;
-	qglBufferSubDataARB = NULL;
-	qglGetBufferSubDataARB = NULL;
-	qglGetBufferParameterivARB = NULL;
-	qglGetBufferPointervARB = NULL;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_buffer_object"))
+	if(GLEW_ARB_vertex_buffer_object)
 	{
-		qglBindBufferARB = (PFNGLBINDBUFFERARBPROC) SDL_GL_GetProcAddress("glBindBufferARB");
-		qglDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC) SDL_GL_GetProcAddress("glDeleteBuffersARB");
-		qglGenBuffersARB = (PFNGLGENBUFFERSARBPROC) SDL_GL_GetProcAddress("glGenBuffersARB");
-		qglIsBufferARB = (PFNGLISBUFFERARBPROC) SDL_GL_GetProcAddress("glIsBufferARB");
-		qglBufferDataARB = (PFNGLBUFFERDATAARBPROC) SDL_GL_GetProcAddress("glBufferDataARB");
-		qglBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC) SDL_GL_GetProcAddress("glBufferSubDataARB");
-		qglGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC) SDL_GL_GetProcAddress("glGetBufferSubDataARB");
-		qglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC) SDL_GL_GetProcAddress("glGetBufferParameterivARB");
-		qglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC) SDL_GL_GetProcAddress("glGetBufferPointervARB");
 		ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_buffer_object\n");
 	}
 	else
@@ -962,28 +998,12 @@ static void GLimp_InitExtensions(void)
 	// GL_ARB_occlusion_query
 	glConfig.occlusionQueryAvailable = qfalse;
 	glConfig.occlusionQueryBits = 0;
-	qglGenQueriesARB = NULL;
-	qglDeleteQueriesARB = NULL;
-	qglIsQueryARB = NULL;
-	qglBeginQueryARB = NULL;
-	qglEndQueryARB = NULL;
-	qglGetQueryivARB = NULL;
-	qglGetQueryObjectivARB = NULL;
-	qglGetQueryObjectuivARB = NULL;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_occlusion_query"))
+	if(GLEW_ARB_occlusion_query)
 	{
 		if(r_ext_occlusion_query->value)
 		{
-			qglGenQueriesARB = (PFNGLGENQUERIESARBPROC) SDL_GL_GetProcAddress("glGenQueriesARB");
-			qglDeleteQueriesARB = (PFNGLDELETEQUERIESARBPROC) SDL_GL_GetProcAddress("glDeleteQueriesARB");
-			qglIsQueryARB = (PFNGLISQUERYARBPROC) SDL_GL_GetProcAddress("glIsQueryARB");
-			qglBeginQueryARB = (PFNGLBEGINQUERYARBPROC) SDL_GL_GetProcAddress("glBeginQueryARB");
-			qglEndQueryARB = (PFNGLENDQUERYARBPROC) SDL_GL_GetProcAddress("glEndQueryARB");
-			qglGetQueryivARB = (PFNGLGETQUERYIVARBPROC) SDL_GL_GetProcAddress("glGetQueryivARB");
-			qglGetQueryObjectivARB = (PFNGLGETQUERYOBJECTIVARBPROC) SDL_GL_GetProcAddress("glGetQueryObjectivARB");
-			qglGetQueryObjectuivARB = (PFNGLGETQUERYOBJECTUIVARBPROC) SDL_GL_GetProcAddress("glGetQueryObjectuivARB");
 			glConfig.occlusionQueryAvailable = qtrue;
-			qglGetQueryivARB(GL_SAMPLES_PASSED, GL_QUERY_COUNTER_BITS, &glConfig.occlusionQueryBits);
+			glGetQueryivARB(GL_SAMPLES_PASSED, GL_QUERY_COUNTER_BITS, &glConfig.occlusionQueryBits);
 			ri.Printf(PRINT_ALL, "...using GL_ARB_occlusion_query\n");
 		}
 		else
@@ -995,84 +1015,11 @@ static void GLimp_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_occlusion_query not found\n");
 	}
+	GL_CheckErrors();
 
 	// GL_ARB_shader_objects
-	qglDeleteObjectARB = NULL;
-	qglGetHandleARB = NULL;
-	qglDetachObjectARB = NULL;
-	qglCreateShaderObjectARB = NULL;
-	qglShaderSourceARB = NULL;
-	qglCompileShaderARB = NULL;
-	qglCreateProgramObjectARB = NULL;
-	qglAttachObjectARB = NULL;
-	qglLinkProgramARB = NULL;
-	qglUseProgramObjectARB = NULL;
-	qglValidateProgramARB = NULL;
-	qglUniform1fARB = NULL;
-	qglUniform2fARB = NULL;
-	qglUniform3fARB = NULL;
-	qglUniform4fARB = NULL;
-	qglUniform1iARB = NULL;
-	qglUniform2iARB = NULL;
-	qglUniform3iARB = NULL;
-	qglUniform4iARB = NULL;
-	qglUniform2fvARB = NULL;
-	qglUniform3fvARB = NULL;
-	qglUniform4fvARB = NULL;
-	qglUniform2ivARB = NULL;
-	qglUniform3ivARB = NULL;
-	qglUniform4ivARB = NULL;
-	qglUniformMatrix2fvARB = NULL;
-	qglUniformMatrix3fvARB = NULL;
-	qglUniformMatrix4fvARB = NULL;
-	qglGetObjectParameterfvARB = NULL;
-	qglGetObjectParameterivARB = NULL;
-	qglGetInfoLogARB = NULL;
-	qglGetAttachedObjectsARB = NULL;
-	qglGetUniformLocationARB = NULL;
-	qglGetActiveUniformARB = NULL;
-	qglGetUniformfvARB = NULL;
-	qglGetUniformivARB = NULL;
-	qglGetShaderSourceARB = NULL;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_shader_objects"))
+	if(GLEW_ARB_shader_objects)
 	{
-		qglDeleteObjectARB = (PFNGLDELETEOBJECTARBPROC) SDL_GL_GetProcAddress("glDeleteObjectARB");
-		qglGetHandleARB = (PFNGLGETHANDLEARBPROC) SDL_GL_GetProcAddress("glGetHandleARB");
-		qglDetachObjectARB = (PFNGLDETACHOBJECTARBPROC) SDL_GL_GetProcAddress("glDetachObjectARB");
-		qglCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC) SDL_GL_GetProcAddress("glCreateShaderObjectARB");
-		qglShaderSourceARB = (PFNGLSHADERSOURCEARBPROC) SDL_GL_GetProcAddress("glShaderSourceARB");
-		qglCompileShaderARB = (PFNGLCOMPILESHADERARBPROC) SDL_GL_GetProcAddress("glCompileShaderARB");
-		qglCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC) SDL_GL_GetProcAddress("glCreateProgramObjectARB");
-		qglAttachObjectARB = (PFNGLATTACHOBJECTARBPROC) SDL_GL_GetProcAddress("glAttachObjectARB");
-		qglLinkProgramARB = (PFNGLLINKPROGRAMARBPROC) SDL_GL_GetProcAddress("glLinkProgramARB");
-		qglUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC) SDL_GL_GetProcAddress("glUseProgramObjectARB");
-		qglValidateProgramARB = (PFNGLVALIDATEPROGRAMARBPROC) SDL_GL_GetProcAddress("glValidateProgramARB");
-		qglUniform1fARB = (PFNGLUNIFORM1FARBPROC) SDL_GL_GetProcAddress("glUniform1fARB");
-		qglUniform2fARB = (PFNGLUNIFORM2FARBPROC) SDL_GL_GetProcAddress("glUniform2fARB");
-		qglUniform3fARB = (PFNGLUNIFORM3FARBPROC) SDL_GL_GetProcAddress("glUniform3fARB");
-		qglUniform4fARB = (PFNGLUNIFORM4FARBPROC) SDL_GL_GetProcAddress("glUniform4fARB");
-		qglUniform1iARB = (PFNGLUNIFORM1IARBPROC) SDL_GL_GetProcAddress("glUniform1iARB");
-		qglUniform2iARB = (PFNGLUNIFORM2IARBPROC) SDL_GL_GetProcAddress("glUniform2iARB");
-		qglUniform3iARB = (PFNGLUNIFORM3IARBPROC) SDL_GL_GetProcAddress("glUniform3iARB");
-		qglUniform4iARB = (PFNGLUNIFORM4IARBPROC) SDL_GL_GetProcAddress("glUniform4iARB");
-		qglUniform2fvARB = (PFNGLUNIFORM2FVARBPROC) SDL_GL_GetProcAddress("glUniform2fvARB");
-		qglUniform3fvARB = (PFNGLUNIFORM3FVARBPROC) SDL_GL_GetProcAddress("glUniform3fvARB");
-		qglUniform4fvARB = (PFNGLUNIFORM4FVARBPROC) SDL_GL_GetProcAddress("glUniform4fvARB");
-		qglUniform2ivARB = (PFNGLUNIFORM2IVARBPROC) SDL_GL_GetProcAddress("glUniform2ivARB");
-		qglUniform3ivARB = (PFNGLUNIFORM3IVARBPROC) SDL_GL_GetProcAddress("glUniform3ivARB");
-		qglUniform4ivARB = (PFNGLUNIFORM4IVARBPROC) SDL_GL_GetProcAddress("glUniform4ivARB");
-		qglUniformMatrix2fvARB = (PFNGLUNIFORMMATRIX2FVARBPROC) SDL_GL_GetProcAddress("glUniformMatrix2fvARB");
-		qglUniformMatrix3fvARB = (PFNGLUNIFORMMATRIX3FVARBPROC) SDL_GL_GetProcAddress("glUniformMatrix3fvARB");
-		qglUniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVARBPROC) SDL_GL_GetProcAddress("glUniformMatrix4fvARB");
-		qglGetObjectParameterfvARB = (PFNGLGETOBJECTPARAMETERFVARBPROC) SDL_GL_GetProcAddress("glGetObjectParameterfvARB");
-		qglGetObjectParameterivARB = (PFNGLGETOBJECTPARAMETERIVARBPROC) SDL_GL_GetProcAddress("glGetObjectParameterivARB");
-		qglGetInfoLogARB = (PFNGLGETINFOLOGARBPROC) SDL_GL_GetProcAddress("glGetInfoLogARB");
-		qglGetAttachedObjectsARB = (PFNGLGETATTACHEDOBJECTSARBPROC) SDL_GL_GetProcAddress("glGetAttachedObjectsARB");
-		qglGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC) SDL_GL_GetProcAddress("glGetUniformLocationARB");
-		qglGetActiveUniformARB = (PFNGLGETACTIVEUNIFORMARBPROC) SDL_GL_GetProcAddress("glGetActiveUniformARB");
-		qglGetUniformfvARB = (PFNGLGETUNIFORMFVARBPROC) SDL_GL_GetProcAddress("glGetUniformfvARB");
-		qglGetUniformivARB = (PFNGLGETUNIFORMIVARBPROC) SDL_GL_GetProcAddress("glGetUniformivARB");
-		qglGetShaderSourceARB = (PFNGLGETSHADERSOURCEARBPROC) SDL_GL_GetProcAddress("glGetShaderSourceARB");
 		ri.Printf(PRINT_ALL, "...using GL_ARB_shader_objects\n");
 	}
 	else
@@ -1081,16 +1028,14 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_vertex_shader
-	qglBindAttribLocationARB = NULL;
-	qglGetActiveAttribARB = NULL;
-	qglGetAttribLocationARB = NULL;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_shader"))
+	if(GLEW_ARB_vertex_shader)
 	{
 		int				reservedComponents;
 
-		qglGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB, &glConfig.maxVertexUniforms);
-		qglGetIntegerv(GL_MAX_VARYING_FLOATS_ARB, &glConfig.maxVaryingFloats);
-		qglGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &glConfig.maxVertexAttribs);
+		GL_CheckErrors();
+		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB, &glConfig.maxVertexUniforms); GL_CheckErrors();
+		//glGetIntegerv(GL_MAX_VARYING_FLOATS_ARB, &glConfig.maxVaryingFloats); GL_CheckErrors();
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &glConfig.maxVertexAttribs); GL_CheckErrors();
 
 		reservedComponents = 16 * 10; // approximation how many uniforms we have besides the bone matrices
 
@@ -1106,18 +1051,16 @@ static void GLimp_InitExtensions(void)
 		glConfig.maxVertexSkinningBones = (int) Q_bound(0.0, (Q_max(glConfig.maxVertexUniforms - reservedComponents, 0) / 16), MAX_BONES);
 		glConfig.vboVertexSkinningAvailable = r_vboVertexSkinning->integer && ((glConfig.maxVertexSkinningBones >= 12) ? qtrue : qfalse);
 
-		qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) SDL_GL_GetProcAddress("glBindAttribLocationARB");
-		qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) SDL_GL_GetProcAddress("glGetActiveAttribARB");
-		qglGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) SDL_GL_GetProcAddress("glGetAttribLocationARB");
 		ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_shader\n");
 	}
 	else
 	{
 		ri.Error(ERR_FATAL, "...GL_ARB_vertex_shader not found\n");
 	}
+	GL_CheckErrors();
 
 	// GL_ARB_fragment_shader
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_fragment_shader"))
+	if(GLEW_ARB_fragment_shader)
 	{
 		ri.Printf(PRINT_ALL, "...using GL_ARB_fragment_shader\n");
 	}
@@ -1127,9 +1070,9 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_shading_language_100
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_shading_language_100"))
+	if(GLEW_ARB_shading_language_100)
 	{
-		Q_strncpyz(glConfig.shadingLanguageVersion, (char*)qglGetString(GL_SHADING_LANGUAGE_VERSION_ARB),
+		Q_strncpyz(glConfig.shadingLanguageVersion, (char*)glGetString(GL_SHADING_LANGUAGE_VERSION_ARB),
 				   sizeof(glConfig.shadingLanguageVersion));
 		ri.Printf(PRINT_ALL, "...using GL_ARB_shading_language_100\n");
 	}
@@ -1137,10 +1080,11 @@ static void GLimp_InitExtensions(void)
 	{
 		ri.Printf(ERR_FATAL, "...GL_ARB_shading_language_100 not found\n");
 	}
+	GL_CheckErrors();
 
 	// GL_ARB_texture_non_power_of_two
 	glConfig.textureNPOTAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_non_power_of_two"))
+	if(GLEW_ARB_texture_non_power_of_two)
 	{
 		if(r_ext_texture_non_power_of_two->integer)
 		{
@@ -1159,13 +1103,12 @@ static void GLimp_InitExtensions(void)
 
 	// GL_ARB_draw_buffers
 	glConfig.drawBuffersAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_draw_buffers"))
+	if(GLEW_ARB_draw_buffers)
 	{
-		qglGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &glConfig.maxDrawBuffers);
+		glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &glConfig.maxDrawBuffers);
 
 		if(r_ext_draw_buffers->integer)
 		{
-			qglDrawBuffersARB = (PFNGLDRAWBUFFERSARBPROC) SDL_GL_GetProcAddress("glDrawBuffersARB");
 			glConfig.drawBuffersAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_draw_buffers\n");
 		}
@@ -1181,7 +1124,7 @@ static void GLimp_InitExtensions(void)
 
 	// GL_ARB_half_float_pixel
 	glConfig.textureHalfFloatAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_half_float_pixel"))
+	if(GLEW_ARB_half_float_pixel)
 	{
 		if(r_ext_half_float_pixel->integer)
 		{
@@ -1200,7 +1143,7 @@ static void GLimp_InitExtensions(void)
 
 	// GL_ARB_texture_float
 	glConfig.textureFloatAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_float"))
+	if(GLEW_ARB_texture_float)
 	{
 		if(r_ext_texture_float->integer)
 		{
@@ -1219,24 +1162,10 @@ static void GLimp_InitExtensions(void)
 
 	// GL_ARB_texture_compression
 	glConfig.textureCompression = TC_NONE;
-	qglCompressedTexImage3DARB = NULL;
-	qglCompressedTexImage2DARB = NULL;
-	qglCompressedTexImage1DARB = NULL;
-	qglCompressedTexSubImage3DARB = NULL;
-	qglCompressedTexSubImage2DARB = NULL;
-	qglCompressedTexSubImage1DARB = NULL;
-	qglGetCompressedTexImageARB = NULL;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_compression"))
+	if(GLEW_ARB_texture_compression)
 	{
 		if(r_ext_compressed_textures->integer)
 		{
-			qglCompressedTexImage3DARB = SDL_GL_GetProcAddress("glCompressedTexImage3DARB");
-			qglCompressedTexImage2DARB = SDL_GL_GetProcAddress("glCompressedTexImage2DARB");
-			qglCompressedTexImage1DARB = SDL_GL_GetProcAddress("glCompressedTexImage1DARB");
-			qglCompressedTexSubImage3DARB = SDL_GL_GetProcAddress("glCompressedTexSubImage3DARB");
-			qglCompressedTexSubImage2DARB = SDL_GL_GetProcAddress("glCompressedTexSubImage2DARB");
-			qglCompressedTexSubImage1DARB = SDL_GL_GetProcAddress("glCompressedTexSubImage1DARB");
-			qglGetCompressedTexImageARB = SDL_GL_GetProcAddress("glGetCompressedTexImageARB");
 			glConfig.ARBTextureCompressionAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_compression\n");
 		}
@@ -1251,19 +1180,11 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_vertex_array_object
-	qglBindVertexArray = NULL;
-	qglDeleteVertexArrays = NULL;
-	qglGenVertexArrays = NULL;
-	qglIsVertexArray = NULL;
 	glConfig.vertexArrayObjectAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_array_object"))
+	if(GLEW_ARB_vertex_array_object)
 	{
 		if(r_ext_vertex_array_object->integer)
 		{
-			qglBindVertexArray = SDL_GL_GetProcAddress("glBindVertexArray");
-			qglDeleteVertexArrays = SDL_GL_GetProcAddress("glDeleteVertexArrays");
-			qglGenVertexArrays = SDL_GL_GetProcAddress("glGenVertexArrays");
-			qglIsVertexArray = SDL_GL_GetProcAddress("glIsVertexArray");
 			glConfig.vertexArrayObjectAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_array_object\n");
 		}
@@ -1278,7 +1199,7 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_EXT_texture_compression_s3tc
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
+	if(GLEW_EXT_texture_compression_s3tc)
 	{
 		if(r_ext_compressed_textures->integer)
 		{
@@ -1297,12 +1218,10 @@ static void GLimp_InitExtensions(void)
 
 	// GL_EXT_texture3D
 	glConfig.texture3DAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_texture3D"))
+	if(GLEW_EXT_texture3D)
 	{
 		//if(r_ext_texture3d->value)
 		{
-			qglTexImage3DEXT = SDL_GL_GetProcAddress("glTexImage3DEXT");
-			qglTexSubImage3DEXT = SDL_GL_GetProcAddress("glTexSubImage3DEXT");
 			glConfig.texture3DAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_texture3D\n");
 		}
@@ -1320,7 +1239,7 @@ static void GLimp_InitExtensions(void)
 
 	// GL_EXT_stencil_wrap
 	glConfig.stencilWrapAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_stencil_wrap"))
+	if(GLEW_EXT_stencil_wrap)
 	{
 		if(r_ext_stencil_wrap->value)
 		{
@@ -1339,9 +1258,9 @@ static void GLimp_InitExtensions(void)
 
 	// GL_EXT_texture_filter_anisotropic
 	glConfig.textureAnisotropyAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_texture_filter_anisotropic"))
+	if(GLEW_EXT_texture_filter_anisotropic)
 	{
-		qglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig.maxTextureAnisotropy);
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig.maxTextureAnisotropy);
 
 		if(r_ext_texture_filter_anisotropic->value)
 		{
@@ -1357,14 +1276,13 @@ static void GLimp_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not found\n");
 	}
+	GL_CheckErrors();
 
 	// GL_EXT_stencil_two_side
-	qglActiveStencilFaceEXT = NULL;
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_stencil_two_side"))
+	if(GLEW_EXT_stencil_two_side)
 	{
 		if(r_ext_stencil_two_side->value)
 		{
-			qglActiveStencilFaceEXT = (void (APIENTRY *) (GLenum))SDL_GL_GetProcAddress("glActiveStencilFaceEXT");
 			ri.Printf(PRINT_ALL, "...using GL_EXT_stencil_two_side\n");
 		}
 		else
@@ -1378,12 +1296,10 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_EXT_depth_bounds_test
-	qglDepthBoundsEXT = NULL;
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_depth_bounds_test"))
+	if(GLEW_EXT_depth_bounds_test)
 	{
 		if(r_ext_depth_bounds_test->value)
 		{
-			qglDepthBoundsEXT = (PFNGLDEPTHBOUNDSEXTPROC) SDL_GL_GetProcAddress("glDepthBoundsEXT");
 			ri.Printf(PRINT_ALL, "...using GL_EXT_depth_bounds_test\n");
 		}
 		else
@@ -1398,52 +1314,13 @@ static void GLimp_InitExtensions(void)
 
 	// GL_EXT_framebuffer_object
 	glConfig.framebufferObjectAvailable = qfalse;
-	qglIsRenderbufferEXT = NULL;
-	qglBindRenderbufferEXT = NULL;
-	qglDeleteRenderbuffersEXT = NULL;
-	qglGenRenderbuffersEXT = NULL;
-	qglRenderbufferStorageEXT = NULL;
-	qglGetRenderbufferParameterivEXT = NULL;
-	qglIsFramebufferEXT = NULL;
-	qglBindFramebufferEXT = NULL;
-	qglDeleteFramebuffersEXT = NULL;
-	qglGenFramebuffersEXT = NULL;
-	qglCheckFramebufferStatusEXT = NULL;
-	qglFramebufferTexture1DEXT = NULL;
-	qglFramebufferTexture2DEXT = NULL;
-	qglFramebufferTexture3DEXT = NULL;
-	qglFramebufferRenderbufferEXT = NULL;
-	qglGetFramebufferAttachmentParameterivEXT = NULL;
-	qglGenerateMipmapEXT = NULL;
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_framebuffer_object"))
+	if(GLEW_EXT_framebuffer_object)
 	{
-		qglGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &glConfig.maxRenderbufferSize);
-		qglGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &glConfig.maxColorAttachments);
+		glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &glConfig.maxRenderbufferSize);
+		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &glConfig.maxColorAttachments);
 
 		if(r_ext_framebuffer_object->value)
 		{
-			qglIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) SDL_GL_GetProcAddress("glIsRenderbufferEXT");
-			qglBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) SDL_GL_GetProcAddress("glBindRenderbufferEXT");
-			qglDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC) SDL_GL_GetProcAddress("glDeleteRenderbuffersEXT");
-			qglGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC) SDL_GL_GetProcAddress("glGenRenderbuffersEXT");
-			qglRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC) SDL_GL_GetProcAddress("glRenderbufferStorageEXT");
-			qglGetRenderbufferParameterivEXT =
-				(PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC) SDL_GL_GetProcAddress("glGetRenderbufferParameterivEXT");
-			qglIsFramebufferEXT = (PFNGLISFRAMEBUFFEREXTPROC) SDL_GL_GetProcAddress("glIsFramebufferEXT");
-			qglBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC) SDL_GL_GetProcAddress("glBindFramebufferEXT");
-			qglDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC) SDL_GL_GetProcAddress("glDeleteFramebuffersEXT");
-			qglGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC) SDL_GL_GetProcAddress("glGenFramebuffersEXT");
-			qglCheckFramebufferStatusEXT =
-				(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) SDL_GL_GetProcAddress("glCheckFramebufferStatusEXT");
-			qglFramebufferTexture1DEXT = (PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) SDL_GL_GetProcAddress("glFramebufferTexture1DEXT");
-			qglFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) SDL_GL_GetProcAddress("glFramebufferTexture2DEXT");
-			qglFramebufferTexture3DEXT = (PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) SDL_GL_GetProcAddress("glFramebufferTexture3DEXT");
-			qglFramebufferRenderbufferEXT =
-				(PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) SDL_GL_GetProcAddress("glFramebufferRenderbufferEXT");
-			qglGetFramebufferAttachmentParameterivEXT =
-				(PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC)
-				SDL_GL_GetProcAddress("glGetFramebufferAttachmentParameterivEXT");
-			qglGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) SDL_GL_GetProcAddress("glGenerateMipmapEXT");
 			glConfig.framebufferObjectAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_framebuffer_object\n");
 		}
@@ -1456,10 +1333,11 @@ static void GLimp_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_EXT_framebuffer_object not found\n");
 	}
+	GL_CheckErrors();
 
 	// GL_EXT_packed_depth_stencil
 	glConfig.framebufferPackedDepthStencilAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_packed_depth_stencil") && glConfig.driverType != GLDRV_MESA)
+	if(GLEW_EXT_packed_depth_stencil && glConfig.driverType != GLDRV_MESA)
 	{
 		if(r_ext_packed_depth_stencil->integer)
 		{
@@ -1478,11 +1356,10 @@ static void GLimp_InitExtensions(void)
 
 	// GL_EXT_framebuffer_blit
 	glConfig.framebufferBlitAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_framebuffer_blit"))
+	if(GLEW_EXT_framebuffer_blit)
 	{
 		if(r_ext_framebuffer_blit->integer)
 		{
-			qglBlitFramebufferEXT = SDL_GL_GetProcAddress("glBlitFramebufferEXT");
 			glConfig.framebufferBlitAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_framebuffer_blit\n");
 		}
@@ -1497,8 +1374,9 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_EXTX_framebuffer_mixed_formats
+	/*
 	glConfig.framebufferMixedFormatsAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_EXTX_framebuffer_mixed_formats"))
+	if(GLEW_EXTX_framebuffer_mixed_formats)
 	{
 		if(r_extx_framebuffer_mixed_formats->integer)
 		{
@@ -1514,16 +1392,13 @@ static void GLimp_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_EXTX_framebuffer_mixed_formats not found\n");
 	}
+	*/
 
 	// GL_ATI_separate_stencil
-	qglStencilFuncSeparateATI = NULL;
-	qglStencilOpSeparateATI = NULL;
-	if(strstr(glConfig.extensions_string, "GL_ATI_separate_stencil"))
+	if(GLEW_ATI_separate_stencil)
 	{
 		if(r_ext_separate_stencil->value)
 		{
-			qglStencilFuncSeparateATI = (void *)SDL_GL_GetProcAddress("glStencilFuncSeparateATI");
-			qglStencilOpSeparateATI = (void *)SDL_GL_GetProcAddress("glStencilOpSeparateATI");
 			ri.Printf(PRINT_ALL, "...using GL_ATI_separate_stencil\n");
 		}
 		else
@@ -1555,6 +1430,15 @@ static void GLimp_InitExtensions(void)
 		ri.Printf(PRINT_ALL, "...GL_SGIS_generate_mipmap not found\n");
 	}
 
+	// GL_GREMEDY_string_marker
+	if(GLEW_GREMEDY_string_marker)
+	{
+		ri.Printf(PRINT_ALL, "...using GL_GREMEDY_string_marker\n");
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_GREMEDY_string_marker not found\n");
+	}
 }
 
 #define R_MODE_FALLBACK 3		// 640 * 480
@@ -1570,6 +1454,8 @@ of OpenGL
 void GLimp_Init(void)
 {
 	qboolean        success = qtrue;
+
+	glConfig.driverType = GLDRV_DEFAULT;
 
 	r_sdlDriver = ri.Cvar_Get("r_sdlDriver", "", CVAR_ROM);
 	r_allowResize = ri.Cvar_Get("r_allowResize", "0", CVAR_ARCHIVE);
@@ -1638,7 +1524,6 @@ void GLimp_Init(void)
 
   success:
 	// This values force the UI to disable driver selection
-	glConfig.driverType = GLDRV_DEFAULT;
 	glConfig.hardwareType = GLHW_GENERIC;
 	glConfig.deviceSupportsGamma = SDL_SetGamma(1.0f, 1.0f, 1.0f) >= 0;
 
@@ -1649,13 +1534,16 @@ void GLimp_Init(void)
 	glConfig.deviceSupportsGamma = SDL_SetGamma(1.0f, 1.0f, 1.0f) >= 0;
 
 	// get our config strings
-	Q_strncpyz(glConfig.vendor_string, (char *)qglGetString(GL_VENDOR), sizeof(glConfig.vendor_string));
-	Q_strncpyz(glConfig.renderer_string, (char *)qglGetString(GL_RENDERER), sizeof(glConfig.renderer_string));
+	Q_strncpyz(glConfig.vendor_string, (char *)glGetString(GL_VENDOR), sizeof(glConfig.vendor_string));
+	Q_strncpyz(glConfig.renderer_string, (char *)glGetString(GL_RENDERER), sizeof(glConfig.renderer_string));
 	if(*glConfig.renderer_string && glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] == '\n')
 		glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] = 0;
-	Q_strncpyz(glConfig.version_string, (char *)qglGetString(GL_VERSION), sizeof(glConfig.version_string));
-	Q_strncpyz(glConfig.extensions_string, (char *)qglGetString(GL_EXTENSIONS), sizeof(glConfig.extensions_string));
+	Q_strncpyz(glConfig.version_string, (char *)glGetString(GL_VERSION), sizeof(glConfig.version_string));
 
+	if(glConfig.driverType != GLDRV_OPENGL3)
+	{
+		Q_strncpyz(glConfig.extensions_string, (char *)glGetString(GL_EXTENSIONS), sizeof(glConfig.extensions_string));
+	}
 
 	if(	Q_stristr(glConfig.renderer_string, "mesa") ||
 		Q_stristr(glConfig.renderer_string, "gallium") ||
@@ -1768,9 +1656,18 @@ void GLimp_EndFrame(void)
 
 		r_fullscreen->modified = qfalse;
 	}
-
-	QGL_EnableLogging(r_logFile->integer);
 }
 
 
+void GLimp_LogComment(char *comment)
+{
+	static char		buf[4096];
 
+	if(r_logFile->integer && GLEW_GREMEDY_string_marker)
+	{
+		// copy string and ensure it has a trailing '\0'
+		Q_strncpyz(buf, comment, sizeof(buf));
+
+		glStringMarkerGREMEDY(strlen(buf), buf);
+	}
+}

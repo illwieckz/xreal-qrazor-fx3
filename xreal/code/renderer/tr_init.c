@@ -358,7 +358,7 @@ static void InitOpenGL(void)
 		Q_strlwr(renderer_buffer);
 
 		// OpenGL driver constants
-		qglGetIntegerv(GL_MAX_TEXTURE_SIZE, &temp);
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &temp);
 		glConfig.maxTextureSize = temp;
 
 		// stubbed or broken drivers may have reported 0...
@@ -405,7 +405,7 @@ void GL_CheckErrors_(const char *fileName, int line)
 		return;
 	}
 
-	err = qglGetError();
+	err = glGetError();
 	if(err == GL_NO_ERROR)
 	{
 		return;
@@ -565,7 +565,7 @@ static void RB_TakeScreenshot(int x, int y, int width, int height, char *fileNam
 #if defined(USE_D3D10)
 	// TODO
 #else
-	qglReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer + 18);
+	glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer + 18);
 #endif
 
 	// swap rgb to bgr
@@ -602,7 +602,7 @@ static void RB_TakeScreenshotJPEG(int x, int y, int width, int height, char *fil
 #if defined(USE_D3D10)
 	// TODO
 #else
-	qglReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+	glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 #endif
 
 	// gamma correct
@@ -631,7 +631,7 @@ static void RB_TakeScreenshotPNG(int x, int y, int width, int height, char *file
 #if defined(USE_D3D10)
 	// TODO
 #else
-	qglReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+	glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
 #endif
 
 	// gamma correct
@@ -786,7 +786,7 @@ the menu system, sampled down from full screen distorted images
 	buffer[14] = 128;
 	buffer[16] = 24;			// pixel size
 
-	qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source);
+	glReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source);
 
 	// resample from source
 	xScale = glConfig.vidWidth / 512.0f;
@@ -1000,7 +1000,7 @@ const void     *RB_TakeVideoFrameCmd(const void *data)
 	// video recording
 	if(ri.CL_VideoRecording())
 	{
-		qglReadPixels(0, 0, cmd->width, cmd->height, GL_RGBA, GL_UNSIGNED_BYTE, cmd->captureBuffer);
+		glReadPixels(0, 0, cmd->width, cmd->height, GL_RGBA, GL_UNSIGNED_BYTE, cmd->captureBuffer);
 
 		// gamma correct
 		if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
@@ -1053,11 +1053,11 @@ void GL_SetDefaultState(void)
 	GL_CullFace(GL_FRONT);
 
 	glState.faceCulling = CT_TWO_SIDED;
-	qglDisable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	GL_CheckErrors();
 
-	qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1, 1, 1, 1);
+	glVertexAttrib4fARB(ATTR_INDEX_COLOR, 1, 1, 1, 1);
 
 	GL_CheckErrors();
 
@@ -1073,7 +1073,7 @@ void GL_SetDefaultState(void)
 	}
 	else
 	{
-		if(qglActiveTextureARB)
+		if(glActiveTextureARB)
 		{
 			for(i = glConfig.maxActiveTextures - 1; i >= 0; i--)
 			{
@@ -1082,9 +1082,9 @@ void GL_SetDefaultState(void)
 
 				/*
 				if(i != 0)
-					qglDisable(GL_TEXTURE_2D);
+					glDisable(GL_TEXTURE_2D);
 				else
-					qglEnable(GL_TEXTURE_2D);
+					glEnable(GL_TEXTURE_2D);
 				*/
 			}
 		}
@@ -1100,10 +1100,10 @@ void GL_SetDefaultState(void)
 	glState.vertexAttribPointersSet = 0;
 
 	glState.currentProgram = 0;
-	qglUseProgramObjectARB(0);
+	glUseProgramObjectARB(0);
 
-	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 	glState.currentVBO = NULL;
 	glState.currentIBO = NULL;
 
@@ -1111,7 +1111,7 @@ void GL_SetDefaultState(void)
 
 	// the vertex array is always enabled, but the color and texture
 	// arrays are enabled and disabled around the compiled vertex array call
-	qglEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
+	glEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
 
 	/*
 	   OpenGL 3.0 spec: E.1. PROFILES AND DEPRECATED FEATURES OF OPENGL 3.0 405
@@ -1123,8 +1123,8 @@ void GL_SetDefaultState(void)
 
 	if(glConfig.framebufferObjectAvailable)
 	{
-		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 		glState.currentFBO = NULL;
 	}
 
@@ -1138,15 +1138,15 @@ void GL_SetDefaultState(void)
 	   GL_DRAW_BUFFER2_ARB,
 	   GL_DRAW_BUFFER3_ARB};
 
-	   qglDrawBuffersARB(4, drawbuffers);
+	   glDrawBuffersARB(4, drawbuffers);
 	   }
 	 */
 
 	GL_PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	GL_DepthMask(GL_TRUE);
-	qglDisable(GL_DEPTH_TEST);
-	qglEnable(GL_SCISSOR_TEST);
-	qglDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_SCISSOR_TEST);
+	glDisable(GL_BLEND);
 
 	GL_CheckErrors();
 
@@ -1255,7 +1255,7 @@ void GfxInfo_f(void)
 		ri.Printf(PRINT_ALL, S_COLOR_YELLOW "Using OpenGL 3.x context\n");
 
 		// check if we have a core-profile
-		qglGetIntegerv(GL_CONTEXT_PROFILE_MASK, &profile);
+		glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &profile);
 		if(profile == GL_CONTEXT_CORE_PROFILE_BIT)
 		{
 			ri.Printf(PRINT_ALL, S_COLOR_GREEN "Having a core profile\n");
@@ -1266,7 +1266,7 @@ void GfxInfo_f(void)
 		}
 		
 		// check if context is forward compatible
-		qglGetIntegerv(GL_CONTEXT_FLAGS, &contextFlags);
+		glGetIntegerv(GL_CONTEXT_FLAGS, &contextFlags);
 		if(contextFlags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT)
 		{
 			ri.Printf(PRINT_ALL, S_COLOR_GREEN "Context is forward compatible\n");
@@ -1309,7 +1309,7 @@ void GfxInfo_f(void)
 
 	if(r_finish->integer)
 	{
-		ri.Printf(PRINT_ALL, "Forcing qglFinish\n");
+		ri.Printf(PRINT_ALL, "Forcing glFinish\n");
 	}
 }
 
@@ -1977,8 +1977,8 @@ void R_Init(void)
 	if(glConfig.driverType == GLDRV_OPENGL3)
 	{
 		tr.vao = 0;
-		qglGenVertexArrays(1, &tr.vao);
-		qglBindVertexArray(tr.vao);
+		glGenVertexArrays(1, &tr.vao);
+		glBindVertexArray(tr.vao);
 	}
 
 	R_InitVBOs();
@@ -2003,14 +2003,14 @@ void R_Init(void)
 #if !defined(USE_D3D10)
 	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 	 {
-		qglGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
+		glGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 	 }
 
-	err = qglGetError();
+	err = glGetError();
 	if(err != GL_NO_ERROR)
 	{
-		ri.Error(ERR_FATAL, "R_Init() - qglGetError() failed = 0x%x\n", err);
-		//ri.Printf(PRINT_ALL, "qglGetError() = 0x%x\n", err);
+		ri.Error(ERR_FATAL, "R_Init() - glGetError() failed = 0x%x\n", err);
+		//ri.Printf(PRINT_ALL, "glGetError() = 0x%x\n", err);
 	}
 #endif
 
@@ -2058,13 +2058,13 @@ void RE_Shutdown(qboolean destroyWindow)
 
 		if(glConfig.driverType == GLDRV_OPENGL3)
 		{
-			qglDeleteVertexArrays(1, &tr.vao);
+			glDeleteVertexArrays(1, &tr.vao);
 			tr.vao = 0;
 		}
 
 		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 		{
-			qglDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
+			glDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 
 			if(tr.world)
 			{
@@ -2076,7 +2076,7 @@ void RE_Shutdown(qboolean destroyWindow)
 				{
 					node = &tr.world->nodes[j];
 
-					qglDeleteQueriesARB(MAX_VIEWS, node->occlusionQueryObjects);
+					glDeleteQueriesARB(MAX_VIEWS, node->occlusionQueryObjects);
 				}
 
 				/*
@@ -2084,7 +2084,7 @@ void RE_Shutdown(qboolean destroyWindow)
 				{
 					light = &tr.world->lights[j];
 
-					qglDeleteQueriesARB(MAX_VIEWS, light->occlusionQueryObjects);
+					glDeleteQueriesARB(MAX_VIEWS, light->occlusionQueryObjects);
 				}
 				*/
 			}
