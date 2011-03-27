@@ -42,7 +42,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <SDL_syswm.h>
 #include <SDL_thread.h>
 #else
-//#include <SDL.h>
 #include <GL/glew.h>
 #endif
 
@@ -1372,6 +1371,9 @@ typedef struct shaderProgram_s
 	GLint           u_Color;
 	vec4_t			t_Color;
 
+	GLint           u_ColorModulate;
+	vec4_t			t_ColorModulate;
+
 	GLint           u_AmbientColor;
 	vec3_t			t_AmbientColor;
 
@@ -1496,23 +1498,7 @@ typedef struct shaderProgram_s
 	float			t_Time;
 } shaderProgram_t;
 
-/*
-enum
-{
-	GLSLMACRO_vertexLighting_DBS_entity_USE_PORTAL_CLIPPING = BIT(0),
-	GLSLMACRO_vertexLighting_DBS_entity_USE_ALPHA_TESTING = BIT(1),
-	GLSLMACRO_vertexLighting_DBS_entity_USE_VERTEX_SKINNING = BIT(2),
-	GLSLMACRO_vertexLighting_DBS_entity_USE_VERTEX_ANIMATION = BIT(3),
-
-	GLSLMACRO_vertexLighting_DBS_entity_ALL_COMPILE_FLAGS =
-						GLSLMACRO_vertexLighting_DBS_entity_USE_PORTAL_CLIPPING |
-						GLSLMACRO_vertexLighting_DBS_entity_USE_ALPHA_TESTING |
-						GLSLMACRO_vertexLighting_DBS_entity_USE_VERTEX_SKINNING |
-						GLSLMACRO_vertexLighting_DBS_entity_USE_VERTEX_ANIMATION,
-
-	GLSLMACRO_vertexLighting_DBS_entity_MAX_PERMUTATIONS = GLSLMACRO_vertexLighting_DBS_entity_USE_VERTEX_ANIMATION
-};
-*/	
+	
 
 //
 // Tr3B: these are fire wall functions to avoid expensive redundant glUniform* calls
@@ -1853,6 +1839,25 @@ static ID_INLINE void GLSL_SetUniform_Color(shaderProgram_t * program, const vec
 #endif
 
 	glUniform4fARB(program->u_Color, v[0], v[1], v[2], v[3]);
+}
+
+static ID_INLINE void GLSL_SetUniform_ColorModulate(shaderProgram_t * program, const vec4_t v)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(Vector4Compare(program->t_ColorModulate, v))
+		return;
+
+	Vector4Copy(v, program->t_ColorModulate);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_ColorModulate( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+	}
+#endif
+
+	glUniform4fARB(program->u_ColorModulate, v[0], v[1], v[2], v[3]);
 }
 
 static ID_INLINE void GLSL_SetUniform_AmbientColor(shaderProgram_t * program, const vec3_t v)
@@ -3889,13 +3894,13 @@ typedef struct
 	//
 #if !defined(USE_D3D10)
 	// Q3A standard simple vertex color rendering
-	shaderProgram_t genericShader;
+	//shaderProgram_t genericShader;
 
 	// simple vertex color shading for entities
 	//shaderProgram_t vertexLightingShader_DBS_entity[GLSLMACRO_vertexLighting_DBS_entity_MAX_PERMUTATIONS];
 
 	// simple vertex color shading for the world
-	shaderProgram_t vertexLightingShader_DBS_world;
+	//shaderProgram_t vertexLightingShader_DBS_world;
 
 	// standard light mapping
 	shaderProgram_t lightMappingShader;

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -38,7 +38,7 @@ uniform vec4		u_PortalPlane;
 
 varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
-#if defined(r_NormalMapping)
+#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_Tangent;
@@ -46,59 +46,7 @@ varying vec3		var_Binormal;
 #endif
 varying vec3		var_Normal;
 
-#if defined(r_ParallaxMapping)
-float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
-{
-	const int linearSearchSteps = 16;
-	const int binarySearchSteps = 6;
 
-	float depthStep = 1.0 / float(linearSearchSteps);
-
-	// current size of search window
-	float size = depthStep;
-
-	// current depth position
-	float depth = 0.0;
-
-	// best match found (starts with last position 1.0)
-	float bestDepth = 1.0;
-
-	// search front to back for first point inside object
-	for(int i = 0; i < linearSearchSteps - 1; ++i)
-	{
-		depth += size;
-		
-		vec4 t = texture2D(u_NormalMap, dp + ds * depth);
-
-		if(bestDepth > 0.996)		// if no depth found yet
-			if(depth >= t.w)
-				bestDepth = depth;	// store best depth
-	}
-
-	depth = bestDepth;
-	
-	// recurse around first point (depth) for closest match
-	for(int i = 0; i < binarySearchSteps; ++i)
-	{
-		size *= 0.5;
-
-		vec4 t = texture2D(u_NormalMap, dp + ds * depth);
-		
-		if(depth >= t.w)
-		#ifdef RM_DOUBLEDEPTH
-			if(depth <= t.z)
-		#endif
-			{
-				bestDepth = depth;
-				depth -= 2.0 * size;
-			}
-
-		depth += size;
-	}
-
-	return bestDepth;
-}
-#endif
 
 void	main()
 {
@@ -114,7 +62,7 @@ void	main()
 	}
 #endif
 
-#if defined(r_NormalMapping)
+#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
 	// invert tangent space for two sided surfaces
 	mat3 tangentToWorldMatrix;
 	if(gl_FrontFacing)
@@ -127,52 +75,49 @@ void	main()
 #endif
 	
 	vec2 texDiffuse = var_TexDiffuse.st;
-#if defined(r_NormalMapping)
+#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
 	vec2 texNormal = var_TexNormal.st;
 	vec2 texSpecular = var_TexSpecular.st;
 #endif
 
-#if defined(r_ParallaxMapping)
 #if defined(USE_PARALLAX_MAPPING)
-	{
-		// ray intersect in view direction
-		
-		mat3 worldToTangentMatrix;
-		#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10)
-		worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
-									tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
-									tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
-		#else
-		worldToTangentMatrix = transpose(tangentToWorldMatrix);
-		#endif
 	
-		// compute view direction in tangent space
-		vec3 V = worldToTangentMatrix * (u_ViewOrigin - var_Position.xyz);
-		V = normalize(V);
+	// ray intersect in view direction
+	
+	mat3 worldToTangentMatrix;
+	#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10)
+	worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
+								tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
+								tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
+	#else
+	worldToTangentMatrix = transpose(tangentToWorldMatrix);
+	#endif
+
+	// compute view direction in tangent space
+	vec3 V = worldToTangentMatrix * (u_ViewOrigin - var_Position.xyz);
+	V = normalize(V);
+	
+	// size and start position of search in texture space
+	vec2 S = V.xy * -u_DepthScale / V.z;
 		
-		// size and start position of search in texture space
-		vec2 S = V.xy * -u_DepthScale / V.z;
-			
 #if 0
-		vec2 texOffset = vec2(0.0);
-		for(int i = 0; i < 4; i++) {
-			vec4 Normal = texture2D(u_NormalMap, texNormal.st + texOffset);
-			float height = Normal.a * 0.2 - 0.0125;
-			texOffset += height * Normal.z * S;
-		}
-#else
-		float depth = RayIntersectDisplaceMap(texNormal, S);
-		
-		// compute texcoords offset
-		vec2 texOffset = S * depth;
-#endif
-		
-		texDiffuse.st += texOffset;
-		texNormal.st += texOffset;
-		texSpecular.st += texOffset;
+	vec2 texOffset = vec2(0.0);
+	for(int i = 0; i < 4; i++) {
+		vec4 Normal = texture2D(u_NormalMap, texNormal.st + texOffset);
+		float height = Normal.a * 0.2 - 0.0125;
+		texOffset += height * Normal.z * S;
 	}
+#else
+	float depth = RayIntersectDisplaceMap(texNormal, S, u_NormalMap);
+	
+	// compute texcoords offset
+	vec2 texOffset = S * depth;
 #endif
-#endif
+	
+	texDiffuse.st += texOffset;
+	texNormal.st += texOffset;
+	texSpecular.st += texOffset;
+#endif // USE_PARALLAX_MAPPING
 
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
@@ -195,7 +140,7 @@ void	main()
 	}
 #endif
 
-#if defined(r_NormalMapping)
+#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
 	// compute normal in world space from normalmap
 	vec3 N = tangentToWorldMatrix * (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5));
 	
@@ -211,7 +156,7 @@ void	main()
 	// compute the light term
 #if defined(r_halfLambertLighting)
 	// http://developer.valvesoftware.com/wiki/Half_Lambert
-	float NL = clamp(dot(N, L), 0.0, 1.0) * 0.5 + 0.5;
+	float NL = dot(N, L) * 0.5 + 0.5;
 	NL *= NL;
 #elif defined(r_WrapAroundLighting)
 	float NL = clamp(dot(N, L) + r_WrapAroundLighting, 0.0, 1.0) / clamp(1.0 + r_WrapAroundLighting, 0.0, 1.0);
@@ -257,5 +202,7 @@ void	main()
 //	gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
 //#endif
 	
-#endif
+#endif // r_NormalMapping
 }
+
+

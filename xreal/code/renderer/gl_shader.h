@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2010 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2010-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -45,13 +45,20 @@ protected:
 	std::vector<GLUniform*>				_uniforms;
 	std::vector<GLCompileMacro*>		_compileMacros;
 
+	const uint32_t						_vertexAttribsRequired;
+	const uint32_t						_vertexAttribsOptional;
+	const uint32_t						_vertexAttribsUnsupported;
 	uint32_t							_vertexAttribs;
 public:
 
-	GLShader()
+	GLShader(uint32_t vertexAttribsRequired, uint32_t vertexAttribsOptional, uint32_t vertexAttribsUnsupported):
+	  _vertexAttribsRequired(vertexAttribsRequired),
+	  _vertexAttribsOptional(vertexAttribsOptional),
+	  _vertexAttribsUnsupported(vertexAttribsUnsupported)
 	{
 		_activeMacros = 0;
 		_currentProgram = NULL;
+		_vertexAttribs = 0;
 	}
 
 	~GLShader()
@@ -134,7 +141,7 @@ public:
 
 	void SetVertexAttribs()
 	{
-		GL_VertexAttribsState(_vertexAttribs);
+		GL_VertexAttribsState((_vertexAttribsRequired | _vertexAttribs) & ~_vertexAttribsUnsupported);
 	}
 };
 
@@ -332,8 +339,17 @@ public:
 
 	const char* GetName() const { return "USE_DEFORM_VERTEXES"; }
 
-	void EnableDeformVertexes()		{ EnableMacro(); }
-	void DisableDeformVertexes()	{ DisableMacro(); }
+	void EnableDeformVertexes()
+	{
+		EnableMacro();
+
+		_shader->AddVertexAttribBit(ATTR_NORMAL);
+	}
+	
+	void DisableDeformVertexes()
+	{
+		DisableMacro();
+	}
 
 	void SetDeformVertexes(bool enable)
 	{
@@ -355,8 +371,17 @@ public:
 
 	const char* GetName() const { return "USE_TCGEN_ENVIRONMENT"; }
 
-	void EnableTCGenEnvironment()	{ EnableMacro(); }
-	void DisableTCGenEnvironment()	{ DisableMacro(); }
+	void EnableTCGenEnvironment()
+	{
+		EnableMacro();
+
+		_shader->AddVertexAttribBit(ATTR_NORMAL);
+	}
+	
+	void DisableTCGenEnvironment()
+	{
+		DisableMacro();
+	}
 
 	void SetTCGenEnvironment(bool enable)
 	{
@@ -551,6 +576,25 @@ public:
 	}
 };
 
+
+class u_LightWrapAround:
+GLUniform
+{
+public:
+	u_LightWrapAround(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_LightWrapAround"; }
+
+	void SetUniform_LightWrapAround(float value)
+	{
+		GLSL_SetUniform_LightWrapAround(_shader->GetProgram(), value);
+	}
+};
+
+
 class u_Color:
 GLUniform
 {
@@ -562,7 +606,7 @@ public:
 
 	const char* GetName() const { return "u_Color"; }
 
-	void SetUniform_Color(const vec3_t v)
+	void SetUniform_Color(const vec4_t v)
 	{
 		GLSL_SetUniform_Color(_shader->GetProgram(), v);
 	}
@@ -857,6 +901,69 @@ public:
 	}
 };
 
+class u_ColorModulate:
+GLUniform
+{
+public:
+	u_ColorModulate(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_ColorModulate"; }
+
+	void SetUniform_ColorModulate(colorGen_t colorGen, alphaGen_t alphaGen)
+	{
+		vec4_t				v;
+
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment(va("--- u_ColorModulate::SetUniform_ColorModulate( program = %s, colorGen = %i, alphaGen = %i ) ---\n", _shader->GetProgram()->name, colorGen, alphaGen));
+		}
+
+		switch (colorGen)
+		{
+			case CGEN_VERTEX:
+				_shader->AddVertexAttribBit(ATTR_COLOR);
+				VectorSet(v, 1, 1, 1);
+				break;
+
+			case CGEN_ONE_MINUS_VERTEX:
+				_shader->AddVertexAttribBit(ATTR_COLOR);
+				VectorSet(v, -1, -1, -1);
+				break;
+
+			default:
+				_shader->DelVertexAttribBit(ATTR_COLOR);
+				VectorSet(v, 0, 0, 0);
+				break;
+		}
+
+		switch (alphaGen)
+		{
+			case AGEN_VERTEX:
+				_shader->AddVertexAttribBit(ATTR_COLOR);
+				v[3] = 1.0f;
+				break;
+
+			case AGEN_ONE_MINUS_VERTEX:
+				_shader->AddVertexAttribBit(ATTR_COLOR);
+				v[3] = -1.0f;
+				break;
+
+			default:
+				v[3] = 0.0f;
+				break;
+		}
+
+		GLSL_SetUniform_ColorModulate(_shader->GetProgram(), v);
+	}
+};
+
+
+
+
+
 class u_AlphaGen:
 GLUniform
 {
@@ -885,11 +992,10 @@ class GLShader_generic:
 public GLShader,
 public u_ColorTextureMatrix,
 public u_ViewOrigin,
-public u_ColorGen,
-public u_AlphaGen,
 public u_AlphaTest,
 public u_ModelMatrix,
 public u_ModelViewProjectionMatrix,
+public u_ColorModulate,
 public u_Color,
 public u_BoneMatrix,
 public u_VertexInterpolation,
@@ -927,6 +1033,9 @@ public:
 
 class GLShader_vertexLighting_DBS_entity:
 public GLShader,
+public u_DiffuseTextureMatrix,
+public u_NormalTextureMatrix,
+public u_SpecularTextureMatrix,
 public u_AlphaTest,
 public u_AmbientColor,
 public u_ViewOrigin,
@@ -951,8 +1060,34 @@ public:
 };
 
 
+class GLShader_vertexLighting_DBS_world:
+public GLShader,
+public u_DiffuseTextureMatrix,
+public u_NormalTextureMatrix,
+public u_SpecularTextureMatrix,
+public u_ColorModulate,
+public u_Color,
+public u_AlphaTest,
+public u_ViewOrigin,
+public u_ModelMatrix,
+public u_ModelViewProjectionMatrix,
+public u_PortalPlane,
+public u_DepthScale,
+public u_LightWrapAround,
+public GLDeformStage,
+public GLCompileMacro_USE_PORTAL_CLIPPING,
+public GLCompileMacro_USE_ALPHA_TESTING,
+public GLCompileMacro_USE_DEFORM_VERTEXES,
+public GLCompileMacro_USE_PARALLAX_MAPPING
+{
+public:
+	GLShader_vertexLighting_DBS_world();
+};
+
+
 extern GLShader_generic* gl_genericShader;
 extern GLShader_lightMapping* gl_lightMappingShader;
 extern GLShader_vertexLighting_DBS_entity* gl_vertexLightingShader_DBS_entity;
+extern GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world;
 
 #endif	// GL_SHADER_H

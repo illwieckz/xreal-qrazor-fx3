@@ -1788,8 +1788,8 @@ static void R_CoherentHierachicalCulling()
 			   tr.viewParms.viewportWidth, tr.viewParms.viewportHeight);
 
 	// set uniforms
-	gl_genericShader->SetUniform_ColorGen(CGEN_VERTEX);
-	gl_genericShader->SetUniform_AlphaGen(AGEN_VERTEX);
+	gl_genericShader->SetUniform_ColorModulate(CGEN_CONST, AGEN_CONST);
+	gl_genericShader->SetUniform_Color(colorWhite);
 
 	// set up the transformation matrix
 	GL_LoadModelViewMatrix(tr.orientation.modelViewMatrix);

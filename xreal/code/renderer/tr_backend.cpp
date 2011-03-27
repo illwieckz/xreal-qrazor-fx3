@@ -3878,8 +3878,8 @@ void RB_RenderInteractionsDeferred()
 				GL_Cull(CT_TWO_SIDED);
 
 				// set uniforms
-				gl_genericShader->SetUniform_ColorGen(CGEN_VERTEX);
-				gl_genericShader->SetUniform_AlphaGen(AGEN_VERTEX);
+				gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+				gl_genericShader->SetUniform_Color(colorBlack);
 
 				// bind u_ColorMap
 				GL_SelectTexture(0);
@@ -4055,7 +4055,7 @@ void RB_RenderInteractionsDeferred()
 				}
 				else
 				{
-					if(glStencilFuncSeparateATI && glConfig.stencilWrapAvailable)
+					if(GLEW_ATI_separate_stencil && glConfig.stencilWrapAvailable)
 					{
 						GL_Cull(CT_TWO_SIDED);
 
@@ -4066,7 +4066,7 @@ void RB_RenderInteractionsDeferred()
 
 						Tess_DrawElements();
 					}
-					else if(glActiveStencilFaceEXT)
+					else if(GLEW_EXT_stencil_two_side)
 					{
 						// render both sides at once
 						GL_Cull(CT_TWO_SIDED);
@@ -5529,8 +5529,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				GL_Cull(CT_TWO_SIDED);
 
 				// set uniforms
-				gl_genericShader->SetUniform_ColorGen(CGEN_VERTEX);
-				gl_genericShader->SetUniform_AlphaGen(AGEN_VERTEX);
+				gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+				gl_genericShader->SetUniform_Color(colorBlack);
 
 				// bind u_ColorMap
 				GL_SelectTexture(0);
@@ -5691,7 +5691,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				}
 				else
 				{
-					if(glStencilFuncSeparateATI && glConfig.stencilWrapAvailable)
+					if(GLEW_ATI_separate_stencil && glConfig.stencilWrapAvailable)
 					{
 						GL_Cull(CT_TWO_SIDED);
 
@@ -5702,7 +5702,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 						Tess_DrawElements();
 					}
-					else if(glActiveStencilFaceEXT)
+					else if(GLEW_EXT_stencil_two_side)
 					{
 						// render both sides at once
 						GL_Cull(CT_TWO_SIDED);
@@ -8857,7 +8857,7 @@ void RB_RenderLightOcclusionQueries()
 		gl_genericShader->DisableTCGenEnvironment();
 
 		gl_genericShader->BindProgram();
-		//gl_genericShader->SetVertexAttribs();
+		gl_genericShader->SetVertexAttribs();
 
 		
 		GL_Cull(CT_TWO_SIDED);
@@ -8865,8 +8865,8 @@ void RB_RenderLightOcclusionQueries()
 		GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 
 		// set uniforms
-		gl_genericShader->SetUniform_ColorGen(CGEN_VERTEX);
-		gl_genericShader->SetUniform_AlphaGen(AGEN_VERTEX);
+		gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+		gl_genericShader->SetUniform_Color(colorBlack);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -9308,8 +9308,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		gl_genericShader->SetUniform_ColorGen(CGEN_CUSTOM_RGB);
-		gl_genericShader->SetUniform_AlphaGen(AGEN_CUSTOM);
+		gl_genericShader->SetUniform_ColorModulate(CGEN_CUSTOM_RGB, AGEN_CUSTOM);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -9648,8 +9647,8 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		gl_genericShader->SetUniform_ColorGen(CGEN_VERTEX);
-		gl_genericShader->SetUniform_AlphaGen(AGEN_VERTEX);
+		gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+		gl_genericShader->SetUniform_Color(colorBlack);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -9829,8 +9828,8 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		gl_genericShader->SetUniform_ColorGen(CGEN_VERTEX);
-		gl_genericShader->SetUniform_AlphaGen(AGEN_VERTEX);
+		gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+		gl_genericShader->SetUniform_Color(colorBlack);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -9894,25 +9893,25 @@ static void RB_RenderDebugUtils()
 		static refSkeleton_t skeleton;
 		refSkeleton_t  *skel;
 
-		GL_BindProgram(&tr.genericShader);
+		gl_genericShader->DisableAlphaTesting();
+		gl_genericShader->DisablePortalClipping();
+		gl_genericShader->DisableVertexSkinning();
+		gl_genericShader->DisableVertexAnimation();
+		gl_genericShader->DisableDeformVertexes();
+		gl_genericShader->DisableTCGenEnvironment();
+
+		gl_genericShader->BindProgram();
+
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		GLSL_SetUniform_TCGen_Environment(&tr.genericShader,  qfalse);
-		GLSL_SetUniform_ColorGen(&tr.genericShader, CGEN_VERTEX);
-		GLSL_SetUniform_AlphaGen(&tr.genericShader, AGEN_VERTEX);
-		if(glConfig.vboVertexSkinningAvailable)
-		{
-			GLSL_SetUniform_VertexSkinning(&tr.genericShader, qfalse);
-		}
-		GLSL_SetUniform_DeformGen(&tr.genericShader, DGEN_NONE);
-		GLSL_SetUniform_AlphaTest(&tr.genericShader, 0);
-		GLSL_SetUniform_PortalClipping(&tr.genericShader, qfalse);
+		gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+		gl_genericShader->SetUniform_Color(colorBlack);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
 		GL_Bind(tr.charsetImage);
-		GLSL_SetUniform_ColorTextureMatrix(&tr.genericShader, matrixIdentity);
+		gl_genericShader->SetUniform_ColorTextureMatrix(matrixIdentity);
 
 		ent = backEnd.refdef.entities;
 		for(i = 0; i < backEnd.refdef.numEntities; i++, ent++)
@@ -9923,7 +9922,7 @@ static void RB_RenderDebugUtils()
 			// set up the transformation matrix
 			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.orientation);
 			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+			gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 
 			tess.multiDrawPrimitives = 0;
@@ -10036,7 +10035,7 @@ static void RB_RenderDebugUtils()
 					// go back to the world modelview matrix
 					backEnd.orientation = backEnd.viewParms.world;
 					GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
-					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+					gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 					// draw names
 					for(j = 0; j < skel->numBones; j++)
@@ -10120,8 +10119,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		gl_genericShader->SetUniform_ColorGen(CGEN_CUSTOM_RGB);
-		gl_genericShader->SetUniform_AlphaGen(AGEN_CUSTOM);
+		gl_genericShader->SetUniform_ColorModulate(CGEN_CUSTOM_RGB, AGEN_CUSTOM);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -10322,6 +10320,8 @@ static void RB_RenderDebugUtils()
 			return;
 		}
 
+		GLimp_LogComment("--- r_showLightGrid > 0: Rendering light grid\n");
+
 		gl_genericShader->DisableAlphaTesting();
 		gl_genericShader->DisablePortalClipping();
 		gl_genericShader->DisableVertexSkinning();
@@ -10331,12 +10331,15 @@ static void RB_RenderDebugUtils()
 
 		gl_genericShader->BindProgram();
 
+		gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+		gl_genericShader->SetUniform_Color(colorBlack);
+
+		gl_genericShader->SetVertexAttribs();
+
 		GL_State(GLS_DEFAULT);
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		gl_genericShader->SetUniform_ColorGen(CGEN_VERTEX);
-		gl_genericShader->SetUniform_AlphaGen(AGEN_VERTEX);
 
 		// set up the transformation matrix
 		backEnd.orientation = backEnd.viewParms.world;
@@ -10417,8 +10420,7 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		gl_genericShader->SetUniform_ColorGen(CGEN_CUSTOM_RGB);
-		gl_genericShader->SetUniform_AlphaGen(AGEN_CUSTOM);
+		gl_genericShader->SetUniform_ColorModulate(CGEN_CUSTOM_RGB, AGEN_CUSTOM);
 
 		// set up the transformation matrix
 		backEnd.orientation = backEnd.viewParms.world;
@@ -10565,8 +10567,8 @@ static void RB_RenderDebugUtils()
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		gl_genericShader->SetUniform_ColorGen(CGEN_VERTEX);
-		gl_genericShader->SetUniform_AlphaGen(AGEN_VERTEX);
+		gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+		gl_genericShader->SetUniform_Color(colorBlack);
 
 		// set up the transformation matrix
 		backEnd.orientation = backEnd.viewParms.world;
@@ -11556,9 +11558,8 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	gl_genericShader->BindProgram();
 
 	// set uniforms
-	gl_genericShader->SetUniform_ColorGen(CGEN_VERTEX);
-	gl_genericShader->SetUniform_AlphaGen(AGEN_VERTEX);
-	//GLSL_SetUniform_Color(&tr.genericShader, colorWhite);
+	gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+	gl_genericShader->SetUniform_Color(colorBlack);
 	
 	gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
@@ -12167,8 +12168,7 @@ void RB_ShowImages(void)
 	GL_Cull(CT_TWO_SIDED);
 
 	// set uniforms
-	gl_genericShader->SetUniform_ColorGen(CGEN_VERTEX);
-	gl_genericShader->SetUniform_AlphaGen(AGEN_VERTEX);
+	gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
 	gl_genericShader->SetUniform_ColorTextureMatrix(matrixIdentity);
 
 	GL_SelectTexture(0);
