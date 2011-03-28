@@ -43,6 +43,7 @@ GLShader_generic* gl_genericShader = NULL;
 GLShader_lightMapping* gl_lightMappingShader = NULL;
 GLShader_vertexLighting_DBS_entity* gl_vertexLightingShader_DBS_entity = NULL;
 GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world = NULL;
+GLShader_forwardLighting* gl_forwardLightingShader = NULL;
 
 
 
@@ -103,7 +104,7 @@ GLShader_generic::GLShader_generic():
 	{
 		const char* compileMacros = GetCompileMacrosString(i);
 
-		ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros);
+		ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros);
 
 		shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -188,7 +189,7 @@ GLShader_lightMapping::GLShader_lightMapping():
 	{
 		const char* compileMacros = GetCompileMacrosString(i);
 
-		ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros);
+		ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros);
 
 		shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -264,7 +265,7 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 	{
 		const char* compileMacros = GetCompileMacrosString(i);
 
-		ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros);
+		ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros);
 
 		shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -357,7 +358,7 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 	{
 		const char* compileMacros = GetCompileMacrosString(i);
 
-		ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros);
+		ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros);
 
 		shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -431,6 +432,135 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 		glUniform1iARB(shaderProgram->u_DiffuseMap, 0);
 		glUniform1iARB(shaderProgram->u_NormalMap, 1);
 		glUniform1iARB(shaderProgram->u_SpecularMap, 2);
+		glUseProgramObjectARB(0);
+
+		GLSL_ValidateProgram(shaderProgram->program);
+		GLSL_ShowProgramUniforms(shaderProgram->program);
+		GL_CheckErrors();
+	}
+
+	SelectProgram();
+}
+
+
+
+GLShader_forwardLighting::GLShader_forwardLighting():
+		GLShader(	ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
+					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2 | ATTR_COLOR,
+					0),
+		u_DiffuseTextureMatrix(this),
+		u_NormalTextureMatrix(this),
+		u_SpecularTextureMatrix(this),
+		u_AlphaTest(this),
+		u_ColorModulate(this),
+		u_Color(this),
+		u_ViewOrigin(this),
+		u_LightOrigin(this),
+		u_LightColor(this),
+		u_LightRadius(this),
+		u_LightScale(this),
+		u_LightWrapAround(this),
+		u_LightAttenuationMatrix(this),
+		u_ShadowTexelSize(this),
+		u_ShadowBlur(this),
+		u_ModelMatrix(this),
+		u_ModelViewProjectionMatrix(this),
+		u_BoneMatrix(this),
+		u_VertexInterpolation(this),
+		u_PortalPlane(this),
+		u_DepthScale(this),
+		GLDeformStage(this),
+		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		GLCompileMacro_USE_ALPHA_TESTING(this),
+		GLCompileMacro_USE_VERTEX_SKINNING(this),
+		GLCompileMacro_USE_VERTEX_ANIMATION(this),
+		GLCompileMacro_USE_DEFORM_VERTEXES(this),
+		GLCompileMacro_USE_PARALLAX_MAPPING(this),
+		GLCompileMacro_USE_SHADOWING(this)
+{
+	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
+	
+	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
+
+	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
+	for(size_t i = 0; i < numPermutations; i++)
+	{
+		const char* compileMacros = GetCompileMacrosString(i);
+
+		ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros);
+
+		shaderProgram_t *shaderProgram = &_shaderPrograms[i];
+
+		GLSL_InitGPUShader3(shaderProgram,
+						"forwardLighting",
+						"forwardLighting",
+						"vertexAnimation deformVertexes",
+						"reliefMapping",
+						compileMacros,
+						_vertexAttribsRequired | _vertexAttribsOptional,
+						qtrue);
+
+		shaderProgram->u_DiffuseMap	= glGetUniformLocationARB(shaderProgram->program, "u_DiffuseMap");
+		shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, "u_NormalMap");
+		shaderProgram->u_SpecularMap = glGetUniformLocationARB(shaderProgram->program, "u_SpecularMap");
+		shaderProgram->u_AttenuationMapXY = glGetUniformLocationARB(shaderProgram->program, "u_AttenuationMapXY");
+		shaderProgram->u_AttenuationMapZ = glGetUniformLocationARB(shaderProgram->program, "u_AttenuationMapZ");
+		if(r_shadows->integer >= SHADOWING_VSM16)
+		{
+			shaderProgram->u_ShadowMap = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap");
+		}
+
+		shaderProgram->u_DiffuseTextureMatrix = glGetUniformLocationARB(shaderProgram->program, "u_DiffuseTextureMatrix");
+		shaderProgram->u_NormalTextureMatrix = glGetUniformLocationARB(shaderProgram->program, "u_NormalTextureMatrix");
+		shaderProgram->u_SpecularTextureMatrix = glGetUniformLocationARB(shaderProgram->program, "u_SpecularTextureMatrix");
+
+		shaderProgram->u_AlphaTest = glGetUniformLocationARB(shaderProgram->program, "u_AlphaTest");
+
+		shaderProgram->u_DeformGen = glGetUniformLocationARB(shaderProgram->program, "u_DeformGen");
+		shaderProgram->u_DeformWave = glGetUniformLocationARB(shaderProgram->program, "u_DeformWave");
+		shaderProgram->u_DeformBulge = glGetUniformLocationARB(shaderProgram->program, "u_DeformBulge");
+		shaderProgram->u_DeformSpread = glGetUniformLocationARB(shaderProgram->program, "u_DeformSpread");
+
+		shaderProgram->u_ViewOrigin = glGetUniformLocationARB(shaderProgram->program, "u_ViewOrigin");
+
+		shaderProgram->u_ColorModulate = glGetUniformLocationARB(shaderProgram->program, "u_ColorModulate");
+		shaderProgram->u_Color = glGetUniformLocationARB(shaderProgram->program, "u_Color");
+		
+		shaderProgram->u_LightOrigin = glGetUniformLocationARB(shaderProgram->program, "u_LightOrigin");
+		shaderProgram->u_LightColor = glGetUniformLocationARB(shaderProgram->program, "u_LightColor");
+		shaderProgram->u_LightRadius = glGetUniformLocationARB(shaderProgram->program, "u_LightRadius");
+		shaderProgram->u_LightScale = glGetUniformLocationARB(shaderProgram->program, "u_LightScale");
+		shaderProgram->u_LightWrapAround = glGetUniformLocationARB(shaderProgram->program, "u_LightWrapAround");
+		shaderProgram->u_LightAttenuationMatrix = glGetUniformLocationARB(shaderProgram->program, "u_LightAttenuationMatrix");
+
+		shaderProgram->u_ShadowTexelSize = glGetUniformLocationARB(shaderProgram->program, "u_ShadowTexelSize");
+		shaderProgram->u_ShadowBlur = glGetUniformLocationARB(shaderProgram->program, "u_ShadowBlur");
+		
+		//shaderProgram->u_ParallaxMapping = glGetUniformLocationARB(shaderProgram->program, "u_ParallaxMapping");
+		//shaderProgram->u_DepthScale = glGetUniformLocationARB(shaderProgram->program, "u_DepthScale");
+
+		shaderProgram->u_PortalClipping = glGetUniformLocationARB(shaderProgram->program, "u_PortalClipping");
+		shaderProgram->u_PortalPlane = glGetUniformLocationARB(shaderProgram->program, "u_PortalPlane");
+		shaderProgram->u_ModelMatrix = glGetUniformLocationARB(shaderProgram->program, "u_ModelMatrix");
+		shaderProgram->u_ModelViewProjectionMatrix = glGetUniformLocationARB(shaderProgram->program, "u_ModelViewProjectionMatrix");
+		shaderProgram->u_Time = glGetUniformLocationARB(shaderProgram->program, "u_Time");
+		if(glConfig.vboVertexSkinningAvailable)
+		{
+			//shaderProgram->u_VertexSkinning = glGetUniformLocationARB(shaderProgram->program, "u_VertexSkinning");
+			shaderProgram->u_BoneMatrix = glGetUniformLocationARB(shaderProgram->program, "u_BoneMatrix");
+		}
+		shaderProgram->u_VertexInterpolation = glGetUniformLocationARB(shaderProgram->program, "u_VertexInterpolation");
+
+		glUseProgramObjectARB(shaderProgram->program);
+		glUniform1iARB(shaderProgram->u_DiffuseMap, 0);
+		glUniform1iARB(shaderProgram->u_NormalMap, 1);
+		glUniform1iARB(shaderProgram->u_SpecularMap, 2);
+		glUniform1iARB(shaderProgram->u_AttenuationMapXY, 3);
+		glUniform1iARB(shaderProgram->u_AttenuationMapZ, 4);
+		if(r_shadows->integer >= SHADOWING_VSM16)
+		{
+			glUniform1iARB(shaderProgram->u_ShadowMap, 5);
+		}
 		glUseProgramObjectARB(0);
 
 		GLSL_ValidateProgram(shaderProgram->program);

@@ -51,7 +51,6 @@ varying vec3		var_Normal;
 void	main()
 {
 #if defined(USE_PORTAL_CLIPPING)
-	//(bool(u_PortalClipping))
 	{
 		float dist = dot(var_Position.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
 		if(dist < 0.0)

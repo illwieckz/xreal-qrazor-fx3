@@ -3932,7 +3932,7 @@ typedef struct
 	shaderProgram_t shadowFillShader;
 
 	// Doom3 style omni-directional multi-pass lighting
-	shaderProgram_t forwardLightingShader_DBS_omni;
+	//shaderProgram_t forwardLightingShader_DBS_omni;
 	shaderProgram_t forwardLightingShader_DBS_proj;
 	shaderProgram_t forwardLightingShader_DBS_directional;
 

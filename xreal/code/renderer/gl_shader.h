@@ -416,6 +416,29 @@ public:
 };
 
 
+class GLCompileMacro_USE_SHADOWING:
+GLCompileMacro
+{
+public:
+	GLCompileMacro_USE_SHADOWING(GLShader* shader):
+	  GLCompileMacro(shader)
+	{
+	}
+
+	const char* GetName() const { return "USE_SHADOWING"; }
+
+	void EnableShadowing()	{ EnableMacro(); }
+	void DisableShadowing()	{ DisableMacro(); }
+
+	void SetShadowing(bool enable)
+	{
+		if(enable)
+			EnableMacro();
+		else
+			DisableMacro();
+	}
+};
+
 
 
 class u_ColorTextureMatrix:
@@ -558,6 +581,22 @@ public:
 	}
 };
 
+class u_LightOrigin:
+GLUniform
+{
+public:
+	u_LightOrigin(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_LightOrigin"; }
+
+	void SetUniform_LightOrigin(const vec3_t v)
+	{
+		GLSL_SetUniform_LightOrigin(_shader->GetProgram(), v);
+	}
+};
 
 class u_LightColor:
 GLUniform
@@ -573,6 +612,41 @@ public:
 	void SetUniform_LightColor(const vec3_t v)
 	{
 		GLSL_SetUniform_LightColor(_shader->GetProgram(), v);
+	}
+};
+
+class u_LightRadius:
+GLUniform
+{
+public:
+	u_LightRadius(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_LightRadius"; }
+
+	void SetUniform_LightRadius(float value)
+	{
+		GLSL_SetUniform_LightRadius(_shader->GetProgram(), value);
+	}
+};
+
+
+class u_LightScale:
+GLUniform
+{
+public:
+	u_LightScale(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_LightScale"; }
+
+	void SetUniform_LightScale(float value)
+	{
+		GLSL_SetUniform_LightScale(_shader->GetProgram(), value);
 	}
 };
 
@@ -593,6 +667,77 @@ public:
 		GLSL_SetUniform_LightWrapAround(_shader->GetProgram(), value);
 	}
 };
+
+class u_LightAttenuationMatrix:
+GLUniform
+{
+public:
+	u_LightAttenuationMatrix(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_LightAttenuationMatrix"; }
+
+	void SetUniform_LightAttenuationMatrix(const matrix_t m)
+	{
+		GLSL_SetUniform_LightAttenuationMatrix(_shader->GetProgram(), m);
+	}
+};
+
+
+
+class u_ShadowTexelSize:
+GLUniform
+{
+public:
+	u_ShadowTexelSize(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_ShadowTexelSize"; }
+
+	void SetUniform_ShadowTexelSize(float value)
+	{
+		GLSL_SetUniform_ShadowTexelSize(_shader->GetProgram(), value);
+	}
+};
+
+class u_ShadowBlur:
+GLUniform
+{
+public:
+	u_ShadowBlur(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_ShadowBlur"; }
+
+	void SetUniform_ShadowBlur(float value)
+	{
+		GLSL_SetUniform_ShadowBlur(_shader->GetProgram(), value);
+	}
+};
+
+class u_ShadowMatrix:
+GLUniform
+{
+public:
+	u_ShadowMatrix(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_ModelMatrix"; }
+
+	void SetUniform_ModelMatrix(const matrix_t m)
+	{
+		GLSL_SetUniform_ModelMatrix(_shader->GetProgram(), m);
+	}
+};
+
 
 
 class u_Color:
@@ -1085,9 +1230,48 @@ public:
 };
 
 
+
+class GLShader_forwardLighting:
+public GLShader,
+public u_DiffuseTextureMatrix,
+public u_NormalTextureMatrix,
+public u_SpecularTextureMatrix,
+public u_AlphaTest,
+public u_ColorModulate,
+public u_Color,
+public u_ViewOrigin,
+public u_LightOrigin,
+public u_LightColor,
+public u_LightRadius,
+public u_LightScale,
+public u_LightWrapAround,
+public u_LightAttenuationMatrix,
+public u_ShadowTexelSize,
+public u_ShadowBlur,
+public u_ModelMatrix,
+public u_ModelViewProjectionMatrix,
+public u_BoneMatrix,
+public u_VertexInterpolation,
+public u_PortalPlane,
+public u_DepthScale,
+public GLDeformStage,
+public GLCompileMacro_USE_PORTAL_CLIPPING,
+public GLCompileMacro_USE_ALPHA_TESTING,
+public GLCompileMacro_USE_VERTEX_SKINNING,
+public GLCompileMacro_USE_VERTEX_ANIMATION,
+public GLCompileMacro_USE_DEFORM_VERTEXES,
+public GLCompileMacro_USE_PARALLAX_MAPPING,
+public GLCompileMacro_USE_SHADOWING
+{
+public:
+	GLShader_forwardLighting();
+};
+
+
 extern GLShader_generic* gl_genericShader;
 extern GLShader_lightMapping* gl_lightMappingShader;
 extern GLShader_vertexLighting_DBS_entity* gl_vertexLightingShader_DBS_entity;
 extern GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world;
+extern GLShader_forwardLighting* gl_forwardLightingShader;
 
 #endif	// GL_SHADER_H
