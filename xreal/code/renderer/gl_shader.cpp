@@ -44,6 +44,7 @@ GLShader_lightMapping* gl_lightMappingShader = NULL;
 GLShader_vertexLighting_DBS_entity* gl_vertexLightingShader_DBS_entity = NULL;
 GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world = NULL;
 GLShader_forwardLighting* gl_forwardLightingShader = NULL;
+GLShader_shadowFill* gl_shadowFillShader = NULL;
 
 
 
@@ -437,6 +438,73 @@ GLShader_forwardLighting::GLShader_forwardLighting():
 		{
 			glUniform1iARB(shaderProgram->u_ShadowMap, 5);
 		}
+		glUseProgramObjectARB(0);
+
+		GLSL_ValidateProgram(shaderProgram->program);
+		GLSL_ShowProgramUniforms(shaderProgram->program);
+		GL_CheckErrors();
+	}
+
+	SelectProgram();
+}
+
+
+
+
+
+
+
+GLShader_shadowFill::GLShader_shadowFill():
+		GLShader(	ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL,
+					0,
+					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		u_ColorTextureMatrix(this),
+		u_ViewOrigin(this),
+		u_AlphaTest(this),
+		u_LightOrigin(this),
+		u_LightRadius(this),
+		u_Color(this),
+		u_ModelMatrix(this),
+		u_ModelViewProjectionMatrix(this),
+		u_BoneMatrix(this),
+		u_VertexInterpolation(this),
+		u_PortalPlane(this),
+		GLDeformStage(this),
+		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		GLCompileMacro_USE_ALPHA_TESTING(this),
+		GLCompileMacro_USE_VERTEX_SKINNING(this),
+		GLCompileMacro_USE_VERTEX_ANIMATION(this),
+		GLCompileMacro_USE_DEFORM_VERTEXES(this),
+		GLCompileMacro_LIGHT_DIRECTIONAL(this)
+{
+	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
+	
+	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
+
+	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
+	for(size_t i = 0; i < numPermutations; i++)
+	{
+		const char* compileMacros = GetCompileMacrosString(i);
+
+		ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros);
+
+		shaderProgram_t *shaderProgram = &_shaderPrograms[i];
+
+		GLSL_InitGPUShader3(shaderProgram,
+						"shadowFill",
+						"shadowFill",
+						"vertexAnimation deformVertexes",
+						"",
+						compileMacros,
+						_vertexAttribsRequired | _vertexAttribsOptional,
+						qtrue);
+
+		UpdateShaderProgramUniformLocations(shaderProgram);
+
+		shaderProgram->u_ColorMap = glGetUniformLocationARB(shaderProgram->program, "u_ColorMap");
+
+		glUseProgramObjectARB(shaderProgram->program);
+		glUniform1iARB(shaderProgram->u_ColorMap, 0);
 		glUseProgramObjectARB(0);
 
 		GLSL_ValidateProgram(shaderProgram->program);

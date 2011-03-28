@@ -417,7 +417,7 @@ RE_AddDynamicLightToScene
 ydnar: modified dlight system to support seperate radius and intensity
 =====================
 */
-void RE_AddDynamicLightToScene(const vec3_t org, float radius, float intensity, float r, float g, float b, qhandle_t hShader, int flags)
+void RE_AddDynamicLightToSceneET(const vec3_t org, float radius, float intensity, float r, float g, float b, qhandle_t hShader, int flags)
 {
 	trRefLight_t   *light;
 
@@ -478,6 +478,10 @@ void RE_AddDynamicLightToScene(const vec3_t org, float radius, float intensity, 
 #endif
 }
 
+void RE_AddDynamicLightToSceneQ3A(const vec3_t org, float radius, float r, float g, float b)
+{
+	RE_AddDynamicLightToSceneET(org, radius, r_lightScale->value, r, g, b, 0, 0);
+}
 
 /*
 ==============

@@ -1257,35 +1257,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// shadowmap distance compression
-	GLSL_InitGPUShader(&tr.shadowFillShader, "shadowFill", ATTR_POSITION | ATTR_NORMAL | ATTR_TEXCOORD, qtrue, qtrue);
-
-	tr.shadowFillShader.u_ColorMap = glGetUniformLocationARB(tr.shadowFillShader.program, "u_ColorMap");
-	tr.shadowFillShader.u_ColorTextureMatrix = glGetUniformLocationARB(tr.shadowFillShader.program, "u_ColorTextureMatrix");
-	tr.shadowFillShader.u_AlphaTest = glGetUniformLocationARB(tr.shadowFillShader.program, "u_AlphaTest");
-	tr.shadowFillShader.u_LightOrigin = glGetUniformLocationARB(tr.shadowFillShader.program, "u_LightOrigin");
-	tr.shadowFillShader.u_LightRadius = glGetUniformLocationARB(tr.shadowFillShader.program, "u_LightRadius");
-	tr.shadowFillShader.u_LightParallel = glGetUniformLocationARB(tr.shadowFillShader.program, "u_LightParallel");
-	tr.shadowFillShader.u_ModelMatrix = glGetUniformLocationARB(tr.shadowFillShader.program, "u_ModelMatrix");
-	tr.shadowFillShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.shadowFillShader.program, "u_ModelViewProjectionMatrix");
-	if(glConfig.vboVertexSkinningAvailable)
-	{
-		tr.shadowFillShader.u_VertexSkinning = glGetUniformLocationARB(tr.shadowFillShader.program, "u_VertexSkinning");
-		tr.shadowFillShader.u_BoneMatrix = glGetUniformLocationARB(tr.shadowFillShader.program, "u_BoneMatrix");
-	}
-	tr.shadowFillShader.u_DeformGen = glGetUniformLocationARB(tr.shadowFillShader.program, "u_DeformGen");
-	tr.shadowFillShader.u_DeformWave = glGetUniformLocationARB(tr.shadowFillShader.program, "u_DeformWave");
-	tr.shadowFillShader.u_DeformBulge = glGetUniformLocationARB(tr.shadowFillShader.program, "u_DeformBulge");
-	tr.shadowFillShader.u_DeformSpread = glGetUniformLocationARB(tr.shadowFillShader.program, "u_DeformSpread");
-	tr.shadowFillShader.u_Time = glGetUniformLocationARB(tr.shadowFillShader.program, "u_Time");
-
-	glUseProgramObjectARB(tr.shadowFillShader.program);
-	glUniform1iARB(tr.shadowFillShader.u_ColorMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.shadowFillShader.program);
-	GLSL_ShowProgramUniforms(tr.shadowFillShader.program);
-	GL_CheckErrors();
+	gl_shadowFillShader = new GLShader_shadowFill();
 
 	// omni-directional specular bump mapping ( Doom3 style )
 	gl_forwardLightingShader = new GLShader_forwardLighting();
@@ -2250,10 +2222,10 @@ void GLSL_ShutdownGPUShaders(void)
 		Com_Memset(&tr.shadowExtrudeShader, 0, sizeof(shaderProgram_t));
 	}
 
-	if(tr.shadowFillShader.program)
+	if(gl_shadowFillShader)
 	{
-		glDeleteObjectARB(tr.shadowFillShader.program);
-		Com_Memset(&tr.shadowFillShader, 0, sizeof(shaderProgram_t));
+		delete gl_shadowFillShader;
+		gl_shadowFillShader = NULL;
 	}
 
 	if(gl_forwardLightingShader)
@@ -2763,6 +2735,9 @@ static void Render_generic(int stage)
 		gl_genericShader->SetUniform_ViewOrigin(backEnd.orientation.viewOrigin);
 	}
 
+	// u_AlphaTest
+	gl_genericShader->SetUniform_AlphaTest(pStage->stateBits);
+
 	// u_ColorGen
 	switch (pStage->rgbGen)
 	{
@@ -2813,8 +2788,6 @@ static void Render_generic(int stage)
 
 		gl_genericShader->SetDeformStageUniforms(ds);
 	}
-
-	gl_genericShader->SetUniform_AlphaTest(pStage->stateBits);
 
 	if(backEnd.viewParms.isPortal)
 	{
@@ -3277,140 +3250,7 @@ static void Render_lightMapping(int stage, bool asColorMap, bool normalMapping)
 	GL_CheckErrors();
 }
 
-/*
-static void Render_deluxeMapping(int stage)
-{
-	vec3_t          viewOrigin;
-	shaderStage_t  *pStage;
-	uint32_t     	stateBits;
 
-	GLimp_LogComment("--- Render_deluxeMapping ---\n");
-
-	pStage = tess.surfaceStages[stage];
-
-	stateBits = pStage->stateBits;
-
-	if(DS_PREPASS_LIGHTING_ENABLED())
-	{
-		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
-		stateBits |= (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
-	}
-
-	GL_State(stateBits);
-
-	// enable shader, set arrays
-	GL_BindProgram(&tr.deluxeMappingShader);
-	GL_VertexAttribsState(tr.deluxeMappingShader.attribs);
-
-	// set uniforms
-	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
-
-	GLSL_SetUniform_ViewOrigin(&tr.deluxeMappingShader, viewOrigin);
-
-	GLSL_SetUniform_ModelMatrix(&tr.deluxeMappingShader, backEnd.orientation.transformMatrix);
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deluxeMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-
-	GLSL_SetUniform_AlphaTest(&tr.deluxeMappingShader, pStage->stateBits);
-
-	// u_DeformGen
-	if(tess.surfaceShader->numDeforms)
-	{
-		deformStage_t  *ds;
-
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		switch (ds->deformation)
-		{
-			case DEFORM_WAVE:
-				GLSL_SetUniform_DeformGen(&tr.deluxeMappingShader, (deformGen_t) ds->deformationWave.func);
-				GLSL_SetUniform_DeformWave(&tr.deluxeMappingShader, &ds->deformationWave);
-				GLSL_SetUniform_DeformSpread(&tr.deluxeMappingShader, ds->deformationSpread);
-				GLSL_SetUniform_Time(&tr.deluxeMappingShader, backEnd.refdef.floatTime);
-				break;
-
-			case DEFORM_BULGE:
-				GLSL_SetUniform_DeformGen(&tr.deluxeMappingShader, DGEN_BULGE);
-				GLSL_SetUniform_DeformBulge(&tr.deluxeMappingShader, ds);
-				GLSL_SetUniform_Time(&tr.deluxeMappingShader, backEnd.refdef.floatTime);
-				break;
-
-			default:
-				GLSL_SetUniform_DeformGen(&tr.deluxeMappingShader, DGEN_NONE);
-				break;
-		}
-	}
-	else
-	{
-		GLSL_SetUniform_DeformGen(&tr.deluxeMappingShader, DGEN_NONE);
-	}
-
-	if(r_parallaxMapping->integer)
-	{
-		float           depthScale;
-
-		GLSL_SetUniform_ParallaxMapping(&tr.deluxeMappingShader, tess.surfaceShader->parallax);
-
-		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
-		GLSL_SetUniform_DepthScale(&tr.deluxeMappingShader, depthScale);
-	}
-
-	GLSL_SetUniform_PortalClipping(&tr.deluxeMappingShader, backEnd.viewParms.isPortal);
-	if(backEnd.viewParms.isPortal)
-	{
-		float           plane[4];
-
-		// clipping plane in world space
-		plane[0] = backEnd.viewParms.portalPlane.normal[0];
-		plane[1] = backEnd.viewParms.portalPlane.normal[1];
-		plane[2] = backEnd.viewParms.portalPlane.normal[2];
-		plane[3] = backEnd.viewParms.portalPlane.dist;
-
-		GLSL_SetUniform_PortalPlane(&tr.deluxeMappingShader, plane);
-	}
-
-	// bind u_DiffuseMap
-	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
-	GLSL_SetUniform_DiffuseTextureMatrix(&tr.deluxeMappingShader, tess.svars.texMatrices[TB_DIFFUSEMAP]);
-
-	// bind u_NormalMap
-	GL_SelectTexture(1);
-	if(pStage->bundle[TB_NORMALMAP].image[0])
-	{
-		GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.flatImage);
-	}
-	GLSL_SetUniform_NormalTextureMatrix(&tr.deluxeMappingShader, tess.svars.texMatrices[TB_NORMALMAP]);
-
-	// bind u_SpecularMap
-	GL_SelectTexture(2);
-	if(pStage->bundle[TB_SPECULARMAP].image[0])
-	{
-		GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.blackImage);
-	}
-	GLSL_SetUniform_SpecularTextureMatrix(&tr.deluxeMappingShader, tess.svars.texMatrices[TB_SPECULARMAP]);
-
-	// bind u_LightMap
-	GL_SelectTexture(3);
-	BindLightMap();
-
-	// bind u_DeluxeMap
-	GL_SelectTexture(4);
-	BindDeluxeMap();
-
-	Tess_DrawElements();
-
-	GL_CheckErrors();
-}
-*/
 
 static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
 {
@@ -3844,51 +3684,54 @@ static void Render_shadowFill(int stage)
 
 	pStage = tess.surfaceStages[stage];
 
-	// remove alpha test
+	// remove blend modes
 	stateBits = pStage->stateBits;
-	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
+	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
 
 	GL_State(stateBits);
 
-	// enable shader, set arrays
-	GL_BindProgram(&tr.shadowFillShader);
-	GL_VertexAttribsState(tr.shadowFillShader.attribs & ~(ATTR_COLOR));
 
+	gl_shadowFillShader->SetAlphaTesting((pStage->stateBits & GLS_ATEST_BITS) != 0);
+	gl_shadowFillShader->SetPortalClipping(backEnd.viewParms.isPortal);
+
+	gl_shadowFillShader->SetVertexSkinning(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning);
+	gl_shadowFillShader->SetVertexAnimation(glState.vertexAttribsInterpolation > 0);
+
+	gl_shadowFillShader->SetDeformVertexes(tess.surfaceShader->numDeforms);
+	gl_shadowFillShader->SetMacro_LIGHT_DIRECTIONAL(backEnd.currentLight->l.rlType == RL_DIRECTIONAL);
+
+	gl_shadowFillShader->BindProgram();
+
+	gl_shadowFillShader->SetVertexAttribs();
+
+	
+	
 	if(r_debugShadowMaps->integer)
 	{
 		vec4_t          shadowMapColor;
 
 		Vector4Copy(g_color_table[backEnd.pc.c_batches % 8], shadowMapColor);
 
-		glVertexAttrib4fvARB(ATTR_INDEX_COLOR, shadowMapColor);
+		gl_shadowFillShader->SetUniform_Color(shadowMapColor);
 	}
 
-	// set uniforms
-	GLSL_SetUniform_AlphaTest(&tr.shadowFillShader, pStage->stateBits);
+	gl_shadowFillShader->SetUniform_AlphaTest(pStage->stateBits);
 
-	if(backEnd.currentLight->l.rlType == RL_DIRECTIONAL)
+	if(backEnd.currentLight->l.rlType != RL_DIRECTIONAL)
 	{
-		GLSL_SetUniform_LightParallel(&tr.shadowFillShader, qtrue);
+		gl_shadowFillShader->SetUniform_LightOrigin(backEnd.currentLight->origin);
+		gl_shadowFillShader->SetUniform_LightRadius(backEnd.currentLight->sphereRadius);
 	}
-	else
+
+	gl_shadowFillShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
+	gl_shadowFillShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
 	{
-		GLSL_SetUniform_LightParallel(&tr.shadowFillShader, qfalse);
-
-		GLSL_SetUniform_LightRadius(&tr.shadowFillShader, backEnd.currentLight->sphereRadius);
-		GLSL_SetUniform_LightOrigin(&tr.shadowFillShader, backEnd.currentLight->origin);
+		gl_shadowFillShader->SetUniform_BoneMatrix(MAX_BONES, tess.boneMatrices);
 	}
 
-	GLSL_SetUniform_ModelMatrix(&tr.shadowFillShader, backEnd.orientation.transformMatrix);
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.shadowFillShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-
-	if(glConfig.vboVertexSkinningAvailable)
-	{
-		GLSL_SetUniform_VertexSkinning(&tr.shadowFillShader, tess.vboVertexSkinning);
-
-		if(tess.vboVertexSkinning)
-			glUniformMatrix4fvARB(tr.shadowFillShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
-	}
-
+	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
 	{
 		deformStage_t  *ds;
@@ -3896,29 +3739,20 @@ static void Render_shadowFill(int stage)
 		// only support the first one
 		ds = &tess.surfaceShader->deforms[0];
 
-		switch (ds->deformation)
-		{
-			case DEFORM_WAVE:
-				GLSL_SetUniform_DeformGen(&tr.shadowFillShader, (deformGen_t) ds->deformationWave.func);
-				GLSL_SetUniform_DeformWave(&tr.shadowFillShader, &ds->deformationWave);
-				GLSL_SetUniform_DeformSpread(&tr.shadowFillShader, ds->deformationSpread);
-				GLSL_SetUniform_Time(&tr.shadowFillShader, backEnd.refdef.floatTime);
-				break;
-
-			case DEFORM_BULGE:
-				GLSL_SetUniform_DeformGen(&tr.shadowFillShader, DGEN_BULGE);
-				GLSL_SetUniform_DeformBulge(&tr.shadowFillShader, ds);
-				GLSL_SetUniform_Time(&tr.shadowFillShader, backEnd.refdef.floatTime);
-				break;
-
-			default:
-				GLSL_SetUniform_DeformGen(&tr.shadowFillShader, DGEN_NONE);
-				break;
-		}
+		gl_shadowFillShader->SetDeformStageUniforms(ds);
 	}
-	else
+
+	if(backEnd.viewParms.isPortal)
 	{
-		GLSL_SetUniform_DeformGen(&tr.shadowFillShader, DGEN_NONE);
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		gl_shadowFillShader->SetUniform_PortalPlane(plane);
 	}
 
 	// bind u_ColorMap
@@ -3927,7 +3761,7 @@ static void Render_shadowFill(int stage)
 	if((pStage->stateBits & GLS_ATEST_BITS) != 0)
 	{
 		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-		GLSL_SetUniform_ColorTextureMatrix(&tr.shadowFillShader, tess.svars.texMatrices[TB_COLORMAP]);
+		gl_shadowFillShader->SetUniform_ColorTextureMatrix(tess.svars.texMatrices[TB_COLORMAP]);
 	}
 	else
 	{

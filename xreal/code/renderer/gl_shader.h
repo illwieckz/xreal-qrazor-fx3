@@ -447,6 +447,30 @@ public:
 };
 
 
+class GLCompileMacro_LIGHT_DIRECTIONAL:
+GLCompileMacro
+{
+public:
+	GLCompileMacro_LIGHT_DIRECTIONAL(GLShader* shader):
+	  GLCompileMacro(shader)
+	{
+	}
+
+	const char* GetName() const { return "LIGHT_DIRECTIONAL"; }
+
+	void EnableMacro_LIGHT_DIRECTIONAL()	{ EnableMacro(); }
+	void DisableMacro_LIGHT_DIRECTIONAL()	{ DisableMacro(); }
+
+	void SetMacro_LIGHT_DIRECTIONAL(bool enable)
+	{
+		if(enable)
+			EnableMacro();
+		else
+			DisableMacro();
+	}
+};
+
+
 class GLCompileMacro_USE_SHADOWING:
 GLCompileMacro
 {
@@ -1339,10 +1363,38 @@ public:
 };
 
 
+
+class GLShader_shadowFill:
+public GLShader,
+public u_ColorTextureMatrix,
+public u_ViewOrigin,
+public u_AlphaTest,
+public u_LightOrigin,
+public u_LightRadius,
+public u_ModelMatrix,
+public u_ModelViewProjectionMatrix,
+public u_Color,
+public u_BoneMatrix,
+public u_VertexInterpolation,
+public u_PortalPlane,
+public GLDeformStage,
+public GLCompileMacro_USE_PORTAL_CLIPPING,
+public GLCompileMacro_USE_ALPHA_TESTING,
+public GLCompileMacro_USE_VERTEX_SKINNING,
+public GLCompileMacro_USE_VERTEX_ANIMATION,
+public GLCompileMacro_USE_DEFORM_VERTEXES,
+public GLCompileMacro_LIGHT_DIRECTIONAL
+{
+public:
+	GLShader_shadowFill();
+};
+
+
 extern GLShader_generic* gl_genericShader;
 extern GLShader_lightMapping* gl_lightMappingShader;
 extern GLShader_vertexLighting_DBS_entity* gl_vertexLightingShader_DBS_entity;
 extern GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world;
 extern GLShader_forwardLighting* gl_forwardLightingShader;
+extern GLShader_shadowFill* gl_shadowFillShader;
 
 #endif	// GL_SHADER_H
