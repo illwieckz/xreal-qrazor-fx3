@@ -30,12 +30,12 @@ attribute vec4		attr_Color;
 attribute vec4		attr_Position2;
 attribute vec3		attr_Normal2;
 
-#if defined(r_VertexSkinning)
+//#if defined(r_VertexSkinning)
 attribute vec4		attr_BoneIndexes;
 attribute vec4		attr_BoneWeights;
 uniform int			u_VertexSkinning;
 uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
-#endif
+//#endif
 
 uniform float		u_VertexInterpolation;
 
@@ -50,7 +50,6 @@ uniform float		u_Time;
 uniform vec4		u_ColorModulate;
 uniform vec4		u_Color;
 uniform mat4		u_ModelMatrix;
-//uniform mat4		u_ProjectionMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec3		var_Position;

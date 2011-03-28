@@ -27,9 +27,8 @@ uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
-#if defined(VSM) || defined(ESM)
 uniform samplerCube	u_ShadowMap;
-#endif
+
 uniform vec3		u_ViewOrigin;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;

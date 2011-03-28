@@ -84,12 +84,14 @@ public:
 		_compileMacros.push_back(compileMacro);
 	}
 
-	const char* GetCompileMacrosString(int permutation);
-
 	size_t GetNumOfCompiledMacros() const				{ return _compileMacros.size(); }
-
 	shaderProgram_t*		GetProgram() const			{ return _currentProgram; }
 
+protected:
+	const char* GetCompileMacrosString(int permutation);
+	void		UpdateShaderProgramUniformLocations(shaderProgram_t *shaderProgram) const;
+
+public:
 	void SelectProgram()
 	{
 		int index = 0;
@@ -104,8 +106,10 @@ public:
 		_currentProgram = &_shaderPrograms[index];
 	}
 
+
 	void BindProgram()
 	{
+		SelectProgram();
 		GL_BindProgram(_currentProgram);
 	}
 
@@ -156,7 +160,9 @@ protected:
 		_shader->RegisterUniform(this);
 	}
 
+public:
 	virtual const char* GetName() const = 0;
+	virtual const size_t Get_shaderProgram_t_Offset() const = 0;
 };
 
 
@@ -185,7 +191,7 @@ public:
 		if(!_shader->IsMacroSet(bit))
 		{
 			_shader->AddMacroBit(bit);
-			_shader->SelectProgram();
+			//_shader->SelectProgram();
 		}
 	}
 
@@ -196,7 +202,7 @@ public:
 		if(_shader->IsMacroSet(bit))
 		{
 			_shader->DelMacroBit(bit);
-			_shader->SelectProgram();
+			//_shader->SelectProgram();
 		}
 	}
 
@@ -392,6 +398,31 @@ public:
 	}
 };
 
+
+class GLCompileMacro_USE_NORMAL_MAPPING:
+GLCompileMacro
+{
+public:
+	GLCompileMacro_USE_NORMAL_MAPPING(GLShader* shader):
+	  GLCompileMacro(shader)
+	{
+	}
+
+	const char* GetName() const { return "USE_NORMAL_MAPPING"; }
+
+	void EnableNormalMapping()	{ EnableMacro(); }
+	void DisableNormalMapping()	{ DisableMacro(); }
+
+	void SetNormalMapping(bool enable)
+	{
+		if(enable)
+			EnableMacro();
+		else
+			DisableMacro();
+	}
+};
+
+
 class GLCompileMacro_USE_PARALLAX_MAPPING:
 GLCompileMacro
 {
@@ -451,6 +482,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_ColorTextureMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ColorTextureMatrix); }
 
 	void SetUniform_ColorTextureMatrix(const matrix_t m)
 	{
@@ -468,6 +500,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_DiffuseTextureMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DiffuseTextureMatrix); }
 
 	void SetUniform_DiffuseTextureMatrix(const matrix_t m)
 	{
@@ -485,6 +518,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_NormalTextureMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_NormalTextureMatrix); }
 
 	void SetUniform_NormalTextureMatrix(const matrix_t m)
 	{
@@ -502,6 +536,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_SpecularTextureMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_SpecularTextureMatrix); }
 
 	void SetUniform_SpecularTextureMatrix(const matrix_t m)
 	{
@@ -520,6 +555,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_AlphaTest"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_AlphaTest); }
 
 	void SetUniform_AlphaTest(uint32_t stateBits)
 	{
@@ -538,6 +574,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_AmbientColor"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_AmbientColor); }
 
 	void SetUniform_AmbientColor(const vec3_t v)
 	{
@@ -556,6 +593,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_ViewOrigin"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ViewOrigin); }
 
 	void SetUniform_ViewOrigin(const vec3_t v)
 	{
@@ -574,6 +612,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_LightDir"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_LightDir); }
 
 	void SetUniform_LightDir(const vec3_t v)
 	{
@@ -591,6 +630,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_LightOrigin"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_LightOrigin); }
 
 	void SetUniform_LightOrigin(const vec3_t v)
 	{
@@ -608,6 +648,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_LightColor"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_LightColor); }
 
 	void SetUniform_LightColor(const vec3_t v)
 	{
@@ -625,6 +666,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_LightRadius"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_LightRadius); }
 
 	void SetUniform_LightRadius(float value)
 	{
@@ -643,6 +685,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_LightScale"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_LightScale); }
 
 	void SetUniform_LightScale(float value)
 	{
@@ -661,6 +704,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_LightWrapAround"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_LightWrapAround); }
 
 	void SetUniform_LightWrapAround(float value)
 	{
@@ -678,6 +722,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_LightAttenuationMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_LightAttenuationMatrix); }
 
 	void SetUniform_LightAttenuationMatrix(const matrix_t m)
 	{
@@ -697,6 +742,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_ShadowTexelSize"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ShadowTexelSize); }
 
 	void SetUniform_ShadowTexelSize(float value)
 	{
@@ -714,6 +760,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_ShadowBlur"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ShadowBlur); }
 
 	void SetUniform_ShadowBlur(float value)
 	{
@@ -730,11 +777,12 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ModelMatrix"; }
+	const char* GetName() const { return "u_ShadowMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ShadowMatrix); }
 
-	void SetUniform_ModelMatrix(const matrix_t m)
+	void SetUniform_ShadowMatrix(matrix_t m[MAX_SHADOWMAPS])
 	{
-		GLSL_SetUniform_ModelMatrix(_shader->GetProgram(), m);
+		GLSL_SetUniform_ShadowMatrix(_shader->GetProgram(), m);
 	}
 };
 
@@ -750,6 +798,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_Color"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_Color); }
 
 	void SetUniform_Color(const vec4_t v)
 	{
@@ -770,6 +819,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_ModelMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ModelMatrix); }
 
 	void SetUniform_ModelMatrix(const matrix_t m)
 	{
@@ -788,6 +838,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_ModelViewProjectionMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ModelViewProjectionMatrix); }
 
 	void SetUniform_ModelViewProjectionMatrix(const matrix_t m)
 	{
@@ -806,6 +857,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_BoneMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_BoneMatrix); }
 
 	void SetUniform_BoneMatrix(int numBones, const matrix_t boneMatrices[MAX_BONES])
 	{
@@ -824,6 +876,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_VertexInterpolation"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_VertexInterpolation); }
 
 	void SetUniform_VertexInterpolation(float value)
 	{
@@ -842,6 +895,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_PortalPlane"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_PortalPlane); }
 
 	void SetUniform_PortalPlane(const vec4_t v)
 	{
@@ -859,6 +913,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_DepthScale"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DepthScale); }
 
 	void SetUniform_DepthScale(float value)
 	{
@@ -878,6 +933,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_DeformGen"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DeformGen); }
 
 	void SetUniform_DeformGen(deformGen_t value)
 	{
@@ -895,6 +951,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_DeformWave"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DeformWave); }
 
 	void SetUniform_DeformWave(const waveForm_t * wf)
 	{
@@ -912,6 +969,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_DeformSpread"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DeformSpread); }
 
 	void SetUniform_DeformSpread(float value)
 	{
@@ -929,6 +987,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_DeformBulge"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DeformBulge); }
 
 	void SetUniform_DeformBulge(deformStage_t *ds)
 	{
@@ -947,6 +1006,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_Time"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_Time); }
 
 	void SetUniform_Time(float value)
 	{
@@ -1010,6 +1070,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_TCGen_Environment"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_TCGen_Environment); }
 
 	void SetUniform_TCGen_Environment(qboolean value)
 	{
@@ -1027,6 +1088,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_ColorGen"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ColorGen); }
 
 	void SetUniform_ColorGen(colorGen_t value)
 	{
@@ -1056,6 +1118,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_ColorModulate"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ColorModulate); }
 
 	void SetUniform_ColorModulate(colorGen_t colorGen, alphaGen_t alphaGen)
 	{
@@ -1119,6 +1182,7 @@ public:
 	}
 
 	const char* GetName() const { return "u_AlphaGen"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_AlphaGen); }
 
 	void SetUniform_AlphaGen(alphaGen_t value)
 	{

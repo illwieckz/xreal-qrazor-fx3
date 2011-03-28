@@ -1296,6 +1296,7 @@ enum
 // Tr3B - shaderProgram_t represents a pair of one
 // GLSL vertex and one GLSL fragment shader
 #if !defined(USE_D3D10)
+
 typedef struct shaderProgram_s
 {
 	char            name[MAX_QPATH];
@@ -1498,7 +1499,7 @@ typedef struct shaderProgram_s
 	float			t_Time;
 } shaderProgram_t;
 
-	
+#define	SHADER_PROGRAM_T_OFS(x) ((size_t)&(((shaderProgram_t *)0)->x))
 
 //
 // Tr3B: these are fire wall functions to avoid expensive redundant glUniform* calls
