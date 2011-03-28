@@ -3904,10 +3904,10 @@ typedef struct
 	//shaderProgram_t vertexLightingShader_DBS_world;
 
 	// standard light mapping
-	shaderProgram_t lightMappingShader;
+	//shaderProgram_t lightMappingShader;
 
 	// directional light mapping
-	shaderProgram_t deluxeMappingShader;
+	//shaderProgram_t deluxeMappingShader;
 
 	// deferred Geometric-Buffer processing
 	shaderProgram_t geometricFillShader_DBS;

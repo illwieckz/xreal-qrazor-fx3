@@ -1226,13 +1226,20 @@ public:
 class GLShader_lightMapping:
 public GLShader,
 public u_DiffuseTextureMatrix,
+public u_NormalTextureMatrix,
+public u_SpecularTextureMatrix,
 public u_AlphaTest,
+public u_ViewOrigin,
+public u_ModelMatrix,
 public u_ModelViewProjectionMatrix,
 public u_PortalPlane,
+public u_DepthScale,
 public GLDeformStage,
 public GLCompileMacro_USE_PORTAL_CLIPPING,
 public GLCompileMacro_USE_ALPHA_TESTING,
-public GLCompileMacro_USE_DEFORM_VERTEXES
+public GLCompileMacro_USE_DEFORM_VERTEXES,
+public GLCompileMacro_USE_NORMAL_MAPPING,
+public GLCompileMacro_USE_PARALLAX_MAPPING
 {
 public:
 	GLShader_lightMapping();

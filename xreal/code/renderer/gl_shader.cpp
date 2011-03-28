@@ -154,17 +154,24 @@ GLShader_generic::GLShader_generic():
 
 
 GLShader_lightMapping::GLShader_lightMapping():
-		GLShader(	ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_NORMAL,
+		GLShader(	ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_NORMAL | ATTR_TANGENT | ATTR_BINORMAL,
 					0,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+					ATTR_TANGENT2 | ATTR_BINORMAL2),
 		u_DiffuseTextureMatrix(this),
+		u_NormalTextureMatrix(this),
+		u_SpecularTextureMatrix(this),
 		u_AlphaTest(this),
+		u_ViewOrigin(this),
+		u_ModelMatrix(this),
 		u_ModelViewProjectionMatrix(this),
 		u_PortalPlane(this),
+		u_DepthScale(this),
 		GLDeformStage(this),
 		GLCompileMacro_USE_PORTAL_CLIPPING(this),
 		GLCompileMacro_USE_ALPHA_TESTING(this),
-		GLCompileMacro_USE_DEFORM_VERTEXES(this)
+		GLCompileMacro_USE_DEFORM_VERTEXES(this),
+		GLCompileMacro_USE_NORMAL_MAPPING(this),
+		GLCompileMacro_USE_PARALLAX_MAPPING(this)
 {
 	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
 	
@@ -183,7 +190,7 @@ GLShader_lightMapping::GLShader_lightMapping():
 						"lightMapping",
 						"lightMapping",
 						"deformVertexes",
-						"",
+						"reliefMapping",
 						compileMacros,
 						_vertexAttribsRequired | _vertexAttribsOptional,
 						qtrue);
@@ -191,11 +198,17 @@ GLShader_lightMapping::GLShader_lightMapping():
 		UpdateShaderProgramUniformLocations(shaderProgram);
 
 		shaderProgram->u_DiffuseMap = glGetUniformLocationARB(shaderProgram->program, "u_DiffuseMap");
+		shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, "u_NormalMap");
+		shaderProgram->u_SpecularMap = glGetUniformLocationARB(shaderProgram->program, "u_SpecularMap");
 		shaderProgram->u_LightMap = glGetUniformLocationARB(shaderProgram->program, "u_LightMap");
+		shaderProgram->u_DeluxeMap = glGetUniformLocationARB(shaderProgram->program, "u_DeluxeMap");
 
 		glUseProgramObjectARB(shaderProgram->program);
 		glUniform1iARB(shaderProgram->u_DiffuseMap, 0);
-		glUniform1iARB(shaderProgram->u_LightMap, 1);
+		glUniform1iARB(shaderProgram->u_NormalMap, 1);
+		glUniform1iARB(shaderProgram->u_SpecularMap, 2);
+		glUniform1iARB(shaderProgram->u_LightMap, 3);
+		glUniform1iARB(shaderProgram->u_DeluxeMap, 4);
 		glUseProgramObjectARB(0);
 
 		GLSL_ValidateProgram(shaderProgram->program);

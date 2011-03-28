@@ -947,52 +947,6 @@ void GLSL_InitGPUShaders(void)
 	// standard light mapping
 	gl_lightMappingShader = new GLShader_lightMapping();
 
-	// directional light mapping aka deluxe mapping
-	if(r_normalMapping->integer)
-	{
-		GLSL_InitGPUShader(&tr.deluxeMappingShader,
-						   "deluxeMapping",
-						   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL, qtrue, qtrue);
-
-		tr.deluxeMappingShader.u_DiffuseMap = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DiffuseMap");
-		tr.deluxeMappingShader.u_NormalMap = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_NormalMap");
-		tr.deluxeMappingShader.u_SpecularMap = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_SpecularMap");
-		tr.deluxeMappingShader.u_LightMap = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_LightMap");
-		tr.deluxeMappingShader.u_DeluxeMap = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DeluxeMap");
-		tr.deluxeMappingShader.u_DiffuseTextureMatrix =
-			glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DiffuseTextureMatrix");
-		tr.deluxeMappingShader.u_NormalTextureMatrix =
-			glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_NormalTextureMatrix");
-		tr.deluxeMappingShader.u_SpecularTextureMatrix =
-			glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_SpecularTextureMatrix");
-		tr.deluxeMappingShader.u_AlphaTest = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_AlphaTest");
-		tr.deluxeMappingShader.u_ViewOrigin = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ViewOrigin");
-		tr.deluxeMappingShader.u_ParallaxMapping = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ParallaxMapping");
-		tr.deluxeMappingShader.u_DepthScale = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DepthScale");
-		tr.deluxeMappingShader.u_PortalClipping = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_PortalClipping");
-		tr.deluxeMappingShader.u_PortalPlane = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_PortalPlane");
-		tr.deluxeMappingShader.u_ModelMatrix = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelMatrix");
-		tr.deluxeMappingShader.u_ModelViewProjectionMatrix =
-			glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelViewProjectionMatrix");
-		tr.deluxeMappingShader.u_DeformGen = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DeformGen");
-		tr.deluxeMappingShader.u_DeformWave = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DeformWave");
-		tr.deluxeMappingShader.u_DeformBulge = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DeformBulge");
-		tr.deluxeMappingShader.u_DeformSpread = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DeformSpread");
-		tr.deluxeMappingShader.u_Time = glGetUniformLocationARB(tr.deluxeMappingShader.program, "u_Time");
-
-		glUseProgramObjectARB(tr.deluxeMappingShader.program);
-		glUniform1iARB(tr.deluxeMappingShader.u_DiffuseMap, 0);
-		glUniform1iARB(tr.deluxeMappingShader.u_NormalMap, 1);
-		glUniform1iARB(tr.deluxeMappingShader.u_SpecularMap, 2);
-		glUniform1iARB(tr.deluxeMappingShader.u_LightMap, 3);
-		glUniform1iARB(tr.deluxeMappingShader.u_DeluxeMap, 4);
-		glUseProgramObjectARB(0);
-
-		GLSL_ValidateProgram(tr.deluxeMappingShader.program);
-		GLSL_ShowProgramUniforms(tr.deluxeMappingShader.program);
-		GL_CheckErrors();
-	}
-
 	// geometric-buffer fill rendering with diffuse + bump + specular
 	if(DS_STANDARD_ENABLED() || DS_PREPASS_LIGHTING_ENABLED())
 	{
@@ -2240,11 +2194,13 @@ void GLSL_ShutdownGPUShaders(void)
 		gl_lightMappingShader = NULL;
 	}
 
+	/*
 	if(tr.deluxeMappingShader.program)
 	{
 		glDeleteObjectARB(tr.deluxeMappingShader.program);
 		Com_Memset(&tr.deluxeMappingShader, 0, sizeof(shaderProgram_t));
 	}
+	*/
 
 	if(tr.geometricFillShader_DBS.program)
 	{
@@ -3184,7 +3140,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 	GL_CheckErrors();
 }
 
-static void Render_lightMapping(int stage, qboolean asColorMap)
+static void Render_lightMapping(int stage, bool asColorMap, bool normalMapping)
 {
 	shaderStage_t  *pStage;
 	uint32_t	    stateBits;
@@ -3208,42 +3164,26 @@ static void Render_lightMapping(int stage, qboolean asColorMap)
 
 	GL_State(stateBits);
 
+	if(pStage->bundle[TB_NORMALMAP].image[0] == NULL)
+	{
+		normalMapping = false;
+	}
 	
 	// choose right shader program ----------------------------------
-	//if(backEnd.viewParms.isPortal)
-	//{
-	//	gl_lightMappingShader->EnablePortalClipping();
-	//}
-	//else
-	//{
-		gl_lightMappingShader->DisablePortalClipping();
-	//}
+	
+	gl_lightMappingShader->SetPortalClipping(backEnd.viewParms.isPortal);
+	gl_lightMappingShader->SetAlphaTesting((pStage->stateBits & GLS_ATEST_BITS) != 0);
+	
+	gl_lightMappingShader->SetDeformVertexes(tess.surfaceShader->numDeforms);
 
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		gl_lightMappingShader->EnableAlphaTesting();
-	}
-	else
-	{
-		gl_lightMappingShader->DisableAlphaTesting();
-	}
-
-	if(tess.surfaceShader->numDeforms)
-	{
-		gl_lightMappingShader->EnableDeformVertexes();
-	}
-	else
-	{
-		gl_lightMappingShader->DisableDeformVertexes();
-	}
+	gl_lightMappingShader->SetNormalMapping(r_normalMapping->integer && normalMapping);
+	gl_lightMappingShader->SetParallaxMapping(r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
 	gl_lightMappingShader->BindProgram();
 	
 	// end choose right shader program ------------------------------
 
 	// now we are ready to set the shader program uniforms
-
-	GL_VertexAttribsState(gl_lightMappingShader->GetProgram()->attribs);
 
 	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
@@ -3256,8 +3196,32 @@ static void Render_lightMapping(int stage, qboolean asColorMap)
 		gl_lightMappingShader->SetDeformStageUniforms(ds);
 	}
 
+	gl_lightMappingShader->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin); // in world space
+
+	gl_lightMappingShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
 	gl_lightMappingShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 	gl_lightMappingShader->SetUniform_AlphaTest(pStage->stateBits);
+
+	if(r_parallaxMapping->integer)
+	{
+		float           depthScale;
+
+		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
+		gl_lightMappingShader->SetUniform_DepthScale(depthScale);
+	}
+
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		gl_lightMappingShader->SetUniform_PortalPlane(plane);
+	}
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -3271,15 +3235,49 @@ static void Render_lightMapping(int stage, qboolean asColorMap)
 		gl_lightMappingShader->SetUniform_DiffuseTextureMatrix(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	}
 
+	if(normalMapping)
+	{
+		// bind u_NormalMap
+		GL_SelectTexture(1);
+		if(pStage->bundle[TB_NORMALMAP].image[0])
+		{
+			GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.flatImage);
+		}
+		gl_lightMappingShader->SetUniform_NormalTextureMatrix(tess.svars.texMatrices[TB_NORMALMAP]);
+
+		// bind u_SpecularMap
+		GL_SelectTexture(2);
+		if(pStage->bundle[TB_SPECULARMAP].image[0])
+		{
+			GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.blackImage);
+		}
+		gl_lightMappingShader->SetUniform_SpecularTextureMatrix(tess.svars.texMatrices[TB_SPECULARMAP]);
+
+		// bind u_DeluxeMap
+		GL_SelectTexture(4);
+		BindDeluxeMap();
+	}
+
 	// bind u_LightMap
-	GL_SelectTexture(1);
+	GL_SelectTexture(3);
 	BindLightMap();
+
+	gl_lightMappingShader->SetVertexAttribs();
 
 	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
 
+/*
 static void Render_deluxeMapping(int stage)
 {
 	vec3_t          viewOrigin;
@@ -3412,6 +3410,7 @@ static void Render_deluxeMapping(int stage)
 
 	GL_CheckErrors();
 }
+*/
 
 static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
 {
@@ -5624,11 +5623,11 @@ void Tess_StageIteratorGeneric()
 						{
 							if(tr.worldDeluxeMapping && r_normalMapping->integer)
 							{
-								Render_deluxeMapping(stage);
+								Render_lightMapping(stage, false, true);
 							}
 							else
 							{
-								Render_lightMapping(stage, qfalse);
+								Render_lightMapping(stage, false, false);
 							}
 						}
 						else if(backEnd.currentEntity != &tr.worldEntity)
@@ -5839,11 +5838,11 @@ void Tess_StageIteratorGBuffer()
 						{
 							if(tr.worldDeluxeMapping && r_normalMapping->integer)
 							{
-								Render_deluxeMapping(stage);
+								Render_lightMapping(stage, false, true);
 							}
 							else
 							{
-								Render_lightMapping(stage, qfalse);
+								Render_lightMapping(stage, false, false);
 							}
 						}
 						else if(backEnd.currentEntity != &tr.worldEntity)
