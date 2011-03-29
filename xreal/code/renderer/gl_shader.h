@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define GL_SHADER_H
 
 #include <vector>
+#include <string>
 
 #include "tr_local.h"
 
@@ -87,12 +88,34 @@ public:
 		_compileMacros.push_back(compileMacro);
 	}
 
-	size_t GetNumOfCompiledMacros() const				{ return _compileMacros.size(); }
-	shaderProgram_t*		GetProgram() const			{ return _currentProgram; }
+	size_t				GetNumOfCompiledMacros() const				{ return _compileMacros.size(); }
+	shaderProgram_t*	GetProgram() const			{ return _currentProgram; }
 
 protected:
-	const char* GetCompileMacrosString(int permutation);
-	void		UpdateShaderProgramUniformLocations(shaderProgram_t *shaderProgram) const;
+	const char*			GetCompileMacrosString(int permutation);
+	void				UpdateShaderProgramUniformLocations(shaderProgram_t *shaderProgram) const;
+
+	std::string			BuildGPUShaderText(	const char *mainShader,
+											const char *libShaders,
+											GLenum shaderType) const;
+
+	void				CompileAndLinkGPUShaderProgram(	shaderProgram_t * program,
+														const char *programName,
+														const std::string& vertexShaderText,
+														const std::string& fragmentShaderText,
+														const char *compileMacros) const;
+
+private:
+	void				CompileGPUShader(GLhandleARB program, const char* programName, const char *shaderText, int shaderTextSize, GLenum shaderType) const;
+
+	void				PrintShaderText(const std::string& shaderText) const;
+	void				PrintShaderSource(GLhandleARB object) const;
+	void				PrintInfoLog(GLhandleARB object, bool developerOnly) const;
+
+	void				LinkProgram(GLhandleARB program) const;
+	void				ValidateProgram(GLhandleARB program) const;
+	void				ShowProgramUniforms(GLhandleARB program) const;
+	void				BindAttribLocations(GLhandleARB program, uint32_t attribs) const;
 
 public:
 	void SelectProgram()

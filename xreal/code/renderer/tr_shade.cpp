@@ -759,7 +759,7 @@ void GLSL_ShowProgramUniforms(GLhandleARB program)
 	glUseProgramObjectARB(0);
 }
 
-static void GLSL_BindAttribLocations(GLhandleARB program, int attribs)
+static void GLSL_BindAttribLocations(GLhandleARB program, uint32_t attribs)
 {
 	if(attribs & ATTR_POSITION)
 		glBindAttribLocationARB(program, ATTR_INDEX_POSITION, "attr_Position");
