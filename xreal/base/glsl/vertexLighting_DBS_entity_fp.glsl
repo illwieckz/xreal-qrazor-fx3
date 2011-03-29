@@ -64,10 +64,17 @@ void	main()
 #if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
 	// invert tangent space for two sided surfaces
 	mat3 tangentToWorldMatrix;
+	
+#if defined(TWOSIDED)
 	if(gl_FrontFacing)
+	{
 		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
+	}
 	else
+#endif
+	{
 		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
+	}
 	
 	// compute view direction in world space
 	vec3 I = normalize(u_ViewOrigin - var_Position);
@@ -176,9 +183,12 @@ void	main()
 #else
 	
 	vec3 N;
+
+#if defined(TWOSIDED)
 	if(gl_FrontFacing)
 		N = -normalize(var_Normal);
 	else
+#endif
 		N = normalize(var_Normal);
 	
 	vec3 L = u_LightDir;

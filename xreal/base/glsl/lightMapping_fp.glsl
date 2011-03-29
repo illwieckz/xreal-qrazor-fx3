@@ -57,8 +57,6 @@ void	main()
 #endif
 
 
-	vec2 texDiffuse = var_TexDiffuse.st;
-
 #if defined(r_showLightMaps)
 	gl_FragColor = texture2D(u_LightMap, var_TexLight);
 #elif defined(r_showDeluxeMaps)
@@ -66,15 +64,22 @@ void	main()
 
 #elif defined(USE_NORMAL_MAPPING)
 
+	vec2 texDiffuse = var_TexDiffuse.st;
 	vec2 texNormal = var_TexNormal.st;
 	vec2 texSpecular = var_TexSpecular.st;
 
 	// invert tangent space for two sided surfaces
 	mat3 tangentToWorldMatrix;
+#if defined(TWOSIDED)
 	if(gl_FrontFacing)
+	{
 		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
+	}
 	else
+#endif
+	{
 		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
+	}
 	
 	// compute view direction in world space
 	vec3 I = normalize(u_ViewOrigin - var_Position);
@@ -164,7 +169,25 @@ void	main()
 #else // USE_NORMAL_MAPPING
 
 	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse.st);
+	
+#if defined(USE_ALPHA_TESTING)
+	if(u_AlphaTest == ATEST_GT_0 && diffuse.a <= 0.0)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_LT_128 && diffuse.a >= 0.5)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_GE_128 && diffuse.a < 0.5)
+	{
+		discard;
+		return;
+	}
+#endif
 
 	// compute light color from object space lightmap
 	vec3 lightColor = texture2D(u_LightMap, var_TexLight).rgb;

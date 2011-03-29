@@ -34,6 +34,7 @@ Returns true if the grid is completely culled away.
 Also sets the clipped hint bit in tess
 =================
 */
+/*
 static qboolean R_CullTriSurf(srfTriangles_t * cv)
 {
 	int             boxCull;
@@ -46,6 +47,7 @@ static qboolean R_CullTriSurf(srfTriangles_t * cv)
 	}
 	return qfalse;
 }
+*/
 
 /*
 =================
@@ -55,6 +57,7 @@ Returns true if the grid is completely culled away.
 Also sets the clipped hint bit in tess
 =================
 */
+/*
 static qboolean R_CullGrid(srfGridMesh_t * cv)
 {
 	int             boxCull;
@@ -109,6 +112,7 @@ static qboolean R_CullGrid(srfGridMesh_t * cv)
 
 	return qfalse;
 }
+*/
 
 
 /*
@@ -314,7 +318,7 @@ R_AddWorldSurface
 */
 static void R_AddWorldSurface(bspSurface_t * surf, int decalBits)
 {
-	int				i, frontFace;
+	int				frontFace;
 	shader_t       *shader;
 
 	if(surf->viewCount == tr.viewCountNoReset)

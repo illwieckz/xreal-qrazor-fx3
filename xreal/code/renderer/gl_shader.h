@@ -36,6 +36,9 @@ class GLShader
 {
 	//friend class GLCompileMacro_USE_ALPHA_TESTING;
 
+private:
+	GLShader& operator = (const GLShader&); 
+
 protected:
 	int									_activeMacros;
 
@@ -446,6 +449,28 @@ public:
 	}
 };
 
+class GLCompileMacro_TWOSIDED:
+GLCompileMacro
+{
+public:
+	GLCompileMacro_TWOSIDED(GLShader* shader):
+	  GLCompileMacro(shader)
+	{
+	}
+
+	const char* GetName() const { return "TWOSIDED"; }
+
+	void EnableMacro_TWOSIDED()		{ EnableMacro(); }
+	void DisableMacro_TWOSIDED()	{ DisableMacro(); }
+
+	void SetMacro_TWOSIDED(cullType_t cullType)
+	{
+		if(cullType == CT_TWO_SIDED || cullType == CT_BACK_SIDED)
+			EnableMacro();
+		else
+			DisableMacro();
+	}
+};
 
 class GLCompileMacro_LIGHT_DIRECTIONAL:
 GLCompileMacro
@@ -1263,7 +1288,8 @@ public GLCompileMacro_USE_PORTAL_CLIPPING,
 public GLCompileMacro_USE_ALPHA_TESTING,
 public GLCompileMacro_USE_DEFORM_VERTEXES,
 public GLCompileMacro_USE_NORMAL_MAPPING,
-public GLCompileMacro_USE_PARALLAX_MAPPING
+public GLCompileMacro_USE_PARALLAX_MAPPING,
+public GLCompileMacro_TWOSIDED
 {
 public:
 	GLShader_lightMapping();
@@ -1293,7 +1319,8 @@ public GLCompileMacro_USE_ALPHA_TESTING,
 public GLCompileMacro_USE_VERTEX_SKINNING,
 public GLCompileMacro_USE_VERTEX_ANIMATION,
 public GLCompileMacro_USE_DEFORM_VERTEXES,
-public GLCompileMacro_USE_PARALLAX_MAPPING
+public GLCompileMacro_USE_PARALLAX_MAPPING,
+public GLCompileMacro_TWOSIDED
 {
 public:
 	GLShader_vertexLighting_DBS_entity();
@@ -1318,7 +1345,8 @@ public GLDeformStage,
 public GLCompileMacro_USE_PORTAL_CLIPPING,
 public GLCompileMacro_USE_ALPHA_TESTING,
 public GLCompileMacro_USE_DEFORM_VERTEXES,
-public GLCompileMacro_USE_PARALLAX_MAPPING
+public GLCompileMacro_USE_PARALLAX_MAPPING,
+public GLCompileMacro_TWOSIDED
 {
 public:
 	GLShader_vertexLighting_DBS_world();
@@ -1356,7 +1384,8 @@ public GLCompileMacro_USE_VERTEX_SKINNING,
 public GLCompileMacro_USE_VERTEX_ANIMATION,
 public GLCompileMacro_USE_DEFORM_VERTEXES,
 public GLCompileMacro_USE_PARALLAX_MAPPING,
-public GLCompileMacro_USE_SHADOWING
+public GLCompileMacro_USE_SHADOWING,
+public GLCompileMacro_TWOSIDED
 {
 public:
 	GLShader_forwardLighting();

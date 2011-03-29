@@ -172,7 +172,8 @@ GLShader_lightMapping::GLShader_lightMapping():
 		GLCompileMacro_USE_ALPHA_TESTING(this),
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
 		GLCompileMacro_USE_NORMAL_MAPPING(this),
-		GLCompileMacro_USE_PARALLAX_MAPPING(this)
+		GLCompileMacro_USE_PARALLAX_MAPPING(this),
+		GLCompileMacro_TWOSIDED(this)
 {
 	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
 	
@@ -246,7 +247,8 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 		GLCompileMacro_USE_VERTEX_SKINNING(this),
 		GLCompileMacro_USE_VERTEX_ANIMATION(this),
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
-		GLCompileMacro_USE_PARALLAX_MAPPING(this)
+		GLCompileMacro_USE_PARALLAX_MAPPING(this),
+		GLCompileMacro_TWOSIDED(this)
 {
 	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
 	
@@ -314,7 +316,8 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 		GLCompileMacro_USE_PORTAL_CLIPPING(this),
 		GLCompileMacro_USE_ALPHA_TESTING(this),
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
-		GLCompileMacro_USE_PARALLAX_MAPPING(this)
+		GLCompileMacro_USE_PARALLAX_MAPPING(this),
+		GLCompileMacro_TWOSIDED(this)
 {
 	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
 	
@@ -392,7 +395,8 @@ GLShader_forwardLighting::GLShader_forwardLighting():
 		GLCompileMacro_USE_VERTEX_ANIMATION(this),
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
 		GLCompileMacro_USE_PARALLAX_MAPPING(this),
-		GLCompileMacro_USE_SHADOWING(this)
+		GLCompileMacro_USE_SHADOWING(this),
+		GLCompileMacro_TWOSIDED(this)
 {
 	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
 	

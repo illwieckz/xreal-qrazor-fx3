@@ -62,9 +62,9 @@ uniform float		u_Time;
 
 varying vec3		var_Position;
 varying vec4		var_TexDiffuse;
+varying vec4		var_TexNormal;
 #if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
 varying vec2		var_TexSpecular;
-varying vec4		var_TexNormal;
 #endif
 
 varying vec3		var_TexAttenXYZ;
@@ -188,18 +188,8 @@ void	main()
 	
 	// assign color
 	vec4 color = attr_Color * u_ColorModulate + u_Color;
-	color = vec4(1.0);
-	/*
-	if(bool(u_InverseVertexColor))
-	{
-		var_TexDiffuse.p = 1.0 - attr_Color.r;
-		var_TexNormal.p = 1.0 - attr_Color.g;
-		var_TexNormal.q = 1.0 - attr_Color.b;
-	}
-	else
-	*/
-	{
-		var_TexDiffuse.p = color.r;
-		var_TexNormal.pq = color.gb;
-	}
+	//color = vec4(1.0);
+	
+	var_TexDiffuse.p = color.r;
+	var_TexNormal.pq = color.gb;
 }

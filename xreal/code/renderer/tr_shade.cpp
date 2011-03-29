@@ -2846,6 +2846,8 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	gl_vertexLightingShader_DBS_entity->SetDeformVertexes(tess.surfaceShader->numDeforms);
 	gl_vertexLightingShader_DBS_entity->SetParallaxMapping(r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
+	gl_vertexLightingShader_DBS_entity->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+
 	gl_vertexLightingShader_DBS_entity->BindProgram();
 	
 	// end choose right shader program ------------------------------
@@ -2993,6 +2995,8 @@ static void Render_vertexLighting_DBS_world(int stage)
 	
 	gl_vertexLightingShader_DBS_world->SetDeformVertexes(tess.surfaceShader->numDeforms);
 	gl_vertexLightingShader_DBS_world->SetParallaxMapping(r_parallaxMapping->integer && tess.surfaceShader->parallax);
+
+	gl_vertexLightingShader_DBS_world->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
 	gl_vertexLightingShader_DBS_world->BindProgram();
 	
@@ -3151,6 +3155,8 @@ static void Render_lightMapping(int stage, bool asColorMap, bool normalMapping)
 
 	gl_lightMappingShader->SetNormalMapping(r_normalMapping->integer && normalMapping);
 	gl_lightMappingShader->SetParallaxMapping(r_parallaxMapping->integer && tess.surfaceShader->parallax);
+
+	gl_lightMappingShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
 	gl_lightMappingShader->BindProgram();
 	
@@ -3800,6 +3806,8 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	gl_forwardLightingShader->SetDeformVertexes(tess.surfaceShader->numDeforms);
 	gl_forwardLightingShader->SetParallaxMapping(r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
+	gl_forwardLightingShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+
 	gl_forwardLightingShader->SetShadowing(shadowCompare);
 
 	gl_forwardLightingShader->BindProgram();
@@ -3864,7 +3872,6 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 
 	GL_CheckErrors();
 
-	//gl_forwardLightingShader->SetUniform_ShadowCompare(&tr.forwardLightingShader_DBS_omni, shadowCompare);
 	if(shadowCompare)
 	{
 		gl_forwardLightingShader->SetUniform_ShadowTexelSize(shadowTexelSize);

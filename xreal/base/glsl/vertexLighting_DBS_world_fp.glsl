@@ -61,6 +61,8 @@ void	main()
 #if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
 	// construct object-space-to-tangent-space 3x3 matrix
 	mat3 objectToTangentMatrix;
+
+#if defined(TWOSIDED)
 	if(gl_FrontFacing)
 	{
 		objectToTangentMatrix = mat3( -var_Tangent.x, -var_Binormal.x, -var_Normal.x,
@@ -68,6 +70,7 @@ void	main()
 							-var_Tangent.z, -var_Binormal.z, -var_Normal.z	);
 	}
 	else
+#endif
 	{
 		objectToTangentMatrix = mat3(	var_Tangent.x, var_Binormal.x, var_Normal.x,
 							var_Tangent.y, var_Binormal.y, var_Normal.y,
@@ -171,6 +174,8 @@ void	main()
 	
 //	color.rgb = var_LightDirection.rgb;
 	gl_FragColor = color;
+	
+	//gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
 
 #elif defined(COMPAT_Q3A)
 
@@ -183,14 +188,30 @@ void	main()
 
 #else
 	vec3 N;
+
+#if defined(TWOSIDED)
 	if(gl_FrontFacing)
+	{
 		N = -normalize(var_Normal);
+	}
 	else
+#endif
+	{
 		N = normalize(var_Normal);
+	}
 	
 	vec3 L = normalize(var_LightDirection);
 	
-	gl_FragColor = vec4(diffuse.rgb * var_LightColor.rgb * clamp(dot(N, L), 0.0, 1.0), diffuse.a);
-	//gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
+	// compute the light term
+#if defined(r_WrapAroundLighting)
+	float NL = clamp(dot(N, L) + u_LightWrapAround, 0.0, 1.0) / clamp(1.0 + u_LightWrapAround, 0.0, 1.0);
+#else
+	float NL = clamp(dot(N, L), 0.0, 1.0);
+#endif
+	
+	vec3 light = var_LightColor.rgb * NL;
+	
+	gl_FragColor = vec4(diffuse.rgb * light, diffuse.a);
+	//gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
 #endif
 }
