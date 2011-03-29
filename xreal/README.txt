@@ -137,6 +137,11 @@ __________________________________________________________
 	XreaL/code/xreal.sln
 	XreaL/code/xrealradiant/XreaLRadiant.sln
 	XreaL/code/xmap2/xmap2.sln
+	
+	You need additional Win32 dependencies to build the XreaLRadiant on Windows.
+	Copy them from the DarkRadiant Subversion repository:
+	
+	> svn export -r5171 https://darkradiant.svn.sourceforge.net/svnroot/darkradiant/trunk/w32deps/   XreaL/code/xrealradiant/w32deps
 
 
 __________________________________
