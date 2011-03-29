@@ -50,7 +50,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../sys/sys_local.h"
 #include "sdl_icon.h"
 #include "SDL_syswm.h"
+
+#if defined(WIN32)
 #include <GL/wglew.h>
+#else
+#include <GL/glxew.h>
+#endif
 
 /* Just hack it for now. */
 #ifdef MACOS_X
