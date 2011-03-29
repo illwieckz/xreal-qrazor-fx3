@@ -41,14 +41,16 @@ uniform float       u_ShadowBlur;
 uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
 
+uniform float		u_DepthScale;
+
 varying vec3		var_Position;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
-#if defined(r_NormalMapping)
+#if defined(USE_NORMAL_MAPPING)
 varying vec2		var_TexSpecular;
 #endif
 varying vec3		var_TexAttenXYZ;
-#if defined(r_NormalMapping)
+#if defined(USE_NORMAL_MAPPING)
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
 #endif
@@ -225,11 +227,61 @@ void	main()
 	}
 
 #endif // USE_SHADOWING
-		
+	
 	// compute light direction in world space
 	vec3 L = normalize(u_LightOrigin - var_Position);
 
-#if defined(r_NormalMapping)
+	vec2 texDiffuse = var_TexDiffuse.st;
+	
+#if defined(USE_NORMAL_MAPPING)
+
+	// invert tangent space for twosided surfaces
+	mat3 tangentToWorldMatrix;
+#if defined(TWOSIDED)
+	if(gl_FrontFacing)
+	{
+		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
+	}
+	else
+#endif
+	{
+		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
+	}
+
+
+	vec2 texNormal = var_TexNormal.st;
+	vec2 texSpecular = var_TexSpecular.st;
+	
+#if defined(USE_PARALLAX_MAPPING)
+	
+	// ray intersect in view direction
+	
+	mat3 worldToTangentMatrix;
+	#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10)
+	worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
+								tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
+								tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
+	#else
+	worldToTangentMatrix = transpose(tangentToWorldMatrix);
+	#endif
+
+	// compute view direction in tangent space
+	vec3 I = worldToTangentMatrix * (u_ViewOrigin - var_Position.xyz);
+	I = normalize(I);
+	
+	// size and start position of search in texture space
+	vec2 S = I.xy * -u_DepthScale / I.z;
+		
+	float depth = RayIntersectDisplaceMap(texNormal, S, u_NormalMap);
+	
+	// compute texcoords offset
+	vec2 texOffset = S * depth;
+	
+	texDiffuse.st += texOffset;
+	texNormal.st += texOffset;
+	texSpecular.st += texOffset;
+#endif // USE_PARALLAX_MAPPING
+
 	// compute view direction in world space
 	vec3 V = normalize(u_ViewOrigin - var_Position);
 
@@ -237,32 +289,31 @@ void	main()
 	vec3 H = normalize(L + V);
 
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal.st).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_NormalMap, texNormal.st).xyz - 0.5);
 	#if defined(r_NormalScale)
 	N.z *= r_NormalScale;
 	normalize(N);
 	#endif
-	
-	// invert tangent space for twosided surfaces
-	mat3 tangentToWorldMatrix;
-#if defined(TWOSIDED)
-	if(gl_FrontFacing)
-		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
-	else
-#endif
-		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 
 	// transform normal into world space
 	N = tangentToWorldMatrix * N;
-#else
+
+	
+#else // USE_NORMAL_MAPPING
+
 	vec3 N;
 #if defined(TWOSIDED)
 	if(gl_FrontFacing)
+	{
 		N = -normalize(var_Normal.xyz);
+	}
 	else
 #endif
+	{
 		N = normalize(var_Normal.xyz);
-#endif
+	}
+		
+#endif // USE_NORMAL_MAPPING
 
 	// compute the light term
 #if defined(r_WrapAroundLighting)
@@ -272,12 +323,12 @@ void	main()
 #endif
 
 	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse.st);
+	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse.st);
 	diffuse.rgb *= u_LightColor * NL;
 
-#if defined(r_NormalMapping)
+#if defined(USE_NORMAL_MAPPING)
 	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 #endif
 
 	// compute attenuation
@@ -286,7 +337,7 @@ void	main()
 				
 	// compute final color
 	vec4 color = diffuse;
-#if defined(r_NormalMapping)
+#if defined(USE_NORMAL_MAPPING)
 	color.rgb += specular;
 #endif
 	color.rgb *= attenuationXY;
@@ -298,4 +349,14 @@ void	main()
 	color.gb *= var_TexNormal.pq;
 
 	gl_FragColor = color;
+	
+#if 0
+#if defined(USE_PARALLAX_MAPPING)
+	gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
+#elif defined(USE_NORMAL_MAPPING)
+	gl_FragColor = vec4(vec3(0.0, 0.0, 1.0), diffuse.a);
+#else
+	gl_FragColor = vec4(vec3(0.0, 1.0, 0.0), diffuse.a);
+#endif
+#endif
 }

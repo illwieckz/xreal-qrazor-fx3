@@ -83,7 +83,7 @@ void	main()
 	// transform diffusemap texcoords
 	var_TexDiffuseNormal.st = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	
-#if defined(r_NormalMapping)
+#if defined(USE_NORMAL_MAPPING)
 	// transform normalmap texcoords
 	var_TexDiffuseNormal.pq = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
@@ -99,7 +99,7 @@ void	main()
 	// assign color
 	var_LightColor = attr_Color;// * u_ColorModulate;// + u_Color;
 	
-#if defined(r_NormalMapping)
+#if defined(USE_NORMAL_MAPPING)
 	var_Tangent = attr_Tangent;
 	var_Binormal = attr_Binormal;
 #endif

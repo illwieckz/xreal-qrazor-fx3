@@ -27,7 +27,6 @@ uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
 uniform int			u_AlphaTest;
 uniform vec3		u_ViewOrigin;
-uniform int			u_ParallaxMapping;
 uniform float		u_DepthScale;
 uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
@@ -58,7 +57,8 @@ void	main()
 		}
 	}
 
-#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
+#if defined(USE_NORMAL_MAPPING)
+
 	// construct object-space-to-tangent-space 3x3 matrix
 	mat3 objectToTangentMatrix;
 
@@ -79,14 +79,10 @@ void	main()
 	
 	// compute view direction in tangent space
 	vec3 V = normalize(objectToTangentMatrix * (u_ViewOrigin - var_Position));
-#endif
 	
 	vec2 texDiffuse = var_TexDiffuseNormal.st;
-
-#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
 	vec2 texNormal = var_TexDiffuseNormal.pq;
 	vec2 texSpecular = var_TexSpecular.st;
-#endif
 
 #if defined(USE_PARALLAX_MAPPING)
 	
@@ -112,7 +108,7 @@ void	main()
 	texDiffuse.st += texOffset;
 	texNormal.st += texOffset;
 	texSpecular.st += texOffset;
-#endif
+#endif // USE_PARALLAX_MAPPING
 
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
@@ -135,7 +131,6 @@ void	main()
 	}
 #endif
 
-#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5);
 	#if defined(r_NormalScale)
@@ -186,7 +181,29 @@ void	main()
 	//gl_FragColor = vec4(vec3(var_LightColor.a, var_LightColor.a, var_LightColor.a), 1.0);
 	//gl_FragColor = var_LightColor;
 
-#else
+#else // USE_NORMAL_MAPPING
+
+	// compute the diffuse term
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuseNormal.st);
+	
+#if defined(USE_ALPHA_TESTING)
+	if(u_AlphaTest == ATEST_GT_0 && diffuse.a <= 0.0)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_LT_128 && diffuse.a >= 0.5)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_GE_128 && diffuse.a < 0.5)
+	{
+		discard;
+		return;
+	}
+#endif
+
 	vec3 N;
 
 #if defined(TWOSIDED)
@@ -213,5 +230,5 @@ void	main()
 	
 	gl_FragColor = vec4(diffuse.rgb * light, diffuse.a);
 	//gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
-#endif
+#endif // USE_NORMAL_MAPPING
 }

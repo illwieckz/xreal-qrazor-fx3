@@ -63,13 +63,13 @@ uniform float		u_Time;
 varying vec3		var_Position;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
-#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
+#if defined(USE_NORMAL_MAPPING)
 varying vec2		var_TexSpecular;
 #endif
 
 varying vec3		var_TexAttenXYZ;
 
-#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
+#if defined(USE_NORMAL_MAPPING)
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
 #endif
@@ -97,7 +97,7 @@ void	main()
 			
 			position += (boneMatrix * attr_Position) * boneWeight;
 			
-			#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
+			#if defined(USE_NORMAL_MAPPING)
 			tangent += (boneMatrix * vec4(attr_Tangent, 0.0)).xyz * boneWeight;
 			binormal += (boneMatrix * vec4(attr_Binormal, 0.0)).xyz * boneWeight;
 			#endif
@@ -109,7 +109,7 @@ void	main()
 	{
 		if(u_VertexInterpolation > 0.0)
 		{
-			#if defined(r_NormalMapping)
+			#if defined(USE_NORMAL_MAPPING)
 			VertexAnimation_P_TBN(	attr_Position, attr_Position2,
 									attr_Tangent, attr_Tangent2,
 									attr_Binormal, attr_Binormal2,
@@ -127,7 +127,7 @@ void	main()
 		{
 			position = attr_Position;
 			
-			#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
+			#if defined(USE_NORMAL_MAPPING)
 			tangent = attr_Tangent;
 			binormal = attr_Binormal;
 			#endif
@@ -139,7 +139,7 @@ void	main()
 	{
 		position = attr_Position;
 		
-		#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
+		#if defined(USE_NORMAL_MAPPING)
 		tangent = attr_Tangent;
 		binormal = attr_Binormal;
 		#endif
@@ -165,10 +165,10 @@ void	main()
 	// transform position into world space
 	var_Position = (u_ModelMatrix * position).xyz;
 
-	#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
+#if defined(USE_NORMAL_MAPPING)
 	var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
 	var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
-	#endif
+#endif
 	
 	var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
 		
@@ -178,7 +178,7 @@ void	main()
 	// transform diffusemap texcoords
 	var_TexDiffuse.xy = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	
-#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
+#if defined(USE_NORMAL_MAPPING)
 	// transform normalmap texcoords
 	var_TexNormal.xy = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
@@ -188,7 +188,7 @@ void	main()
 	
 	// assign color
 	vec4 color = attr_Color * u_ColorModulate + u_Color;
-	//color = vec4(1.0);
+	// color = vec4(1.0);
 	
 	var_TexDiffuse.p = color.r;
 	var_TexNormal.pq = color.gb;

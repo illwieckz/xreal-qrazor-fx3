@@ -2836,6 +2836,8 @@ static void Render_vertexLighting_DBS_entity(int stage)
 
 	GL_State(stateBits);
 
+	bool normalMapping = r_normalMapping->integer && (pStage->bundle[TB_NORMALMAP].image[0] != NULL);
+
 	// choose right shader program ----------------------------------
 	gl_vertexLightingShader_DBS_entity->SetPortalClipping(backEnd.viewParms.isPortal);
 	gl_vertexLightingShader_DBS_entity->SetAlphaTesting((pStage->stateBits & GLS_ATEST_BITS) != 0);
@@ -2844,7 +2846,9 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	gl_vertexLightingShader_DBS_entity->SetVertexAnimation(glState.vertexAttribsInterpolation > 0);
 	
 	gl_vertexLightingShader_DBS_entity->SetDeformVertexes(tess.surfaceShader->numDeforms);
-	gl_vertexLightingShader_DBS_entity->SetParallaxMapping(r_parallaxMapping->integer && tess.surfaceShader->parallax);
+
+	gl_vertexLightingShader_DBS_entity->SetNormalMapping(normalMapping);
+	gl_vertexLightingShader_DBS_entity->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
 	gl_vertexLightingShader_DBS_entity->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
@@ -2933,7 +2937,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	GLSL_SetUniform_DiffuseTextureMatrix(gl_vertexLightingShader_DBS_entity->GetProgram(), tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
-	if(r_normalMapping->integer)
+	if(normalMapping)
 	{
 		attribBits |= ATTR_TANGENT | ATTR_BINORMAL;
 
@@ -2989,12 +2993,16 @@ static void Render_vertexLighting_DBS_world(int stage)
 
 	GL_State(stateBits);
 
+	bool normalMapping = r_normalMapping->integer && (pStage->bundle[TB_NORMALMAP].image[0] != NULL);
+
 	// choose right shader program ----------------------------------
 	gl_vertexLightingShader_DBS_world->SetPortalClipping(backEnd.viewParms.isPortal);
 	gl_vertexLightingShader_DBS_world->SetAlphaTesting((pStage->stateBits & GLS_ATEST_BITS) != 0);
 	
 	gl_vertexLightingShader_DBS_world->SetDeformVertexes(tess.surfaceShader->numDeforms);
-	gl_vertexLightingShader_DBS_world->SetParallaxMapping(r_parallaxMapping->integer && tess.surfaceShader->parallax);
+
+	gl_vertexLightingShader_DBS_world->SetNormalMapping(normalMapping);
+	gl_vertexLightingShader_DBS_world->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
 	gl_vertexLightingShader_DBS_world->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
@@ -3083,7 +3091,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	gl_vertexLightingShader_DBS_world->SetUniform_DiffuseTextureMatrix(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
-	if(r_normalMapping->integer)
+	if(normalMapping)
 	{
 		// bind u_NormalMap
 		GL_SelectTexture(1);
@@ -3153,8 +3161,8 @@ static void Render_lightMapping(int stage, bool asColorMap, bool normalMapping)
 	
 	gl_lightMappingShader->SetDeformVertexes(tess.surfaceShader->numDeforms);
 
-	gl_lightMappingShader->SetNormalMapping(r_normalMapping->integer && normalMapping);
-	gl_lightMappingShader->SetParallaxMapping(r_parallaxMapping->integer && tess.surfaceShader->parallax);
+	gl_lightMappingShader->SetNormalMapping(normalMapping);
+	gl_lightMappingShader->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
 	gl_lightMappingShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
@@ -3787,14 +3795,15 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
 	float           shadowTexelSize;
-	bool			shadowCompare;
 	colorGen_t		colorGen;
 	alphaGen_t		alphaGen;
 
 	GLimp_LogComment("--- Render_forwardLighting_DBS_omni ---\n");
 
 
-	shadowCompare = (r_shadows->integer >= SHADOWING_VSM16 && !light->l.noShadows && light->shadowLOD >= 0);
+	bool normalMapping = r_normalMapping->integer && (diffuseStage->bundle[TB_NORMALMAP].image[0] != NULL);
+
+	bool shadowCompare = (r_shadows->integer >= SHADOWING_VSM16 && !light->l.noShadows && light->shadowLOD >= 0);
 
 	// choose right shader program ----------------------------------
 	gl_forwardLightingShader->SetPortalClipping(backEnd.viewParms.isPortal);
@@ -3804,7 +3813,9 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	gl_forwardLightingShader->SetVertexAnimation(glState.vertexAttribsInterpolation > 0);
 	
 	gl_forwardLightingShader->SetDeformVertexes(tess.surfaceShader->numDeforms);
-	gl_forwardLightingShader->SetParallaxMapping(r_parallaxMapping->integer && tess.surfaceShader->parallax);
+
+	gl_forwardLightingShader->SetNormalMapping(normalMapping);
+	gl_forwardLightingShader->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
 	gl_forwardLightingShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
@@ -3815,8 +3826,6 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	// end choose right shader program ------------------------------
 
 	// now we are ready to set the shader program uniforms
-
-	GL_CheckErrors();
 
 	// u_ColorModulate
 	switch (diffuseStage->rgbGen)
@@ -3848,7 +3857,13 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	// u_Color
 	gl_forwardLightingShader->SetUniform_Color(tess.svars.color);
 
-	GL_CheckErrors();
+	if(r_parallaxMapping->integer)
+	{
+		float           depthScale;
+
+		depthScale = RB_EvalExpression(&diffuseStage->depthScaleExp, r_parallaxDepthScale->value);
+		gl_forwardLightingShader->SetUniform_DepthScale(depthScale);
+	}
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
@@ -3918,7 +3933,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
 	gl_forwardLightingShader->SetUniform_DiffuseTextureMatrix(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
-	if(r_normalMapping->integer)
+	if(normalMapping)
 	{
 		// bind u_NormalMap
 		GL_SelectTexture(1);

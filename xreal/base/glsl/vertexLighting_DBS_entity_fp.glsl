@@ -31,14 +31,13 @@ uniform vec3		u_AmbientColor;
 uniform vec3		u_LightDir;
 uniform vec3		u_LightColor;
 uniform float		u_SpecularExponent;
-uniform int			u_ParallaxMapping;
 uniform float		u_DepthScale;
 uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
 
 varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
-#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
+#if defined(USE_NORMAL_MAPPING)
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_Tangent;
@@ -61,7 +60,7 @@ void	main()
 	}
 #endif
 
-#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
+#if defined(USE_NORMAL_MAPPING)
 	// invert tangent space for two sided surfaces
 	mat3 tangentToWorldMatrix;
 	
@@ -78,13 +77,10 @@ void	main()
 	
 	// compute view direction in world space
 	vec3 I = normalize(u_ViewOrigin - var_Position);
-#endif
 	
 	vec2 texDiffuse = var_TexDiffuse.st;
-#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
 	vec2 texNormal = var_TexNormal.st;
 	vec2 texSpecular = var_TexSpecular.st;
-#endif
 
 #if defined(USE_PARALLAX_MAPPING)
 	
@@ -146,7 +142,6 @@ void	main()
 	}
 #endif
 
-#if defined(r_NormalMapping) || defined(USE_PARALLAX_MAPPING)
 	// compute normal in world space from normalmap
 	vec3 N = tangentToWorldMatrix * (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5));
 	
@@ -180,7 +175,30 @@ void	main()
 	
 	gl_FragColor = color;
 	//gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
-#else
+
+#else // USE_NORMAL_MAPPING
+	
+
+	// compute the diffuse term
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse.st);
+	
+#if defined(USE_ALPHA_TESTING)
+	if(u_AlphaTest == ATEST_GT_0 && diffuse.a <= 0.0)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_LT_128 && diffuse.a >= 0.5)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_GE_128 && diffuse.a < 0.5)
+	{
+		discard;
+		return;
+	}
+#endif
 	
 	vec3 N;
 
@@ -211,7 +229,7 @@ void	main()
 //	gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
 //#endif
 	
-#endif // r_NormalMapping
+#endif // USE_NORMAL_MAPPING
 }
 
 

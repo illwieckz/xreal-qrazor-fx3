@@ -1319,6 +1319,7 @@ public GLCompileMacro_USE_ALPHA_TESTING,
 public GLCompileMacro_USE_VERTEX_SKINNING,
 public GLCompileMacro_USE_VERTEX_ANIMATION,
 public GLCompileMacro_USE_DEFORM_VERTEXES,
+public GLCompileMacro_USE_NORMAL_MAPPING,
 public GLCompileMacro_USE_PARALLAX_MAPPING,
 public GLCompileMacro_TWOSIDED
 {
@@ -1345,6 +1346,7 @@ public GLDeformStage,
 public GLCompileMacro_USE_PORTAL_CLIPPING,
 public GLCompileMacro_USE_ALPHA_TESTING,
 public GLCompileMacro_USE_DEFORM_VERTEXES,
+public GLCompileMacro_USE_NORMAL_MAPPING,
 public GLCompileMacro_USE_PARALLAX_MAPPING,
 public GLCompileMacro_TWOSIDED
 {
@@ -1383,6 +1385,7 @@ public GLCompileMacro_USE_ALPHA_TESTING,
 public GLCompileMacro_USE_VERTEX_SKINNING,
 public GLCompileMacro_USE_VERTEX_ANIMATION,
 public GLCompileMacro_USE_DEFORM_VERTEXES,
+public GLCompileMacro_USE_NORMAL_MAPPING,
 public GLCompileMacro_USE_PARALLAX_MAPPING,
 public GLCompileMacro_USE_SHADOWING,
 public GLCompileMacro_TWOSIDED
