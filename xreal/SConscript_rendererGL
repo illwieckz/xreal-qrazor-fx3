@@ -5,9 +5,8 @@ Import('env')
 # the file with vmMain function MUST be the first one of the list
 rendererGL_src = [
 'code/renderer/gl_shader.cpp',
-'code/renderer/qgl.c',
 'code/renderer/tr_animation.c',
-'code/renderer/tr_backend.cpp',
+ 'code/renderer/tr_backend.cpp',
 'code/renderer/tr_bsp.c',
 'code/renderer/tr_cmds.c',
 'code/renderer/tr_curve.c',
@@ -142,10 +141,13 @@ rendererGL_src = [
 'code/qcommon/q_shared.c',
 'code/sys/sdl_gamma.c',
 'code/sys/sdl_glimp.c',
+'code/glew/src/glew.c',
 ]
 
 
 rendererGL_env = env.Clone()
+rendererGL_env.Append(CCFLAGS='-DGLEW_STATIC')
+rendererGL_env.Append(CCFLAGS='-Icode/glew/include')
 
 if env['compatq3a'] == 1:
 	rendererGL_env.Append(CCFLAGS='-DCOMPAT_Q3A')
