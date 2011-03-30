@@ -118,11 +118,12 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 		if(shaderType == GL_VERTEX_SHADER_ARB)
 		{
 			Com_sprintf(filename, sizeof(filename), "glsl/%s_vp.glsl", token);
-			ri.Printf(PRINT_DEVELOPER, "...loading vertex shader '%s'\n", filename);
+			ri.Printf(PRINT_ALL, "...loading vertex shader '%s'\n", filename);
 		}
 		else
 		{
 			Com_sprintf(filename, sizeof(filename), "glsl/%s_fp.glsl", token);
+			ri.Printf(PRINT_ALL, "...loading vertex shader '%s'\n", filename);
 		}
 	
 		libSize = ri.FS_ReadFile(filename, (void **)&libBuffer);
@@ -149,12 +150,12 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 	if(shaderType == GL_VERTEX_SHADER_ARB)
 	{
 		Com_sprintf(filename, sizeof(filename), "glsl/%s_vp.glsl", mainShaderName);
-		ri.Printf(PRINT_DEVELOPER, "...loading vertex main() shader '%s'\n", filename);
+		ri.Printf(PRINT_ALL, "...loading vertex main() shader '%s'\n", filename);
 	}
 	else
 	{
 		Com_sprintf(filename, sizeof(filename), "glsl/%s_fp.glsl", mainShaderName);
-		ri.Printf(PRINT_DEVELOPER, "...loading fragment main() shader '%s'\n", filename);
+		ri.Printf(PRINT_ALL, "...loading fragment main() shader '%s'\n", filename);
 	}
 
 	mainSize = ri.FS_ReadFile(filename, (void **)&mainBuffer);
@@ -969,6 +970,11 @@ GLShader_generic::GLShader_generic():
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
 		GLCompileMacro_USE_TCGEN_ENVIRONMENT(this)
 {
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating generic shaders ------------------------\n");
+
+	int startTime = ri.Milliseconds();
+
 	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
@@ -1016,6 +1022,9 @@ GLShader_generic::GLShader_generic():
 	}
 
 	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...generic shader permutations compile time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 }
 
 
@@ -1049,6 +1058,11 @@ GLShader_lightMapping::GLShader_lightMapping():
 		GLCompileMacro_USE_PARALLAX_MAPPING(this),
 		GLCompileMacro_TWOSIDED(this)
 {
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating lightMapping shaders -------------------\n");
+
+	int startTime = ri.Milliseconds();
+
 	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
@@ -1104,6 +1118,9 @@ GLShader_lightMapping::GLShader_lightMapping():
 	}
 
 	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...lightMapping shader permutations compile time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 }
 
 
@@ -1136,6 +1153,11 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 		GLCompileMacro_USE_PARALLAX_MAPPING(this),
 		GLCompileMacro_TWOSIDED(this)
 {
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating vertexLighting_DBS_entity shaders ------\n");
+
+	int startTime = ri.Milliseconds();
+
 	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
@@ -1187,6 +1209,9 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 	}
 
 	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...vertexLighting_DBS_entity shader permutations compile time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 }
 
 
@@ -1217,6 +1242,11 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 		GLCompileMacro_USE_PARALLAX_MAPPING(this),
 		GLCompileMacro_TWOSIDED(this)
 {
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating vertexLighting_DBS_world shaders -------\n");
+
+	int startTime = ri.Milliseconds();
+
 	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
@@ -1268,6 +1298,9 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 	}
 
 	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...vertexLighting_DBS_world shader permutations compile time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 }
 
 
@@ -1308,6 +1341,11 @@ GLShader_forwardLighting::GLShader_forwardLighting():
 		GLCompileMacro_USE_SHADOWING(this),
 		GLCompileMacro_TWOSIDED(this)
 {
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating forwardLighting shaders ----------------\n");
+
+	int startTime = ri.Milliseconds();
+
 	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
@@ -1371,6 +1409,9 @@ GLShader_forwardLighting::GLShader_forwardLighting():
 	}
 
 	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...forwardLighting shader permutations compile time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 }
 
 
@@ -1402,6 +1443,11 @@ GLShader_shadowFill::GLShader_shadowFill():
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
 		GLCompileMacro_LIGHT_DIRECTIONAL(this)
 {
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating shadowFill shaders ---------------------\n");
+
+	int startTime = ri.Milliseconds();
+
 	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
@@ -1449,4 +1495,7 @@ GLShader_shadowFill::GLShader_shadowFill():
 	}
 
 	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...shadowFill shader permutations compile time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 }
