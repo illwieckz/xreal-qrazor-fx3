@@ -537,6 +537,8 @@ static void GLimp_InitOpenGL3xContext()
 	if(!r_glCoreProfile->integer)
 		return;
 
+	GLimp_GetCurrentContext();
+
 	// try to initialize an OpenGL 3.0 context
 #if defined(WIN32)
 	if(WGLEW_ARB_create_context || wglewIsSupported("WGL_ARB_create_context"))
@@ -835,8 +837,6 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 			ri.Printf(PRINT_DEVELOPER, "SDL_SetVideoMode failed: %s\n", SDL_GetError());
 			continue;
 		}
-
-		GLimp_GetCurrentContext();
 
 		ri.Printf(PRINT_ALL, "Using %d/%d/%d Color bits, %d depth, %d stencil display.\n",
 				  sdlcolorbits, sdlcolorbits, sdlcolorbits, tdepthbits, tstencilbits);
