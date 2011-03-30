@@ -3739,13 +3739,13 @@ void Com_Init(char *commandLine)
 	// get the developer cvar set as early as possible
 	Com_StartupVariable("developer");
 
-#if defined(_DEBUG)
-	com_developer = Cvar_Get("developer", "1", CVAR_TEMP);
-	com_logfile = Cvar_Get("logfile", "2", CVAR_TEMP);
-#else
+//#if defined(_DEBUG)
+//	com_developer = Cvar_Get("developer", "1", CVAR_TEMP);
+//	com_logfile = Cvar_Get("logfile", "2", CVAR_TEMP);
+//#else
 	com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
 	com_logfile = Cvar_Get("logfile", "0", CVAR_TEMP);
-#endif
+//#endif
 
 	// done early so bind command exists
 	CL_InitKeyCommands();
