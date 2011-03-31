@@ -40,6 +40,7 @@ class GLShader
 private:
 	GLShader& operator = (const GLShader&); 
 
+	std::string							_name;
 protected:
 	int									_activeMacros;
 
@@ -53,9 +54,10 @@ protected:
 	const uint32_t						_vertexAttribsOptional;
 	const uint32_t						_vertexAttribsUnsupported;
 	uint32_t							_vertexAttribs;
-public:
 
-	GLShader(uint32_t vertexAttribsRequired, uint32_t vertexAttribsOptional, uint32_t vertexAttribsUnsupported):
+
+	GLShader(const std::string& name, uint32_t vertexAttribsRequired, uint32_t vertexAttribsOptional, uint32_t vertexAttribsUnsupported):
+	  _name(name),
 	  _vertexAttribsRequired(vertexAttribsRequired),
 	  _vertexAttribsOptional(vertexAttribsOptional),
 	  _vertexAttribsUnsupported(vertexAttribsUnsupported)
@@ -63,6 +65,8 @@ public:
 		_activeMacros = 0;
 		_currentProgram = NULL;
 		_vertexAttribs = 0;
+
+		//ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
 	}
 
 	~GLShader()
@@ -72,6 +76,8 @@ public:
 			glDeleteObjectARB(_shaderPrograms[i].program);
 		}
 	}
+
+public:
 
 	void RegisterUniform(GLUniform* uniform)
 	{
@@ -89,10 +95,10 @@ public:
 	}
 
 	size_t				GetNumOfCompiledMacros() const				{ return _compileMacros.size(); }
-	shaderProgram_t*	GetProgram() const			{ return _currentProgram; }
+	shaderProgram_t*	GetProgram() const							{ return _currentProgram; }
 
 protected:
-	const char*			GetCompileMacrosString(int permutation);
+	bool				GetCompileMacrosString(int permutation, std::string& compileMacrosOut) const;
 	void				UpdateShaderProgramUniformLocations(shaderProgram_t *shaderProgram) const;
 
 	std::string			BuildGPUShaderText(	const char *mainShader,
@@ -103,7 +109,7 @@ protected:
 														const char *programName,
 														const std::string& vertexShaderText,
 														const std::string& fragmentShaderText,
-														const char *compileMacros) const;
+														const std::string& compileMacros) const;
 
 private:
 	void				CompileGPUShader(GLhandleARB program, const char* programName, const char *shaderText, int shaderTextSize, GLenum shaderType) const;
@@ -113,31 +119,16 @@ private:
 	void				PrintInfoLog(GLhandleARB object, bool developerOnly) const;
 
 	void				LinkProgram(GLhandleARB program) const;
-	void				ValidateProgram(GLhandleARB program) const;
-	void				ShowProgramUniforms(GLhandleARB program) const;
 	void				BindAttribLocations(GLhandleARB program, uint32_t attribs) const;
 
+protected:
+	void				ValidateProgram(GLhandleARB program) const;
+	void				ShowProgramUniforms(GLhandleARB program) const;
+	
+
 public:
-	void SelectProgram()
-	{
-		int index = 0;
-
-		size_t numMacros = _compileMacros.size();
-		for(int i = 0; i < numMacros; i++)
-		{
-			if(_activeMacros & BIT(i))
-				index += BIT(i);
-		}
-
-		_currentProgram = &_shaderPrograms[index];
-	}
-
-
-	void BindProgram()
-	{
-		SelectProgram();
-		GL_BindProgram(_currentProgram);
-	}
+	void				SelectProgram();
+	void				BindProgram();
 
 	bool IsMacroSet(int bit)
 	{
@@ -207,8 +198,28 @@ protected:
 		_shader->RegisterCompileMacro(this);
 	}
 
+	// RB: This is not good oo design, but it can be a workaround and its cost is more or less only a virtual function call. 
+	// It also works regardless of RTTI is enabled or not.
+	enum EGLCompileMacro
+	{
+		USE_ALPHA_TESTING,
+		USE_PORTAL_CLIPPING,
+		USE_VERTEX_SKINNING,
+		USE_VERTEX_ANIMATION,
+		USE_DEFORM_VERTEXES,
+		USE_TCGEN_ENVIRONMENT,
+		USE_NORMAL_MAPPING,
+		USE_PARALLAX_MAPPING,
+		USE_SHADOWING,
+		TWOSIDED,
+		LIGHT_DIRECTIONAL
+	};
+
 public:
 	virtual const char* GetName() const = 0;
+	virtual EGLCompileMacro GetType() const = 0;
+	virtual bool		HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const { return false; }
+	virtual bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const { return false; }
 
 	void EnableMacro()
 	{
@@ -247,6 +258,7 @@ public:
 	}
 
 	const char* GetName() const { return "USE_ALPHA_TESTING"; }
+	EGLCompileMacro GetType() const { return USE_ALPHA_TESTING; }
 
 	void EnableAlphaTesting()		{ EnableMacro(); }
 	void DisableAlphaTesting()		{ DisableMacro(); }
@@ -270,6 +282,7 @@ public:
 	}
 
 	const char* GetName() const { return "USE_PORTAL_CLIPPING"; }
+	EGLCompileMacro GetType() const { return USE_PORTAL_CLIPPING; }
 
 	void EnablePortalClipping()		{ EnableMacro(); }
 	void DisablePortalClipping()	{ DisableMacro(); }
@@ -293,6 +306,9 @@ public:
 	}
 
 	const char* GetName() const { return "USE_VERTEX_SKINNING"; }
+	EGLCompileMacro GetType() const { return USE_VERTEX_SKINNING; }
+	bool		HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
+	
 
 	void EnableVertexSkinning()
 	{
@@ -326,6 +342,8 @@ public:
 	}
 
 	const char* GetName() const { return "USE_VERTEX_ANIMATION"; }
+	EGLCompileMacro GetType() const { return USE_VERTEX_ANIMATION; }
+	bool		HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
 
 	void EnableVertexAnimation()
 	{
@@ -370,6 +388,7 @@ public:
 	}
 
 	const char* GetName() const { return "USE_DEFORM_VERTEXES"; }
+	EGLCompileMacro GetType() const { return USE_DEFORM_VERTEXES; }
 
 	void EnableDeformVertexes()
 	{
@@ -402,6 +421,7 @@ public:
 	}
 
 	const char* GetName() const { return "USE_TCGEN_ENVIRONMENT"; }
+	EGLCompileMacro GetType() const { return USE_TCGEN_ENVIRONMENT; }
 
 	void EnableTCGenEnvironment()
 	{
@@ -435,6 +455,7 @@ public:
 	}
 
 	const char* GetName() const { return "USE_NORMAL_MAPPING"; }
+	EGLCompileMacro GetType() const { return USE_NORMAL_MAPPING; }
 
 	void EnableNormalMapping()	{ EnableMacro(); }
 	void DisableNormalMapping()	{ DisableMacro(); }
@@ -459,6 +480,8 @@ public:
 	}
 
 	const char* GetName() const { return "USE_PARALLAX_MAPPING"; }
+	EGLCompileMacro GetType() const { return USE_PARALLAX_MAPPING; }
+	bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
 
 	void EnableParallaxMapping()	{ EnableMacro(); }
 	void DisableParallaxMapping()	{ DisableMacro(); }
@@ -482,6 +505,8 @@ public:
 	}
 
 	const char* GetName() const { return "TWOSIDED"; }
+	EGLCompileMacro GetType() const { return TWOSIDED; }
+	bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
 
 	void EnableMacro_TWOSIDED()		{ EnableMacro(); }
 	void DisableMacro_TWOSIDED()	{ DisableMacro(); }
@@ -505,6 +530,7 @@ public:
 	}
 
 	const char* GetName() const { return "LIGHT_DIRECTIONAL"; }
+	EGLCompileMacro GetType() const { return LIGHT_DIRECTIONAL; }
 
 	void EnableMacro_LIGHT_DIRECTIONAL()	{ EnableMacro(); }
 	void DisableMacro_LIGHT_DIRECTIONAL()	{ DisableMacro(); }
@@ -529,6 +555,7 @@ public:
 	}
 
 	const char* GetName() const { return "USE_SHADOWING"; }
+	EGLCompileMacro GetType() const { return USE_SHADOWING; }
 
 	void EnableShadowing()	{ EnableMacro(); }
 	void DisableShadowing()	{ DisableMacro(); }

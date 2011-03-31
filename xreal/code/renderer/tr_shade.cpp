@@ -2850,7 +2850,10 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	gl_vertexLightingShader_DBS_entity->SetNormalMapping(normalMapping);
 	gl_vertexLightingShader_DBS_entity->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
-	gl_vertexLightingShader_DBS_entity->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+	if(normalMapping)
+		gl_vertexLightingShader_DBS_entity->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+	else
+		gl_vertexLightingShader_DBS_entity->DisableMacro_TWOSIDED();
 
 	gl_vertexLightingShader_DBS_entity->BindProgram();
 	
@@ -3004,7 +3007,10 @@ static void Render_vertexLighting_DBS_world(int stage)
 	gl_vertexLightingShader_DBS_world->SetNormalMapping(normalMapping);
 	gl_vertexLightingShader_DBS_world->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
-	gl_vertexLightingShader_DBS_world->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+	if(normalMapping)
+		gl_vertexLightingShader_DBS_world->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+	else
+		gl_vertexLightingShader_DBS_world->DisableMacro_TWOSIDED();
 
 	gl_vertexLightingShader_DBS_world->BindProgram();
 	
@@ -3164,7 +3170,10 @@ static void Render_lightMapping(int stage, bool asColorMap, bool normalMapping)
 	gl_lightMappingShader->SetNormalMapping(normalMapping);
 	gl_lightMappingShader->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
-	gl_lightMappingShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+	if(normalMapping)
+		gl_lightMappingShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+	else
+		gl_lightMappingShader->DisableMacro_TWOSIDED();
 
 	gl_lightMappingShader->BindProgram();
 	
@@ -3268,6 +3277,7 @@ static void Render_lightMapping(int stage, bool asColorMap, bool normalMapping)
 
 static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	shaderStage_t  *pStage;
 	uint32_t        stateBits;
 	vec3_t          viewOrigin;
@@ -3419,10 +3429,12 @@ static void Render_forwardLighting_DBS_post(int stage, qboolean cmap2black)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	shaderStage_t  *pStage;
 	uint32_t        stateBits;
 	vec3_t          viewOrigin;
@@ -3575,11 +3587,13 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 
 static void Render_depthFill(int stage, qboolean cmap2black)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	shaderStage_t  *pStage;
 	uint32_t        stateBits;
 	vec4_t          ambientColor;
@@ -3686,6 +3700,7 @@ static void Render_depthFill(int stage, qboolean cmap2black)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_shadowFill(int stage)
@@ -3817,7 +3832,10 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	gl_forwardLightingShader->SetNormalMapping(normalMapping);
 	gl_forwardLightingShader->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
-	gl_forwardLightingShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+	if(normalMapping)
+		gl_forwardLightingShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+	else
+		gl_forwardLightingShader->DisableMacro_TWOSIDED();
 
 	gl_forwardLightingShader->SetShadowing(shadowCompare);
 
@@ -3990,6 +4008,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 											shaderStage_t * attenuationXYStage,
 											shaderStage_t * attenuationZStage, trRefLight_t * light)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
@@ -4154,12 +4173,14 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 											shaderStage_t * attenuationXYStage,
 											shaderStage_t * attenuationZStage, trRefLight_t * light)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	vec3_t          viewOrigin;
 	vec3_t          lightDirection;
 	vec4_t          lightColor;
@@ -4349,10 +4370,12 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_reflection_C(int stage)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -4397,10 +4420,12 @@ static void Render_reflection_C(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_reflection_CB(int stage)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -4450,10 +4475,12 @@ static void Render_reflection_CB(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_refraction_C(int stage)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -4491,10 +4518,12 @@ static void Render_refraction_C(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_dispersion_C(int stage)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 	float           eta;
@@ -4537,10 +4566,12 @@ static void Render_dispersion_C(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_skybox(int stage)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -4567,10 +4598,12 @@ static void Render_skybox(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_screen(int stage)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_screen ---\n");
@@ -4601,10 +4634,12 @@ static void Render_screen(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_portal(int stage)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_portal ---\n");
@@ -4638,10 +4673,12 @@ static void Render_portal(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_heatHaze(int stage)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	uint32_t        stateBits;
 	float           deformMagnitude;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
@@ -4826,10 +4863,12 @@ static void Render_heatHaze(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void Render_liquid(int stage)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	vec3_t          viewOrigin;
 	float           fogDensity;
 	vec3_t          fogColor;
@@ -4926,6 +4965,7 @@ static void Render_liquid(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
+#endif
 }
 
 

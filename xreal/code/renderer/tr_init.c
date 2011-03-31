@@ -366,6 +366,10 @@ static void InitOpenGL(void)
 		{
 			glConfig.maxTextureSize = 0;
 		}
+
+#if defined(GLSL_COMPILE_STARTUP_ONLY)
+		GLSL_InitGPUShaders();
+#endif
 	}
 
 	GL_CheckErrors();
@@ -1967,7 +1971,10 @@ void R_Init(void)
 #else
 	InitOpenGL();
 
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	GLSL_InitGPUShaders();
+#endif
+
 #endif
 
 	R_InitImages();
@@ -2090,7 +2097,10 @@ void RE_Shutdown(qboolean destroyWindow)
 			}
 		}
 
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 		GLSL_ShutdownGPUShaders();
+#endif
+
 #endif
 
 		//GLimp_ShutdownRenderThread();
@@ -2109,6 +2119,11 @@ void RE_Shutdown(qboolean destroyWindow)
 	if(destroyWindow)
 #endif
 	{
+
+#if defined(GLSL_COMPILE_STARTUP_ONLY)
+		GLSL_ShutdownGPUShaders();
+#endif
+
 		GLimp_Shutdown();
 
 #if defined(USE_D3D10)

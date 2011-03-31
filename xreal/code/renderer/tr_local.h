@@ -91,6 +91,8 @@ typedef unsigned short glIndex_t;
 
 //#define DEFERRED_SHADING_Z_PREPASS 1
 
+//#define GLSL_COMPILE_STARTUP_ONLY 1
+
 typedef enum
 {
 	DS_DISABLED,				// traditional Doom 3 style rendering
