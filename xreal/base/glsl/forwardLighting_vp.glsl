@@ -34,12 +34,12 @@ attribute vec3		attr_Tangent2;
 attribute vec3		attr_Binormal2;
 attribute vec3		attr_Normal2;
 
-#if defined(r_VertexSkinning)
+//#if defined(r_VertexSkinning)
 attribute vec4		attr_BoneIndexes;
 attribute vec4		attr_BoneWeights;
 uniform int			u_VertexSkinning;
 uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
-#endif
+//#endif
 
 uniform float		u_VertexInterpolation;
 

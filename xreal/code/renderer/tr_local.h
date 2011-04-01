@@ -91,7 +91,7 @@ typedef unsigned short glIndex_t;
 
 //#define DEFERRED_SHADING_Z_PREPASS 1
 
-//#define GLSL_COMPILE_STARTUP_ONLY 1
+#define GLSL_COMPILE_STARTUP_ONLY 1
 
 typedef enum
 {
@@ -110,6 +110,9 @@ typedef enum
 	SHADOWING_ESM
 } shadowingMode_t;
 
+
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
 #define DS_STANDARD_ENABLED() ((r_deferredShading->integer == DS_STANDARD && glConfig.maxColorAttachments >= 4 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4 && glConfig.framebufferPackedDepthStencilAvailable && glConfig.driverType != GLDRV_MESA))
 
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
@@ -119,6 +122,22 @@ typedef enum
 #endif
 
 #define HDR_ENABLED() ((r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.driverType != GLDRV_MESA))
+
+#else // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
+#define DS_STANDARD_ENABLED() (1 == 0)
+
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+#define DS_PREPASS_LIGHTING_ENABLED() (1 == 0)
+#else
+#define DS_PREPASS_LIGHTING_ENABLED() (1 == 0)
+#endif
+
+#define HDR_ENABLED() (1 == 0)
+
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
+
 
 #define REF_CUBEMAP_SIZE	32
 #define REF_CUBEMAP_STORE_SIZE	1024
@@ -3925,6 +3944,7 @@ typedef struct
 	// directional light mapping
 	//shaderProgram_t deluxeMappingShader;
 
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	// deferred Geometric-Buffer processing
 	shaderProgram_t geometricFillShader_DBS;
 
@@ -3948,7 +3968,6 @@ typedef struct
 	// Doom3 style omni-directional multi-pass lighting
 	//shaderProgram_t forwardLightingShader_DBS_omni;
 	shaderProgram_t forwardLightingShader_DBS_proj;
-	shaderProgram_t forwardLightingShader_DBS_directional;
 
 	// forward shading using the pre pass light buffer
 	shaderProgram_t forwardLightingShader_DBS_post;
@@ -3989,6 +4008,8 @@ typedef struct
 #endif
 	shaderProgram_t toneMappingShader;
 	shaderProgram_t debugShadowMapShader;
+
+#endif // GLSL_COMPILE_STARTUP_ONLY
 
 #endif // !defined(USE_D3D10)
 

@@ -2145,6 +2145,8 @@ static void RB_RenderInteractions()
 	}
 }
 
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
 /*
 =================
 RB_RenderInteractionsStencilShadowed
@@ -2591,6 +2593,7 @@ static void RB_RenderInteractionsStencilShadowed()
 	}
 }
 
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 
 /*
@@ -3230,6 +3233,7 @@ static void RB_RenderInteractionsShadowMapped()
 
 					case RL_DIRECTIONAL:
 					{
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 						// draw split frustum shadow maps
 						if(r_showShadowMaps->integer)
 						{
@@ -3386,6 +3390,7 @@ static void RB_RenderInteractionsShadowMapped()
 
 							GL_PopMatrix();
 						}
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 					}
 
 					default:
@@ -3949,6 +3954,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 }
 
 
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 void RB_RenderInteractionsDeferred()
 {
@@ -6946,6 +6952,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	}
 }
 
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
 #if 0
 static void RB_RenderInteractionsDeferredInverseShadows()
 {
@@ -7924,6 +7932,7 @@ void RB_RenderDepthOfField()
 
 void RB_RenderUniformFog()
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	vec3_t          viewOrigin;
 	float           fogDensity;
 	vec3_t          fogColor;
@@ -8006,10 +8015,12 @@ void RB_RenderUniformFog()
 	GL_PopMatrix();
 
 	GL_CheckErrors();
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 }
 
 void RB_RenderBloom()
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	int				i, j;
 	matrix_t        ortho;
 	matrix_t		modelView;
@@ -8227,10 +8238,12 @@ void RB_RenderBloom()
 	GL_PopMatrix();
 
 	GL_CheckErrors();
+#endif
 }
 
 void RB_RenderRotoscope(void)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	matrix_t        ortho;
 
 	GLimp_LogComment("--- RB_CameraPostFX ---\n");
@@ -8267,10 +8280,12 @@ void RB_RenderRotoscope(void)
 	GL_PopMatrix();
 
 	GL_CheckErrors();
+#endif
 }
 
 void RB_CameraPostFX(void)
 {
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	matrix_t        ortho;
 	matrix_t		grain;
 
@@ -8352,6 +8367,7 @@ void RB_CameraPostFX(void)
 	GL_PopMatrix();
 
 	GL_CheckErrors();
+#endif
 }
 
 static void RB_CalculateAdaptation()
@@ -8434,6 +8450,9 @@ static void RB_CalculateAdaptation()
 
 	GL_CheckErrors();
 }
+
+
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 void RB_RenderDeferredShadingResultToFrameBuffer()
 {
@@ -8610,7 +8629,7 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 	GL_PopMatrix();
 }
 
-
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 
 
@@ -10904,6 +10923,7 @@ static void RB_RenderDebugUtils()
 		GL_PopMatrix();
 	}
 
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	if(r_showCubeProbes->integer)
 	{
 		cubemapProbe_t *cubeProbe;
@@ -10999,6 +11019,7 @@ static void RB_RenderDebugUtils()
 		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	if(r_showLightGrid->integer)
 	{
@@ -11328,6 +11349,8 @@ static void RB_RenderView(void)
 	GL_CheckErrors();
 
 	backEnd.pc.c_surfaces += backEnd.viewParms.numDrawSurfs;
+
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	if(DS_PREPASS_LIGHTING_ENABLED())
 	{
@@ -11889,6 +11912,7 @@ static void RB_RenderView(void)
 		}
 	}
 	else
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	{
 		//
 		// Forward shading path
@@ -12020,11 +12044,13 @@ static void RB_RenderView(void)
 			// render player shadows if any
 			//RB_RenderInteractionsDeferredInverseShadows();
 		}
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 		else if(r_shadows->integer == SHADOWING_STENCIL)
 		{
 			// render dynamic shadowing and lighting using stencil shadow volumes
 			RB_RenderInteractionsStencilShadowed();
 		}
+#endif
 		else
 		{
 			// render dynamic lighting
@@ -12100,8 +12126,11 @@ static void RB_RenderView(void)
 		// render bloom post process effect
 		RB_RenderBloom();
 
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
 		// copy offscreen rendered HDR scene to the current OpenGL context
 		RB_RenderDeferredHDRResultToFrameBuffer();
+#endif
 
 		// render rotoscope post process effect
 		RB_RenderRotoscope();

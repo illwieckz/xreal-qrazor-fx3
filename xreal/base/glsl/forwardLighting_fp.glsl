@@ -27,17 +27,38 @@ uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
+
+#if defined(LIGHT_DIRECTIONAL)
+uniform sampler2D	u_ShadowMap0;
+uniform sampler2D	u_ShadowMap1;
+uniform sampler2D	u_ShadowMap2;
+uniform sampler2D	u_ShadowMap3;
+uniform sampler2D	u_ShadowMap4;
+#else
 uniform samplerCube	u_ShadowMap;
+#endif
+
+
 
 uniform vec3		u_ViewOrigin;
+
+#if defined(LIGHT_DIRECTIONAL)
+uniform vec3		u_LightDir;
+#else
 uniform vec3		u_LightOrigin;
+#endif
 uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform	float		u_LightWrapAround;
-uniform int			u_ShadowCompare;
+
+uniform mat4		u_ShadowMatrix[MAX_SHADOWMAPS];
+uniform vec4		u_ShadowParallelSplitDistances;
 uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
+
+uniform mat4		u_ViewMatrix;
+
 uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
 
@@ -58,7 +79,7 @@ varying vec4		var_Normal;
 //varying vec4		var_Color;
 
 
-#if defined(VSM) || defined(ESM)
+#if !defined(LIGHT_DIRECTIONAL)
 
 /*
 ================
@@ -81,6 +102,7 @@ void MakeNormalVectors(const vec3 forward, inout vec3 right, inout vec3 up)
 	normalize(right);
 	up = cross(right, forward);	// GLSL cross product is the same as in Q3A
 }
+
 
 vec4 PCF(vec3 I, float filterWidth, float samples)
 {
@@ -107,6 +129,12 @@ vec4 PCF(vec3 I, float filterWidth, float samples)
 }
 #endif
 
+
+
+
+
+
+
 void	main()
 {
 #if defined(USE_PORTAL_CLIPPING)
@@ -122,25 +150,198 @@ void	main()
 
 	float shadow = 1.0;
 #if defined(USE_SHADOWING)
-#if defined(VSM)
-	{
-		// compute incident ray
-		vec3 I = var_Position - u_LightOrigin;
+
+#if defined(LIGHT_DIRECTIONAL)
+
+	vec4 shadowVert;
+	vec4 shadowMoments;
 	
-		#if defined(PCF_2X2)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 2.0);
-		#elif defined(PCF_3X3)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 3.0);
-		#elif defined(PCF_4X4)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 4.0);
-		#elif defined(PCF_5X5)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 5.0);
-		#elif defined(PCF_6X6)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 6.0);
+	// transform to camera space
+	vec4 Pcam = u_ViewMatrix * vec4(var_Position.xyz, 1.0);
+	float vertexDistanceToCamera = -Pcam.z;
+	
+#if defined(r_ParallelShadowSplits_1)
+	if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		return;
 		#else
-		vec4 shadowMoments = textureCube(u_ShadowMap, I);
+		shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+		#endif
+	}
+	else
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+		#endif
+	}
+#elif defined(r_ParallelShadowSplits_2)
+	if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+		#endif
+	}
+	else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
 		#endif
 		
+	}
+	else
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[2] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+		#endif
+	}
+#elif defined(r_ParallelShadowSplits_3)
+	if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+		#endif
+	}
+	else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+		#endif
+		
+	}
+	else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[2] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+		#endif
+	}
+	else
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[3] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap3, shadowVert.xyw);
+		#endif
+	}
+#elif defined(r_ParallelShadowSplits_4)
+	if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+		#endif
+	}
+	else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
+		#endif
+		
+	}
+	else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[2] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
+		#endif
+	}
+	else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.w)
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[3] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap3, shadowVert.xyw);
+		#endif
+	}
+	else
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[4] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap4, shadowVert.xyw);
+		#endif
+	}
+#else
+	{
+		#if defined(r_ShowParallelShadowSplits)
+		gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+		return;
+		#else
+		shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+		shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+		#endif
+	}
+#endif
+
+
+#else
+	// compute incident ray
+	vec3 I = var_Position.xyz - u_LightOrigin;
+
+	#if defined(PCF_2X2)
+	vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 2.0);
+	#elif defined(PCF_3X3)
+	vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 3.0);
+	#elif defined(PCF_4X4)
+	vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 4.0);
+	#elif defined(PCF_5X5)
+	vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 5.0);
+	#elif defined(PCF_6X6)
+	vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 6.0);
+	#else
+	vec4 shadowMoments = textureCube(u_ShadowMap, I);
+	#endif
+#endif
+
+
+#if defined(VSM)
+	{
 		#if defined(VSM_CLAMP)
 		// convert to [-1, 1] vector space
 		shadowMoments = 2.0 * (shadowMoments - 0.5);
@@ -150,7 +351,12 @@ void	main()
 		float shadowDistanceSquared = shadowMoments.a;
 		
 		const float	SHADOW_BIAS = 0.001;
+
+#if defined(LIGHT_DIRECTIONAL)
+		float vertexDistance = shadowVert.z - SHADOW_BIAS;
+#else
 		float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
+#endif
 	
 		// standard shadow map comparison
 		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
@@ -161,6 +367,7 @@ void	main()
 	
 		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
 		float variance = max(E_x2 - Ex_2, VSM_EPSILON);
+		// float variance = smoothstep(VSM_EPSILON, 1.0, max(E_x2 - Ex_2, 0.0));
 	
 		// compute probabilistic upper bound
 		float mD = shadowDistance - vertexDistance;
@@ -183,31 +390,21 @@ void	main()
 		#endif
 	}
 #elif defined(ESM)
-	{
-		// compute incident ray
-		vec3 I = var_Position - u_LightOrigin;
-	
-		#if defined(PCF_2X2)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 2.0);
-		#elif defined(PCF_3X3)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 3.0);
-		#elif defined(PCF_4X4)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 4.0);
-		#elif defined(PCF_5X5)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 5.0);
-		#elif defined(PCF_6X6)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 6.0);
-		#else
-		vec4 shadowMoments = textureCube(u_ShadowMap, I);
-		#endif
-		
+	{		
 		const float	SHADOW_BIAS = 0.001;
+		
+#if defined(LIGHT_DIRECTIONAL)
+		float vertexDistance = shadowVert.z - SHADOW_BIAS;
+#else
 		float vertexDistance = (length(I) / u_LightRadius) * r_ShadowMapDepthScale;// - SHADOW_BIAS;
+#endif
 		
 		float shadowDistance = shadowMoments.a;
 		
 		// exponential shadow mapping
+		// shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
 		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
+		// shadow = smoothstep(0.0, 1.0, shadow);
 		
 		#if defined(DEBUG_ESM)
 		#extension GL_EXT_gpu_shader4 : enable
@@ -229,7 +426,11 @@ void	main()
 #endif // USE_SHADOWING
 	
 	// compute light direction in world space
+#if defined(LIGHT_DIRECTIONAL)
+	vec3 L = u_LightDir;
+#else
 	vec3 L = normalize(u_LightOrigin - var_Position);
+#endif
 
 	vec2 texDiffuse = var_TexDiffuse.st;
 	
@@ -252,6 +453,9 @@ void	main()
 	vec2 texNormal = var_TexNormal.st;
 	vec2 texSpecular = var_TexSpecular.st;
 	
+	// compute view direction in world space
+	vec3 V = normalize(u_ViewOrigin - var_Position.xyz);
+	
 #if defined(USE_PARALLAX_MAPPING)
 	
 	// ray intersect in view direction
@@ -266,11 +470,11 @@ void	main()
 	#endif
 
 	// compute view direction in tangent space
-	vec3 I = worldToTangentMatrix * (u_ViewOrigin - var_Position.xyz);
-	I = normalize(I);
+	vec3 Vts = worldToTangentMatrix * V;
+	Vts = normalize(Vts);
 	
 	// size and start position of search in texture space
-	vec2 S = I.xy * -u_DepthScale / I.z;
+	vec2 S = Vts.xy * -u_DepthScale / Vts.z;
 		
 	float depth = RayIntersectDisplaceMap(texNormal, S, u_NormalMap);
 	
@@ -281,9 +485,6 @@ void	main()
 	texNormal.st += texOffset;
 	texSpecular.st += texOffset;
 #endif // USE_PARALLAX_MAPPING
-
-	// compute view direction in world space
-	vec3 V = normalize(u_ViewOrigin - var_Position);
 
 	// compute half angle in world space
 	vec3 H = normalize(L + V);
@@ -331,17 +532,25 @@ void	main()
 	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 #endif
 
+
+#if !defined(LIGHT_DIRECTIONAL)
 	// compute attenuation
 	vec3 attenuationXY		= texture2D(u_AttenuationMapXY, var_TexAttenXYZ.xy).rgb;
 	vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(var_TexAttenXYZ.z, 0)).rgb;
+#endif
 				
 	// compute final color
 	vec4 color = diffuse;
+	
 #if defined(USE_NORMAL_MAPPING)
 	color.rgb += specular;
 #endif
+
+#if !defined(LIGHT_DIRECTIONAL)
 	color.rgb *= attenuationXY;
 	color.rgb *= attenuationZ;
+#endif
+	
 	color.rgb *= u_LightScale;
 	color.rgb *= shadow;
 

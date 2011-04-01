@@ -33,7 +33,8 @@ GLShader_generic* gl_genericShader = NULL;
 GLShader_lightMapping* gl_lightMappingShader = NULL;
 GLShader_vertexLighting_DBS_entity* gl_vertexLightingShader_DBS_entity = NULL;
 GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world = NULL;
-GLShader_forwardLighting* gl_forwardLightingShader = NULL;
+GLShader_forwardLighting_omniXYZ* gl_forwardLightingShader_omniXYZ = NULL;
+GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun = NULL;
 GLShader_shadowFill* gl_shadowFillShader = NULL;
 
 
@@ -930,7 +931,7 @@ void GLShader::LinkProgram(GLhandleARB program) const
 	if(!linked)
 	{
 		PrintInfoLog(program, qfalse);
-		ri.Error(ERR_DROP, "%s\nshaders failed to link");
+		ri.Error(ERR_DROP, "Shaders failed to link!!!");
 	}
 }
 
@@ -944,7 +945,7 @@ void GLShader::ValidateProgram(GLhandleARB program) const
 	if(!validated)
 	{
 		PrintInfoLog(program, qfalse);
-		ri.Error(ERR_DROP, "%s\nshaders failed to validate");
+		ri.Error(ERR_DROP, "Shaders failed to validate!!!");
 	}
 }
 
@@ -1177,7 +1178,7 @@ GLShader_generic::GLShader_generic():
 	SelectProgram();
 
 	int endTime = ri.Milliseconds();
-	ri.Printf(PRINT_ALL, "...compiled %i generic shader permutations in = %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+	ri.Printf(PRINT_ALL, "...compiled %i generic shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
 }
 
 
@@ -1268,7 +1269,7 @@ GLShader_lightMapping::GLShader_lightMapping():
 	SelectProgram();
 
 	int endTime = ri.Milliseconds();
-	ri.Printf(PRINT_ALL, "...compiled %i lightMapping shader permutations in = %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+	ri.Printf(PRINT_ALL, "...compiled %i lightMapping shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
 }
 
 
@@ -1354,7 +1355,7 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 	SelectProgram();
 
 	int endTime = ri.Milliseconds();
-	ri.Printf(PRINT_ALL, "...compiled %i vertexLighting_DBS_entity shader permutations in = %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+	ri.Printf(PRINT_ALL, "...compiled %i vertexLighting_DBS_entity shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
 }
 
 
@@ -1438,13 +1439,13 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 	SelectProgram();
 
 	int endTime = ri.Milliseconds();
-	ri.Printf(PRINT_ALL, "...compiled %i vertexLighting_DBS_world shader permutations in = %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+	ri.Printf(PRINT_ALL, "...compiled %i vertexLighting_DBS_world shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
 }
 
 
 
-GLShader_forwardLighting::GLShader_forwardLighting():
-		GLShader(	"forwardLighting",
+GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
+		GLShader(	"forwardLighting_omniXYZ",
 					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
 					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2 | ATTR_COLOR,
 					0),
@@ -1481,7 +1482,7 @@ GLShader_forwardLighting::GLShader_forwardLighting():
 		GLCompileMacro_TWOSIDED(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
-	ri.Printf(PRINT_ALL, "/// creating forwardLighting shaders ----------------\n");
+	ri.Printf(PRINT_ALL, "/// creating forwardLighting_omniXYZ shaders --------\n");
 
 	int startTime = ri.Milliseconds();
 
@@ -1499,12 +1500,12 @@ GLShader_forwardLighting::GLShader_forwardLighting():
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
-			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+			ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros.c_str());
 		
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
 			CompileAndLinkGPUShaderProgram(	shaderProgram,
-											"forwardLighting",
+											"forwardLighting_omniXYZ",
 											vertexShaderText,
 											fragmentShaderText,
 											compileMacros);
@@ -1516,7 +1517,7 @@ GLShader_forwardLighting::GLShader_forwardLighting():
 			shaderProgram->u_SpecularMap = glGetUniformLocationARB(shaderProgram->program, "u_SpecularMap");
 			shaderProgram->u_AttenuationMapXY = glGetUniformLocationARB(shaderProgram->program, "u_AttenuationMapXY");
 			shaderProgram->u_AttenuationMapZ = glGetUniformLocationARB(shaderProgram->program, "u_AttenuationMapZ");
-			if(r_shadows->integer >= SHADOWING_VSM16)
+			//if(r_shadows->integer >= SHADOWING_VSM16)
 			{
 				shaderProgram->u_ShadowMap = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap");
 			}
@@ -1527,7 +1528,7 @@ GLShader_forwardLighting::GLShader_forwardLighting():
 			glUniform1iARB(shaderProgram->u_SpecularMap, 2);
 			glUniform1iARB(shaderProgram->u_AttenuationMapXY, 3);
 			glUniform1iARB(shaderProgram->u_AttenuationMapZ, 4);
-			if(r_shadows->integer >= SHADOWING_VSM16)
+			//if(r_shadows->integer >= SHADOWING_VSM16)
 			{
 				glUniform1iARB(shaderProgram->u_ShadowMap, 5);
 			}
@@ -1544,11 +1545,129 @@ GLShader_forwardLighting::GLShader_forwardLighting():
 	SelectProgram();
 
 	int endTime = ri.Milliseconds();
-	ri.Printf(PRINT_ALL, "...compiled %i forwardLighting shader permutations in = %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+	ri.Printf(PRINT_ALL, "...compiled %i forwardLighting_omniXYZ shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
 }
 
 
 
+
+
+
+
+GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun():
+		GLShader(	"forwardLighting_directionalSun",
+					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
+					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2 | ATTR_COLOR,
+					0),
+		u_DiffuseTextureMatrix(this),
+		u_NormalTextureMatrix(this),
+		u_SpecularTextureMatrix(this),
+		u_AlphaTest(this),
+		u_ColorModulate(this),
+		u_Color(this),
+		u_ViewOrigin(this),
+		u_LightDir(this),
+		u_LightColor(this),
+		u_LightRadius(this),
+		u_LightScale(this),
+		u_LightWrapAround(this),
+		u_LightAttenuationMatrix(this),
+		u_ShadowTexelSize(this),
+		u_ShadowBlur(this),
+		u_ShadowMatrix(this),
+		u_ShadowParallelSplitDistances(this),
+		u_ModelMatrix(this),
+		u_ViewMatrix(this),
+		u_ModelViewProjectionMatrix(this),
+		u_BoneMatrix(this),
+		u_VertexInterpolation(this),
+		u_PortalPlane(this),
+		u_DepthScale(this),
+		GLDeformStage(this),
+		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		GLCompileMacro_USE_ALPHA_TESTING(this),
+		GLCompileMacro_USE_VERTEX_SKINNING(this),
+		GLCompileMacro_USE_VERTEX_ANIMATION(this),
+		GLCompileMacro_USE_DEFORM_VERTEXES(this),
+		GLCompileMacro_USE_NORMAL_MAPPING(this),
+		GLCompileMacro_USE_PARALLAX_MAPPING(this),
+		GLCompileMacro_USE_SHADOWING(this),
+		GLCompileMacro_TWOSIDED(this)
+{
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating forwardLighting_directionalSun shaders -\n");
+
+	int startTime = ri.Milliseconds();
+
+	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
+	
+	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
+
+	std::string vertexShaderText = BuildGPUShaderText("forwardLighting", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string fragmentShaderText = BuildGPUShaderText("forwardLighting", "reliefMapping", GL_FRAGMENT_SHADER_ARB);
+
+	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
+	size_t numCompiled = 0;
+	for(size_t i = 0; i < numPermutations; i++)
+	{
+		std::string compileMacros;
+		if(GetCompileMacrosString(i, compileMacros))
+		{
+			compileMacros += "LIGHT_DIRECTIONAL ";
+
+			ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros.c_str());
+		
+			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
+
+			CompileAndLinkGPUShaderProgram(	shaderProgram,
+											"forwardLighting",
+											vertexShaderText,
+											fragmentShaderText,
+											compileMacros);
+
+			UpdateShaderProgramUniformLocations(shaderProgram);
+
+			shaderProgram->u_DiffuseMap	= glGetUniformLocationARB(shaderProgram->program, "u_DiffuseMap");
+			shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, "u_NormalMap");
+			shaderProgram->u_SpecularMap = glGetUniformLocationARB(shaderProgram->program, "u_SpecularMap");
+			//if(r_shadows->integer >= SHADOWING_VSM16)
+			{
+				shaderProgram->u_ShadowMap0 = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap0");
+				shaderProgram->u_ShadowMap1 = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap1");
+				shaderProgram->u_ShadowMap2 = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap2");
+				shaderProgram->u_ShadowMap3 = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap3");
+				shaderProgram->u_ShadowMap4 = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap4");
+			}
+
+			glUseProgramObjectARB(shaderProgram->program);
+			glUniform1iARB(shaderProgram->u_DiffuseMap, 0);
+			glUniform1iARB(shaderProgram->u_NormalMap, 1);
+			glUniform1iARB(shaderProgram->u_SpecularMap, 2);
+			//glUniform1iARB(shaderProgram->u_AttenuationMapXY, 3);
+			//glUniform1iARB(shaderProgram->u_AttenuationMapZ, 4);
+			//if(r_shadows->integer >= SHADOWING_VSM16)
+			{
+				glUniform1iARB(shaderProgram->u_ShadowMap0, 5);
+				glUniform1iARB(shaderProgram->u_ShadowMap1, 6);
+				glUniform1iARB(shaderProgram->u_ShadowMap2, 7);
+				glUniform1iARB(shaderProgram->u_ShadowMap3, 8);
+				glUniform1iARB(shaderProgram->u_ShadowMap4, 9);
+			}
+			glUseProgramObjectARB(0);
+
+			ValidateProgram(shaderProgram->program);
+			ShowProgramUniforms(shaderProgram->program);
+			GL_CheckErrors();
+
+			numCompiled++;
+		}
+	}
+
+	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...compiled %i forwardLighting_directionalSun shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+}
 
 
 
@@ -1625,5 +1744,5 @@ GLShader_shadowFill::GLShader_shadowFill():
 	SelectProgram();
 
 	int endTime = ri.Milliseconds();
-	ri.Printf(PRINT_ALL, "...compiled %i shadowFill shader permutations in = %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+	ri.Printf(PRINT_ALL, "...compiled %i shadowFill shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
 }

@@ -886,6 +886,23 @@ public:
 };
 
 
+class u_ShadowParallelSplitDistances:
+GLUniform
+{
+public:
+	u_ShadowParallelSplitDistances(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_ShadowParallelSplitDistances"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ShadowParallelSplitDistances); }
+
+	void SetUniform_ShadowParallelSplitDistances(const vec4_t v)
+	{
+		GLSL_SetUniform_ShadowParallelSplitDistances(_shader->GetProgram(), v);
+	}
+};
 
 class u_Color:
 GLUniform
@@ -926,6 +943,24 @@ public:
 	}
 };
 
+
+class u_ViewMatrix:
+GLUniform
+{
+public:
+	u_ViewMatrix(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_ViewMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ViewMatrix); }
+
+	void SetUniform_ViewMatrix(const matrix_t m)
+	{
+		GLSL_SetUniform_ViewMatrix(_shader->GetProgram(), m);
+	}
+};
 
 class u_ModelViewProjectionMatrix:
 GLUniform
@@ -1406,7 +1441,7 @@ public:
 
 
 
-class GLShader_forwardLighting:
+class GLShader_forwardLighting_omniXYZ:
 public GLShader,
 public u_DiffuseTextureMatrix,
 public u_NormalTextureMatrix,
@@ -1441,9 +1476,49 @@ public GLCompileMacro_USE_SHADOWING,
 public GLCompileMacro_TWOSIDED
 {
 public:
-	GLShader_forwardLighting();
+	GLShader_forwardLighting_omniXYZ();
 };
 
+class GLShader_forwardLighting_directionalSun:
+public GLShader,
+public u_DiffuseTextureMatrix,
+public u_NormalTextureMatrix,
+public u_SpecularTextureMatrix,
+public u_AlphaTest,
+public u_ColorModulate,
+public u_Color,
+public u_ViewOrigin,
+public u_LightDir,
+public u_LightColor,
+public u_LightRadius,
+public u_LightScale,
+public u_LightWrapAround,
+public u_LightAttenuationMatrix,
+public u_ShadowTexelSize,
+public u_ShadowBlur,
+public u_ShadowMatrix,
+public u_ShadowParallelSplitDistances,
+public u_ModelMatrix,
+public u_ViewMatrix,
+public u_ModelViewProjectionMatrix,
+public u_BoneMatrix,
+public u_VertexInterpolation,
+public u_PortalPlane,
+public u_DepthScale,
+public GLDeformStage,
+public GLCompileMacro_USE_PORTAL_CLIPPING,
+public GLCompileMacro_USE_ALPHA_TESTING,
+public GLCompileMacro_USE_VERTEX_SKINNING,
+public GLCompileMacro_USE_VERTEX_ANIMATION,
+public GLCompileMacro_USE_DEFORM_VERTEXES,
+public GLCompileMacro_USE_NORMAL_MAPPING,
+public GLCompileMacro_USE_PARALLAX_MAPPING,
+public GLCompileMacro_USE_SHADOWING,
+public GLCompileMacro_TWOSIDED
+{
+public:
+	GLShader_forwardLighting_directionalSun();
+};
 
 
 class GLShader_shadowFill:
@@ -1476,7 +1551,8 @@ extern GLShader_generic* gl_genericShader;
 extern GLShader_lightMapping* gl_lightMappingShader;
 extern GLShader_vertexLighting_DBS_entity* gl_vertexLightingShader_DBS_entity;
 extern GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world;
-extern GLShader_forwardLighting* gl_forwardLightingShader;
+extern GLShader_forwardLighting_omniXYZ* gl_forwardLightingShader_omniXYZ;
+extern GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun;
 extern GLShader_shadowFill* gl_shadowFillShader;
 
 #endif	// GL_SHADER_H

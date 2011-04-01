@@ -947,6 +947,8 @@ void GLSL_InitGPUShaders(void)
 	// standard light mapping
 	gl_lightMappingShader = new GLShader_lightMapping();
 
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
 	// geometric-buffer fill rendering with diffuse + bump + specular
 	if(DS_STANDARD_ENABLED() || DS_PREPASS_LIGHTING_ENABLED())
 	{
@@ -1228,101 +1230,15 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.shadowExtrudeShader.program);
 	GL_CheckErrors();
 
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
 	// shadowmap distance compression
 	gl_shadowFillShader = new GLShader_shadowFill();
 
 	// omni-directional specular bump mapping ( Doom3 style )
-	gl_forwardLightingShader = new GLShader_forwardLighting();
-	/*
-	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_omni,
-					   "forwardLighting_DBS_omni",
-					   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR, qtrue, qtrue);
+	gl_forwardLightingShader_omniXYZ = new GLShader_forwardLighting_omniXYZ();
 
-	tr.forwardLightingShader_DBS_omni.u_DiffuseMap =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DiffuseMap");
-	tr.forwardLightingShader_DBS_omni.u_NormalMap =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_NormalMap");
-	tr.forwardLightingShader_DBS_omni.u_SpecularMap =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_SpecularMap");
-	tr.forwardLightingShader_DBS_omni.u_AttenuationMapXY =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_AttenuationMapXY");
-	tr.forwardLightingShader_DBS_omni.u_AttenuationMapZ =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_AttenuationMapZ");
-	if(r_shadows->integer >= SHADOWING_VSM16)
-	{
-		tr.forwardLightingShader_DBS_omni.u_ShadowMap =
-			glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ShadowMap");
-	}
-	tr.forwardLightingShader_DBS_omni.u_DiffuseTextureMatrix =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DiffuseTextureMatrix");
-	tr.forwardLightingShader_DBS_omni.u_NormalTextureMatrix =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_NormalTextureMatrix");
-	tr.forwardLightingShader_DBS_omni.u_SpecularTextureMatrix =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_SpecularTextureMatrix");
-	tr.forwardLightingShader_DBS_omni.u_ViewOrigin =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ViewOrigin");
-//	tr.forwardLightingShader_DBS_omni.u_InverseVertexColor =
-//		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_InverseVertexColor");
-	tr.forwardLightingShader_DBS_omni.u_LightOrigin =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightOrigin");
-	tr.forwardLightingShader_DBS_omni.u_LightColor =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightColor");
-	tr.forwardLightingShader_DBS_omni.u_LightRadius =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightRadius");
-	tr.forwardLightingShader_DBS_omni.u_LightScale =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightScale");
-	tr.forwardLightingShader_DBS_omni.u_LightWrapAround =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightWrapAround");
-	tr.forwardLightingShader_DBS_omni.u_LightAttenuationMatrix =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightAttenuationMatrix");
-	tr.forwardLightingShader_DBS_omni.u_ShadowCompare =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ShadowCompare");
-	tr.forwardLightingShader_DBS_omni.u_ShadowTexelSize =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ShadowTexelSize");
-	tr.forwardLightingShader_DBS_omni.u_ShadowBlur =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ShadowBlur");
-	tr.forwardLightingShader_DBS_omni.u_PortalClipping =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_PortalClipping");
-	tr.forwardLightingShader_DBS_omni.u_PortalPlane =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_PortalPlane");
-	tr.forwardLightingShader_DBS_omni.u_ModelMatrix =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ModelMatrix");
-	tr.forwardLightingShader_DBS_omni.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ModelViewProjectionMatrix");
-	if(glConfig.vboVertexSkinningAvailable)
-	{
-		tr.forwardLightingShader_DBS_omni.u_VertexSkinning =
-			glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_VertexSkinning");
-		tr.forwardLightingShader_DBS_omni.u_BoneMatrix =
-			glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_BoneMatrix");
-	}
-	tr.forwardLightingShader_DBS_omni.u_DeformGen =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DeformGen");
-	tr.forwardLightingShader_DBS_omni.u_DeformWave =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DeformWave");
-	tr.forwardLightingShader_DBS_omni.u_DeformBulge =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DeformBulge");
-	tr.forwardLightingShader_DBS_omni.u_DeformSpread =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DeformSpread");
-	tr.forwardLightingShader_DBS_omni.u_Time =
-		glGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_Time");
-
-	glUseProgramObjectARB(tr.forwardLightingShader_DBS_omni.program);
-	glUniform1iARB(tr.forwardLightingShader_DBS_omni.u_DiffuseMap, 0);
-	glUniform1iARB(tr.forwardLightingShader_DBS_omni.u_NormalMap, 1);
-	glUniform1iARB(tr.forwardLightingShader_DBS_omni.u_SpecularMap, 2);
-	glUniform1iARB(tr.forwardLightingShader_DBS_omni.u_AttenuationMapXY, 3);
-	glUniform1iARB(tr.forwardLightingShader_DBS_omni.u_AttenuationMapZ, 4);
-	if(r_shadows->integer >= SHADOWING_VSM16)
-	{
-		glUniform1iARB(tr.forwardLightingShader_DBS_omni.u_ShadowMap, 5);
-	}
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.forwardLightingShader_DBS_omni.program);
-	GLSL_ShowProgramUniforms(tr.forwardLightingShader_DBS_omni.program);
-	GL_CheckErrors();
-	*/
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	// projective lighting ( Doom3 style )
 	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_proj, "forwardLighting_DBS_proj",
@@ -1415,9 +1331,11 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.forwardLightingShader_DBS_proj.program);
 	GL_CheckErrors();
 
-
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	// directional sun lighting ( Doom3 style )
+	gl_forwardLightingShader_directionalSun = new GLShader_forwardLighting_directionalSun();
+	/*
 	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_directional, "forwardLighting_DBS_directional",
 					   ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR, qtrue, qtrue);
 
@@ -1523,7 +1441,9 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ValidateProgram(tr.forwardLightingShader_DBS_directional.program);
 	GLSL_ShowProgramUniforms(tr.forwardLightingShader_DBS_directional.program);
 	GL_CheckErrors();
+	*/
 
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	// forward shading using the light buffer as in pre pass deferred lighting
 	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_post, "forwardLighting_DBS_post",
@@ -2099,6 +2019,8 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.debugShadowMapShader.program);
 	GL_CheckErrors();
 
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
 	endTime = ri.Milliseconds();
 
 #if defined(USE_GLSL_OPTIMIZER)
@@ -2138,13 +2060,7 @@ void GLSL_ShutdownGPUShaders(void)
 		gl_lightMappingShader = NULL;
 	}
 
-	/*
-	if(tr.deluxeMappingShader.program)
-	{
-		glDeleteObjectARB(tr.deluxeMappingShader.program);
-		Com_Memset(&tr.deluxeMappingShader, 0, sizeof(shaderProgram_t));
-	}
-	*/
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	if(tr.geometricFillShader_DBS.program)
 	{
@@ -2188,17 +2104,21 @@ void GLSL_ShutdownGPUShaders(void)
 		Com_Memset(&tr.shadowExtrudeShader, 0, sizeof(shaderProgram_t));
 	}
 
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
 	if(gl_shadowFillShader)
 	{
 		delete gl_shadowFillShader;
 		gl_shadowFillShader = NULL;
 	}
 
-	if(gl_forwardLightingShader)
+	if(gl_forwardLightingShader_omniXYZ)
 	{
-		delete gl_forwardLightingShader;
-		gl_forwardLightingShader = NULL;
+		delete gl_forwardLightingShader_omniXYZ;
+		gl_forwardLightingShader_omniXYZ = NULL;
 	}
+
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	if(tr.forwardLightingShader_DBS_proj.program)
 	{
@@ -2206,11 +2126,15 @@ void GLSL_ShutdownGPUShaders(void)
 		Com_Memset(&tr.forwardLightingShader_DBS_proj, 0, sizeof(shaderProgram_t));
 	}
 
-	if(tr.forwardLightingShader_DBS_directional.program)
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
+	if(gl_forwardLightingShader_directionalSun)
 	{
-		glDeleteObjectARB(tr.forwardLightingShader_DBS_directional.program);
-		Com_Memset(&tr.forwardLightingShader_DBS_directional, 0, sizeof(shaderProgram_t));
+		delete gl_forwardLightingShader_directionalSun;
+		gl_forwardLightingShader_directionalSun = NULL;
 	}
+
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	if(tr.forwardLightingShader_DBS_post.program)
 	{
@@ -2358,6 +2282,8 @@ void GLSL_ShutdownGPUShaders(void)
 		glDeleteObjectARB(tr.debugShadowMapShader.program);
 		Com_Memset(&tr.debugShadowMapShader, 0, sizeof(shaderProgram_t));
 	}
+
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	glState.currentProgram = 0;
 	glUseProgramObjectARB(0);
@@ -3802,25 +3728,25 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	bool shadowCompare = (r_shadows->integer >= SHADOWING_VSM16 && !light->l.noShadows && light->shadowLOD >= 0);
 
 	// choose right shader program ----------------------------------
-	gl_forwardLightingShader->SetPortalClipping(backEnd.viewParms.isPortal);
-	gl_forwardLightingShader->SetAlphaTesting((diffuseStage->stateBits & GLS_ATEST_BITS) != 0);
+	gl_forwardLightingShader_omniXYZ->SetPortalClipping(backEnd.viewParms.isPortal);
+	gl_forwardLightingShader_omniXYZ->SetAlphaTesting((diffuseStage->stateBits & GLS_ATEST_BITS) != 0);
 	
-	gl_forwardLightingShader->SetVertexSkinning(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning);
-	gl_forwardLightingShader->SetVertexAnimation(glState.vertexAttribsInterpolation > 0);
+	gl_forwardLightingShader_omniXYZ->SetVertexSkinning(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning);
+	gl_forwardLightingShader_omniXYZ->SetVertexAnimation(glState.vertexAttribsInterpolation > 0);
 	
-	gl_forwardLightingShader->SetDeformVertexes(tess.surfaceShader->numDeforms);
+	gl_forwardLightingShader_omniXYZ->SetDeformVertexes(tess.surfaceShader->numDeforms);
 
-	gl_forwardLightingShader->SetNormalMapping(normalMapping);
-	gl_forwardLightingShader->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
+	gl_forwardLightingShader_omniXYZ->SetNormalMapping(normalMapping);
+	gl_forwardLightingShader_omniXYZ->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
 	if(normalMapping)
-		gl_forwardLightingShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+		gl_forwardLightingShader_omniXYZ->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 	else
-		gl_forwardLightingShader->DisableMacro_TWOSIDED();
+		gl_forwardLightingShader_omniXYZ->DisableMacro_TWOSIDED();
 
-	gl_forwardLightingShader->SetShadowing(shadowCompare);
+	gl_forwardLightingShader_omniXYZ->SetShadowing(shadowCompare);
 
-	gl_forwardLightingShader->BindProgram();
+	gl_forwardLightingShader_omniXYZ->BindProgram();
 	
 	// end choose right shader program ------------------------------
 
@@ -3851,17 +3777,17 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 			break;
 	}
 
-	gl_forwardLightingShader->SetUniform_ColorModulate(colorGen, alphaGen);
+	gl_forwardLightingShader_omniXYZ->SetUniform_ColorModulate(colorGen, alphaGen);
 
 	// u_Color
-	gl_forwardLightingShader->SetUniform_Color(tess.svars.color);
+	gl_forwardLightingShader_omniXYZ->SetUniform_Color(tess.svars.color);
 
 	if(r_parallaxMapping->integer)
 	{
 		float           depthScale;
 
 		depthScale = RB_EvalExpression(&diffuseStage->depthScaleExp, r_parallaxDepthScale->value);
-		gl_forwardLightingShader->SetUniform_DepthScale(depthScale);
+		gl_forwardLightingShader_omniXYZ->SetUniform_DepthScale(depthScale);
 	}
 
 	// set uniforms
@@ -3874,32 +3800,32 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	else
 		shadowTexelSize = 1.0f;
 
-	gl_forwardLightingShader->SetUniform_ViewOrigin(viewOrigin);
+	gl_forwardLightingShader_omniXYZ->SetUniform_ViewOrigin(viewOrigin);
 
-	gl_forwardLightingShader->SetUniform_LightOrigin(lightOrigin);
-	gl_forwardLightingShader->SetUniform_LightColor(lightColor);
-	gl_forwardLightingShader->SetUniform_LightRadius(light->sphereRadius);
-	gl_forwardLightingShader->SetUniform_LightScale(light->l.scale);
-	gl_forwardLightingShader->SetUniform_LightWrapAround(RB_EvalExpression(&diffuseStage->wrapAroundLightingExp, 0));
-	gl_forwardLightingShader->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
+	gl_forwardLightingShader_omniXYZ->SetUniform_LightOrigin(lightOrigin);
+	gl_forwardLightingShader_omniXYZ->SetUniform_LightColor(lightColor);
+	gl_forwardLightingShader_omniXYZ->SetUniform_LightRadius(light->sphereRadius);
+	gl_forwardLightingShader_omniXYZ->SetUniform_LightScale(light->l.scale);
+	gl_forwardLightingShader_omniXYZ->SetUniform_LightWrapAround(RB_EvalExpression(&diffuseStage->wrapAroundLightingExp, 0));
+	gl_forwardLightingShader_omniXYZ->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
 
 
 	GL_CheckErrors();
 
 	if(shadowCompare)
 	{
-		gl_forwardLightingShader->SetUniform_ShadowTexelSize(shadowTexelSize);
-		gl_forwardLightingShader->SetUniform_ShadowBlur(r_shadowBlur->value);
+		gl_forwardLightingShader_omniXYZ->SetUniform_ShadowTexelSize(shadowTexelSize);
+		gl_forwardLightingShader_omniXYZ->SetUniform_ShadowBlur(r_shadowBlur->value);
 	}
 
 	GL_CheckErrors();
 
-	gl_forwardLightingShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
-	gl_forwardLightingShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+	gl_forwardLightingShader_omniXYZ->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
+	gl_forwardLightingShader_omniXYZ->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
 	{
-		gl_forwardLightingShader->SetUniform_BoneMatrix(MAX_BONES, tess.boneMatrices);
+		gl_forwardLightingShader_omniXYZ->SetUniform_BoneMatrix(MAX_BONES, tess.boneMatrices);
 	}
 
 	if(tess.surfaceShader->numDeforms)
@@ -3909,7 +3835,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 		// only support the first one
 		ds = &tess.surfaceShader->deforms[0];
 
-		gl_forwardLightingShader->SetDeformStageUniforms(ds);
+		gl_forwardLightingShader_omniXYZ->SetDeformStageUniforms(ds);
 	}
 
 	if(backEnd.viewParms.isPortal)
@@ -3922,7 +3848,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-		gl_forwardLightingShader->SetUniform_PortalPlane(plane);
+		gl_forwardLightingShader_omniXYZ->SetUniform_PortalPlane(plane);
 	}
 
 	GL_CheckErrors();
@@ -3930,7 +3856,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
-	gl_forwardLightingShader->SetUniform_DiffuseTextureMatrix(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	gl_forwardLightingShader_omniXYZ->SetUniform_DiffuseTextureMatrix(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
 	if(normalMapping)
 	{
@@ -3944,7 +3870,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 		{
 			GL_Bind(tr.flatImage);
 		}
-		gl_forwardLightingShader->SetUniform_NormalTextureMatrix(tess.svars.texMatrices[TB_NORMALMAP]);
+		gl_forwardLightingShader_omniXYZ->SetUniform_NormalTextureMatrix(tess.svars.texMatrices[TB_NORMALMAP]);
 
 		// bind u_SpecularMap
 		GL_SelectTexture(2);
@@ -3960,7 +3886,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 		{
 			GL_Bind(tr.blackImage);
 		}
-		gl_forwardLightingShader->SetUniform_SpecularTextureMatrix(tess.svars.texMatrices[TB_SPECULARMAP]);
+		gl_forwardLightingShader_omniXYZ->SetUniform_SpecularTextureMatrix(tess.svars.texMatrices[TB_SPECULARMAP]);
 	}
 
 	// bind u_AttenuationMapXY
@@ -3978,7 +3904,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 		GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
 	}
 
-	gl_forwardLightingShader->SetVertexAttribs();
+	gl_forwardLightingShader_omniXYZ->SetVertexAttribs();
 
 	Tess_DrawElements();
 
@@ -4161,80 +4087,130 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 											shaderStage_t * attenuationXYStage,
 											shaderStage_t * attenuationZStage, trRefLight_t * light)
 {
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
+#if 1
 	vec3_t          viewOrigin;
 	vec3_t          lightDirection;
 	vec4_t          lightColor;
 	float           shadowTexelSize;
-	qboolean        shadowCompare;
+	colorGen_t		colorGen;
+	alphaGen_t		alphaGen;
 
-	GLimp_LogComment("--- Render_fowardLighting_DBS_directional ---\n");
+	GLimp_LogComment("--- Render_forwardLighting_DBS_directional ---\n");
 
-	// enable shader, set arrays
-	GL_BindProgram(&tr.forwardLightingShader_DBS_directional);
+	bool normalMapping = r_normalMapping->integer && (diffuseStage->bundle[TB_NORMALMAP].image[0] != NULL);
 
-	/*
-	if(diffuseStage->vertexColor || diffuseStage->inverseVertexColor)
-	{
-		GL_VertexAttribsState(tr.forwardLightingShader_DBS_directional.attribs);
-	}
+	bool shadowCompare = (r_shadows->integer >= SHADOWING_VSM16 && !light->l.noShadows && light->shadowLOD >= 0);
+
+	// choose right shader program ----------------------------------
+	gl_forwardLightingShader_directionalSun->SetPortalClipping(backEnd.viewParms.isPortal);
+	gl_forwardLightingShader_directionalSun->SetAlphaTesting((diffuseStage->stateBits & GLS_ATEST_BITS) != 0);
+	
+	gl_forwardLightingShader_directionalSun->SetVertexSkinning(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning);
+	gl_forwardLightingShader_directionalSun->SetVertexAnimation(glState.vertexAttribsInterpolation > 0);
+	
+	gl_forwardLightingShader_directionalSun->SetDeformVertexes(tess.surfaceShader->numDeforms);
+
+	gl_forwardLightingShader_directionalSun->SetNormalMapping(normalMapping);
+	gl_forwardLightingShader_directionalSun->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
+
+	if(normalMapping)
+		gl_forwardLightingShader_directionalSun->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 	else
-	*/
+		gl_forwardLightingShader_directionalSun->DisableMacro_TWOSIDED();
+
+	gl_forwardLightingShader_directionalSun->SetShadowing(shadowCompare);
+
+	gl_forwardLightingShader_directionalSun->BindProgram();
+	
+	// end choose right shader program ------------------------------
+
+	// now we are ready to set the shader program uniforms
+
+	// u_ColorModulate
+	switch (diffuseStage->rgbGen)
 	{
-		GL_VertexAttribsState(tr.forwardLightingShader_DBS_directional.attribs & ~(ATTR_COLOR));
-		glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+		case CGEN_VERTEX:
+		case CGEN_ONE_MINUS_VERTEX:
+			colorGen = diffuseStage->rgbGen;
+			break;
+
+		default:
+			colorGen = CGEN_CONST;
+			break;
+	}
+
+	switch (diffuseStage->alphaGen)
+	{
+		case AGEN_VERTEX:
+		case AGEN_ONE_MINUS_VERTEX:
+			alphaGen = diffuseStage->alphaGen;
+			break;
+
+		default:
+			alphaGen = AGEN_CONST;
+			break;
+	}
+
+	gl_forwardLightingShader_directionalSun->SetUniform_ColorModulate(colorGen, alphaGen);
+
+	// u_Color
+	gl_forwardLightingShader_directionalSun->SetUniform_Color(tess.svars.color);
+
+	if(r_parallaxMapping->integer)
+	{
+		float           depthScale;
+
+		depthScale = RB_EvalExpression(&diffuseStage->depthScaleExp, r_parallaxDepthScale->value);
+		gl_forwardLightingShader_directionalSun->SetUniform_DepthScale(depthScale);
 	}
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
-	VectorCopy(tess.svars.color, lightColor);
 
 #if 1
 	VectorCopy(tr.sunDirection, lightDirection);
 #else
 	VectorCopy(light->direction, lightDirection);
 #endif
-
-	shadowCompare = (qboolean) (r_shadows->integer >= SHADOWING_VSM16 && !light->l.noShadows && light->shadowLOD >= 0);
+	
+	VectorCopy(tess.svars.color, lightColor);
 
 	if(shadowCompare)
 		shadowTexelSize = 1.0f / shadowMapResolutions[light->shadowLOD];
 	else
 		shadowTexelSize = 1.0f;
 
-	GLSL_SetUniform_ViewOrigin(&tr.forwardLightingShader_DBS_directional, viewOrigin);
-//	GLSL_SetUniform_InverseVertexColor(&tr.forwardLightingShader_DBS_directional, diffuseStage->inverseVertexColor);
-	GLSL_SetUniform_LightDir(&tr.forwardLightingShader_DBS_directional, lightDirection);
-	GLSL_SetUniform_LightColor(&tr.forwardLightingShader_DBS_directional, lightColor);
-	GLSL_SetUniform_LightRadius(&tr.forwardLightingShader_DBS_directional, light->sphereRadius);
-	GLSL_SetUniform_LightScale(&tr.forwardLightingShader_DBS_directional, light->l.scale);
-	GLSL_SetUniform_LightWrapAround(&tr.forwardLightingShader_DBS_directional, RB_EvalExpression(&diffuseStage->wrapAroundLightingExp, 0));
-//	GLSL_SetUniform_LightWrapAround(&tr.forwardLightingShader_DBS_directional, r_wrapAroundLighting->value);
-	GLSL_SetUniform_LightAttenuationMatrix(&tr.forwardLightingShader_DBS_directional, light->attenuationMatrix2);
+	gl_forwardLightingShader_directionalSun->SetUniform_ViewOrigin(viewOrigin);
 
-	GLSL_SetUniform_ShadowCompare(&tr.forwardLightingShader_DBS_directional, shadowCompare);
+	gl_forwardLightingShader_directionalSun->SetUniform_LightDir(lightDirection);
+	gl_forwardLightingShader_directionalSun->SetUniform_LightColor(lightColor);
+	gl_forwardLightingShader_directionalSun->SetUniform_LightRadius(light->sphereRadius);
+	gl_forwardLightingShader_directionalSun->SetUniform_LightScale(light->l.scale);
+	gl_forwardLightingShader_directionalSun->SetUniform_LightWrapAround(RB_EvalExpression(&diffuseStage->wrapAroundLightingExp, 0));
+	gl_forwardLightingShader_directionalSun->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
+
+
+	GL_CheckErrors();
+
 	if(shadowCompare)
 	{
-		GLSL_SetUniform_ShadowMatrix(&tr.forwardLightingShader_DBS_directional, light->shadowMatricesBiased);
-		GLSL_SetUniform_ShadowParallelSplitDistances(&tr.forwardLightingShader_DBS_directional, backEnd.viewParms.parallelSplitDistances);
-		GLSL_SetUniform_ShadowTexelSize(&tr.forwardLightingShader_DBS_directional, shadowTexelSize);
-		GLSL_SetUniform_ShadowBlur(&tr.forwardLightingShader_DBS_directional, r_shadowBlur->value);
+		gl_forwardLightingShader_directionalSun->SetUniform_ShadowMatrix(light->shadowMatricesBiased);
+		gl_forwardLightingShader_directionalSun->SetUniform_ShadowParallelSplitDistances(backEnd.viewParms.parallelSplitDistances);
+		gl_forwardLightingShader_directionalSun->SetUniform_ShadowTexelSize(shadowTexelSize);
+		gl_forwardLightingShader_directionalSun->SetUniform_ShadowBlur(r_shadowBlur->value);
 	}
 
-	GLSL_SetUniform_ModelMatrix(&tr.forwardLightingShader_DBS_directional, backEnd.orientation.transformMatrix);
-	GLSL_SetUniform_ViewMatrix(&tr.forwardLightingShader_DBS_directional, backEnd.viewParms.world.viewMatrix);
-//	GLSL_SetUniform_ModelViewMatrix(&tr.forwardLightingShader_DBS_directional, glState.modelViewMatrix[glState.stackIndex]);
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.forwardLightingShader_DBS_directional, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	GL_CheckErrors();
 
-	if(glConfig.vboVertexSkinningAvailable)
+	gl_forwardLightingShader_directionalSun->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
+	gl_forwardLightingShader_directionalSun->SetUniform_ViewMatrix(backEnd.viewParms.world.viewMatrix);
+	gl_forwardLightingShader_directionalSun->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
 	{
-		GLSL_SetUniform_VertexSkinning(&tr.forwardLightingShader_DBS_directional, tess.vboVertexSkinning);
-
-		if(tess.vboVertexSkinning)
-			glUniformMatrix4fvARB(tr.forwardLightingShader_DBS_directional.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+		gl_forwardLightingShader_directionalSun->SetUniform_BoneMatrix(MAX_BONES, tess.boneMatrices);
 	}
 
-	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
 	{
 		deformStage_t  *ds;
@@ -4242,32 +4218,9 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 		// only support the first one
 		ds = &tess.surfaceShader->deforms[0];
 
-		switch (ds->deformation)
-		{
-			case DEFORM_WAVE:
-				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_directional, (deformGen_t) ds->deformationWave.func);
-				GLSL_SetUniform_DeformWave(&tr.forwardLightingShader_DBS_directional, &ds->deformationWave);
-				GLSL_SetUniform_DeformSpread(&tr.forwardLightingShader_DBS_directional, ds->deformationSpread);
-				GLSL_SetUniform_Time(&tr.forwardLightingShader_DBS_directional, backEnd.refdef.floatTime);
-				break;
-
-			case DEFORM_BULGE:
-				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_directional, DGEN_BULGE);
-				GLSL_SetUniform_DeformBulge(&tr.forwardLightingShader_DBS_directional, ds);
-				GLSL_SetUniform_Time(&tr.forwardLightingShader_DBS_directional, backEnd.refdef.floatTime);
-				break;
-
-			default:
-				GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_directional, DGEN_NONE);
-				break;
-		}
-	}
-	else
-	{
-		GLSL_SetUniform_DeformGen(&tr.forwardLightingShader_DBS_directional, DGEN_NONE);
+		gl_forwardLightingShader_directionalSun->SetDeformStageUniforms(ds);
 	}
 
-	GLSL_SetUniform_PortalClipping(&tr.forwardLightingShader_DBS_directional, backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
 	{
 		float           plane[4];
@@ -4278,15 +4231,17 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-		GLSL_SetUniform_PortalPlane(&tr.forwardLightingShader_DBS_directional, plane);
+		gl_forwardLightingShader_directionalSun->SetUniform_PortalPlane(plane);
 	}
+
+	GL_CheckErrors();
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
-	GLSL_SetUniform_DiffuseTextureMatrix(&tr.forwardLightingShader_DBS_directional, tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	gl_forwardLightingShader_directionalSun->SetUniform_DiffuseTextureMatrix(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
-	if(r_normalMapping->integer)
+	if(normalMapping)
 	{
 		// bind u_NormalMap
 		GL_SelectTexture(1);
@@ -4298,7 +4253,7 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 		{
 			GL_Bind(tr.flatImage);
 		}
-		GLSL_SetUniform_NormalTextureMatrix(&tr.forwardLightingShader_DBS_directional, tess.svars.texMatrices[TB_NORMALMAP]);
+		gl_forwardLightingShader_directionalSun->SetUniform_NormalTextureMatrix(tess.svars.texMatrices[TB_NORMALMAP]);
 
 		// bind u_SpecularMap
 		GL_SelectTexture(2);
@@ -4314,7 +4269,7 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 		{
 			GL_Bind(tr.blackImage);
 		}
-		GLSL_SetUniform_SpecularTextureMatrix(&tr.forwardLightingShader_DBS_directional, tess.svars.texMatrices[TB_SPECULARMAP]);
+		gl_forwardLightingShader_directionalSun->SetUniform_SpecularTextureMatrix(tess.svars.texMatrices[TB_SPECULARMAP]);
 	}
 
 	// bind u_ShadowMap
@@ -4347,6 +4302,8 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 			GL_Bind(tr.shadowMapFBOImage[4]);
 		}
 	}
+
+	gl_forwardLightingShader_directionalSun->SetVertexAttribs();
 
 	Tess_DrawElements();
 
