@@ -853,8 +853,14 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 	VectorCopy(origin, le->pos.trBase);
 	VectorCopy(origin, re->origin);
 	le->pos.trTime = cg.time;
+	
 	//Randomly offset base within model bounds
-	VectorRandom(&le->pos.trBase, mins, maxs);
+
+
+	// Tr3B: Outcommented craptastic code. Code like this causes undefined behaviour.
+	// FIXME: VectorRandom(&le->pos.trBase, mins, maxs);
+
+	//
 
 	//Debug
 	//Com_Printf("...pos.trBase %f %f %f \n", le->pos.trBase[0], le->pos.trBase[1], le->pos.trBase[2]);
