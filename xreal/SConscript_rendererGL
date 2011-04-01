@@ -20,7 +20,7 @@ rendererGL_src = [
 'code/renderer/tr_image_jpg.c',
 'code/renderer/tr_image_png.c',
 'code/renderer/tr_image_tga.c',
-'code/renderer/tr_init.c',
+'code/renderer/tr_init.cpp',
 'code/renderer/tr_light.c',
 'code/renderer/tr_main.c',
 'code/renderer/tr_marks.c',

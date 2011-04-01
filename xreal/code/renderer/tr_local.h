@@ -4054,7 +4054,9 @@ typedef struct
 	int             numFBOs;
 	FBO_t          *fbos[MAX_FBOS];
 
+#if !defined(USE_D3D10)
 	GLuint			vao;
+#endif
 
 	growList_t      vbos;
 	growList_t      ibos;
@@ -4682,9 +4684,9 @@ typedef struct shaderCommands_s
 	uint32_t        numIndexes;
 	uint32_t        numVertexes;
 
-	GLsizei			multiDrawPrimitives;
+	int				multiDrawPrimitives;
 	glIndex_t*		multiDrawIndexes[MAX_MULTIDRAW_PRIMITIVES];
-	GLsizei			multiDrawCounts[MAX_MULTIDRAW_PRIMITIVES];
+	int				multiDrawCounts[MAX_MULTIDRAW_PRIMITIVES];
 
 	qboolean        vboVertexSkinning;
 	matrix_t        boneMatrices[MAX_BONES];

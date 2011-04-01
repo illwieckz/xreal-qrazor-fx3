@@ -394,6 +394,7 @@ static void InitOpenGL(void)
 GL_CheckErrors
 ==================
 */
+#if !defined(USE_D3D10)
 void GL_CheckErrors_(const char *fileName, int line)
 {
 	int             err;
@@ -449,6 +450,7 @@ void GL_CheckErrors_(const char *fileName, int line)
 
 	ri.Error(ERR_FATAL, "caught OpenGL error: %s in file %s line %i", s, fileName, line);
 }
+#endif // #if !defined(USE_D3D10)
 
 
 /*
@@ -1005,7 +1007,11 @@ const void     *RB_TakeVideoFrameCmd(const void *data)
 	// video recording
 	if(ri.CL_VideoRecording())
 	{
+#if !defined(USE_D3D10)
 		glReadPixels(0, 0, cmd->width, cmd->height, GL_RGBA, GL_UNSIGNED_BYTE, cmd->captureBuffer);
+#else
+	// TODO
+#endif
 
 		// gamma correct
 		if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
@@ -1041,6 +1047,7 @@ const void     *RB_TakeVideoFrameCmd(const void *data)
 /*
 ** GL_SetDefaultState
 */
+#if !defined(USE_D3D10)
 void GL_SetDefaultState(void)
 {
 	int             i;
@@ -1163,6 +1170,7 @@ void GL_SetDefaultState(void)
 		MatrixIdentity(glState.modelViewProjectionMatrix[i]);
 	}
 }
+#endif // #if !defined(USE_D3D10)
 
 
 
@@ -1253,6 +1261,7 @@ void GfxInfo_f(void)
 	ri.Printf(PRINT_ALL, "texturemode: %s\n", r_textureMode->string);
 	ri.Printf(PRINT_ALL, "picmip: %d\n", r_picmip->integer);
 
+#if !defined(USE_D3D10)
 	if(glConfig.driverType == GLDRV_OPENGL3)
 	{
 		int				contextFlags, profile;
@@ -1281,6 +1290,7 @@ void GfxInfo_f(void)
 			ri.Printf(PRINT_ALL, S_COLOR_RED "Context is NOT forward compatible\n");
 		}
 	}
+#endif // #if !defined(USE_D3D10)
 
 	if(glConfig.hardwareType == GLHW_ATI)
 	{
@@ -1983,12 +1993,14 @@ void R_Init(void)
 
 	R_InitFBOs();
 
+#if !defined(USE_D3D10)
 	if(glConfig.driverType == GLDRV_OPENGL3)
 	{
 		tr.vao = 0;
 		glGenVertexArrays(1, &tr.vao);
 		glBindVertexArray(tr.vao);
 	}
+#endif
 
 	R_InitVBOs();
 
@@ -2099,8 +2111,10 @@ void RE_Shutdown(qboolean destroyWindow)
 			}
 		}
 
+#if !defined(USE_D3D10)
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 		GLSL_ShutdownGPUShaders();
+#endif
 #endif
 
 #endif
@@ -2122,8 +2136,10 @@ void RE_Shutdown(qboolean destroyWindow)
 #endif
 	{
 
+#if !defined(USE_D3D10)
 #if defined(GLSL_COMPILE_STARTUP_ONLY)
 		GLSL_ShutdownGPUShaders();
+#endif
 #endif
 
 		GLimp_Shutdown();
@@ -2183,9 +2199,9 @@ static void RE_PurgeCache(void)
 GetRefAPI
 =====================
 */
-#if defined(__cplusplus)
-extern "C" {
-#endif
+//#if defined(__cplusplus)
+//extern "C" {
+//#endif
 refexport_t* GetRefAPI(int apiVersion, refimport_t * rimp)
 {
 	static refexport_t re;
@@ -2278,13 +2294,14 @@ refexport_t* GetRefAPI(int apiVersion, refimport_t * rimp)
 	return &re;
 }
 
-#if defined(__cplusplus)
-} // extern "C"
-#endif
-
 
 #ifndef REF_HARD_LINKED
+
 // this is only here so the functions in q_shared.c and q_math.c can link
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 void QDECL Com_Printf(const char *msg, ...)
 {
 	va_list         argptr;
@@ -2296,6 +2313,7 @@ void QDECL Com_Printf(const char *msg, ...)
 
 	ri.Printf(PRINT_ALL, "%s", text);
 }
+
 
 void QDECL Com_DPrintf(const char *msg, ...)
 {
@@ -2320,6 +2338,10 @@ void QDECL Com_Error(int level, const char *error, ...)
 
 	ri.Error(level, "%s", text);
 }
+#if defined(__cplusplus)
+}
+#endif
+
 #endif
 
 #if defined(__cplusplus)

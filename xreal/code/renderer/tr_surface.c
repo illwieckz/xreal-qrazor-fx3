@@ -2965,6 +2965,7 @@ void Tess_SurfaceVBOMDVMesh(srfVBOMDVMesh_t * surface)
 
 	refEnt = &backEnd.currentEntity->e;
 
+#if !defined(USE_D3D10)
 	if(refEnt->oldframe == refEnt->frame)
 	{
 		glState.vertexAttribsInterpolation = 0;
@@ -2976,6 +2977,7 @@ void Tess_SurfaceVBOMDVMesh(srfVBOMDVMesh_t * surface)
 
 	glState.vertexAttribsOldFrame = refEnt->oldframe;
 	glState.vertexAttribsNewFrame = refEnt->frame;
+#endif
 
 	Tess_End();
 }

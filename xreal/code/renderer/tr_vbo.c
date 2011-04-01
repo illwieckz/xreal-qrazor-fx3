@@ -674,12 +674,13 @@ void R_InitVBOs(void)
 	tess.vbo->ofsLightDirections = tess.vbo->ofsPaintColors + sizeof(tess.paintColors);
 	tess.vbo->ofsBoneIndexes = tess.vbo->ofsLightDirections + sizeof(tess.lightDirections);
 	tess.vbo->ofsBoneWeights = tess.vbo->ofsBoneIndexes + sizeof(tess.boneIndexes);
-#endif
 
 	tess.vbo->sizeXYZ = sizeof(tess.xyz);
 	tess.vbo->sizeTangents = sizeof(tess.tangents);
 	tess.vbo->sizeBinormals = sizeof(tess.binormals);
 	tess.vbo->sizeNormals = sizeof(tess.normals);
+
+#endif
 
 	Com_Dealloc(data);
 

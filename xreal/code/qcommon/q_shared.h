@@ -156,20 +156,18 @@ extern "C" {
 #ifdef Q3_VM
 typedef int     intptr_t;
 #else
-#ifndef _MSC_VER
-#include <stdint.h>
-#else
-//#ifndef __cplusplus
+#if defined(_MSC_VER)
 #include <io.h>
-typedef __int64 int64_t;
-typedef __int32 int32_t;
-typedef __int16 int16_t;
-typedef __int8  int8_t;
+typedef signed __int64 int64_t;
+typedef signed __int32 int32_t;
+typedef signed __int16 int16_t;
+typedef signed __int8  int8_t;
 typedef unsigned __int64 uint64_t;
 typedef unsigned __int32 uint32_t;
 typedef unsigned __int16 uint16_t;
 typedef unsigned __int8 uint8_t;
-//#endif
+#else
+#include <stdint.h>
 #endif
 #endif
 
@@ -1522,9 +1520,16 @@ qboolean        Info_Validate(const char *s);
 void            Info_NextPair(const char **s, char *key, char *value);
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 void QDECL      Com_Error(int level, const char *error, ...) __attribute__ ((format(printf, 2, 3)));
 void QDECL      Com_Printf(const char *msg, ...) __attribute__ ((format(printf, 1, 2)));
-
+void QDECL		Com_DPrintf(const char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
+#if defined(__cplusplus)
+}
+#endif
 
 /*
 ==========================================================

@@ -143,6 +143,7 @@ qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
 	// load the files
 	numLoaded = 0;
 
+#if !defined(USE_D3D10)
 	if(strstr(name, ".md5mesh") || strstr(name, ".psk"))
 	{
 		// try loading skeletal file
@@ -254,6 +255,7 @@ qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
 //          }
 		}
 	}
+#endif // #if !defined(USE_D3D10)
 
 	// make sure the VBO glState entries are save
 	R_BindNullVBO();

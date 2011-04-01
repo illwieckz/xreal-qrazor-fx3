@@ -552,49 +552,76 @@ to overflow.
 */
 // *INDENT-OFF*
 void Tess_Begin(	 void (*stageIteratorFunc)(),
+					 void (*stageIteratorFunc2)(),
 					 shader_t * surfaceShader, shader_t * lightShader,
 					 qboolean skipTangentSpaces,
 					 qboolean shadowVolume,
 					 int lightmapNum)
 {
-	shader_t       *state = (surfaceShader->remappedShader) ? surfaceShader->remappedShader : surfaceShader;
+	shader_t       *state;
 
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
-	tess.surfaceShader = state;
 
-	tess.surfaceStages = state->stages;
-	tess.numSurfaceStages = state->numStages;
+	tess.multiDrawPrimitives = 0;
+	
+	// materials are optional
+	if(surfaceShader != NULL)
+	{
+		state = (surfaceShader->remappedShader) ? surfaceShader->remappedShader : surfaceShader;
+	
+		tess.surfaceShader = state;
+		tess.surfaceStages = state->stages;
+		tess.numSurfaceStages = state->numStages;
+	}
+	else
+	{
+		state = NULL;
+
+		tess.numSurfaceStages = 0;
+		tess.surfaceShader = NULL;
+		tess.surfaceStages = NULL;
+	}
+
+	bool isSky = (state != NULL && state->isSky != qfalse);
 
 	tess.lightShader = lightShader;
 
 	tess.stageIteratorFunc = stageIteratorFunc;
-	tess.stageIteratorFunc2 = NULL;
+	tess.stageIteratorFunc2 = stageIteratorFunc2;
 
 	if(!tess.stageIteratorFunc)
 	{
-		tess.stageIteratorFunc = Tess_StageIteratorGeneric;
+		//tess.stageIteratorFunc = &Tess_StageIteratorGeneric;
+		ri.Error(ERR_FATAL, "tess.stageIteratorFunc == NULL");
 	}
 
-	/*
-	if(tess.stageIteratorFunc == Tess_StageIteratorGeneric)
+	if(tess.stageIteratorFunc == &Tess_StageIteratorGeneric)
 	{
-		if(state->isSky)
+		if(isSky)
 		{
-			tess.stageIteratorFunc = Tess_StageIteratorSky;
-			tess.stageIteratorFunc2 = Tess_StageIteratorGeneric;
+			tess.stageIteratorFunc = &Tess_StageIteratorSky;
+			tess.stageIteratorFunc2 = &Tess_StageIteratorGeneric;
 		}
 	}
-
-	if(tess.stageIteratorFunc == Tess_StageIteratorGBuffer)
+#if 0
+	else if(tess.stageIteratorFunc == &Tess_StageIteratorDepthFill)
 	{
-		if(state->isSky)
+		if(isSky)
 		{
-			tess.stageIteratorFunc = Tess_StageIteratorSky;
-			tess.stageIteratorFunc2 = Tess_StageIteratorGBuffer;
+			tess.stageIteratorFunc = &Tess_StageIteratorSky;
+			tess.stageIteratorFunc2 = &Tess_StageIteratorDepthFill;
 		}
 	}
-	*/
+	else if(tess.stageIteratorFunc == Tess_StageIteratorGBuffer)
+	{
+		if(isSky)
+		{
+			tess.stageIteratorFunc = &Tess_StageIteratorSky;
+			tess.stageIteratorFunc2 = &Tess_StageIteratorGBuffer;
+		}
+	}
+#endif
 
 	tess.skipTangentSpaces = skipTangentSpaces;
 	tess.shadowVolume = shadowVolume;
@@ -604,7 +631,7 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- Tess_Begin( %s, %s, %i, %i, %i ) ---\n", tess.surfaceShader->name, tess.lightShader ? tess.lightShader->name : NULL, tess.skipTangentSpaces, tess.shadowVolume, tess.lightmapNum));
+		GLimp_LogComment(va("--- Tess_Begin( surfaceShader = %s, lightShader = %s, skipTangentSpaces = %i, shadowVolume = %i, lightmap = %i ) ---\n", tess.surfaceShader->name, tess.lightShader ? tess.lightShader->name : NULL, tess.skipTangentSpaces, tess.shadowVolume, tess.lightmapNum));
 	}
 }
 

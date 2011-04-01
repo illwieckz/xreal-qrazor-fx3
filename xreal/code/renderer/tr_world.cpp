@@ -23,7 +23,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_world.c
 
 #include "tr_local.h"
+
+#if !defined(USE_D3D10)
 #include "gl_shader.h"
+#endif
 
 
 /*
@@ -1318,6 +1321,7 @@ static qboolean InsideViewFrustum(bspNode_t * node, int planeBits)
 
 static void DrawNode_r(bspNode_t * node, int planeBits)
 {
+#if !defined(USE_D3D10)
 	do
 	{
 		// if the bounding volume is outside the frustum, nothing
@@ -1368,6 +1372,7 @@ static void DrawNode_r(bspNode_t * node, int planeBits)
 		// tail recurse
 		node = node->children[1];
 	} while(1);
+#endif
 }
 
 
