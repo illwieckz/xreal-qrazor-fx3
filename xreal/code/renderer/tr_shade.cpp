@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2010 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -1180,34 +1180,6 @@ void GLSL_InitGPUShaders(void)
 		GL_CheckErrors();
 	}
 
-	// black depth fill rendering with textures
-	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", ATTR_POSITION | ATTR_NORMAL | ATTR_TEXCOORD | ATTR_COLOR, qtrue, qtrue);
-
-	tr.depthFillShader.u_ColorMap = glGetUniformLocationARB(tr.depthFillShader.program, "u_ColorMap");
-	tr.depthFillShader.u_ColorTextureMatrix = glGetUniformLocationARB(tr.depthFillShader.program, "u_ColorTextureMatrix");
-	tr.depthFillShader.u_AlphaTest = glGetUniformLocationARB(tr.depthFillShader.program, "u_AlphaTest");
-	tr.depthFillShader.u_AmbientColor = glGetUniformLocationARB(tr.depthFillShader.program, "u_AmbientColor");
-	tr.depthFillShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.depthFillShader.program, "u_ModelViewProjectionMatrix");
-	if(glConfig.vboVertexSkinningAvailable)
-	{
-		tr.depthFillShader.u_VertexSkinning = glGetUniformLocationARB(tr.depthFillShader.program, "u_VertexSkinning");
-		tr.depthFillShader.u_BoneMatrix = glGetUniformLocationARB(tr.depthFillShader.program, "u_BoneMatrix");
-	}
-	tr.depthFillShader.u_DeformGen = glGetUniformLocationARB(tr.depthFillShader.program, "u_DeformGen");
-	tr.depthFillShader.u_DeformWave = glGetUniformLocationARB(tr.depthFillShader.program, "u_DeformWave");
-	tr.depthFillShader.u_DeformBulge = glGetUniformLocationARB(tr.depthFillShader.program, "u_DeformBulge");
-	tr.depthFillShader.u_DeformSpread = glGetUniformLocationARB(tr.depthFillShader.program, "u_DeformSpread");
-	tr.depthFillShader.u_Time = glGetUniformLocationARB(tr.depthFillShader.program, "u_Time");
-
-	glUseProgramObjectARB(tr.depthFillShader.program);
-	glUniform1iARB(tr.depthFillShader.u_ColorMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.depthFillShader.program);
-	GLSL_ShowProgramUniforms(tr.depthFillShader.program);
-	GL_CheckErrors();
-
 	// colored depth test rendering for occlusion testing
 	GLSL_InitGPUShader(&tr.depthTestShader, "depthTest", ATTR_POSITION | ATTR_TEXCOORD, qtrue, qtrue);
 
@@ -2198,12 +2170,6 @@ void GLSL_ShutdownGPUShaders(void)
 		Com_Memset(&tr.deferredLightingShader_DBS_directional, 0, sizeof(shaderProgram_t));
 	}
 
-	if(tr.depthFillShader.program)
-	{
-		glDeleteObjectARB(tr.depthFillShader.program);
-		Com_Memset(&tr.depthFillShader, 0, sizeof(shaderProgram_t));
-	}
-
 	if(tr.depthTestShader.program)
 	{
 		glDeleteObjectARB(tr.depthTestShader.program);
@@ -2633,6 +2599,7 @@ to overflow.
 */
 // *INDENT-OFF*
 void Tess_Begin(	 void (*stageIteratorFunc)(),
+					 void (*stageIteratorFunc2)(),
 					 shader_t * surfaceShader, shader_t * lightShader,
 					 qboolean skipTangentSpaces,
 					 qboolean shadowVolume,
@@ -2663,31 +2630,41 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 		tess.surfaceStages = NULL;
 	}
 
+	bool isSky = (state != NULL && state->isSky != qfalse);
+
 	tess.lightShader = lightShader;
 
 	tess.stageIteratorFunc = stageIteratorFunc;
-	tess.stageIteratorFunc2 = NULL;
+	tess.stageIteratorFunc2 = stageIteratorFunc2;
 
 	if(!tess.stageIteratorFunc)
 	{
-		tess.stageIteratorFunc = Tess_StageIteratorGeneric;
+		//tess.stageIteratorFunc = &Tess_StageIteratorGeneric;
+		ri.Error(ERR_FATAL, "tess.stageIteratorFunc == NULL");
 	}
 
-	if(tess.stageIteratorFunc == Tess_StageIteratorGeneric)
+	if(tess.stageIteratorFunc == &Tess_StageIteratorGeneric)
 	{
-		if(state->isSky)
+		if(isSky)
 		{
-			tess.stageIteratorFunc = Tess_StageIteratorSky;
-			tess.stageIteratorFunc2 = Tess_StageIteratorGeneric;
+			tess.stageIteratorFunc = &Tess_StageIteratorSky;
+			tess.stageIteratorFunc2 = &Tess_StageIteratorGeneric;
 		}
 	}
-
-	if(tess.stageIteratorFunc == Tess_StageIteratorGBuffer)
+	else if(tess.stageIteratorFunc == &Tess_StageIteratorDepthFill)
 	{
-		if(state && state->isSky)
+		if(isSky)
 		{
-			tess.stageIteratorFunc = Tess_StageIteratorSky;
-			tess.stageIteratorFunc2 = Tess_StageIteratorGBuffer;
+			tess.stageIteratorFunc = &Tess_StageIteratorSky;
+			tess.stageIteratorFunc2 = &Tess_StageIteratorDepthFill;
+		}
+	}
+	else if(tess.stageIteratorFunc == Tess_StageIteratorGBuffer)
+	{
+		if(isSky)
+		{
+			tess.stageIteratorFunc = &Tess_StageIteratorSky;
+			tess.stageIteratorFunc2 = &Tess_StageIteratorGBuffer;
 		}
 	}
 
@@ -3591,81 +3568,49 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 }
 
 
-static void Render_depthFill(int stage, qboolean cmap2black)
+static void Render_depthFill(int stage)
 {
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	shaderStage_t  *pStage;
-	uint32_t        stateBits;
-	vec4_t          ambientColor;
+	colorGen_t		rgbGen;
+	alphaGen_t		alphaGen;
+	vec4_t			ambientColor;
 
 	GLimp_LogComment("--- Render_depthFill ---\n");
 
 	pStage = tess.surfaceStages[stage];
 
-	// remove alpha test
-	stateBits = pStage->stateBits;
+	uint32_t stateBits = pStage->stateBits;
 	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
+	stateBits |= GLS_DEPTHMASK_TRUE;
 
-	GL_State(stateBits);
+	GL_State(pStage->stateBits);
 
-	// enable shader, set arrays
-	GL_BindProgram(&tr.depthFillShader);
-	GL_VertexAttribsState(tr.depthFillShader.attribs);
+	gl_genericShader->SetAlphaTesting((pStage->stateBits & GLS_ATEST_BITS) != 0);
+	gl_genericShader->SetPortalClipping(backEnd.viewParms.isPortal);
 
-	if(r_precomputedLighting->integer)
-	{
-		GL_VertexAttribsState(tr.depthFillShader.attribs);
-	}
-	else
-	{
-		GL_VertexAttribsState(tr.depthFillShader.attribs & ~(ATTR_COLOR));
-		glVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
-	}
+	gl_genericShader->SetVertexSkinning(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning);
+	gl_genericShader->SetVertexAnimation(glState.vertexAttribsInterpolation > 0);
+
+	gl_genericShader->SetDeformVertexes(tess.surfaceShader->numDeforms);
+	gl_genericShader->SetTCGenEnvironment(pStage->tcGen_Environment);
+
+	gl_genericShader->BindProgram();
 
 	// set uniforms
-	if(glConfig.vboVertexSkinningAvailable)
+	if(pStage->tcGen_Environment)
 	{
-		GLSL_SetUniform_VertexSkinning(&tr.depthFillShader, tess.vboVertexSkinning);
-
-		if(tess.vboVertexSkinning)
-			glUniformMatrix4fvARB(tr.depthFillShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+		// calculate the environment texcoords in object space
+		gl_genericShader->SetUniform_ViewOrigin(backEnd.orientation.viewOrigin);
 	}
 
-	GLSL_SetUniform_AlphaTest(&tr.depthFillShader, pStage->stateBits);
+	// u_AlphaTest
+	gl_genericShader->SetUniform_AlphaTest(pStage->stateBits);
 
-	// u_DeformGen
-	if(tess.surfaceShader->numDeforms)
-	{
-		deformStage_t  *ds;
+	// u_ColorModulate
+	gl_genericShader->SetUniform_ColorModulate(CGEN_CONST, AGEN_CONST);
 
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		switch (ds->deformation)
-		{
-			case DEFORM_WAVE:
-				GLSL_SetUniform_DeformGen(&tr.depthFillShader, (deformGen_t) ds->deformationWave.func);
-				GLSL_SetUniform_DeformWave(&tr.depthFillShader, &ds->deformationWave);
-				GLSL_SetUniform_DeformSpread(&tr.depthFillShader, ds->deformationSpread);
-				GLSL_SetUniform_Time(&tr.depthFillShader, backEnd.refdef.floatTime);
-				break;
-
-			case DEFORM_BULGE:
-				GLSL_SetUniform_DeformGen(&tr.depthFillShader, DGEN_BULGE);
-				GLSL_SetUniform_DeformBulge(&tr.depthFillShader, ds);
-				GLSL_SetUniform_Time(&tr.depthFillShader, backEnd.refdef.floatTime);
-				break;
-
-			default:
-				GLSL_SetUniform_DeformGen(&tr.depthFillShader, DGEN_NONE);
-				break;
-		}
-	}
-	else
-	{
-		GLSL_SetUniform_DeformGen(&tr.depthFillShader, DGEN_NONE);
-	}
-
+	// u_Color
+	/*
 	if(r_precomputedLighting->integer)
 	{
 		VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
@@ -3681,26 +3626,62 @@ static void Render_depthFill(int stage, qboolean cmap2black)
 	{
 		VectorClear(ambientColor);
 	}
-	GLSL_SetUniform_AmbientColor(&tr.depthFillShader, ambientColor);
+	ambientColor[3] = 1;
+	gl_genericShader->SetUniform_Color(ambientColor);
+	*/
 
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.depthFillShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	gl_genericShader->SetUniform_Color(colorMdGrey);
+
+	gl_genericShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
+	gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
+	{
+		gl_genericShader->SetUniform_BoneMatrix(MAX_BONES, tess.boneMatrices);
+	}
+
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		gl_genericShader->SetDeformStageUniforms(ds);
+	}
+
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		gl_genericShader->SetUniform_PortalPlane(plane);
+	}
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
-	if(cmap2black)
+	if(tess.surfaceShader->alphaTest)
 	{
-		GL_Bind(tr.blackImage);
+		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+		gl_genericShader->SetUniform_ColorTextureMatrix(tess.svars.texMatrices[TB_DIFFUSEMAP]);
 	}
 	else
 	{
-		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+		GL_Bind(tr.defaultImage);
+		gl_genericShader->SetUniform_ColorTextureMatrix(matrixIdentity);
 	}
-	GLSL_SetUniform_ColorTextureMatrix(&tr.depthFillShader, tess.svars.texMatrices[TB_DIFFUSEMAP]);
+
+	gl_genericShader->SetVertexAttribs();
 
 	Tess_DrawElements();
 
 	GL_CheckErrors();
-#endif
 }
 
 static void Render_shadowFill(int stage)
@@ -5548,7 +5529,7 @@ void Tess_StageIteratorGeneric()
 						}
 						else
 						{
-							Render_depthFill(stage, qfalse);
+							Render_depthFill(stage);
 						}
 					}
 				}
@@ -5752,7 +5733,7 @@ void Tess_StageIteratorGBuffer()
 					}
 					else
 					{
-						Render_depthFill(stage, qfalse);
+						Render_depthFill(stage);
 					}
 				}
 #endif
@@ -5931,7 +5912,7 @@ void Tess_StageIteratorDepthFill()
 			{
 				if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
-					Render_depthFill(stage, qfalse);
+					Render_depthFill(stage);
 				}
 				break;
 			}
@@ -5947,7 +5928,7 @@ void Tess_StageIteratorDepthFill()
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:
 			{
-				Render_depthFill(stage, qfalse);
+				Render_depthFill(stage);
 				break;
 			}
 

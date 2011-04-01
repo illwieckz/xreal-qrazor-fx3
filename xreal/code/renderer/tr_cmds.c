@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -108,11 +108,12 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 7)
 	{
-		ri.Printf(PRINT_ALL, "occlusion queries:%i multi:%i saved:%i culled lights:%i culled leafs:%i response time:%i fetch time:%i\n",
+		ri.Printf(PRINT_ALL, "occlusion queries:%i multi:%i saved:%i culled lights:%i culled entities:%i culled leafs:%i response time:%i fetch time:%i\n",
 				  backEnd.pc.c_occlusionQueries,
 				  backEnd.pc.c_occlusionQueriesMulti,
 				  backEnd.pc.c_occlusionQueriesSaved,
 				  backEnd.pc.c_occlusionQueriesLightsCulled,
+				  backEnd.pc.c_occlusionQueriesEntitiesCulled,
 				  backEnd.pc.c_occlusionQueriesLeafsCulled,
 				  backEnd.pc.c_occlusionQueriesResponseTime,
 				  backEnd.pc.c_occlusionQueriesFetchTime);

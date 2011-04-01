@@ -427,6 +427,12 @@ typedef struct
 	vec3_t          localBounds[2];
 	vec3_t          worldBounds[2];	// only set when not completely culled. use them for light interactions
 	vec3_t          worldCorners[8];
+
+	// GPU occlusion culling
+	qboolean		noOcclusionQueries;
+	uint32_t        occlusionQueryObject;
+	uint32_t        occlusionQuerySamples;
+	link_t			multiQuery;				// CHC++: list of all nodes that are used by the same occlusion query
 } trRefEntity_t;
 
 typedef struct
@@ -550,7 +556,8 @@ typedef struct VBO_s
 	char            name[MAX_QPATH];
 
 	uint32_t        vertexesVBO;
-	int             vertexesSize;	// amount of memory data allocated for all vertices in bytes
+	uint32_t        vertexesSize;	// amount of memory data allocated for all vertices in bytes
+	uint32_t		vertexesNum;
 	uint32_t        ofsXYZ;
 	uint32_t        ofsTexCoords;
 	uint32_t        ofsLightCoords;
@@ -568,7 +575,7 @@ typedef struct VBO_s
 	uint32_t		sizeBinormals;
 	uint32_t		sizeNormals;
 
-	int             attribs;
+	uint32_t        attribs;
 } VBO_t;
 
 typedef struct IBO_s
@@ -576,7 +583,9 @@ typedef struct IBO_s
 	char            name[MAX_QPATH];
 
 	uint32_t        indexesVBO;
-	int             indexesSize;	// amount of memory data allocated for all triangles in bytes
+	uint32_t        indexesSize;	// amount of memory data allocated for all triangles in bytes
+	uint32_t		indexesNum;
+
 //  uint32_t        ofsIndexes;
 } IBO_t;
 
@@ -3718,6 +3727,7 @@ typedef struct
 	int				c_occlusionQueriesSaved;
 	int             c_occlusionQueriesAvailable;
 	int             c_occlusionQueriesLightsCulled;
+	int             c_occlusionQueriesEntitiesCulled;
 	int             c_occlusionQueriesLeafsCulled;
 	int             c_occlusionQueriesInteractionsCulled;
 	int             c_occlusionQueriesResponseTime;
@@ -3865,6 +3875,10 @@ typedef struct
 	FBO_t          *bloomRenderFBO[2];
 	FBO_t          *shadowMapFBO[MAX_SHADOWMAPS];
 
+	// vertex buffer objects
+	VBO_t          *unitCubeVBO;
+	IBO_t          *unitCubeIBO;
+
 	// internal shaders
 	shader_t       *defaultShader;
 	shader_t       *defaultPointLightShader;
@@ -3918,9 +3932,6 @@ typedef struct
 	shaderProgram_t deferredLightingShader_DBS_omni;
 	shaderProgram_t deferredLightingShader_DBS_proj;
 	shaderProgram_t deferredLightingShader_DBS_directional;
-
-	// black depth fill rendering with textures
-	shaderProgram_t depthFillShader;
 
 	// colored depth test rendering with textures into gl_FragData[1]
 	shaderProgram_t depthTestShader;
@@ -4303,6 +4314,7 @@ extern cvar_t  *r_parallaxMapping;
 extern cvar_t  *r_parallaxDepthScale;
 
 extern cvar_t  *r_dynamicBspOcclusionCulling;
+extern cvar_t  *r_dynamicEntityOcclusionCulling;
 extern cvar_t  *r_chcMaxPrevInvisNodesBatchSize;
 extern cvar_t  *r_chcMaxVisibleFrames;
 extern cvar_t  *r_chcVisibilityThreshold;
@@ -4673,6 +4685,7 @@ void            GLSL_ShutdownGPUShaders();
 
 // *INDENT-OFF*
 void            Tess_Begin(	void (*stageIteratorFunc)(),
+						    void (*stageIteratorFunc2)(),
 							shader_t * surfaceShader, shader_t * lightShader,
 							qboolean skipTangentSpaces,
 							qboolean shadowVolume,

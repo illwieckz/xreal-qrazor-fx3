@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -391,6 +391,9 @@ void RE_BeginRegistration(glConfig_t * glconfigOut)
 	// FIXME: world entity shadows always use zfail algorithm which is slower than zpass
 	tr.worldEntity.needZFail = qtrue;
 	tr.worldEntity.e.nonNormalizedAxes = qfalse;
+
+	// RB: world will be never ignored by occusion query test
+	tr.worldEntity.occlusionQuerySamples = 1;
 
 	tr.registered = qtrue;
 
