@@ -1477,7 +1477,7 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 	}
 
 	// try to load the image
-	stage->bundle[0].image[0] = R_FindImageFile(buffer, imageBits, filterType, wrapType);
+	stage->bundle[0].image[0] = R_FindImageFile(buffer, imageBits, filterType, wrapType, shader.name);
 
 	if(!stage->bundle[0].image[0])
 	{
@@ -1593,7 +1593,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				filterType = shader.filterType;
 			}
 
-			stage->bundle[0].image[0] = R_FindImageFile(token, imageBits, filterType, WT_CLAMP);
+			stage->bundle[0].image[0] = R_FindImageFile(token, imageBits, filterType, WT_CLAMP, shader.name);
 			if(!stage->bundle[0].image[0])
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name);
@@ -1624,7 +1624,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				num = stage->bundle[0].numImages;
 				if(num < MAX_IMAGE_ANIMATIONS)
 				{
-					stage->bundle[0].image[num] = R_FindImageFile(token, IF_NONE, FT_DEFAULT, WT_REPEAT);
+					stage->bundle[0].image[num] = R_FindImageFile(token, IF_NONE, FT_DEFAULT, WT_REPEAT, shader.name);
 					if(!stage->bundle[0].image[num])
 					{
 						ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
@@ -1681,7 +1681,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				filterType = shader.filterType;
 			}
 
-			stage->bundle[0].image[0] = R_FindCubeImage(token, imageBits, filterType, WT_EDGE_CLAMP);
+			stage->bundle[0].image[0] = R_FindCubeImage(token, imageBits, filterType, WT_EDGE_CLAMP, shader.name);
 			if(!stage->bundle[0].image[0])
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindCubeImage could not find '%s' in shader '%s'\n", token, shader.name);
@@ -2773,7 +2773,7 @@ static void ParseSkyParms(char **text)
 	{
 		Q_strncpyz(prefix, token, sizeof(prefix));
 
-		shader.sky.outerbox = R_FindCubeImage(prefix, IF_NONE, FT_DEFAULT, WT_EDGE_CLAMP);
+		shader.sky.outerbox = R_FindCubeImage(prefix, IF_NONE, FT_DEFAULT, WT_EDGE_CLAMP, shader.name);
 		if(!shader.sky.outerbox)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: could not find cubemap '%s' for outer skybox in shader '%s'\n", prefix, shader.name);
@@ -2812,7 +2812,7 @@ static void ParseSkyParms(char **text)
 	{
 		Q_strncpyz(prefix, token, sizeof(prefix));
 
-		shader.sky.innerbox = R_FindCubeImage(prefix, IF_NONE, FT_DEFAULT, WT_EDGE_CLAMP);
+		shader.sky.innerbox = R_FindCubeImage(prefix, IF_NONE, FT_DEFAULT, WT_EDGE_CLAMP, shader.name);
 		if(!shader.sky.innerbox)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: could not find cubemap '%s' for inner skybox in shader '%s'\n", prefix, shader.name);
@@ -5226,7 +5226,7 @@ shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRa
 	// if not defined in the in-memory shader descriptions,
 	// look for a single supported image file
 	image = R_FindImageFile(fileName, mipRawImage ? IF_NONE : IF_NOPICMIP,
-							mipRawImage ? FT_DEFAULT : FT_LINEAR, mipRawImage ? WT_REPEAT : WT_CLAMP);
+							mipRawImage ? FT_DEFAULT : FT_LINEAR, mipRawImage ? WT_REPEAT : WT_CLAMP, shader.name);
 	if(!image)
 	{
 		ri.Printf(PRINT_DEVELOPER, "Couldn't find image file for shader %s\n", name);

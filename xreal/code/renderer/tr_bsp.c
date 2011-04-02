@@ -932,7 +932,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 				{
 					ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
 
-					image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
+					image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP, NULL);
 					Com_AddToGrowList(&tr.deluxemaps, image);
 				}
 			}
@@ -968,18 +968,18 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 				{
 					if(i % 2 == 0)
 					{
-						image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_NOCOMPRESSION, FT_LINEAR, WT_CLAMP);
+						image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_NOCOMPRESSION, FT_LINEAR, WT_CLAMP, NULL);
 						Com_AddToGrowList(&tr.lightmaps, image);
 					}
 					else
 					{
-						image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP | IF_NOCOMPRESSION, FT_LINEAR, WT_CLAMP);
+						image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP | IF_NOCOMPRESSION, FT_LINEAR, WT_CLAMP, NULL);
 						Com_AddToGrowList(&tr.deluxemaps, image);
 					}
 				}
 				else
 				{
-					image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_NOCOMPRESSION, FT_LINEAR, WT_CLAMP);
+					image = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_NOCOMPRESSION, FT_LINEAR, WT_CLAMP, NULL);
 					Com_AddToGrowList(&tr.lightmaps, image);
 				}
 			}

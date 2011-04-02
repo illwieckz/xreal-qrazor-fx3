@@ -4569,8 +4569,8 @@ void            R_InitImages(void);
 void            R_ShutdownImages(void);
 int             R_SumOfUsedImages(void);
 
-image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterType, wrapType_t wrapType);
-image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterType, wrapType_t wrapType);
+image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterType, wrapType_t wrapType, const char *materialName);
+image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterType, wrapType_t wrapType, const char *materialName);
 
 image_t        *R_CreateImage(const char *name, const byte * pic, int width, int height, int bits, filterType_t filterType,
 							  wrapType_t wrapType);
