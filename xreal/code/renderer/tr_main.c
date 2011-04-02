@@ -1922,7 +1922,7 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 		// if the entity is just a mirror, don't use as a camera point
 		if(e->e.oldorigin[0] == e->e.origin[0] && e->e.oldorigin[1] == e->e.origin[1] && e->e.oldorigin[2] == e->e.origin[2])
 		{
-			//ri.Printf(PRINT_DEVELOPER, "Portal surface with a mirror entity\n");
+			//ri.Printf(PRINT_ALL, "Portal surface with a mirror entity\n");
 
 			VectorScale(plane.normal, plane.dist, surface->origin);
 			VectorCopy(surface->origin, camera->origin);
@@ -1974,6 +1974,9 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 			RotatePointAroundVector(camera->axis[1], camera->axis[0], transformed, d);
 			CrossProduct(camera->axis[0], camera->axis[1], camera->axis[2]);
 		}
+
+		//ri.Printf(PRINT_ALL, "Portal surface with a portal entity\n");
+
 		*mirror = qfalse;
 		return qtrue;
 	}
@@ -1987,7 +1990,7 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 	// to see a surface before the server has communicated the matching
 	// portal surface entity, so we don't want to print anything here...
 
-	//ri.Printf( PRINT_ALL, "Portal surface without a portal entity\n");
+	//ri.Printf(PRINT_ALL, "Portal surface without a portal entity\n");
 
 	return qfalse;
 }
@@ -2076,15 +2079,16 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	// rotate if necessary
 	if(tr.currentEntity != &tr.worldEntity)
 	{
-		//ri.Printf(PRINT_ALL, "entity Portal surface\n");
+		//ri.Printf(PRINT_ALL, "entity portal surface\n");
 		R_RotateEntityForViewParms(tr.currentEntity, &tr.viewParms, &tr.orientation);
 	}
 	else
 	{
+		//ri.Printf(PRINT_ALL, "world portal surface\n");
 		tr.orientation = tr.viewParms.world;
 	}
 
-	Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, -1);
+	Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qtrue, qtrue, qfalse, -1);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 
 	// Tr3B: former assertion
@@ -2149,7 +2153,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	}
 	if(!numTriangles)
 	{
-		//ri.Printf(PRINT_ALL, "entity Portal surface triangles culled\n");
+		//ri.Printf(PRINT_ALL, "entity portal surface triangles culled\n");
 		return qtrue;
 	}
 
@@ -2198,6 +2202,7 @@ static qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf)
 	// trivially reject portal/mirror
 	if(SurfIsOffscreen(drawSurf, clipDest))
 	{
+		//ri.Printf(PRINT_ALL, "WARNING: offscreen mirror/portal surface\n");
 		return qfalse;
 	}
 

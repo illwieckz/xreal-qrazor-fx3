@@ -3995,8 +3995,8 @@ typedef struct
 	shaderProgram_t blurYShader;
 	shaderProgram_t rotoscopeShader;
 	shaderProgram_t cameraEffectsShader;
-	shaderProgram_t screenShader;
-	shaderProgram_t portalShader;
+	//shaderProgram_t screenShader;
+	//shaderProgram_t portalShader;
 	shaderProgram_t liquidShader;
 	shaderProgram_t uniformFogShader;
 	shaderProgram_t volumetricFogShader;
@@ -4678,6 +4678,7 @@ typedef struct shaderCommands_s
 	shader_t       *lightShader;
 
 	qboolean        skipTangentSpaces;
+	qboolean		skipVBO;
 	qboolean        shadowVolume;
 	int16_t         lightmapNum;
 
@@ -4711,6 +4712,7 @@ void            Tess_Begin(	void (*stageIteratorFunc)(),
 						    void (*stageIteratorFunc2)(),
 							shader_t * surfaceShader, shader_t * lightShader,
 							qboolean skipTangentSpaces,
+							qboolean skipVBO,
 							qboolean shadowVolume,
 							int lightmapNum);
 // *INDENT-ON*

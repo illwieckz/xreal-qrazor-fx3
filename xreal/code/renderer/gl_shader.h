@@ -962,6 +962,26 @@ public:
 	}
 };
 
+
+class u_ModelViewMatrix:
+GLUniform
+{
+public:
+	u_ModelViewMatrix(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_ModelViewMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ModelViewMatrix); }
+
+	void SetUniform_ModelViewMatrix(const matrix_t m)
+	{
+		GLSL_SetUniform_ModelViewMatrix(_shader->GetProgram(), m);
+	}
+};
+
+
 class u_ModelViewProjectionMatrix:
 GLUniform
 {
@@ -1036,6 +1056,25 @@ public:
 		GLSL_SetUniform_PortalPlane(_shader->GetProgram(), v);
 	}
 };
+
+class u_PortalRange:
+GLUniform
+{
+public:
+	u_PortalRange(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_PortalRange"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_PortalRange); }
+
+	void SetUniform_PortalRange(float value)
+	{
+		GLSL_SetUniform_PortalRange(_shader->GetProgram(), value);
+	}
+};
+
 
 class u_DepthScale:
 GLUniform
@@ -1547,6 +1586,27 @@ public:
 };
 
 
+
+class GLShader_screen:
+public GLShader,
+public u_ModelViewProjectionMatrix
+{
+public:
+	GLShader_screen();
+};
+
+
+class GLShader_portal:
+public GLShader,
+public u_ModelViewMatrix,
+public u_ModelViewProjectionMatrix,
+public u_PortalRange
+{
+public:
+	GLShader_portal();
+};
+
+
 extern GLShader_generic* gl_genericShader;
 extern GLShader_lightMapping* gl_lightMappingShader;
 extern GLShader_vertexLighting_DBS_entity* gl_vertexLightingShader_DBS_entity;
@@ -1554,5 +1614,7 @@ extern GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world;
 extern GLShader_forwardLighting_omniXYZ* gl_forwardLightingShader_omniXYZ;
 extern GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun;
 extern GLShader_shadowFill* gl_shadowFillShader;
+extern GLShader_screen* gl_screenShader;
+extern GLShader_portal* gl_portalShader;
 
 #endif	// GL_SHADER_H

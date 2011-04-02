@@ -331,9 +331,9 @@ by the Calc_* functions
 */
 void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent, vec3_t forcedOrigin)
 {
-	vec3_t          lightDir;
+	//vec3_t          lightDir;
 	//vec3_t          lightOrigin;
-	float           d;
+	//float           d;
 
 	// lighting calculations
 	if(ent->lightingCalculated)

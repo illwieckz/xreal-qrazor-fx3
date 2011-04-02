@@ -1835,37 +1835,15 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.cameraEffectsShader.program);
 	GL_CheckErrors();
 
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
 	// screen post process effect
-	GLSL_InitGPUShader(&tr.screenShader, "screen", ATTR_POSITION | ATTR_COLOR, qtrue, qtrue);
-
-	tr.screenShader.u_CurrentMap = glGetUniformLocationARB(tr.screenShader.program, "u_CurrentMap");
-	tr.screenShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.screenShader.program, "u_ModelViewProjectionMatrix");
-
-	glUseProgramObjectARB(tr.screenShader.program);
-	glUniform1iARB(tr.screenShader.u_CurrentMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.screenShader.program);
-	GLSL_ShowProgramUniforms(tr.screenShader.program);
-	GL_CheckErrors();
+	gl_screenShader = new GLShader_screen();
 
 	// portal process effect
-	GLSL_InitGPUShader(&tr.portalShader, "portal", ATTR_POSITION | ATTR_COLOR, qtrue, qtrue);
+	gl_portalShader = new GLShader_portal();
 
-	tr.portalShader.u_CurrentMap = glGetUniformLocationARB(tr.portalShader.program, "u_CurrentMap");
-	tr.portalShader.u_PortalRange = glGetUniformLocationARB(tr.portalShader.program, "u_PortalRange");
-	tr.portalShader.u_ModelViewMatrix = glGetUniformLocationARB(tr.portalShader.program, "u_ModelViewMatrix");
-	tr.portalShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.portalShader.program, "u_ModelViewProjectionMatrix");
-
-	glUseProgramObjectARB(tr.portalShader.program);
-	glUniform1iARB(tr.portalShader.u_CurrentMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.portalShader.program);
-	GLSL_ShowProgramUniforms(tr.portalShader.program);
-	GL_CheckErrors();
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	// liquid post process effect
 	GLSL_InitGPUShader(&tr.liquidShader, "liquid",
@@ -2228,17 +2206,22 @@ void GLSL_ShutdownGPUShaders(void)
 		Com_Memset(&tr.cameraEffectsShader, 0, sizeof(shaderProgram_t));
 	}
 
-	if(tr.screenShader.program)
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
+
+	if(gl_screenShader)
 	{
-		glDeleteObjectARB(tr.screenShader.program);
-		Com_Memset(&tr.screenShader, 0, sizeof(shaderProgram_t));
+		delete gl_screenShader;
+		gl_screenShader = NULL;
 	}
 
-	if(tr.portalShader.program)
+	if(gl_portalShader)
 	{
-		glDeleteObjectARB(tr.portalShader.program);
-		Com_Memset(&tr.portalShader, 0, sizeof(shaderProgram_t));
+		delete gl_portalShader;
+		gl_portalShader = NULL;
 	}
+
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	if(tr.liquidShader.program)
 	{
@@ -2528,6 +2511,7 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 					 void (*stageIteratorFunc2)(),
 					 shader_t * surfaceShader, shader_t * lightShader,
 					 qboolean skipTangentSpaces,
+					 qboolean skipVBO,
 					 qboolean shadowVolume,
 					 int lightmapNum)
 {
@@ -2596,6 +2580,7 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 
 
 	tess.skipTangentSpaces = skipTangentSpaces;
+	tess.skipVBO = skipVBO;
 	tess.shadowVolume = shadowVolume;
 	tess.lightmapNum = lightmapNum;
 
@@ -4541,15 +4526,13 @@ static void Render_skybox(int stage)
 
 static void Render_screen(int stage)
 {
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_screen ---\n");
 
 	GL_State(pStage->stateBits);
 
-	// enable shader, set arrays
-	GL_BindProgram(&tr.screenShader);
+	gl_screenShader->BindProgram();
 
 	/*
 	if(pStage->vertexColor || pStage->inverseVertexColor)
@@ -4559,11 +4542,11 @@ static void Render_screen(int stage)
 	else
 	*/
 	{
-		GL_VertexAttribsState(tr.screenShader.attribs & ~(ATTR_COLOR));
+		GL_VertexAttribsState(ATTR_POSITION);
 		glVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
 	}
 
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	gl_screenShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// bind u_CurrentMap
 	GL_SelectTexture(0);
@@ -4572,12 +4555,10 @@ static void Render_screen(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
-#endif
 }
 
 static void Render_portal(int stage)
 {
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_portal ---\n");
@@ -4585,7 +4566,7 @@ static void Render_portal(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_BindProgram(&tr.portalShader);
+	gl_portalShader->BindProgram();
 
 	/*
 	if(pStage->vertexColor || pStage->inverseVertexColor)
@@ -4595,14 +4576,14 @@ static void Render_portal(int stage)
 	else
 	*/
 	{
-		GL_VertexAttribsState(tr.portalShader.attribs & ~(ATTR_COLOR));
+		GL_VertexAttribsState(ATTR_POSITION);
 		glVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
 	}
 
-	glUniform1fARB(tr.portalShader.u_PortalRange, tess.surfaceShader->portalRange);
+	gl_portalShader->SetUniform_PortalRange(tess.surfaceShader->portalRange);
 
-	GLSL_SetUniform_ModelViewMatrix(&tr.portalShader, glState.modelViewMatrix[glState.stackIndex]);
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.portalShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	gl_portalShader->SetUniform_ModelViewMatrix(glState.modelViewMatrix[glState.stackIndex]);
+	gl_portalShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// bind u_CurrentMap
 	GL_SelectTexture(0);
@@ -4611,7 +4592,6 @@ static void Render_portal(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
-#endif
 }
 
 static void Render_heatHaze(int stage)

@@ -46,7 +46,7 @@ Tess_EndBegin
 void Tess_EndBegin()
 {
 	Tess_End();
-	Tess_Begin(tess.stageIteratorFunc, tess.stageIteratorFunc2, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.shadowVolume,
+	Tess_Begin(tess.stageIteratorFunc, tess.stageIteratorFunc2, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.skipVBO, tess.shadowVolume,
 			   tess.lightmapNum);
 }
 
@@ -94,7 +94,7 @@ void Tess_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "Tess_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	Tess_Begin(tess.stageIteratorFunc, tess.stageIteratorFunc2, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.shadowVolume,
+	Tess_Begin(tess.stageIteratorFunc, tess.stageIteratorFunc2, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.skipVBO, tess.shadowVolume,
 			   tess.lightmapNum);
 }
 
@@ -1149,7 +1149,10 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 	}
 	else
 	{
-		if(r_vboFaces->integer && srf->vbo && srf->ibo && !ShaderRequiresCPUDeforms(tess.surfaceShader) && tess.stageIteratorFunc != &Tess_StageIteratorSky)
+		if(r_vboFaces->integer && srf->vbo && srf->ibo &&
+			!tess.skipVBO && 
+			!ShaderRequiresCPUDeforms(tess.surfaceShader) &&
+			tess.stageIteratorFunc != &Tess_StageIteratorSky)
 		{
 			if(tess.multiDrawPrimitives >= MAX_MULTIDRAW_PRIMITIVES)
 			{
