@@ -136,13 +136,13 @@ textures/eX/eX_floor_grate03
 
 	diffusemap		textures/eX/eXmetalBase01
 	specularmap		textures/eX/eXmetalBase01_s
-	normalMap		displaceMap(textures/eX/eX_eXmetalBase01_norm, _white)
+	normalMap		textures/eX/eX_eXmetalBase01_norm
 	{
 		stage		diffusemap
 		map		textures/eX/eX_floor_grate03_shadow
 		blend		blend
 	}
-	normalMap		displaceMap(_flat, _white)
+	normalMap		_flat
 	{
 		stage		diffusemap
 		map		textures/eX/eX_floor_grate03

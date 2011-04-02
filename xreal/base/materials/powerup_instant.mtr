@@ -344,7 +344,6 @@ models/powerups/instant/quad
 	diffusemap		gfx/2d/blue
 	reflectionMapBlended	_autocube
 	{
-		edgeClamp
 		map		gfx/effect/effmap02.png
   		red		0.014 + sinTable[time * 0.2] * 0.4
 		green		0.066 + sinTable[time * 0.2] * 0.4
@@ -354,7 +353,6 @@ models/powerups/instant/quad
 		tcGen		environment
 	}
 	{
-		edgeClamp
 		map		gfx/effect/effmap01.png
 		rotate		time * 0.6
 		blend		add
@@ -373,7 +371,6 @@ models/powerups/instant/quad
 models/powerups/instant/quad_ring
 {
 	{
-		edgeClamp
 		map		gfx/effect/effmap02.png
   		red		0.014 + sinTable[time * 2] * 0.4
 		green		0.066 + sinTable[time * 2] * 0.4
@@ -383,7 +380,6 @@ models/powerups/instant/quad_ring
 		tcGen		environment
 	}
 	{
-		edgeClamp
 		map		gfx/effect/effmap01.png
 		rotate		time * 0.2
 		blend		add
