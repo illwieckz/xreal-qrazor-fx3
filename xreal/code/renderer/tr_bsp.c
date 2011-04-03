@@ -1545,7 +1545,11 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 
 	// we may have a nodraw surface, because they might still need to
 	// be around for movement clipping
-	if(s_worldData.shaders[LittleLong(ds->shaderNum)].surfaceFlags & (SURF_NODRAW))// | SURF_COLLISION))
+#if defined(COMPAT_ET)
+	if(s_worldData.shaders[LittleLong(ds->shaderNum)].surfaceFlags & SURF_NODRAW)
+#else
+	if(s_worldData.shaders[LittleLong(ds->shaderNum)].surfaceFlags & (SURF_NODRAW | SURF_COLLISION))
+#endif
 	{
 		surf->data = &skipData;
 		return;
@@ -1667,7 +1671,11 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 
 	// we may have a nodraw surface, because they might still need to
 	// be around for movement clipping
-	if(s_worldData.shaders[LittleLong(ds->shaderNum)].surfaceFlags & (SURF_NODRAW))// | SURF_COLLISION))
+#if defined(COMPAT_ET)
+	if(s_worldData.shaders[LittleLong(ds->shaderNum)].surfaceFlags & SURF_NODRAW)
+#else
+	if(s_worldData.shaders[LittleLong(ds->shaderNum)].surfaceFlags & (SURF_NODRAW | SURF_COLLISION))
+#endif
 	{
 		surf->data = &skipData;
 		return;

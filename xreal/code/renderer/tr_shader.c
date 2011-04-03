@@ -2921,12 +2921,12 @@ infoParm_t	infoParms[] = {
 	{"slag",			1,	0,	CONTENTS_SLIME},	// uses the CONTENTS_SLIME flag, but the shader reference is changed to 'slag'
 	// to idendify that this doesn't work the same as 'slime' did.
 
-//	{"slime",			1,	0,	CONTENTS_SLIME},		// mildly damaging
+	{"slime",			1,	0,	CONTENTS_SLIME},		// mildly damaging
 	{"lava",			1,	0,	CONTENTS_LAVA},			// very damaging
 	{"playerclip",		1,	0,	CONTENTS_PLAYERCLIP},
 	{"monsterclip",		1,	0,	CONTENTS_MONSTERCLIP},
-//	{"moveableclip",	1,	0,	0},						// FIXME
-//	{"ikclip",			1,	0,	0},						// FIXME
+	{"moveableclip",	1,	0,	0},						// FIXME
+	{"ikclip",			1,	0,	0},						// FIXME
 	{"nodrop",			1,	0,	CONTENTS_NODROP},		// don't drop items or leave bodies (death fog, lava, etc)
 	{"nonsolid",		1,	SURF_NONSOLID,	0},			// clears the solid flag
 
@@ -2953,7 +2953,7 @@ infoParm_t	infoParms[] = {
 
 	// server attributes
 	{"slick",			0,	SURF_SLICK,		0},
-//	{"collision",		0,	SURF_COLLISION,	0},
+	{"collision",		0,	SURF_COLLISION,	0},
 	{"noimpact",		0,	SURF_NOIMPACT,	0},			// don't make impact explosions or marks
 
 	{"nomarks",			0,	SURF_NOMARKS,	0},			// don't make impact marks, but still explode
@@ -2963,7 +2963,7 @@ infoParm_t	infoParms[] = {
 
 	{"nodamage",		0,	SURF_NODAMAGE,	0},
 
-//	{"flesh",			0,	SURF_FLESH,		0},
+	{"flesh",			0,	SURF_FLESH,		0},
 	{"glass",			0,	SURF_GLASS, 0},
 	{"splash",			0,	SURF_SPLASH, 0},
 
@@ -2988,7 +2988,7 @@ infoParm_t	infoParms[] = {
 	{"pointlight",		0,	SURF_POINTLIGHT,	0},		// sample lighting at vertexes
 	{"nolightmap",		0,	SURF_NOLIGHTMAP,	0},		// don't generate a lightmap
 	{"nodlight",		0,	0,					0},		// OBSELETE: don't ever add dynamic lights
-//	{"dust",			0,	SURF_DUST,			0},		// leave a dust trail when walking on this surface
+	{"dust",			0,	SURF_DUST,			0},		// leave a dust trail when walking on this surface
 
 	// unsupported Doom3 surface types for sound effects and blood splats
 	{"metal",			0,	SURF_METALSTEPS,	0},
