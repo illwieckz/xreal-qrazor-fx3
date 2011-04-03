@@ -2532,10 +2532,9 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	gl_vertexLightingShader_DBS_entity->SetNormalMapping(normalMapping);
 	gl_vertexLightingShader_DBS_entity->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
-	if(normalMapping)
-		gl_vertexLightingShader_DBS_entity->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
-	else
-		gl_vertexLightingShader_DBS_entity->DisableMacro_TWOSIDED();
+	gl_vertexLightingShader_DBS_entity->SetReflectiveSpecular(normalMapping && tr.cubeHashTable != NULL);
+
+	gl_vertexLightingShader_DBS_entity->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
 	gl_vertexLightingShader_DBS_entity->BindProgram();
 	
@@ -2770,10 +2769,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 	gl_vertexLightingShader_DBS_world->SetNormalMapping(normalMapping);
 	gl_vertexLightingShader_DBS_world->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
-	if(normalMapping)
-		gl_vertexLightingShader_DBS_world->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
-	else
-		gl_vertexLightingShader_DBS_world->DisableMacro_TWOSIDED();
+	gl_vertexLightingShader_DBS_world->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
 	gl_vertexLightingShader_DBS_world->BindProgram();
 	
@@ -2933,10 +2929,7 @@ static void Render_lightMapping(int stage, bool asColorMap, bool normalMapping)
 	gl_lightMappingShader->SetNormalMapping(normalMapping);
 	gl_lightMappingShader->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
-	if(normalMapping)
-		gl_lightMappingShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
-	else
-		gl_lightMappingShader->DisableMacro_TWOSIDED();
+	gl_lightMappingShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
 	gl_lightMappingShader->BindProgram();
 	
@@ -3606,10 +3599,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	gl_forwardLightingShader_omniXYZ->SetNormalMapping(normalMapping);
 	gl_forwardLightingShader_omniXYZ->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
-	if(normalMapping)
-		gl_forwardLightingShader_omniXYZ->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
-	else
-		gl_forwardLightingShader_omniXYZ->DisableMacro_TWOSIDED();
+	gl_forwardLightingShader_omniXYZ->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
 	gl_forwardLightingShader_omniXYZ->SetShadowing(shadowCompare);
 
@@ -3987,10 +3977,7 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 	gl_forwardLightingShader_directionalSun->SetNormalMapping(normalMapping);
 	gl_forwardLightingShader_directionalSun->SetParallaxMapping(normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
-	if(normalMapping)
-		gl_forwardLightingShader_directionalSun->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
-	else
-		gl_forwardLightingShader_directionalSun->DisableMacro_TWOSIDED();
+	gl_forwardLightingShader_directionalSun->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
 	gl_forwardLightingShader_directionalSun->SetShadowing(shadowCompare);
 
@@ -4213,10 +4200,7 @@ static void Render_reflection_CB(int stage)
 
 	gl_reflectionShader->SetNormalMapping(normalMapping);
 
-	if(normalMapping)
-		gl_reflectionShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
-	else
-		gl_reflectionShader->DisableMacro_TWOSIDED();
+	gl_reflectionShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
 	gl_reflectionShader->BindProgram();
 	

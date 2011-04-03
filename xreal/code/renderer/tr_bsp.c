@@ -8670,17 +8670,29 @@ void R_FindTwoNearestCubeMaps(const vec3_t position, cubemapProbe_t **cubeProbeN
 	int             j;
 	float			distance, maxDistance, maxDistance2;
 	cubemapProbe_t *cubeProbe;
+	unsigned int    hash;
+	vertexHash_t	*vertexHash;
 
-	GLimp_LogComment("--- GL_BindNearestCubeMap ---\n");
+	GLimp_LogComment("--- R_FindTwoNearestCubeMaps ---\n");
 
-	maxDistance = maxDistance2 = 9999999.0f;
 	*cubeProbeNearest = NULL;
 	*cubeProbeSecondNearest = NULL;
+
+	if(tr.cubeHashTable == NULL || position == NULL)
+		return;
+
+	hash = VertexCoordGenerateHash(position);
+	maxDistance = maxDistance2 = 9999999.0f;
 	
+#if 0
 	for(j = 0; j < tr.cubeProbes.currentElements; j++)
 	{
 		cubeProbe = Com_GrowListElement(&tr.cubeProbes, j);
-
+#else
+	for(j = 0, vertexHash = tr.cubeHashTable[hash]; vertexHash; vertexHash = vertexHash->next, j++)
+	{
+		cubeProbe = vertexHash->data;
+#endif
 		distance = Distance(cubeProbe->origin, position);
 		if(distance < maxDistance)
 		{
@@ -8697,22 +8709,7 @@ void R_FindTwoNearestCubeMaps(const vec3_t position, cubemapProbe_t **cubeProbeN
 		}
 	}
 
-	/*
-	if(*cubeProbeNearest == NULL)
-	{
-		for(j = 0; j < tr.cubeProbes.currentElements; j++)
-		{
-			cubeProbe = Com_GrowListElement(&tr.cubeProbes, j);
-
-			distance = Distance(cubeProbe->origin, position);
-			if(distance < maxDistance2 && distance > maxDistance)
-			{
-				*cubeProbeSecondNearest = cubeProbe;
-				maxDistance2 = distance;
-			}
-		}
-	}
-	*/
+	//ri.Printf(PRINT_ALL, "iterated through %i cubeprobes\n", j);
 }
 
 void R_BuildCubeMaps(void)

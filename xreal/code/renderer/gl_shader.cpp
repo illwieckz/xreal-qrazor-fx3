@@ -98,7 +98,7 @@ bool GLCompileMacro_USE_PARALLAX_MAPPING::MissesRequiredMacros(int permutation, 
 	return false;
 }
 
-bool GLCompileMacro_TWOSIDED::MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
+bool GLCompileMacro_USE_REFLECTIVE_SPECULAR::MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
 {
 	bool foundUSE_NORMAL_MAPPING = false;
 	for(size_t i = 0; i < macros.size(); i++)
@@ -119,7 +119,6 @@ bool GLCompileMacro_TWOSIDED::MissesRequiredMacros(int permutation, const std::v
 
 	return false;
 }
-
 
 
 
@@ -264,6 +263,10 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 		// HACK: add some macros to avoid extra uniforms and save speed and code maintenance
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 				 va("#ifndef r_SpecularExponent\n#define r_SpecularExponent %f\n#endif\n", r_specularExponent->value));
+
+		Q_strcat(bufferExtra, sizeof(bufferExtra),
+				 va("#ifndef r_SpecularExponent2\n#define r_SpecularExponent2 %f\n#endif\n", r_specularExponent2->value));
+
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 				 va("#ifndef r_SpecularScale\n#define r_SpecularScale %f\n#endif\n", r_specularScale->value));
 		//Q_strcat(bufferExtra, sizeof(bufferExtra),
@@ -583,15 +586,18 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 
 		if(r_halfLambertLighting->integer)
 		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_halfLambertLighting\n#define r_halfLambertLighting 1\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_HalfLambertLighting\n#define r_HalfLambertLighting 1\n#endif\n");
 		}
 
-		/*
-		   if(glConfig.textureFloatAvailable)
-		   {
-		   Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_texture_float\n#define GL_ARB_texture_float 1\n#endif\n");
-		   }
-		 */
+		if(r_rimLighting->integer)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_RimLighting\n#define r_RimLighting 1\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_RimColor\n#define r_RimColor vec4(0.26, 0.19, 0.16, 0.0)\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef r_RimExponent\n#define r_RimExponent %f\n#endif\n",
+														r_rimExponent->value));
+		}
+
+		
 
 
 		// OK we added a lot of stuff but if we do something bad in the GLSL shaders then we want the proper line
@@ -699,36 +705,6 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 
 		ri.Hunk_FreeTempMemory(bufferFinal);
 	}
-
-	/*
-	// compile shader
-	glCompileShaderARB(shader);
-
-	GL_CheckErrors();
-
-	// check if shader compiled
-	glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
-	if(!compiled)
-	{
-		GLSL_PrintShaderSource(shader);
-		GLSL_PrintInfoLog(shader, qfalse);
-		ri.Error(ERR_DROP, "Couldn't compile %s", filename);
-		ri.FS_FreeFile(mainBuffer);
-		free(libsBuffer);
-		return;
-	}
-
-	GLSL_PrintInfoLog(shader, qtrue);
-	//ri.Printf(PRINT_ALL, "%s\n", GLSL_PrintShaderSource(shader));
-
-	// attach shader to program
-	glAttachObjectARB(program, shader);
-	GL_CheckErrors();
-
-	// delete shader, no longer needed
-	glDeleteObjectARB(shader);
-	GL_CheckErrors();
-	*/
 
 	ri.FS_FreeFile(mainBuffer);
 	free(libsBuffer);
@@ -1305,6 +1281,7 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
 		GLCompileMacro_USE_NORMAL_MAPPING(this),
 		GLCompileMacro_USE_PARALLAX_MAPPING(this),
+		GLCompileMacro_USE_REFLECTIVE_SPECULAR(this),
 		GLCompileMacro_TWOSIDED(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");

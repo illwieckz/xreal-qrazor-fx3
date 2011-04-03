@@ -210,6 +210,7 @@ protected:
 		USE_TCGEN_ENVIRONMENT,
 		USE_NORMAL_MAPPING,
 		USE_PARALLAX_MAPPING,
+		USE_REFLECTIVE_SPECULAR,
 		USE_SHADOWING,
 		TWOSIDED,
 		LIGHT_DIRECTIONAL
@@ -495,6 +496,33 @@ public:
 	}
 };
 
+
+class GLCompileMacro_USE_REFLECTIVE_SPECULAR:
+GLCompileMacro
+{
+public:
+	GLCompileMacro_USE_REFLECTIVE_SPECULAR(GLShader* shader):
+	  GLCompileMacro(shader)
+	{
+	}
+
+	const char* GetName() const { return "USE_REFLECTIVE_SPECULAR"; }
+	EGLCompileMacro GetType() const { return USE_REFLECTIVE_SPECULAR; }
+	bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
+
+	void EnableReflectiveSpecular()		{ EnableMacro(); }
+	void DisableReflectiveSpecular()	{ DisableMacro(); }
+
+	void SetReflectiveSpecular(bool enable)
+	{
+		if(enable)
+			EnableMacro();
+		else
+			DisableMacro();
+	}
+};
+
+
 class GLCompileMacro_TWOSIDED:
 GLCompileMacro
 {
@@ -506,7 +534,7 @@ public:
 
 	const char* GetName() const { return "TWOSIDED"; }
 	EGLCompileMacro GetType() const { return TWOSIDED; }
-	bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
+	//bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
 
 	void EnableMacro_TWOSIDED()		{ EnableMacro(); }
 	void DisableMacro_TWOSIDED()	{ DisableMacro(); }
@@ -1503,6 +1531,7 @@ public GLCompileMacro_USE_VERTEX_ANIMATION,
 public GLCompileMacro_USE_DEFORM_VERTEXES,
 public GLCompileMacro_USE_NORMAL_MAPPING,
 public GLCompileMacro_USE_PARALLAX_MAPPING,
+public GLCompileMacro_USE_REFLECTIVE_SPECULAR,
 public GLCompileMacro_TWOSIDED
 {
 public:

@@ -171,11 +171,14 @@ cvar_t         *r_offsetFactor;
 cvar_t         *r_offsetUnits;
 cvar_t         *r_forceSpecular;
 cvar_t         *r_specularExponent;
+cvar_t         *r_specularExponent2;
 cvar_t         *r_specularScale;
 cvar_t         *r_normalScale;
 cvar_t         *r_normalMapping;
 cvar_t         *r_wrapAroundLighting;
 cvar_t         *r_halfLambertLighting;
+cvar_t         *r_rimLighting;
+cvar_t         *r_rimExponent;
 cvar_t         *r_gamma;
 cvar_t         *r_intensity;
 cvar_t         *r_lockpvs;
@@ -1490,7 +1493,7 @@ void R_Register(void)
 	r_mergeClusterTriangles = ri.Cvar_Get("r_mergeClusterTriangles", "1", CVAR_CHEAT);
 
 	r_dynamicBspOcclusionCulling = ri.Cvar_Get("r_dynamicBspOcclusionCulling", "0", CVAR_ARCHIVE);
-	r_dynamicEntityOcclusionCulling = ri.Cvar_Get("r_dynamicEntityOcclusionCulling", "1", CVAR_ARCHIVE);
+	r_dynamicEntityOcclusionCulling = ri.Cvar_Get("r_dynamicEntityOcclusionCulling", "0", CVAR_ARCHIVE);
 	r_chcMaxPrevInvisNodesBatchSize = ri.Cvar_Get("r_chcMaxPrevInvisNodesBatchSize", "50", CVAR_CHEAT);
 	r_chcMaxVisibleFrames = ri.Cvar_Get("r_chcMaxVisibleFrames", "10", CVAR_CHEAT);
 	r_chcVisibilityThreshold = ri.Cvar_Get("r_chcVisibilityThreshold", "20", CVAR_CHEAT);
@@ -1570,6 +1573,7 @@ void R_Register(void)
 	r_offsetUnits = ri.Cvar_Get("r_offsetUnits", "-2", CVAR_CHEAT);
 	r_forceSpecular = ri.Cvar_Get("r_forceSpecular", "0", CVAR_CHEAT);
 	r_specularExponent = ri.Cvar_Get("r_specularExponent", "16", CVAR_CHEAT);
+	r_specularExponent2 = ri.Cvar_Get("r_specularExponent2", "3", CVAR_CHEAT);
 	r_specularScale = ri.Cvar_Get("r_specularScale", "1.4", CVAR_CHEAT);
 	r_normalScale = ri.Cvar_Get("r_normalScale", "1.1", CVAR_CHEAT);
 	r_normalMapping = ri.Cvar_Get("r_normalMapping", "1", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1577,6 +1581,9 @@ void R_Register(void)
 
 	r_wrapAroundLighting = ri.Cvar_Get("r_wrapAroundLighting", "0.7", CVAR_CHEAT);
 	r_halfLambertLighting = ri.Cvar_Get("r_halfLambertLighting", "1", CVAR_CHEAT);
+	r_rimLighting = ri.Cvar_Get("r_rimLighting", "1", CVAR_CHEAT);
+	r_rimExponent = ri.Cvar_Get("r_rimExponent", "3", CVAR_CHEAT);
+	AssertCvarRange(r_rimExponent, 0.5, 8.0, qfalse);
 
 	r_drawBuffer = ri.Cvar_Get("r_drawBuffer", "GL_BACK", CVAR_CHEAT);
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", CVAR_CHEAT);
