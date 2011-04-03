@@ -1356,6 +1356,8 @@ typedef struct shaderProgram_s
 	GLint           u_ShadowMap2;
 	GLint           u_ShadowMap3;
 	GLint           u_ShadowMap4;
+	GLint           u_EnvironmentMap0;
+	GLint           u_EnvironmentMap1;
 
 	GLint           u_GrainMap;
 	GLint           u_VignetteMap;
@@ -1484,6 +1486,8 @@ typedef struct shaderProgram_s
 	GLint           u_PortalRange;
 	float			t_PortalRange;
 
+	GLint			u_EnvironmentInterpolation;
+	float			t_EnvironmentInterpolation;
 
 	GLint			u_HDRKey;
 	GLint			u_HDRAverageLuminance;
@@ -2245,6 +2249,25 @@ static ID_INLINE void GLSL_SetUniform_DepthScale(shaderProgram_t * program, floa
 #endif
 
 	glUniform1fARB(program->u_DepthScale, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_EnvironmentInterpolation(shaderProgram_t * program, float value)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_EnvironmentInterpolation == value)
+		return;
+
+	program->t_EnvironmentInterpolation = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_EnvironmentInterpolation( program = %s, value = %f ) ---\n", program->name, value));
+	}
+#endif
+
+	glUniform1fARB(program->u_EnvironmentInterpolation, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_PortalClipping(shaderProgram_t * program, qboolean value)
@@ -3850,6 +3873,7 @@ typedef struct
 	image_t        *noFalloffImage;
 	image_t        *attenuationXYImage;
 	image_t        *blackCubeImage;
+	image_t        *whiteCubeImage;
 	image_t        *autoCubeImage;			// special pointer to the nearest cubemap probe
 
 	image_t        *contrastRenderFBOImage;
@@ -3983,7 +4007,6 @@ typedef struct
 	// environment mapping effects
 	shaderProgram_t reflectionShader_C;
 	shaderProgram_t reflectionShader_CB;
-	shaderProgram_t refractionShader_C;
 	shaderProgram_t dispersionShader_C;
 	shaderProgram_t skyBoxShader;
 
@@ -4747,7 +4770,7 @@ Add a polyhedron that is composed of four triangular faces
 void            Tess_AddTetrahedron(vec4_t tetraVerts[4], vec4_t const color);
 
 void			Tess_AddCube(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
-void			Tess_AddCubeNormals(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
+void			Tess_AddCubeWithNormals(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
 
 void            Tess_InstantQuad(vec4_t quadVerts[4]);
 void            Tess_UpdateVBOs(uint32_t attribBits);
@@ -5252,6 +5275,7 @@ void            RE_TakeVideoFrame(int width, int height, byte * captureBuffer, b
 
 // cubemap reflections stuff
 void            R_BuildCubeMaps(void);
+void			R_FindTwoNearestCubeMaps(const vec3_t position, cubemapProbe_t **cubeProbeNearest, cubemapProbe_t **cubeProbeSecondNearest);
 
 void            FreeVertexHashTable(vertexHash_t ** hashTable);
 

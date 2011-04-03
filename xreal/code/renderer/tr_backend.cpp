@@ -1958,7 +1958,7 @@ static void RB_RenderInteractions()
 			if(!ia->occlusionQuerySamples)
 				goto skipInteraction;
 
-			if(!entity->occlusionQuerySamples)
+			if(r_dynamicEntityOcclusionCulling->integer && !entity->occlusionQuerySamples)
 				goto skipInteraction;
 		}
 
@@ -3495,7 +3495,7 @@ static void RB_RenderInteractionsShadowMapped()
 				goto skipInteraction;
 			}
 
-			if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !entity->occlusionQuerySamples)
+			if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicEntityOcclusionCulling->integer && !entity->occlusionQuerySamples)
 			{
 				goto skipInteraction;
 			}
@@ -10923,7 +10923,6 @@ static void RB_RenderDebugUtils()
 		GL_PopMatrix();
 	}
 
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	if(r_showCubeProbes->integer)
 	{
 		cubemapProbe_t *cubeProbe;
@@ -10931,25 +10930,42 @@ static void RB_RenderDebugUtils()
 		vec4_t          quadVerts[4];
 		vec3_t			mins = {-8, -8, -8};
 		vec3_t			maxs = { 8,  8,  8};
-		vec3_t			viewOrigin;
+		//vec3_t			viewOrigin;
 
 		if(backEnd.refdef.rdflags & (RDF_NOWORLDMODEL | RDF_NOCUBEMAP))
 		{
 			return;
 		}
 
-		// enable shader, set arrays
-		GL_BindProgram(&tr.reflectionShader_C);
+		// choose right shader program ----------------------------------
+		gl_reflectionShader->SetPortalClipping(backEnd.viewParms.isPortal);
+	//	gl_reflectionShader->SetAlphaTesting((pStage->stateBits & GLS_ATEST_BITS) != 0);
+		
+		gl_reflectionShader->SetVertexSkinning(false);
+		gl_reflectionShader->SetVertexAnimation(false);
+		
+		gl_reflectionShader->SetDeformVertexes(false);
+
+		gl_reflectionShader->SetNormalMapping(false);
+		gl_reflectionShader->DisableMacro_TWOSIDED();
+
+		gl_reflectionShader->BindProgram();
+		
+		// end choose right shader program ------------------------------
+		
+		gl_reflectionShader->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin); // in world space
+
 		GL_State(0);
 		GL_Cull(CT_FRONT_SIDED);
 
-		// set uniforms
-		VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
-		GLSL_SetUniform_ViewOrigin(&tr.reflectionShader_C, viewOrigin);
-		if(glConfig.vboVertexSkinningAvailable)
-		{
-			GLSL_SetUniform_VertexSkinning(&tr.reflectionShader_C, qfalse);
-		}
+		// set up the transformation matrix
+		backEnd.orientation = backEnd.viewParms.world;
+		GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+
+		gl_reflectionShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
+		gl_reflectionShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1);
 
 		for(j = 0; j < tr.cubeProbes.currentElements; j++)
 		{
@@ -10958,68 +10974,77 @@ static void RB_RenderDebugUtils()
 			// bind u_ColorMap
 			GL_SelectTexture(0);
 			GL_Bind(cubeProbe->cubemap);
+			
+			Tess_AddCubeWithNormals(cubeProbe->origin, mins, maxs, colorWhite);
+		}
+
+		Tess_End();
+
+		{
+			cubemapProbe_t *cubeProbeNearest;
+			cubemapProbe_t *cubeProbeSecondNearest;
+
+			gl_genericShader->DisableAlphaTesting();
+			gl_genericShader->DisablePortalClipping();
+			gl_genericShader->DisableVertexSkinning();
+			gl_genericShader->DisableVertexAnimation();
+			gl_genericShader->DisableDeformVertexes();
+			gl_genericShader->DisableTCGenEnvironment();
+
+			gl_genericShader->BindProgram();
+
+			gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+			gl_genericShader->SetUniform_Color(colorBlack);
+
+			gl_genericShader->SetVertexAttribs();
+
+			GL_State(GLS_DEFAULT);
+			GL_Cull(CT_TWO_SIDED);
+
+			// set uniforms
 
 			// set up the transformation matrix
-			MatrixSetupTranslation(backEnd.orientation.transformMatrix, cubeProbe->origin[0], cubeProbe->origin[1], cubeProbe->origin[2]);
-			MatrixMultiply(backEnd.viewParms.world.viewMatrix, backEnd.orientation.transformMatrix, backEnd.orientation.modelViewMatrix);
-
+			backEnd.orientation = backEnd.viewParms.world;
 			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-			GLSL_SetUniform_ModelMatrix(&tr.reflectionShader_C, backEnd.orientation.transformMatrix);
-			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.reflectionShader_C, glState.modelViewProjectionMatrix[glState.stackIndex]);
+			gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-			tess.multiDrawPrimitives = 0;
-			tess.numIndexes = 0;
-			tess.numVertexes = 0;
+			// bind u_ColorMap
+			GL_SelectTexture(0);
+			GL_Bind(tr.whiteImage);
+			gl_genericShader->SetUniform_ColorTextureMatrix(matrixIdentity);
 
-			Vector4Set(quadVerts[0], mins[0], mins[1], mins[2], 1);
-			Vector4Set(quadVerts[1], mins[0], maxs[1], mins[2], 1);
-			Vector4Set(quadVerts[2], mins[0], maxs[1], maxs[2], 1);
-			Vector4Set(quadVerts[3], mins[0], mins[1], maxs[2], 1);
-			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
+			GL_CheckErrors();
 
-			Vector4Set(quadVerts[0], maxs[0], mins[1], maxs[2], 1);
-			Vector4Set(quadVerts[1], maxs[0], maxs[1], maxs[2], 1);
-			Vector4Set(quadVerts[2], maxs[0], maxs[1], mins[2], 1);
-			Vector4Set(quadVerts[3], maxs[0], mins[1], mins[2], 1);
-			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
+			R_FindTwoNearestCubeMaps(backEnd.viewParms.orientation.origin, &cubeProbeNearest, &cubeProbeSecondNearest);
 
-			Vector4Set(quadVerts[0], mins[0], mins[1], maxs[2], 1);
-			Vector4Set(quadVerts[1], mins[0], maxs[1], maxs[2], 1);
-			Vector4Set(quadVerts[2], maxs[0], maxs[1], maxs[2], 1);
-			Vector4Set(quadVerts[3], maxs[0], mins[1], maxs[2], 1);
-			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
 
-			Vector4Set(quadVerts[0], maxs[0], mins[1], mins[2], 1);
-			Vector4Set(quadVerts[1], maxs[0], maxs[1], mins[2], 1);
-			Vector4Set(quadVerts[2], mins[0], maxs[1], mins[2], 1);
-			Vector4Set(quadVerts[3], mins[0], mins[1], mins[2], 1);
-			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
+			Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1);
 
-			Vector4Set(quadVerts[0], mins[0], mins[1], mins[2], 1);
-			Vector4Set(quadVerts[1], mins[0], mins[1], maxs[2], 1);
-			Vector4Set(quadVerts[2], maxs[0], mins[1], maxs[2], 1);
-			Vector4Set(quadVerts[3], maxs[0], mins[1], mins[2], 1);
-			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
+			if(cubeProbeNearest == NULL && cubeProbeSecondNearest == NULL)
+			{
+				// bad
+			}
+			else if(cubeProbeNearest == NULL)
+			{
+				Tess_AddCubeWithNormals(cubeProbeSecondNearest->origin, mins, maxs, colorBlue);
+			}
+			else if(cubeProbeSecondNearest == NULL)
+			{
+				Tess_AddCubeWithNormals(cubeProbeNearest->origin, mins, maxs, colorYellow);
+			}
+			else
+			{
+				Tess_AddCubeWithNormals(cubeProbeNearest->origin, mins, maxs, colorGreen);
+				Tess_AddCubeWithNormals(cubeProbeSecondNearest->origin, mins, maxs, colorRed);
+			}
 
-			Vector4Set(quadVerts[0], maxs[0], maxs[1], mins[2], 1);
-			Vector4Set(quadVerts[1], maxs[0], maxs[1], maxs[2], 1);
-			Vector4Set(quadVerts[2], mins[0], maxs[1], maxs[2], 1);
-			Vector4Set(quadVerts[3], mins[0], maxs[1], mins[2], 1);
-			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
-
-			Tess_UpdateVBOs(ATTR_POSITION | ATTR_NORMAL);
-			Tess_DrawElements();
-
-			tess.multiDrawPrimitives = 0;
-			tess.numIndexes = 0;
-			tess.numVertexes = 0;
+			Tess_End();
 		}
 
 		// go back to the world modelview matrix
 		backEnd.orientation = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	if(r_showLightGrid->integer)
 	{

@@ -36,6 +36,7 @@ GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world = NULL;
 GLShader_forwardLighting_omniXYZ* gl_forwardLightingShader_omniXYZ = NULL;
 GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun = NULL;
 GLShader_shadowFill* gl_shadowFillShader = NULL;
+GLShader_reflection* gl_reflectionShader = NULL;
 GLShader_screen* gl_screenShader = NULL;
 GLShader_portal* gl_portalShader = NULL;
 
@@ -1295,6 +1296,7 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 		u_VertexInterpolation(this),
 		u_PortalPlane(this),
 		u_DepthScale(this),
+		u_EnvironmentInterpolation(this),
 		GLDeformStage(this),
 		GLCompileMacro_USE_PORTAL_CLIPPING(this),
 		GLCompileMacro_USE_ALPHA_TESTING(this),
@@ -1339,11 +1341,15 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 			shaderProgram->u_DiffuseMap	= glGetUniformLocationARB(shaderProgram->program, "u_DiffuseMap");
 			shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, "u_NormalMap");
 			shaderProgram->u_SpecularMap = glGetUniformLocationARB(shaderProgram->program, "u_SpecularMap");
+			shaderProgram->u_EnvironmentMap0 = glGetUniformLocationARB(shaderProgram->program, "u_EnvironmentMap0");
+			shaderProgram->u_EnvironmentMap1 = glGetUniformLocationARB(shaderProgram->program, "u_EnvironmentMap1");
 
 			glUseProgramObjectARB(shaderProgram->program);
 			glUniform1iARB(shaderProgram->u_DiffuseMap, 0);
 			glUniform1iARB(shaderProgram->u_NormalMap, 1);
 			glUniform1iARB(shaderProgram->u_SpecularMap, 2);
+			glUniform1iARB(shaderProgram->u_EnvironmentMap0, 3);
+			glUniform1iARB(shaderProgram->u_EnvironmentMap1, 4);
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
@@ -1751,7 +1757,77 @@ GLShader_shadowFill::GLShader_shadowFill():
 
 
 
+GLShader_reflection::GLShader_reflection():
+		GLShader(	"reflection",
+					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
+					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2 | ATTR_COLOR,
+					0),
+		u_ColorMap(this),
+		u_NormalMap(this),
+		u_NormalTextureMatrix(this),
+		u_ViewOrigin(this),
+		u_ModelMatrix(this),
+		u_ModelViewProjectionMatrix(this),
+		u_BoneMatrix(this),
+		u_VertexInterpolation(this),
+		u_PortalPlane(this),
+		GLDeformStage(this),
+		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		GLCompileMacro_USE_VERTEX_SKINNING(this),
+		GLCompileMacro_USE_VERTEX_ANIMATION(this),
+		GLCompileMacro_USE_DEFORM_VERTEXES(this),
+		GLCompileMacro_USE_NORMAL_MAPPING(this),
+		GLCompileMacro_TWOSIDED(this)
+{
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating reflection shaders ---------------------\n");
 
+	int startTime = ri.Milliseconds();
+
+	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
+	
+	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
+
+	std::string vertexShaderText = BuildGPUShaderText("reflection_CB", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string fragmentShaderText = BuildGPUShaderText("reflection_CB", "", GL_FRAGMENT_SHADER_ARB);
+
+	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
+	size_t numCompiled = 0;
+	for(size_t i = 0; i < numPermutations; i++)
+	{
+		std::string compileMacros;
+		if(GetCompileMacrosString(i, compileMacros))
+		{
+			ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros.c_str());
+
+			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
+
+			CompileAndLinkGPUShaderProgram(	shaderProgram,
+											"reflection",
+											vertexShaderText,
+											fragmentShaderText,
+											compileMacros);
+
+			UpdateShaderProgramUniformLocations(shaderProgram);
+
+			glUseProgramObjectARB(shaderProgram->program);
+			glUniform1iARB(shaderProgram->u_ColorMap, 0);
+			glUniform1iARB(shaderProgram->u_NormalMap, 1);
+			glUseProgramObjectARB(0);
+
+			ValidateProgram(shaderProgram->program);
+			ShowProgramUniforms(shaderProgram->program);
+			GL_CheckErrors();
+
+			numCompiled++;
+		}
+	}
+
+	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...compiled %i reflection shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+}
 
 
 

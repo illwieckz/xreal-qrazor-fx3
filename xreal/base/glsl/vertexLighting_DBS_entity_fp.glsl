@@ -25,6 +25,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
+
+uniform samplerCube	u_EnvironmentMap0;
+uniform samplerCube	u_EnvironmentMap1;
+uniform float		u_EnvironmentInterpolation;
+
 uniform int			u_AlphaTest;
 uniform vec3		u_ViewOrigin;
 uniform vec3		u_AmbientColor;
@@ -152,7 +157,25 @@ void	main()
 	vec3 H = normalize(L + I);
 	
 	// compute the specular term
+#if 0
 	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+#else
+	// reflective specular
+	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb;
+
+	vec4 envColor0 = textureCube(u_EnvironmentMap0, reflect(-I, N)).rgba;
+	vec4 envColor1 = textureCube(u_EnvironmentMap1, reflect(-I, N)).rgba;
+	
+	specular *= mix(envColor0, envColor1, u_EnvironmentInterpolation).rgb;
+	
+	specular *= u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+	
+	// gl_FragColor = vec4(specular, 1.0);
+	// gl_FragColor = vec4(u_EnvironmentInterpolation, u_EnvironmentInterpolation, u_EnvironmentInterpolation, 1.0);
+	// gl_FragColor = envColor0;
+	// return;
+	
+#endif
 	
 	// compute the light term
 #if defined(r_halfLambertLighting)

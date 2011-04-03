@@ -568,4 +568,14 @@ void	main()
 	gl_FragColor = vec4(vec3(0.0, 1.0, 0.0), diffuse.a);
 #endif
 #endif
+
+#if 0
+#if defined(USE_VERTEX_SKINNING)
+	gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
+#elif defined(USE_VERTEX_ANIMATION)
+	gl_FragColor = vec4(vec3(0.0, 0.0, 1.0), diffuse.a);
+#else
+	gl_FragColor = vec4(vec3(0.0, 1.0, 0.0), diffuse.a);
+#endif
+#endif
 }

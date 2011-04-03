@@ -571,6 +571,45 @@ public:
 
 
 
+class u_ColorMap:
+GLUniform
+{
+public:
+	u_ColorMap(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_ColorMap"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ColorMap); }
+
+	void SetUniform_ColorMap(int texUnit)
+	{
+		glUniform1iARB(_shader->GetProgram()->u_ColorMap, texUnit);
+	}
+};
+
+class u_NormalMap:
+GLUniform
+{
+public:
+	u_NormalMap(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_NormalMap"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_NormalMap); }
+
+	void SetUniform_NormalMap(int texUnit)
+	{
+		glUniform1iARB(_shader->GetProgram()->u_NormalMap, texUnit);
+	}
+};
+
+
+
+
 class u_ColorTextureMatrix:
 GLUniform
 {
@@ -1094,6 +1133,24 @@ public:
 	}
 };
 
+class u_EnvironmentInterpolation:
+GLUniform
+{
+public:
+	u_EnvironmentInterpolation(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_EnvironmentInterpolation"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_EnvironmentInterpolation); }
+
+	void SetUniform_EnvironmentInterpolation(float value)
+	{
+		GLSL_SetUniform_EnvironmentInterpolation(_shader->GetProgram(), value);
+	}
+};
+
 
 
 class u_DeformGen:
@@ -1437,6 +1494,7 @@ public u_BoneMatrix,
 public u_VertexInterpolation,
 public u_PortalPlane,
 public u_DepthScale,
+public u_EnvironmentInterpolation,
 public GLDeformStage,
 public GLCompileMacro_USE_PORTAL_CLIPPING,
 public GLCompileMacro_USE_ALPHA_TESTING,
@@ -1586,6 +1644,31 @@ public:
 };
 
 
+class GLShader_reflection:
+public GLShader,
+public u_ColorMap,
+public u_NormalMap,
+public u_NormalTextureMatrix,
+public u_ViewOrigin,
+public u_ModelMatrix,
+public u_ModelViewProjectionMatrix,
+public u_BoneMatrix,
+public u_VertexInterpolation,
+public u_PortalPlane,
+public GLDeformStage,
+public GLCompileMacro_USE_PORTAL_CLIPPING,
+public GLCompileMacro_USE_VERTEX_SKINNING,
+public GLCompileMacro_USE_VERTEX_ANIMATION,
+public GLCompileMacro_USE_DEFORM_VERTEXES,
+public GLCompileMacro_USE_NORMAL_MAPPING,
+public GLCompileMacro_TWOSIDED
+{
+public:
+	GLShader_reflection();
+};
+
+
+
 
 class GLShader_screen:
 public GLShader,
@@ -1614,6 +1697,7 @@ extern GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world;
 extern GLShader_forwardLighting_omniXYZ* gl_forwardLightingShader_omniXYZ;
 extern GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun;
 extern GLShader_shadowFill* gl_shadowFillShader;
+extern GLShader_reflection* gl_reflectionShader;
 extern GLShader_screen* gl_screenShader;
 extern GLShader_portal* gl_portalShader;
 

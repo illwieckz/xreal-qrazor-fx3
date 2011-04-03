@@ -834,6 +834,7 @@ the menu system, sampled down from full screen distorted images
 	ri.Printf(PRINT_ALL, "Wrote %s\n", checkname);
 }*/
 
+/*
 static int QDECL MaterialNameCompare(const void *a, const void *b)
 {
 	char           *s1, *s2;
@@ -879,6 +880,7 @@ static int QDECL MaterialNameCompare(const void *a, const void *b)
 	// strings are equal
 	return 0;
 }
+*/
 
 /*
 static void R_GenerateMaterialFile_f(void)
@@ -1409,7 +1411,7 @@ void R_Register(void)
 	r_depthOfField = ri.Cvar_Get("r_depthOfField", "0", CVAR_ARCHIVE);
 #endif
 
-	r_reflectionMapping = ri.Cvar_Get("r_reflectionMapping", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_reflectionMapping = ri.Cvar_Get("r_reflectionMapping", "0", CVAR_CHEAT);
 	r_highQualityNormalMapping = ri.Cvar_Get("r_highQualityNormalMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);

@@ -3138,6 +3138,31 @@ static void R_CreateBlackCubeImage(void)
 }
 // *INDENT-ON*
 
+// *INDENT-OFF*
+static void R_CreateWhiteCubeImage(void)
+{
+	int             i;
+	int             width, height;
+	byte           *data[6];
+
+	width = REF_CUBEMAP_SIZE;
+	height = REF_CUBEMAP_SIZE;
+
+	for(i = 0; i < 6; i++)
+	{
+		data[i] = ri.Hunk_AllocateTempMemory(width * height * 4);
+		Com_Memset(data[i], 0xFF, width * height * 4);
+	}
+
+	tr.whiteCubeImage = R_CreateCubeImage("_whiteCube", (const byte **)data, width, height, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP);
+
+	for(i = 5; i >= 0; i--)
+	{
+		ri.Hunk_FreeTempMemory(data[i]);
+	}
+}
+// *INDENT-ON*
+
 /*
 ==================
 R_CreateBuiltinImages
@@ -3218,6 +3243,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateShadowMapFBOImage();
 	R_CreateShadowCubeFBOImage();
 	R_CreateBlackCubeImage();
+	R_CreateWhiteCubeImage();
 }
 
 

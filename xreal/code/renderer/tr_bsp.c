@@ -8634,7 +8634,7 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
 	unsigned int    hash;
 	vertexHash_t	*vertexHash;
 
-	tr.autoCubeImage = tr.blackCubeImage;
+	tr.autoCubeImage = tr.whiteCubeImage;
 	if(!r_reflectionMapping->integer)
 		return;
 
@@ -8665,6 +8665,56 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
 #endif
 }
 
+void R_FindTwoNearestCubeMaps(const vec3_t position, cubemapProbe_t **cubeProbeNearest, cubemapProbe_t **cubeProbeSecondNearest)
+{
+	int             j;
+	float			distance, maxDistance, maxDistance2;
+	cubemapProbe_t *cubeProbe;
+
+	GLimp_LogComment("--- GL_BindNearestCubeMap ---\n");
+
+	maxDistance = maxDistance2 = 9999999.0f;
+	*cubeProbeNearest = NULL;
+	*cubeProbeSecondNearest = NULL;
+	
+	for(j = 0; j < tr.cubeProbes.currentElements; j++)
+	{
+		cubeProbe = Com_GrowListElement(&tr.cubeProbes, j);
+
+		distance = Distance(cubeProbe->origin, position);
+		if(distance < maxDistance)
+		{
+			*cubeProbeSecondNearest = *cubeProbeNearest;
+			maxDistance2 = maxDistance;
+
+			*cubeProbeNearest = cubeProbe;
+			maxDistance = distance;
+		}
+		else if(distance < maxDistance2 && distance > maxDistance)
+		{
+			*cubeProbeSecondNearest = cubeProbe;
+			maxDistance2 = distance;
+		}
+	}
+
+	/*
+	if(*cubeProbeNearest == NULL)
+	{
+		for(j = 0; j < tr.cubeProbes.currentElements; j++)
+		{
+			cubeProbe = Com_GrowListElement(&tr.cubeProbes, j);
+
+			distance = Distance(cubeProbe->origin, position);
+			if(distance < maxDistance2 && distance > maxDistance)
+			{
+				*cubeProbeSecondNearest = cubeProbe;
+				maxDistance2 = distance;
+			}
+		}
+	}
+	*/
+}
+
 void R_BuildCubeMaps(void)
 {
 #if 1
@@ -8679,11 +8729,13 @@ void R_BuildCubeMaps(void)
 	byte            temp[REF_CUBEMAP_SIZE * REF_CUBEMAP_SIZE * 4];
 	byte           *dest;
 
+#if 0
 	byte           *fileBuf;
 	char           *fileName = NULL;
 	int             fileCount = 0;
 	int             fileBufX = 0;
 	int             fileBufY = 0;
+#endif
 
 	//
 
@@ -8703,7 +8755,7 @@ void R_BuildCubeMaps(void)
 		tr.cubeTemp[i] = ri.Z_Malloc(REF_CUBEMAP_SIZE * REF_CUBEMAP_SIZE * 4);
 	}
 
-	fileBuf = ri.Z_Malloc(REF_CUBEMAP_STORE_SIZE * REF_CUBEMAP_STORE_SIZE * 4);
+//	fileBuf = ri.Z_Malloc(REF_CUBEMAP_STORE_SIZE * REF_CUBEMAP_STORE_SIZE * 4);
 
 	// calculate origins for our probes
 	Com_InitGrowList(&tr.cubeProbes, 4000);
@@ -8835,6 +8887,8 @@ void R_BuildCubeMaps(void)
 	}
 
 	ri.Printf(PRINT_ALL, "...pre-rendering %d cubemaps\n", tr.cubeProbes.currentElements);
+	ri.Cvar_Set("viewlog", "1");
+
 	for(j = 0; j < tr.cubeProbes.currentElements; j++)
 	{
 		cubeProbe = Com_GrowListElement(&tr.cubeProbes, j);
@@ -8850,7 +8904,7 @@ void R_BuildCubeMaps(void)
 		else if(tr.cubeProbes.currentElements > 100 &&  ((j % (tr.cubeProbes.currentElements / 100)) == 0))
 		{
 			ri.Printf(PRINT_ALL, ".");
-			ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
+			//ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 		}
 		
 
@@ -9052,6 +9106,7 @@ void R_BuildCubeMaps(void)
 			}
 
 			// collate cubemaps into one large image and write it out
+#if 0
 			if(qfalse)
 			{
 				// Initialize output buffer
@@ -9087,6 +9142,7 @@ void R_BuildCubeMaps(void)
 					fileBufY = 0;
 				}
 			}
+#endif
 		}
 
 #if defined(USE_D3D10)
@@ -9117,6 +9173,7 @@ void R_BuildCubeMaps(void)
 	}
 	ri.Printf(PRINT_ALL, "\n");
 
+#if 0
 	// write buffer if theres any still unwritten
 	if(fileBufX != 0 || fileBufY != 0)
 	{
@@ -9127,6 +9184,7 @@ void R_BuildCubeMaps(void)
 	}
 	ri.Printf(PRINT_ALL, "Wrote %d cubemaps in %d files.\n", j, fileCount+1);
 	ri.Free(fileBuf);
+#endif
 
 	// turn pixel targets off
 	tr.refdef.pixelTarget = NULL;
