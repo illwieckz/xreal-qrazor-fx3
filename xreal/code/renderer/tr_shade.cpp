@@ -232,7 +232,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, const char
 			Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef %s\n#define %s 1\n#endif\n", token, token));
 		}
 
-#if defined(COMPAT_ET) || defined(COMPAT_ET)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef COMPAT_Q3A\n#define COMPAT_Q3A 1\n#endif\n");
 #endif
 
@@ -5227,10 +5227,10 @@ void Tess_StageIteratorGeneric()
 				break;
 			}
 
-#if defined(COMPAT_ET)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 			case ST_LIGHTMAP:
 			{
-				Render_lightMapping(stage, qtrue);
+				Render_lightMapping(stage, true, false);
 				break;
 			}
 #endif
@@ -5338,7 +5338,7 @@ void Tess_StageIteratorGeneric()
 				break;
 		}
 
-#if defined(COMPAT_ET)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		if(r_showLightMaps->integer && pStage->type == ST_LIGHTMAP)
 			break;
 #endif
@@ -5651,10 +5651,10 @@ void Tess_StageIteratorDepthFill()
 				break;
 			}
 
-#if defined(COMPAT_ET)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 			case ST_LIGHTMAP:
 			{
-				Render_depthFill(stage, qtrue);
+				Render_depthFill(stage);
 				break;
 			}
 #endif
@@ -5736,7 +5736,7 @@ void Tess_StageIteratorShadowFill()
 				break;
 			}
 
-#if defined(COMPAT_ET)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 			case ST_LIGHTMAP:
 #endif
 			case ST_DIFFUSEMAP:

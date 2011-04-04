@@ -949,7 +949,7 @@ typedef enum
 	ST_HEATHAZEMAP,				// heatHaze post process effect
 	ST_LIQUIDMAP,
 
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 	ST_LIGHTMAP,
 #endif
 

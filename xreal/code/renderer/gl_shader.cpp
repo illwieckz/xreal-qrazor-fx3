@@ -256,7 +256,7 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 
 		Com_Memset(bufferExtra, 0, sizeof(bufferExtra));
 
-#if defined(COMPAT_ET) || defined(COMPAT_ET)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef COMPAT_Q3A\n#define COMPAT_Q3A 1\n#endif\n");
 #endif
 

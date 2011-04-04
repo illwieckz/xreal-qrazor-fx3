@@ -172,14 +172,36 @@ void	main()
 	
 	//gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
 
+
 #elif defined(COMPAT_Q3A)
 
-	//gl_FragColor = vec4(diffuse.rgb * var_LightColor.rgb, diffuse.a);
+	// compute the diffuse term
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuseNormal.st);
+	
+#if defined(USE_ALPHA_TESTING)
+	if(u_AlphaTest == ATEST_GT_0 && diffuse.a <= 0.0)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_LT_128 && diffuse.a >= 0.5)
+	{
+		discard;
+		return;
+	}
+	else if(u_AlphaTest == ATEST_GE_128 && diffuse.a < 0.5)
+	{
+		discard;
+		return;
+	}
+#endif
+
+	// gl_FragColor = vec4(diffuse.rgb * var_LightColor.rgb, diffuse.a);
 	gl_FragColor = diffuse * var_LightColor;
-	//gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
-	//gl_FragColor = vec4(vec3(diffuse.a, diffuse.a, diffuse.a), 1.0);
-	//gl_FragColor = vec4(vec3(var_LightColor.a, var_LightColor.a, var_LightColor.a), 1.0);
-	//gl_FragColor = var_LightColor;
+	// gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
+	// gl_FragColor = vec4(vec3(diffuse.a, diffuse.a, diffuse.a), 1.0);
+	// gl_FragColor = vec4(vec3(var_LightColor.a, var_LightColor.a, var_LightColor.a), 1.0);
+	// gl_FragColor = var_LightColor;
 
 #else // USE_NORMAL_MAPPING
 

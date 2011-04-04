@@ -1425,7 +1425,7 @@ void R_Register(void)
 	// temporary latched variables that can only change over a restart
 	r_displayRefresh = ri.Cvar_Get("r_displayRefresh", "0", CVAR_LATCH);
 	AssertCvarRange(r_displayRefresh, 0, 200, qtrue);
-#if defined(COMPAT_ET)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 	r_overBrightBits = ri.Cvar_Get("r_overBrightBits", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_mapOverBrightBits = ri.Cvar_Get("r_mapOverBrightBits", "2", CVAR_CHEAT | CVAR_LATCH);
 #else
