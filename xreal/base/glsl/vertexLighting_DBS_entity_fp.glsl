@@ -217,6 +217,7 @@ void	main()
 	
 	// gl_FragColor = vec4(emission, 1.0);
 	// return;
+
 #endif
 	
 	// compute the light term
@@ -237,7 +238,9 @@ void	main()
 	vec4 color = diffuse;
 	color.rgb *= light;
 	color.rgb += specular;
+#if defined(r_RimLighting)
 	color.rgb += emission;
+#endif
 	
 	gl_FragColor = color;
 	// gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
