@@ -749,6 +749,14 @@ typedef enum
 
 typedef enum
 {
+	ACFF_NONE,
+	ACFF_MODULATE_RGB,
+	ACFF_MODULATE_RGBA,
+	ACFF_MODULATE_ALPHA
+} acff_t;
+
+typedef enum
+{
 	ATEST_NONE,
 	ATEST_GT_0,
 	ATEST_LT_128,
@@ -1000,6 +1008,8 @@ typedef struct
 
 	uint32_t        stateBits;	// GLS_xxxx mask
 
+	acff_t          adjustColorsForFog;
+
 	qboolean        overrideNoPicMip;	// for images that must always be full resolution
 	qboolean        overrideFilterType;	// for console fonts, 2D elements, etc.
 	filterType_t    filterType;
@@ -1046,6 +1056,13 @@ typedef enum
 	CT_TWO_SIDED
 } cullType_t;
 
+typedef enum
+{
+	FP_NONE,					// surface is translucent and will just be adjusted properly
+	FP_EQUAL,					// surface is opaque but possibly alpha tested
+	FP_LE						// surface is translucent, but still needs a fog pass (fog surface)
+} fogPass_t;
+
 typedef struct
 {
 	float           cloudHeight;
@@ -1055,7 +1072,7 @@ typedef struct
 typedef struct
 {
 	vec3_t          color;
-	float           density;
+	float           depthForOpaque;
 } fogParms_t;
 
 typedef enum
@@ -1093,6 +1110,7 @@ typedef struct shader_s
 
 	qboolean		fogVolume;		// surface encapsulates a fog volume
 	fogParms_t		fogParms;
+	fogPass_t       fogPass;		// draw a blended pass, possibly with depth test equals
 	qboolean		noFog;
 
 	qboolean		parallax;		// material has normalmaps suited for parallax mapping
@@ -1466,6 +1484,15 @@ typedef struct shaderProgram_s
 
 	GLint           u_FogDensity;
 	GLint           u_FogColor;
+
+	GLint			u_FogDistanceVector;
+	vec4_t			t_FogDistanceVector;
+
+	GLint			u_FogDepthVector;
+	vec4_t			t_FogDepthVector;
+
+	GLint			u_FogEyeT;
+	float			t_FogEyeT;
 
 	GLint           u_SSAOJitter;
 	GLint           u_SSAORadius;
@@ -2644,6 +2671,20 @@ typedef struct skin_s
 
 typedef struct
 {
+	int             originalBrushNumber;
+	vec3_t          bounds[2];
+
+	vec4_t			color;		// in packed byte format
+	float           tcScale;	// texture coordinate vector scales
+	fogParms_t      parms;
+
+	// for clipping distance in fog when outside
+	qboolean        hasSurface;
+	float           surface[4];
+} fog_t;
+
+typedef struct
+{
 	orientationr_t  orientation;
 	orientationr_t  world;
 
@@ -2725,6 +2766,7 @@ typedef struct drawSurf_s
 	trRefEntity_t  *entity;
 	uint32_t        shaderNum;
 	int16_t         lightmapNum;
+	int16_t			fogNum;
 
 	surfaceType_t  *surface;	// any of surface*_t
 } drawSurf_t;
@@ -2816,13 +2858,14 @@ typedef struct srfPoly_s
 	surfaceType_t   surfaceType;
 	qhandle_t       hShader;
 	int16_t         numVerts;
+	int16_t			fogIndex;
 	polyVert_t     *verts;
 } srfPoly_t;
 
 typedef struct srfPolyBuffer_s
 {
 	surfaceType_t   surfaceType;
-//	int             fogIndex;
+	int16_t         fogIndex;
 	polyBuffer_t   *pPolyBuffer;
 } srfPolyBuffer_t;
 
@@ -3104,7 +3147,7 @@ typedef struct decal_s
 	bspSurface_t   *parent;
 	shader_t       *shader;
 	float           fadeStartTime, fadeEndTime;
-	int             fogIndex;
+	int16_t         fogIndex;
 	int             numVerts;
 	polyVert_t      verts[MAX_DECAL_VERTS];
 }
@@ -3256,6 +3299,9 @@ typedef struct
 
 	int             numMarkSurfaces;
 	bspSurface_t  **markSurfaces;
+
+	int				numFogs;
+	fog_t          *fogs;
 
 	vec3_t          lightGridOrigin;
 	vec3_t          lightGridSize;
@@ -3679,6 +3725,7 @@ typedef struct
 	int             c_decalProjectors, c_decalTestSurfaces, c_decalClipSurfaces, c_decalSurfaces, c_decalSurfacesCreated;
 } frontEndCounters_t;
 
+#define	FOG_TABLE_SIZE		256
 #define FUNCTABLE_SIZE		1024
 #define FUNCTABLE_SIZE2		10
 #define FUNCTABLE_MASK		(FUNCTABLE_SIZE-1)
@@ -3759,6 +3806,9 @@ typedef struct
 	int             c_vboIndexBuffers;
 	int             c_vboVertexes;
 	int             c_vboIndexes;
+
+	int             c_fogSurfaces;
+	int             c_fogBatches;
 
 	int             c_flareAdds;
 	int             c_flareTests;
@@ -3866,6 +3916,7 @@ typedef struct
 
 	image_t        *defaultImage;
 	image_t        *scratchImage[32];
+	image_t        *fogImage;
 	image_t        *quadraticImage;
 	image_t        *whiteImage;	// full of 0xff
 	image_t        *blackImage;	// full of 0x0
@@ -4106,6 +4157,7 @@ typedef struct
 	float           triangleTable[FUNCTABLE_SIZE];
 	float           sawToothTable[FUNCTABLE_SIZE];
 	float           inverseSawToothTable[FUNCTABLE_SIZE];
+	float           fogTable[FOG_TABLE_SIZE];
 
 	uint32_t        occlusionQueryObjects[MAX_OCCLUSION_QUERIES];
 	int				numUsedOcclusionQueryObjects;
@@ -4424,7 +4476,7 @@ void            R_AddLightningBoltSurfaces(trRefEntity_t * e);
 void            R_AddPolygonSurfaces(void);
 void            R_AddPolygonBufferSurfaces(void);
 
-void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum);
+void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum, int fogNum);
 
 
 void            R_LocalNormalToWorld(const vec3_t local, vec3_t world);
@@ -4433,6 +4485,10 @@ void            R_LocalPointToWorld(const vec3_t local, vec3_t world);
 cullResult_t    R_CullLocalBox(vec3_t bounds[2]);
 int             R_CullLocalPointAndRadius(vec3_t origin, float radius);
 int             R_CullPointAndRadius(vec3_t origin, float radius);
+
+int             R_FogLocalPointAndRadius(const vec3_t pt, float radius);
+int             R_FogPointAndRadius(const vec3_t pt, float radius);
+int             R_FogWorldBox(vec3_t bounds[2]);
 
 void            R_SetupEntityWorldBounds(trRefEntity_t * ent);
 
@@ -4591,6 +4647,7 @@ IMAGES, tr_image.c
 
 ====================================================================
 */
+
 void            R_InitImages(void);
 void            R_ShutdownImages(void);
 int             R_SumOfUsedImages(void);
@@ -4610,6 +4667,9 @@ void			R_UploadImage(const byte ** dataArray, int numData, image_t * image);
 
 int				RE_GetTextureId(const char *name);
 
+
+void            R_InitFogTable(void);
+float           R_FogFactor(float s, float t);
 
 
 /*
@@ -4707,6 +4767,7 @@ typedef struct shaderCommands_s
 	qboolean		skipVBO;
 	qboolean        shadowVolume;
 	int16_t         lightmapNum;
+	int16_t			fogNum;
 
 	uint32_t        numIndexes;
 	uint32_t        numVertexes;
@@ -4740,7 +4801,8 @@ void            Tess_Begin(	void (*stageIteratorFunc)(),
 							qboolean skipTangentSpaces,
 							qboolean skipVBO,
 							qboolean shadowVolume,
-							int lightmapNum);
+							int lightmapNum,
+							int	fogNum);
 // *INDENT-ON*
 void            Tess_End(void);
 void			Tess_EndBegin();
@@ -4807,7 +4869,7 @@ FLARES, tr_flares.c
 
 void            R_ClearFlares(void);
 
-void            RB_AddFlare(void *surface, vec3_t point, vec3_t color, vec3_t normal);
+void            RB_AddFlare(void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t normal);
 void            RB_AddLightFlares(void);
 void            RB_RenderFlares(void);
 

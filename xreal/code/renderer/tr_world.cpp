@@ -344,7 +344,7 @@ static void R_AddWorldSurface(bspSurface_t * surf, int decalBits)
 		return;
 	}
 
-	R_AddDrawSurf(surf->data, surf->shader, surf->lightmapNum);
+	R_AddDrawSurf(surf->data, surf->shader, surf->lightmapNum, surf->fogIndex);
 }
 
 /*
@@ -360,7 +360,7 @@ static void R_AddWorldSurface(bspSurface_t * surf, int decalBits)
 R_AddBrushModelSurface
 ======================
 */
-static void R_AddBrushModelSurface(bspSurface_t * surf)
+static void R_AddBrushModelSurface(bspSurface_t * surf, int fogIndex)
 {
 	int			frontFace;
 
@@ -376,7 +376,7 @@ static void R_AddBrushModelSurface(bspSurface_t * surf)
 		return;
 	}
 
-	R_AddDrawSurf(surf->data, surf->shader, surf->lightmapNum);
+	R_AddDrawSurf(surf->data, surf->shader, surf->lightmapNum, fogIndex);
 }
 
 /*
@@ -393,6 +393,7 @@ void R_AddBSPModelSurfaces(trRefEntity_t * ent)
 	vec3_t          transformed;
 	vec3_t			boundsCenter;
 //	float			boundsRadius;
+	int             fogNum;
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
 	bspModel = pModel->bsp;
@@ -436,6 +437,8 @@ void R_AddBSPModelSurfaces(trRefEntity_t * ent)
 	// Tr3B: BSP inline models should always use vertex lighting
 	R_SetupEntityLighting(&tr.refdef, ent, boundsCenter);
 
+	fogNum = R_FogWorldBox(ent->worldBounds);
+
 	if(r_vboModels->integer && bspModel->numVBOSurfaces)
 	{
 		int             i;
@@ -445,14 +448,14 @@ void R_AddBSPModelSurfaces(trRefEntity_t * ent)
 		{
 			vboSurface = bspModel->vboSurfaces[i];
 
-			R_AddDrawSurf((surfaceType_t *) vboSurface, vboSurface->shader, vboSurface->lightmapNum);
+			R_AddDrawSurf((surfaceType_t *) vboSurface, vboSurface->shader, vboSurface->lightmapNum, fogNum);
 		}
 	}
 	else
 	{
 		for(i = 0; i < bspModel->numSurfaces; i++)
 		{
-			R_AddBrushModelSurface(bspModel->firstSurface + i);
+			R_AddBrushModelSurface(bspModel->firstSurface + i, fogNum);
 		}
 	}
 }
@@ -2435,7 +2438,7 @@ void R_AddWorldSurfaces(void)
 					}
 				}
 
-				R_AddDrawSurf((surfaceType_t *)srf, shader, srf->lightmapNum);
+				R_AddDrawSurf((surfaceType_t *)srf, shader, srf->lightmapNum, 0);
 			}
 		}
 	}

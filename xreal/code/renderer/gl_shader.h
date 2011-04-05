@@ -213,6 +213,7 @@ protected:
 		USE_REFLECTIVE_SPECULAR,
 		USE_SHADOWING,
 		TWOSIDED,
+		EYE_OUTSIDE,
 		LIGHT_DIRECTIONAL
 	};
 
@@ -542,6 +543,30 @@ public:
 	void SetMacro_TWOSIDED(cullType_t cullType)
 	{
 		if(cullType == CT_TWO_SIDED || cullType == CT_BACK_SIDED)
+			EnableMacro();
+		else
+			DisableMacro();
+	}
+};
+
+class GLCompileMacro_EYE_OUTSIDE:
+GLCompileMacro
+{
+public:
+	GLCompileMacro_EYE_OUTSIDE(GLShader* shader):
+	  GLCompileMacro(shader)
+	{
+	}
+
+	const char* GetName() const { return "EYE_OUTSIDE"; }
+	EGLCompileMacro GetType() const { return EYE_OUTSIDE; }
+
+	void EnableMacro_EYE_OUTSIDE()		{ EnableMacro(); }
+	void DisableMacro_EYE_OUTSIDE()	{ DisableMacro(); }
+
+	void SetMacro_EYE_OUTSIDE(bool enable)
+	{
+		if(enable)
 			EnableMacro();
 		else
 			DisableMacro();
@@ -1449,9 +1474,109 @@ public:
 };
 
 
+class u_FogDistanceVector:
+GLUniform
+{
+public:
+	u_FogDistanceVector(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_FogDistanceVector"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_FogDistanceVector); }
+
+	void SetUniform_FogDistanceVector(const vec4_t v)
+	{
+		shaderProgram_t* program = _shader->GetProgram();
+
+#if defined(USE_UNIFORM_FIREWALL)
+		if(Vector4Compare(program->t_FogDistanceVector, v))
+			return;
+
+		VectorCopy(v, program->t_FogDistanceVector);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment(va("--- SetUniform_FogDistanceVector( program = %s, vector = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+		}
+#endif
+
+		glUniform4fARB(program->u_FogDistanceVector, v[0], v[1], v[2], v[3]);
+	}
+};
 
 
+class u_FogDepthVector:
+GLUniform
+{
+public:
+	u_FogDepthVector(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
 
+	const char* GetName() const { return "u_FogDepthVector"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_FogDepthVector); }
+
+	void SetUniform_FogDepthVector(const vec4_t v)
+	{
+		shaderProgram_t* program = _shader->GetProgram();
+
+#if defined(USE_UNIFORM_FIREWALL)
+		if(Vector4Compare(program->t_FogDepthVector, v))
+			return;
+
+		VectorCopy(v, program->t_FogDepthVector);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment(va("--- SetUniform_FogDepthVector( program = %s, vector = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+		}
+#endif
+
+		glUniform4fARB(program->u_FogDepthVector, v[0], v[1], v[2], v[3]);
+	}
+};
+
+
+class u_FogEyeT:
+GLUniform
+{
+public:
+	u_FogEyeT(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_FogEyeT"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_FogEyeT); }
+
+	void SetUniform_FogEyeT(float value)
+	{
+		shaderProgram_t* program = _shader->GetProgram();
+
+#if defined(USE_UNIFORM_FIREWALL)
+		if(program->t_FogEyeT == value)
+			return;
+
+		program->t_FogEyeT = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment(va("--- GLSL_SetUniform_FogEyeT( program = %s, value = %f ) ---\n", program->name, value));
+		}
+#endif
+
+		glUniform1fARB(program->u_FogEyeT, value);
+	}
+};
 
 
 
@@ -1697,6 +1822,29 @@ public:
 };
 
 
+class GLShader_fogQuake3:
+public GLShader,
+public u_ColorTextureMatrix,
+public u_ViewOrigin,
+public u_ModelMatrix,
+public u_ModelViewProjectionMatrix,
+public u_Color,
+public u_BoneMatrix,
+public u_VertexInterpolation,
+public u_PortalPlane,
+public u_FogDistanceVector,
+public u_FogDepthVector,
+public u_FogEyeT,
+public GLDeformStage,
+public GLCompileMacro_USE_PORTAL_CLIPPING,
+public GLCompileMacro_USE_VERTEX_SKINNING,
+public GLCompileMacro_USE_VERTEX_ANIMATION,
+public GLCompileMacro_USE_DEFORM_VERTEXES,
+public GLCompileMacro_EYE_OUTSIDE
+{
+public:
+	GLShader_fogQuake3();
+};
 
 
 class GLShader_screen:
@@ -1727,6 +1875,7 @@ extern GLShader_forwardLighting_omniXYZ* gl_forwardLightingShader_omniXYZ;
 extern GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun;
 extern GLShader_shadowFill* gl_shadowFillShader;
 extern GLShader_reflection* gl_reflectionShader;
+extern GLShader_fogQuake3* gl_fogQuake3Shader;
 extern GLShader_screen* gl_screenShader;
 extern GLShader_portal* gl_portalShader;
 

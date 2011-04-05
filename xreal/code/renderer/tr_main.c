@@ -799,6 +799,102 @@ int R_CullPointAndRadius(vec3_t pt, float radius)
 	return CULL_IN;				// completely inside frustum
 }
 
+/*
+=================
+R_FogLocalPointAndRadius
+=================
+*/
+int R_FogLocalPointAndRadius(const vec3_t pt, float radius)
+{
+	vec3_t          transformed;
+
+	R_LocalPointToWorld(pt, transformed);
+
+	return R_FogPointAndRadius(transformed, radius);
+}
+
+/*
+=================
+R_FogPointAndRadius
+=================
+*/
+int R_FogPointAndRadius(const vec3_t pt, float radius)
+{
+	int             i, j;
+	fog_t          *fog;
+
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		return 0;
+	}
+
+	// FIXME: non-normalized axis issues
+	for(i = 1; i < tr.world->numFogs; i++)
+	{
+		fog = &tr.world->fogs[i];
+		for(j = 0; j < 3; j++)
+		{
+			if(pt[j] - radius >= fog->bounds[1][j])
+			{
+				break;
+			}
+			
+			if(pt[j] + radius <= fog->bounds[0][j])
+			{
+				break;
+			}
+		}
+		if(j == 3)
+		{
+			return i;
+		}
+	}
+
+	return 0;
+}
+
+
+/*
+=================
+R_FogWorldBox
+=================
+*/
+int R_FogWorldBox(vec3_t bounds[2])
+{
+	int             i, j;
+	fog_t          *fog;
+
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		return 0;
+	}
+
+	for(i = 1; i < tr.world->numFogs; i++)
+	{
+		fog = &tr.world->fogs[i];
+		
+		for(j = 0; j < 3; j++)
+		{
+			if(bounds[0][j] >= fog->bounds[1][j])
+			{
+				break;
+			}
+			
+			if(bounds[1][j] <= fog->bounds[0][j])
+			{
+				break;
+			}
+		}
+		
+		if(j == 3)
+		{
+			return i;
+		}
+	}
+
+	return 0;
+}
+
 
 /*
 =================
@@ -2088,7 +2184,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 		tr.orientation = tr.viewParms.world;
 	}
 
-	Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qtrue, qtrue, qfalse, -1);
+	Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qtrue, qtrue, qfalse, -1, 0);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 
 	// Tr3B: former assertion
@@ -2239,13 +2335,53 @@ static qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf)
 	return qtrue;
 }
 
+/*
+=================
+R_SpriteFogNum
+
+See if a sprite is inside a fog volume
+=================
+*/
+int R_SpriteFogNum(trRefEntity_t * ent)
+{
+	int             i, j;
+	fog_t          *fog;
+
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		return 0;
+	}
+
+	for(i = 1; i < tr.world->numFogs; i++)
+	{
+		fog = &tr.world->fogs[i];
+		for(j = 0; j < 3; j++)
+		{
+			if(ent->e.origin[j] - ent->e.radius >= fog->bounds[1][j])
+			{
+				break;
+			}
+			if(ent->e.origin[j] + ent->e.radius <= fog->bounds[0][j])
+			{
+				break;
+			}
+		}
+		if(j == 3)
+		{
+			return i;
+		}
+	}
+
+	return 0;
+}
+
 
 /*
 =================
 R_AddDrawSurf
 =================
 */
-void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum)
+void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum, int fogNum)
 {
 	int             index;
 	drawSurf_t     *drawSurf;
@@ -2260,6 +2396,7 @@ void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum)
 	drawSurf->surface = surface;
 	drawSurf->shaderNum = shader->sortedIndex;
 	drawSurf->lightmapNum = lightmapNum;
+	drawSurf->fogNum = fogNum;
 
 	tr.refdef.numDrawSurfs++;
 }
@@ -2302,6 +2439,15 @@ static int DrawSurfCompare(const void *a, const void *b)
 		return -1;
 
 	else if(((drawSurf_t *) a)->entity > ((drawSurf_t *) b)->entity)
+		return 1;
+#endif
+
+#if 1
+	// by fog
+	if(((drawSurf_t *) a)->fogNum < ((drawSurf_t *) b)->fogNum)
+		return -1;
+
+	else if(((drawSurf_t *) a)->fogNum > ((drawSurf_t *) b)->fogNum)
 		return 1;
 #endif
 
@@ -2464,7 +2610,7 @@ void R_AddEntitySurfaces(void)
 					continue;
 				}
 				shader = R_GetShaderByHandle(ent->e.customShader);
-				R_AddDrawSurf(&entitySurface, shader, -1);
+				R_AddDrawSurf(&entitySurface, shader, -1, R_SpriteFogNum(ent));
 				break;
 
 			case RT_MODEL:
@@ -2474,7 +2620,7 @@ void R_AddEntitySurfaces(void)
 				tr.currentModel = R_GetModelByHandle(ent->e.hModel);
 				if(!tr.currentModel)
 				{
-					R_AddDrawSurf(&entitySurface, tr.defaultShader, -1);
+					R_AddDrawSurf(&entitySurface, tr.defaultShader, -1, 0);
 				}
 				else
 				{
@@ -2505,7 +2651,7 @@ void R_AddEntitySurfaces(void)
 							VectorClear(ent->worldBounds[0]);
 							VectorClear(ent->worldBounds[1]);
 							shader = R_GetShaderByHandle(ent->e.customShader);
-							R_AddDrawSurf(&entitySurface, tr.defaultShader, -1);
+							R_AddDrawSurf(&entitySurface, tr.defaultShader, -1, 0);
 							break;
 
 						default:

@@ -1270,6 +1270,7 @@ static void RB_RenderDrawSurfaces(bool opaque, bool depthFill, renderDrawSurface
 	trRefEntity_t  *entity, *oldEntity;
 	shader_t       *shader, *oldShader;
 	int             lightmapNum, oldLightmapNum;
+	int				fogNum, oldFogNum;
 	qboolean        depthRange, oldDepthRange;
 	int             i;
 	drawSurf_t     *drawSurf;
@@ -1290,6 +1291,7 @@ static void RB_RenderDrawSurfaces(bool opaque, bool depthFill, renderDrawSurface
 		entity = drawSurf->entity;
 		shader = tr.sortedShaders[drawSurf->shaderNum];
 		lightmapNum = drawSurf->lightmapNum;
+		fogNum = drawSurf->fogNum;
 
 		switch (drawSurfFilter)
 		{
@@ -1327,7 +1329,7 @@ static void RB_RenderDrawSurfaces(bool opaque, bool depthFill, renderDrawSurface
 			}
 		}
 
-		if(entity == oldEntity && shader == oldShader && lightmapNum == oldLightmapNum)
+		if(entity == oldEntity && shader == oldShader && lightmapNum == oldLightmapNum && fogNum == oldFogNum)
 		{
 			// fast path, same as previous sort
 			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
@@ -1337,7 +1339,7 @@ static void RB_RenderDrawSurfaces(bool opaque, bool depthFill, renderDrawSurface
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
 		// entities merged into a single batch, like smoke and blood puff sprites
-		if(shader != oldShader || lightmapNum != oldLightmapNum || (entity != oldEntity && !shader->entityMergable))
+		if(shader != oldShader || lightmapNum != oldLightmapNum || fogNum != oldFogNum || (entity != oldEntity && !shader->entityMergable))
 		{
 			if(oldShader != NULL)
 			{
@@ -1345,12 +1347,13 @@ static void RB_RenderDrawSurfaces(bool opaque, bool depthFill, renderDrawSurface
 			}
 
 			if(depthFill)
-				Tess_Begin(Tess_StageIteratorDepthFill, NULL, shader, NULL, qtrue, qfalse, qfalse, lightmapNum);
+				Tess_Begin(Tess_StageIteratorDepthFill, NULL, shader, NULL, qtrue, qfalse, qfalse, lightmapNum, fogNum);
 			else
-				Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, lightmapNum);
+				Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, lightmapNum, fogNum);
 
 			oldShader = shader;
 			oldLightmapNum = lightmapNum;
+			oldFogNum = fogNum;
 		}
 
 		// change the modelview matrix if needed
@@ -1484,7 +1487,7 @@ static void RB_RenderOpaqueSurfacesIntoDepth(bool onlyWorld)
 				Tess_End();
 			}
 
-			Tess_Begin(Tess_StageIteratorDepthFill, NULL, shader, NULL, qtrue, qfalse, qfalse, -1);
+			Tess_Begin(Tess_StageIteratorDepthFill, NULL, shader, NULL, qtrue, qfalse, qfalse, -1, 0);
 
 			oldShader = shader;
 			oldAlphaTest = alphaTest;
@@ -1995,7 +1998,7 @@ static void RB_RenderInteractions()
 		Tess_End();
 
 		// begin a new batch
-		Tess_Begin(Tess_StageIteratorLighting, NULL, shader, light->shader, qfalse, qfalse, qfalse, -1);
+		Tess_Begin(Tess_StageIteratorLighting, NULL, shader, light->shader, qfalse, qfalse, qfalse, -1, 0);
 
 		// change the modelview matrix if needed
 		if(entity != oldEntity)
@@ -3474,7 +3477,7 @@ static void RB_RenderInteractionsShadowMapped()
 						}
 
 						// we don't need tangent space calculations here
-						Tess_Begin(Tess_StageIteratorShadowFill, NULL, shader, light->shader, qtrue, qfalse, qfalse, -1);
+						Tess_Begin(Tess_StageIteratorShadowFill, NULL, shader, light->shader, qtrue, qfalse, qfalse, -1, 0);
 					}
 					break;
 				}
@@ -3529,7 +3532,7 @@ static void RB_RenderInteractionsShadowMapped()
 				}
 
 				// begin a new batch
-				Tess_Begin(Tess_StageIteratorLighting, NULL, shader, light->shader, light->l.inverseShadows, qfalse, qfalse, -1);
+				Tess_Begin(Tess_StageIteratorLighting, NULL, shader, light->shader, light->l.inverseShadows, qfalse, qfalse, -1, 0);
 			}
 		}
 
@@ -3875,7 +3878,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 				Tess_End();
 			}
 
-			Tess_Begin(Tess_StageIteratorGBuffer, NULL, shader, NULL, qfalse, qfalse, qfalse, lightmapNum);
+			Tess_Begin(Tess_StageIteratorGBuffer, NULL, shader, NULL, qfalse, qfalse, qfalse, lightmapNum, 0);
 			oldShader = shader;
 			oldLightmapNum = lightmapNum;
 		}
@@ -10965,7 +10968,7 @@ static void RB_RenderDebugUtils()
 		gl_reflectionShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
 		gl_reflectionShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1);
+		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1, 0);
 
 		for(j = 0; j < tr.cubeProbes.currentElements; j++)
 		{
@@ -11018,7 +11021,7 @@ static void RB_RenderDebugUtils()
 			R_FindTwoNearestCubeMaps(backEnd.viewParms.orientation.origin, &cubeProbeNearest, &cubeProbeSecondNearest);
 
 
-			Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1);
+			Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1, 0);
 
 			if(cubeProbeNearest == NULL && cubeProbeSecondNearest == NULL)
 			{
@@ -11094,7 +11097,7 @@ static void RB_RenderDebugUtils()
 
 		GL_CheckErrors();
 
-		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1);
+		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1, 0);
 
 		for(j = 0; j < tr.world->numLightGridPoints; j++)
 		{
@@ -11323,7 +11326,7 @@ static void RB_RenderDebugUtils()
 
 		GL_CheckErrors();
 
-		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1);
+		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1, 0);
 
 		for(i = 0, dp = backEnd.refdef.decalProjectors; i < backEnd.refdef.numDecalProjectors; i++, dp++)
 		{
@@ -12521,7 +12524,7 @@ const void     *RB_StretchPic(const void *data)
 			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1);
+		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1, 0);
 	}
 
 	Tess_CheckOverflow(4, 6);
@@ -12612,7 +12615,7 @@ const void     *RB_Draw2dPolys(const void *data)
 			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1);
+		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1, 0);
 	}
 
 	Tess_CheckOverflow(cmd->numverts, (cmd->numverts - 2) * 3);
@@ -12674,7 +12677,7 @@ const void     *RB_RotatedPic(const void *data)
 			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1);
+		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1, 0);
 	}
 
 	Tess_CheckOverflow(4, 6);
@@ -12764,7 +12767,7 @@ const void     *RB_StretchPicGradient(const void *data)
 			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1);
+		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1, 0);
 	}
 
 	Tess_CheckOverflow(4, 6);

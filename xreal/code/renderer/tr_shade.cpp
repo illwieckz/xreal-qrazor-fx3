@@ -1472,6 +1472,9 @@ void GLSL_InitGPUShaders(void)
 	// bumped cubemap reflection for abitrary polygons ( EMBM )
 	gl_reflectionShader = new GLShader_reflection();
 
+	// Q3A volumetric fog
+	gl_fogQuake3Shader = new GLShader_fogQuake3();
+
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	// skybox drawing for abitrary polygons
@@ -1938,6 +1941,12 @@ void GLSL_ShutdownGPUShaders(void)
 		gl_reflectionShader = NULL;
 	}
 
+	if(gl_fogQuake3Shader)
+	{
+		delete gl_fogQuake3Shader;
+		gl_fogQuake3Shader = NULL;
+	}
+
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	if(tr.dispersionShader_C.program)
@@ -2301,7 +2310,8 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 					 qboolean skipTangentSpaces,
 					 qboolean skipVBO,
 					 qboolean shadowVolume,
-					 int lightmapNum)
+					 int lightmapNum,
+					 int fogNum)
 {
 	shader_t       *state;
 
@@ -2371,12 +2381,13 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 	tess.skipVBO = skipVBO;
 	tess.shadowVolume = shadowVolume;
 	tess.lightmapNum = lightmapNum;
+	tess.fogNum = fogNum;
 
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- Tess_Begin( surfaceShader = %s, lightShader = %s, skipTangentSpaces = %i, shadowVolume = %i, lightmap = %i ) ---\n", tess.surfaceShader->name, tess.lightShader ? tess.lightShader->name : NULL, tess.skipTangentSpaces, tess.shadowVolume, tess.lightmapNum));
+		GLimp_LogComment(va("--- Tess_Begin( surfaceShader = %s, lightShader = %s, skipTangentSpaces = %i, shadowVolume = %i, lightmapNum = %i, fogNum = %i) ---\n", tess.surfaceShader->name, tess.lightShader ? tess.lightShader->name : NULL, tess.skipTangentSpaces, tess.shadowVolume, tess.lightmapNum, tess.fogNum));
 	}
 }
 // *INDENT-ON*
@@ -4697,6 +4708,176 @@ static void Render_liquid(int stage)
 }
 
 
+static void Render_fog()
+{
+	fog_t          *fog;
+	float           eyeT;
+	qboolean        eyeOutside;
+	vec3_t          local;
+	vec4_t          fogDistanceVector, fogDepthVector;
+
+	GLimp_LogComment("--- Render_fog ---\n");
+	
+	//ri.Printf(PRINT_ALL, "--- Render_fog ---\n");
+
+	fog = tr.world->fogs + tess.fogNum;
+
+	// all fogging distance is based on world Z units
+	VectorSubtract(backEnd.orientation.origin, backEnd.viewParms.orientation.origin, local);
+	fogDistanceVector[0] = -backEnd.orientation.modelViewMatrix[2];
+	fogDistanceVector[1] = -backEnd.orientation.modelViewMatrix[6];
+	fogDistanceVector[2] = -backEnd.orientation.modelViewMatrix[10];
+	fogDistanceVector[3] = DotProduct(local, backEnd.viewParms.orientation.axis[0]);
+
+	// scale the fog vectors based on the fog's thickness
+	fogDistanceVector[0] *= fog->tcScale;
+	fogDistanceVector[1] *= fog->tcScale;
+	fogDistanceVector[2] *= fog->tcScale;
+	fogDistanceVector[3] *= fog->tcScale;
+
+	// rotate the gradient vector for this orientation
+	if(fog->hasSurface)
+	{
+		fogDepthVector[0] = fog->surface[0] * backEnd.orientation.axis[0][0] +
+			fog->surface[1] * backEnd.orientation.axis[0][1] + fog->surface[2] * backEnd.orientation.axis[0][2];
+		fogDepthVector[1] = fog->surface[0] * backEnd.orientation.axis[1][0] +
+			fog->surface[1] * backEnd.orientation.axis[1][1] + fog->surface[2] * backEnd.orientation.axis[1][2];
+		fogDepthVector[2] = fog->surface[0] * backEnd.orientation.axis[2][0] +
+			fog->surface[1] * backEnd.orientation.axis[2][1] + fog->surface[2] * backEnd.orientation.axis[2][2];
+		fogDepthVector[3] = -fog->surface[3] + DotProduct(backEnd.orientation.origin, fog->surface);
+
+		eyeT = DotProduct(backEnd.orientation.viewOrigin, fogDepthVector) + fogDepthVector[3];
+	}
+	else
+	{
+		eyeT = 1;				// non-surface fog always has eye inside
+	}
+
+	// see if the viewpoint is outside
+	// this is needed for clipping distance even for constant fog
+
+	if(eyeT < 0)
+	{
+		eyeOutside = qtrue;
+	}
+	else
+	{
+		eyeOutside = qfalse;
+	}
+
+	fogDistanceVector[3] += 1.0 / 512;
+
+
+	if(tess.surfaceShader->fogPass == FP_EQUAL)
+	{
+		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL);
+	}
+	else
+	{
+		GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+	}
+
+	gl_fogQuake3Shader->SetPortalClipping(backEnd.viewParms.isPortal);
+
+	gl_fogQuake3Shader->SetVertexSkinning(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning);
+	gl_fogQuake3Shader->SetVertexAnimation(glState.vertexAttribsInterpolation > 0);
+
+	gl_fogQuake3Shader->SetDeformVertexes(tess.surfaceShader->numDeforms);
+
+	gl_fogQuake3Shader->SetMacro_EYE_OUTSIDE(eyeT < 0);
+
+	gl_fogQuake3Shader->BindProgram();
+
+	
+
+
+
+	gl_fogQuake3Shader->SetUniform_ViewOrigin(backEnd.orientation.viewOrigin);
+
+	gl_fogQuake3Shader->SetUniform_FogDistanceVector(fogDistanceVector);
+	gl_fogQuake3Shader->SetUniform_FogDepthVector(fogDepthVector);
+	gl_fogQuake3Shader->SetUniform_FogEyeT(eyeT);
+
+
+
+	// u_AlphaTest
+	//gl_fogQuake3Shader->SetUniform_AlphaTest(pStage->stateBits);
+
+
+	// TODO adjust colors for fog using u_ColorModulate
+
+	/*
+	switch (pStage->adjustColorsForFog)
+	{
+		case ACFF_MODULATE_RGB:
+			RB_CalcModulateColorsByFog((unsigned char *)tess.svars.colors);
+			break;
+		case ACFF_MODULATE_ALPHA:
+			RB_CalcModulateAlphasByFog((unsigned char *)tess.svars.colors);
+			break;
+		case ACFF_MODULATE_RGBA:
+			RB_CalcModulateRGBAsByFog((unsigned char *)tess.svars.colors);
+			break;
+		case ACFF_NONE:
+			break;
+	}
+	*/
+
+	// u_Color
+	gl_fogQuake3Shader->SetUniform_Color(fog->color);
+
+	gl_fogQuake3Shader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
+	gl_fogQuake3Shader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	// u_BoneMatrix
+	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
+	{
+		gl_fogQuake3Shader->SetUniform_BoneMatrix(MAX_BONES, tess.boneMatrices);
+	}
+
+	// u_VertexInterpolation
+	if(glState.vertexAttribsInterpolation > 0)
+	{
+		gl_fogQuake3Shader->SetUniform_VertexInterpolation(glState.vertexAttribsInterpolation);
+	}
+
+	// u_DeformGen
+	if(tess.surfaceShader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.surfaceShader->deforms[0];
+
+		gl_fogQuake3Shader->SetDeformStageUniforms(ds);
+	}
+
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		gl_fogQuake3Shader->SetUniform_PortalPlane(plane);
+	}
+
+	// bind u_ColorMap
+	GL_SelectTexture(0);
+	GL_Bind(tr.fogImage);
+	//gl_fogQuake3Shader->SetUniform_ColorTextureMatrix(tess.svars.texMatrices[TB_COLORMAP]);
+
+	gl_fogQuake3Shader->SetVertexAttribs();
+
+	Tess_DrawElements();
+
+	GL_CheckErrors();
+}
+
+
 
 // see Fog Polygon Volumes documentation by Nvidia for further information
 static void Render_volumetricFog()
@@ -5342,6 +5523,11 @@ void Tess_StageIteratorGeneric()
 		if(r_showLightMaps->integer && pStage->type == ST_LIGHTMAP)
 			break;
 #endif
+	}
+
+	if(tess.fogNum >= 1 && tess.surfaceShader->fogPass)
+	{
+		Render_fog();
 	}
 
 	// reset polygon offset

@@ -1330,6 +1330,9 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 #endif
 	}
 
+	// get fog volume
+	surf->fogIndex = LittleLong(ds->fogNum) + 1;
+
 	// get shader value
 	surf->shader = ShaderForShaderNum(ds->shaderNum);
 	if(r_singleShader->integer && !surf->shader->isSky)
@@ -1536,6 +1539,9 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 #endif
 	}
 
+	// get fog volume
+	surf->fogIndex = LittleLong(ds->fogNum) + 1;
+
 	// get shader value
 	surf->shader = ShaderForShaderNum(ds->shaderNum);
 	if(r_singleShader->integer && !surf->shader->isSky)
@@ -1661,6 +1667,9 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 		surf->lightmapNum = realLightmapNum;
 	}
 #endif
+
+	// get fog volume
+	surf->fogIndex = LittleLong(ds->fogNum) + 1;
 
 	// get shader
 	surf->shader = ShaderForShaderNum(ds->shaderNum);
@@ -1875,6 +1884,9 @@ static void ParseFlare(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf,
 
 	// set lightmap
 	surf->lightmapNum = -1;
+
+	// get fog volume
+	surf->fogIndex = LittleLong(ds->fogNum) + 1;
 
 	// get shader
 	surf->shader = ShaderForShaderNum(ds->shaderNum);
@@ -5381,6 +5393,136 @@ static void R_LoadPlanes(lump_t * l)
 		out->type = PlaneTypeForNormal(out->normal);
 		out->signbits = bits;
 	}
+}
+
+/*
+=================
+R_LoadFogs
+=================
+*/
+static void R_LoadFogs(lump_t * l, lump_t * brushesLump, lump_t * sidesLump)
+{
+	int             i;
+	fog_t          *out;
+	dfog_t         *fogs;
+	dbrush_t       *brushes, *brush;
+	dbrushside_t   *sides;
+	int             count, brushesCount, sidesCount;
+	int             sideNum;
+	int             planeNum;
+	shader_t       *shader;
+	float           d;
+	int             firstSide;
+
+	ri.Printf(PRINT_ALL, "...loading fogs\n");
+
+	fogs = (void *)(fileBase + l->fileofs);
+	if(l->filelen % sizeof(*fogs))
+	{
+		ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
+	}
+	count = l->filelen / sizeof(*fogs);
+
+	// create fog strucutres for them
+	s_worldData.numFogs = count + 1;
+	s_worldData.fogs = ri.Hunk_Alloc(s_worldData.numFogs * sizeof(*out), h_low);
+	out = s_worldData.fogs + 1;
+
+	if(!count)
+	{
+		ri.Printf(PRINT_ALL, "no fog volumes loaded\n");
+		return;
+	}
+
+	brushes = (void *)(fileBase + brushesLump->fileofs);
+	if(brushesLump->filelen % sizeof(*brushes))
+	{
+		ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
+	}
+	brushesCount = brushesLump->filelen / sizeof(*brushes);
+
+	sides = (void *)(fileBase + sidesLump->fileofs);
+	if(sidesLump->filelen % sizeof(*sides))
+	{
+		ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
+	}
+	sidesCount = sidesLump->filelen / sizeof(*sides);
+
+	for(i = 0; i < count; i++, fogs++)
+	{
+		out->originalBrushNumber = LittleLong(fogs->brushNum);
+
+		if((unsigned)out->originalBrushNumber >= brushesCount)
+		{
+			ri.Error(ERR_DROP, "fog brushNumber out of range");
+		}
+		brush = brushes + out->originalBrushNumber;
+
+		firstSide = LittleLong(brush->firstSide);
+
+		if((unsigned)firstSide > sidesCount - 6)
+		{
+			ri.Error(ERR_DROP, "fog brush sideNumber out of range");
+		}
+
+		// brushes are always sorted with the axial sides first
+		sideNum = firstSide + 0;
+		planeNum = LittleLong(sides[sideNum].planeNum);
+		out->bounds[0][0] = -s_worldData.planes[planeNum].dist;
+
+		sideNum = firstSide + 1;
+		planeNum = LittleLong(sides[sideNum].planeNum);
+		out->bounds[1][0] = s_worldData.planes[planeNum].dist;
+
+		sideNum = firstSide + 2;
+		planeNum = LittleLong(sides[sideNum].planeNum);
+		out->bounds[0][1] = -s_worldData.planes[planeNum].dist;
+
+		sideNum = firstSide + 3;
+		planeNum = LittleLong(sides[sideNum].planeNum);
+		out->bounds[1][1] = s_worldData.planes[planeNum].dist;
+
+		sideNum = firstSide + 4;
+		planeNum = LittleLong(sides[sideNum].planeNum);
+		out->bounds[0][2] = -s_worldData.planes[planeNum].dist;
+
+		sideNum = firstSide + 5;
+		planeNum = LittleLong(sides[sideNum].planeNum);
+		out->bounds[1][2] = s_worldData.planes[planeNum].dist;
+
+		// get information from the shader for fog parameters
+		shader = R_FindShader(fogs->shader, SHADER_3D_DYNAMIC, qtrue);
+
+		out->parms = shader->fogParms;
+
+		out->color[0] = shader->fogParms.color[0] * tr.identityLight;
+		out->color[1] = shader->fogParms.color[1] * tr.identityLight;
+		out->color[2] = shader->fogParms.color[2] * tr.identityLight;
+		out->color[3] = 1;
+
+		d = shader->fogParms.depthForOpaque < 1 ? 1 : shader->fogParms.depthForOpaque;
+		out->tcScale = 1.0f / (d * 8);
+
+		// set the gradient vector
+		sideNum = LittleLong(fogs->visibleSide);
+
+		if(sideNum == -1)
+		{
+			out->hasSurface = qfalse;
+		}
+		else
+		{
+			out->hasSurface = qtrue;
+			planeNum = LittleLong(sides[firstSide + sideNum].planeNum);
+			VectorSubtract(vec3_origin, s_worldData.planes[planeNum].normal, out->surface);
+			out->surface[3] = -s_worldData.planes[planeNum].dist;
+		}
+
+		out++;
+	}
+
+
+	ri.Printf(PRINT_ALL, "%i fog volumes loaded\n", s_worldData.numFogs);
 }
 
 
@@ -9327,6 +9469,7 @@ void RE_LoadWorldMap(const char *name)
 	R_LoadShaders(&header->lumps[LUMP_SHADERS]);
 	R_LoadLightmaps(&header->lumps[LUMP_LIGHTMAPS], name);
 	R_LoadPlanes(&header->lumps[LUMP_PLANES]);
+	R_LoadFogs(&header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES]);
 	R_LoadSurfaces(&header->lumps[LUMP_SURFACES], &header->lumps[LUMP_DRAWVERTS], &header->lumps[LUMP_DRAWINDEXES]);
 	R_LoadMarksurfaces(&header->lumps[LUMP_LEAFSURFACES]);
 	R_LoadNodesAndLeafs(&header->lumps[LUMP_NODES], &header->lumps[LUMP_LEAFS]);

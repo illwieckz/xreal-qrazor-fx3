@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -3848,9 +3848,9 @@ static qboolean ParseShader(char *_text)
 				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'fogParms' keyword in shader '%s'\n", shader.name);
 				continue;
 			}
-			shader.fogParms.density = atof(token);
+			shader.fogParms.depthForOpaque = atof(token);
 
-			shader.fogVolume = qtrue;
+			//shader.fogVolume = qtrue;
 			shader.sort = SS_FOG;
 
 			// skip any old gradient directions
@@ -4156,7 +4156,7 @@ static qboolean ParseShader(char *_text)
 	}
 
 	// ignore shaders that don't have any stages, unless it is a sky or fog
-	if(s == 0 && !shader.forceOpaque && !shader.isSky && !shader.fogVolume && implicitMap[0] == '\0')
+	if(s == 0 && !shader.forceOpaque && !shader.isSky && !(shader.contentFlags & CONTENTS_FOG) && implicitMap[0] == '\0')
 	{
 		return qfalse;
 	}
@@ -4533,6 +4533,15 @@ static shader_t *GeneratePermanentShader(void)
 
 	*newShader = shader;
 
+	if(shader.sort <= SS_OPAQUE)
+	{
+		newShader->fogPass = FP_EQUAL;
+	}
+	else if(shader.contentFlags & CONTENTS_FOG)
+	{
+		newShader->fogPass = FP_LE;
+	}
+
 	tr.shaders[tr.numShaders] = newShader;
 	newShader->index = tr.numShaders;
 
@@ -4773,6 +4782,37 @@ static shader_t *FinishShader(void)
 		if((pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) &&
 		   (stages[0].stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)))
 		{
+			int             blendSrcBits = pStage->stateBits & GLS_SRCBLEND_BITS;
+			int             blendDstBits = pStage->stateBits & GLS_DSTBLEND_BITS;
+
+			// fog color adjustment only works for blend modes that have a contribution
+			// that aproaches 0 as the modulate values aproach 0 --
+			// GL_ONE, GL_ONE
+			// GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+			// GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+
+			// modulate, additive
+			if(((blendSrcBits == GLS_SRCBLEND_ONE) && (blendDstBits == GLS_DSTBLEND_ONE)) ||
+			   ((blendSrcBits == GLS_SRCBLEND_ZERO) && (blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_COLOR)))
+			{
+				pStage->adjustColorsForFog = ACFF_MODULATE_RGB;
+			}
+			// strict blend
+			else if((blendSrcBits == GLS_SRCBLEND_SRC_ALPHA) &&
+					(blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA))
+			{
+				pStage->adjustColorsForFog = ACFF_MODULATE_ALPHA;
+			}
+			// premultiplied alpha
+			else if((blendSrcBits == GLS_SRCBLEND_ONE) && (blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA))
+			{
+				pStage->adjustColorsForFog = ACFF_MODULATE_RGBA;
+			}
+			else
+			{
+				// we can't adjust this one correctly, so it won't be exactly correct in fog
+			}
+
 			// don't screw with sort order if this is a portal or environment
 			if(!shader.sort)
 			{
@@ -4812,6 +4852,12 @@ static shader_t *FinishShader(void)
 
 	// look for multitexture potential
 	CollapseStages();
+
+	// fogonly shaders don't have any normal passes
+	if(shader.numStages == 0 && !shader.isSky)
+	{
+		shader.sort = SS_FOG;
+	}
 
 	return GeneratePermanentShader();
 }

@@ -37,6 +37,7 @@ GLShader_forwardLighting_omniXYZ* gl_forwardLightingShader_omniXYZ = NULL;
 GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun = NULL;
 GLShader_shadowFill* gl_shadowFillShader = NULL;
 GLShader_reflection* gl_reflectionShader = NULL;
+GLShader_fogQuake3* gl_fogQuake3Shader = NULL;
 GLShader_screen* gl_screenShader = NULL;
 GLShader_portal* gl_portalShader = NULL;
 
@@ -1775,7 +1776,7 @@ GLShader_reflection::GLShader_reflection():
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
-			ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros.c_str());
+			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -1805,6 +1806,87 @@ GLShader_reflection::GLShader_reflection():
 	int endTime = ri.Milliseconds();
 	ri.Printf(PRINT_ALL, "...compiled %i reflection shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
 }
+
+
+
+
+
+GLShader_fogQuake3::GLShader_fogQuake3():
+		GLShader(	"fogQuake3",
+					ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL,
+					ATTR_COLOR | ATTR_POSITION2 | ATTR_NORMAL2,
+					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		u_ColorTextureMatrix(this),
+		u_ViewOrigin(this),
+		//u_AlphaTest(this),
+		u_Color(this),
+		u_ModelMatrix(this),
+		u_ModelViewProjectionMatrix(this),
+		u_BoneMatrix(this),
+		u_VertexInterpolation(this),
+		u_PortalPlane(this),
+		u_FogDistanceVector(this),
+		u_FogDepthVector(this),
+		u_FogEyeT(this),
+		GLDeformStage(this),
+		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		//GLCompileMacro_USE_ALPHA_TESTING(this),
+		GLCompileMacro_USE_VERTEX_SKINNING(this),
+		GLCompileMacro_USE_VERTEX_ANIMATION(this),
+		GLCompileMacro_USE_DEFORM_VERTEXES(this),
+		GLCompileMacro_EYE_OUTSIDE(this)
+{
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating fogQuake3 shaders ------------------------\n");
+
+	int startTime = ri.Milliseconds();
+
+	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
+	
+	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
+
+	std::string vertexShaderText = BuildGPUShaderText("fogQuake3", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string fragmentShaderText = BuildGPUShaderText("fogQuake3", "", GL_FRAGMENT_SHADER_ARB);
+
+	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
+	size_t numCompiled = 0;
+	for(size_t i = 0; i < numPermutations; i++)
+	{
+		std::string compileMacros;
+		if(GetCompileMacrosString(i, compileMacros))
+		{
+			ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros.c_str());
+
+			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
+
+			CompileAndLinkGPUShaderProgram(	shaderProgram,
+											"fogQuake3",
+											vertexShaderText,
+											fragmentShaderText,
+											compileMacros);
+
+			UpdateShaderProgramUniformLocations(shaderProgram);
+
+			shaderProgram->u_ColorMap = glGetUniformLocationARB(shaderProgram->program, "u_ColorMap");
+
+			glUseProgramObjectARB(shaderProgram->program);
+			glUniform1iARB(shaderProgram->u_ColorMap, 0);
+			glUseProgramObjectARB(0);
+
+			ValidateProgram(shaderProgram->program);
+			ShowProgramUniforms(shaderProgram->program);
+			GL_CheckErrors();
+
+			numCompiled++;
+		}
+	}
+
+	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...compiled %i fogQuake3 shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+}
+
 
 
 

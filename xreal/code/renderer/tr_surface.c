@@ -47,7 +47,7 @@ void Tess_EndBegin()
 {
 	Tess_End();
 	Tess_Begin(tess.stageIteratorFunc, tess.stageIteratorFunc2, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.skipVBO, tess.shadowVolume,
-			   tess.lightmapNum);
+		tess.lightmapNum, tess.fogNum);
 }
 
 /*
@@ -95,7 +95,7 @@ void Tess_CheckOverflow(int verts, int indexes)
 	}
 
 	Tess_Begin(tess.stageIteratorFunc, tess.stageIteratorFunc2, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.skipVBO, tess.shadowVolume,
-			   tess.lightmapNum);
+		tess.lightmapNum, tess.fogNum);
 }
 
 
@@ -2909,7 +2909,7 @@ static void Tess_SurfaceFlare(srfFlare_t * surf)
 #if defined(USE_D3D10)
 	// TODO
 #else
-	RB_AddFlare((void *)surf, origin, surf->color, surf->normal);
+	RB_AddFlare((void *)surf, tess.fogNum, origin, surf->color, surf->normal);
 #endif
 }
 

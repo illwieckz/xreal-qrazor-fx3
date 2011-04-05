@@ -1739,6 +1739,8 @@ void R_Init(void)
 		}
 	}
 
+	R_InitFogTable();
+
 	R_NoiseInit();
 
 	R_Register();
