@@ -1281,6 +1281,7 @@ static void RB_RenderDrawSurfaces(bool opaque, bool depthFill, renderDrawSurface
 	oldEntity = NULL;
 	oldShader = NULL;
 	oldLightmapNum = -1;
+	oldFogNum = -1;
 	oldDepthRange = qfalse;
 	depthRange = qfalse;
 	backEnd.currentLight = NULL;

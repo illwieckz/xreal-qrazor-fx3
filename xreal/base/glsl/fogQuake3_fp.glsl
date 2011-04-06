@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /* fogQuake3_fp.glsl */
 
 uniform sampler2D	u_ColorMap;
-uniform int			u_AlphaTest;
 uniform vec4		u_PortalPlane;
 
 varying vec3		var_Position;
@@ -44,24 +43,6 @@ void	main()
 #endif
 
 	vec4 color = texture2D(u_ColorMap, var_Tex);
-
-#if defined(USE_ALPHA_TESTING)
-	if(u_AlphaTest == ATEST_GT_0 && color.a <= 0.0)
-	{
-		discard;
-		return;
-	}
-	else if(u_AlphaTest == ATEST_LT_128 && color.a >= 0.5)
-	{
-		discard;
-		return;
-	}
-	else if(u_AlphaTest == ATEST_GE_128 && color.a < 0.5)
-	{
-		discard;
-		return;
-	}
-#endif
 	
 	color *= var_Color;
 	gl_FragColor = color;

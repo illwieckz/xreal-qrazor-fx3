@@ -278,22 +278,54 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 
 		Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef MAX_SHADOWMAPS\n#define MAX_SHADOWMAPS %i\n#endif\n", MAX_SHADOWMAPS));
 
+		Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef MAX_SHADER_DEFORM_PARMS\n#define MAX_SHADER_DEFORM_PARMS %i\n#endif\n", MAX_SHADER_DEFORM_PARMS));
+
+		Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef deform_t\n"
+							"#define deform_t\n"
+							"#define DEFORM_WAVE %i\n"
+							"#define DEFORM_BULGE %i\n"
+							"#define DEFORM_MOVE %i\n"
+							"#endif\n",
+							DEFORM_WAVE,
+							DEFORM_BULGE,
+							DEFORM_MOVE));
+
+		Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef genFunc_t\n"
+							"#define genFunc_t\n"
+							"#define GF_NONE %1.1f\n"
+							"#define GF_SIN %1.1f\n"
+							"#define GF_SQUARE %1.1f\n"
+							"#define GF_TRIANGLE %1.1f\n"
+							"#define GF_SAWTOOTH %1.1f\n"
+							"#define GF_INVERSE_SAWTOOTH %1.1f\n"
+							"#define GF_NOISE %1.1f\n"
+							"#endif\n",
+							(float)GF_NONE,
+							(float)GF_SIN,
+							(float)GF_SQUARE,
+							(float)GF_TRIANGLE,
+							(float)GF_SAWTOOTH,
+							(float)GF_INVERSE_SAWTOOTH,
+							(float)GF_NOISE));
+
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 						 va("#ifndef deformGen_t\n"
 							"#define deformGen_t\n"
-							"#define DGEN_WAVE_SIN %i\n"
-							"#define DGEN_WAVE_SQUARE %i\n"
-							"#define DGEN_WAVE_TRIANGLE %i\n"
-							"#define DGEN_WAVE_SAWTOOTH %i\n"
-							"#define DGEN_WAVE_INVERSE_SAWTOOTH %i\n"
+							"#define DGEN_WAVE_SIN %1.1f\n"
+							"#define DGEN_WAVE_SQUARE %1.1f\n"
+							"#define DGEN_WAVE_TRIANGLE %1.1f\n"
+							"#define DGEN_WAVE_SAWTOOTH %1.1f\n"
+							"#define DGEN_WAVE_INVERSE_SAWTOOTH %1.1f\n"
 							"#define DGEN_BULGE %i\n"
 							"#define DGEN_MOVE %i\n"
 							"#endif\n",
-							DGEN_WAVE_SIN,
-							DGEN_WAVE_SQUARE,
-							DGEN_WAVE_TRIANGLE,
-							DGEN_WAVE_SAWTOOTH,
-							DGEN_WAVE_INVERSE_SAWTOOTH,
+							(float)DGEN_WAVE_SIN,
+							(float)DGEN_WAVE_SQUARE,
+							(float)DGEN_WAVE_TRIANGLE,
+							(float)DGEN_WAVE_SAWTOOTH,
+							(float)DGEN_WAVE_INVERSE_SAWTOOTH,
 							DGEN_BULGE,
 							DGEN_MOVE));
 
@@ -1816,9 +1848,6 @@ GLShader_fogQuake3::GLShader_fogQuake3():
 					ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL,
 					ATTR_COLOR | ATTR_POSITION2 | ATTR_NORMAL2,
 					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
-		u_ColorTextureMatrix(this),
-		u_ViewOrigin(this),
-		//u_AlphaTest(this),
 		u_Color(this),
 		u_ModelMatrix(this),
 		u_ModelViewProjectionMatrix(this),

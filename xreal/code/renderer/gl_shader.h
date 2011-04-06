@@ -1279,6 +1279,75 @@ public:
 };
 
 
+class u_DeformParms:
+GLUniform
+{
+public:
+	u_DeformParms(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_DeformParms"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DeformParms); }
+
+	void SetUniform_DeformParms(deformStage_t deforms[MAX_SHADER_DEFORMS], int numDeforms)
+	{
+		float	deformParms[MAX_SHADER_DEFORM_PARMS];
+		int		deformOfs = 0;
+
+		if(numDeforms > MAX_SHADER_DEFORMS)
+			numDeforms = MAX_SHADER_DEFORMS;
+
+		deformParms[deformOfs++] = numDeforms;
+
+		for(int i = 0; i < numDeforms; i++)
+		{
+			deformStage_t *ds = &deforms[i];
+
+			switch (ds->deformation)
+			{
+				case DEFORM_WAVE:
+					deformParms[deformOfs++] = DEFORM_WAVE;
+
+					deformParms[deformOfs++] = ds->deformationWave.func;
+					deformParms[deformOfs++] = ds->deformationWave.base;
+					deformParms[deformOfs++] = ds->deformationWave.amplitude;
+					deformParms[deformOfs++] = ds->deformationWave.phase;
+					deformParms[deformOfs++] = ds->deformationWave.frequency;
+
+					deformParms[deformOfs++] = ds->deformationSpread;
+					break;
+
+				case DEFORM_BULGE:
+					deformParms[deformOfs++] = DEFORM_BULGE;
+
+					deformParms[deformOfs++] = ds->bulgeWidth;
+					deformParms[deformOfs++] = ds->bulgeHeight;
+					deformParms[deformOfs++] = ds->bulgeSpeed;
+					break;
+
+				case DEFORM_MOVE:
+					deformParms[deformOfs++] = DEFORM_MOVE;
+
+					deformParms[deformOfs++] = ds->deformationWave.func;
+					deformParms[deformOfs++] = ds->deformationWave.base;
+					deformParms[deformOfs++] = ds->deformationWave.amplitude;
+					deformParms[deformOfs++] = ds->deformationWave.phase;
+					deformParms[deformOfs++] = ds->deformationWave.frequency;
+
+					deformParms[deformOfs++] = ds->bulgeWidth;
+					deformParms[deformOfs++] = ds->bulgeHeight;
+					deformParms[deformOfs++] = ds->bulgeSpeed;
+					break;
+			}
+
+			glUniform1fvARB(_shader->GetProgram()->u_DeformParms, MAX_SHADER_DEFORM_PARMS, deformParms);
+		}
+	}
+};
+
+
 class u_Time:
 GLUniform
 {
@@ -1299,45 +1368,17 @@ public:
 
 
 
+
+
 class GLDeformStage:
-u_DeformGen,
-u_DeformWave,
-u_DeformSpread,
-u_DeformBulge,
-u_Time
+public u_DeformParms,
+public u_Time
 {
 public:
 	GLDeformStage(GLShader* shader):
-	  u_DeformGen(shader),
-	  u_DeformWave(shader),
-	  u_DeformSpread(shader),
-	  u_DeformBulge(shader),
+	  u_DeformParms(shader),
 	  u_Time(shader)
 	{
-
-	}
-
-	void SetDeformStageUniforms(deformStage_t *ds)
-	{
-		switch (ds->deformation)
-		{
-			case DEFORM_WAVE:
-				SetUniform_DeformGen((deformGen_t) ds->deformationWave.func);
-				SetUniform_DeformWave(&ds->deformationWave);
-				SetUniform_DeformSpread(ds->deformationSpread);
-				SetUniform_Time(backEnd.refdef.floatTime);
-				break;
-
-			case DEFORM_BULGE:
-				SetUniform_DeformGen(DGEN_BULGE);
-				SetUniform_DeformBulge(ds);
-				SetUniform_Time(backEnd.refdef.floatTime);
-				break;
-
-			default:
-				SetUniform_DeformGen(DGEN_NONE);
-				break;
-		}
 	}
 };
 
@@ -1824,8 +1865,6 @@ public:
 
 class GLShader_fogQuake3:
 public GLShader,
-public u_ColorTextureMatrix,
-public u_ViewOrigin,
 public u_ModelMatrix,
 public u_ModelViewProjectionMatrix,
 public u_Color,

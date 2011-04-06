@@ -871,6 +871,7 @@ typedef enum
 } texMod_t;
 
 #define	MAX_SHADER_DEFORMS	3
+#define	MAX_SHADER_DEFORM_PARMS	(1 + MAX_SHADER_DEFORMS + MAX_SHADER_DEFORMS * 8)
 typedef struct
 {
 	deform_t        deformation;	// vertex coordinate modification type
@@ -1167,17 +1168,25 @@ static ID_INLINE qboolean ShaderRequiresCPUDeforms(const shader_t * shader)
 {
 	if(shader->numDeforms)
 	{
-		const deformStage_t *ds = &shader->deforms[0];
-
-		switch (ds->deformation)
+		int			i;
+		qboolean	cpuDeforms = qfalse;
+	
+		for(i = 0; i < shader->numDeforms; i++)
 		{
-			case DEFORM_WAVE:
-			case DEFORM_BULGE:
-				return qfalse;
+			const deformStage_t *ds = &shader->deforms[0];
 
-			default:
-				return qtrue;
+			switch (ds->deformation)
+			{
+				case DEFORM_WAVE:
+				case DEFORM_BULGE:
+					break;
+
+				default:
+					cpuDeforms = qtrue;
+			}
 		}
+
+		return cpuDeforms;
 	}
 
 	return qfalse;
@@ -1412,6 +1421,8 @@ typedef struct shaderProgram_s
 
 	GLint           u_DeformSpread;
 	float			t_DeformSpread;
+
+	GLint			u_DeformParms;
 
 	GLint           u_ColorGen;
 	colorGen_t		t_ColorGen;

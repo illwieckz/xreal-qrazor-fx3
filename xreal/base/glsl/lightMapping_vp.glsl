@@ -35,10 +35,6 @@ uniform mat4		u_SpecularTextureMatrix;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-uniform int			u_DeformGen;
-uniform vec4		u_DeformWave;	// [base amplitude phase freq]
-uniform vec3		u_DeformBulge;	// [width height speed]
-uniform float		u_DeformSpread;
 uniform float		u_Time;
 
 varying vec3		var_Position;
@@ -57,14 +53,10 @@ void	main()
 	vec4 position = attr_Position;
 	
 #if defined(USE_DEFORM_VERTEXES)
-	position = DeformPosition(	u_DeformGen,
-								u_DeformWave,	// [base amplitude phase freq]
-								u_DeformBulge,	// [width height speed]
-								u_DeformSpread,
-								u_Time,
-								position,
+	position = DeformPosition2(	position,
 								attr_Normal,
-								attr_TexCoord0.st);
+								attr_TexCoord0.st,
+								u_Time);
 #endif
 
 	// transform vertex position into homogenous clip-space

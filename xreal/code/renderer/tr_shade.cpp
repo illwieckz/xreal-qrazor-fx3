@@ -2270,12 +2270,8 @@ static void DrawTris()
 	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
 	{
-		deformStage_t  *ds;
-
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		gl_genericShader->SetDeformStageUniforms(ds);
+		gl_genericShader->SetUniform_DeformParms(tess.surfaceShader->deforms, tess.surfaceShader->numDeforms);
+		gl_genericShader->SetUniform_Time(backEnd.refdef.floatTime);
 	}
 
 	// bind u_ColorMap
@@ -2472,15 +2468,13 @@ static void Render_generic(int stage)
 		gl_genericShader->SetUniform_VertexInterpolation(glState.vertexAttribsInterpolation);
 	}
 
+	GL_CheckErrors();
+
 	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
 	{
-		deformStage_t  *ds;
-
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		gl_genericShader->SetDeformStageUniforms(ds);
+		gl_genericShader->SetUniform_DeformParms(tess.surfaceShader->deforms, tess.surfaceShader->numDeforms); GL_CheckErrors();
+		gl_genericShader->SetUniform_Time(backEnd.refdef.floatTime); GL_CheckErrors();
 	}
 
 	if(backEnd.viewParms.isPortal)
@@ -2589,12 +2583,8 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
 	{
-		deformStage_t  *ds;
-
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		gl_vertexLightingShader_DBS_entity->SetDeformStageUniforms(ds);
+		gl_vertexLightingShader_DBS_entity->SetUniform_DeformParms(tess.surfaceShader->deforms, tess.surfaceShader->numDeforms);
+		gl_vertexLightingShader_DBS_entity->SetUniform_Time(backEnd.refdef.floatTime);
 	}
 
 	if(r_parallaxMapping->integer && tess.surfaceShader->parallax)
@@ -2796,12 +2786,8 @@ static void Render_vertexLighting_DBS_world(int stage)
 	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
 	{
-		deformStage_t  *ds;
-
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		gl_vertexLightingShader_DBS_world->SetDeformStageUniforms(ds);
+		gl_vertexLightingShader_DBS_world->SetUniform_DeformParms(tess.surfaceShader->deforms, tess.surfaceShader->numDeforms);
+		gl_vertexLightingShader_DBS_world->SetUniform_Time(backEnd.refdef.floatTime);
 	}
 
 	// u_ColorModulate
@@ -2951,12 +2937,8 @@ static void Render_lightMapping(int stage, bool asColorMap, bool normalMapping)
 	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
 	{
-		deformStage_t  *ds;
-
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		gl_lightMappingShader->SetDeformStageUniforms(ds);
+		gl_lightMappingShader->SetUniform_DeformParms(tess.surfaceShader->deforms, tess.surfaceShader->numDeforms);
+		gl_lightMappingShader->SetUniform_Time(backEnd.refdef.floatTime);
 	}
 
 	gl_lightMappingShader->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin); // in world space
@@ -3433,12 +3415,8 @@ static void Render_depthFill(int stage)
 	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
 	{
-		deformStage_t  *ds;
-
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		gl_genericShader->SetDeformStageUniforms(ds);
+		gl_genericShader->SetUniform_DeformParms(tess.surfaceShader->deforms, tess.surfaceShader->numDeforms);
+		gl_genericShader->SetUniform_Time(backEnd.refdef.floatTime);
 	}
 
 	if(backEnd.viewParms.isPortal)
@@ -3541,12 +3519,8 @@ static void Render_shadowFill(int stage)
 	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
 	{
-		deformStage_t  *ds;
-
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		gl_shadowFillShader->SetDeformStageUniforms(ds);
+		gl_shadowFillShader->SetUniform_DeformParms(tess.surfaceShader->deforms, tess.surfaceShader->numDeforms);
+		gl_shadowFillShader->SetUniform_Time(backEnd.refdef.floatTime);
 	}
 
 	if(backEnd.viewParms.isPortal)
@@ -3705,12 +3679,8 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 
 	if(tess.surfaceShader->numDeforms)
 	{
-		deformStage_t  *ds;
-
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		gl_forwardLightingShader_omniXYZ->SetDeformStageUniforms(ds);
+		gl_forwardLightingShader_omniXYZ->SetUniform_DeformParms(tess.surfaceShader->deforms, tess.surfaceShader->numDeforms);
+		gl_forwardLightingShader_omniXYZ->SetUniform_Time(backEnd.refdef.floatTime);
 	}
 
 	if(backEnd.viewParms.isPortal)
@@ -4092,12 +4062,8 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 
 	if(tess.surfaceShader->numDeforms)
 	{
-		deformStage_t  *ds;
-
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		gl_forwardLightingShader_directionalSun->SetDeformStageUniforms(ds);
+		gl_forwardLightingShader_directionalSun->SetUniform_DeformParms(tess.surfaceShader->deforms, tess.surfaceShader->numDeforms);
+		gl_forwardLightingShader_directionalSun->SetUniform_Time(backEnd.refdef.floatTime);
 	}
 
 	if(backEnd.viewParms.isPortal)
@@ -4790,38 +4756,9 @@ static void Render_fog()
 
 	
 
-
-
-	gl_fogQuake3Shader->SetUniform_ViewOrigin(backEnd.orientation.viewOrigin);
-
 	gl_fogQuake3Shader->SetUniform_FogDistanceVector(fogDistanceVector);
 	gl_fogQuake3Shader->SetUniform_FogDepthVector(fogDepthVector);
 	gl_fogQuake3Shader->SetUniform_FogEyeT(eyeT);
-
-
-
-	// u_AlphaTest
-	//gl_fogQuake3Shader->SetUniform_AlphaTest(pStage->stateBits);
-
-
-	// TODO adjust colors for fog using u_ColorModulate
-
-	/*
-	switch (pStage->adjustColorsForFog)
-	{
-		case ACFF_MODULATE_RGB:
-			RB_CalcModulateColorsByFog((unsigned char *)tess.svars.colors);
-			break;
-		case ACFF_MODULATE_ALPHA:
-			RB_CalcModulateAlphasByFog((unsigned char *)tess.svars.colors);
-			break;
-		case ACFF_MODULATE_RGBA:
-			RB_CalcModulateRGBAsByFog((unsigned char *)tess.svars.colors);
-			break;
-		case ACFF_NONE:
-			break;
-	}
-	*/
 
 	// u_Color
 	gl_fogQuake3Shader->SetUniform_Color(fog->color);
@@ -4844,12 +4781,8 @@ static void Render_fog()
 	// u_DeformGen
 	if(tess.surfaceShader->numDeforms)
 	{
-		deformStage_t  *ds;
-
-		// only support the first one
-		ds = &tess.surfaceShader->deforms[0];
-
-		gl_fogQuake3Shader->SetDeformStageUniforms(ds);
+		gl_fogQuake3Shader->SetUniform_DeformParms(tess.surfaceShader->deforms, tess.surfaceShader->numDeforms);
+		gl_fogQuake3Shader->SetUniform_Time(backEnd.refdef.floatTime);
 	}
 
 	if(backEnd.viewParms.isPortal)
