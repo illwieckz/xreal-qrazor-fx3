@@ -242,6 +242,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tr_decals.c"
+				>
+			</File>
+			<File
 				RelativePath=".\tr_fbo.c"
 				>
 			</File>
@@ -1113,22 +1117,6 @@
 			</File>
 			<File
 				RelativePath="..\..\base\glsl\dispersion_C_vp.glsl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\base\glsl\forwardLighting_DBS_directional_fp.glsl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\base\glsl\forwardLighting_DBS_directional_vp.glsl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\base\glsl\forwardLighting_DBS_omni_fp.glsl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\base\glsl\forwardLighting_DBS_omni_vp.glsl"
 				>
 			</File>
 			<File
