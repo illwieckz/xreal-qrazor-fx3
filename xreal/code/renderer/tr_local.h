@@ -1407,21 +1407,6 @@ typedef struct shaderProgram_s
 	GLint           u_ViewOrigin;
 	vec3_t			t_ViewOrigin;
 
-	GLint           u_TCGen_Environment;
-	qboolean		t_TCGen_Environment;
-
-	GLint           u_DeformGen;
-	deformGen_t		t_DeformGen;
-
-	GLint           u_DeformWave;
-	vec4_t			t_DeformWave;
-
-	GLint           u_DeformBulge;
-	vec3_t			t_DeformBulge;
-
-	GLint           u_DeformSpread;
-	float			t_DeformSpread;
-
 	GLint			u_DeformParms;
 
 	GLint           u_ColorGen;
@@ -1465,7 +1450,6 @@ typedef struct shaderProgram_s
 
 	GLint           u_LightFrustum;
 	vec4_t			t_LightFrustum;
-
 
 	GLint           u_ShadowMatrix;
 	matrix_t		t_ShadowMatrix;
@@ -1532,6 +1516,8 @@ typedef struct shaderProgram_s
 	GLint			u_HDRMaxLuminance;
 
 	GLint           u_DeformMagnitude;
+	float			t_DeformMagnitude;
+
 	GLint           u_BlurMagnitude;
 
 
@@ -1697,108 +1683,7 @@ static ID_INLINE void GLSL_SetUniform_ViewOrigin(shaderProgram_t * program, cons
 	glUniform3fARB(program->u_ViewOrigin, v[0], v[1], v[2]);
 }
 
-static ID_INLINE void GLSL_SetUniform_TCGen_Environment(shaderProgram_t * program, qboolean value)
-{
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_TCGen_Environment == value)
-		return;
 
-	program->t_TCGen_Environment = value;
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_TCGen_Environment( program = %s, value = %i ) ---\n", program->name, value));
-	}
-#endif
-
-	glUniform1iARB(program->u_TCGen_Environment, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformGen(shaderProgram_t * program, deformGen_t value)
-{
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_DeformGen == value)
-		return;
-
-	program->t_DeformGen = value;
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_DeformGen( program = %s, value = %i ) ---\n", program->name, value));
-	}
-#endif
-
-	glUniform1iARB(program->u_DeformGen, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformWave(shaderProgram_t * program, const waveForm_t * wf)
-{
-	vec4_t v;
-
-	Vector4Set(v, wf->base, wf->amplitude, wf->phase, wf->frequency);
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(Vector4Compare(program->t_DeformWave, v))
-		return;
-
-	Vector4Copy(v, program->t_DeformWave);
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_DeformWave( program = %s, wave form = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
-	}
-#endif
-
-	glUniform4fARB(program->u_DeformWave, v[0], v[1], v[2], v[3]);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformBulge(shaderProgram_t * program, const deformStage_t * ds)
-{
-	vec3_t v;
-
-	VectorSet(v, ds->bulgeWidth, ds->bulgeHeight, ds->bulgeSpeed);
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare(program->t_DeformBulge, v))
-		return;
-
-	VectorCopy(v, program->t_DeformBulge);
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_DeformBulge( program = %s, bulge = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
-	}
-#endif
-
-	glUniform3fARB(program->u_DeformBulge, v[0], v[1], v[2]);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformSpread(shaderProgram_t * program, float value)
-{
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_DeformSpread == value)
-		return;
-
-	program->t_DeformSpread = value;
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_DeformSpread( program = %s, value = %f ) ---\n", program->name, value));
-	}
-#endif
-
-	glUniform1fARB(program->u_DeformSpread, value);
-}
 
 static ID_INLINE void GLSL_SetUniform_ColorGen(shaderProgram_t * program, colorGen_t value)
 {
@@ -4024,9 +3909,6 @@ typedef struct
 	shaderProgram_t deferredLightingShader_DBS_omni;
 	shaderProgram_t deferredLightingShader_DBS_proj;
 	shaderProgram_t deferredLightingShader_DBS_directional;
-
-	// colored depth test rendering with textures into gl_FragData[1]
-	shaderProgram_t depthTestShader;
 
 	// depth to color encoding
 	shaderProgram_t depthToColorShader;

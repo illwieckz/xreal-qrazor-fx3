@@ -39,6 +39,7 @@ GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun
 GLShader_shadowFill* gl_shadowFillShader = NULL;
 GLShader_reflection* gl_reflectionShader = NULL;
 GLShader_fogQuake3* gl_fogQuake3Shader = NULL;
+GLShader_heatHaze* gl_heatHazeShader = NULL;
 GLShader_screen* gl_screenShader = NULL;
 GLShader_portal* gl_portalShader = NULL;
 
@@ -541,7 +542,7 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 					 "#ifndef r_precomputedLighting\n#define r_precomputedLighting 1\n#endif\n");
 		}
 
-		if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 && glConfig.driverType != GLDRV_MESA)
+		if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && /*glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 &&*/ glConfig.driverType != GLDRV_MESA)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_heatHazeFix\n#define r_heatHazeFix 1\n#endif\n");
 		}
@@ -2229,6 +2230,118 @@ GLShader_fogQuake3::GLShader_fogQuake3():
 
 	int endTime = ri.Milliseconds();
 	ri.Printf(PRINT_ALL, "...compiled %i fogQuake3 shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+}
+
+
+
+
+
+
+GLShader_heatHaze::GLShader_heatHaze():
+		GLShader(	"heatHaze",
+					ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL,
+					ATTR_COLOR | ATTR_POSITION2 | ATTR_NORMAL2,
+					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		u_NormalTextureMatrix(this),
+		u_ViewOrigin(this),
+		//u_AlphaTest(this),
+		u_DeformMagnitude(this),
+		u_ColorModulate(this),
+		u_Color(this),
+		u_ModelMatrix(this),
+		u_ModelViewProjectionMatrix(this),
+		u_ModelViewMatrixTranspose(this),
+		u_ProjectionMatrixTranspose(this),
+		u_BoneMatrix(this),
+		u_VertexInterpolation(this),
+		u_PortalPlane(this),
+		GLDeformStage(this),
+		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		//GLCompileMacro_USE_ALPHA_TESTING(this),
+		GLCompileMacro_USE_VERTEX_SKINNING(this),
+		GLCompileMacro_USE_VERTEX_ANIMATION(this),
+		GLCompileMacro_USE_DEFORM_VERTEXES(this)
+{
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating heatHaze shaders ------------------------\n");
+
+	int startTime = ri.Milliseconds();
+
+	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
+	
+	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
+
+	std::string vertexShaderText = BuildGPUShaderText("heatHaze", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string fragmentShaderText = BuildGPUShaderText("heatHaze", "", GL_FRAGMENT_SHADER_ARB);
+
+	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
+	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling heatHaze shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
+	for(size_t i = 0; i < numPermutations; i++)
+	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
+		std::string compileMacros;
+		if(GetCompileMacrosString(i, compileMacros))
+		{
+			//ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros.c_str());
+
+			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
+
+			CompileAndLinkGPUShaderProgram(	shaderProgram,
+											"heatHaze",
+											vertexShaderText,
+											fragmentShaderText,
+											compileMacros);
+
+			UpdateShaderProgramUniformLocations(shaderProgram);
+
+			shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, "u_NormalMap");
+			shaderProgram->u_CurrentMap = glGetUniformLocationARB(shaderProgram->program, "u_CurrentMap");
+			if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && /*glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 &&*/ glConfig.driverType != GLDRV_MESA)
+			{
+				shaderProgram->u_ContrastMap = glGetUniformLocationARB(shaderProgram->program, "u_ContrastMap");
+			}
+
+			glUseProgramObjectARB(shaderProgram->program);
+			glUniform1iARB(shaderProgram->u_NormalMap, 0);
+			glUniform1iARB(shaderProgram->u_CurrentMap, 1);
+			if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && /*glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 &&*/ glConfig.driverType != GLDRV_MESA)
+			{
+				glUniform1iARB(shaderProgram->u_ContrastMap, 2);
+			}
+			glUseProgramObjectARB(0);
+
+			ValidateProgram(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
+			GL_CheckErrors();
+
+			numCompiled++;
+		}
+	}
+	ri.Printf(PRINT_ALL, "\n");
+
+	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...compiled %i heatHaze shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
 }
 
 

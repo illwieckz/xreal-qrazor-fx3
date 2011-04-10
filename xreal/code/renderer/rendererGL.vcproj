@@ -1096,14 +1096,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\base\glsl\depthTest_fp.glsl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\base\glsl\depthTest_vp.glsl"
-				>
-			</File>
-			<File
 				RelativePath="..\..\base\glsl\depthToColor_fp.glsl"
 				>
 			</File>

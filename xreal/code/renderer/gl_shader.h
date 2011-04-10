@@ -1074,6 +1074,44 @@ public:
 };
 
 
+class u_ModelViewMatrixTranspose:
+GLUniform
+{
+public:
+	u_ModelViewMatrixTranspose(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_ModelViewMatrixTranspose"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ModelViewMatrixTranspose); }
+
+	void SetUniform_ModelViewMatrixTranspose(const matrix_t m)
+	{
+		GLSL_SetUniform_ModelViewMatrixTranspose(_shader->GetProgram(), m);
+	}
+};
+
+
+class u_ProjectionMatrixTranspose:
+GLUniform
+{
+public:
+	u_ProjectionMatrixTranspose(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_ProjectionMatrixTranspose"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_ProjectionMatrixTranspose); }
+
+	void SetUniform_ProjectionMatrixTranspose(const matrix_t m)
+	{
+		GLSL_SetUniform_ProjectionMatrixTranspose(_shader->GetProgram(), m);
+	}
+};
+
+
 class u_ModelViewProjectionMatrix:
 GLUniform
 {
@@ -1206,77 +1244,7 @@ public:
 
 
 
-class u_DeformGen:
-GLUniform
-{
-public:
-	u_DeformGen(GLShader* shader):
-	  GLUniform(shader)
-	{
-	}
 
-	const char* GetName() const { return "u_DeformGen"; }
-	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DeformGen); }
-
-	void SetUniform_DeformGen(deformGen_t value)
-	{
-		GLSL_SetUniform_DeformGen(_shader->GetProgram(), value);
-	}
-};
-
-class u_DeformWave:
-GLUniform
-{
-public:
-	u_DeformWave(GLShader* shader):
-	  GLUniform(shader)
-	{
-	}
-
-	const char* GetName() const { return "u_DeformWave"; }
-	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DeformWave); }
-
-	void SetUniform_DeformWave(const waveForm_t * wf)
-	{
-		GLSL_SetUniform_DeformWave(_shader->GetProgram(), wf);
-	}
-};
-
-class u_DeformSpread:
-GLUniform
-{
-public:
-	u_DeformSpread(GLShader* shader):
-	  GLUniform(shader)
-	{
-	}
-
-	const char* GetName() const { return "u_DeformSpread"; }
-	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DeformSpread); }
-
-	void SetUniform_DeformSpread(float value)
-	{
-		GLSL_SetUniform_DeformSpread(_shader->GetProgram(), value);
-	}
-};
-
-class u_DeformBulge:
-GLUniform
-{
-public:
-	u_DeformBulge(GLShader* shader):
-	  GLUniform(shader)
-	{
-	}
-
-	const char* GetName() const { return "u_DeformBulge"; }
-	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DeformBulge); }
-
-	void SetUniform_DeformBulge(deformStage_t *ds)
-	{
-		GLSL_SetUniform_DeformBulge(_shader->GetProgram(), ds);
-	}
-};
 
 
 class u_DeformParms:
@@ -1383,24 +1351,6 @@ public:
 };
 
 
-
-class u_TCGen_Environment:
-GLUniform
-{
-public:
-	u_TCGen_Environment(GLShader* shader):
-	  GLUniform(shader)
-	{
-	}
-
-	const char* GetName() const { return "u_TCGen_Environment"; }
-	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_TCGen_Environment); }
-
-	void SetUniform_TCGen_Environment(qboolean value)
-	{
-		GLSL_SetUniform_TCGen_Environment(_shader->GetProgram(), value);
-	}
-};
 
 class u_ColorGen:
 GLUniform
@@ -1611,11 +1561,46 @@ public:
 #if defined(LOG_GLSL_UNIFORMS)
 		if(r_logFile->integer)
 		{
-			GLimp_LogComment(va("--- GLSL_SetUniform_FogEyeT( program = %s, value = %f ) ---\n", program->name, value));
+			GLimp_LogComment(va("--- SetUniform_FogEyeT( program = %s, value = %f ) ---\n", program->name, value));
 		}
 #endif
 
 		glUniform1fARB(program->u_FogEyeT, value);
+	}
+};
+
+
+class u_DeformMagnitude:
+GLUniform
+{
+public:
+	u_DeformMagnitude(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_DeformMagnitude"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_DeformMagnitude); }
+
+	void SetUniform_DeformMagnitude(float value)
+	{
+		shaderProgram_t* program = _shader->GetProgram();
+
+#if defined(USE_UNIFORM_FIREWALL)
+		if(program->t_DeformMagnitude == value)
+			return;
+
+		program->t_DeformMagnitude = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment(va("--- SetUniform_DeformMagnitude( program = %s, value = %f ) ---\n", program->name, value));
+		}
+#endif
+
+		glUniform1fARB(program->u_DeformMagnitude, value);
 	}
 };
 
@@ -1927,6 +1912,33 @@ public:
 };
 
 
+class GLShader_heatHaze:
+public GLShader,
+public u_NormalTextureMatrix,
+public u_ViewOrigin,
+//public u_AlphaTest,
+public u_DeformMagnitude,
+public u_ModelMatrix,
+public u_ModelViewProjectionMatrix,
+public u_ModelViewMatrixTranspose,
+public u_ProjectionMatrixTranspose,
+public u_ColorModulate,
+public u_Color,
+public u_BoneMatrix,
+public u_VertexInterpolation,
+public u_PortalPlane,
+public GLDeformStage,
+public GLCompileMacro_USE_PORTAL_CLIPPING,
+//public GLCompileMacro_USE_ALPHA_TESTING,
+public GLCompileMacro_USE_VERTEX_SKINNING,
+public GLCompileMacro_USE_VERTEX_ANIMATION,
+public GLCompileMacro_USE_DEFORM_VERTEXES
+{
+public:
+	GLShader_heatHaze();
+};
+
+
 class GLShader_screen:
 public GLShader,
 public u_ModelViewProjectionMatrix
@@ -1957,6 +1969,7 @@ extern GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directi
 extern GLShader_shadowFill* gl_shadowFillShader;
 extern GLShader_reflection* gl_reflectionShader;
 extern GLShader_fogQuake3* gl_fogQuake3Shader;
+extern GLShader_heatHaze* gl_heatHazeShader;
 extern GLShader_screen* gl_screenShader;
 extern GLShader_portal* gl_portalShader;
 
