@@ -38,6 +38,7 @@ GLShader_forwardLighting_projXYZ* gl_forwardLightingShader_projXYZ = NULL;
 GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun = NULL;
 GLShader_shadowFill* gl_shadowFillShader = NULL;
 GLShader_reflection* gl_reflectionShader = NULL;
+GLShader_skybox* gl_skyboxShader = NULL;
 GLShader_fogQuake3* gl_fogQuake3Shader = NULL;
 GLShader_heatHaze* gl_heatHazeShader = NULL;
 GLShader_screen* gl_screenShader = NULL;
@@ -2136,6 +2137,91 @@ GLShader_reflection::GLShader_reflection():
 }
 
 
+
+
+GLShader_skybox::GLShader_skybox():
+		GLShader(	"skybox",
+					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
+					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2 | ATTR_COLOR,
+					0),
+		u_ColorMap(this),
+		u_ViewOrigin(this),
+		u_ModelMatrix(this),
+		u_ModelViewProjectionMatrix(this),
+		u_BoneMatrix(this),
+		u_VertexInterpolation(this),
+		u_PortalPlane(this),
+		GLDeformStage(this),
+		GLCompileMacro_USE_PORTAL_CLIPPING(this)
+{
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating skybox shaders -------------------------\n");
+
+	int startTime = ri.Milliseconds();
+
+	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
+	
+	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
+
+	std::string vertexShaderText = BuildGPUShaderText("skybox", "", GL_VERTEX_SHADER_ARB);
+	std::string fragmentShaderText = BuildGPUShaderText("skybox", "", GL_FRAGMENT_SHADER_ARB);
+
+	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
+	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling skybox shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
+	for(size_t i = 0; i < numPermutations; i++)
+	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
+		std::string compileMacros;
+		if(GetCompileMacrosString(i, compileMacros))
+		{
+			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+
+			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
+
+			CompileAndLinkGPUShaderProgram(	shaderProgram,
+											"skybox",
+											vertexShaderText,
+											fragmentShaderText,
+											compileMacros);
+
+			UpdateShaderProgramUniformLocations(shaderProgram);
+
+			glUseProgramObjectARB(shaderProgram->program);
+			glUniform1iARB(shaderProgram->u_ColorMap, 0);
+			glUseProgramObjectARB(0);
+
+			ValidateProgram(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
+			GL_CheckErrors();
+
+			numCompiled++;
+		}
+	}
+
+	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...compiled %i skybox shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+}
 
 
 

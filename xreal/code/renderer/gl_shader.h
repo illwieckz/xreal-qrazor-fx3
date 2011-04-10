@@ -1889,6 +1889,24 @@ public:
 };
 
 
+
+class GLShader_skybox:
+public GLShader,
+public u_ColorMap,
+public u_ViewOrigin,
+public u_ModelMatrix,
+public u_ModelViewProjectionMatrix,
+public u_BoneMatrix,
+public u_VertexInterpolation,
+public u_PortalPlane,
+public GLDeformStage,
+public GLCompileMacro_USE_PORTAL_CLIPPING
+{
+public:
+	GLShader_skybox();
+};
+
+
 class GLShader_fogQuake3:
 public GLShader,
 public u_ModelMatrix,
@@ -1968,6 +1986,7 @@ extern GLShader_forwardLighting_projXYZ* gl_forwardLightingShader_projXYZ;
 extern GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun;
 extern GLShader_shadowFill* gl_shadowFillShader;
 extern GLShader_reflection* gl_reflectionShader;
+extern GLShader_skybox* gl_skyboxShader;
 extern GLShader_fogQuake3* gl_fogQuake3Shader;
 extern GLShader_heatHaze* gl_heatHazeShader;
 extern GLShader_screen* gl_screenShader;

@@ -3916,9 +3916,6 @@ typedef struct
 	// stencil shadow volume extrusion
 	shaderProgram_t shadowExtrudeShader;
 
-	// shadowmap distance compression
-	//shaderProgram_t shadowFillShader;
-
 	// forward shading using the pre pass light buffer
 	shaderProgram_t forwardLightingShader_DBS_post;
 
@@ -3930,22 +3927,13 @@ typedef struct
 	// UT3 style player shadowing
 	shaderProgram_t deferredShadowingShader_proj;
 
-	// environment mapping effects
-	shaderProgram_t reflectionShader_C;
-	shaderProgram_t reflectionShader_CB;
-	shaderProgram_t dispersionShader_C;
-	shaderProgram_t skyBoxShader;
-
 	// post process effects
-	shaderProgram_t heatHazeShader;
 	shaderProgram_t bloomShader;
 	shaderProgram_t contrastShader;
 	shaderProgram_t blurXShader;
 	shaderProgram_t blurYShader;
 	shaderProgram_t rotoscopeShader;
 	shaderProgram_t cameraEffectsShader;
-	//shaderProgram_t screenShader;
-	//shaderProgram_t portalShader;
 	shaderProgram_t liquidShader;
 	shaderProgram_t uniformFogShader;
 	shaderProgram_t volumetricFogShader;

@@ -1362,70 +1362,18 @@ void GLSL_InitGPUShaders(void)
 	// bumped cubemap reflection for abitrary polygons ( EMBM )
 	gl_reflectionShader = new GLShader_reflection();
 
+	// skybox drawing for abitrary polygons
+	gl_skyboxShader = new GLShader_skybox();
+
 	// Q3A volumetric fog
 	gl_fogQuake3Shader = new GLShader_fogQuake3();
 
 	// heatHaze post process effect
 	gl_heatHazeShader = new GLShader_heatHaze();
 
-	/*
-	GLSL_InitGPUShader(&tr.heatHazeShader, "heatHaze", ATTR_POSITION | ATTR_TEXCOORD, qtrue, qtrue);
-
-	tr.heatHazeShader.u_DeformMagnitude = glGetUniformLocationARB(tr.heatHazeShader.program, "u_DeformMagnitude");
-	tr.heatHazeShader.u_NormalMap = glGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalMap");
-	tr.heatHazeShader.u_CurrentMap = glGetUniformLocationARB(tr.heatHazeShader.program, "u_CurrentMap");
-	tr.heatHazeShader.u_NormalTextureMatrix = glGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalTextureMatrix");
-	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 && glConfig.driverType != GLDRV_MESA)
-	{
-		tr.heatHazeShader.u_ContrastMap = glGetUniformLocationARB(tr.heatHazeShader.program, "u_ContrastMap");
-	}
-	tr.heatHazeShader.u_AlphaTest = glGetUniformLocationARB(tr.heatHazeShader.program, "u_AlphaTest");
-
-	tr.heatHazeShader.u_ModelViewMatrixTranspose =
-		glGetUniformLocationARB(tr.heatHazeShader.program, "u_ModelViewMatrixTranspose");
-	tr.heatHazeShader.u_ProjectionMatrixTranspose =
-		glGetUniformLocationARB(tr.heatHazeShader.program, "u_ProjectionMatrixTranspose");
-	tr.heatHazeShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.heatHazeShader.program, "u_ModelViewProjectionMatrix");
-
-	if(glConfig.vboVertexSkinningAvailable)
-	{
-		tr.heatHazeShader.u_VertexSkinning = glGetUniformLocationARB(tr.heatHazeShader.program, "u_VertexSkinning");
-		tr.heatHazeShader.u_BoneMatrix = glGetUniformLocationARB(tr.heatHazeShader.program, "u_BoneMatrix");
-	}
-
-	glUseProgramObjectARB(tr.heatHazeShader.program);
-	glUniform1iARB(tr.heatHazeShader.u_NormalMap, 0);
-	glUniform1iARB(tr.heatHazeShader.u_CurrentMap, 1);
-	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 && glConfig.driverType != GLDRV_MESA)
-	{
-		glUniform1iARB(tr.heatHazeShader.u_ContrastMap, 2);
-	}
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.heatHazeShader.program);
-	GLSL_ShowProgramUniforms(tr.heatHazeShader.program);
-	GL_CheckErrors();
-	*/
+	
 
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-	// skybox drawing for abitrary polygons
-	GLSL_InitGPUShader(&tr.skyBoxShader, "skybox", ATTR_POSITION, qtrue, qtrue);
-
-	tr.skyBoxShader.u_ColorMap = glGetUniformLocationARB(tr.skyBoxShader.program, "u_ColorMap");
-	tr.skyBoxShader.u_ViewOrigin = glGetUniformLocationARB(tr.skyBoxShader.program, "u_ViewOrigin");
-	tr.skyBoxShader.u_ModelMatrix = glGetUniformLocationARB(tr.skyBoxShader.program, "u_ModelMatrix");
-	tr.skyBoxShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.skyBoxShader.program, "u_ModelViewProjectionMatrix");
-
-	glUseProgramObjectARB(tr.skyBoxShader.program);
-	glUniform1iARB(tr.skyBoxShader.u_ColorMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.skyBoxShader.program);
-	GLSL_ShowProgramUniforms(tr.skyBoxShader.program);
-	GL_CheckErrors();
 
 	// bloom post process effect
 	GLSL_InitGPUShader(&tr.bloomShader, "bloom", ATTR_POSITION, qtrue, qfalse);
@@ -1825,6 +1773,12 @@ void GLSL_ShutdownGPUShaders(void)
 		gl_reflectionShader = NULL;
 	}
 
+	if(gl_skyboxShader)
+	{
+		delete gl_skyboxShader;
+		gl_skyboxShader = NULL;
+	}
+
 	if(gl_fogQuake3Shader)
 	{
 		delete gl_fogQuake3Shader;
@@ -1838,18 +1792,6 @@ void GLSL_ShutdownGPUShaders(void)
 	}
 
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-	if(tr.dispersionShader_C.program)
-	{
-		glDeleteObjectARB(tr.dispersionShader_C.program);
-		Com_Memset(&tr.dispersionShader_C, 0, sizeof(shaderProgram_t));
-	}
-
-	if(tr.skyBoxShader.program)
-	{
-		glDeleteObjectARB(tr.skyBoxShader.program);
-		Com_Memset(&tr.skyBoxShader, 0, sizeof(shaderProgram_t));
-	}
 
 	if(tr.bloomShader.program)
 	{
@@ -4195,34 +4137,43 @@ static void Render_dispersion_C(int stage)
 
 static void Render_skybox(int stage)
 {
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_skybox ---\n");
 
 	GL_State(pStage->stateBits);
 
-	// enable shader, set arrays
-	GL_BindProgram(&tr.skyBoxShader);
-	GL_VertexAttribsState(tr.skyBoxShader.attribs);
+	gl_skyboxShader->SetPortalClipping(backEnd.viewParms.isPortal);
+	gl_skyboxShader->BindProgram();
+	
+	gl_skyboxShader->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin);	// in world space
 
-	// set uniforms
-	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
+	gl_skyboxShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
+	gl_skyboxShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-	GLSL_SetUniform_ViewOrigin(&tr.skyBoxShader, viewOrigin);
+	// u_PortalPlane
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
 
-	GLSL_SetUniform_ModelMatrix(&tr.skyBoxShader, backEnd.orientation.transformMatrix);
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.skyBoxShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		gl_skyboxShader->SetUniform_PortalPlane(plane);
+	}
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 
+	gl_skyboxShader->SetVertexAttribs();
+
 	Tess_DrawElements();
 
 	GL_CheckErrors();
-#endif
 }
 
 static void Render_screen(int stage)
