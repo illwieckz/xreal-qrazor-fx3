@@ -2142,7 +2142,7 @@ void RE_Shutdown(qboolean destroyWindow)
 	// Maybe an OpenGL driver problem. It is safer to destroy the context in that case or you will get really weird crashes when rendering stuff.
 	//
 
-#if !defined(SMP) && !defined(USE_JAVA)
+#if !defined(SMP)// && !defined(USE_JAVA)
 	if(destroyWindow)
 #endif
 	{

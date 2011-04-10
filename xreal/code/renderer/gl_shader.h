@@ -1771,6 +1771,47 @@ public:
 	GLShader_forwardLighting_omniXYZ();
 };
 
+
+class GLShader_forwardLighting_projXYZ:
+public GLShader,
+public u_DiffuseTextureMatrix,
+public u_NormalTextureMatrix,
+public u_SpecularTextureMatrix,
+public u_AlphaTest,
+public u_ColorModulate,
+public u_Color,
+public u_ViewOrigin,
+public u_LightOrigin,
+public u_LightColor,
+public u_LightRadius,
+public u_LightScale,
+public u_LightWrapAround,
+public u_LightAttenuationMatrix,
+public u_ShadowTexelSize,
+public u_ShadowBlur,
+public u_ShadowMatrix,
+public u_ModelMatrix,
+public u_ModelViewProjectionMatrix,
+public u_BoneMatrix,
+public u_VertexInterpolation,
+public u_PortalPlane,
+public u_DepthScale,
+public GLDeformStage,
+public GLCompileMacro_USE_PORTAL_CLIPPING,
+public GLCompileMacro_USE_ALPHA_TESTING,
+public GLCompileMacro_USE_VERTEX_SKINNING,
+public GLCompileMacro_USE_VERTEX_ANIMATION,
+public GLCompileMacro_USE_DEFORM_VERTEXES,
+public GLCompileMacro_USE_NORMAL_MAPPING,
+public GLCompileMacro_USE_PARALLAX_MAPPING,
+public GLCompileMacro_USE_SHADOWING,
+public GLCompileMacro_TWOSIDED
+{
+public:
+	GLShader_forwardLighting_projXYZ();
+};
+
+
 class GLShader_forwardLighting_directionalSun:
 public GLShader,
 public u_DiffuseTextureMatrix,
@@ -1911,6 +1952,7 @@ extern GLShader_lightMapping* gl_lightMappingShader;
 extern GLShader_vertexLighting_DBS_entity* gl_vertexLightingShader_DBS_entity;
 extern GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world;
 extern GLShader_forwardLighting_omniXYZ* gl_forwardLightingShader_omniXYZ;
+extern GLShader_forwardLighting_projXYZ* gl_forwardLightingShader_projXYZ;
 extern GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun;
 extern GLShader_shadowFill* gl_shadowFillShader;
 extern GLShader_reflection* gl_reflectionShader;

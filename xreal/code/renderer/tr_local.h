@@ -4015,20 +4015,6 @@ typedef struct
 	// GPU shader programs
 	//
 #if !defined(USE_D3D10)
-	// Q3A standard simple vertex color rendering
-	//shaderProgram_t genericShader;
-
-	// simple vertex color shading for entities
-	//shaderProgram_t vertexLightingShader_DBS_entity[GLSLMACRO_vertexLighting_DBS_entity_MAX_PERMUTATIONS];
-
-	// simple vertex color shading for the world
-	//shaderProgram_t vertexLightingShader_DBS_world;
-
-	// standard light mapping
-	//shaderProgram_t lightMappingShader;
-
-	// directional light mapping
-	//shaderProgram_t deluxeMappingShader;
 
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	// deferred Geometric-Buffer processing
@@ -4050,10 +4036,6 @@ typedef struct
 
 	// shadowmap distance compression
 	//shaderProgram_t shadowFillShader;
-
-	// Doom3 style omni-directional multi-pass lighting
-	//shaderProgram_t forwardLightingShader_DBS_omni;
-	shaderProgram_t forwardLightingShader_DBS_proj;
 
 	// forward shading using the pre pass light buffer
 	shaderProgram_t forwardLightingShader_DBS_post;

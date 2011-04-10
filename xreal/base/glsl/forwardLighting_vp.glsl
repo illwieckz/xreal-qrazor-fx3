@@ -63,7 +63,7 @@ varying vec4		var_TexNormal;
 varying vec2		var_TexSpecular;
 #endif
 
-varying vec3		var_TexAttenXYZ;
+varying vec4		var_TexAttenuation;
 
 #if defined(USE_NORMAL_MAPPING)
 varying vec4		var_Tangent;
@@ -165,7 +165,7 @@ void	main()
 	var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
 		
 	// calc light xy,z attenuation in light space
-	var_TexAttenXYZ = (u_LightAttenuationMatrix * position).xyz;
+	var_TexAttenuation = u_LightAttenuationMatrix * position;
 		
 	// transform diffusemap texcoords
 	var_TexDiffuse.xy = (u_DiffuseTextureMatrix * attr_TexCoord0).st;

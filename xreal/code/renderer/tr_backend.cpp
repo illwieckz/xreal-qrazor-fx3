@@ -2355,7 +2355,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				}
 
 				// we don't need tangent space calculations here
-				Tess_Begin(Tess_StageIteratorStencilShadowVolume, NULL, shader, light->shader, qtrue, qfalse, qtrue, -1);
+				Tess_Begin(Tess_StageIteratorStencilShadowVolume, NULL, shader, light->shader, qtrue, qfalse, qtrue, -1, 0);
 			}
 		}
 		else
@@ -2399,7 +2399,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				}
 
 				// begin a new batch
-				Tess_Begin(Tess_StageIteratorStencilLighting, NULL, shader, light->shader, qfalse, qfalse, qfalse, -1);
+				Tess_Begin(Tess_StageIteratorStencilLighting, NULL, shader, light->shader, qfalse, qfalse, qfalse, -1, 0);
 			}
 		}
 
@@ -3622,23 +3622,37 @@ static void RB_RenderInteractionsShadowMapped()
 			// build the attenuation matrix using the entity transform
 			switch (light->l.rlType)
 			{
+				case RL_OMNI:
+				{
+					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
+					MatrixMultiply2(light->attenuationMatrix, modelToLight);
+
+					MatrixCopy(light->attenuationMatrix, light->shadowMatrices[0]);
+					break;
+				}
+
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
 					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));	// scale
+					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
+					MatrixMultiply2(light->attenuationMatrix, modelToLight);
+
+					MatrixCopy(light->attenuationMatrix, light->shadowMatrices[0]);
 					break;
 				}
 
-				case RL_OMNI:
-				default:
+				case RL_DIRECTIONAL:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
 					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
+					MatrixMultiply2(light->attenuationMatrix, modelToLight);
 					break;
 				}
 			}
-			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
-			MatrixMultiply2(light->attenuationMatrix, modelToLight);
 		}
 
 		if(drawShadows)
@@ -6697,7 +6711,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						}
 
 						// we don't need tangent space calculations here
-						Tess_Begin(Tess_StageIteratorShadowFill, NULL, shader, light->shader, qtrue, qfalse, qfalse, -1);
+						Tess_Begin(Tess_StageIteratorShadowFill, NULL, shader, light->shader, qtrue, qfalse, qfalse, -1, 0);
 					}
 					break;
 				}
@@ -8179,12 +8193,12 @@ void RB_RenderBloom()
 			if(DS_STANDARD_ENABLED())
 			{
 				R_BindFBO(tr.deferredRenderFBO);
-
-				GL_BindProgram(&tr.screenShader);
+				
+				gl_screenShader->BindProgram();
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
-				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+				gl_screenShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
@@ -8196,11 +8210,11 @@ void RB_RenderBloom()
 #else
 				R_BindNullFBO();
 #endif
-				GL_BindProgram(&tr.screenShader);
+				gl_screenShader->BindProgram();
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
-				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+				gl_screenShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
@@ -8209,11 +8223,11 @@ void RB_RenderBloom()
 			{
 				R_BindFBO(tr.deferredRenderFBO);
 
-				GL_BindProgram(&tr.screenShader);
+				gl_screenShader->BindProgram();
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
-				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+				gl_screenShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
@@ -8223,11 +8237,11 @@ void RB_RenderBloom()
 			{
 				R_BindNullFBO();
 
-				GL_BindProgram(&tr.screenShader);
+				gl_screenShader->BindProgram();
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
-				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+				gl_screenShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 				GL_SelectTexture(0);
 				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
@@ -8520,7 +8534,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	}
 	else
 	{
-		GL_BindProgram(&tr.screenShader);
+		gl_screenShader->BindProgram();
 		glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
 		// bind u_ColorMap
@@ -8551,7 +8565,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 			GL_Bind(tr.deferredRenderFBOImage);
 		}
 
-		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+		gl_screenShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
 
 	GL_CheckErrors();
@@ -8597,11 +8611,11 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 
 	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
 	{
-		GL_BindProgram(&tr.screenShader);
+		gl_screenShader->BindProgram();
 
 		glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
-		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+		gl_screenShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
 	else
 	{

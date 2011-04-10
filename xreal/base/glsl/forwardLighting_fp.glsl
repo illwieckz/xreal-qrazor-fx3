@@ -34,6 +34,8 @@ uniform sampler2D	u_ShadowMap1;
 uniform sampler2D	u_ShadowMap2;
 uniform sampler2D	u_ShadowMap3;
 uniform sampler2D	u_ShadowMap4;
+#elif defined(LIGHT_PROJ)
+uniform sampler2D	u_ShadowMap0;
 #else
 uniform samplerCube	u_ShadowMap;
 #endif
@@ -70,7 +72,7 @@ varying vec4		var_TexNormal;
 #if defined(USE_NORMAL_MAPPING)
 varying vec2		var_TexSpecular;
 #endif
-varying vec3		var_TexAttenXYZ;
+varying vec4		var_TexAttenuation;
 #if defined(USE_NORMAL_MAPPING)
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
@@ -79,7 +81,6 @@ varying vec4		var_Normal;
 //varying vec4		var_Color;
 
 
-#if !defined(LIGHT_DIRECTIONAL)
 
 /*
 ================
@@ -103,6 +104,8 @@ void MakeNormalVectors(const vec3 forward, inout vec3 right, inout vec3 up)
 	up = cross(right, forward);	// GLSL cross product is the same as in Q3A
 }
 
+
+#if !defined(LIGHT_DIRECTIONAL) && !defined(LIGHT_PROJ)
 
 vec4 PCF(vec3 I, float filterWidth, float samples)
 {
@@ -130,7 +133,52 @@ vec4 PCF(vec3 I, float filterWidth, float samples)
 #endif
 
 
+#if defined(PCSS)
+float SumBlocker(vec4 shadowVert, float vertexDistance, float filterWidth, float samples)
+{
+	float stepSize = 2.0 * filterWidth / samples;
+	
+	float blockerCount = 0.0;
+    float blockerSum = 0.0;
+    
+	for(float i = -filterWidth; i < filterWidth; i += stepSize)
+	{
+		for(float j = -filterWidth; j < filterWidth; j += stepSize)
+		{
+			float shadowDistance = texture2DProj(u_ShadowMap, vec3(shadowVert.xy + vec2(i, j), shadowVert.w)).x;
+			// float shadowDistance = texture2D(u_ShadowMap, shadowVert.xy / shadowVert.w + vec2(i, j)).x;
+			
+			// FIXME VSM_CLAMP
+			
+			if(vertexDistance > shadowDistance)
+			{
+				blockerCount += 1.0;
+				blockerSum += shadowDistance;
+			}
+		}
+	}
+	
+	float result;
+	if(blockerCount > 0.0)
+		result = blockerSum / blockerCount;
+	else
+		result = 0.0;
+	
+	return result;
+}
 
+float EstimatePenumbra(float vertexDistance, float blocker)
+{
+	float penumbra;
+	
+	if(blocker == 0.0)
+		penumbra = 0.0;
+	else
+		penumbra = ((vertexDistance - blocker) * u_LightRadius) / blocker;
+	
+	return penumbra;
+}
+#endif
 
 
 
@@ -319,6 +367,75 @@ void	main()
 	}
 #endif
 
+#elif defined(LIGHT_PROJ)
+
+	vec4 shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+	
+	// compute incident ray
+	vec3 I = var_Position.xyz - u_LightOrigin;
+	
+	const float	SHADOW_BIAS = 0.001;
+	float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
+	
+	#if defined(PCF_2X2)
+	vec4 shadowMoments = PCF(shadowVert, u_ShadowTexelSize * u_ShadowBlur, 2.0);
+	#elif defined(PCF_3X3)
+	vec4 shadowMoments = PCF(shadowVert, u_ShadowTexelSize * u_ShadowBlur, 3.0);
+	#elif defined(PCF_4X4)
+	vec4 shadowMoments = PCF(shadowVert, u_ShadowTexelSize * u_ShadowBlur, 4.0);
+	#elif defined(PCF_5X5)
+	vec4 shadowMoments = PCF(shadowVert, u_ShadowTexelSize * u_ShadowBlur, 5.0);
+	#elif defined(PCF_6X6)
+	vec4 shadowMoments = PCF(shadowVert, u_ShadowTexelSize * u_ShadowBlur, 6.0);
+	
+	/*
+	#elif defined(PCSS)
+	
+	// step 1: find blocker estimate
+	
+	float blockerSearchWidth = u_ShadowTexelSize * u_LightRadius / vertexDistance;
+	float blockerSamples = 6.0; // how many samples to use for blocker search
+	float blocker = SumBlocker(shadowVert, vertexDistance, blockerSearchWidth, blockerSamples);
+	
+	#if 0
+	// uncomment to visualize blockers
+	gl_FragColor = vec4(blocker * 0.3, 0.0, 0.0, 1.0);
+	return;
+	#endif
+	
+	// step 2: estimate penumbra using parallel planes approximation
+	float penumbra = EstimatePenumbra(vertexDistance, blocker);
+	
+	#if 0
+	// uncomment to visualize penumbrae
+	gl_FragColor = vec4(0.0, 0.0, penumbra, 1.0);
+	return;
+	#endif
+	
+	// step 3: compute percentage-closer filter
+	vec4 shadowMoments;
+	if(penumbra > 0.0)
+	{
+		const float PCFsamples = 4.0;
+		
+		
+		//float maxpen = PCFsamples * (1.0 / u_ShadowTexelSize);
+		//if(penumbra > maxpen)
+		//	penumbra = maxpen;
+		//
+	
+		shadowMoments = PCF(shadowVert, penumbra, PCFsamples);
+	}
+	else
+	{
+		shadowMoments = texture2DProj(u_ShadowMap, shadowVert.xyw);
+	}
+	*/
+	#else
+	
+	// no filter
+	vec4 shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
+	#endif
 
 #else
 	// compute incident ray
@@ -533,10 +650,19 @@ void	main()
 #endif
 
 
-#if !defined(LIGHT_DIRECTIONAL)
-	// compute attenuation
-	vec3 attenuationXY		= texture2D(u_AttenuationMapXY, var_TexAttenXYZ.xy).rgb;
-	vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(var_TexAttenXYZ.z, 0)).rgb;
+
+	// compute light attenuation
+#if defined(LIGHT_PROJ)
+	vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, var_TexAttenuation.xyw).rgb;
+	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAttenuation.z + 0.5, 0.0)).rgb; // FIXME
+	
+#elif defined(LIGHT_DIRECTIONAL)
+	vec3 attenuationXY = vec3(1.0);
+	vec3 attenuationZ  = vec3(1.0);
+	
+#else
+	vec3 attenuationXY = texture2D(u_AttenuationMapXY, var_TexAttenuation.xy).rgb;
+	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAttenuation.z, 0)).rgb;
 #endif
 				
 	// compute final color

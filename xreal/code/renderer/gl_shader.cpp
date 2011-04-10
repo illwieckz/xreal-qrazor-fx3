@@ -34,6 +34,7 @@ GLShader_lightMapping* gl_lightMappingShader = NULL;
 GLShader_vertexLighting_DBS_entity* gl_vertexLightingShader_DBS_entity = NULL;
 GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world = NULL;
 GLShader_forwardLighting_omniXYZ* gl_forwardLightingShader_omniXYZ = NULL;
+GLShader_forwardLighting_projXYZ* gl_forwardLightingShader_projXYZ = NULL;
 GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun = NULL;
 GLShader_shadowFill* gl_shadowFillShader = NULL;
 GLShader_reflection* gl_reflectionShader = NULL;
@@ -170,7 +171,6 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 	char            filename[MAX_QPATH];
 	GLcharARB      *mainBuffer = NULL;
 	int             mainSize;
-	GLint           compiled;
 	char           *token;
 
 	int				libsSize;
@@ -756,10 +756,16 @@ void GLShader::CompileAndLinkGPUShaderProgram(	shaderProgram_t * program,
 
 	Q_strncpyz(program->name, programName, sizeof(program->name));
 
+#if 0
 	if(!compileMacros.empty())
 	{
 		program->compileMacros = (char *) ri.Hunk_Alloc(sizeof(char) * compileMacros.length() + 1, h_low);
-		Q_strncpyz(program->compileMacros, compileMacros.c_str(), compileMacros.length());
+		Q_strncpyz(program->compileMacros, compileMacros.c_str(), compileMacros.length() + 1);
+	}
+	else
+#endif
+	{
+		program->compileMacros = NULL;
 	}
 
 	program->program = glCreateProgramObjectARB();
@@ -1156,12 +1162,32 @@ GLShader_generic::GLShader_generic():
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
 	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling generic shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
 	for(size_t i = 0; i < numPermutations; i++)
 	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
-			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -1180,12 +1206,13 @@ GLShader_generic::GLShader_generic():
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
-			ShowProgramUniforms(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
 			GL_CheckErrors();
 
 			numCompiled++;
 		}
 	}
+	ri.Printf(PRINT_ALL, "\n");
 
 	SelectProgram();
 
@@ -1239,12 +1266,32 @@ GLShader_lightMapping::GLShader_lightMapping():
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
 	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling lightMapping shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
 	for(size_t i = 0; i < numPermutations; i++)
 	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
-			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -1271,12 +1318,13 @@ GLShader_lightMapping::GLShader_lightMapping():
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
-			ShowProgramUniforms(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
 			GL_CheckErrors();
 
 			numCompiled++;
 		}
 	}
+	ri.Printf(PRINT_ALL, "\n");
 
 	SelectProgram();
 
@@ -1331,12 +1379,32 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
 	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling vertexLighting_DBS_entity shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
 	for(size_t i = 0; i < numPermutations; i++)
 	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
-			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -1363,7 +1431,7 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
-			ShowProgramUniforms(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
 			GL_CheckErrors();
 
 			numCompiled++;
@@ -1419,12 +1487,32 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
 	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling vertexLighting_DBS_world shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
 	for(size_t i = 0; i < numPermutations; i++)
 	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
-			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -1447,7 +1535,7 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
-			ShowProgramUniforms(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
 			GL_CheckErrors();
 
 			numCompiled++;
@@ -1513,12 +1601,32 @@ GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
 	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling forwardLighting_omniXYZ shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
 	for(size_t i = 0; i < numPermutations; i++)
 	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
-			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 		
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -1553,7 +1661,7 @@ GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
-			ShowProgramUniforms(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
 			GL_CheckErrors();
 
 			numCompiled++;
@@ -1568,6 +1676,132 @@ GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
 
 
 
+GLShader_forwardLighting_projXYZ::GLShader_forwardLighting_projXYZ():
+		GLShader(	"forwardLighting_projXYZ",
+					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
+					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2 | ATTR_COLOR,
+					0),
+		u_DiffuseTextureMatrix(this),
+		u_NormalTextureMatrix(this),
+		u_SpecularTextureMatrix(this),
+		u_AlphaTest(this),
+		u_ColorModulate(this),
+		u_Color(this),
+		u_ViewOrigin(this),
+		u_LightOrigin(this),
+		u_LightColor(this),
+		u_LightRadius(this),
+		u_LightScale(this),
+		u_LightWrapAround(this),
+		u_LightAttenuationMatrix(this),
+		u_ShadowTexelSize(this),
+		u_ShadowBlur(this),
+		u_ShadowMatrix(this),
+		u_ModelMatrix(this),
+		u_ModelViewProjectionMatrix(this),
+		u_BoneMatrix(this),
+		u_VertexInterpolation(this),
+		u_PortalPlane(this),
+		u_DepthScale(this),
+		GLDeformStage(this),
+		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		GLCompileMacro_USE_ALPHA_TESTING(this),
+		GLCompileMacro_USE_VERTEX_SKINNING(this),
+		GLCompileMacro_USE_VERTEX_ANIMATION(this),
+		GLCompileMacro_USE_DEFORM_VERTEXES(this),
+		GLCompileMacro_USE_NORMAL_MAPPING(this),
+		GLCompileMacro_USE_PARALLAX_MAPPING(this),
+		GLCompileMacro_USE_SHADOWING(this),
+		GLCompileMacro_TWOSIDED(this)
+{
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating forwardLighting_projXYZ shaders --------\n");
+
+	int startTime = ri.Milliseconds();
+
+	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
+	
+	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
+
+	std::string vertexShaderText = BuildGPUShaderText("forwardLighting", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string fragmentShaderText = BuildGPUShaderText("forwardLighting", "reliefMapping", GL_FRAGMENT_SHADER_ARB);
+
+	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
+	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling forwardLighting_projXYZ shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
+	for(size_t i = 0; i < numPermutations; i++)
+	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
+		std::string compileMacros;
+		if(GetCompileMacrosString(i, compileMacros))
+		{
+			compileMacros += "LIGHT_PROJ ";
+
+			//ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros.c_str());
+		
+			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
+
+			CompileAndLinkGPUShaderProgram(	shaderProgram,
+											"forwardLighting_projXYZ",
+											vertexShaderText,
+											fragmentShaderText,
+											compileMacros);
+
+			UpdateShaderProgramUniformLocations(shaderProgram);
+
+			shaderProgram->u_DiffuseMap	= glGetUniformLocationARB(shaderProgram->program, "u_DiffuseMap");
+			shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, "u_NormalMap");
+			shaderProgram->u_SpecularMap = glGetUniformLocationARB(shaderProgram->program, "u_SpecularMap");
+			shaderProgram->u_AttenuationMapXY = glGetUniformLocationARB(shaderProgram->program, "u_AttenuationMapXY");
+			shaderProgram->u_AttenuationMapZ = glGetUniformLocationARB(shaderProgram->program, "u_AttenuationMapZ");
+			//if(r_shadows->integer >= SHADOWING_VSM16)
+			{
+				shaderProgram->u_ShadowMap0 = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap0");
+			}
+
+			glUseProgramObjectARB(shaderProgram->program);
+			glUniform1iARB(shaderProgram->u_DiffuseMap, 0);
+			glUniform1iARB(shaderProgram->u_NormalMap, 1);
+			glUniform1iARB(shaderProgram->u_SpecularMap, 2);
+			glUniform1iARB(shaderProgram->u_AttenuationMapXY, 3);
+			glUniform1iARB(shaderProgram->u_AttenuationMapZ, 4);
+			//if(r_shadows->integer >= SHADOWING_VSM16)
+			{
+				glUniform1iARB(shaderProgram->u_ShadowMap0, 5);
+			}
+			glUseProgramObjectARB(0);
+
+			ValidateProgram(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
+			GL_CheckErrors();
+
+			numCompiled++;
+		}
+	}
+
+	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...compiled %i forwardLighting_projXYZ shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+}
 
 
 
@@ -1626,14 +1860,34 @@ GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
 	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling forwardLighting_directionalSun shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
 	for(size_t i = 0; i < numPermutations; i++)
 	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
 			compileMacros += "LIGHT_DIRECTIONAL ";
 
-			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 		
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -1674,7 +1928,7 @@ GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
-			ShowProgramUniforms(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
 			GL_CheckErrors();
 
 			numCompiled++;
@@ -1728,12 +1982,32 @@ GLShader_shadowFill::GLShader_shadowFill():
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
 	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling shadowFill shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
 	for(size_t i = 0; i < numPermutations; i++)
 	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
-			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -1752,7 +2026,7 @@ GLShader_shadowFill::GLShader_shadowFill():
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
-			ShowProgramUniforms(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
 			GL_CheckErrors();
 
 			numCompiled++;
@@ -1803,12 +2077,32 @@ GLShader_reflection::GLShader_reflection():
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
 	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling reflection shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
 	for(size_t i = 0; i < numPermutations; i++)
 	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
-			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -1826,12 +2120,13 @@ GLShader_reflection::GLShader_reflection():
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
-			ShowProgramUniforms(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
 			GL_CheckErrors();
 
 			numCompiled++;
 		}
 	}
+	ri.Printf(PRINT_ALL, "\n");
 
 	SelectProgram();
 
@@ -1879,12 +2174,32 @@ GLShader_fogQuake3::GLShader_fogQuake3():
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
 	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling fogQuake3 shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
 	for(size_t i = 0; i < numPermutations; i++)
 	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
-			ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros.c_str());
+			//ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -1903,7 +2218,7 @@ GLShader_fogQuake3::GLShader_fogQuake3():
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
-			ShowProgramUniforms(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
 			GL_CheckErrors();
 
 			numCompiled++;
@@ -1958,7 +2273,7 @@ GLShader_screen::GLShader_screen():
 			UpdateShaderProgramUniformLocations(shaderProgram);
 
 			ValidateProgram(shaderProgram->program);
-			ShowProgramUniforms(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
 			GL_CheckErrors();
 
 			numCompiled++;
@@ -2012,7 +2327,7 @@ GLShader_portal::GLShader_portal():
 			UpdateShaderProgramUniformLocations(shaderProgram);
 
 			ValidateProgram(shaderProgram->program);
-			ShowProgramUniforms(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
 			GL_CheckErrors();
 
 			numCompiled++;

@@ -8890,8 +8890,9 @@ void R_BuildCubeMaps(void)
 	//qboolean        bad;
 
 //  srfSurfaceStatic_t *sv;
-	int             progress = 0;
 	int             startTime, endTime;
+	size_t			tics = 0;
+	size_t			nextTicCount = 0;
 
 	startTime = ri.Milliseconds();
 
@@ -9035,7 +9036,8 @@ void R_BuildCubeMaps(void)
 
 	ri.Printf(PRINT_ALL, "...pre-rendering %d cubemaps\n", tr.cubeProbes.currentElements);
 	ri.Cvar_Set("viewlog", "1");
-
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
 	for(j = 0; j < tr.cubeProbes.currentElements; j++)
 	{
 		cubeProbe = Com_GrowListElement(&tr.cubeProbes, j);
@@ -9043,17 +9045,20 @@ void R_BuildCubeMaps(void)
 		//ri.Printf(PRINT_ALL, "rendering cubemap at (%i %i %i)\n", (int)cubeProbe->origin[0], (int)cubeProbe->origin[1],
 		//		  (int)cubeProbe->origin[2]);
 
-		if(tr.cubeProbes.currentElements > 10 &&  ((j % (tr.cubeProbes.currentElements / 10)) == 0))
+		if((j + 1) >= nextTicCount)
 		{
-			ri.Printf(PRINT_ALL, "%i", progress);
-			progress += 10;
+			size_t ticsNeeded = (size_t)(((double)(j + 1) / tr.cubeProbes.currentElements) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * tr.cubeProbes.currentElements);
+			if((j + 1) == tr.cubeProbes.currentElements)
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
 		}
-		else if(tr.cubeProbes.currentElements > 100 &&  ((j % (tr.cubeProbes.currentElements / 100)) == 0))
-		{
-			ri.Printf(PRINT_ALL, ".");
-			//ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
-		}
-		
 
 		VectorCopy(cubeProbe->origin, rf.vieworg);
 
