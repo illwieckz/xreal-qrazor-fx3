@@ -534,6 +534,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] =
 	
 
 	xrealradiant_env.Append(CCFLAGS='-DPOSIX')
+	xrealradiant_env.Append(LIBS=['dl', 'boost_system'])
 	xrealradiant_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	xrealradiant_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
 	xrealradiant_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
