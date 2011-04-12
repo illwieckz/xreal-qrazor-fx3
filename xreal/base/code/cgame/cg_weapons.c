@@ -983,7 +983,7 @@ void CG_RegisterWeapon(int weaponNum)
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/plasma/hyprbf1a.wav");
 			cgs.media.railRingsShader = trap_R_RegisterShader("railDisc");
-			cgs.media.railRings2Shader = trap_R_RegisterShader("railRing");
+			cgs.media.railRings2Shader = trap_R_RegisterShader("particles/flare2");
 			break;
 
 		case WP_RAILGUN:
@@ -993,7 +993,7 @@ void CG_RegisterWeapon(int weaponNum)
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.ogg");
 
 			cgs.media.railRingsShader = trap_R_RegisterShader("railDisc");
-			cgs.media.railRings2Shader = trap_R_RegisterShader("railRing");
+			cgs.media.railRings2Shader = trap_R_RegisterShader("particles/flare2");
 			cgs.media.railCoreShader = trap_R_RegisterShader("railCore");
 
 			weaponInfo->projectileModel = trap_R_RegisterModel("models/projectiles/railsphere/shocksphere.md5mesh", qfalse);
