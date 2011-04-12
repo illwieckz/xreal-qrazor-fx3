@@ -214,6 +214,7 @@ protected:
 		USE_SHADOWING,
 		TWOSIDED,
 		EYE_OUTSIDE,
+		BRIGHTPASS_FILTER,
 		LIGHT_DIRECTIONAL
 	};
 
@@ -573,6 +574,30 @@ public:
 	}
 };
 
+class GLCompileMacro_BRIGHTPASS_FILTER:
+GLCompileMacro
+{
+public:
+	GLCompileMacro_BRIGHTPASS_FILTER(GLShader* shader):
+	  GLCompileMacro(shader)
+	{
+	}
+
+	const char* GetName() const { return "BRIGHTPASS_FILTER"; }
+	EGLCompileMacro GetType() const { return BRIGHTPASS_FILTER; }
+
+	void EnableMacro_BRIGHTPASS_FILTER()		{ EnableMacro(); }
+	void DisableMacro_BRIGHTPASS_FILTER()	{ DisableMacro(); }
+
+	void SetMacro_BRIGHTPASS_FILTER(bool enable)
+	{
+		if(enable)
+			EnableMacro();
+		else
+			DisableMacro();
+	}
+};
+
 class GLCompileMacro_LIGHT_DIRECTIONAL:
 GLCompileMacro
 {
@@ -660,7 +685,23 @@ public:
 	}
 };
 
+class u_CurrentMap:
+GLUniform
+{
+public:
+	u_CurrentMap(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
 
+	const char* GetName() const { return "u_CurrentMap"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_CurrentMap); }
+
+	void SetUniform_CurrentMap(int texUnit)
+	{
+		glUniform1iARB(_shader->GetProgram()->u_CurrentMap, texUnit);
+	}
+};
 
 
 class u_ColorTextureMatrix:
@@ -1625,6 +1666,108 @@ public:
 
 
 
+class u_HDRKey:
+GLUniform
+{
+public:
+	u_HDRKey(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_HDRKey"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_HDRKey); }
+
+	void SetUniform_HDRKey(float value)
+	{
+		shaderProgram_t* program = _shader->GetProgram();
+
+#if defined(USE_UNIFORM_FIREWALL)
+		if(program->t_HDRKey == value)
+			return;
+
+		program->t_HDRKey = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment(va("--- SetUniform_HDRKey( program = %s, value = %f ) ---\n", program->name, value));
+		}
+#endif
+
+		glUniform1fARB(program->u_HDRKey, value);
+	}
+};
+
+class u_HDRAverageLuminance:
+GLUniform
+{
+public:
+	u_HDRAverageLuminance(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_HDRAverageLuminance"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_HDRAverageLuminance); }
+
+	void SetUniform_HDRAverageLuminance(float value)
+	{
+		shaderProgram_t* program = _shader->GetProgram();
+
+#if defined(USE_UNIFORM_FIREWALL)
+		if(program->t_HDRAverageLuminance == value)
+			return;
+
+		program->t_HDRAverageLuminance = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment(va("--- SetUniform_HDRAverageLuminance( program = %s, value = %f ) ---\n", program->name, value));
+		}
+#endif
+
+		glUniform1fARB(program->u_HDRAverageLuminance, value);
+	}
+};
+
+class u_HDRMaxLuminance:
+GLUniform
+{
+public:
+	u_HDRMaxLuminance(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_HDRMaxLuminance"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_HDRMaxLuminance); }
+
+	void SetUniform_HDRMaxLuminance(float value)
+	{
+		shaderProgram_t* program = _shader->GetProgram();
+
+#if defined(USE_UNIFORM_FIREWALL)
+		if(program->t_HDRMaxLuminance == value)
+			return;
+
+		program->t_HDRMaxLuminance = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment(va("--- SetUniform_HDRMaxLuminance( program = %s, value = %f ) ---\n", program->name, value));
+		}
+#endif
+
+		glUniform1fARB(program->u_HDRMaxLuminance, value);
+	}
+};
+
 class GLShader_generic:
 public GLShader,
 public u_ColorTextureMatrix,
@@ -2008,6 +2151,36 @@ public:
 	GLShader_portal();
 };
 
+class GLShader_toneMapping:
+public GLShader,
+public u_ModelViewProjectionMatrix,
+public u_HDRKey,
+public u_HDRAverageLuminance,
+public u_HDRMaxLuminance,
+public GLCompileMacro_BRIGHTPASS_FILTER
+{
+public:
+	GLShader_toneMapping();
+};
+
+class GLShader_blurX:
+public GLShader,
+public u_ModelViewProjectionMatrix,
+public u_DeformMagnitude
+{
+public:
+	GLShader_blurX();
+};
+
+class GLShader_blurY:
+public GLShader,
+public u_ModelViewProjectionMatrix,
+public u_DeformMagnitude
+{
+public:
+	GLShader_blurY();
+};
+
 
 extern GLShader_generic* gl_genericShader;
 extern GLShader_lightMapping* gl_lightMappingShader;
@@ -2024,5 +2197,8 @@ extern GLShader_fogGlobal* gl_fogGlobalShader;
 extern GLShader_heatHaze* gl_heatHazeShader;
 extern GLShader_screen* gl_screenShader;
 extern GLShader_portal* gl_portalShader;
+extern GLShader_toneMapping* gl_toneMappingShader;
+extern GLShader_blurX* gl_blurXShader;
+extern GLShader_blurY* gl_blurYShader;
 
 #endif	// GL_SHADER_H

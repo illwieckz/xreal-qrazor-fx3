@@ -8031,14 +8031,15 @@ void RB_RenderGlobalFog()
 
 void RB_RenderBloom()
 {
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	int				i, j;
 	matrix_t        ortho;
-	matrix_t		modelView;
 
 	GLimp_LogComment("--- RB_RenderBloom ---\n");
 
 	if((backEnd.refdef.rdflags & (RDF_NOWORLDMODEL | RDF_NOBLOOM)) || !r_bloom->integer || backEnd.viewParms.isPortal || !glConfig.framebufferObjectAvailable)
+		return;
+
+	if(!HDR_ENABLED())
 		return;
 
 	// set 2D virtual screen size
@@ -8048,8 +8049,7 @@ void RB_RenderBloom()
 									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
 									-99999, 99999);
 	GL_LoadProjectionMatrix(ortho);
-	MatrixIdentity(modelView);
-	GL_LoadModelViewMatrix(modelView);
+	GL_LoadModelViewMatrix(matrixIdentity);
 
 	// FIXME
 	//if(glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
@@ -8057,19 +8057,16 @@ void RB_RenderBloom()
 		GL_State(GLS_DEPTHTEST_DISABLE);
 		GL_Cull(CT_TWO_SIDED);
 
-		// render contrast downscaled to 1/4th of the screen
-		GL_BindProgram(&tr.contrastShader);
-
 		GL_PushMatrix();
-		GL_LoadModelViewMatrix(modelView);
+		GL_LoadModelViewMatrix(matrixIdentity);
 
 #if 1
 		MatrixOrthogonalProjection(ortho, 0, tr.contrastRenderFBO->width, 0, tr.contrastRenderFBO->height, -99999, 99999);
 		GL_LoadProjectionMatrix(ortho);
 #endif
-		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.contrastShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-		GL_PopMatrix();
+		
 
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 		if(DS_STANDARD_ENABLED() || DS_PREPASS_LIGHTING_ENABLED())
 		{
 			if(HDR_ENABLED())
@@ -8094,35 +8091,39 @@ void RB_RenderBloom()
 			GL_SelectTexture(0);
 			GL_Bind(tr.downScaleFBOImage_quarter);
 		}
-		else if(HDR_ENABLED())
+		else 
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)	
+		if(HDR_ENABLED())
 		{
-			if(r_hdrKey->value <= 0)
-			{
-				float			key;
+			gl_toneMappingShader->EnableMacro_BRIGHTPASS_FILTER();
+			gl_toneMappingShader->BindProgram();
 
-				// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
-				key = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
-				glUniform1fARB(tr.contrastShader.u_HDRKey, key);
-			}
-			else
-			{
-				glUniform1fARB(tr.contrastShader.u_HDRKey, r_hdrKey->value);
-			}
+			gl_toneMappingShader->SetUniform_HDRKey(backEnd.hdrKey);
+			gl_toneMappingShader->SetUniform_HDRAverageLuminance(backEnd.hdrAverageLuminance);
+			gl_toneMappingShader->SetUniform_HDRMaxLuminance(backEnd.hdrMaxLuminance);
 
-			glUniform1fARB(tr.contrastShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
-			glUniform1fARB(tr.contrastShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
+			gl_toneMappingShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 			GL_SelectTexture(0);
 			GL_Bind(tr.downScaleFBOImage_quarter);
 		}
+#if 0
 		else
 		{
+			// render contrast downscaled to 1/4th of the screen
+			GL_BindProgram(&tr.contrastShader);
+
+			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.contrastShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
 			GL_SelectTexture(0);
 			//GL_Bind(tr.downScaleFBOImage_quarter);
 			GL_Bind(tr.currentRenderImage);
 			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
 												 tr.currentRenderImage->uploadHeight);
 		}
+#endif
+
+		GL_PopMatrix(); // special 1/4th of the screen contrastRenderFBO ortho
 
 		R_BindFBO(tr.contrastRenderFBO);
 		GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -8133,12 +8134,6 @@ void RB_RenderBloom()
 
 
 		// render bloom in multiple passes
-#if 0
-		GL_BindProgram(&tr.bloomShader);
-
-		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.bloomShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-		glUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
-#endif
 		for(i = 0; i < 2; i++)
 		{
 			for(j = 0; j < r_bloomPasses->integer; j++)
@@ -8157,24 +8152,24 @@ void RB_RenderBloom()
 					GL_Bind(tr.bloomRenderFBOImage[j % 2]);
 
 				GL_PushMatrix();
-				GL_LoadModelViewMatrix(modelView);
+				GL_LoadModelViewMatrix(matrixIdentity);
 
 				MatrixOrthogonalProjection(ortho, 0, tr.bloomRenderFBO[0]->width, 0, tr.bloomRenderFBO[0]->height, -99999, 99999);
 				GL_LoadProjectionMatrix(ortho);
 
 				if(i == 0)
 				{
-					GL_BindProgram(&tr.blurXShader);
+					gl_blurXShader->BindProgram();
 
-					glUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
-					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.blurXShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+					gl_blurXShader->SetUniform_DeformMagnitude(r_bloomBlur->value);
+					gl_blurXShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 				}
 				else
 				{
-					GL_BindProgram(&tr.blurYShader);
+					gl_blurYShader->BindProgram();
 
-					glUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
-					GLSL_SetUniform_ModelViewProjectionMatrix(&tr.blurYShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+					gl_blurYShader->SetUniform_DeformMagnitude(r_bloomBlur->value);
+					gl_blurYShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 				}
 
 				GL_PopMatrix();
@@ -8183,6 +8178,7 @@ void RB_RenderBloom()
 			}
 
 			// add offscreen processed bloom to screen
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 			if(DS_STANDARD_ENABLED())
 			{
 				R_BindFBO(tr.deferredRenderFBO);
@@ -8212,7 +8208,9 @@ void RB_RenderBloom()
 				GL_SelectTexture(0);
 				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
 			}
-			else if(HDR_ENABLED())
+			else 
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)	
+			if(HDR_ENABLED())
 			{
 				R_BindFBO(tr.deferredRenderFBO);
 
@@ -8249,7 +8247,6 @@ void RB_RenderBloom()
 	GL_PopMatrix();
 
 	GL_CheckErrors();
-#endif
 }
 
 void RB_RenderRotoscope(void)
@@ -8457,7 +8454,21 @@ static void RB_CalculateAdaptation()
 
 	backEnd.hdrTime = curTime;
 
-	//ri.Printf(PRINT_ALL, "RB_CalculateAdaptation: avg = %f  max = %f\n", backEnd.hdrAverageLuminance, backEnd.hdrMaxLuminance);
+	// calculate HDR image key
+	if(r_hdrKey->value <= 0)
+	{
+		// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
+		backEnd.hdrKey = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
+	}
+	else
+	{
+		backEnd.hdrKey = r_hdrKey->value;
+	}
+
+	if(r_hdrDebug->integer)
+	{
+		ri.Printf(PRINT_ALL, "HDR luminance avg = %f, max = %f, key = %f\n", backEnd.hdrAverageLuminance, backEnd.hdrMaxLuminance, backEnd.hdrKey);
+	}
 
 	GL_CheckErrors();
 }
@@ -8568,6 +8579,9 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	GL_PopMatrix();
 }
 
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
+
 void RB_RenderDeferredHDRResultToFrameBuffer()
 {
 	matrix_t        ortho;
@@ -8581,14 +8595,12 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 
 	R_BindNullFBO();
 
-	// bind u_ColorMap
+	// bind u_CurrentMap
 	GL_SelectTexture(0);
 	GL_Bind(tr.deferredRenderFBOImage);
 
 	GL_State(GLS_DEPTHTEST_DISABLE);
 	GL_Cull(CT_TWO_SIDED);
-
-	GL_CheckErrors();
 
 	// set uniforms
 
@@ -8612,25 +8624,14 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 	}
 	else
 	{
-		GL_BindProgram(&tr.toneMappingShader);
+		gl_toneMappingShader->DisableMacro_BRIGHTPASS_FILTER();
+		gl_toneMappingShader->BindProgram();
 
-		if(r_hdrKey->value <= 0)
-		{
-			float			key;
+		gl_toneMappingShader->SetUniform_HDRKey(backEnd.hdrKey);
+		gl_toneMappingShader->SetUniform_HDRAverageLuminance(backEnd.hdrAverageLuminance);
+		gl_toneMappingShader->SetUniform_HDRMaxLuminance(backEnd.hdrMaxLuminance);
 
-			// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
-			key = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
-			glUniform1fARB(tr.toneMappingShader.u_HDRKey, key);
-		}
-		else
-		{
-			glUniform1fARB(tr.toneMappingShader.u_HDRKey, r_hdrKey->value);
-		}
-
-		glUniform1fARB(tr.toneMappingShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
-		glUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
-
-		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.toneMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+		gl_toneMappingShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
 
 	GL_CheckErrors();
@@ -8640,7 +8641,6 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 	GL_PopMatrix();
 }
 
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 
 
@@ -12162,11 +12162,8 @@ static void RB_RenderView(void)
 		// render bloom post process effect
 		RB_RenderBloom();
 
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
 		// copy offscreen rendered HDR scene to the current OpenGL context
 		RB_RenderDeferredHDRResultToFrameBuffer();
-#endif
 
 		// render rotoscope post process effect
 		RB_RenderRotoscope();
@@ -12189,6 +12186,7 @@ static void RB_RenderView(void)
 
 		if(backEnd.viewParms.isPortal)
 		{
+#if 0
 			if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to portalRenderFBO
@@ -12199,9 +12197,10 @@ static void RB_RenderView(void)
 				                       GL_COLOR_BUFFER_BIT,
 				                       GL_NEAREST);
 			}
-#if 0
+#endif
+#if 1
 			// FIXME: this trashes the OpenGL context for an unknown reason
-			else if(glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
+			if(glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
 			{
 				// copy main context to portalRenderFBO
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);

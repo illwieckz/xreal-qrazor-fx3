@@ -121,8 +121,6 @@ typedef enum
 #define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING))
 #endif
 
-#define HDR_ENABLED() ((r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.driverType != GLDRV_MESA))
-
 #else // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 #define DS_STANDARD_ENABLED() (1 == 0)
@@ -133,9 +131,9 @@ typedef enum
 #define DS_PREPASS_LIGHTING_ENABLED() (1 == 0)
 #endif
 
-#define HDR_ENABLED() (1 == 0)
-
 #endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
+#define HDR_ENABLED() ((r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.driverType != GLDRV_MESA))
 
 
 
@@ -1512,13 +1510,16 @@ typedef struct shaderProgram_s
 	float			t_EnvironmentInterpolation;
 
 	GLint			u_HDRKey;
+	float			t_HDRKey;
+
 	GLint			u_HDRAverageLuminance;
+	float			t_HDRAverageLuminance;
+
 	GLint			u_HDRMaxLuminance;
+	float			t_HDRMaxLuminance;
 
 	GLint           u_DeformMagnitude;
 	float			t_DeformMagnitude;
-
-	GLint           u_BlurMagnitude;
 
 
 	GLint           u_ModelMatrix;	// model -> world
@@ -3752,6 +3753,7 @@ typedef struct
 	float			hdrAverageLuminance;
 	float			hdrMaxLuminance;
 	float			hdrTime;
+	float			hdrKey;
 
 	qboolean        projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
 	vec4_t          color2D;
@@ -3928,10 +3930,7 @@ typedef struct
 	shaderProgram_t deferredShadowingShader_proj;
 
 	// post process effects
-	shaderProgram_t bloomShader;
 	shaderProgram_t contrastShader;
-	shaderProgram_t blurXShader;
-	shaderProgram_t blurYShader;
 	shaderProgram_t rotoscopeShader;
 	shaderProgram_t cameraEffectsShader;
 	shaderProgram_t liquidShader;
@@ -3942,7 +3941,6 @@ typedef struct
 #ifdef EXPERIMENTAL
 	shaderProgram_t depthOfFieldShader;
 #endif
-	shaderProgram_t toneMappingShader;
 	shaderProgram_t debugShadowMapShader;
 
 #endif // GLSL_COMPILE_STARTUP_ONLY
@@ -4294,6 +4292,7 @@ extern cvar_t  *r_hdrLightmapGamma;
 extern cvar_t  *r_hdrLightmapCompensate;
 extern cvar_t  *r_hdrToneMappingOperator;
 extern cvar_t  *r_hdrGamma;
+extern cvar_t  *r_hdrDebug;
 
 #ifdef EXPERIMENTAL
 extern cvar_t  *r_screenSpaceAmbientOcclusion;

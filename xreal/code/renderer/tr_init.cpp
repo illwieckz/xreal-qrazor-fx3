@@ -282,6 +282,7 @@ cvar_t         *r_hdrLightmapGamma;
 cvar_t         *r_hdrLightmapCompensate;
 cvar_t         *r_hdrToneMappingOperator;
 cvar_t         *r_hdrGamma;
+cvar_t         *r_hdrDebug;
 
 #ifdef EXPERIMENTAL
 cvar_t         *r_screenSpaceAmbientOcclusion;
@@ -1400,7 +1401,7 @@ void R_Register(void)
 	r_compressDiffuseMaps = ri.Cvar_Get("r_compressDiffuseMaps", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_compressSpecularMaps = ri.Cvar_Get("r_compressSpecularMaps", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_compressNormalMaps = ri.Cvar_Get("r_compressNormalMaps", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_heatHazeFix = ri.Cvar_Get("r_heatHazeFix", "1", CVAR_CHEAT);
+	r_heatHazeFix = ri.Cvar_Get("r_heatHazeFix", "0", CVAR_CHEAT);
 	r_noMarksOnTrisurfs = ri.Cvar_Get("r_noMarksOnTrisurfs", "1", CVAR_CHEAT);
 
 	r_forceFog = ri.Cvar_Get("r_forceFog", "0", CVAR_ARCHIVE /* | CVAR_LATCH */ );
@@ -1511,14 +1512,15 @@ void R_Register(void)
 	r_hdrMinLuminance = ri.Cvar_Get("r_hdrMinLuminance", "0.18", CVAR_CHEAT);
 	r_hdrMaxLuminance = ri.Cvar_Get("r_hdrMaxLuminance", "3000", CVAR_CHEAT);
 	r_hdrKey = ri.Cvar_Get("r_hdrKey", "0.72", CVAR_CHEAT);
-	r_hdrContrastThreshold = ri.Cvar_Get("r_hdrContrastThreshold", "0.71", CVAR_CHEAT);
-	r_hdrContrastOffset = ri.Cvar_Get("r_hdrContrastOffset", "1.0", CVAR_CHEAT);
+	r_hdrContrastThreshold = ri.Cvar_Get("r_hdrContrastThreshold", "3.0", CVAR_CHEAT);
+	r_hdrContrastOffset = ri.Cvar_Get("r_hdrContrastOffset", "6.0", CVAR_CHEAT);
 	r_hdrLightmap = ri.Cvar_Get("r_hdrLightmap", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrLightmapExposure = ri.Cvar_Get("r_hdrLightmapExposure", "1.0", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrLightmapGamma = ri.Cvar_Get("r_hdrLightmapGamma", "1.7", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrLightmapCompensate = ri.Cvar_Get("r_hdrLightmapCompensate", "1.0", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrToneMappingOperator = ri.Cvar_Get("r_hdrToneMappingOperator", "1", CVAR_CHEAT);
 	r_hdrGamma = ri.Cvar_Get("r_hdrGamma", "1.1", CVAR_CHEAT);
+	r_hdrDebug = ri.Cvar_Get("r_hdrDebug", "0", CVAR_CHEAT);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 
@@ -2261,7 +2263,12 @@ refexport_t* GetRefAPI(int apiVersion, refimport_t * rimp)
 	re.AddPolyToScene = RE_AddPolyToScene;
 
 	re.LightForPoint = R_LightForPoint;
+
+#if defined(COMPAT_ET)
+	re.AddLightToScene = RE_AddDynamicLightToSceneET;
+#else
 	re.AddLightToScene = RE_AddDynamicLightToSceneQ3A;
+#endif
 
 	re.RenderScene = RE_RenderScene;
 

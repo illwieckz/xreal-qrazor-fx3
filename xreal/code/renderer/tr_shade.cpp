@@ -1416,34 +1416,6 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.contrastShader.program);
 	GL_CheckErrors();
 
-	// blurX post process effect
-	GLSL_InitGPUShader(&tr.blurXShader, "blurX", ATTR_POSITION, qtrue, qfalse);
-
-	tr.blurXShader.u_ColorMap = glGetUniformLocationARB(tr.blurXShader.program, "u_ColorMap");
-	tr.blurXShader.u_ModelViewProjectionMatrix = glGetUniformLocationARB(tr.blurXShader.program, "u_ModelViewProjectionMatrix");
-
-	glUseProgramObjectARB(tr.blurXShader.program);
-	glUniform1iARB(tr.blurXShader.u_ColorMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.blurXShader.program);
-	GLSL_ShowProgramUniforms(tr.blurXShader.program);
-	GL_CheckErrors();
-
-	// blurY post process effect
-	GLSL_InitGPUShader(&tr.blurYShader, "blurY", ATTR_POSITION, qtrue, qfalse);
-
-	tr.blurYShader.u_ColorMap = glGetUniformLocationARB(tr.blurYShader.program, "u_ColorMap");
-	tr.blurYShader.u_ModelViewProjectionMatrix = glGetUniformLocationARB(tr.blurYShader.program, "u_ModelViewProjectionMatrix");
-
-	glUseProgramObjectARB(tr.blurYShader.program);
-	glUniform1iARB(tr.blurYShader.u_ColorMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.blurYShader.program);
-	GLSL_ShowProgramUniforms(tr.blurYShader.program);
-	GL_CheckErrors();
-
 	// rotoscope post process effect
 	GLSL_InitGPUShader(&tr.rotoscopeShader, "rotoscope", ATTR_POSITION | ATTR_TEXCOORD, qtrue, qtrue);
 
@@ -1486,6 +1458,14 @@ void GLSL_InitGPUShaders(void)
 
 	// portal process effect
 	gl_portalShader = new GLShader_portal();
+
+	// HDR -> LDR tone mapping
+	gl_toneMappingShader = new GLShader_toneMapping();
+
+	// gaussian blur
+	gl_blurXShader = new GLShader_blurX();
+
+	gl_blurYShader = new GLShader_blurY();
 
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
@@ -1588,24 +1568,6 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.depthOfFieldShader.program);
 	GL_CheckErrors();
 #endif
-
-	// HDR tone mapping post process effect
-	GLSL_InitGPUShader(&tr.toneMappingShader, "toneMapping", ATTR_POSITION, qtrue, qfalse);
-
-	tr.toneMappingShader.u_CurrentMap = glGetUniformLocationARB(tr.toneMappingShader.program, "u_CurrentMap");
-	tr.toneMappingShader.u_HDRKey = glGetUniformLocationARB(tr.toneMappingShader.program, "u_HDRKey");
-	tr.toneMappingShader.u_HDRAverageLuminance = glGetUniformLocationARB(tr.toneMappingShader.program, "u_HDRAverageLuminance");
-	tr.toneMappingShader.u_HDRMaxLuminance = glGetUniformLocationARB(tr.toneMappingShader.program, "u_HDRMaxLuminance");
-	tr.toneMappingShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.toneMappingShader.program, "u_ModelViewProjectionMatrix");
-
-	glUseProgramObjectARB(tr.toneMappingShader.program);
-	glUniform1iARB(tr.toneMappingShader.u_CurrentMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.toneMappingShader.program);
-	GLSL_ShowProgramUniforms(tr.toneMappingShader.program);
-	GL_CheckErrors();
 
 	// debugUtils
 	GLSL_InitGPUShader(&tr.debugShadowMapShader, "debugShadowMap", ATTR_POSITION | ATTR_TEXCOORD, qtrue, qtrue);
@@ -1783,28 +1745,10 @@ void GLSL_ShutdownGPUShaders(void)
 
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
-	if(tr.bloomShader.program)
-	{
-		glDeleteObjectARB(tr.bloomShader.program);
-		Com_Memset(&tr.bloomShader, 0, sizeof(shaderProgram_t));
-	}
-
 	if(tr.contrastShader.program)
 	{
 		glDeleteObjectARB(tr.contrastShader.program);
 		Com_Memset(&tr.contrastShader, 0, sizeof(shaderProgram_t));
-	}
-
-	if(tr.blurXShader.program)
-	{
-		glDeleteObjectARB(tr.blurXShader.program);
-		Com_Memset(&tr.blurXShader, 0, sizeof(shaderProgram_t));
-	}
-
-	if(tr.blurYShader.program)
-	{
-		glDeleteObjectARB(tr.blurYShader.program);
-		Com_Memset(&tr.blurYShader, 0, sizeof(shaderProgram_t));
 	}
 
 	if(tr.rotoscopeShader.program)
@@ -1832,6 +1776,24 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		delete gl_portalShader;
 		gl_portalShader = NULL;
+	}
+
+	if(gl_toneMappingShader)
+	{
+		delete gl_toneMappingShader;
+		gl_toneMappingShader = NULL;
+	}
+
+	if(gl_blurXShader)
+	{
+		delete gl_blurXShader;
+		gl_blurXShader = NULL;
+	}
+
+	if(gl_blurYShader)
+	{
+		delete gl_blurYShader;
+		gl_blurYShader = NULL;
 	}
 
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
@@ -1867,11 +1829,6 @@ void GLSL_ShutdownGPUShaders(void)
 		Com_Memset(&tr.depthOfFieldShader, 0, sizeof(shaderProgram_t));
 	}
 #endif
-	if(tr.toneMappingShader.program)
-	{
-		glDeleteObjectARB(tr.toneMappingShader.program);
-		Com_Memset(&tr.toneMappingShader, 0, sizeof(shaderProgram_t));
-	}
 
 	if(tr.debugShadowMapShader.program)
 	{
@@ -4296,13 +4253,26 @@ static void Render_heatHaze(int stage)
 		}
 		else if(HDR_ENABLED())
 		{
+			GL_CheckErrors();
+
 			// copy deferredRenderFBO to occlusionRenderFBO
+#if 0
 			glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 			glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
 			glBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
 								   0, 0, tr.occlusionRenderFBO->width, tr.occlusionRenderFBO->height,
 								   GL_DEPTH_BUFFER_BIT,
 								   GL_NEAREST);
+#else
+			glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
+			glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   GL_DEPTH_BUFFER_BIT,
+								   GL_NEAREST);
+#endif
+
+			GL_CheckErrors();
 		}
 		else
 		{
