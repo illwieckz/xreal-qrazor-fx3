@@ -105,8 +105,29 @@ void MakeNormalVectors(const vec3 forward, inout vec3 right, inout vec3 up)
 }
 
 
-#if !defined(LIGHT_DIRECTIONAL) && !defined(LIGHT_PROJ)
-
+#if defined(LIGHT_DIRECTIONAL)
+// TODO PCF for sun shadowing
+#elif defined(LIGHT_PROJ)
+vec4 PCF(vec4 shadowVert, float filterWidth, float samples)
+{
+	// compute step size for iterating through the kernel
+	float stepSize = 2.0 * filterWidth / samples;
+	
+	vec4 moments = vec4(0.0, 0.0, 0.0, 0.0);
+	for(float i = -filterWidth; i < filterWidth; i += stepSize)
+	{
+		for(float j = -filterWidth; j < filterWidth; j += stepSize)
+		{
+			// moments += texture2DProj(u_ShadowMap0, vec3(shadowVert.xy + vec2(i, j), shadowVert.w));
+			moments += texture2D(u_ShadowMap0, shadowVert.xy / shadowVert.w + vec2(i, j));
+		}
+	}
+	
+	// return average of the samples
+	moments *= (1.0 / (samples * samples));
+	return moments;
+}
+#else
 vec4 PCF(vec3 I, float filterWidth, float samples)
 {
 	vec3 forward, right, up;
