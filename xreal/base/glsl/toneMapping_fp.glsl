@@ -95,6 +95,7 @@ void	main()
 	
 	
 #if defined(BRIGHTPASS_FILTER)
+#if defined(r_HDRRendering)
 	// adjust contrast
 	// L = pow(L, 1.32);
 	
@@ -103,6 +104,7 @@ void	main()
 	float B = T / (r_HDRContrastOffset + T);
 	
 	color.rgb *= B;
+#endif
 #else
 	color.rgb *= L;
 #endif
