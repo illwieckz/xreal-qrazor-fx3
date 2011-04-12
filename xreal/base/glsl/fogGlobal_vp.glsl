@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-/* uniformFog_vp.glsl */
+/* fogGlobal_vp.glsl */
 
 attribute vec4		attr_Position;
 

@@ -1131,6 +1131,25 @@ public:
 };
 
 
+class u_UnprojectMatrix:
+GLUniform
+{
+public:
+	u_UnprojectMatrix(GLShader* shader):
+	  GLUniform(shader)
+	{
+	}
+
+	const char* GetName() const { return "u_UnprojectMatrix"; }
+	const size_t Get_shaderProgram_t_Offset() const { return SHADER_PROGRAM_T_OFS(u_UnprojectMatrix); }
+
+	void SetUniform_UnprojectMatrix(const matrix_t m)
+	{
+		GLSL_SetUniform_UnprojectMatrix(_shader->GetProgram(), m);
+	}
+};
+
+
 class u_BoneMatrix:
 GLUniform
 {
@@ -1930,6 +1949,19 @@ public:
 };
 
 
+class GLShader_fogGlobal:
+public GLShader,
+public u_ViewOrigin,
+public u_ModelViewProjectionMatrix,
+public u_UnprojectMatrix,
+public u_Color,
+public u_FogDepthVector
+{
+public:
+	GLShader_fogGlobal();
+};
+
+
 class GLShader_heatHaze:
 public GLShader,
 public u_NormalTextureMatrix,
@@ -1988,6 +2020,7 @@ extern GLShader_shadowFill* gl_shadowFillShader;
 extern GLShader_reflection* gl_reflectionShader;
 extern GLShader_skybox* gl_skyboxShader;
 extern GLShader_fogQuake3* gl_fogQuake3Shader;
+extern GLShader_fogGlobal* gl_fogGlobalShader;
 extern GLShader_heatHaze* gl_heatHazeShader;
 extern GLShader_screen* gl_screenShader;
 extern GLShader_portal* gl_portalShader;

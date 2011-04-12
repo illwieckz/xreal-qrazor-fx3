@@ -7948,15 +7948,13 @@ void RB_RenderDepthOfField()
 }
 #endif
 
-void RB_RenderUniformFog()
+void RB_RenderGlobalFog()
 {
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-	vec3_t          viewOrigin;
-	float           fogDensity;
-	vec3_t          fogColor;
+	vec4_t          fogDensity;
+	vec4_t          fogColor;
 	matrix_t        ortho;
 
-	GLimp_LogComment("--- RB_RenderUniformFog ---\n");
+	GLimp_LogComment("--- RB_RenderGlobalFog ---\n");
 
 	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
 		return;
@@ -7970,32 +7968,28 @@ void RB_RenderUniformFog()
 	if(r_forceFog->value <= 0 && VectorLength(tr.fogColor) <= 0)
 		return;
 
-	// enable shader, set arrays
-	GL_BindProgram(&tr.uniformFogShader);
-
 	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
 	GL_Cull(CT_TWO_SIDED);
 
-	glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+	gl_fogGlobalShader->BindProgram();
 
-	// set uniforms
-	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
+	glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
 	if(r_forceFog->value)
 	{
-		fogDensity = r_forceFog->value;
+		Vector4Set(fogDensity, r_forceFog->value, 0, 0, 0);
 		VectorCopy(colorMdGrey, fogColor);
 	}
 	else
 	{
-		fogDensity = tr.fogDensity;
+		Vector4Set(fogDensity, tr.fogDensity, 0, 0, 0);
 		VectorCopy(tr.fogColor, fogColor);
 	}
 
-	GLSL_SetUniform_ViewOrigin(&tr.uniformFogShader, viewOrigin);
-	glUniform1fARB(tr.uniformFogShader.u_FogDensity, fogDensity);
-	glUniform3fARB(tr.uniformFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
-	GLSL_SetUniform_UnprojectMatrix(&tr.uniformFogShader, backEnd.viewParms.unprojectionMatrix);
+	gl_fogGlobalShader->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin); // world space
+	gl_fogGlobalShader->SetUniform_FogDepthVector(fogDensity);
+	gl_fogGlobalShader->SetUniform_Color(fogColor);
+	gl_fogGlobalShader->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
 
 	// bind u_DepthMap
 	GL_SelectTexture(0);
@@ -8024,7 +8018,7 @@ void RB_RenderUniformFog()
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.uniformFogShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	gl_fogGlobalShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// draw viewport
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -8033,7 +8027,6 @@ void RB_RenderUniformFog()
 	GL_PopMatrix();
 
 	GL_CheckErrors();
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 }
 
 void RB_RenderBloom()
@@ -12110,7 +12103,7 @@ static void RB_RenderView(void)
 		RB_RenderDrawSurfaces(false, false, DRAWSURFACES_ALL);
 
 		// render global fog post process effect
-		RB_RenderUniformFog();
+		RB_RenderGlobalFog();
 
 		// scale down rendered HDR scene to 1 / 4th
 		if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -20,15 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-/* uniformFog_fp.glsl */
+/* fogGlobal_fp.glsl */
 
 uniform sampler2D	u_DepthMap;
 uniform vec3		u_ViewOrigin;
-uniform float		u_FogDensity;
-uniform vec3		u_FogColor;
+uniform vec4		u_FogDepthVector;
+uniform vec4		u_Color;
 uniform mat4		u_UnprojectMatrix;
-
-//varying vec3		var_Position;
 
 void	main()
 {
@@ -47,11 +45,11 @@ void	main()
 	float fogDistance = distance(P.xyz, u_ViewOrigin);
 	
 	// calculate fog exponent
-	float fogExponent = fogDistance * u_FogDensity;
+	float fogExponent = fogDistance * u_FogDepthVector.x;
 	
 	// calculate fog factor
 	float fogFactor = exp2(-abs(fogExponent));
 	
 	// lerp between FBO color and fog color with GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA. GLS_DSTBLEND_SRC_ALPHA
-	gl_FragColor = vec4(u_FogColor, fogFactor);
+	gl_FragColor = vec4(u_Color.rgb, fogFactor);
 }

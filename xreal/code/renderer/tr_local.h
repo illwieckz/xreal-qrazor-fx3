@@ -3935,7 +3935,6 @@ typedef struct
 	shaderProgram_t rotoscopeShader;
 	shaderProgram_t cameraEffectsShader;
 	shaderProgram_t liquidShader;
-	shaderProgram_t uniformFogShader;
 	shaderProgram_t volumetricFogShader;
 #ifdef EXPERIMENTAL
 	shaderProgram_t screenSpaceAmbientOcclusionShader;

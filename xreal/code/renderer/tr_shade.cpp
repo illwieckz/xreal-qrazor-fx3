@@ -1368,6 +1368,9 @@ void GLSL_InitGPUShaders(void)
 	// Q3A volumetric fog
 	gl_fogQuake3Shader = new GLShader_fogQuake3();
 
+	// global fog post process effect
+	gl_fogGlobalShader = new GLShader_fogGlobal();
+
 	// heatHaze post process effect
 	gl_heatHazeShader = new GLShader_heatHaze();
 
@@ -1517,25 +1520,6 @@ void GLSL_InitGPUShaders(void)
 
 	GLSL_ValidateProgram(tr.liquidShader.program);
 	GLSL_ShowProgramUniforms(tr.liquidShader.program);
-	GL_CheckErrors();
-
-	// uniform fog post process effect
-	GLSL_InitGPUShader(&tr.uniformFogShader, "uniformFog", ATTR_POSITION, qtrue, qtrue);
-
-	tr.uniformFogShader.u_DepthMap = glGetUniformLocationARB(tr.uniformFogShader.program, "u_DepthMap");
-	tr.uniformFogShader.u_ViewOrigin = glGetUniformLocationARB(tr.uniformFogShader.program, "u_ViewOrigin");
-	tr.uniformFogShader.u_FogDensity = glGetUniformLocationARB(tr.uniformFogShader.program, "u_FogDensity");
-	tr.uniformFogShader.u_FogColor = glGetUniformLocationARB(tr.uniformFogShader.program, "u_FogColor");
-	tr.uniformFogShader.u_UnprojectMatrix = glGetUniformLocationARB(tr.uniformFogShader.program, "u_UnprojectMatrix");
-	tr.uniformFogShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.uniformFogShader.program, "u_ModelViewProjectionMatrix");
-
-	glUseProgramObjectARB(tr.uniformFogShader.program);
-	glUniform1iARB(tr.uniformFogShader.u_DepthMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.uniformFogShader.program);
-	GLSL_ShowProgramUniforms(tr.uniformFogShader.program);
 	GL_CheckErrors();
 
 	// volumetric fog post process effect
@@ -1783,6 +1767,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		delete gl_fogQuake3Shader;
 		gl_fogQuake3Shader = NULL;
+	}
+
+	if(gl_fogGlobalShader)
+	{
+		delete gl_fogGlobalShader;
+		gl_fogGlobalShader = NULL;
 	}
 
 	if(gl_heatHazeShader)
