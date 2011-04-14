@@ -36,9 +36,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#include <mono/utils/mono-publib.h>
 #endif
 
-// missing function declarations in mono 2.6 ...
-void			mono_free(void *);
-
 
 MonoDomain     *mono_domain;
 MonoImage      *mono_gameImage;

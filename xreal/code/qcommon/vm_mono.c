@@ -671,7 +671,7 @@ void Mono_XreaL_Engine_Print(MonoArray *params)
 
 	Com_Printf("%s", s);
 
-	mono_free(s);
+	g_free(s);
 }
 
 /*
@@ -1037,7 +1037,7 @@ void Mono_Init(void)
 
 	//mono_domain = mono_jit_init_version("system", "v2.0.50727");
 	//mono_domain = mono_jit_init(classPath);
-	mono_domain = mono_jit_init("xreal.exe");
+	mono_domain = mono_jit_init("xrealded.i386");
 	if(!mono_domain)
 	{
 		Com_Error(ERR_FATAL, "mono_jit_initversion( '%s' ) failed\n", classPath);
