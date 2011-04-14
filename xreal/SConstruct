@@ -15,6 +15,7 @@ opts.Add(EnumVariable('simd', 'Choose special CPU register optimizations', 'none
 #opts.Add(EnumVariable('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'core2duo')))
 opts.Add(BoolVariable('smp', 'Set to 1 to compile engine with symmetric multiprocessor support', 0))
 opts.Add(BoolVariable('java', 'Set to 1 to compile the engine and game with Java support', 0))
+opts.Add(BoolVariable('mono', 'Set to 1 to compile the engine and game with Mono support', 0))
 opts.Add(BoolVariable('compatq3a', 'Set to 1 to compile engine with Q3A compatibility support', 0))
 opts.Add(BoolVariable('experimental', 'Set to 1 to compile engine with experimental features support', 0))
 #opts.Add(BoolVariable('purevm', 'Set to 1 to compile the engine with strict checking for vm/*.qvm modules in paks', 0))
