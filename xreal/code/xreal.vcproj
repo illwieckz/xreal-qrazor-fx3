@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include;.\theora\include;.\sdl\include;.\curl\include;..\jdk\include"
+				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include;.\theora\include;.\sdl\include;.\curl\include;..\jdk\include;.\glib\include\glib-2.0;.\glib\lib\glib-2.0\include;.\mono\include\mono-2.0"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;STANDALONE;USE_CODEC_VORBIS;USE_VOIP;HAVE_CONFIG_H;USE_CIN_THEORA"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
@@ -78,11 +78,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib PSAPI.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib PSAPI.lib mono-2.0.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="freetype/objs;sdl/lib;curl/lib;../jdk/lib"
+				AdditionalLibraryDirectories="freetype/objs;sdl/lib;curl/lib;../jdk/lib;mono/lib"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(TargetDir)$(TargetName).pdb"
@@ -157,7 +157,7 @@
 				InlineFunctionExpansion="2"
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include;.\theora\include;.\sdl\include;.\curl\include;..\jdk\include"
+				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib;.\speex\include;.\theora\include;.\sdl\include;.\curl\include;..\jdk\include;.\glib\include\glib-2.0;.\glib\lib\glib-2.0\include;.\mono\include\mono-2.0"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;STANDALONE;SIMD_SSE;USE_CODEC_VORBIS;USE_VOIP;HAVE_CONFIG_H;USE_CIN_THEORA"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -186,11 +186,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib PSAPI.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib PSAPI.lib mono-2.0.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="freetype/objs;sdl/lib;curl/lib;../jdk/lib"
+				AdditionalLibraryDirectories="freetype/objs;sdl/lib;curl/lib;../jdk/lib;mono/lib"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
@@ -1243,6 +1243,10 @@
 				RelativePath=".\qcommon\vm_java.c"
 				>
 			</File>
+			<File
+				RelativePath=".\qcommon\vm_mono.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1349,7 +1353,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\qcommon\vm_java.h"
+				>
+			</File>
+			<File
 				RelativePath="qcommon\vm_local.h"
+				>
+			</File>
+			<File
+				RelativePath=".\qcommon\vm_mono.h"
 				>
 			</File>
 			<Filter

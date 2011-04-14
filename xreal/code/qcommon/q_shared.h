@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2006 Tim Angus
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -44,6 +44,12 @@ extern "C" {
 #if 0
 #if !defined(USE_JAVA)
 #define USE_JAVA 1
+#endif
+#endif
+
+#if 0
+#if !defined(USE_MONO)
+#define USE_MONO 1
 #endif
 #endif
 

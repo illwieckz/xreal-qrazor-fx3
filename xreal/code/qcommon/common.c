@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined(USE_JAVA)
 #include "vm_java.h"
+#elif defined(USE_MONO)
+#include "vm_mono.h"
 #endif
 
 #include <setjmp.h>
@@ -341,6 +343,8 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 
 #if defined(USE_JAVA)
 		JVM_Shutdown();
+#elif defined(USE_MONO)
+		Mono_Shutdown();
 #endif
 	}
 
@@ -3859,6 +3863,8 @@ void Com_Init(char *commandLine)
 	VM_Init();
 #if defined(USE_JAVA)
 	JVM_Init();
+#elif defined(USE_MONO)
+	Mono_Init();
 #endif
 	SV_Init();
 
