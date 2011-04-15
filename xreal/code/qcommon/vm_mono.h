@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <mono/metadata/object.h>
 #include <mono/metadata/environment.h>
 #include <mono/metadata/mono-config.h>
+#include <mono/metadata/mono-debug.h>
 #include <mono/metadata/debug-helpers.h>
 //#include <mono/utils/mono-publib.h>
 #endif

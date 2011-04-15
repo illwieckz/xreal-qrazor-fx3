@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static cvar_t  *mono_useJITCompiler;
 static cvar_t  *mono_useJAR;
+static cvar_t  *mono_remoteDebugging;
 static cvar_t  *mono_profiling;
 static cvar_t  *mono_verboseJNI;
 static cvar_t  *mono_verboseClass;
@@ -1021,7 +1022,7 @@ void Mono_Init(void)
 
 	//jvm_javaLib = Cvar_Get("mono_javaLib", DEFAULT_JAVA_LIB, CVAR_ARCHIVE | CVAR_LATCH);
 	mono_useJITCompiler = Cvar_Get("mono_useJITCompiler", "1", CVAR_INIT);
-//	mono_remoteDebugging = Cvar_Get("mono_remoteDebugging", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	mono_remoteDebugging = Cvar_Get("mono_remoteDebugging", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	mono_profiling = Cvar_Get("mono_profiling", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	mono_verboseJNI = Cvar_Get("mono_verboseJNI", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	mono_verboseClass = Cvar_Get("mono_verboseClass", "0", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1042,8 +1043,10 @@ void Mono_Init(void)
 			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/Game/bin/Debug/Game.dll"));
 			//FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/MonoTerminalTest.exe"));
 
+#if defined(_WIN32)
 	Com_Printf("Set Mono assembly path to '%s'\n", monoAssemblyPath);
 	Com_Printf("Set Mono config path to '%s'\n", monoConfigPath);
+#endif
 	Com_Printf("Set Game assembly path to '%s'\n", gameAssemblyPath);
 	
 
@@ -1058,6 +1061,16 @@ void Mono_Init(void)
 #if defined(_WIN32)
 	mono_set_dirs(monoAssemblyPath, monoConfigPath);
 #endif
+
+	if(mono_remoteDebugging->integer)
+	{
+		char            options[1024];
+
+		Com_sprintf(options, sizeof(options), "--debugger-agent=\"transport=dt_socket,address=localhost:8000\"");
+		
+		mono_jit_parse_options(1, &options);
+		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
+	}
 
 	//mono_domain = mono_jit_init_version("system", "v2.0.50727");
 	//mono_domain = mono_jit_init(classPath);
