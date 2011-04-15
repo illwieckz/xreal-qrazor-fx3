@@ -48,7 +48,12 @@ static cvar_t  *mono_verboseClass;
 static cvar_t  *mono_verboseGC;
 
 MonoDomain     *mono_domain;
+
+MonoAssembly   *mono_xrealAssembly;
+MonoImage      *mono_xrealImage;
+
 MonoAssembly   *mono_gameAssembly;
+MonoImage      *mono_gameImage;
 
 //#define USE_JAVA_DLOPEN 1
 
@@ -662,11 +667,12 @@ jobject Java_NewUserCommand(const usercmd_t * ucmd)
  * Method:    print
  * Signature: (Ljava/lang/String;)V
  */
-void Mono_XreaL_Engine_Print(MonoArray *params)
+void Mono_XreaL_Engine_Print(MonoString* ms)//MonoArray *params)
 {
 	char           *s;
 
-	s = mono_string_to_utf8(mono_array_get(params, MonoString*, 0));
+	//s = mono_string_to_utf8(mono_array_get(params, MonoString*, 0));
+	s = mono_string_to_utf8(ms);
 
 	Com_Printf("%s", s);
 
@@ -886,7 +892,7 @@ static JNINativeMethod Engine_methods[] = {
 static MonoClass* class_Engine;
 void Mono_registerEngine()
 {
-	class_Engine = mono_class_from_name(mono_gameAssembly, "XreaL", "Engine"); //(*javaEnv)->FindClass(javaEnv, "xreal/Engine");
+	class_Engine = mono_class_from_name(mono_xrealImage, "XreaL", "Engine"); //(*javaEnv)->FindClass(javaEnv, "xreal/Engine");
 	if(/*CheckException() ||*/ !class_Engine)
 	{
 		Com_Error(ERR_FATAL, "Couldn't find XreaL.Engine");
@@ -1009,6 +1015,7 @@ void Mono_Init(void)
 	char            monoAssemblyPath[MAX_OSPATH];
 	char            monoConfigPath[MAX_OSPATH];
 	char            gameAssemblyPath[MAX_OSPATH];
+	char            xrealAssemblyPath[MAX_OSPATH];
 
 	Com_Printf("------- Mono_Init() -------\n");
 
@@ -1028,6 +1035,8 @@ void Mono_Init(void)
 	Com_sprintf(monoConfigPath, sizeof(monoConfigPath), "%s", 
 			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), "mono", "etc"));
 
+	Com_sprintf(xrealAssemblyPath, sizeof(xrealAssemblyPath), "%s", 
+			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/Game/bin/Debug/XreaL.dll"));
 
 	Com_sprintf(gameAssemblyPath, sizeof(gameAssemblyPath), "%s", 
 			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/Game/bin/Debug/Game.dll"));
@@ -1055,15 +1064,30 @@ void Mono_Init(void)
 	mono_domain = mono_jit_init("system");
 	if(!mono_domain)
 	{
-		Com_Error(ERR_FATAL, "mono_jit_initversion( \"system\" ) failed\n");
+		Com_Error(ERR_FATAL, "mono_jit_initversion( \"system\" ) failed");
 		return;
+	}
+
+	mono_xrealAssembly = mono_domain_assembly_open(mono_domain, xrealAssemblyPath);
+	if(!mono_xrealAssembly)
+	{
+		Com_Error(ERR_FATAL, "mono_domain_assembly_open( '%s' ) failed", xrealAssemblyPath);
+		return;
+	}
+	else
+	{
+		mono_xrealImage = mono_assembly_get_image(mono_xrealAssembly);
 	}
 
 	mono_gameAssembly = mono_domain_assembly_open(mono_domain, gameAssemblyPath);
 	if(!mono_gameAssembly)
 	{
-		Com_Error(ERR_FATAL, "mono_domain_assembly_open( '%s' ) failed\n", gameAssemblyPath);
+		Com_Error(ERR_FATAL, "mono_domain_assembly_open( '%s' ) failed", gameAssemblyPath);
 		return;
+	}
+	else
+	{
+		mono_gameImage = mono_assembly_get_image(mono_gameAssembly);
 	}
 
 	// register the needed core modules
@@ -1071,6 +1095,26 @@ void Mono_Init(void)
 	Mono_registerEngine();
 	//CVar_javaRegister();
 	//UserCommand_javaRegister();
+
+
+#if 1
+	{
+		MonoClass* klass;
+		MonoMethod* method;
+		MonoMethodDesc* mdesc;
+		
+		klass = mono_class_from_name(mono_gameImage, "Game", "Game"); //(*javaEnv)->FindClass(javaEnv, "xreal/Engine");
+		if(/*CheckException() ||*/ !klass)
+		{
+			Com_Error(ERR_FATAL, "Couldn't find Game.Game");
+		}
+
+		mdesc = mono_method_desc_new(":TestEnginePrint()", FALSE);
+		method = mono_method_desc_search_in_class(mdesc, klass);
+		mono_runtime_invoke(method, NULL, NULL, NULL);
+	}
+#endif
+
 
 	// clean up allocated objects
 	/*

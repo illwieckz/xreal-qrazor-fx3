@@ -33,12 +33,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <mono/metadata/object.h>
 #include <mono/metadata/environment.h>
 #include <mono/metadata/mono-config.h>
+#include <mono/metadata/debug-helpers.h>
 //#include <mono/utils/mono-publib.h>
 #endif
 
 
-MonoDomain     *mono_domain;
-MonoAssembly   *mono_gameAssembly;
+extern MonoDomain     *mono_domain;
+extern MonoAssembly   *mono_gameAssembly;
+extern MonoImage      *mono_gameImage;
 
 void			Mono_Init();
 void			Mono_Shutdown();

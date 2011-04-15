@@ -5,7 +5,7 @@ namespace XreaL
 	/// <summary>
 	/// Main interface to the XreaL engine.
 	/// </summary>
-	public static class Engine
+	public class Engine
 	{
 		/// <summary>
 		/// Absolute limit. Don't change this here unless you increase it in q_shared.h 
@@ -51,6 +51,8 @@ namespace XreaL
 	
 		public static void PrintLine(string s)
 		{
+			//Console.WriteLine(s);
+			
 			Print(s + "\n");
 		}
 	
