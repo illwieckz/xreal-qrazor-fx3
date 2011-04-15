@@ -78,11 +78,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib PSAPI.lib mono-2.0.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib PSAPI.lib mono-2.0.lib  glib-2.0.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="freetype/objs;sdl/lib;curl/lib;../jdk/lib;mono/lib"
+				AdditionalLibraryDirectories="freetype/objs;sdl/lib;curl/lib;../jdk/lib;mono/lib;glib/lib"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(TargetDir)$(TargetName).pdb"
@@ -186,11 +186,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib PSAPI.lib mono-2.0.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib PSAPI.lib mono-2.0.lib glib-2.0.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="freetype/objs;sdl/lib;curl/lib;../jdk/lib;mono/lib"
+				AdditionalLibraryDirectories="freetype/objs;sdl/lib;curl/lib;../jdk/lib;mono/lib;glib/lib"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
@@ -1760,10 +1760,6 @@
 						>
 					</File>
 					<File
-						RelativePath=".\speex\smallft.c"
-						>
-					</File>
-					<File
 						RelativePath=".\speex\speex.c"
 						>
 					</File>
@@ -1781,6 +1777,10 @@
 					</File>
 					<File
 						RelativePath=".\speex\speex_lsp.c"
+						>
+					</File>
+					<File
+						RelativePath=".\speex\speex_smallft.c"
 						>
 					</File>
 					<File

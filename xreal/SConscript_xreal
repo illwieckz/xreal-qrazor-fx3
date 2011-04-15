@@ -123,7 +123,7 @@ xreal_src = [
 'code/speex/quant_lsp.c',
 'code/speex/resample.c',
 'code/speex/sb_celp.c',
-'code/speex/smallft.c',
+'code/speex/speex_smallft.c',
 'code/speex/speex.c',
 'code/speex/speex_callbacks.c',
 'code/speex/speex_header.c',
