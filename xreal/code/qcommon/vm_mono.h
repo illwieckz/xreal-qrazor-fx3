@@ -38,8 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 MonoDomain     *mono_domain;
-MonoImage      *mono_gameImage;
-MonoImage      *mono_gameImage;
+MonoAssembly   *mono_gameAssembly;
 
 void			Mono_Init();
 void			Mono_Shutdown();

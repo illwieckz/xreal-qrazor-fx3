@@ -48,8 +48,7 @@ static cvar_t  *mono_verboseClass;
 static cvar_t  *mono_verboseGC;
 
 MonoDomain     *mono_domain;
-MonoImage      *mono_gameImage;
-MonoImage      *mono_gameImage;
+MonoAssembly   *mono_gameAssembly;
 
 //#define USE_JAVA_DLOPEN 1
 
@@ -887,7 +886,7 @@ static JNINativeMethod Engine_methods[] = {
 static MonoClass* class_Engine;
 void Mono_registerEngine()
 {
-	class_Engine = mono_class_from_name(mono_gameImage, "XreaL", "Engine"); //(*javaEnv)->FindClass(javaEnv, "xreal/Engine");
+	class_Engine = mono_class_from_name(mono_gameAssembly, "XreaL", "Engine"); //(*javaEnv)->FindClass(javaEnv, "xreal/Engine");
 	if(/*CheckException() ||*/ !class_Engine)
 	{
 		Com_Error(ERR_FATAL, "Couldn't find XreaL.Engine");
@@ -1007,7 +1006,9 @@ void Mono_Shutdown(void)
 void Mono_Init(void)
 {
 	int				i;
-	char            classPath[MAX_QPATH];
+	char            monoAssemblyPath[MAX_OSPATH];
+	char            monoConfigPath[MAX_OSPATH];
+	char            gameAssemblyPath[MAX_OSPATH];
 
 	Com_Printf("------- Mono_Init() -------\n");
 
@@ -1020,12 +1021,22 @@ void Mono_Init(void)
 	mono_verboseGC = Cvar_Get("mono_verboseGC", "0", CVAR_ARCHIVE | CVAR_LATCH);
 //	mono_policyFile = Cvar_Get("mono_policyFile", "", CVAR_ARCHIVE | CVAR_LATCH);
 
-
 	// TODO support sv_pure
-	Com_sprintf(classPath, sizeof(classPath), "%s", 
-			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/Game/bin/Debug/XreaL.dll"));
+	Com_sprintf(monoAssemblyPath, sizeof(monoAssemblyPath), "%s", 
+			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), "mono", "lib"));
 
-	Com_Printf("Set main class path to '%s'\n", classPath);
+	Com_sprintf(monoConfigPath, sizeof(monoConfigPath), "%s", 
+			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), "mono", "etc"));
+
+
+	Com_sprintf(gameAssemblyPath, sizeof(gameAssemblyPath), "%s", 
+			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/Game/bin/Debug/Game.dll"));
+			//FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/MonoTerminalTest.exe"));
+
+	Com_Printf("Set Mono assembly path to '%s'\n", monoAssemblyPath);
+	Com_Printf("Set Mono config path to '%s'\n", monoConfigPath);
+	Com_Printf("Set Game assembly path to '%s'\n", gameAssemblyPath);
+	
 
 	// load the default Mono configuration file, this is needed
 	// if you are planning on using the dllmaps defined on the
@@ -1035,16 +1046,25 @@ void Mono_Init(void)
 	mono_trace_set_level_string("debug");
 	mono_jit_set_trace_options("");
 
+#if defined(_WIN32)
+	mono_set_dirs(monoAssemblyPath, monoConfigPath);
+#endif
+
 	//mono_domain = mono_jit_init_version("system", "v2.0.50727");
 	//mono_domain = mono_jit_init(classPath);
-	mono_domain = mono_jit_init("xrealded.i386");
+	mono_domain = mono_jit_init("system");
 	if(!mono_domain)
 	{
-		Com_Error(ERR_FATAL, "mono_jit_initversion( '%s' ) failed\n", classPath);
+		Com_Error(ERR_FATAL, "mono_jit_initversion( \"system\" ) failed\n");
 		return;
 	}
 
-	// TODO configure XreaL/mono/ mono_set_dirs("C:\\Mono-2.6.7\\lib","C:\\Mono-2.6.7\\etc");
+	mono_gameAssembly = mono_domain_assembly_open(mono_domain, gameAssemblyPath);
+	if(!mono_gameAssembly)
+	{
+		Com_Error(ERR_FATAL, "mono_domain_assembly_open( '%s' ) failed\n", gameAssemblyPath);
+		return;
+	}
 
 	// register the needed core modules
 	//Misc_javaRegister();
