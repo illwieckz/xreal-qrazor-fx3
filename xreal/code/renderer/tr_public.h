@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -202,7 +202,7 @@ typedef struct
 	// cinematic stuff
 	void            (*CIN_UploadCinematic) (int handle);
 	int             (*CIN_PlayCinematic) (const char *arg0, int xpos, int ypos, int width, int height, int bits);
-	                e_status(*CIN_RunCinematic) (int handle);
+	e_status        (*CIN_RunCinematic) (int handle);
 
 	// XreaL BEGIN
 	void           *(*Sys_GetSystemHandles) (void);

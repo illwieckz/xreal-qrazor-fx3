@@ -1374,85 +1374,6 @@ void GLSL_InitGPUShaders(void)
 	// heatHaze post process effect
 	gl_heatHazeShader = new GLShader_heatHaze();
 
-	
-
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-	// bloom post process effect
-	GLSL_InitGPUShader(&tr.bloomShader, "bloom", ATTR_POSITION, qtrue, qfalse);
-
-	tr.bloomShader.u_ColorMap = glGetUniformLocationARB(tr.bloomShader.program, "u_ColorMap");
-	tr.bloomShader.u_ContrastMap = glGetUniformLocationARB(tr.bloomShader.program, "u_ContrastMap");
-	tr.bloomShader.u_BlurMagnitude = glGetUniformLocationARB(tr.bloomShader.program, "u_BlurMagnitude");
-	tr.bloomShader.u_ModelViewProjectionMatrix = glGetUniformLocationARB(tr.bloomShader.program, "u_ModelViewProjectionMatrix");
-
-	glUseProgramObjectARB(tr.bloomShader.program);
-	glUniform1iARB(tr.bloomShader.u_ColorMap, 0);
-	glUniform1iARB(tr.bloomShader.u_ContrastMap, 1);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.bloomShader.program);
-	GLSL_ShowProgramUniforms(tr.bloomShader.program);
-	GL_CheckErrors();
-
-	// contrast post process effect
-	GLSL_InitGPUShader(&tr.contrastShader, "contrast", ATTR_POSITION, qtrue, qfalse);
-
-	tr.contrastShader.u_ColorMap = glGetUniformLocationARB(tr.contrastShader.program, "u_ColorMap");
-	if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
-	{
-		tr.contrastShader.u_HDRKey = glGetUniformLocationARB(tr.contrastShader.program, "u_HDRKey");
-		tr.contrastShader.u_HDRAverageLuminance = glGetUniformLocationARB(tr.contrastShader.program, "u_HDRAverageLuminance");
-		tr.contrastShader.u_HDRMaxLuminance = glGetUniformLocationARB(tr.contrastShader.program, "u_HDRMaxLuminance");
-	}
-	tr.contrastShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.contrastShader.program, "u_ModelViewProjectionMatrix");
-
-	glUseProgramObjectARB(tr.contrastShader.program);
-	glUniform1iARB(tr.contrastShader.u_ColorMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.contrastShader.program);
-	GLSL_ShowProgramUniforms(tr.contrastShader.program);
-	GL_CheckErrors();
-
-	// rotoscope post process effect
-	GLSL_InitGPUShader(&tr.rotoscopeShader, "rotoscope", ATTR_POSITION | ATTR_TEXCOORD, qtrue, qtrue);
-
-	tr.rotoscopeShader.u_ColorMap = glGetUniformLocationARB(tr.rotoscopeShader.program, "u_ColorMap");
-	tr.rotoscopeShader.u_BlurMagnitude = glGetUniformLocationARB(tr.rotoscopeShader.program, "u_BlurMagnitude");
-	tr.rotoscopeShader.u_ModelViewProjectionMatrix = glGetUniformLocationARB(tr.rotoscopeShader.program, "u_ModelViewProjectionMatrix");
-
-	glUseProgramObjectARB(tr.rotoscopeShader.program);
-	glUniform1iARB(tr.rotoscopeShader.u_ColorMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.rotoscopeShader.program);
-	GLSL_ShowProgramUniforms(tr.rotoscopeShader.program);
-	GL_CheckErrors();
-
-	// camera post process effect
-	GLSL_InitGPUShader(&tr.cameraEffectsShader, "cameraEffects", ATTR_POSITION | ATTR_TEXCOORD, qtrue, qtrue);
-
-	tr.cameraEffectsShader.u_CurrentMap = glGetUniformLocationARB(tr.cameraEffectsShader.program, "u_CurrentMap");
-	tr.cameraEffectsShader.u_GrainMap = glGetUniformLocationARB(tr.cameraEffectsShader.program, "u_GrainMap");
-	tr.cameraEffectsShader.u_VignetteMap = glGetUniformLocationARB(tr.cameraEffectsShader.program, "u_VignetteMap");
-	//tr.cameraEffectsShader.u_BlurMagnitude = glGetUniformLocationARB(tr.cameraEffectsShader.program, "u_BlurMagnitude");
-	tr.cameraEffectsShader.u_ModelViewProjectionMatrix = glGetUniformLocationARB(tr.cameraEffectsShader.program, "u_ModelViewProjectionMatrix");
-	tr.cameraEffectsShader.u_ColorTextureMatrix = glGetUniformLocationARB(tr.cameraEffectsShader.program, "u_ColorTextureMatrix");
-
-	glUseProgramObjectARB(tr.cameraEffectsShader.program);
-	glUniform1iARB(tr.cameraEffectsShader.u_CurrentMap, 0);
-	glUniform1iARB(tr.cameraEffectsShader.u_GrainMap, 1);
-	glUniform1iARB(tr.cameraEffectsShader.u_VignetteMap, 2);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.cameraEffectsShader.program);
-	GLSL_ShowProgramUniforms(tr.cameraEffectsShader.program);
-	GL_CheckErrors();
-
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
 	// screen post process effect
 	gl_screenShader = new GLShader_screen();
 
@@ -1461,6 +1382,12 @@ void GLSL_InitGPUShaders(void)
 
 	// HDR -> LDR tone mapping
 	gl_toneMappingShader = new GLShader_toneMapping();
+
+	// LDR bright pass filter
+	gl_contrastShader = new GLShader_contrast();
+
+	// camera post process effect
+	gl_cameraEffectsShader = new GLShader_cameraEffects();
 
 	// gaussian blur
 	gl_blurXShader = new GLShader_blurX();
@@ -1743,29 +1670,6 @@ void GLSL_ShutdownGPUShaders(void)
 		gl_heatHazeShader = NULL;
 	}
 
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-	if(tr.contrastShader.program)
-	{
-		glDeleteObjectARB(tr.contrastShader.program);
-		Com_Memset(&tr.contrastShader, 0, sizeof(shaderProgram_t));
-	}
-
-	if(tr.rotoscopeShader.program)
-	{
-		glDeleteObjectARB(tr.rotoscopeShader.program);
-		Com_Memset(&tr.rotoscopeShader, 0, sizeof(shaderProgram_t));
-	}
-
-	if(tr.cameraEffectsShader.program)
-	{
-		glDeleteObjectARB(tr.cameraEffectsShader.program);
-		Com_Memset(&tr.cameraEffectsShader, 0, sizeof(shaderProgram_t));
-	}
-
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-
 	if(gl_screenShader)
 	{
 		delete gl_screenShader;
@@ -1782,6 +1686,18 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		delete gl_toneMappingShader;
 		gl_toneMappingShader = NULL;
+	}
+
+	if(gl_contrastShader)
+	{
+		delete gl_contrastShader;
+		gl_contrastShader = NULL;
+	}
+
+	if(gl_cameraEffectsShader)
+	{
+		delete gl_cameraEffectsShader;
+		gl_cameraEffectsShader = NULL;
 	}
 
 	if(gl_blurXShader)

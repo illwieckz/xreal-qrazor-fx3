@@ -3930,9 +3930,7 @@ typedef struct
 	shaderProgram_t deferredShadowingShader_proj;
 
 	// post process effects
-	shaderProgram_t contrastShader;
 	shaderProgram_t rotoscopeShader;
-	shaderProgram_t cameraEffectsShader;
 	shaderProgram_t liquidShader;
 	shaderProgram_t volumetricFogShader;
 #ifdef EXPERIMENTAL

@@ -8039,9 +8039,6 @@ void RB_RenderBloom()
 	if((backEnd.refdef.rdflags & (RDF_NOWORLDMODEL | RDF_NOBLOOM)) || !r_bloom->integer || backEnd.viewParms.isPortal || !glConfig.framebufferObjectAvailable)
 		return;
 
-	if(!HDR_ENABLED())
-		return;
-
 	// set 2D virtual screen size
 	GL_PushMatrix();
 	MatrixOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
@@ -8107,13 +8104,12 @@ void RB_RenderBloom()
 			GL_SelectTexture(0);
 			GL_Bind(tr.downScaleFBOImage_quarter);
 		}
-#if 0
 		else
 		{
 			// render contrast downscaled to 1/4th of the screen
-			GL_BindProgram(&tr.contrastShader);
+			gl_contrastShader->BindProgram();
 
-			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.contrastShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+			gl_contrastShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 			GL_SelectTexture(0);
 			//GL_Bind(tr.downScaleFBOImage_quarter);
@@ -8121,7 +8117,6 @@ void RB_RenderBloom()
 			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
 												 tr.currentRenderImage->uploadHeight);
 		}
-#endif
 
 		GL_PopMatrix(); // special 1/4th of the screen contrastRenderFBO ortho
 
@@ -8293,7 +8288,6 @@ void RB_RenderRotoscope(void)
 
 void RB_CameraPostFX(void)
 {
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	matrix_t        ortho;
 	matrix_t		grain;
 
@@ -8316,9 +8310,9 @@ void RB_CameraPostFX(void)
 	GL_Cull(CT_TWO_SIDED);
 
 	// enable shader, set arrays
-	GL_BindProgram(&tr.cameraEffectsShader);
+	gl_cameraEffectsShader->BindProgram();
 
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.cameraEffectsShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	gl_cameraEffectsShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 	//glUniform1fARB(tr.cameraEffectsShader.u_BlurMagnitude, r_bloomBlur->value);
 
 	MatrixIdentity(grain);
@@ -8330,7 +8324,7 @@ void RB_CameraPostFX(void)
 	MatrixMultiplyZRotation(grain, backEnd.refdef.floatTime * (random() * 7));
 	MatrixMultiplyTranslation(grain, -0.5, -0.5, 0.0);
 
-	GLSL_SetUniform_ColorTextureMatrix(&tr.cameraEffectsShader, grain);
+	gl_cameraEffectsShader->SetUniform_ColorTextureMatrix(grain);
 
 	// bind u_CurrentMap
 	GL_SelectTexture(0);
@@ -8375,7 +8369,6 @@ void RB_CameraPostFX(void)
 	GL_PopMatrix();
 
 	GL_CheckErrors();
-#endif
 }
 
 static void RB_CalculateAdaptation()

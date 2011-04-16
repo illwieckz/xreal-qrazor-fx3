@@ -2163,6 +2163,24 @@ public:
 	GLShader_toneMapping();
 };
 
+class GLShader_contrast:
+public GLShader,
+public u_ModelViewProjectionMatrix
+{
+public:
+	GLShader_contrast();
+};
+
+class GLShader_cameraEffects:
+public GLShader,
+public u_ColorTextureMatrix,
+public u_ModelViewProjectionMatrix,
+public u_DeformMagnitude
+{
+public:
+	GLShader_cameraEffects();
+};
+
 class GLShader_blurX:
 public GLShader,
 public u_ModelViewProjectionMatrix,
@@ -2198,6 +2216,8 @@ extern GLShader_heatHaze* gl_heatHazeShader;
 extern GLShader_screen* gl_screenShader;
 extern GLShader_portal* gl_portalShader;
 extern GLShader_toneMapping* gl_toneMappingShader;
+extern GLShader_contrast* gl_contrastShader;
+extern GLShader_cameraEffects* gl_cameraEffectsShader;
 extern GLShader_blurX* gl_blurXShader;
 extern GLShader_blurY* gl_blurYShader;
 
