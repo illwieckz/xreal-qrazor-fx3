@@ -3332,6 +3332,7 @@ void CL_InitRef(void)
 	ri.CIN_PlayCinematic = CIN_PlayCinematic;
 	ri.CIN_RunCinematic = CIN_RunCinematic;
 
+	ri.CL_VideoRecording = CL_VideoRecording;
 	ri.CL_WriteAVIVideoFrame = CL_WriteAVIVideoFrame;
 
 	ri.IN_Init = IN_Init;
