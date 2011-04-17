@@ -45,7 +45,11 @@ int             demo_protocols[] = { PROTOCOL_VERSION, 0 };
 
 #define MIN_DEDICATED_COMHUNKMEGS 1
 #define MIN_COMHUNKMEGS		96
+#if defined(_WIN32)
+#define DEF_COMHUNKMEGS		256
+#else
 #define DEF_COMHUNKMEGS		512
+#endif
 #define DEF_COMZONEMEGS		96
 //#define XSTRING(x)		STRING(x)
 //#define STRING(x)			#x
