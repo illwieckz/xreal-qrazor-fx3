@@ -392,12 +392,19 @@ public:
 
 	const char* GetName() const { return "USE_DEFORM_VERTEXES"; }
 	EGLCompileMacro GetType() const { return USE_DEFORM_VERTEXES; }
+	bool		HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
 
 	void EnableDeformVertexes()
 	{
-		EnableMacro();
-
-		_shader->AddVertexAttribBit(ATTR_NORMAL);
+		if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+		{
+			EnableMacro();
+			_shader->AddVertexAttribBit(ATTR_NORMAL);
+		}
+		else
+		{
+			DisableMacro();
+		}
 	}
 	
 	void DisableDeformVertexes()
@@ -407,7 +414,7 @@ public:
 
 	void SetDeformVertexes(bool enable)
 	{
-		if(enable)
+		if(enable && (glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer))
 			EnableMacro();
 		else
 			DisableMacro();
@@ -459,6 +466,7 @@ public:
 
 	const char* GetName() const { return "USE_NORMAL_MAPPING"; }
 	EGLCompileMacro GetType() const { return USE_NORMAL_MAPPING; }
+	bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
 
 	void EnableNormalMapping()	{ EnableMacro(); }
 	void DisableNormalMapping()	{ DisableMacro(); }

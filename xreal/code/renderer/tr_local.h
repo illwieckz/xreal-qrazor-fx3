@@ -1162,34 +1162,6 @@ typedef struct shader_s
 	struct shader_s *next;
 } shader_t;
 
-static ID_INLINE qboolean ShaderRequiresCPUDeforms(const shader_t * shader)
-{
-	if(shader->numDeforms)
-	{
-		int			i;
-		qboolean	cpuDeforms = qfalse;
-	
-		for(i = 0; i < shader->numDeforms; i++)
-		{
-			const deformStage_t *ds = &shader->deforms[0];
-
-			switch (ds->deformation)
-			{
-				case DEFORM_WAVE:
-				case DEFORM_BULGE:
-					break;
-
-				default:
-					cpuDeforms = qtrue;
-			}
-		}
-
-		return cpuDeforms;
-	}
-
-	return qfalse;
-}
-
 #if 0
 enum
 {
@@ -1361,122 +1333,122 @@ typedef struct shaderProgram_s
 	uint32_t        attribs;	// vertex array attributes
 
 	// uniform parameters
-	GLint           u_ColorMap;
-	GLint           u_CurrentMap;
-	GLint           u_ContrastMap;
-	GLint           u_DiffuseMap;
-	GLint           u_NormalMap;
-	GLint           u_SpecularMap;
-	GLint           u_LightMap;
-	GLint           u_DeluxeMap;
-	GLint           u_DepthMap;
-	GLint           u_DepthMapBack;
-	GLint           u_DepthMapFront;
-	GLint           u_PortalMap;
-	GLint           u_AttenuationMapXY;
-	GLint           u_AttenuationMapZ;
-	GLint           u_ShadowMap;
-	GLint           u_ShadowMap0;
-	GLint           u_ShadowMap1;
-	GLint           u_ShadowMap2;
-	GLint           u_ShadowMap3;
-	GLint           u_ShadowMap4;
-	GLint           u_EnvironmentMap0;
-	GLint           u_EnvironmentMap1;
+	int16_t         u_ColorMap;
+	int16_t         u_CurrentMap;
+	int16_t         u_ContrastMap;
+	int16_t         u_DiffuseMap;
+	int16_t         u_NormalMap;
+	int16_t         u_SpecularMap;
+	int16_t         u_LightMap;
+	int16_t         u_DeluxeMap;
+	int16_t         u_DepthMap;
+	int16_t         u_DepthMapBack;
+	int16_t         u_DepthMapFront;
+	int16_t         u_PortalMap;
+	int16_t         u_AttenuationMapXY;
+	int16_t         u_AttenuationMapZ;
+	int16_t         u_ShadowMap;
+	int16_t         u_ShadowMap0;
+	int16_t         u_ShadowMap1;
+	int16_t         u_ShadowMap2;
+	int16_t         u_ShadowMap3;
+	int16_t         u_ShadowMap4;
+	int16_t         u_EnvironmentMap0;
+	int16_t         u_EnvironmentMap1;
 
-	GLint           u_GrainMap;
-	GLint           u_VignetteMap;
+	int16_t         u_GrainMap;
+	int16_t         u_VignetteMap;
 
-	GLint           u_ColorTextureMatrix;
+	int16_t         u_ColorTextureMatrix;
 	matrix_t		t_ColorTextureMatrix;
 
-	GLint           u_DiffuseTextureMatrix;
+	int16_t         u_DiffuseTextureMatrix;
 	matrix_t		t_DiffuseTextureMatrix;
 
-	GLint           u_NormalTextureMatrix;
+	int16_t         u_NormalTextureMatrix;
 	matrix_t		t_NormalTextureMatrix;
 
-	GLint           u_SpecularTextureMatrix;
+	int16_t         u_SpecularTextureMatrix;
 	matrix_t		t_SpecularTextureMatrix;
 
-	GLint           u_AlphaTest;
+	int16_t         u_AlphaTest;
 	alphaTest_t		t_AlphaTest;
 
-	GLint           u_ViewOrigin;
+	int16_t         u_ViewOrigin;
 	vec3_t			t_ViewOrigin;
 
 	GLint			u_DeformParms;
 
-	GLint           u_ColorGen;
+	int16_t         u_ColorGen;
 	colorGen_t		t_ColorGen;
 
-	GLint           u_AlphaGen;
+	int16_t         u_AlphaGen;
 	alphaGen_t		t_AlphaGen;
 
-	GLint           u_Color;
+	int16_t         u_Color;
 	vec4_t			t_Color;
 
-	GLint           u_ColorModulate;
+	int16_t         u_ColorModulate;
 	vec4_t			t_ColorModulate;
 
-	GLint           u_AmbientColor;
+	int16_t         u_AmbientColor;
 	vec3_t			t_AmbientColor;
 
-	GLint           u_LightDir;
+	int16_t         u_LightDir;
 	vec3_t			t_LightDir;
 
-	GLint           u_LightOrigin;
+	int16_t         u_LightOrigin;
 	vec3_t			t_LightOrigin;
 
-	GLint           u_LightColor;
+	int16_t         u_LightColor;
 	vec3_t			t_LightColor;
 
-	GLint           u_LightRadius;
+	int16_t         u_LightRadius;
 	float			t_LightRadius;
 
-	GLint           u_LightParallel;
+	int16_t         u_LightParallel;
 	qboolean		t_LightParallel;
 
-	GLint           u_LightScale;
+	int16_t         u_LightScale;
 	float			t_LightScale;
 
-	GLint           u_LightWrapAround;
+	int16_t         u_LightWrapAround;
 	float			t_LightWrapAround;
 
-	GLint           u_LightAttenuationMatrix;
+	int16_t         u_LightAttenuationMatrix;
 	matrix_t		t_LightAttenuationMatrix;
 
-	GLint           u_LightFrustum;
+	int16_t         u_LightFrustum;
 	vec4_t			t_LightFrustum;
 
-	GLint           u_ShadowMatrix;
+	int16_t         u_ShadowMatrix;
 	matrix_t		t_ShadowMatrix;
 
-	GLint           u_ShadowCompare;
+	int16_t         u_ShadowCompare;
 	qboolean		t_ShadowCompare;
 
-	GLint           u_ShadowTexelSize;
+	int16_t         u_ShadowTexelSize;
 	float			t_ShadowTexelSize;
 
-	GLint           u_ShadowBlur;
+	int16_t         u_ShadowBlur;
 	float			t_ShadowBlur;
 
 	GLint			u_ShadowParallelSplitDistances;
 	vec4_t			t_ShadowParallelSplitDistances;
 
-	GLint           u_RefractionIndex;
+	int16_t         u_RefractionIndex;
 	float			t_RefractionIndex;
 
-	GLint           u_FresnelPower;
-	GLint           u_FresnelScale;
-	GLint           u_FresnelBias;
+	int16_t         u_FresnelPower;
+	int16_t         u_FresnelScale;
+	int16_t         u_FresnelBias;
 
 	GLint			u_NormalScale;
 
-	GLint           u_EtaRatio;
+	int16_t         u_EtaRatio;
 
-	GLint           u_FogDensity;
-	GLint           u_FogColor;
+	int16_t         u_FogDensity;
+	int16_t         u_FogColor;
 
 	GLint			u_FogDistanceVector;
 	vec4_t			t_FogDistanceVector;
@@ -1487,13 +1459,13 @@ typedef struct shaderProgram_s
 	GLint			u_FogEyeT;
 	float			t_FogEyeT;
 
-	GLint           u_SSAOJitter;
-	GLint           u_SSAORadius;
+	int16_t         u_SSAOJitter;
+	int16_t         u_SSAORadius;
 
 	GLint			u_ParallaxMapping;
 	qboolean		t_ParallaxMapping;
 
-	GLint           u_DepthScale;
+	int16_t         u_DepthScale;
 	float			t_DepthScale;
 
 
@@ -1503,7 +1475,7 @@ typedef struct shaderProgram_s
 	GLint			u_PortalPlane;
 	vec4_t			t_PortalPlane;
 
-	GLint           u_PortalRange;
+	int16_t         u_PortalRange;
 	float			t_PortalRange;
 
 	GLint			u_EnvironmentInterpolation;
@@ -1518,43 +1490,43 @@ typedef struct shaderProgram_s
 	GLint			u_HDRMaxLuminance;
 	float			t_HDRMaxLuminance;
 
-	GLint           u_DeformMagnitude;
+	int16_t         u_DeformMagnitude;
 	float			t_DeformMagnitude;
 
 
-	GLint           u_ModelMatrix;	// model -> world
+	int16_t         u_ModelMatrix;	// model -> world
 	matrix_t		t_ModelMatrix;
 
-	GLint           u_ViewMatrix;	// world -> camera
+	int16_t         u_ViewMatrix;	// world -> camera
 	matrix_t		t_ViewMatrix;
 
-	GLint           u_ModelViewMatrix;	// model -> camera
+	int16_t         u_ModelViewMatrix;	// model -> camera
 	matrix_t		t_ModelViewMatrix;
 
-	GLint           u_ModelViewMatrixTranspose;
+	int16_t         u_ModelViewMatrixTranspose;
 	matrix_t		t_ModelViewMatrixTranspose;
 
-	GLint           u_ProjectionMatrix;
+	int16_t         u_ProjectionMatrix;
 	matrix_t		t_ProjectionMatrix;
 
-	GLint           u_ProjectionMatrixTranspose;
+	int16_t         u_ProjectionMatrixTranspose;
 	matrix_t		t_ProjectionMatrixTranspose;
 
-	GLint           u_ModelViewProjectionMatrix;
+	int16_t         u_ModelViewProjectionMatrix;
 	matrix_t		t_ModelViewProjectionMatrix;
 
-	GLint           u_UnprojectMatrix;
+	int16_t         u_UnprojectMatrix;
 	matrix_t		t_UnprojectMatrix;
 
-	GLint           u_VertexSkinning;
+	int16_t         u_VertexSkinning;
 	qboolean		t_VertexSkinning;
 
 	GLint			u_VertexInterpolation;
 	float			t_VertexInterpolation;
 
-	GLint           u_BoneMatrix;
+	int16_t         u_BoneMatrix;
 
-	GLint           u_Time;
+	int16_t         u_Time;
 	float			t_Time;
 } shaderProgram_t;
 
@@ -4272,6 +4244,7 @@ extern cvar_t  *r_vboDynamicLighting;
 extern cvar_t  *r_vboModels;
 extern cvar_t  *r_vboOptimizeVertices;
 extern cvar_t  *r_vboVertexSkinning;
+extern cvar_t  *r_vboDeformVertexes;
 extern cvar_t  *r_vboSmoothNormals;
 
 extern cvar_t  *r_mergeClusterSurfaces;
@@ -5024,7 +4997,8 @@ void            R_TransformClipToWindow(const vec4_t clip, const viewParms_t * v
 float           R_ProjectRadius(float r, vec3_t location);
 
 
-void            Tess_DeformGeometry(void);
+qboolean		ShaderRequiresCPUDeforms(const shader_t * shader);
+void            Tess_DeformGeometry();
 
 float           RB_EvalWaveForm(const waveForm_t * wf);
 float           RB_EvalWaveFormClamped(const waveForm_t * wf);

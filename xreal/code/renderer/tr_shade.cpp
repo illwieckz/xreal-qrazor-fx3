@@ -869,6 +869,7 @@ static void GLSL_InitGPUShader2(shaderProgram_t * program,
 }
 */
 
+/*
 void GLSL_InitGPUShader3(shaderProgram_t * program,
 								const char *vertexMainShader,
 								const char *fragmentMainShader,
@@ -907,6 +908,7 @@ void GLSL_InitGPUShader3(shaderProgram_t * program,
 	GLSL_BindAttribLocations(program->program, attribs);
 	GLSL_LinkProgram(program->program);
 }
+*/
 
 
 
@@ -4491,6 +4493,20 @@ static void Render_fog()
 	GLimp_LogComment("--- Render_fog ---\n");
 	
 	//ri.Printf(PRINT_ALL, "--- Render_fog ---\n");
+
+#if defined(COMPAT_ET)
+	// no fog pass in snooper
+	if(tr.refdef.rdflags & RDF_SNOOPERVIEW || tess.shader->noFog || !r_wolffog->integer)
+	{
+		return;
+	}
+#endif
+
+	// ydnar: no world, no fogging
+	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		return;
+	}
 
 	fog = tr.world->fogs + tess.fogNum;
 

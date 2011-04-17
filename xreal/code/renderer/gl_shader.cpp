@@ -86,8 +86,24 @@ bool GLCompileMacro_USE_VERTEX_ANIMATION::HasConflictingMacros(int permutation, 
 	return false;
 }
 
+bool GLCompileMacro_USE_DEFORM_VERTEXES::HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
+{
+	return (glConfig.driverType != GLDRV_OPENGL3 || !r_vboDeformVertexes->integer);
+}
+
+bool GLCompileMacro_USE_NORMAL_MAPPING::MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
+{
+	if(!r_normalMapping->integer)
+		return true;
+
+	return false;
+}
+
 bool GLCompileMacro_USE_PARALLAX_MAPPING::MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
 {
+	if(!r_parallaxMapping->integer || !r_normalMapping->integer)
+		return true;
+
 	bool foundUSE_NORMAL_MAPPING = false;
 	for(size_t i = 0; i < macros.size(); i++)
 	{
@@ -760,7 +776,7 @@ void GLShader::CompileAndLinkGPUShaderProgram(	shaderProgram_t * program,
 												const std::string& fragmentShaderText,
 												const std::string& compileMacros) const
 {
-	ri.Printf(PRINT_DEVELOPER, "------- GPU shader -------\n");
+	//ri.Printf(PRINT_DEVELOPER, "------- GPU shader -------\n");
 
 	Q_strncpyz(program->name, programName, sizeof(program->name));
 
@@ -867,7 +883,7 @@ void GLShader::CompileGPUShader(GLhandleARB program, const char* programName, co
 		return;
 	}
 
-	PrintInfoLog(shader, qtrue);
+	//PrintInfoLog(shader, qtrue);
 	//ri.Printf(PRINT_ALL, "%s\n", GLSL_PrintShaderSource(shader));
 
 	// attach shader to program
