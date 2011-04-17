@@ -12191,7 +12191,7 @@ static void RB_RenderView(void)
 				                       GL_NEAREST);
 			}
 #endif
-#if 1
+#if 0
 			// FIXME: this trashes the OpenGL context for an unknown reason
 			if(glConfig2.framebufferObjectAvailable && glConfig2.framebufferBlitAvailable)
 			{
@@ -12204,7 +12204,7 @@ static void RB_RenderView(void)
 									   GL_NEAREST);
 			}
 #endif
-			else
+			//else
 			{
 				// capture current color buffer
 				GL_SelectTexture(0);
