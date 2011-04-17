@@ -27,6 +27,7 @@ rendererGL_src = [
 'code/renderer/tr_mesh.c',
 'code/renderer/tr_model.c',
 'code/renderer/tr_model_md3.c',
+'code/renderer/tr_model_mdc.c',
 'code/renderer/tr_model_md5.c',
 'code/renderer/tr_model_psk.c',
 'code/renderer/tr_model_skel.c',
