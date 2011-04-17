@@ -72,7 +72,7 @@ functions imported from the main executable
 ==================================================================
 */
 
-#define	CGAME_IMPORT_API_VERSION	10
+#define	CGAME_IMPORT_API_VERSION	11
 
 typedef enum
 {

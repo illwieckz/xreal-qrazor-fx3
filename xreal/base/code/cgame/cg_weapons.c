@@ -778,7 +778,7 @@ void CG_RegisterWeapon(int weaponNum)
 	CG_RegisterItemVisuals(item - bg_itemlist);
 
 	// load cmodel before model so filecache works
-	weaponInfo->weaponModel = trap_R_RegisterModel(item->models[0], qtrue);
+	weaponInfo->weaponModel = trap_R_RegisterModel(item->models[0]);
 
 	// try to load .md5mesh model if the .md3 could not be found
 	if(!weaponInfo->weaponModel)
@@ -786,7 +786,7 @@ void CG_RegisterWeapon(int weaponNum)
 		strcpy(path, item->models[0]);
 		Com_StripExtension(path, path, sizeof(path));
 		strcat(path, ".md5mesh");
-		weaponInfo->weaponModel = trap_R_RegisterModel(path, qtrue);
+		weaponInfo->weaponModel = trap_R_RegisterModel(path);
 	}
 
 	// calc midpoint for rotation
@@ -808,28 +808,28 @@ void CG_RegisterWeapon(int weaponNum)
 	}
 	if(ammo->classname && ammo->models[0])
 	{
-		weaponInfo->ammoModel = trap_R_RegisterModel(ammo->models[0], qtrue);
+		weaponInfo->ammoModel = trap_R_RegisterModel(ammo->models[0]);
 	}
 
 	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_flash.md3");
-	weaponInfo->flashModel = trap_R_RegisterModel(path, qtrue);
+	weaponInfo->flashModel = trap_R_RegisterModel(path);
 
 	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_barrel.md3");
-	weaponInfo->barrelModel = trap_R_RegisterModel(path, qtrue);
+	weaponInfo->barrelModel = trap_R_RegisterModel(path);
 
 	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_hand.md3");
-	weaponInfo->handsModel = trap_R_RegisterModel(path, qfalse);
+	weaponInfo->handsModel = trap_R_RegisterModel(path);
 
 	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_view.md5mesh");
-	weaponInfo->viewModel = trap_R_RegisterModel(path, qfalse);
+	weaponInfo->viewModel = trap_R_RegisterModel(path);
 
 	if(weaponInfo->viewModel)
 	{
@@ -879,7 +879,7 @@ void CG_RegisterWeapon(int weaponNum)
 	{
 		case WP_GAUNTLET:
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
-			weaponInfo->projectileModel = trap_R_RegisterModel("models/weapons/gauntlet/gauntlet_barrel.md3", qtrue);
+			weaponInfo->projectileModel = trap_R_RegisterModel("models/weapons/gauntlet/gauntlet_barrel.md3");
 			weaponInfo->projectileTrailFunc = CG_GrappleTrail;
 			weaponInfo->projectileLight = 200;
 			weaponInfo->wiTrailTime = 2000;
@@ -932,7 +932,7 @@ void CG_RegisterWeapon(int weaponNum)
 			break;
 
 		case WP_ROCKET_LAUNCHER:
-			weaponInfo->projectileModel = trap_R_RegisterModel("models/projectiles/missile/missile.md3", qtrue);
+			weaponInfo->projectileModel = trap_R_RegisterModel("models/projectiles/missile/missile.md3");
 			weaponInfo->projectileSound = trap_S_RegisterSound("sound/weapons/rocket/rockfly.ogg");
 			weaponInfo->projectileTrailFunc = CG_RocketTrail;
 			weaponInfo->projectileLight = 200;
@@ -959,7 +959,7 @@ void CG_RegisterWeapon(int weaponNum)
 #endif
 
 		case WP_FLAK_CANNON:
-			weaponInfo->projectileModel = trap_R_RegisterModel("models/projectiles/shuriken/shuriken1.md5mesh", qtrue);
+			weaponInfo->projectileModel = trap_R_RegisterModel("models/projectiles/shuriken/shuriken1.md5mesh");
 			weaponInfo->ejectBrassFunc = CG_NailgunEjectBrass;
 			weaponInfo->projectileTrailFunc = CG_NailTrail;
 			//weaponInfo->projectileSound = trap_S_RegisterSound( "sound/weapons/flakcannon/wnalflit.ogg", qfalse );
@@ -968,7 +968,7 @@ void CG_RegisterWeapon(int weaponNum)
 			MAKERGB(weaponInfo->flashLightColor, 1, 0.75f, 0);
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/flakcannon/wnalfire.ogg");
 
-			weaponInfo->projectileModel2 = trap_R_RegisterModel("models/projectiles/grenade/grenade.md3", qtrue);
+			weaponInfo->projectileModel2 = trap_R_RegisterModel("models/projectiles/grenade/grenade.md3");
 			weaponInfo->projectileTrailFunc2 = CG_GrenadeTrail;
 			weaponInfo->wiTrailTime2 = 700;
 			weaponInfo->trailRadius2 = 32;
@@ -996,7 +996,7 @@ void CG_RegisterWeapon(int weaponNum)
 			cgs.media.railRings2Shader = trap_R_RegisterShader("particles/flare2");
 			cgs.media.railCoreShader = trap_R_RegisterShader("railCore");
 
-			weaponInfo->projectileModel = trap_R_RegisterModel("models/projectiles/railsphere/shocksphere.md5mesh", qfalse);
+			weaponInfo->projectileModel = trap_R_RegisterModel("models/projectiles/railsphere/shocksphere.md5mesh");
 			weaponInfo->projectileSound = trap_S_RegisterSound("sound/weapons/rocket/rockfly.ogg");
 			//weaponInfo->projectileTrailFunc = CG_RocketTrail;
 			weaponInfo->projectileLight = 100;
@@ -1012,7 +1012,7 @@ void CG_RegisterWeapon(int weaponNum)
 			MAKERGB(weaponInfo->flashLightColor, 1, 0.7f, 1);
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/bfg/bfg_fire.wav");
 			cgs.media.bfgExplosionShader = trap_R_RegisterShader("bfgExplosion");
-			weaponInfo->projectileModel = trap_R_RegisterModel("models/weaphits/bfg.md3", qtrue);
+			weaponInfo->projectileModel = trap_R_RegisterModel("models/weaphits/bfg.md3");
 			weaponInfo->projectileSound = trap_S_RegisterSound("sound/weapons/rocket/rockfly.ogg");
 			break;
 
@@ -1051,7 +1051,7 @@ void CG_RegisterItemVisuals(int itemNum)
 	memset(itemInfo, 0, sizeof(&itemInfo));
 	itemInfo->registered = qtrue;
 
-	itemInfo->models[0] = trap_R_RegisterModel(item->models[0], qtrue);
+	itemInfo->models[0] = trap_R_RegisterModel(item->models[0]);
 	if(item->skins[0])
 	{
 		itemInfo->skins[0] = trap_R_RegisterSkin(item->skins[0]);
@@ -1069,7 +1069,7 @@ void CG_RegisterItemVisuals(int itemNum)
 	{
 		if(item->models[1])
 		{
-			itemInfo->models[1] = trap_R_RegisterModel(item->models[1], qtrue);
+			itemInfo->models[1] = trap_R_RegisterModel(item->models[1]);
 		}
 
 		if(item->skins[1])

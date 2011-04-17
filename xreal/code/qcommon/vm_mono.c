@@ -1066,7 +1066,7 @@ void Mono_Init(void)
 	{
 		char            options[1024];
 
-		Com_sprintf(options, sizeof(options), "--debugger-agent=\"transport=dt_socket,address=localhost:8000\"");
+		Com_sprintf(options, sizeof(options), "--debugger-agent=\"transport=dt_socket,address=127.0.0.1:8000\"");
 		
 		mono_jit_parse_options(1, &options);
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
