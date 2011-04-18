@@ -5,7 +5,6 @@
 
 models/weapons/machinegun/machinegun
 {
-	parallax
 	diffusemap		models/weapons/machinegun/machinegun_d
 	specularmap		models/weapons/machinegun/machinegun_s
 	bumpmap			models/weapons/machinegun/machinegun_local
