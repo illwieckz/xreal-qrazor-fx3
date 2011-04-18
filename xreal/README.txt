@@ -102,7 +102,7 @@ ___________________________________
 
 This project's SourceForge.net Subversion repository can be checked out through SVN with the following instruction set: 
 
-svn co https://svn.sourceforge.net/svnroot/xreal/trunk/xreal XreaL
+svn co https://xreal.svn.sourceforge.net/svnroot/xreal/trunk/xreal XreaL
 
 
 
