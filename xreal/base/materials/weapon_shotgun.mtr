@@ -6,7 +6,7 @@ models/weapons/shotgun/shotgun
 {
 	diffusemap		models/weapons/shotgun/shotgun_d
 	specularmap	 	models/weapons/shotgun/shotgun_s
-	bumpmap			models/weapons/shotgun/shotgun_local
+	bumpmap			addnormals(models/weapons/shotgun/shotgun_local, heightMap(textures/odin/details/metaldetail_1, 0.25))
 }
 
 models/weapons/shotgun/q2_w_supershotgun01
@@ -14,7 +14,7 @@ models/weapons/shotgun/q2_w_supershotgun01
 	parallax
 	diffusemap		models/weapons/shotgun/shotgun_d
 	specularmap	 	models/weapons/shotgun/shotgun_s
-	normalmap		models/weapons/shotgun/shotgun_local
+	bumpmap			addnormals(models/weapons/shotgun/shotgun_local, heightMap(textures/odin/details/metaldetail_1, 0.25))
 }
 
 
