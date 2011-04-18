@@ -13,11 +13,19 @@ textures/hipshot_sky/grimmnight
 	nolightmap
 	
 	xmap_sun 1 1 1 150 75 45
-	
-	{
+
+	skyparms - 2048 -
+
+	{ 
 		stage skyboxMap
 		noPicMip
-		cubeMap	cubemaps/hipshot/grimmnight/grimmnight
+		cubeMap cubemaps/hipshot/grimmnight/grimmnight
+	}
+	{
+		forceHighQuality
+		blend	add
+		map	textures/odin/skies/clouds01
+		scroll	time * 0.02, time* 0.01
 	}
 }
 

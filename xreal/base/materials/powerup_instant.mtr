@@ -8,7 +8,6 @@ cleaned up by odin 2010
 models/powerups/instant/enviro
 {
 	diffusemap		gfx/2d/yellow
-	reflectionMapBlended	_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -47,7 +46,7 @@ models/powerups/instant/enviro_ring
 
 models/powerups/instant/enviro_flare
 {
-	deformVertexes		autosprite
+/*	deformVertexes		autosprite
 	{
 		edgeClamp
 		map		gfx/effect/flare01.png
@@ -66,7 +65,7 @@ models/powerups/instant/enviro_flare
 		red		0.75 + sinTable[time * 0.52] * 0.4
 		green		0.75 + sinTable[time * 0.52] * 0.4
 		blue		0.02 + sinTable[time *0.52] * 0.4
-	}
+	}*/
 }
 
 models/powerups/instant/regen
@@ -74,7 +73,6 @@ models/powerups/instant/regen
 	
 	twosided
 	diffusemap		gfx/2d/red
-	reflectionMapBlended	_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -113,7 +111,7 @@ models/powerups/instant/regen_ring
 
 models/powerups/instant/regen_flare
 {
-	deformVertexes		autosprite
+/*	deformVertexes		autosprite
 	{
 		edgeClamp
 		map		gfx/effect/flare01.png
@@ -131,14 +129,13 @@ models/powerups/instant/regen_flare
 		red		0.75 + sinTable[time * 0.52] * 0.4
 		green		0.09 + sinTable[time * 0.52] * 0.4
 		blue		0.02 + sinTable[time *0.52] * 0.4
-	}
+	}*/
 }
 
 models/powerups/instant/flight
 {
 	twosided
 	diffusemap		gfx/2d/magenta
-	reflectionMapBlended	_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png
@@ -187,7 +184,7 @@ models/powerups/instant/flight_ring
 
 models/powerups/instant/flight_flare
 {
-	deformVertexes		autosprite
+/*	deformVertexes		autosprite
 	{
 		edgeClamp
 		map		gfx/effect/flare01.png
@@ -205,7 +202,7 @@ models/powerups/instant/flight_flare
 		red		0.75 + sinTable[time * 0.52] * 0.4
 		green		0.09 + sinTable[time * 0.52] * 0.4
 		blue		0.82 + sinTable[time *0.52] * 0.4
-	}
+	}*/
 }
 
 models/powerups/instant/invis
@@ -213,7 +210,6 @@ models/powerups/instant/invis
 	
 	twosided
 	diffusemap		gfx/2d/teal
-	reflectionMapBlended	_autocube
 	{
 		map		gfx/effect/effmap03.png
 		blend		add
@@ -247,7 +243,7 @@ models/powerups/instant/invis_ring
 
 models/powerups/instant/invis_flare
 {
-	deformVertexes		autosprite
+/*	deformVertexes		autosprite
 	{
 		edgeClamp
 		map		gfx/effect/flare01.png
@@ -261,7 +257,7 @@ models/powerups/instant/invis_flare
 		blend		add
 		rotate		time * -0.5
 		blue		0.4 + sinTable[time * 0.31] * 0.5
-	}
+	}*/
 }
 
 models/powerups/instant/haste
@@ -269,7 +265,6 @@ models/powerups/instant/haste
 	
 	twosided
 	diffusemap		gfx/2d/green
-	reflectionMapBlended	_autocube
 	{
 		edgeClamp
 		map		gfx/effect/effmap02.png	
@@ -294,7 +289,7 @@ models/powerups/instant/haste
 
 models/powerups/instant/haste_flare
 {
-	deformVertexes		autosprite
+/*	deformVertexes		autosprite
 	{
 		edgeClamp
 		map		gfx/effect/flare01.png
@@ -310,7 +305,7 @@ models/powerups/instant/haste_flare
 		rotate		time * -0.5
 		red		0.02 + sinTable[time * 0.29] * 0.5
 		green		0.02 + sinTable[time * 0.29] * 0.5
-	}
+	}*/
 }
 
 models/powerups/instant/haste_ring
@@ -342,7 +337,6 @@ models/powerups/instant/quad
 	
 	twosided
 	diffusemap		gfx/2d/blue
-	reflectionMapBlended	_autocube
 	{
 		map		gfx/effect/effmap02.png
   		red		0.014 + sinTable[time * 0.2] * 0.4
@@ -392,7 +386,7 @@ models/powerups/instant/quad_ring
 
 models/powerups/instant/quad_flare
 {
-	deformVertexes		autosprite
+/*	deformVertexes		autosprite
 	{
 		edgeClamp
 		map		gfx/effect/flare01.png
@@ -406,5 +400,5 @@ models/powerups/instant/quad_flare
 		blend		add
 		rotate		time * -0.5
 		blue		0.7 + sinTable[time * 0.31] * 0.5
-	}
+	}*/
 }

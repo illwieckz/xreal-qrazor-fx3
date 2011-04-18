@@ -1,15 +1,13 @@
 models/weapons/lightning/w_lightning
 {
-	diffuseMap		models/weapons/lightning/lightning.tga
-	specularMap		models/weapons/lightning/lightning.tga
-	normalMap		models/weapons/lightning/lightning_local.tga
-	reflectionMapBlended	_autocube
-	normalMap		models/weapons/lightning/lightning_local.tga
+	diffuseMap	models/weapons/lightning/lightning
+	specularMap	models/weapons/lightning/lightning
+	normalMap	models/weapons/lightning/lightning_local
 }
 
 models/weapons/lightning/f_lightning
 {
 	sort		additive
 	twoSided
-	glowMap		models/weapons/lightning/f_lightning.tga
+	glowMap		models/weapons/lightning/f_lightning
 }

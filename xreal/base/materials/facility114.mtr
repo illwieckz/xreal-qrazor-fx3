@@ -228,8 +228,6 @@ textures/facility114/corridor05b
 	diffuseMap		textures/facility114/corridor05b
 	specularMap		textures/facility114/corridor05_s
 	normalMap		textures/facility114/corridor05_local
-	reflectionMapBlended	_autocube
-	normalMap		textures/facility114/corridor05_local
 }
 
 textures/facility114/door01

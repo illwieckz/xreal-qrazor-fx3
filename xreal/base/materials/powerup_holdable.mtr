@@ -8,98 +8,80 @@ models/powerups/holdable/teleporter
 {
 	twosided
 	diffuseMap	gfx/2d/teal
-	reflectionMapBlended	_autocube
+	specularMap	gfx/2d/teal
+	normalMap	heightMap(textures/odin/details/metaldetail_1, 0.25)
 	{
-		edgeClamp
 		map	gfx/effect/effmap02.png
-  		red	0.014 + sinTable[time * 0.2] * 0.4
-     		green	0.066 + sinTable[time * 0.2] * 0.4
-     		blue	0.075 + sinTable[time * 0.2] * 0.4
-          	rotate	time * -0.8
-          	blend	add
 		tcGen	environment
+          	blend	GL_DST_COLOR, GL_ONE
 	}
 	{
-		edgeClamp
 		map	gfx/effect/effmap01.png
-		rotate	time * 0.6
-		blend	add
-		red	0.14  + sinTable[time * 0.3] * 0.5
-     		green	0.66 + sinTable[time * 0.3] * 0.5
-		blue	0.75 + sinTable[time * 0.3] * 0.5
 		tcGen	environment
+          	blend	GL_DST_COLOR, GL_ONE
 	}
 }
 
 models/powerups/holdable/teleporter_flare
 {
-	deformVertexes	autosprite
+/*	deformVertexes	autosprite
 	{
 		edgeClamp
 		map	gfx/effect/flare01.png
        		rotate	time * 0.3
-		blend	add
 		blue	0.9 + sinTable[time * 0.29] * 0.5
 		red	0.2 + sinTable[time * 0.29] * 0.5
 		green	0.2 + sinTable[time * 0.29] * 0.5
+		blend	add
 	}
 	{
 		edgeClamp
 		map	gfx/effect/flare01.png
        		rotate	time * -0.5
-		blend	add
 		blue	0.7 + sinTable[time * 0.31] * 0.5
 		red	0.1 + sinTable[time * 0.31] * 0.5
 		green	0.1 + sinTable[time * 0.31] * 0.5
-	}
+		blend	add
+	}*/
 }
 
 models/powerups/holdable/medkit
 {
 	twosided
 	diffuseMap	gfx/2d/red
-	reflectionMapBlended	_autocube
+	specularMap	gfx/2d/red
+	normalMap	heightMap(textures/odin/details/metaldetail_1, 0.25)
 	{
-		edgeClamp
 		map	gfx/effect/effmap02.png
-		red	0.094  + sinTable[time * 0.3] * 0.5
-     		green	0.066 + sinTable[time * 0.3] * 0.5
-		blue	0.015 + sinTable[time * 0.3] * 0.5
-    		rotate	time * -0.8
-          	blend	add
 		tcGen	environment
+          	blend	GL_DST_COLOR, GL_ONE
 	}
 	{
-		edgeClamp
 		map	gfx/effect/effmap01.png
-		rotate	time * 0.6
-		blend	add
-		red	0.94  + sinTable[time * 0.3] * 0.5
-     		green	0.66 + sinTable[time * 0.3] * 0.5
-		blue	0.15 + sinTable[time * 0.3] * 0.5
 		tcGen	environment
+          	blend	GL_DST_COLOR, GL_ONE
 	}
 }
 
 models/powerups/holdable/medkit_flare
 {
-	deformVertexes	autosprite
+/*	deformVertexes	autosprite
 	{
 		edgeClamp
 		map	gfx/effect/flare01.png
        		rotate	time * 0.3
-		blend	add
 		blue	0.2 + sinTable[time * 0.29] * 0.5
 		red	0.9 + sinTable[time * 0.29] * 0.5
 		green	0.2 + sinTable[time * 0.29] * 0.5
+          	blend	add
 	}
 	{
 		edgeClamp
 		map	gfx/effect/flare01.png
        		rotate	time * -0.5
-		blend	add
 		blue	0.1 + sinTable[time * 0.31] * 0.5
 		red	0.7 + sinTable[time * 0.31] * 0.5
 		green	0.1 + sinTable[time * 0.31] * 0.5
-	}
+          	blend	add
+	}*/
 }

@@ -14,13 +14,12 @@ models/powerups/health/small
 		map		gfx/effect/envmap.png
 		tcGen		environment
 		color		0, 1, 0, 255
-		blend		add
+		blend		GL_DST_COLOR, GL_ONE
 	}
 }
 
 models/powerups/health/small_sphere
 {
-//	twosided
 	{
 		clampmap	gfx/effect/effmap01.png
         	rotate		time * -0.4
@@ -35,7 +34,6 @@ models/powerups/health/small_sphere
 		blend		add
 		tcGen		environment
 	}
-	reflectionMapBlended	_autocube
 }
 
 models/powerups/health/small_flare
@@ -68,13 +66,12 @@ models/powerups/health/medium
 		map		gfx/effect/envmap.png
 		tcGen		environment
 		color		1, 1, 0, 255
-		blend		add
+		blend		GL_DST_COLOR, GL_ONE
 	}
 }
 
 models/powerups/health/medium_sphere
 {
-//	twosided
 	{
 		map		gfx/effect/effmap01.png
 		green		0.5 + sinTable[time * 0.3] * 0.56
@@ -89,7 +86,6 @@ models/powerups/health/medium_sphere
 		tcGen		environment
 		blend		add
 	}
-	reflectionMapBlended	_autocube
 }
 
 models/powerups/health/medium_flare
@@ -123,18 +119,17 @@ models/powerups/health/large
 		map		gfx/effect/envmap.png
 		tcGen		environment
 		color		1, 0, 0, 255
-		blend		add
+		blend		GL_DST_COLOR, GL_ONE
 	}
 }
 
 models/powerups/health/large_sphere
 {
-//	twosided
 	{
 		clampmap	gfx/effect/effmap01.png
+		red		0.5 + sinTable[time * 0.3] * 0.5
         	rotate		time * -0.4
 		blend		add
-		red		0.5 + sinTable[time * 0.3] * 0.5
 		tcGen		environment
 	}
 	{
@@ -144,7 +139,6 @@ models/powerups/health/large_sphere
 		blend 		add
 		tcGen		environment
 	}
-	reflectionMapBlended	_autocube
 }
 
 models/powerups/health/large_flare
@@ -177,18 +171,17 @@ models/powerups/health/mega
 		map		gfx/effect/envmap.png
 		tcGen		environment
 		color		0, 1, 1, 255
-		blend		add
+		blend		GL_DST_COLOR, GL_ONE
 	}
 }
 
 models/powerups/health/mega_sphere
 {
-//	twosided
 	{
 		clampmap	gfx/effect/effmap01.png
+		blue		0.55 + sinTable[time * 0.35] * 0.55
 		rotate		time * -0.4
 		blend		add
-		blue		0.55 + sinTable[time * 0.35] * 0.55
 		tcGen		environment
 	}
 	{
@@ -198,7 +191,6 @@ models/powerups/health/mega_sphere
 		blend		add
 		tcGen		environment
 	}
-	reflectionMapBlended	_autocube
 }
 
 models/powerups/health/mega_flare

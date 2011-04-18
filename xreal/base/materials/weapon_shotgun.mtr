@@ -4,22 +4,17 @@
 
 models/weapons/shotgun/shotgun
 {
-	noShadows
-	diffusemap		models/weapons/shotgun/shotgun_d.tga
-	specularmap	 	models/weapons/shotgun/shotgun_d.tga
-	bumpmap			addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
-	reflectionMapBlended	_autocube
-	bumpmap			addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
+	diffusemap		models/weapons/shotgun/shotgun_d
+	specularmap	 	models/weapons/shotgun/shotgun_s
+	bumpmap			models/weapons/shotgun/shotgun_local
 }
 
 models/weapons/shotgun/q2_w_supershotgun01
 {
-	noShadows
-	diffusemap		models/weapons/shotgun/shotgun_d.tga
-	specularmap	 	models/weapons/shotgun/shotgun_d.tga
-	normalmap		addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
-	reflectionMapBlended	_autocube
-	normalmap		addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
+	parallax
+	diffusemap		models/weapons/shotgun/shotgun_d
+	specularmap	 	models/weapons/shotgun/shotgun_s
+	normalmap		models/weapons/shotgun/shotgun_local
 }
 
 
@@ -31,7 +26,7 @@ models/weapons/shotgun/shotgun_muzzflash
 		forceHighQuality
 		if 		( time + parm4 ) * 6.4 < 1.0
 		blend 		add
-		map 		models/weapons/shotgun/shotgun_muzzflash_strip.tga
+		map 		models/weapons/shotgun/shotgun_muzzflash_strip
 		scale 		1 / 32 , 1
 		scroll 		q2table32[ (time + parm4) * 6.4] , 0
 		rotate		q2rotate90[ parm5 ]
@@ -46,7 +41,7 @@ models/weapons/shotgun/shotgun_muzzflash2
 		forceHighQuality
 		if		( time + parm4 ) * 5 < 1.0
 		blend 		add
-		map 		models/weapons/shotgun/shotgun_muzzflash2_strip.tga
+		map 		models/weapons/shotgun/shotgun_muzzflash2_strip
 		scale 		1 / 8 , 1
 		scroll 		q2table8[ (time + parm4) * 5] , 0
 		clamp
@@ -61,7 +56,7 @@ models/weapons/shotgun/shotgun_muzzflashb
 		forceHighQuality
 		if 		( time + parm4 ) * 7 < 1.0
 		blend 		add
-		map 		models/weapons/shotgun/shotgun_muzzflash_strip.tga
+		map 		models/weapons/shotgun/shotgun_muzzflash_strip
 		scale 		1 / 32 , 1
 		scroll 		q2table32[ (time + parm4) * 7] , 0
 		rotate		q2rotate90[ parm5 ]
@@ -76,7 +71,7 @@ models/weapons/shotgun/shotgun_muzzflash2b
 		forceHighQuality
 		if 		( time + parm4 ) * 5 < 1.0
 		blend 		add
-		map 		models/weapons/shotgun/shotgun_muzzflash2_strip.tga
+		map 		models/weapons/shotgun/shotgun_muzzflash2_strip
 		scale 		1 / 8 , 1
 		scroll 		q2table8[ (time + parm4) * 5] , 0
 		clamp
@@ -85,9 +80,7 @@ models/weapons/shotgun/shotgun_muzzflash2b
 
 models/weapons/shotgun/shell
 {
-	diffuseMap		models/weapons/shells/shell_d.png
-	specularMap		models/weapons/shells/shell_s.png
-	normalMap		models/weapons/shells/shell_n.png
-	reflectionMapBlended	_autocube
-	normalMap		models/weapons/shells/shell_n.png
+	diffuseMap		models/weapons/shells/shell_d
+	specularMap		models/weapons/shells/shell_s
+	normalMap		models/weapons/shells/shell_n
 }

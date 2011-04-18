@@ -298,7 +298,6 @@ textures/trak/trak5/glass_twosided
 	}
 	specularMap		textures/trak/trak5/glass
 	normalMap		textures/trak/trak5/glass_nm
-//	reflectionMapBlended	_autocube
 	{
 		stage		heatHazeMap
 		scroll		0, 0
@@ -324,7 +323,6 @@ textures/trak/trak5/glass
 	}
 	specularMap		textures/trak/trak5/glass
 	normalMap		textures/trak/trak5/glass_nm
-//	reflectionMapBlended	_autocube
 	{
 		stage		heatHazeMap
 		scroll		0, 0
@@ -686,8 +684,7 @@ textures/trak/trak5/pipe1a
 
 	diffuseMap		textures/trak/trak5/pipe1a
 	specularMap		_white
-	normalMap		_flat
-	reflectionMapBlended	_autocube
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }
 
 textures/trak/trak5/pipe1b
@@ -697,8 +694,7 @@ textures/trak/trak5/pipe1b
 
 	diffuseMap		textures/trak/trak5/pipe1b
 	specularMap		_white
-	normalMap		_flat
-	reflectionMapBlended	_autocube
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }
 
 textures/trak/trak5/pipe1c
@@ -708,8 +704,7 @@ textures/trak/trak5/pipe1c
 
 	diffuseMap		textures/trak/trak5/pipe1c
 	specularMap		_white
-	normalMap		_flat
-	reflectionMapBlended	_autocube
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }
 
 textures/trak/trak5/pipe1d
@@ -719,8 +714,7 @@ textures/trak/trak5/pipe1d
 
 	diffuseMap		textures/trak/trak5/pipe1d
 	specularMap		_white
-	normalMap		_flat
-	reflectionMapBlended	_autocube
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }
 
 textures/trak/trak5/pipez1a
@@ -730,8 +724,6 @@ textures/trak/trak5/pipez1a
 	parallax
 	diffuseMap		textures/trak/trak5/pipez1a
 	specularMap		textures/trak/trak5/pipez1a
-	normalMap		textures/trak/trak5/pipez1a_nm
-	reflectionMapBlended	_autocube
 	normalMap		textures/trak/trak5/pipez1a_nm
 }
 

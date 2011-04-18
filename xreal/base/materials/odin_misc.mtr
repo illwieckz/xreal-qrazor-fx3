@@ -1,10 +1,7 @@
 textures/odin/misc/chrome
 {
 	qer_editorImage		textures/odin/misc/chrome
-
-	diffuseMap		_white
+	diffuseMap		_black
 	specularMap		_white
-	normalMap		_flat
-	reflectionMapBlended	_autocube
-	normalMap		_flat
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }

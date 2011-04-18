@@ -1,12 +1,10 @@
 models/powerups/armor/shard_d
 {
-	diffuseMap		models/powerups/armor/shard_d.tga
-	specularMap		models/powerups/armor/shard_s.tga
-	bumpMap			models/powerups/armor/shard_n.tga
-	reflectionMapBlended	_autocube
-	bumpMap			models/powerups/armor/shard_n.tga
+	diffuseMap		models/powerups/armor/shard_d
+	specularMap		_white
+	bumpMap			models/powerups/armor/shard_n
 	{
-		map		models/powerups/armor/shard_glo.tga
+		map		models/powerups/armor/shard_glo
 		blend		add
 		red		spark_neontable1[time * 0.7]
 		green		spark_neontable1[time * 0.7]
@@ -20,47 +18,37 @@ models/powerups/armor/shard_d
 
 models/powerups/armor/armor_red_front
 {
-	diffuseMap		models/powerups/armor/armor_red_front.png
-	specularMap		models/powerups/armor/armor_front_s.png
-	bumpMap			models/powerups/armor/armor_front_n.png
-	reflectionMapBlended	_autocube
-	bumpMap			models/powerups/armor/armor_front_n.png
+	diffuseMap		models/powerups/armor/armor_red_front
+	specularMap		gfx/2d/red
+	bumpMap			models/powerups/armor/armor_front_n
 }
 models/powerups/armor/armor_red_back
 {
-	diffuseMap		models/powerups/armor/armor_red_back.png
-	specularMap		models/powerups/armor/armor_back_s.png
-	bumpMap			models/powerups/armor/armor_back_n.png
-	reflectionMapBlended	_autocube
-	bumpMap			models/powerups/armor/armor_back_n.png
+	diffuseMap		models/powerups/armor/armor_red_back
+	specularMap		gfx/2d/red
+	bumpMap			models/powerups/armor/armor_back_n
 }
 
 models/powerups/armor/armor_yellow_front
 {
-	diffuseMap		models/powerups/armor/armor_yellow_front.png
-	specularMap		models/powerups/armor/armor_front_s.png
-	bumpMap			models/powerups/armor/armor_front_n.png
-	reflectionMapBlended	_autocube
-	bumpMap			models/powerups/armor/armor_front_n.png
+	diffuseMap		models/powerups/armor/armor_yellow_front
+	specularMap		gfx/2d/yellow
+	bumpMap			models/powerups/armor/armor_front_n
 }
 models/powerups/armor/armor_yellow_back
 {
-	diffuseMap		models/powerups/armor/armor_yellow_back.png
-	specularMap		models/powerups/armor/armor_back_s.png
-	bumpMap			models/powerups/armor/armor_back_n.png
-	reflectionMapBlended	_autocube
-	bumpMap			models/powerups/armor/armor_back_n.png
+	diffuseMap		models/powerups/armor/armor_yellow_back
+	specularMap		gfx/2d/yellow
+	bumpMap			models/powerups/armor/armor_back_n
 }
 models/powerups/armor/armor_dekor
 {
 
-	diffuseMap		models/powerups/armor/armor_dekor.png
-	specularMap		models/powerups/armor/armor_dekor_s.png
-	bumpMap			models/powerups/armor/armor_dekor_n.png
-	reflectionMapBlended	_autocube
-	bumpMap			models/powerups/armor/armor_dekor_n.png
+	diffuseMap		models/powerups/armor/armor_dekor
+	specularMap		_white
+	bumpMap			models/powerups/armor/armor_dekor_n
 	{
-		map		models/powerups/armor/armor_dekor_glow.png
+		map		models/powerups/armor/armor_dekor_glow
 		blend		add
 		red		spark_neontable1[time * 0.2]
 		green		spark_neontable1[time * 0.2]

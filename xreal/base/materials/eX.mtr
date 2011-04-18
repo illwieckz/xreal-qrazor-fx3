@@ -41,7 +41,7 @@ textures/eX/eX_floor_mtl_wrn_01
 
 	diffusemap		textures/eX/eX_floor_mtl_wrn_01
 	specularmap		textures/eX/eX_floor_mtl_wrn_01_s
-	normalMap		_flat
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }
 
 textures/eX/eXmetalBase01 
@@ -50,7 +50,7 @@ textures/eX/eXmetalBase01
 
 	diffusemap		textures/eX/eXmetalBase01
 	specularmap		textures/eX/eXmetalBase01_s
-	normalMap		_flat
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }
 
 textures/eX/eXmetalBase02 
@@ -59,7 +59,7 @@ textures/eX/eXmetalBase02
 
 	diffusemap		textures/eX/eXmetalBase02
 	specularmap		textures/eX/eXmetalBase02_s
-	normalMap		_flat
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }
 
 textures/eX/eXmetalBase03 
@@ -68,7 +68,7 @@ textures/eX/eXmetalBase03
 
 	diffusemap		textures/eX/eXmetalBase03
 	specularmap		textures/eX/eXmetalBase03_s
-	normalMap		_flat
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }
 
 textures/eX/eXmetalBase04
@@ -77,7 +77,7 @@ textures/eX/eXmetalBase04
 	
 	diffuseMap		textures/eX/eXmetalBase04
 	specularMap		textures/eX/eXmetalBase04_s
-	normalMap		_flat
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }
 
 textures/eX/eXmetalBase05Rust 
@@ -86,7 +86,7 @@ textures/eX/eXmetalBase05Rust
 
 	diffusemap		textures/eX/eXmetalBase05Rust
 	specularmap		textures/eX/eXmetalBase05Rust_s
-	normalMap		_flat
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 } 
 
 textures/eX/eXmetalBase06rust
@@ -96,7 +96,7 @@ textures/eX/eXmetalBase06rust
 	
 	diffuseMap		textures/eX/eXmetalBase06rust
 	specularMap		textures/eX/eXmetalBase06rust_s
-	normalMap		_flat
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }
 
 textures/eX/eXmetalBase07rust
@@ -106,7 +106,7 @@ textures/eX/eXmetalBase07rust
 	
 	diffuseMap		textures/eX/eXmetalBase07rust
 	specularMap		textures/eX/eXmetalBase07rust_s
-	normalMap		_flat
+	normalMap		heightMap(textures/odin/details/metaldetail_1, 0.25)
 }
 
 // floors
@@ -348,13 +348,13 @@ textures/eX/eX_deswall_01
 
 	diffusemap		textures/eX/eX_rplates_01_d
 	specularmap		textures/eX/eX_rplates_01_s
-	normalMap		displaceMap(textures/eX/eX_rplates_01_norm, _white)
+	normalMap		textures/eX/eX_rplates_01_norm
 	{
 		stage		diffuseMap
 		map		textures/eX/eX_deswall_01_shadow
 		blend		blend
 	}
-	normalMap		displaceMap(_flat, _white)
+	normalMap		_flat
 	{
 		stage		diffusemap
 		map		textures/eX/eX_deswall_01_d

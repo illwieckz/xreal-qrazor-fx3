@@ -4,12 +4,5 @@ textures/odin/pipes/m_rustypipe01
 
 	diffuseMap		textures/odin/pipes/m_rustypipe01_d
 	specularMap		textures/odin/pipes/m_rustypipe01_s
-	normalMap		addnormals(textures/odin/pipes/m_rustypipe01_local, heightmap(textures/odin/details/metaldetail_1), 1)
-	{
-		maskAlpha
-		stage		reflectionMap
-		cubeMap		_autocube
-		blend		GL_ONE_MINUS_DST_ALPHA, GL_ONE
-	}
-	normalMap		addnormals(textures/odin/pipes/m_rustypipe01_local, heightmap(textures/odin/details/metaldetail_1), 1)
+	normalMap		addnormals(textures/odin/pipes/m_rustypipe01_local, heightmap(textures/odin/details/metaldetail_1, 1))
 }

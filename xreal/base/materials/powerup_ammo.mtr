@@ -4,11 +4,11 @@
 // 1.machinegun
 models/powerups/ammo/machammo
 {
-	diffuseMap		models/powerups/ammo/ammobox.tga
-	specularMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
+	diffuseMap		models/powerups/ammo/ammobox
+	specularMap		_white
+	bumpMap			models/powerups/ammo/ammobox_n
 	{
-		map		models/powerups/ammo/ammolights.tga
+		map		models/powerups/ammo/ammolights
 		blend		blend
 		rgbGen		const ( 1 1 0 )
 		alphaGen	wave sawtooth 0 1 0 1 
@@ -18,17 +18,17 @@ models/powerups/ammo/machammo
 models/powerups/ammo/machammo2
 {
 	diffuseMap		_black
-	glowMap			models/powerups/ammo/machammo2.tga
+	glowMap			models/powerups/ammo/machammo2
 }
 
 // 2.shotgun
 models/powerups/ammo/shotammo
 {
-	diffuseMap		models/powerups/ammo/ammobox.tga
-	specularMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
+	diffuseMap		models/powerups/ammo/ammobox
+	specularMap		_white
+	bumpMap			models/powerups/ammo/ammobox_n
 	{
-		map		models/powerups/ammo/ammolights.tga
+		map		models/powerups/ammo/ammolights
 		blend		blend
 		rgbGen		const ( 1 0.5 0 )
 		alphaGen	wave sawtooth 0 1 0 1 
@@ -38,17 +38,17 @@ models/powerups/ammo/shotammo
 models/powerups/ammo/shotammo2
 {
 	diffuseMap		_black
-	glowMap			models/powerups/ammo/shotammo2.tga
+	glowMap			models/powerups/ammo/shotammo2
 }
 
 // 3.grenade launcher
 models/powerups/ammo/grenammo
 {
-	diffuseMap		models/powerups/ammo/ammobox.tga
-	specularMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
+	diffuseMap		models/powerups/ammo/ammobox
+	specularMap		_white
+	bumpMap			models/powerups/ammo/ammobox_n
 	{
-		map		models/powerups/ammo/ammolights.tga
+		map		models/powerups/ammo/ammolights
 		blend		blend
 		rgbGen		const ( 0 0.56 0 )
 		alphaGen	wave sawtooth 0 1 0 1 
@@ -58,17 +58,17 @@ models/powerups/ammo/grenammo
 models/powerups/ammo/grenammo2
 {
 	diffuseMap		_black
-	glowMap			models/powerups/ammo/grenammo2.tga
+	glowMap			models/powerups/ammo/grenammo2
 }
 
 // 4.lightning gun
 models/powerups/ammo/lighammo
 {
-	diffuseMap		models/powerups/ammo/ammobox.tga
-	specularMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
+	diffuseMap		models/powerups/ammo/ammobox
+	specularMap		_white
+	bumpMap			models/powerups/ammo/ammobox_n
 	{
-		map		models/powerups/ammo/ammolights.tga
+		map		models/powerups/ammo/ammolights
 		blend		blend
 		rgbGen		const ( 1 1 0.69 )
 		alphaGen	wave sawtooth 0 1 0 1 
@@ -78,17 +78,17 @@ models/powerups/ammo/lighammo
 models/powerups/ammo/lighammo2
 {
 	diffuseMap		_black
-	glowMap			models/powerups/ammo/lighammo2.tga
+	glowMap			models/powerups/ammo/lighammo2
 }
 
 // 5.plasma gun
 models/powerups/ammo/plasammo
 {
-	diffuseMap		models/powerups/ammo/ammobox.tga
-	specularMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
+	diffuseMap		models/powerups/ammo/ammobox
+	specularMap		_white
+	bumpMap			models/powerups/ammo/ammobox_n
 	{
-		map		models/powerups/ammo/ammolights.tga
+		map		models/powerups/ammo/ammolights
 		blend		blend
 		rgbGen		const ( .8 0 1 )
 		alphaGen	wave sawtooth 0 1 0 1 
@@ -98,17 +98,17 @@ models/powerups/ammo/plasammo
 models/powerups/ammo/plasammo2
 {
 	diffuseMap		_black
-	glowMap			models/powerups/ammo/plasammo2.tga
+	glowMap			models/powerups/ammo/plasammo2
 }
 
 // 6.rocket launcher
 models/powerups/ammo/rockammo
 {
-	diffuseMap		models/powerups/ammo/ammobox.tga
-	specularMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
+	diffuseMap		models/powerups/ammo/ammobox
+	specularMap		_white
+	bumpMap			models/powerups/ammo/ammobox_n
 	{
-		map		models/powerups/ammo/ammolights.tga
+		map		models/powerups/ammo/ammolights
 		blend		blend
 		rgbGen		const ( 1 0 0 )
 		alphaGen		wave sawtooth 0 1 0 1 
@@ -118,17 +118,17 @@ models/powerups/ammo/rockammo
 models/powerups/ammo/rockammo2
 {
 	diffuseMap		_black
-	glowMap			models/powerups/ammo/rockammo2.tga
+	glowMap			models/powerups/ammo/rockammo2
 }
 
 // 7. railgun
 models/powerups/ammo/railammo
 {
-	diffuseMap		models/powerups/ammo/ammobox.tga
-	specularMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
+	diffuseMap		models/powerups/ammo/ammobox
+	specularMap		_white
+	bumpMap			models/powerups/ammo/ammobox_n
 	{
-		map		models/powerups/ammo/ammolights.tga
+		map		models/powerups/ammo/ammolights
 		blend		blend
 		rgbGen		const ( 0 1 0 )
 		alphaGen	wave sawtooth 0 1 0 1 
@@ -138,18 +138,18 @@ models/powerups/ammo/railammo
 models/powerups/ammo/railammo2
 {
 	diffuseMap		_black
-	glowMap			models/powerups/ammo/railammo2.tga
+	glowMap			models/powerups/ammo/railammo2
 }
 
 
 // 8. BFG
 models/powerups/ammo/bfgammo
 {
-	diffuseMap		models/powerups/ammo/ammobox.tga
-	specularMap		models/powerups/ammo/ammobox.tga
-	bumpMap			models/powerups/ammo/ammobox_n.tga
+	diffuseMap		models/powerups/ammo/ammobox
+	specularMap		_white
+	bumpMap			models/powerups/ammo/ammobox_n
 	{
-		map		models/powerups/ammo/ammolights.tga
+		map		models/powerups/ammo/ammolights
 		blend		blend
 		rgbGen		const ( 0 0.4 1 )
 		alphaGen	wave sawtooth 0 1 0 1 
@@ -159,5 +159,5 @@ models/powerups/ammo/bfgammo
 models/powerups/ammo/bfgammo2
 {
 	diffuseMap		_black
-	glowMap			models/powerups/ammo/bfgammo2.tga
+	glowMap			models/powerups/ammo/bfgammo2
 }

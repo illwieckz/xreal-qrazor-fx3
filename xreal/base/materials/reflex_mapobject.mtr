@@ -20,6 +20,4 @@ models/mapobjects/reflex/vent1
 	diffusemap		models/mapobjects/reflex/vent1.tga
 	specularmap		models/mapobjects/reflex/vent1.tga
 	bumpmap			models/mapobjects/reflex/vent1_local.tga
-	reflectionMapBlended	_autocube
-	bumpmap			models/mapobjects/reflex/vent1_local.tga
 }

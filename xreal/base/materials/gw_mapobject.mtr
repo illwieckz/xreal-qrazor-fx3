@@ -4,8 +4,6 @@ models/mapobjects/gw/fan
 	diffusemap		models/mapobjects/gw/fan_d.tga
 	specularmap		models/mapobjects/gw/fan_s.tga
 	bumpmap			models/mapobjects/gw/fan_local.tga
-	reflectionmapblended	_autocube
-	bumpmap			models/mapobjects/gw/fan_local.tga
 }
 
 models/mapobjects/gw/fan_chrome
@@ -13,12 +11,6 @@ models/mapobjects/gw/fan_chrome
 	qer_editorimage		models/mapobjects/gw/fan_chrome.tga
 	diffusemap		_black
 	specularmap		_white
-	bumpmap			models/mapobjects/gw/fan_local.tga
-	{
-		stage		reflectionmap
-		cubemap		_autocube
-		blend		add
-	}
 	bumpmap			models/mapobjects/gw/fan_local.tga
 }
 
@@ -46,12 +38,6 @@ models/mapobjects/gw/teleporter_01_chrome
 	
 	diffusemap		_black
 	specularmap		_white
-	bumpmap			models/mapobjects/gw/teleporter_01_local.tga
-	{
-		stage		reflectionmap
-		cubemap		_autocube
-		blend		add
-	}
 	bumpmap			models/mapobjects/gw/teleporter_01_local.tga
 }
 
