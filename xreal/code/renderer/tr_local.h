@@ -80,16 +80,10 @@ typedef unsigned short glIndex_t;
 
 #define MAX_SHADOWMAPS			5
 
-#if !defined(USE_D3D10)
 //#define VOLUMETRIC_LIGHTING 1
-#endif
 
 #define DEBUG_OPTIMIZEVERTICES 0
 #define CALC_REDUNDANT_SHADOWVERTS 0
-
-#define OFFSCREEN_PREPASS_LIGHTING 1
-
-//#define DEFERRED_SHADING_Z_PREPASS 1
 
 #define GLSL_COMPILE_STARTUP_ONLY 1
 
@@ -97,7 +91,6 @@ typedef enum
 {
 	DS_DISABLED,				// traditional Doom 3 style rendering
 	DS_STANDARD,				// deferred rendering like in Stalker
-	DS_PREPASS_LIGHTING			// light pre pass rendering like in Cry Engine 3
 } deferredShading_t;
 
 typedef enum
@@ -110,28 +103,26 @@ typedef enum
 	SHADOWING_ESM
 } shadowingMode_t;
 
+typedef enum
+{
+	RSPEEDS_GENERAL = 1,
+	RSPEEDS_CULLING,
+	RSPEEDS_VIEWCLUSTER,
+	RSPEEDS_LIGHTS,
+	RSPEEDS_SHADOWCUBE_CULLING,
+	RSPEEDS_FOG,
+	RSPEEDS_FLARES,
+	RSPEEDS_OCCLUSION_QUERIES,
+	RSPEEDS_DEPTH_BOUNDS_TESTS,
+	RSPEEDS_SHADING_TIMES,
+	RSPEEDS_CHC,
+	RSPEEDS_NEAR_FAR,
+	RSPEEDS_DECALS
 
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
+} renderSpeeds_t;
 
-#define DS_STANDARD_ENABLED() ((r_deferredShading->integer == DS_STANDARD && glConfig.maxColorAttachments >= 4 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4 && glConfig.framebufferPackedDepthStencilAvailable && glConfig.driverType != GLDRV_MESA))
 
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-#define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING && glConfig.maxColorAttachments >= 2 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 2 && glConfig.framebufferPackedDepthStencilAvailable && glConfig.driverType != GLDRV_MESA))
-#else
-#define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING))
-#endif
-
-#else // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-#define DS_STANDARD_ENABLED() (1 == 0)
-
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-#define DS_PREPASS_LIGHTING_ENABLED() (1 == 0)
-#else
-#define DS_PREPASS_LIGHTING_ENABLED() (1 == 0)
-#endif
-
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+#define DS_STANDARD_ENABLED() ((r_deferredShading->integer == DS_STANDARD && glConfig2.maxColorAttachments >= 4 && glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4 && /*glConfig2.framebufferPackedDepthStencilAvailable &&*/ glConfig.driverType != GLDRV_MESA))
 
 #define HDR_ENABLED() ((r_hdrRendering->integer && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable && glConfig2.framebufferBlitAvailable && glConfig.driverType != GLDRV_MESA))
 
@@ -612,8 +603,12 @@ typedef enum
 {
 	SS_BAD,
 	SS_PORTAL,					// mirrors, portals, viewscreens
-	SS_ENVIRONMENT,				// sky box
+
+	SS_ENVIRONMENT_FOG,			// sky
+
 	SS_OPAQUE,					// opaque
+	
+	SS_ENVIRONMENT_NOFOG,		// Tr3B: moved skybox here so we can fog post process all SS_OPAQUE materials
 
 	SS_DECAL,					// scorch marks, etc.
 	SS_SEE_THROUGH,				// ladders, grates, grills that may have small blended edges
@@ -975,7 +970,8 @@ typedef enum
 	COLLAPSE_genericMulti,
 	COLLAPSE_lighting_DB,
 	COLLAPSE_lighting_DBS,
-	COLLAPSE_reflection_CB
+	COLLAPSE_reflection_CB,
+	COLLAPSE_color_lightmap
 } collapseType_t;
 
 typedef struct
@@ -1043,7 +1039,7 @@ typedef struct
 
 	expression_t    wrapAroundLightingExp;
 
-	qboolean        isFogged;	// used only for shaders that have fog disabled, so we can enable it for individual stages
+	qboolean        noFog;		// used only for shaders that have fog disabled, so we can enable it for individual stages
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -2472,6 +2468,10 @@ typedef struct
 	byte           *pixelTarget;		//set this to Non Null to copy to a buffer after scene rendering
 	int             pixelTargetWidth;
 	int             pixelTargetHeight;
+
+#if defined(COMPAT_ET)
+	glfog_t         glFog;				// (SA) added (needed to pass fog infos into the portal sky scene)
+#endif
 } trRefdef_t;
 
 
@@ -2545,7 +2545,7 @@ typedef struct
 
 	vec4_t			color;		// in packed byte format
 	float           tcScale;	// texture coordinate vector scales
-	fogParms_t      parms;
+	fogParms_t      fogParms;
 
 	// for clipping distance in fog when outside
 	qboolean        hasSurface;
@@ -3176,6 +3176,13 @@ typedef struct
 	int				numFogs;
 	fog_t          *fogs;
 
+	int             globalFog;	// Arnout: index of global fog
+	vec4_t          globalOriginalFog;	// Arnout: to be able to restore original global fog
+	vec4_t          globalTransStartFog;	// Arnout: start fog for switch fog transition
+	vec4_t          globalTransEndFog;	// Arnout: end fog for switch fog transition
+	int             globalFogTransStartTime;
+	int             globalFogTransEndTime;
+
 	vec3_t          lightGridOrigin;
 	vec3_t          lightGridSize;
 	vec3_t          lightGridInverseSize;
@@ -3200,6 +3207,8 @@ typedef struct
 
 	char           *entityString;
 	char           *entityParsePoint;
+
+	qboolean		hasSkyboxPortal;
 } world_t;
 
 
@@ -3395,7 +3404,7 @@ typedef struct mdmSurfaceIntern_s
 	int             numBoneReferences;
 	int            *boneReferences;
 
-	int            *collapseMap;	// numVerts many
+	int32_t        *collapseMap;	// numVerts many
 
 	struct mdmModel_s *model;
 } mdmSurfaceIntern_t;
@@ -3802,6 +3811,9 @@ typedef struct
 	image_t        *quadraticImage;
 	image_t        *whiteImage;	// full of 0xff
 	image_t        *blackImage;	// full of 0x0
+	image_t        *redImage;
+	image_t        *greenImage;
+	image_t        *blueImage;
 	image_t        *flatImage;	// use this as default normalmap
 	image_t        *noFalloffImage;
 	image_t        *attenuationXYImage;
@@ -3888,11 +3900,7 @@ typedef struct
 #if !defined(USE_D3D10)
 
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-	// deferred Geometric-Buffer processing
-	shaderProgram_t geometricFillShader_DBS;
-
 	// deferred lighting
-	shaderProgram_t deferredLightingShader_DBS_omni;
 	shaderProgram_t deferredLightingShader_DBS_proj;
 	shaderProgram_t deferredLightingShader_DBS_directional;
 
@@ -3951,6 +3959,11 @@ typedef struct
 
 	vec3_t          fogColor;
 	float           fogDensity;
+	
+#if defined(COMPAT_ET)
+	glfog_t         glfogsettings[NUM_FOGS];
+	glfogType_t     glfogNum;
+#endif
 
 	frontEndCounters_t pc;
 	int             frontEndMsec;	// not in pc due to clearing issue
@@ -4007,6 +4020,7 @@ extern const matrix_t quakeToOpenGLMatrix;
 extern const matrix_t openGLToQuakeMatrix;
 extern const matrix_t quakeToD3DMatrix;
 extern const matrix_t flipZMatrix;
+extern const GLenum	geometricRenderTargets[];
 extern int      shadowMapResolutions[5];
 
 extern backEndState_t backEnd;
@@ -4055,6 +4069,7 @@ extern cvar_t  *r_lodbias;		// push/pull LOD transitions
 extern cvar_t  *r_lodscale;
 
 extern cvar_t  *r_forceFog;
+extern cvar_t  *r_wolfFog;
 extern cvar_t  *r_noFog;
 
 extern cvar_t  *r_forceAmbient;
@@ -4181,6 +4196,7 @@ extern cvar_t  *r_intensity;
 extern cvar_t  *r_lockpvs;
 extern cvar_t  *r_noportals;
 extern cvar_t  *r_portalOnly;
+extern cvar_t  *r_portalSky;
 
 extern cvar_t  *r_subdivisions;
 extern cvar_t  *r_stitchCurves;
@@ -4258,6 +4274,7 @@ extern cvar_t  *r_parallaxDepthScale;
 
 extern cvar_t  *r_dynamicBspOcclusionCulling;
 extern cvar_t  *r_dynamicEntityOcclusionCulling;
+extern cvar_t  *r_dynamicLightOcclusionCulling;
 extern cvar_t  *r_chcMaxPrevInvisNodesBatchSize;
 extern cvar_t  *r_chcMaxVisibleFrames;
 extern cvar_t  *r_chcVisibilityThreshold;
@@ -4656,6 +4673,7 @@ void            Tess_ComputeColor(shaderStage_t * pStage);
 void            Tess_StageIteratorDebug();
 void            Tess_StageIteratorGeneric();
 void            Tess_StageIteratorGBuffer();
+void            Tess_StageIteratorGBufferNormalsOnly();
 void            Tess_StageIteratorDepthFill();
 void            Tess_StageIteratorShadowFill();
 void            Tess_StageIteratorStencilShadowVolume();
@@ -4762,9 +4780,14 @@ FOG, tr_fog.c
 ============================================================
 */
 
+#if defined(COMPAT_ET)
+void			R_SetFrameFog();
+void			RB_Fog(glfog_t * curfog);
+void			RB_FogOff();
+void			RB_FogOn();
 void			RE_SetFog(int fogvar, int var1, int var2, float r, float g, float b, float density);
 void			RE_SetGlobalFog(qboolean restore, int duration, float r, float g, float b, float depthForOpaque);
-
+#endif
 
 
 

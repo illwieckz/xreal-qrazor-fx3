@@ -33,14 +33,15 @@ uniform float		u_DepthScale;
 uniform vec4		u_PortalPlane;
 
 varying vec3		var_Position;
-varying vec2		var_TexDiffuse;
-varying vec2		var_TexNormal;
+varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
 varying vec2		var_TexLight;
 
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
 varying vec3		var_Normal;
+
+varying vec4		var_Color;
 
 
 void	main()
@@ -64,8 +65,8 @@ void	main()
 
 #elif defined(USE_NORMAL_MAPPING)
 
-	vec2 texDiffuse = var_TexDiffuse.st;
-	vec2 texNormal = var_TexNormal.st;
+	vec2 texDiffuse = var_TexDiffuseNormal.st;
+	vec2 texNormal = var_TexDiffuseNormal.pq;
 	vec2 texSpecular = var_TexSpecular.st;
 
 	// invert tangent space for two sided surfaces
@@ -88,7 +89,7 @@ void	main()
 	// ray intersect in view direction
 	
 	mat3 worldToTangentMatrix;
-	#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10)
+	#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10) || defined(GLDRV_MESA)
 	worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
 								tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
 								tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
@@ -156,20 +157,20 @@ void	main()
 	// compute light color from world space lightmap
 	vec3 lightColor = texture2D(u_LightMap, var_TexLight).rgb;
 	
-	diffuse.rgb *= lightColor.rgb * clamp(dot(N, L), 0.0, 1.0);
-	
 	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb * lightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb;
 	
 	// compute final color
-	gl_FragColor.rgba = diffuse;
-	gl_FragColor.rgb += specular;
+	vec4 color = diffuse;
+	color.rgb *= lightColor.rgb * clamp(dot(N, L), 0.0, 1.0);
+	color.rgb += specular * lightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+	color.a = var_Color.a;	// for terrain blending
 
 
 #else // USE_NORMAL_MAPPING
 
 	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse.st);
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuseNormal.st);
 	
 #if defined(USE_ALPHA_TESTING)
 	if(u_AlphaTest == ATEST_GT_0 && diffuse.a <= 0.0)
@@ -189,12 +190,36 @@ void	main()
 	}
 #endif
 
+	vec3 N;
+
+#if defined(TWOSIDED)
+	if(gl_FrontFacing)
+	{
+		N = -normalize(var_Normal);
+	}
+	else
+#endif
+	{
+		N = normalize(var_Normal);
+	}
+	
+	vec3 specular = vec3(0.0, 0.0, 0.0);
+
 	// compute light color from object space lightmap
 	vec3 lightColor = texture2D(u_LightMap, var_TexLight).rgb;
 	
-	diffuse.rgb *= lightColor;
-	
-	gl_FragColor = diffuse;
+	vec4 color = diffuse;
+	color.rgb *= lightColor;
+	color.a = var_Color.a;	// for terrain blending
+#endif
+
+#if defined(r_DeferredShading)
+	gl_FragData[0] = color; 							// var_Color;
+	gl_FragData[1] = vec4(diffuse.rgb, var_Color.a);	// vec4(var_Color.rgb, 1.0 - var_Color.a);
+	gl_FragData[2] = vec4(N, var_Color.a);
+	gl_FragData[3] = vec4(specular, var_Color.a);
+#else
+	gl_FragColor = color;
 #endif
 
 

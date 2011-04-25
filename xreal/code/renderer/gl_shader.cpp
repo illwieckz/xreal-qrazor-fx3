@@ -36,6 +36,8 @@ GLShader_vertexLighting_DBS_world* gl_vertexLightingShader_DBS_world = NULL;
 GLShader_forwardLighting_omniXYZ* gl_forwardLightingShader_omniXYZ = NULL;
 GLShader_forwardLighting_projXYZ* gl_forwardLightingShader_projXYZ = NULL;
 GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun = NULL;
+GLShader_deferredLighting_omniXYZ* gl_deferredLightingShader_omniXYZ = NULL;
+GLShader_geometricFill* gl_geometricFillShader = NULL;
 GLShader_shadowFill* gl_shadowFillShader = NULL;
 GLShader_reflection* gl_reflectionShader = NULL;
 GLShader_skybox* gl_skyboxShader = NULL;
@@ -69,6 +71,13 @@ bool GLCompileMacro_USE_VERTEX_SKINNING::HasConflictingMacros(int permutation, c
 	return false;
 }
 
+bool GLCompileMacro_USE_VERTEX_SKINNING::MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
+{
+	return !glConfig2.vboVertexSkinningAvailable;
+}
+
+
+
 bool GLCompileMacro_USE_VERTEX_ANIMATION::HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
 {
 #if 1
@@ -91,19 +100,8 @@ bool GLCompileMacro_USE_DEFORM_VERTEXES::HasConflictingMacros(int permutation, c
 	return (glConfig.driverType != GLDRV_OPENGL3 || !r_vboDeformVertexes->integer);
 }
 
-bool GLCompileMacro_USE_NORMAL_MAPPING::MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
-{
-	if(!r_normalMapping->integer)
-		return true;
-
-	return false;
-}
-
 bool GLCompileMacro_USE_PARALLAX_MAPPING::MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
 {
-	if(!r_parallaxMapping->integer || !r_normalMapping->integer)
-		return true;
-
 	bool foundUSE_NORMAL_MAPPING = false;
 	for(size_t i = 0; i < macros.size(); i++)
 	{
@@ -285,6 +283,11 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 		Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef COMPAT_Q3A\n#define COMPAT_Q3A 1\n#endif\n");
 #endif
 
+#if defined(COMPAT_ET)
+		Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef COMPAT_ET\n#define COMPAT_ET 1\n#endif\n");
+#endif
+
+
 		// HACK: add some macros to avoid extra uniforms and save speed and code maintenance
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 				 va("#ifndef r_SpecularExponent\n#define r_SpecularExponent %f\n#endif\n", r_specularExponent->value));
@@ -402,7 +405,7 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 
 		if(glConfig.driverType == GLDRV_MESA)
 		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef MESA\n#define MESA 1\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GLDRV_MESA\n#define GLDRV_MESA 1\n#endif\n");
 		}
 
 		if(glConfig.hardwareType == GLHW_ATI)
@@ -524,18 +527,10 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 		   glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4)
 		{
 
-			if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+			if(r_deferredShading->integer == DS_STANDARD)
 			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_DeferredLighting\n#define r_DeferredLighting 1\n#endif\n");
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_DeferredShading\n#define r_DeferredShading 1\n#endif\n");
 			}
-
-			/*
-			if(glConfig.framebufferMixedFormatsAvailable)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra),
-						 "#ifndef GL_EXTX_framebuffer_mixed_formats\n#define GL_EXTX_framebuffer_mixed_formats 1\n#endif\n");
-			}
-			*/
 		}
 
 		if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
@@ -579,6 +574,7 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_showDeluxeMaps\n#define r_showDeluxeMaps 1\n#endif\n");
 		}
+
 #ifdef EXPERIMENTAL
 		if(r_screenSpaceAmbientOcclusion->integer)
 		{
@@ -614,6 +610,11 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 
 			Q_strcat(bufferExtra, sizeof(bufferExtra),
 								 va("#ifndef MAX_GLSL_BONES\n#define MAX_GLSL_BONES %i\n#endif\n", glConfig2.maxVertexSkinningBones));
+		}
+		else
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra),
+								 va("#ifndef MAX_GLSL_BONES\n#define MAX_GLSL_BONES %i\n#endif\n", 4));
 		}
 
 		/*
@@ -1181,7 +1182,13 @@ GLShader_generic::GLShader_generic():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexShaderText = BuildGPUShaderText("generic", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string vertexInlines = "vertexAnimation ";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("generic", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
 	std::string fragmentShaderText = BuildGPUShaderText("generic", "", GL_FRAGMENT_SHADER_ARB);
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
@@ -1211,7 +1218,7 @@ GLShader_generic::GLShader_generic():
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
-			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
 
@@ -1224,6 +1231,8 @@ GLShader_generic::GLShader_generic():
 			UpdateShaderProgramUniformLocations(shaderProgram);
 
 			shaderProgram->u_ColorMap = glGetUniformLocationARB(shaderProgram->program, "u_ColorMap");
+
+			//ri.Printf(PRINT_ALL, "u_ColorMap = %i\n", shaderProgram->u_ColorMap);
 
 			glUseProgramObjectARB(shaderProgram->program);
 			glUniform1iARB(shaderProgram->u_ColorMap, 0);
@@ -1257,11 +1266,13 @@ GLShader_generic::GLShader_generic():
 GLShader_lightMapping::GLShader_lightMapping():
 		GLShader(	"lightMapping",
 					ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_NORMAL | ATTR_TANGENT | ATTR_BINORMAL,
-					0,
+					ATTR_COLOR,
 					ATTR_TANGENT2 | ATTR_BINORMAL2),
 		u_DiffuseTextureMatrix(this),
 		u_NormalTextureMatrix(this),
 		u_SpecularTextureMatrix(this),
+		u_ColorModulate(this),
+		u_Color(this),
 		u_AlphaTest(this),
 		u_ViewOrigin(this),
 		u_ModelMatrix(this),
@@ -1273,8 +1284,8 @@ GLShader_lightMapping::GLShader_lightMapping():
 		GLCompileMacro_USE_ALPHA_TESTING(this),
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
 		GLCompileMacro_USE_NORMAL_MAPPING(this),
-		GLCompileMacro_USE_PARALLAX_MAPPING(this),
-		GLCompileMacro_TWOSIDED(this)
+		GLCompileMacro_USE_PARALLAX_MAPPING(this)//,
+		//GLCompileMacro_TWOSIDED(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
 	ri.Printf(PRINT_ALL, "/// creating lightMapping shaders -------------------\n");
@@ -1285,7 +1296,13 @@ GLShader_lightMapping::GLShader_lightMapping():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexShaderText = BuildGPUShaderText("lightMapping", "deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string vertexInlines = "";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("lightMapping", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
 	std::string fragmentShaderText = BuildGPUShaderText("lightMapping", "reliefMapping", GL_FRAGMENT_SHADER_ARB);
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
@@ -1315,6 +1332,8 @@ GLShader_lightMapping::GLShader_lightMapping():
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
+			compileMacros += "TWOSIDED ";
+
 			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
@@ -1386,8 +1405,8 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
 		GLCompileMacro_USE_NORMAL_MAPPING(this),
 		GLCompileMacro_USE_PARALLAX_MAPPING(this),
-		GLCompileMacro_USE_REFLECTIVE_SPECULAR(this),
-		GLCompileMacro_TWOSIDED(this)
+		GLCompileMacro_USE_REFLECTIVE_SPECULAR(this)//,
+		//GLCompileMacro_TWOSIDED(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
 	ri.Printf(PRINT_ALL, "/// creating vertexLighting_DBS_entity shaders ------\n");
@@ -1398,7 +1417,13 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexShaderText = BuildGPUShaderText("vertexLighting_DBS_entity", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string vertexInlines = "vertexAnimation ";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("vertexLighting_DBS_entity", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
 	std::string fragmentShaderText = BuildGPUShaderText("vertexLighting_DBS_entity", "reliefMapping", GL_FRAGMENT_SHADER_ARB);
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
@@ -1428,6 +1453,8 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
+			compileMacros += "TWOSIDED ";
+
 			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
@@ -1494,8 +1521,8 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 		GLCompileMacro_USE_ALPHA_TESTING(this),
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
 		GLCompileMacro_USE_NORMAL_MAPPING(this),
-		GLCompileMacro_USE_PARALLAX_MAPPING(this),
-		GLCompileMacro_TWOSIDED(this)
+		GLCompileMacro_USE_PARALLAX_MAPPING(this)//,
+		//GLCompileMacro_TWOSIDED(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
 	ri.Printf(PRINT_ALL, "/// creating vertexLighting_DBS_world shaders -------\n");
@@ -1506,7 +1533,13 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexShaderText = BuildGPUShaderText("vertexLighting_DBS_world", "deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string vertexInlines = "";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("vertexLighting_DBS_world", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
 	std::string fragmentShaderText = BuildGPUShaderText("vertexLighting_DBS_world", "reliefMapping", GL_FRAGMENT_SHADER_ARB);
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
@@ -1536,6 +1569,8 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
+			compileMacros += "TWOSIDED ";
+
 			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
@@ -1608,8 +1643,8 @@ GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
 		GLCompileMacro_USE_NORMAL_MAPPING(this),
 		GLCompileMacro_USE_PARALLAX_MAPPING(this),
-		GLCompileMacro_USE_SHADOWING(this),
-		GLCompileMacro_TWOSIDED(this)
+		GLCompileMacro_USE_SHADOWING(this)//,
+		//GLCompileMacro_TWOSIDED(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
 	ri.Printf(PRINT_ALL, "/// creating forwardLighting_omniXYZ shaders --------\n");
@@ -1620,7 +1655,13 @@ GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexShaderText = BuildGPUShaderText("forwardLighting", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string vertexInlines = "vertexAnimation ";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("forwardLighting", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
 	std::string fragmentShaderText = BuildGPUShaderText("forwardLighting", "reliefMapping", GL_FRAGMENT_SHADER_ARB);
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
@@ -1650,6 +1691,8 @@ GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
+			compileMacros += "TWOSIDED ";
+
 			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 		
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
@@ -1735,8 +1778,8 @@ GLShader_forwardLighting_projXYZ::GLShader_forwardLighting_projXYZ():
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
 		GLCompileMacro_USE_NORMAL_MAPPING(this),
 		GLCompileMacro_USE_PARALLAX_MAPPING(this),
-		GLCompileMacro_USE_SHADOWING(this),
-		GLCompileMacro_TWOSIDED(this)
+		GLCompileMacro_USE_SHADOWING(this)//,
+		//GLCompileMacro_TWOSIDED(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
 	ri.Printf(PRINT_ALL, "/// creating forwardLighting_projXYZ shaders --------\n");
@@ -1747,7 +1790,13 @@ GLShader_forwardLighting_projXYZ::GLShader_forwardLighting_projXYZ():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexShaderText = BuildGPUShaderText("forwardLighting", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string vertexInlines = "vertexAnimation ";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("forwardLighting", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
 	std::string fragmentShaderText = BuildGPUShaderText("forwardLighting", "reliefMapping", GL_FRAGMENT_SHADER_ARB);
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
@@ -1778,6 +1827,7 @@ GLShader_forwardLighting_projXYZ::GLShader_forwardLighting_projXYZ():
 		if(GetCompileMacrosString(i, compileMacros))
 		{
 			compileMacros += "LIGHT_PROJ ";
+			compileMacros += "TWOSIDED ";
 
 			//ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros.c_str());
 		
@@ -1867,8 +1917,8 @@ GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
 		GLCompileMacro_USE_NORMAL_MAPPING(this),
 		GLCompileMacro_USE_PARALLAX_MAPPING(this),
-		GLCompileMacro_USE_SHADOWING(this),
-		GLCompileMacro_TWOSIDED(this)
+		GLCompileMacro_USE_SHADOWING(this)//,
+		//GLCompileMacro_TWOSIDED(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
 	ri.Printf(PRINT_ALL, "/// creating forwardLighting_directionalSun shaders -\n");
@@ -1879,7 +1929,13 @@ GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexShaderText = BuildGPUShaderText("forwardLighting", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string vertexInlines = "vertexAnimation ";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("forwardLighting", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
 	std::string fragmentShaderText = BuildGPUShaderText("forwardLighting", "reliefMapping", GL_FRAGMENT_SHADER_ARB);
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
@@ -1910,6 +1966,7 @@ GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun
 		if(GetCompileMacrosString(i, compileMacros))
 		{
 			compileMacros += "LIGHT_DIRECTIONAL ";
+			compileMacros += "TWOSIDED ";
 
 			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 		
@@ -1968,6 +2025,241 @@ GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun
 
 
 
+GLShader_deferredLighting_omniXYZ::GLShader_deferredLighting_omniXYZ():
+		GLShader(	"deferredLighting_omniXYZ",
+					ATTR_POSITION,
+					0,
+					0),
+		u_ViewOrigin(this),
+		u_LightOrigin(this),
+		u_LightColor(this),
+		u_LightRadius(this),
+		u_LightScale(this),
+		u_LightWrapAround(this),
+		u_LightAttenuationMatrix(this),
+		u_ShadowTexelSize(this),
+		u_ShadowBlur(this),
+		u_ModelMatrix(this),
+		u_ModelViewProjectionMatrix(this),
+		u_UnprojectMatrix(this),
+		u_PortalPlane(this),
+		GLDeformStage(this),
+		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		GLCompileMacro_USE_NORMAL_MAPPING(this),
+		GLCompileMacro_USE_SHADOWING(this)//,
+		//GLCompileMacro_TWOSIDED(this)
+{
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating deferredLighting_omniXYZ shaders --------\n");
+
+	int startTime = ri.Milliseconds();
+
+	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
+	
+	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
+
+	std::string vertexShaderText = BuildGPUShaderText("deferredLighting", "", GL_VERTEX_SHADER_ARB);
+	std::string fragmentShaderText = BuildGPUShaderText("deferredLighting", "", GL_FRAGMENT_SHADER_ARB);
+
+	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
+	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling deferredLighting_omniXYZ shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
+	for(size_t i = 0; i < numPermutations; i++)
+	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
+		std::string compileMacros;
+		if(GetCompileMacrosString(i, compileMacros))
+		{
+			compileMacros += "TWOSIDED ";
+
+			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+		
+			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
+
+			CompileAndLinkGPUShaderProgram(	shaderProgram,
+											"deferredLighting_omniXYZ",
+											vertexShaderText,
+											fragmentShaderText,
+											compileMacros);
+
+			UpdateShaderProgramUniformLocations(shaderProgram);
+
+			shaderProgram->u_DiffuseMap	= glGetUniformLocationARB(shaderProgram->program, "u_DiffuseMap");
+			shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, "u_NormalMap");
+			shaderProgram->u_SpecularMap = glGetUniformLocationARB(shaderProgram->program, "u_SpecularMap");
+			shaderProgram->u_DepthMap = glGetUniformLocationARB(shaderProgram->program, "u_DepthMap");
+			shaderProgram->u_AttenuationMapXY = glGetUniformLocationARB(shaderProgram->program, "u_AttenuationMapXY");
+			shaderProgram->u_AttenuationMapZ = glGetUniformLocationARB(shaderProgram->program, "u_AttenuationMapZ");
+			//if(r_shadows->integer >= SHADOWING_VSM16)
+			{
+				shaderProgram->u_ShadowMap = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap");
+			}
+
+			glUseProgramObjectARB(shaderProgram->program);
+			glUniform1iARB(shaderProgram->u_DiffuseMap, 0);
+			glUniform1iARB(shaderProgram->u_NormalMap, 1);
+			glUniform1iARB(shaderProgram->u_SpecularMap, 2);
+			glUniform1iARB(shaderProgram->u_DepthMap, 3);
+			glUniform1iARB(shaderProgram->u_AttenuationMapXY, 4);
+			glUniform1iARB(shaderProgram->u_AttenuationMapZ, 5);
+			//if(r_shadows->integer >= SHADOWING_VSM16)
+			{
+				glUniform1iARB(shaderProgram->u_ShadowMap, 6);
+			}
+			glUseProgramObjectARB(0);
+
+			ValidateProgram(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
+			GL_CheckErrors();
+
+			numCompiled++;
+		}
+	}
+
+	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...compiled %i deferredLighting_omniXYZ shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+}
+
+
+
+
+
+
+GLShader_geometricFill::GLShader_geometricFill():
+		GLShader(	"geometricFill",
+					ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL | ATTR_TANGENT | ATTR_BINORMAL,
+					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2,
+					0),
+		u_DiffuseTextureMatrix(this),
+		u_NormalTextureMatrix(this),
+		u_SpecularTextureMatrix(this),
+		u_AlphaTest(this),
+		u_ColorModulate(this),
+		u_Color(this),
+		u_ViewOrigin(this),
+		u_ModelMatrix(this),
+		u_ModelViewProjectionMatrix(this),
+		u_BoneMatrix(this),
+		u_VertexInterpolation(this),
+		u_PortalPlane(this),
+		u_DepthScale(this),
+		GLDeformStage(this),
+		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		GLCompileMacro_USE_ALPHA_TESTING(this),
+		GLCompileMacro_USE_VERTEX_SKINNING(this),
+		GLCompileMacro_USE_VERTEX_ANIMATION(this),
+		GLCompileMacro_USE_DEFORM_VERTEXES(this),
+		GLCompileMacro_USE_NORMAL_MAPPING(this),
+		GLCompileMacro_USE_PARALLAX_MAPPING(this),
+		GLCompileMacro_USE_REFLECTIVE_SPECULAR(this)
+{
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating geometricFill shaders ---------------------\n");
+
+	int startTime = ri.Milliseconds();
+
+	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
+	
+	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
+
+	std::string vertexInlines = "vertexAnimation ";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("geometricFill", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
+	std::string fragmentShaderText = BuildGPUShaderText("geometricFill", "reliefMapping", GL_FRAGMENT_SHADER_ARB);
+
+	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
+	size_t numCompiled = 0;
+	ri.Printf(PRINT_ALL, "...compiling geometricFill shaders\n");
+	ri.Printf(PRINT_ALL, "0%%  10   20   30   40   50   60   70   80   90   100%%\n");
+	ri.Printf(PRINT_ALL, "|----|----|----|----|----|----|----|----|----|----|\n");
+	size_t tics = 0;
+	size_t nextTicCount = 0;
+	for(size_t i = 0; i < numPermutations; i++)
+	{
+		if((i + 1) >= nextTicCount)
+		{
+			size_t ticsNeeded = (size_t)(((double)(i + 1) / numPermutations) * 50.0);
+
+			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+
+			nextTicCount = (size_t)((tics / 50.0) * numPermutations);
+			if(i == (numPermutations - 1))
+			{
+				if(tics < 51)
+					ri.Printf(PRINT_ALL, "*");
+				ri.Printf(PRINT_ALL, "\n");
+			}
+		}
+
+		std::string compileMacros;
+		if(GetCompileMacrosString(i, compileMacros))
+		{
+			//ri.Printf(PRINT_ALL, "Compile macros: '%s'\n", compileMacros.c_str());
+
+			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
+
+			CompileAndLinkGPUShaderProgram(	shaderProgram,
+											"geometricFill",
+											vertexShaderText,
+											fragmentShaderText,
+											compileMacros);
+
+			UpdateShaderProgramUniformLocations(shaderProgram);
+
+			shaderProgram->u_DiffuseMap	= glGetUniformLocationARB(shaderProgram->program, "u_DiffuseMap");
+			shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, "u_NormalMap");
+			shaderProgram->u_SpecularMap = glGetUniformLocationARB(shaderProgram->program, "u_SpecularMap");
+			shaderProgram->u_EnvironmentMap0 = glGetUniformLocationARB(shaderProgram->program, "u_EnvironmentMap0");
+			shaderProgram->u_EnvironmentMap1 = glGetUniformLocationARB(shaderProgram->program, "u_EnvironmentMap1");
+
+			glUseProgramObjectARB(shaderProgram->program);
+			glUniform1iARB(shaderProgram->u_DiffuseMap, 0);
+			glUniform1iARB(shaderProgram->u_NormalMap, 1);
+			glUniform1iARB(shaderProgram->u_SpecularMap, 2);
+			glUniform1iARB(shaderProgram->u_EnvironmentMap0, 3);
+			glUniform1iARB(shaderProgram->u_EnvironmentMap1, 4);
+			glUseProgramObjectARB(0);
+
+			ValidateProgram(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
+			GL_CheckErrors();
+
+			numCompiled++;
+		}
+	}
+
+	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...compiled %i geometricFill shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+}
+
+
+
 GLShader_shadowFill::GLShader_shadowFill():
 		GLShader(	"shadowFill",
 					ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL,
@@ -2001,7 +2293,13 @@ GLShader_shadowFill::GLShader_shadowFill():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexShaderText = BuildGPUShaderText("shadowFill", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string vertexInlines = "vertexAnimation ";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("shadowFill", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
 	std::string fragmentShaderText = BuildGPUShaderText("shadowFill", "", GL_FRAGMENT_SHADER_ARB);
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
@@ -2084,8 +2382,8 @@ GLShader_reflection::GLShader_reflection():
 		GLCompileMacro_USE_VERTEX_SKINNING(this),
 		GLCompileMacro_USE_VERTEX_ANIMATION(this),
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
-		GLCompileMacro_USE_NORMAL_MAPPING(this),
-		GLCompileMacro_TWOSIDED(this)
+		GLCompileMacro_USE_NORMAL_MAPPING(this)//,
+		//GLCompileMacro_TWOSIDED(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
 	ri.Printf(PRINT_ALL, "/// creating reflection shaders ---------------------\n");
@@ -2096,7 +2394,13 @@ GLShader_reflection::GLShader_reflection():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexShaderText = BuildGPUShaderText("reflection_CB", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string vertexInlines = "vertexAnimation ";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("reflection_CB", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
 	std::string fragmentShaderText = BuildGPUShaderText("reflection_CB", "", GL_FRAGMENT_SHADER_ARB);
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
@@ -2126,6 +2430,8 @@ GLShader_reflection::GLShader_reflection():
 		std::string compileMacros;
 		if(GetCompileMacrosString(i, compileMacros))
 		{
+			compileMacros += "TWOSIDED ";
+
 			//ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
 
 			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
@@ -2278,7 +2584,13 @@ GLShader_fogQuake3::GLShader_fogQuake3():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexShaderText = BuildGPUShaderText("fogQuake3", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string vertexInlines = "vertexAnimation ";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("fogQuake3", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
 	std::string fragmentShaderText = BuildGPUShaderText("fogQuake3", "", GL_FRAGMENT_SHADER_ARB);
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
@@ -2349,8 +2661,10 @@ GLShader_fogGlobal::GLShader_fogGlobal():
 					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
 		u_ViewOrigin(this),
 		u_Color(this),
+		u_ViewMatrix(this),
 		u_ModelViewProjectionMatrix(this),
 		u_UnprojectMatrix(this),
+		u_FogDistanceVector(this),
 		u_FogDepthVector(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
@@ -2404,10 +2718,12 @@ GLShader_fogGlobal::GLShader_fogGlobal():
 
 			UpdateShaderProgramUniformLocations(shaderProgram);
 
+			shaderProgram->u_ColorMap = glGetUniformLocationARB(shaderProgram->program, "u_ColorMap");
 			shaderProgram->u_DepthMap = glGetUniformLocationARB(shaderProgram->program, "u_DepthMap");
 
 			glUseProgramObjectARB(shaderProgram->program);
-			glUniform1iARB(shaderProgram->u_DepthMap, 0);
+			glUniform1iARB(shaderProgram->u_ColorMap, 0);
+			glUniform1iARB(shaderProgram->u_DepthMap, 1);
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
@@ -2460,7 +2776,13 @@ GLShader_heatHaze::GLShader_heatHaze():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexShaderText = BuildGPUShaderText("heatHaze", "vertexAnimation deformVertexes", GL_VERTEX_SHADER_ARB);
+	std::string vertexInlines = "vertexAnimation ";
+	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
+	{
+		vertexInlines += "deformVertexes ";
+	}
+
+	std::string vertexShaderText = BuildGPUShaderText("heatHaze", vertexInlines.c_str(), GL_VERTEX_SHADER_ARB);
 	std::string fragmentShaderText = BuildGPUShaderText("heatHaze", "", GL_FRAGMENT_SHADER_ARB);
 
 	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros

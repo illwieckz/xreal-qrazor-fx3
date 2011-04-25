@@ -185,6 +185,7 @@ cvar_t         *r_intensity;
 cvar_t         *r_lockpvs;
 cvar_t         *r_noportals;
 cvar_t         *r_portalOnly;
+cvar_t         *r_portalSky;
 
 cvar_t         *r_subdivisions;
 cvar_t         *r_stitchCurves;
@@ -204,6 +205,7 @@ cvar_t         *r_simpleMipMaps;
 cvar_t         *r_showImages;
 
 cvar_t         *r_forceFog;
+cvar_t         *r_wolfFog;
 cvar_t         *r_noFog;
 
 cvar_t         *r_forceAmbient;
@@ -268,6 +270,7 @@ cvar_t         *r_parallaxDepthScale;
 
 cvar_t         *r_dynamicBspOcclusionCulling;
 cvar_t         *r_dynamicEntityOcclusionCulling;
+cvar_t         *r_dynamicLightOcclusionCulling;
 cvar_t         *r_chcMaxPrevInvisNodesBatchSize;
 cvar_t         *r_chcMaxVisibleFrames;
 cvar_t         *r_chcVisibilityThreshold;
@@ -1376,7 +1379,7 @@ void R_Register(void)
 	r_stereo = ri.Cvar_Get("r_stereo", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_stencilbits = ri.Cvar_Get("r_stencilbits", "8", CVAR_ARCHIVE | CVAR_LATCH);
 	r_depthbits = ri.Cvar_Get("r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ignorehwgamma = ri.Cvar_Get("r_ignorehwgamma", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ignorehwgamma = ri.Cvar_Get("r_ignorehwgamma", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_mode = ri.Cvar_Get("r_mode", "3", CVAR_ARCHIVE | CVAR_LATCH);
 	r_fullscreen = ri.Cvar_Get("r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_customwidth = ri.Cvar_Get("r_customwidth", "1600", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1396,9 +1399,10 @@ void R_Register(void)
 	r_heatHazeFix = ri.Cvar_Get("r_heatHazeFix", "0", CVAR_CHEAT);
 	r_noMarksOnTrisurfs = ri.Cvar_Get("r_noMarksOnTrisurfs", "1", CVAR_CHEAT);
 
-	r_forceFog = ri.Cvar_Get("r_forceFog", "0", CVAR_ARCHIVE /* | CVAR_LATCH */ );
+	r_forceFog = ri.Cvar_Get("r_forceFog", "0", CVAR_CHEAT /* | CVAR_LATCH */ );
 	AssertCvarRange(r_forceFog, 0.0f, 1.0f, qfalse);
-	r_noFog = ri.Cvar_Get("r_noFog", "0", CVAR_ARCHIVE);
+	r_wolfFog = ri.Cvar_Get("r_wolfFog", "1", CVAR_CHEAT);
+	r_noFog = ri.Cvar_Get("r_noFog", "0", CVAR_CHEAT);
 #ifdef EXPERIMENTAL
 	r_screenSpaceAmbientOcclusion = ri.Cvar_Get("r_screenSpaceAmbientOcclusion", "0", CVAR_ARCHIVE);
 	//AssertCvarRange(r_screenSpaceAmbientOcclusion, 0, 2, qtrue);
@@ -1486,8 +1490,9 @@ void R_Register(void)
 	r_mergeClusterCurves = ri.Cvar_Get("r_mergeClusterCurves", "1", CVAR_CHEAT);
 	r_mergeClusterTriangles = ri.Cvar_Get("r_mergeClusterTriangles", "1", CVAR_CHEAT);
 
-	r_dynamicBspOcclusionCulling = ri.Cvar_Get("r_dynamicBspOcclusionCulling", "0", CVAR_ARCHIVE);
-	r_dynamicEntityOcclusionCulling = ri.Cvar_Get("r_dynamicEntityOcclusionCulling", "0", CVAR_ARCHIVE);
+	r_dynamicBspOcclusionCulling = ri.Cvar_Get("r_dynamicBspOcclusionCulling", "0", CVAR_CHEAT);
+	r_dynamicEntityOcclusionCulling = ri.Cvar_Get("r_dynamicEntityOcclusionCulling", "0", CVAR_CHEAT);
+	r_dynamicLightOcclusionCulling = ri.Cvar_Get("r_dynamicLightOcclusionCulling", "0", CVAR_CHEAT);
 	r_chcMaxPrevInvisNodesBatchSize = ri.Cvar_Get("r_chcMaxPrevInvisNodesBatchSize", "50", CVAR_CHEAT);
 	r_chcMaxVisibleFrames = ri.Cvar_Get("r_chcMaxVisibleFrames", "10", CVAR_CHEAT);
 	r_chcVisibilityThreshold = ri.Cvar_Get("r_chcVisibilityThreshold", "20", CVAR_CHEAT);
@@ -1495,12 +1500,10 @@ void R_Register(void)
 	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
 	// HACK turn off HDR for development
-#if !defined(OFFSCREEN_PREPASS_LIGHTING)
-	if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+	if(r_deferredShading->integer)
 	{
 		AssertCvarRange(r_hdrRendering, 0, 0, qtrue);
 	}
-#endif
 
 	r_hdrMinLuminance = ri.Cvar_Get("r_hdrMinLuminance", "0.18", CVAR_CHEAT);
 	r_hdrMaxLuminance = ri.Cvar_Get("r_hdrMaxLuminance", "3000", CVAR_CHEAT);
@@ -1541,6 +1544,7 @@ void R_Register(void)
 	r_noStaticLighting = ri.Cvar_Get("r_noStaticLighting", "0", CVAR_CHEAT);
 	r_drawworld = ri.Cvar_Get("r_drawworld", "1", CVAR_CHEAT);
 	r_portalOnly = ri.Cvar_Get("r_portalOnly", "0", CVAR_CHEAT);
+	r_portalSky = ri.Cvar_Get("cg_skybox", "1", 0);
 
 	r_flareSize = ri.Cvar_Get("r_flareSize", "40", CVAR_CHEAT);
 	r_flareFade = ri.Cvar_Get("r_flareFade", "7", CVAR_CHEAT);

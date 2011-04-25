@@ -73,8 +73,8 @@ static vec3_t   vec, v2, dir;
 static float    diff;			//, a1, a2;   // rain - unused
 static int      render_count;
 static float    lodRadius, lodScale;
-static int     *collapse_map, *pCollapseMap;
-static int      collapse[MDM_MAX_VERTS], *pCollapse;
+static int32_t *collapse_map, *pCollapseMap;
+static int32_t  collapse[MDM_MAX_VERTS], *pCollapse;
 static int      p0, p1, p2;
 static qboolean isTorso, fullTorso;
 static vec4_t   m1[4], m2[4];
@@ -1895,14 +1895,15 @@ void Tess_MDM_SurfaceAnim(mdmSurfaceIntern_t * surface)
 #else
 
 	collapse_map = surface->collapseMap;
-	triangles = surface->triangles;
-	indexes = surface->numTriangles * 3;
+	//triangles = surface->triangles;
+	//indexes = surface->numTriangles * 3;
 	oldIndexes = baseIndex;
 
 	pIndexes = &tess.indexes[baseIndex];
 
 	if(render_count == surface->numVerts)
 	{
+		/*
 		memcpy(pIndexes, triangles, sizeof(triangles[0]) * indexes);
 		if(baseVertex)
 		{
@@ -1914,10 +1915,22 @@ void Tess_MDM_SurfaceAnim(mdmSurfaceIntern_t * surface)
 			}
 		}
 		tess.numIndexes += indexes;
+		*/
+
+		for(i = 0, tri = surface->triangles; i < surface->numTriangles; i++, tri++)
+		{
+			tess.indexes[tess.numIndexes + i * 3 + 0] = tess.numVertexes + tri->indexes[0];
+			tess.indexes[tess.numIndexes + i * 3 + 1] = tess.numVertexes + tri->indexes[1];
+			tess.indexes[tess.numIndexes + i * 3 + 2] = tess.numVertexes + tri->indexes[2];
+		}
+		
+		tess.numIndexes += surface->numTriangles * 3;
+		tess.numVertexes += render_count;
 	}
 	else
 	{
-		int            *collapseEnd;
+		//int            *collapseEnd;
+		int				p0, p1, p2;
 
 		pCollapse = collapse;
 		for(j = 0; j < render_count; pCollapse++, j++)
@@ -1926,16 +1939,21 @@ void Tess_MDM_SurfaceAnim(mdmSurfaceIntern_t * surface)
 		}
 
 		pCollapseMap = &collapse_map[render_count];
-		for(collapseEnd = collapse + surface->numVerts; pCollapse < collapseEnd; pCollapse++, pCollapseMap++)
+		//for(collapseEnd = collapse + surface->numVerts; pCollapse < collapseEnd; pCollapse++, pCollapseMap++)
+		for(j = 0; j < surface->numVerts; j++, pCollapse++, pCollapseMap++)
 		{
 			*pCollapse = collapse[*pCollapseMap];
 		}
 
-		for(j = 0; j < indexes; j += 3)
+		for(i = 0, tri = surface->triangles; i < surface->numTriangles; i++, tri++)
 		{
-			p0 = collapse[*(triangles++)];
-			p1 = collapse[*(triangles++)];
-			p2 = collapse[*(triangles++)];
+			//p0 = collapse[*(triangles++)];
+			//p1 = collapse[*(triangles++)];
+			//p2 = collapse[*(triangles++)];
+
+			p0 = collapse[tri->indexes[0]];
+			p1 = collapse[tri->indexes[1]];
+			p2 = collapse[tri->indexes[2]];
 
 			// FIXME
 			// note:  serious optimization opportunity here,
@@ -1946,9 +1964,10 @@ void Tess_MDM_SurfaceAnim(mdmSurfaceIntern_t * surface)
 				continue;
 			}
 
-			*(pIndexes++) = baseVertex + p0;
-			*(pIndexes++) = baseVertex + p1;
-			*(pIndexes++) = baseVertex + p2;
+			tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
+			tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
+			tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2];
+
 			tess.numIndexes += 3;
 		}
 
@@ -2386,6 +2405,7 @@ void Tess_SurfaceVBOMDMMesh(srfVBOMDMMesh_t * surface)
 
 	for(i = 0; i < surface->numBoneRemap; i++)
 	{
+#if 0
 		MatrixFromVectorsFLU(m, bones[surface->boneRemapInverse[i]].matrix[0],
 								bones[surface->boneRemapInverse[i]].matrix[1],
 								bones[surface->boneRemapInverse[i]].matrix[2]);
@@ -2393,6 +2413,19 @@ void Tess_SurfaceVBOMDMMesh(srfVBOMDMMesh_t * surface)
 		MatrixTranspose(m, m2);
 
 		MatrixSetupTransformFromRotation(tess.boneMatrices[i], m2, bones[surface->boneRemapInverse[i]].translation);
+#else
+		float *row0 = bones[surface->boneRemapInverse[i]].matrix[0];
+		float *row1 = bones[surface->boneRemapInverse[i]].matrix[1];
+		float *row2 = bones[surface->boneRemapInverse[i]].matrix[2];
+		float *trans = bones[surface->boneRemapInverse[i]].translation;
+
+		float *m = tess.boneMatrices[i];
+
+		m[ 0] = row0[0];		m[ 4] = row0[1];        m[ 8] = row0[2];  m[12] = trans[0];
+		m[ 1] = row1[0];		m[ 5] = row1[1];        m[ 9] = row1[2];  m[13] = trans[1];
+		m[ 2] = row2[0];		m[ 6] = row2[1];        m[10] = row2[2];  m[14] = trans[2];
+		m[ 3] = 0;              m[ 7] = 0;              m[11] = 0;		  m[15] = 1;
+#endif
 	}
 
 	Tess_End();
