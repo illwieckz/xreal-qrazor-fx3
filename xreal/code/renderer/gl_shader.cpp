@@ -2278,6 +2278,7 @@ GLShader_deferredLighting_directionalSun::GLShader_deferredLighting_directionalS
 		u_ShadowParallelSplitDistances(this),
 		u_ModelMatrix(this),
 		u_ModelViewProjectionMatrix(this),
+		u_ViewMatrix(this),
 		u_UnprojectMatrix(this),
 		u_PortalPlane(this),
 		GLDeformStage(this),
@@ -2342,6 +2343,7 @@ GLShader_deferredLighting_directionalSun::GLShader_deferredLighting_directionalS
 			shaderProgram->u_DiffuseMap	= glGetUniformLocationARB(shaderProgram->program, "u_DiffuseMap");
 			shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, "u_NormalMap");
 			shaderProgram->u_SpecularMap = glGetUniformLocationARB(shaderProgram->program, "u_SpecularMap");
+			shaderProgram->u_DepthMap = glGetUniformLocationARB(shaderProgram->program, "u_DepthMap");
 			//if(r_shadows->integer >= SHADOWING_VSM16)
 			{
 				shaderProgram->u_ShadowMap0 = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap0");
@@ -2355,15 +2357,16 @@ GLShader_deferredLighting_directionalSun::GLShader_deferredLighting_directionalS
 			glUniform1iARB(shaderProgram->u_DiffuseMap, 0);
 			glUniform1iARB(shaderProgram->u_NormalMap, 1);
 			glUniform1iARB(shaderProgram->u_SpecularMap, 2);
-			//glUniform1iARB(shaderProgram->u_AttenuationMapXY, 3);
-			//glUniform1iARB(shaderProgram->u_AttenuationMapZ, 4);
+			glUniform1iARB(shaderProgram->u_DepthMap, 3);
+			//glUniform1iARB(shaderProgram->u_AttenuationMapXY, 4);
+			//glUniform1iARB(shaderProgram->u_AttenuationMapZ, 5);
 			//if(r_shadows->integer >= SHADOWING_VSM16)
 			{
-				glUniform1iARB(shaderProgram->u_ShadowMap0, 5);
-				glUniform1iARB(shaderProgram->u_ShadowMap1, 6);
-				glUniform1iARB(shaderProgram->u_ShadowMap2, 7);
-				glUniform1iARB(shaderProgram->u_ShadowMap3, 8);
-				glUniform1iARB(shaderProgram->u_ShadowMap4, 9);
+				glUniform1iARB(shaderProgram->u_ShadowMap0, 6);
+				glUniform1iARB(shaderProgram->u_ShadowMap1, 7);
+				glUniform1iARB(shaderProgram->u_ShadowMap2, 8);
+				glUniform1iARB(shaderProgram->u_ShadowMap3, 9);
+				glUniform1iARB(shaderProgram->u_ShadowMap4, 10);
 			}
 			glUseProgramObjectARB(0);
 
