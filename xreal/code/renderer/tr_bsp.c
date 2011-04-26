@@ -1333,10 +1333,12 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 		surf->lightmapNum /= 2;
 	}
 
+	/*
 	if(surf->lightmapNum >= tr.lightmaps.currentElements)
 	{
 		ri.Error(ERR_DROP, "Bad lightmap number %i in face surface", surf->lightmapNum);
 	}
+	*/
 
 	// get fog volume
 	surf->fogIndex = LittleLong(ds->fogNum) + 1;
