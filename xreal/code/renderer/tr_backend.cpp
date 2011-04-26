@@ -11644,7 +11644,7 @@ static void RB_RenderView(void)
 			{
 				// copy color of the main context to deferredRenderFBO
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
-				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.geometricRenderFBO->frameBuffer);
+				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   GL_COLOR_BUFFER_BIT,
@@ -11838,7 +11838,7 @@ static void RB_RenderView(void)
 				                       GL_NEAREST);
 			}
 #endif
-#if 1
+#if 0
 			// FIXME: this trashes the OpenGL context for an unknown reason
 			if(glConfig2.framebufferObjectAvailable && glConfig2.framebufferBlitAvailable)
 			{
@@ -11851,7 +11851,7 @@ static void RB_RenderView(void)
 									   GL_NEAREST);
 			}
 #endif
-			else
+			//else
 			{
 				// capture current color buffer
 				GL_SelectTexture(0);
