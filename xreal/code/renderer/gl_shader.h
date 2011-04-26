@@ -2351,6 +2351,14 @@ public:
 	GLShader_blurY();
 };
 
+class GLShader_debugShadowMap:
+public GLShader,
+public u_ModelViewProjectionMatrix
+{
+public:
+	GLShader_debugShadowMap();
+};
+
 
 extern GLShader_generic* gl_genericShader;
 extern GLShader_lightMapping* gl_lightMappingShader;
@@ -2376,5 +2384,6 @@ extern GLShader_contrast* gl_contrastShader;
 extern GLShader_cameraEffects* gl_cameraEffectsShader;
 extern GLShader_blurX* gl_blurXShader;
 extern GLShader_blurY* gl_blurYShader;
+extern GLShader_debugShadowMap* gl_debugShadowMapShader;
 
 #endif	// GL_SHADER_H

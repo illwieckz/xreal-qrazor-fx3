@@ -1300,6 +1300,9 @@ void GLSL_InitGPUShaders(void)
 
 	gl_blurYShader = new GLShader_blurY();
 
+	// debug utils
+	gl_debugShadowMapShader = new GLShader_debugShadowMap();
+
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	// liquid post process effect
@@ -1401,21 +1404,6 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.depthOfFieldShader.program);
 	GL_CheckErrors();
 #endif
-
-	// debugUtils
-	GLSL_InitGPUShader(&tr.debugShadowMapShader, "debugShadowMap", ATTR_POSITION | ATTR_TEXCOORD, qtrue, qtrue);
-
-	tr.debugShadowMapShader.u_ShadowMap = glGetUniformLocationARB(tr.debugShadowMapShader.program, "u_ShadowMap");
-	tr.debugShadowMapShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.debugShadowMapShader.program, "u_ModelViewProjectionMatrix");
-
-	glUseProgramObjectARB(tr.debugShadowMapShader.program);
-	glUniform1iARB(tr.debugShadowMapShader.u_ShadowMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.debugShadowMapShader.program);
-	GLSL_ShowProgramUniforms(tr.debugShadowMapShader.program);
-	GL_CheckErrors();
 
 #endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
@@ -1618,6 +1606,12 @@ void GLSL_ShutdownGPUShaders(void)
 		gl_blurYShader = NULL;
 	}
 
+	if(gl_debugShadowMapShader)
+	{
+		delete gl_debugShadowMapShader;
+		gl_debugShadowMapShader = NULL;
+	}
+
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	if(tr.liquidShader.program)
@@ -1645,12 +1639,6 @@ void GLSL_ShutdownGPUShaders(void)
 		Com_Memset(&tr.depthOfFieldShader, 0, sizeof(shaderProgram_t));
 	}
 #endif
-
-	if(tr.debugShadowMapShader.program)
-	{
-		glDeleteObjectARB(tr.debugShadowMapShader.program);
-		Com_Memset(&tr.debugShadowMapShader, 0, sizeof(shaderProgram_t));
-	}
 
 #endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 

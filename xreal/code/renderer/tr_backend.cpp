@@ -6188,7 +6188,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				tess.numVertexes = 0;
 
 				// draw split frustum shadow maps
-				/*
 				if(r_showShadowMaps->integer && light->l.rlType == RL_DIRECTIONAL)
 				{
 					int			frustumIndex;
@@ -6200,15 +6199,20 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 							   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
+					// set 2D virtual screen size
+					GL_PushMatrix();
+					GL_LoadProjectionMatrix(ortho);
+					GL_LoadModelViewMatrix(matrixIdentity);
+
 					for(frustumIndex = 0; frustumIndex <= r_parallelShadowSplits->integer; frustumIndex++)
 					{
-						GL_BindProgram(&tr.debugShadowMapShader);
 						GL_Cull(CT_TWO_SIDED);
 						GL_State(GLS_DEPTHTEST_DISABLE);
 
-						// set uniforms
-						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.debugShadowMapShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						gl_debugShadowMapShader->BindProgram();
+						gl_debugShadowMapShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
+						// bind u_ColorMap
 						GL_SelectTexture(0);
 						GL_Bind(tr.shadowMapFBOImage[frustumIndex]);
 
@@ -6236,28 +6240,28 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							GL_PushMatrix();
 
-							GL_BindProgram(&tr.genericShader);
 							GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
 							GL_Cull(CT_TWO_SIDED);
 
-							// set uniforms
-							GLSL_SetUniform_TCGen_Environment(&tr.genericShader,  qfalse);
-							GLSL_SetUniform_ColorGen(&tr.genericShader, CGEN_VERTEX);
-							GLSL_SetUniform_AlphaGen(&tr.genericShader, AGEN_VERTEX);
-							if(glConfig2.vboVertexSkinningAvailable)
-							{
-								GLSL_SetUniform_VertexSkinning(&tr.genericShader, qfalse);
-							}
-							GLSL_SetUniform_DeformGen(&tr.genericShader, DGEN_NONE);
-							GLSL_SetUniform_AlphaTest(&tr.genericShader, 0);
+							gl_genericShader->DisableAlphaTesting();
+							gl_genericShader->DisablePortalClipping();
+							gl_genericShader->DisableVertexSkinning();
+							gl_genericShader->DisableVertexAnimation();
+							gl_genericShader->DisableDeformVertexes();
+							gl_genericShader->DisableTCGenEnvironment();
+
+							gl_genericShader->BindProgram();
+
+							gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+							gl_genericShader->SetUniform_Color(colorBlack);
+
+							gl_genericShader->SetUniform_ModelViewProjectionMatrix(light->shadowMatrices[frustumIndex]);
 
 							// bind u_ColorMap
 							GL_SelectTexture(0);
 							GL_Bind(tr.whiteImage);
-							GLSL_SetUniform_ColorTextureMatrix(&tr.genericShader, matrixIdentity);
-
-							GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericShader, light->shadowMatrices[frustumIndex]);
-
+							gl_genericShader->SetUniform_ColorTextureMatrix(matrixIdentity);
+				
 							tess.multiDrawPrimitives = 0;
 							tess.numIndexes = 0;
 							tess.numVertexes = 0;
@@ -6345,9 +6349,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							// draw light volume
 							if(light->isStatic && light->frustumVBO && light->frustumIBO)
 							{
-								GLSL_SetUniform_ColorGen(&tr.genericShader, CGEN_CUSTOM_RGB);
-								GLSL_SetUniform_AlphaGen(&tr.genericShader, AGEN_CUSTOM);
-								GLSL_SetUniform_Color(&tr.genericShader, colorYellow);
+								gl_genericShader->SetUniform_ColorModulate(CGEN_CUSTOM_RGB, AGEN_CUSTOM);
+								gl_genericShader->SetUniform_Color(colorYellow);
 
 								R_BindVBO(light->frustumVBO);
 								R_BindIBO(light->frustumIBO);
@@ -6372,9 +6375,11 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 									   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 						}
-					}
+					} // end for
+
+					// back to 3D or whatever
+					GL_PopMatrix();
 				}
-				*/
 			}
 		}						// end if(iaCount == iaFirst)
 

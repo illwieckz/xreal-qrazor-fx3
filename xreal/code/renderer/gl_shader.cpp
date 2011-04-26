@@ -53,6 +53,7 @@ GLShader_contrast* gl_contrastShader = NULL;
 GLShader_cameraEffects* gl_cameraEffectsShader = NULL;
 GLShader_blurX* gl_blurXShader = NULL;
 GLShader_blurY* gl_blurYShader = NULL;
+GLShader_debugShadowMap* gl_debugShadowMapShader = NULL;
 
 
 
@@ -3632,4 +3633,64 @@ GLShader_blurY::GLShader_blurY():
 
 	int endTime = ri.Milliseconds();
 	ri.Printf(PRINT_ALL, "...compiled %i blurY shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
+}
+
+
+
+GLShader_debugShadowMap::GLShader_debugShadowMap():
+		GLShader(	"debugShadowMap",
+					ATTR_POSITION,
+					ATTR_COLOR,
+					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		u_ModelViewProjectionMatrix(this)
+{
+	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
+	ri.Printf(PRINT_ALL, "/// creating debugShadowMap shaders ------------------------\n");
+
+	int startTime = ri.Milliseconds();
+
+	_shaderPrograms = std::vector<shaderProgram_t>(1 << _compileMacros.size());
+	
+	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
+
+	std::string vertexShaderText = BuildGPUShaderText("debugShadowMap", "", GL_VERTEX_SHADER_ARB);
+	std::string fragmentShaderText = BuildGPUShaderText("debugShadowMap", "", GL_FRAGMENT_SHADER_ARB);
+
+	size_t numPermutations = (1 << _compileMacros.size());	// same as 2^n, n = no. compile macros
+	size_t numCompiled = 0;
+	for(size_t i = 0; i < numPermutations; i++)
+	{
+		std::string compileMacros;
+		if(GetCompileMacrosString(i, compileMacros))
+		{
+			ri.Printf(PRINT_DEVELOPER, "Compile macros: '%s'\n", compileMacros.c_str());
+
+			shaderProgram_t *shaderProgram = &_shaderPrograms[i];
+
+			CompileAndLinkGPUShaderProgram(	shaderProgram,
+											"debugShadowMap",
+											vertexShaderText,
+											fragmentShaderText,
+											compileMacros);
+
+			UpdateShaderProgramUniformLocations(shaderProgram);
+
+			shaderProgram->u_CurrentMap = glGetUniformLocationARB(shaderProgram->program, "u_CurrentMap");
+			
+			glUseProgramObjectARB(shaderProgram->program);
+			glUniform1iARB(shaderProgram->u_CurrentMap, 0);
+			glUseProgramObjectARB(0);
+
+			ValidateProgram(shaderProgram->program);
+			//ShowProgramUniforms(shaderProgram->program);
+			GL_CheckErrors();
+
+			numCompiled++;
+		}
+	}
+
+	SelectProgram();
+
+	int endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "...compiled %i debugShadowMap shader permutations in %5.2f seconds\n", numCompiled, (endTime - startTime) / 1000.0);
 }
