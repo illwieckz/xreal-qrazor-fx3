@@ -662,9 +662,7 @@ void Tess_InstantQuad(vec4_t quadVerts[4])
 	tess.numVertexes = 0;
 	tess.numIndexes = 0;
 
-#if !defined(USE_D3D10)
 	GL_CheckErrors();
-#endif
 }
 
 /*

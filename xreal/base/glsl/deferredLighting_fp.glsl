@@ -215,6 +215,23 @@ void	main()
 	}
 #endif
 
+
+#if !defined(LIGHT_DIRECTIONAL)
+	// transform vertex position into light space
+	vec4 Plight = u_LightAttenuationMatrix * vec4(P.xyz, 1.0);
+#endif
+
+
+#if defined(LIGHT_PROJ)
+	if(Plight.w <= 0.0)
+	{
+		// point is behind the near clip plane
+		discard;
+		return;
+	}
+#endif
+
+
 	float shadow = 1.0;
 #if defined(USE_SHADOWING)
 
@@ -608,17 +625,12 @@ void	main()
 
 	// compute light attenuation
 #if defined(LIGHT_PROJ)
-	vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, var_TexAttenuation.xyw).rgb;
-	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAttenuation.z + 0.5, 0.0)).rgb; // FIXME
-	
-#elif defined(LIGHT_DIRECTIONAL)
-	vec3 attenuationXY = vec3(1.0);
-	vec3 attenuationZ  = vec3(1.0);
-	
-#else
-	vec4 texAtten = (u_LightAttenuationMatrix * vec4(P.xyz, 1.0));
-	vec3 attenuationXY = texture2D(u_AttenuationMapXY, texAtten.xy).rgb;
-	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(texAtten.z, 0)).rgb;
+	vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, Plight.xyw).rgb;
+	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(Plight.z + 0.5, 0.0)).rgb; // FIXME
+
+#elif !defined(LIGHT_DIRECTIONAL)
+	vec3 attenuationXY = texture2D(u_AttenuationMapXY, Plight.xy).rgb;
+	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(Plight.z, 0)).rgb;
 #endif
 				
 	// compute final color

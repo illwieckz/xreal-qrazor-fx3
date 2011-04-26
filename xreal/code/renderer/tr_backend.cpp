@@ -4063,8 +4063,21 @@ void RB_RenderInteractionsDeferred()
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 
+	tess.multiDrawPrimitives = 0;
+	tess.numIndexes = 0;
+	tess.numVertexes = 0;
+
+	R_BindNullVBO();
+	R_BindNullIBO();
+
 	R_BindFBO(tr.geometricRenderFBO);
 	glDrawBuffers(1, geometricRenderTargets);
+
+	// helper matrix for 2D rendering
+	MatrixOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+										backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+										backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+										-99999, 99999);
 
 	// loop trough all light interactions and render the light quad for each last interaction
 	for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
@@ -4083,293 +4096,9 @@ void RB_RenderInteractionsDeferred()
 			if((glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicLightOcclusionCulling->integer && ia->occlusionQuerySamples) ||
 				!r_dynamicLightOcclusionCulling->integer)
 			{
-				GLimp_LogComment("--- Rendering light volume ---\n");
-
-				gl_genericShader->DisableAlphaTesting();
-				gl_genericShader->DisablePortalClipping();
-				gl_genericShader->DisableVertexSkinning();
-				gl_genericShader->DisableVertexAnimation();
-				gl_genericShader->DisableDeformVertexes();
-				gl_genericShader->DisableTCGenEnvironment();
-
-				gl_genericShader->BindProgram();
-				gl_genericShader->SetVertexAttribs();
-
-				GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
-				GL_Cull(CT_TWO_SIDED);
-
-				// set uniforms
-				gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
-				gl_genericShader->SetUniform_Color(colorBlack);
-
-				// bind u_ColorMap
-				GL_SelectTexture(0);
-				GL_Bind(tr.whiteImage);
-				gl_genericShader->SetUniform_ColorTextureMatrix(matrixIdentity);
-
-				// set light scissor to reduce fillrate
-				GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
-
-				// set the reference stencil value
-				GL_ClearStencil(128);
-
-				// reset stencil buffer
-				glClear(GL_STENCIL_BUFFER_BIT);
-
-				// use less compare as depthfunc
-				// don't write to the color buffer or depth buffer
-				// enable stencil testing for this light
-				GL_State(GLS_DEPTHFUNC_LESS | GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
-
-				glStencilFunc(GL_ALWAYS, 128, 255);
-				glStencilMask(255);
-
-				if(light->isStatic && light->frustumVBO && light->frustumIBO)
-				{
-					// render in world space
-					backEnd.orientation = backEnd.viewParms.world;
-					GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
-					gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
-
-					R_BindVBO(light->frustumVBO);
-					R_BindIBO(light->frustumIBO);
-
-					GL_VertexAttribsState(ATTR_POSITION);
-
-					tess.numVertexes = light->frustumVerts;
-					tess.numIndexes = light->frustumIndexes;
-				}
-				else
-				{
-					// render in light space
-					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
-					GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-					gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
-
-					tess.multiDrawPrimitives = 0;
-					tess.numIndexes = 0;
-					tess.numVertexes = 0;
-
-					switch (light->l.rlType)
-					{
-						case RL_OMNI:
-						case RL_DIRECTIONAL:
-						{
-							Tess_AddCube(vec3_origin, light->localBounds[0], light->localBounds[1], colorWhite);
-
-							Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
-							break;
-						}
-
-						case RL_PROJ:
-						{
-							vec3_t          farCorners[4];
-							vec4_t         *frustum = light->localFrustum;
-
-							PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
-							PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
-							PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[2]);
-							PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[3]);
-
-							if(!VectorCompare(light->l.projStart, vec3_origin))
-							{
-								vec3_t          nearCorners[4];
-
-								// calculate the vertices defining the top area
-								PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[0]);
-								PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[1]);
-								PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[2]);
-								PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[3]);
-
-								// draw outer surfaces
-								for(j = 0; j < 4; j++)
-								{
-									Vector4Set(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
-									Vector4Set(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
-									Vector4Set(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
-									Vector4Set(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
-									Tess_AddQuadStamp2(quadVerts, colorCyan);
-								}
-
-								// draw far cap
-								Vector4Set(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
-								Vector4Set(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
-								Vector4Set(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
-								Vector4Set(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
-								Tess_AddQuadStamp2(quadVerts, colorRed);
-
-								// draw near cap
-								Vector4Set(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
-								Vector4Set(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
-								Vector4Set(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
-								Vector4Set(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
-								Tess_AddQuadStamp2(quadVerts, colorGreen);
-
-							}
-							else
-							{
-								vec3_t	top;
-
-								// no light_start, just use the top vertex (doesn't need to be mirrored)
-								PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], top);
-
-								// draw pyramid
-								for(j = 0; j < 4; j++)
-								{
-									VectorCopy(farCorners[j], tess.xyz[tess.numVertexes]);
-									Vector4Copy(colorCyan, tess.colors[tess.numVertexes]);
-									tess.indexes[tess.numIndexes++] = tess.numVertexes;
-									tess.numVertexes++;
-
-									VectorCopy(farCorners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
-									Vector4Copy(colorCyan, tess.colors[tess.numVertexes]);
-									tess.indexes[tess.numIndexes++] = tess.numVertexes;
-									tess.numVertexes++;
-
-									VectorCopy(top, tess.xyz[tess.numVertexes]);
-									Vector4Copy(colorCyan, tess.colors[tess.numVertexes]);
-									tess.indexes[tess.numIndexes++] = tess.numVertexes;
-									tess.numVertexes++;
-								}
-
-								Vector4Set(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
-								Vector4Set(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
-								Vector4Set(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
-								Vector4Set(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
-								Tess_AddQuadStamp2(quadVerts, colorRed);
-							}
-
-							Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
-							break;
-						}
-
-						default:
-							break;
-					}
-				}
-
-				if(r_showShadowVolumes->integer)
-				{
-					//GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
-					GL_State(GLS_DEPTHFUNC_LESS | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
-					//GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
-					//GL_State(GLS_DEPTHMASK_TRUE);
-			#if 0
-					GL_Cull(CT_FRONT_SIDED);
-					//glColor4f(1.0f, 1.0f, 0.7f, 0.05f);
-					glVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
-					Tess_DrawElements();
-			#endif
-
-			#if 0
-					GL_Cull(CT_BACK_SIDED);
-					glVertexAttrib4fARB(ATTR_INDEX_COLOR, 0.0f, 1.0f, 0.0f, 0.05f);
-					Tess_DrawElements();
-			#endif
-
-			#if 1
-					GL_State(GLS_DEPTHFUNC_LESS | GLS_POLYMODE_LINE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
-					GL_Cull(CT_TWO_SIDED);
-					//glVertexAttrib4fARB(ATTR_INDEX_COLOR, 0.0f, 0.0f, 1.0f, 0.05f);
-					Tess_DrawElements();
-			#endif
-				}
-				else
-				{
-					if(GLEW_ATI_separate_stencil && glConfig2.stencilWrapAvailable)
-					{
-						GL_Cull(CT_TWO_SIDED);
-
-						glStencilFuncSeparateATI(GL_ALWAYS, GL_ALWAYS, 0, (GLuint) ~ 0);
-
-						glStencilOpSeparateATI(GL_BACK, GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
-						glStencilOpSeparateATI(GL_FRONT, GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
-
-						Tess_DrawElements();
-					}
-					else if(GLEW_EXT_stencil_two_side)
-					{
-						// render both sides at once
-						GL_Cull(CT_TWO_SIDED);
-
-						glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
-
-						glActiveStencilFaceEXT(GL_BACK);
-						if(glConfig2.stencilWrapAvailable)
-						{
-							glStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
-						}
-						else
-						{
-							glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
-						}
-
-						glActiveStencilFaceEXT(GL_FRONT);
-						if(glConfig2.stencilWrapAvailable)
-						{
-							glStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
-						}
-						else
-						{
-							glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
-						}
-
-						Tess_DrawElements();
-
-						glDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
-					}
-					else
-					{
-						// draw only the front faces of the shadow volume
-						GL_Cull(CT_FRONT_SIDED);
-
-						// increment the stencil value on zfail
-						if(glConfig2.stencilWrapAvailable)
-						{
-							glStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
-						}
-						else
-						{
-							glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
-						}
-
-						Tess_DrawElements();
-
-						// draw only the back faces of the shadow volume
-						GL_Cull(CT_BACK_SIDED);
-
-						// decrement the stencil value on zfail
-						if(glConfig2.stencilWrapAvailable)
-						{
-							glStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
-						}
-						else
-						{
-							glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
-						}
-
-						Tess_DrawElements();
-					}
-				}
-
 				GL_CheckErrors();
 
 				GLimp_LogComment("--- Rendering lighting ---\n");
-
-				glStencilFunc(GL_NOTEQUAL, 128, 255);
-
-				if(glActiveStencilFaceEXT)
-				{
-					glActiveStencilFaceEXT(GL_BACK);
-					glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-					glActiveStencilFaceEXT(GL_FRONT);
-					glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-				}
-				else
-				{
-					glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-				}
 
 				// build world to light space matrix
 				switch (light->l.rlType)
@@ -4399,14 +4128,173 @@ void RB_RenderInteractionsDeferred()
 						break;
 				}
 
-				// set 2D virtual screen size
-				GL_PushMatrix();
-				MatrixOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-												backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-												backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
-												-99999, 99999);
-				GL_LoadProjectionMatrix(ortho);
-				GL_LoadModelViewMatrix(matrixIdentity);
+				if(light->clipsNearPlane)
+				{
+					// set 2D virtual screen size
+					GL_PushMatrix();
+					GL_LoadProjectionMatrix(ortho);
+					GL_LoadModelViewMatrix(matrixIdentity);
+				}
+				else
+				{
+					// prepare rendering of the light volume
+					// either bind VBO or setup the tess struct
+					#if 1
+					if(light->isStatic && light->frustumVBO && light->frustumIBO)
+					{
+						// render in world space
+						backEnd.orientation = backEnd.viewParms.world;
+
+						GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+						GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+
+						R_BindVBO(light->frustumVBO);
+						R_BindIBO(light->frustumIBO);
+
+						GL_VertexAttribsState(ATTR_POSITION);
+
+						tess.numVertexes = light->frustumVerts;
+						tess.numIndexes = light->frustumIndexes;
+					}
+					else
+					#endif
+					{
+						
+
+						tess.multiDrawPrimitives = 0;
+						tess.numIndexes = 0;
+						tess.numVertexes = 0;
+
+						switch (light->l.rlType)
+						{
+							case RL_OMNI:
+							case RL_DIRECTIONAL:
+							{
+								#if 1
+								// render in light space
+								R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+
+								GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+								GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+
+								Tess_AddCube(vec3_origin, light->localBounds[0], light->localBounds[1], colorWhite);
+
+								Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
+								#else
+								matrix_t		transform, scale, rot;
+								axis_t			axis;
+
+								MatrixSetupScale(scale, light->l.radius[0], light->l.radius[1], light->l.radius[2]);
+								MatrixMultiply(scale, light->transformMatrix, transform);
+
+								GL_LoadModelViewMatrix(transform);
+								GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+
+								R_BindVBO(tr.unitCubeVBO);
+								R_BindIBO(tr.unitCubeIBO);
+
+								GL_VertexAttribsState(ATTR_POSITION);
+
+								tess.multiDrawPrimitives = 0;
+								tess.numVertexes = tr.unitCubeVBO->vertexesNum;
+								tess.numIndexes = tr.unitCubeIBO->indexesNum;
+								#endif
+								break;
+							}
+
+							case RL_PROJ:
+							{
+								vec3_t          farCorners[4];
+								vec4_t         *frustum = light->localFrustum;
+
+								// render in light space
+								R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+
+								GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+								GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+
+								PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[0]);
+								PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_FAR], farCorners[1]);
+								PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[2]);
+								PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_FAR], farCorners[3]);
+
+								if(!VectorCompare(light->l.projStart, vec3_origin))
+								{
+									vec3_t          nearCorners[4];
+
+									// calculate the vertices defining the top area
+									PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[0]);
+									PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], frustum[FRUSTUM_NEAR], nearCorners[1]);
+									PlanesGetIntersectionPoint(frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[2]);
+									PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_BOTTOM], frustum[FRUSTUM_NEAR], nearCorners[3]);
+
+									// draw outer surfaces
+									for(j = 0; j < 4; j++)
+									{
+										Vector4Set(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
+										Vector4Set(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
+										Vector4Set(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
+										Vector4Set(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
+										Tess_AddQuadStamp2(quadVerts, colorCyan);
+									}
+
+									// draw far cap
+									Vector4Set(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+									Vector4Set(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+									Vector4Set(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+									Vector4Set(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+									Tess_AddQuadStamp2(quadVerts, colorRed);
+
+									// draw near cap
+									Vector4Set(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
+									Vector4Set(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
+									Vector4Set(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
+									Vector4Set(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
+									Tess_AddQuadStamp2(quadVerts, colorGreen);
+
+								}
+								else
+								{
+									vec3_t	top;
+
+									// no light_start, just use the top vertex (doesn't need to be mirrored)
+									PlanesGetIntersectionPoint(frustum[FRUSTUM_LEFT], frustum[FRUSTUM_RIGHT], frustum[FRUSTUM_TOP], top);
+
+									// draw pyramid
+									for(j = 0; j < 4; j++)
+									{
+										VectorCopy(top, tess.xyz[tess.numVertexes]);
+										Vector4Copy(colorCyan, tess.colors[tess.numVertexes]);
+										tess.indexes[tess.numIndexes++] = tess.numVertexes;
+										tess.numVertexes++;
+
+										VectorCopy(farCorners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
+										Vector4Copy(colorCyan, tess.colors[tess.numVertexes]);
+										tess.indexes[tess.numIndexes++] = tess.numVertexes;
+										tess.numVertexes++;
+
+										VectorCopy(farCorners[j], tess.xyz[tess.numVertexes]);
+										Vector4Copy(colorCyan, tess.colors[tess.numVertexes]);
+										tess.indexes[tess.numIndexes++] = tess.numVertexes;
+										tess.numVertexes++;
+									}
+
+									Vector4Set(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+									Vector4Set(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+									Vector4Set(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+									Vector4Set(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+									Tess_AddQuadStamp2(quadVerts, colorRed);
+								}
+
+								Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
+								break;
+							}
+
+							default:
+								break;
+						}
+					}
+				}
 
 
 				// last interaction of current light
@@ -4435,6 +4323,18 @@ void RB_RenderInteractionsDeferred()
 					Tess_ComputeColor(attenuationXYStage);
 					R_ComputeFinalAttenuation(attenuationXYStage, light);
 
+					// set OpenGL state for additive lighting
+					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+
+					if(light->clipsNearPlane)
+					{
+						GL_Cull(CT_TWO_SIDED);
+					}
+					else
+					{
+						GL_Cull(CT_FRONT_SIDED);
+					}
+
 					if(light->l.rlType == RL_OMNI)
 					{
 						// choose right shader program ----------------------------------
@@ -4446,18 +4346,9 @@ void RB_RenderInteractionsDeferred()
 						
 						// end choose right shader program ------------------------------
 
-						// set OpenGL state for additive lighting
-						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE /*| GLS_STENCILTEST_ENABLE */);
-
-						GL_Cull(CT_TWO_SIDED);
-
-						// set uniforms
-						//VectorCopy(light->origin, lightOrigin);
-						VectorCopy(tess.svars.color, lightColor);
-
 						gl_deferredLightingShader_omniXYZ->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin); // in world space
 						gl_deferredLightingShader_omniXYZ->SetUniform_LightOrigin(light->origin);
-						gl_deferredLightingShader_omniXYZ->SetUniform_LightColor(lightColor);
+						gl_deferredLightingShader_omniXYZ->SetUniform_LightColor(tess.svars.color);
 						gl_deferredLightingShader_omniXYZ->SetUniform_LightRadius(light->sphereRadius);
 						gl_deferredLightingShader_omniXYZ->SetUniform_LightScale(light->l.scale);
 						gl_deferredLightingShader_omniXYZ->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
@@ -4505,43 +4396,46 @@ void RB_RenderInteractionsDeferred()
 						GL_SelectTexture(5);
 						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
-#if 0
-						// draw lighting with a fullscreen quad
-						Tess_InstantQuad(backEnd.viewParms.viewportVerts);
-#else
-						Vector4Set(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
-						Vector4Set(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-						Vector4Set(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						Vector4Set(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						Tess_InstantQuad(quadVerts);
-#endif
+						if(light->clipsNearPlane)
+						{
+							// draw lighting with a fullscreen quad
+							Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+						
+							/*
+							Vector4Set(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
+							Vector4Set(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+							Vector4Set(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+							Vector4Set(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+							Tess_InstantQuad(quadVerts);
+							*/
+						}
+						else
+						{
+							// draw the volume
+							Tess_DrawElements();
+						}
 					}
-#if 0
 					else if(light->l.rlType == RL_PROJ)
 					{
-						// enable shader, set arrays
-						GL_BindProgram(&tr.deferredLightingShader_DBS_proj);
+						// choose right shader program ----------------------------------
+						gl_deferredLightingShader_projXYZ->SetPortalClipping(backEnd.viewParms.isPortal);
+						gl_deferredLightingShader_projXYZ->SetNormalMapping(r_normalMapping->integer);
+						gl_deferredLightingShader_projXYZ->SetShadowing(false);
 
-						// set OpenGL state for additive lighting
-						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE | GLS_STENCILTEST_ENABLE);
+						gl_deferredLightingShader_projXYZ->BindProgram();
+						
+						// end choose right shader program ------------------------------
 
-						GL_Cull(CT_TWO_SIDED);
+						gl_deferredLightingShader_projXYZ->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin); // in world space
+						gl_deferredLightingShader_projXYZ->SetUniform_LightOrigin(light->origin);
+						gl_deferredLightingShader_projXYZ->SetUniform_LightColor(tess.svars.color);
+						gl_deferredLightingShader_projXYZ->SetUniform_LightRadius(light->sphereRadius);
+						gl_deferredLightingShader_projXYZ->SetUniform_LightScale(light->l.scale);
+						gl_deferredLightingShader_projXYZ->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
 
-						// set uniforms
-						VectorCopy(light->origin, lightOrigin);
-						VectorCopy(tess.svars.color, lightColor);
+						gl_deferredLightingShader_projXYZ->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+						gl_deferredLightingShader_projXYZ->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
 
-						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_proj, viewOrigin);
-						GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_proj, lightOrigin);
-						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_proj, lightColor);
-						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_proj, light->sphereRadius);
-						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_proj, light->l.scale);
-						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_proj, light->attenuationMatrix2);
-
-						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
-						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.unprojectionMatrix);
-
-						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_proj, backEnd.viewParms.isPortal);
 						if(backEnd.viewParms.isPortal)
 						{
 							float           plane[4];
@@ -4552,90 +4446,18 @@ void RB_RenderInteractionsDeferred()
 							plane[2] = backEnd.viewParms.portalPlane.normal[2];
 							plane[3] = backEnd.viewParms.portalPlane.dist;
 
-							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_proj, plane);
+							gl_deferredLightingShader_projXYZ->SetUniform_PortalPlane(plane);
 						}
+
+						// bind u_DiffuseMap
+						GL_SelectTexture(0);
+						GL_Bind(tr.deferredDiffuseFBOImage);
 
 						// bind u_NormalMap
 						GL_SelectTexture(1);
 						GL_Bind(tr.deferredNormalFBOImage);
 
-						// bind u_DepthMap
-						GL_SelectTexture(3);
-						GL_Bind(tr.depthRenderImage);
-
-						// bind u_AttenuationMapXY
-						GL_SelectTexture(4);
-						BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-
-						// bind u_AttenuationMapZ
-						GL_SelectTexture(5);
-						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-
-#if 0
-						// draw lighting with a fullscreen quad
-						Tess_InstantQuad(backEnd.viewParms.viewportVerts);
-#else
-						Vector4Set(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
-						Vector4Set(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-						Vector4Set(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						Vector4Set(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						Tess_InstantQuad(quadVerts);
-#endif
-					}
-					else if(light->l.rlType == RL_DIRECTIONAL)
-					{
-						// enable shader, set arrays
-						GL_BindProgram(&tr.deferredLightingShader_DBS_directional);
-
-						// set OpenGL state for additive lighting
-						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE | GLS_STENCILTEST_ENABLE);
-
-						GL_Cull(CT_TWO_SIDED);
-
-						// set uniforms
-						VectorCopy(light->origin, lightOrigin);
-						VectorCopy(tess.svars.color, lightColor);
-
-						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_directional, viewOrigin);
-
-						//if(VectorLength(light->))
-						GLSL_SetUniform_LightDir(&tr.deferredLightingShader_DBS_directional, tr.sunDirection);
-
-
-						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_directional, lightColor);
-						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_directional, light->sphereRadius);
-						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_directional, light->l.scale);
-						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_directional, light->attenuationMatrix2);
-
-						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_directional, glState.modelViewProjectionMatrix[glState.stackIndex]);
-						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_directional, backEnd.viewParms.unprojectionMatrix);
-
-						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_directional, backEnd.viewParms.isPortal);
-						if(backEnd.viewParms.isPortal)
-						{
-							float           plane[4];
-
-							// clipping plane in world space
-							plane[0] = backEnd.viewParms.portalPlane.normal[0];
-							plane[1] = backEnd.viewParms.portalPlane.normal[1];
-							plane[2] = backEnd.viewParms.portalPlane.normal[2];
-							plane[3] = backEnd.viewParms.portalPlane.dist;
-
-							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_directional, plane);
-						}
-
-						if(DS_STANDARD_ENABLED())
-						{
-							// bind u_DiffuseMap
-							GL_SelectTexture(0);
-							GL_Bind(tr.deferredDiffuseFBOImage);
-						}
-
-						// bind u_NormalMap
-						GL_SelectTexture(1);
-						GL_Bind(tr.deferredNormalFBOImage);
-
-						if(DS_STANDARD_ENABLED() && r_normalMapping->integer)
+						if(r_normalMapping->integer)
 						{
 							// bind u_SpecularMap
 							GL_SelectTexture(2);
@@ -4654,21 +4476,111 @@ void RB_RenderInteractionsDeferred()
 						GL_SelectTexture(5);
 						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
-#if 0
-						// draw lighting with a fullscreen quad
-						Tess_InstantQuad(backEnd.viewParms.viewportVerts);
-#else
-						Vector4Set(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
-						Vector4Set(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-						Vector4Set(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						Vector4Set(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						Tess_InstantQuad(quadVerts);
-#endif
+						if(light->clipsNearPlane)
+						{
+							// draw lighting with a fullscreen quad
+							Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+						
+							/*
+							Vector4Set(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
+							Vector4Set(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+							Vector4Set(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+							Vector4Set(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+							Tess_InstantQuad(quadVerts);
+							*/
+						}
+						else
+						{
+							// draw the volume
+							Tess_DrawElements();
+						}
 					}
-#endif // if(light->l.rlType == RL_PROJ)
+					else if(light->l.rlType == RL_DIRECTIONAL)
+					{
+						// choose right shader program ----------------------------------
+						gl_deferredLightingShader_directionalSun->SetPortalClipping(backEnd.viewParms.isPortal);
+						gl_deferredLightingShader_directionalSun->SetNormalMapping(r_normalMapping->integer);
+						gl_deferredLightingShader_directionalSun->SetShadowing(false);
+
+						gl_deferredLightingShader_directionalSun->BindProgram();
+						
+						// end choose right shader program ------------------------------
+
+						gl_deferredLightingShader_directionalSun->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin); // in world space
+						gl_deferredLightingShader_directionalSun->SetUniform_LightDir(tr.sunDirection);
+						gl_deferredLightingShader_directionalSun->SetUniform_LightColor(tess.svars.color);
+						gl_deferredLightingShader_directionalSun->SetUniform_LightRadius(light->sphereRadius);
+						gl_deferredLightingShader_directionalSun->SetUniform_LightScale(light->l.scale);
+						gl_deferredLightingShader_directionalSun->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
+
+						gl_deferredLightingShader_directionalSun->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+						gl_deferredLightingShader_directionalSun->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
+
+						if(backEnd.viewParms.isPortal)
+						{
+							float           plane[4];
+
+							// clipping plane in world space
+							plane[0] = backEnd.viewParms.portalPlane.normal[0];
+							plane[1] = backEnd.viewParms.portalPlane.normal[1];
+							plane[2] = backEnd.viewParms.portalPlane.normal[2];
+							plane[3] = backEnd.viewParms.portalPlane.dist;
+
+							gl_deferredLightingShader_directionalSun->SetUniform_PortalPlane(plane);
+						}
+
+						// bind u_DiffuseMap
+						GL_SelectTexture(0);
+						GL_Bind(tr.deferredDiffuseFBOImage);
+
+						// bind u_NormalMap
+						GL_SelectTexture(1);
+						GL_Bind(tr.deferredNormalFBOImage);
+
+						if(r_normalMapping->integer)
+						{
+							// bind u_SpecularMap
+							GL_SelectTexture(2);
+							GL_Bind(tr.deferredSpecularFBOImage);
+						}
+
+						// bind u_DepthMap
+						GL_SelectTexture(3);
+						GL_Bind(tr.depthRenderImage);
+
+						// bind u_AttenuationMapXY
+						//GL_SelectTexture(4);
+						//BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+
+						// bind u_AttenuationMapZ
+						//GL_SelectTexture(5);
+						//BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+
+						if(light->clipsNearPlane)
+						{
+							// draw lighting with a fullscreen quad
+							Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+						
+							/*
+							Vector4Set(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
+							Vector4Set(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+							Vector4Set(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+							Vector4Set(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+							Tess_InstantQuad(quadVerts);
+							*/
+						}
+						else
+						{
+							// draw the volume
+							Tess_DrawElements();
+						}
+					}
 				}
 
-				GL_PopMatrix();
+				if(light->clipsNearPlane)
+				{
+					GL_PopMatrix();
+				}
 			}
 
 			if(iaCount < (backEnd.viewParms.numInteractions - 1))
@@ -4693,8 +4605,18 @@ void RB_RenderInteractionsDeferred()
 		oldLight = light;
 	}
 
+	// clear shader so we can tell we don't have any unclosed surfaces
+	tess.multiDrawPrimitives = 0;
+	tess.numIndexes = 0;
+	tess.numVertexes = 0;
+
+	R_BindNullVBO();
+	R_BindNullIBO();
+
 	// go back to the world modelview matrix
 	backEnd.orientation = backEnd.viewParms.world;
+
+	GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 	// reset scissor
@@ -10061,8 +9983,9 @@ static void RB_RenderDebugUtils()
 
 		gl_genericShader->BindProgram();
 
+		//GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
-		GL_Cull(CT_TWO_SIDED);
+		GL_Cull(CT_FRONT_SIDED);
 
 		// set uniforms
 		gl_genericShader->SetUniform_ColorModulate(CGEN_CUSTOM_RGB, AGEN_CUSTOM);
@@ -10126,6 +10049,9 @@ static void RB_RenderDebugUtils()
 					Vector4Copy(colorBlue, lightColor);
 				}
 
+
+				lightColor[3] = 0.2;
+
 				gl_genericShader->SetUniform_Color(lightColor);
 
 				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
@@ -10187,11 +10113,6 @@ static void RB_RenderDebugUtils()
 				else
 #endif
 				{
-					// set up the transformation matrix
-					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
-					GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-					gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
-
 					tess.multiDrawPrimitives = 0;
 					tess.numIndexes = 0;
 					tess.numVertexes = 0;
@@ -10201,6 +10122,13 @@ static void RB_RenderDebugUtils()
 						case RL_OMNI:
 						case RL_DIRECTIONAL:
 						{
+#if 1
+							// set up the transformation matrix
+							R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+
+							GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+							gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+
 							Tess_AddCube(vec3_origin, light->localBounds[0], light->localBounds[1], lightColor);
 
 							if(!VectorCompare(light->l.center, vec3_origin))
@@ -10208,6 +10136,28 @@ static void RB_RenderDebugUtils()
 
 							Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
 							Tess_DrawElements();
+#else
+							matrix_t		transform, scale, rot;
+							
+							MatrixSetupScale(scale, light->l.radius[0], light->l.radius[1], light->l.radius[2]);
+							MatrixMultiply(light->transformMatrix, scale, transform);
+
+							GL_LoadModelViewMatrix(transform);
+							//GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+
+							gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+							R_BindVBO(tr.unitCubeVBO);
+							R_BindIBO(tr.unitCubeIBO);
+
+							GL_VertexAttribsState(ATTR_POSITION);
+
+							tess.multiDrawPrimitives = 0;
+							tess.numVertexes = tr.unitCubeVBO->vertexesNum;
+							tess.numIndexes = tr.unitCubeIBO->indexesNum;
+
+							Tess_DrawElements();
+#endif
 							break;
 						}
 
@@ -10216,6 +10166,11 @@ static void RB_RenderDebugUtils()
 							vec3_t          farCorners[4];
 							//vec4_t			frustum[6];
 							vec4_t         *frustum = light->localFrustum;
+
+							// set up the transformation matrix
+							R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.orientation);
+							GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
+							gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 #if 0
 							// transform frustum from world space to local space
@@ -10271,25 +10226,25 @@ static void RB_RenderDebugUtils()
 								// draw outer surfaces
 								for(j = 0; j < 4; j++)
 								{
-									Vector4Set(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
-									Vector4Set(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
-									Vector4Set(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
-									Vector4Set(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
+									Vector4Set(quadVerts[3], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
+									Vector4Set(quadVerts[2], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
+									Vector4Set(quadVerts[1], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
+									Vector4Set(quadVerts[0], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
 									Tess_AddQuadStamp2(quadVerts, lightColor);
 								}
 
 								// draw far cap
-								Vector4Set(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
-								Vector4Set(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
-								Vector4Set(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
-								Vector4Set(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+								Vector4Set(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+								Vector4Set(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+								Vector4Set(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+								Vector4Set(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
 								Tess_AddQuadStamp2(quadVerts, lightColor);
 
 								// draw near cap
-								Vector4Set(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
-								Vector4Set(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
-								Vector4Set(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
-								Vector4Set(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
+								Vector4Set(quadVerts[3], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
+								Vector4Set(quadVerts[2], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
+								Vector4Set(quadVerts[1], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
+								Vector4Set(quadVerts[0], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
 								Tess_AddQuadStamp2(quadVerts, lightColor);
 
 							}
@@ -10303,7 +10258,7 @@ static void RB_RenderDebugUtils()
 								// draw pyramid
 								for(j = 0; j < 4; j++)
 								{
-									VectorCopy(farCorners[j], tess.xyz[tess.numVertexes]);
+									VectorCopy(top, tess.xyz[tess.numVertexes]);
 									Vector4Copy(lightColor, tess.colors[tess.numVertexes]);
 									tess.indexes[tess.numIndexes++] = tess.numVertexes;
 									tess.numVertexes++;
@@ -10313,16 +10268,17 @@ static void RB_RenderDebugUtils()
 									tess.indexes[tess.numIndexes++] = tess.numVertexes;
 									tess.numVertexes++;
 
-									VectorCopy(top, tess.xyz[tess.numVertexes]);
+									VectorCopy(farCorners[j], tess.xyz[tess.numVertexes]);
 									Vector4Copy(lightColor, tess.colors[tess.numVertexes]);
 									tess.indexes[tess.numIndexes++] = tess.numVertexes;
 									tess.numVertexes++;
 								}
 
-								Vector4Set(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
-								Vector4Set(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
-								Vector4Set(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
-								Vector4Set(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+								// draw far cap
+								Vector4Set(quadVerts[0], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+								Vector4Set(quadVerts[1], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+								Vector4Set(quadVerts[2], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+								Vector4Set(quadVerts[3], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
 								Tess_AddQuadStamp2(quadVerts, lightColor);
 							}
 

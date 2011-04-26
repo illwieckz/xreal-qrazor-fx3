@@ -2064,6 +2064,61 @@ public:
 };
 
 
+class GLShader_deferredLighting_projXYZ:
+public GLShader,
+public u_ViewOrigin,
+public u_LightOrigin,
+public u_LightColor,
+public u_LightRadius,
+public u_LightScale,
+public u_LightWrapAround,
+public u_LightAttenuationMatrix,
+public u_ShadowTexelSize,
+public u_ShadowBlur,
+public u_ShadowMatrix,
+public u_ModelMatrix,
+public u_ModelViewProjectionMatrix,
+public u_UnprojectMatrix,
+public u_PortalPlane,
+public GLDeformStage,
+public GLCompileMacro_USE_PORTAL_CLIPPING,
+public GLCompileMacro_USE_NORMAL_MAPPING,
+public GLCompileMacro_USE_SHADOWING//,
+//public GLCompileMacro_TWOSIDED
+{
+public:
+	GLShader_deferredLighting_projXYZ();
+};
+
+
+class GLShader_deferredLighting_directionalSun:
+public GLShader,
+public u_ViewOrigin,
+public u_LightDir,
+public u_LightColor,
+public u_LightRadius,
+public u_LightScale,
+public u_LightWrapAround,
+public u_LightAttenuationMatrix,
+public u_ShadowTexelSize,
+public u_ShadowBlur,
+public u_ShadowMatrix,
+public u_ShadowParallelSplitDistances,
+public u_ModelMatrix,
+public u_ModelViewProjectionMatrix,
+public u_UnprojectMatrix,
+public u_PortalPlane,
+public GLDeformStage,
+public GLCompileMacro_USE_PORTAL_CLIPPING,
+public GLCompileMacro_USE_NORMAL_MAPPING,
+public GLCompileMacro_USE_SHADOWING//,
+//public GLCompileMacro_TWOSIDED
+{
+public:
+	GLShader_deferredLighting_directionalSun();
+};
+
+
 
 class GLShader_geometricFill:
 public GLShader,
@@ -2304,6 +2359,8 @@ extern GLShader_forwardLighting_omniXYZ* gl_forwardLightingShader_omniXYZ;
 extern GLShader_forwardLighting_projXYZ* gl_forwardLightingShader_projXYZ;
 extern GLShader_forwardLighting_directionalSun* gl_forwardLightingShader_directionalSun;
 extern GLShader_deferredLighting_omniXYZ* gl_deferredLightingShader_omniXYZ;
+extern GLShader_deferredLighting_projXYZ* gl_deferredLightingShader_projXYZ;
+extern GLShader_deferredLighting_directionalSun* gl_deferredLightingShader_directionalSun;
 extern GLShader_geometricFill* gl_geometricFillShader;
 extern GLShader_shadowFill* gl_shadowFillShader;
 extern GLShader_reflection* gl_reflectionShader;

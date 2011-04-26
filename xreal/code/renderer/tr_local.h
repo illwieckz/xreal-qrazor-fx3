@@ -378,6 +378,8 @@ typedef struct trRefLight_s
 	float           depthFar;
 	qboolean        noDepthBoundsTest;
 
+	qboolean		clipsNearPlane;
+
 	qboolean        noOcclusionQueries;
 	uint32_t        occlusionQueryObject;
 	uint32_t        occlusionQuerySamples;
