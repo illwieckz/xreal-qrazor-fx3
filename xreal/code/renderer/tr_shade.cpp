@@ -3664,7 +3664,7 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 	VectorCopy(tess.svars.color, lightColor);
 
 	if(shadowCompare)
-		shadowTexelSize = 1.0f / shadowMapResolutions[light->shadowLOD];
+		shadowTexelSize = 1.0f / sunShadowMapResolutions[light->shadowLOD];
 	else
 		shadowTexelSize = 1.0f;
 
@@ -3767,30 +3767,30 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 	if(shadowCompare)
 	{
 		GL_SelectTexture(5);
-		GL_Bind(tr.shadowMapFBOImage[0]);
+		GL_Bind(tr.sunShadowMapFBOImage[0]);
 
 		if(r_parallelShadowSplits->integer >= 1)
 		{
 			GL_SelectTexture(6);
-			GL_Bind(tr.shadowMapFBOImage[1]);
+			GL_Bind(tr.sunShadowMapFBOImage[1]);
 		}
 
 		if(r_parallelShadowSplits->integer >= 2)
 		{
 			GL_SelectTexture(7);
-			GL_Bind(tr.shadowMapFBOImage[2]);
+			GL_Bind(tr.sunShadowMapFBOImage[2]);
 		}
 
 		if(r_parallelShadowSplits->integer >= 3)
 		{
 			GL_SelectTexture(8);
-			GL_Bind(tr.shadowMapFBOImage[3]);
+			GL_Bind(tr.sunShadowMapFBOImage[3]);
 		}
 
 		if(r_parallelShadowSplits->integer >= 4)
 		{
 			GL_SelectTexture(9);
-			GL_Bind(tr.shadowMapFBOImage[4]);
+			GL_Bind(tr.sunShadowMapFBOImage[4]);
 		}
 	}
 

@@ -3844,6 +3844,7 @@ typedef struct
 //	image_t        *downScaleFBOImage_1x1;
 	image_t        *shadowMapFBOImage[MAX_SHADOWMAPS];
 	image_t        *shadowCubeFBOImage[MAX_SHADOWMAPS];
+	image_t        *sunShadowMapFBOImage[MAX_SHADOWMAPS];
 
 	// external images
 	image_t        *charsetImage;
@@ -3864,6 +3865,7 @@ typedef struct
 	FBO_t          *contrastRenderFBO;
 	FBO_t          *bloomRenderFBO[2];
 	FBO_t          *shadowMapFBO[MAX_SHADOWMAPS];
+	FBO_t          *sunShadowMapFBO[MAX_SHADOWMAPS];
 
 	// vertex buffer objects
 	VBO_t          *unitCubeVBO;
@@ -4024,6 +4026,7 @@ extern const matrix_t quakeToD3DMatrix;
 extern const matrix_t flipZMatrix;
 extern const GLenum	geometricRenderTargets[];
 extern int      shadowMapResolutions[5];
+extern int      sunShadowMapResolutions[5];
 
 extern backEndState_t backEnd;
 extern trGlobals_t tr;
@@ -4167,12 +4170,20 @@ extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = black p
 								// 4 = shadow mapping
 extern cvar_t  *r_softShadows;
 extern cvar_t  *r_shadowBlur;
+
 extern cvar_t  *r_shadowMapQuality;
 extern cvar_t  *r_shadowMapSizeUltra;
-extern cvar_t  *r_shadowMapSizeVery;
+extern cvar_t  *r_shadowMapSizeVeryHigh;
 extern cvar_t  *r_shadowMapSizeHigh;
 extern cvar_t  *r_shadowMapSizeMedium;
 extern cvar_t  *r_shadowMapSizeLow;
+
+extern cvar_t  *r_shadowMapSizeSunUltra;
+extern cvar_t  *r_shadowMapSizeSunVeryHigh;
+extern cvar_t  *r_shadowMapSizeSunHigh;
+extern cvar_t  *r_shadowMapSizeSunMedium;
+extern cvar_t  *r_shadowMapSizeSunLow;
+
 extern cvar_t  *r_shadowOffsetFactor;
 extern cvar_t  *r_shadowOffsetUnits;
 extern cvar_t  *r_shadowLodBias;

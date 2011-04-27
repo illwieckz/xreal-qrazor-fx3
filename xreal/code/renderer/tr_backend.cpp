@@ -2907,16 +2907,16 @@ static void RB_RenderInteractionsShadowMapped()
 
 							GLimp_LogComment("--- Rendering directional shadowMap ---\n");
 
-							R_BindFBO(tr.shadowMapFBO[splitFrustumIndex]);
-							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[splitFrustumIndex]->texnum, 0);
+							R_BindFBO(tr.sunShadowMapFBO[splitFrustumIndex]);
+							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.sunShadowMapFBOImage[splitFrustumIndex]->texnum, 0);
 							if(!r_ignoreGLErrors->integer)
 							{
-								R_CheckFBO(tr.shadowMapFBO[splitFrustumIndex]);
+								R_CheckFBO(tr.sunShadowMapFBO[splitFrustumIndex]);
 							}
 
 							// set the window clipping
-							GL_Viewport(0, 0, shadowMapResolutions[splitFrustumIndex], shadowMapResolutions[splitFrustumIndex]);
-							GL_Scissor(0, 0, shadowMapResolutions[splitFrustumIndex], shadowMapResolutions[splitFrustumIndex]);
+							GL_Viewport(0, 0, sunShadowMapResolutions[splitFrustumIndex], sunShadowMapResolutions[splitFrustumIndex]);
+							GL_Scissor(0, 0, sunShadowMapResolutions[splitFrustumIndex], sunShadowMapResolutions[splitFrustumIndex]);
 
 							glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -4928,16 +4928,16 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							GLimp_LogComment("--- Rendering directional shadowMap ---\n");
 
-							R_BindFBO(tr.shadowMapFBO[splitFrustumIndex]);
-							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[splitFrustumIndex]->texnum, 0);
+							R_BindFBO(tr.sunShadowMapFBO[splitFrustumIndex]);
+							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.sunShadowMapFBOImage[splitFrustumIndex]->texnum, 0);
 							if(!r_ignoreGLErrors->integer)
 							{
-								R_CheckFBO(tr.shadowMapFBO[splitFrustumIndex]);
+								R_CheckFBO(tr.sunShadowMapFBO[splitFrustumIndex]);
 							}
 
 							// set the window clipping
-							GL_Viewport(0, 0, shadowMapResolutions[splitFrustumIndex], shadowMapResolutions[splitFrustumIndex]);
-							GL_Scissor(0, 0, shadowMapResolutions[splitFrustumIndex], shadowMapResolutions[splitFrustumIndex]);
+							GL_Viewport(0, 0, sunShadowMapResolutions[splitFrustumIndex], sunShadowMapResolutions[splitFrustumIndex]);
+							GL_Scissor(0, 0, sunShadowMapResolutions[splitFrustumIndex], sunShadowMapResolutions[splitFrustumIndex]);
 
 							glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -6136,30 +6136,30 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						if(shadowCompare)
 						{
 							GL_SelectTexture(6);
-							GL_Bind(tr.shadowMapFBOImage[0]);
+							GL_Bind(tr.sunShadowMapFBOImage[0]);
 
 							if(r_parallelShadowSplits->integer >= 1)
 							{
 								GL_SelectTexture(7);
-								GL_Bind(tr.shadowMapFBOImage[1]);
+								GL_Bind(tr.sunShadowMapFBOImage[1]);
 							}
 
 							if(r_parallelShadowSplits->integer >= 2)
 							{
 								GL_SelectTexture(8);
-								GL_Bind(tr.shadowMapFBOImage[2]);
+								GL_Bind(tr.sunShadowMapFBOImage[2]);
 							}
 
 							if(r_parallelShadowSplits->integer >= 3)
 							{
 								GL_SelectTexture(9);
-								GL_Bind(tr.shadowMapFBOImage[3]);
+								GL_Bind(tr.sunShadowMapFBOImage[3]);
 							}
 
 							if(r_parallelShadowSplits->integer >= 4)
 							{
 								GL_SelectTexture(10);
-								GL_Bind(tr.shadowMapFBOImage[4]);
+								GL_Bind(tr.sunShadowMapFBOImage[4]);
 							}
 						}
 
@@ -6214,7 +6214,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 						// bind u_ColorMap
 						GL_SelectTexture(0);
-						GL_Bind(tr.shadowMapFBOImage[frustumIndex]);
+						GL_Bind(tr.sunShadowMapFBOImage[frustumIndex]);
 
 						w = 200;
 						h = 200;

@@ -66,6 +66,7 @@ const GLenum geometricRenderTargets[] = {
 };
 
 int             shadowMapResolutions[5] = { 2048, 1024, 512, 256, 128 };
+int             sunShadowMapResolutions[5] = { 2048, 2048, 1024, 1024, 1024 };
 
 refimport_t     ri;
 
