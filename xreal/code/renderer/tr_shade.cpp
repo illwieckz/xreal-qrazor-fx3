@@ -1683,9 +1683,10 @@ void Tess_DrawElements()
 			backEnd.pc.c_multiDrawElements++;
 			backEnd.pc.c_multiDrawPrimitives += tess.multiDrawPrimitives;
 
+			backEnd.pc.c_vboVertexes += tess.numVertexes;
+
 			for(i = 0; i < tess.multiDrawPrimitives; i++)
 			{
-				//backEnd.pc.c_vboVertexes += tess.numVertexes;
 				backEnd.pc.c_multiVboIndexes += tess.multiDrawCounts[i];
 				backEnd.pc.c_indexes += tess.multiDrawCounts[i];
 			}
@@ -1712,10 +1713,6 @@ void Tess_DrawElements()
 		backEnd.pc.c_indexes += tess.numIndexes;
 		backEnd.pc.c_vertexes += tess.numVertexes;
 	}
-
-	// update performance counters
-	
-	
 }
 
 

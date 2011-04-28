@@ -1748,9 +1748,9 @@ static void Render_lightVolume(interaction_t * ia)
 /*
  * helper function for parallel split shadow mapping
  */
-static int MergeInteractionBounds(const matrix_t lightViewProjectionMatrix, interaction_t * ia, int iaCount, vec3_t bounds[2], qboolean shadowCasters)
+static int MergeInteractionBounds(const matrix_t lightViewProjectionMatrix, interaction_t * ia, int iaCount, vec3_t bounds[2], bool shadowCasters)
 {
-	//int				i;
+	int				i;
 	int				j;
 	surfaceType_t  *surface;
 	vec4_t			point;
@@ -1762,8 +1762,8 @@ static int MergeInteractionBounds(const matrix_t lightViewProjectionMatrix, inte
 	int				numCasters;
 
 	frustum_t       frustum;
-	//cplane_t       *clipPlane;
-	//int             r;
+	cplane_t       *clipPlane;
+	int             r;
 
 	numCasters = 0;
 	ClearBounds(bounds[0], bounds[1]);
@@ -1810,11 +1810,16 @@ static int MergeInteractionBounds(const matrix_t lightViewProjectionMatrix, inte
 		else if(*surface == SF_MDV)
 		{
 			//Tess_AddCube(vec3_origin, entity->localBounds[0], entity->localBounds[1], lightColor);
+			goto skipInteraction;
+		}
+		else
+		{
+			goto skipInteraction;
 		}
 
-#if 0
+#if 1
 		// use the frustum planes to cut off shadow casters beyond the split frustum
-		for(i = 0; i < 4; i++)
+		for(i = 0; i < 6; i++)
 		{
 			clipPlane = &frustum[i];
 
@@ -3257,7 +3262,6 @@ static void RB_RenderInteractionsShadowMapped()
 
 					case RL_DIRECTIONAL:
 					{
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 						// draw split frustum shadow maps
 						if(r_showShadowMaps->integer)
 						{
@@ -3277,15 +3281,14 @@ static void RB_RenderInteractionsShadowMapped()
 
 							for(frustumIndex = 0; frustumIndex <= r_parallelShadowSplits->integer; frustumIndex++)
 							{
-								GL_BindProgram(&tr.debugShadowMapShader);
 								GL_Cull(CT_TWO_SIDED);
 								GL_State(GLS_DEPTHTEST_DISABLE);
 
-								// set uniforms
-								GLSL_SetUniform_ModelViewProjectionMatrix(&tr.debugShadowMapShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+								gl_debugShadowMapShader->BindProgram();
+								gl_debugShadowMapShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 								GL_SelectTexture(0);
-								GL_Bind(tr.shadowMapFBOImage[frustumIndex]);
+								GL_Bind(tr.sunShadowMapFBOImage[frustumIndex]);
 
 								w = 200;
 								h = 200;
@@ -3399,6 +3402,7 @@ static void RB_RenderInteractionsShadowMapped()
 										Tess_DrawElements();
 									}
 
+									tess.multiDrawPrimitives = 0;
 									tess.numIndexes = 0;
 									tess.numVertexes = 0;
 
@@ -3414,7 +3418,6 @@ static void RB_RenderInteractionsShadowMapped()
 
 							GL_PopMatrix();
 						}
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 					}
 
 					default:
@@ -4040,6 +4043,7 @@ void RB_RenderInteractionsDeferred()
 	vec4_t          lightColor;
 	matrix_t        ortho;
 	vec4_t          quadVerts[4];
+	vec4_t			lightFrustum[6];
 	int             startTime = 0, endTime = 0;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
@@ -4134,12 +4138,18 @@ void RB_RenderInteractionsDeferred()
 					GL_PushMatrix();
 					GL_LoadProjectionMatrix(ortho);
 					GL_LoadModelViewMatrix(matrixIdentity);
+
+					for(j = 0; j < 6; j++)
+					{
+						VectorCopy(light->frustum[j].normal, lightFrustum[j]);
+						lightFrustum[j][3] = light->frustum[j].dist;
+					}
 				}
 				else
 				{
 					// prepare rendering of the light volume
 					// either bind VBO or setup the tess struct
-					#if 1
+					#if 0 // FIXME check why this does not work here
 					if(light->isStatic && light->frustumVBO && light->frustumIBO)
 					{
 						// render in world space
@@ -4159,8 +4169,6 @@ void RB_RenderInteractionsDeferred()
 					else
 					#endif
 					{
-						
-
 						tess.multiDrawPrimitives = 0;
 						tess.numIndexes = 0;
 						tess.numVertexes = 0;
@@ -4321,6 +4329,14 @@ void RB_RenderInteractionsDeferred()
 					}
 
 					Tess_ComputeColor(attenuationXYStage);
+
+
+					if(VectorLength(tess.svars.color) < 0.01)
+					{
+						// don't render black lights
+					}
+
+
 					R_ComputeFinalAttenuation(attenuationXYStage, light);
 
 					// set OpenGL state for additive lighting
@@ -4341,6 +4357,7 @@ void RB_RenderInteractionsDeferred()
 						gl_deferredLightingShader_omniXYZ->SetPortalClipping(backEnd.viewParms.isPortal);
 						gl_deferredLightingShader_omniXYZ->SetNormalMapping(r_normalMapping->integer);
 						gl_deferredLightingShader_omniXYZ->SetShadowing(false);
+						gl_deferredLightingShader_omniXYZ->SetFrustumClipping(light->clipsNearPlane);
 
 						gl_deferredLightingShader_omniXYZ->BindProgram();
 						
@@ -4352,6 +4369,7 @@ void RB_RenderInteractionsDeferred()
 						gl_deferredLightingShader_omniXYZ->SetUniform_LightRadius(light->sphereRadius);
 						gl_deferredLightingShader_omniXYZ->SetUniform_LightScale(light->l.scale);
 						gl_deferredLightingShader_omniXYZ->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
+						gl_deferredLightingShader_omniXYZ->SetUniform_LightFrustum(lightFrustum);
 
 						gl_deferredLightingShader_omniXYZ->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 						gl_deferredLightingShader_omniXYZ->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
@@ -4421,6 +4439,7 @@ void RB_RenderInteractionsDeferred()
 						gl_deferredLightingShader_projXYZ->SetPortalClipping(backEnd.viewParms.isPortal);
 						gl_deferredLightingShader_projXYZ->SetNormalMapping(r_normalMapping->integer);
 						gl_deferredLightingShader_projXYZ->SetShadowing(false);
+						gl_deferredLightingShader_projXYZ->SetFrustumClipping(light->clipsNearPlane);
 
 						gl_deferredLightingShader_projXYZ->BindProgram();
 						
@@ -4432,6 +4451,7 @@ void RB_RenderInteractionsDeferred()
 						gl_deferredLightingShader_projXYZ->SetUniform_LightRadius(light->sphereRadius);
 						gl_deferredLightingShader_projXYZ->SetUniform_LightScale(light->l.scale);
 						gl_deferredLightingShader_projXYZ->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
+						gl_deferredLightingShader_projXYZ->SetUniform_LightFrustum(lightFrustum);
 
 						gl_deferredLightingShader_projXYZ->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 						gl_deferredLightingShader_projXYZ->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
@@ -4501,6 +4521,7 @@ void RB_RenderInteractionsDeferred()
 						gl_deferredLightingShader_directionalSun->SetPortalClipping(backEnd.viewParms.isPortal);
 						gl_deferredLightingShader_directionalSun->SetNormalMapping(r_normalMapping->integer);
 						gl_deferredLightingShader_directionalSun->SetShadowing(false);
+						gl_deferredLightingShader_directionalSun->SetFrustumClipping(light->clipsNearPlane);
 
 						gl_deferredLightingShader_directionalSun->BindProgram();
 						
@@ -4512,6 +4533,7 @@ void RB_RenderInteractionsDeferred()
 						gl_deferredLightingShader_directionalSun->SetUniform_LightRadius(light->sphereRadius);
 						gl_deferredLightingShader_directionalSun->SetUniform_LightScale(light->l.scale);
 						gl_deferredLightingShader_directionalSun->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
+						gl_deferredLightingShader_directionalSun->SetUniform_LightFrustum(lightFrustum);
 
 						gl_deferredLightingShader_directionalSun->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 						gl_deferredLightingShader_directionalSun->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
@@ -4667,6 +4689,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	qboolean        shadowCompare;
 	matrix_t        ortho;
 	vec4_t          quadVerts[4];
+	vec4_t			lightFrustum[6];
 	int             startTime = 0, endTime = 0;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
@@ -4916,7 +4939,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							vec4_t			splitFrustum[6];
 							vec3_t			splitFrustumCorners[8];
 							vec3_t			splitFrustumBounds[2];
-							//vec3_t		splitFrustumViewBounds[2];
+							vec3_t			splitFrustumViewBounds[2];
 							vec3_t			splitFrustumClipBounds[2];
 							//float			splitFrustumRadius;
 							int				numCasters;
@@ -5309,7 +5332,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 								GL_LoadProjectionMatrix(light->projectionMatrix);
 							}
-							else
+							else // if(r_lightSpacePerspectiveWarping->integer)
 #endif
 							if(r_parallelShadowSplits->integer)
 							{
@@ -5403,20 +5426,23 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 								{
 									VectorCopy(splitFrustumCorners[j], point);
 									point[3] = 1;
-#if 0
+
 									MatrixTransform4(light->viewMatrix, point, transf);
 									transf[0] /= transf[3];
 									transf[1] /= transf[3];
 									transf[2] /= transf[3];
-#else
-									MatrixTransformPoint(light->viewMatrix, point, transf);
-#endif
 
 									AddPointToBounds(transf, splitFrustumViewBounds[0], splitFrustumViewBounds[1]);
 								}
 
 								//MatrixScaleTranslateToUnitCube(projectionMatrix, splitFrustumViewBounds[0], splitFrustumViewBounds[1]);
-								MatrixOrthogonalProjectionRH(projectionMatrix, -1, 1, -1, 1, -splitFrustumViewBounds[1][2], -splitFrustumViewBounds[0][2]);
+								//MatrixOrthogonalProjectionRH(projectionMatrix, -1, 1, -1, 1, -splitFrustumViewBounds[1][2], -splitFrustumViewBounds[0][2]);
+								MatrixOrthogonalProjectionRH(projectionMatrix,	splitFrustumViewBounds[0][0],
+																				splitFrustumViewBounds[1][0],
+																				splitFrustumViewBounds[0][1], 
+																				splitFrustumViewBounds[1][1], 
+																				-splitFrustumViewBounds[1][2], 
+																				-splitFrustumViewBounds[0][2]);
 
 								MatrixMultiply(projectionMatrix, light->viewMatrix, viewProjectionMatrix);
 
@@ -5459,14 +5485,11 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 								{
 									VectorCopy(splitFrustumCorners[j], point);
 									point[3] = 1;
-#if 1
+
 									MatrixTransform4(light->viewMatrix, point, transf);
 									transf[0] /= transf[3];
 									transf[1] /= transf[3];
 									transf[2] /= transf[3];
-#else
-									MatrixTransformPoint(light->viewMatrix, point, transf);
-#endif
 
 									AddPointToBounds(transf, cropBounds[0], cropBounds[1]);
 								}
@@ -5475,8 +5498,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 								MatrixMultiply(projectionMatrix, light->viewMatrix, viewProjectionMatrix);
 
-								numCasters = MergeInteractionBounds(viewProjectionMatrix, ia, iaCount, casterBounds, qtrue);
-								MergeInteractionBounds(viewProjectionMatrix, ia, iaCount, receiverBounds, qfalse);
+								numCasters = MergeInteractionBounds(viewProjectionMatrix, ia, iaCount, casterBounds, true);
+								MergeInteractionBounds(viewProjectionMatrix, ia, iaCount, receiverBounds, false);
 
 								// find the bounding box of the current split in the light's clip space
 								ClearBounds(splitFrustumClipBounds[0], splitFrustumClipBounds[1]);
@@ -5493,6 +5516,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 									AddPointToBounds(transf, splitFrustumClipBounds[0], splitFrustumClipBounds[1]);
 								}
 
+								//ri.Printf(PRINT_ALL, "shadow casters = %i\n", numCasters);
 
 								if(r_logFile->integer)
 								{
@@ -5518,8 +5542,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 								cropBounds[1][0] = Q_min(Q_min(casterBounds[1][0], receiverBounds[1][0]), splitFrustumClipBounds[1][0]);
 								cropBounds[1][1] = Q_min(Q_min(casterBounds[1][1], receiverBounds[1][1]), splitFrustumClipBounds[1][1]);
 
-								//cropBounds[0][2] = Q_min(casterBounds[0][2], splitFrustumClipBounds[0][2]);
-								cropBounds[0][2] = casterBounds[0][2];
+								cropBounds[0][2] = Q_min(casterBounds[0][2], splitFrustumClipBounds[0][2]);
+								//cropBounds[0][2] = casterBounds[0][2];
 								//cropBounds[0][2] = splitFrustumClipBounds[0][2];
 								cropBounds[1][2] = Q_min(receiverBounds[1][2], splitFrustumClipBounds[1][2]);
 								//cropBounds[1][2] = splitFrustumClipBounds[1][2];
@@ -5689,12 +5713,18 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					GL_PushMatrix();
 					GL_LoadProjectionMatrix(ortho);
 					GL_LoadModelViewMatrix(matrixIdentity);
+
+					for(j = 0; j < 6; j++)
+					{
+						VectorCopy(light->frustum[j].normal, lightFrustum[j]);
+						lightFrustum[j][3] = light->frustum[j].dist;
+					}
 				}
 				else
 				{
 					// prepare rendering of the light volume
 					// either bind VBO or setup the tess struct
-					#if 1
+					#if 0 // FIXME check why this does not work here
 					if(light->isStatic && light->frustumVBO && light->frustumIBO)
 					{
 						// render in world space
@@ -5873,6 +5903,12 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					}
 
 					Tess_ComputeColor(attenuationXYStage);
+
+					if(VectorLength(tess.svars.color) < 0.01)
+					{
+						// don't render black lights
+					}
+
 					R_ComputeFinalAttenuation(attenuationXYStage, light);
 
 					// set OpenGL state for additive lighting
@@ -5901,6 +5937,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						gl_deferredLightingShader_omniXYZ->SetPortalClipping(backEnd.viewParms.isPortal);
 						gl_deferredLightingShader_omniXYZ->SetNormalMapping(r_normalMapping->integer);
 						gl_deferredLightingShader_omniXYZ->SetShadowing(shadowCompare);
+						gl_deferredLightingShader_omniXYZ->SetFrustumClipping(light->clipsNearPlane);
 
 						gl_deferredLightingShader_omniXYZ->BindProgram();
 						
@@ -5912,6 +5949,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						gl_deferredLightingShader_omniXYZ->SetUniform_LightRadius(light->sphereRadius);
 						gl_deferredLightingShader_omniXYZ->SetUniform_LightScale(light->l.scale);
 						gl_deferredLightingShader_omniXYZ->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
+						gl_deferredLightingShader_omniXYZ->SetUniform_LightFrustum(lightFrustum);
 
 						gl_deferredLightingShader_omniXYZ->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 						gl_deferredLightingShader_omniXYZ->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
@@ -5980,6 +6018,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						gl_deferredLightingShader_projXYZ->SetPortalClipping(backEnd.viewParms.isPortal);
 						gl_deferredLightingShader_projXYZ->SetNormalMapping(r_normalMapping->integer);
 						gl_deferredLightingShader_projXYZ->SetShadowing(shadowCompare);
+						gl_deferredLightingShader_projXYZ->SetFrustumClipping(light->clipsNearPlane);
 
 						gl_deferredLightingShader_projXYZ->BindProgram();
 						
@@ -5991,6 +6030,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						gl_deferredLightingShader_projXYZ->SetUniform_LightRadius(light->sphereRadius);
 						gl_deferredLightingShader_projXYZ->SetUniform_LightScale(light->l.scale);
 						gl_deferredLightingShader_projXYZ->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
+						gl_deferredLightingShader_projXYZ->SetUniform_LightFrustum(lightFrustum);
 
 						if(shadowCompare)
 						{
@@ -6068,6 +6108,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						gl_deferredLightingShader_directionalSun->SetPortalClipping(backEnd.viewParms.isPortal);
 						gl_deferredLightingShader_directionalSun->SetNormalMapping(r_normalMapping->integer);
 						gl_deferredLightingShader_directionalSun->SetShadowing(shadowCompare);
+						gl_deferredLightingShader_directionalSun->SetFrustumClipping(light->clipsNearPlane);
 
 						gl_deferredLightingShader_directionalSun->BindProgram();
 						
@@ -6079,6 +6120,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						gl_deferredLightingShader_directionalSun->SetUniform_LightRadius(light->sphereRadius);
 						gl_deferredLightingShader_directionalSun->SetUniform_LightScale(light->l.scale);
 						gl_deferredLightingShader_directionalSun->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
+						gl_deferredLightingShader_directionalSun->SetUniform_LightFrustum(lightFrustum);
 
 						if(shadowCompare)
 						{

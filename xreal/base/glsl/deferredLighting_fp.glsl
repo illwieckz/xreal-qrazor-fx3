@@ -55,6 +55,7 @@ uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform	float		u_LightWrapAround;
 uniform mat4		u_LightAttenuationMatrix;
+uniform vec4		u_LightFrustum[6];
 
 uniform mat4		u_ShadowMatrix[MAX_SHADOWMAPS];
 uniform vec4		u_ShadowParallelSplitDistances;
@@ -213,6 +214,28 @@ void	main()
 			return;
 		}
 	}
+#endif
+
+#if defined(USE_FRUSTUM_CLIPPING)
+	// many lights in Doom 3 don't fade out near the light frustum border
+	// so we need to clip this manually if the light frustum clips the camera near plane ...
+	for(int i = 0; i < 6; i++)
+	{
+		vec4 plane = u_LightFrustum[i];
+	
+		float dist = (dot(P.xyz, plane.xyz) - plane.w) + 0.01;
+		if(dist < 0.0)
+		{
+			discard;
+			return;
+		}
+	}
+	
+#if 0
+	// show how many pixels are frustum culled
+	gl_FragColor = vec4(1.0, 0.0, 0.0, 0.05);
+	return;
+#endif
 #endif
 
 

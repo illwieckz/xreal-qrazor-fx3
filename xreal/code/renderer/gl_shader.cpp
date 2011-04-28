@@ -2040,6 +2040,7 @@ GLShader_deferredLighting_omniXYZ::GLShader_deferredLighting_omniXYZ():
 		u_LightScale(this),
 		u_LightWrapAround(this),
 		u_LightAttenuationMatrix(this),
+		u_LightFrustum(this),
 		u_ShadowTexelSize(this),
 		u_ShadowBlur(this),
 		u_ModelMatrix(this),
@@ -2048,6 +2049,7 @@ GLShader_deferredLighting_omniXYZ::GLShader_deferredLighting_omniXYZ():
 		u_PortalPlane(this),
 		GLDeformStage(this),
 		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		GLCompileMacro_USE_FRUSTUM_CLIPPING(this),
 		GLCompileMacro_USE_NORMAL_MAPPING(this),
 		GLCompileMacro_USE_SHADOWING(this)//,
 		//GLCompileMacro_TWOSIDED(this)
@@ -2157,6 +2159,7 @@ GLShader_deferredLighting_projXYZ::GLShader_deferredLighting_projXYZ():
 		u_LightScale(this),
 		u_LightWrapAround(this),
 		u_LightAttenuationMatrix(this),
+		u_LightFrustum(this),
 		u_ShadowTexelSize(this),
 		u_ShadowBlur(this),
 		u_ShadowMatrix(this),
@@ -2166,6 +2169,7 @@ GLShader_deferredLighting_projXYZ::GLShader_deferredLighting_projXYZ():
 		u_PortalPlane(this),
 		GLDeformStage(this),
 		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		GLCompileMacro_USE_FRUSTUM_CLIPPING(this),
 		GLCompileMacro_USE_NORMAL_MAPPING(this),
 		GLCompileMacro_USE_SHADOWING(this)//,
 		//GLCompileMacro_TWOSIDED(this)
@@ -2273,6 +2277,7 @@ GLShader_deferredLighting_directionalSun::GLShader_deferredLighting_directionalS
 		u_LightScale(this),
 		u_LightWrapAround(this),
 		u_LightAttenuationMatrix(this),
+		u_LightFrustum(this),
 		u_ShadowTexelSize(this),
 		u_ShadowBlur(this),
 		u_ShadowMatrix(this),
@@ -2284,6 +2289,7 @@ GLShader_deferredLighting_directionalSun::GLShader_deferredLighting_directionalS
 		u_PortalPlane(this),
 		GLDeformStage(this),
 		GLCompileMacro_USE_PORTAL_CLIPPING(this),
+		GLCompileMacro_USE_FRUSTUM_CLIPPING(this),
 		GLCompileMacro_USE_NORMAL_MAPPING(this),
 		GLCompileMacro_USE_SHADOWING(this)//,
 		//GLCompileMacro_TWOSIDED(this)

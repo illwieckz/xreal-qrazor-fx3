@@ -1417,7 +1417,6 @@ typedef struct shaderProgram_s
 	matrix_t		t_LightAttenuationMatrix;
 
 	int16_t         u_LightFrustum;
-	vec4_t			t_LightFrustum;
 
 	int16_t         u_ShadowMatrix;
 	matrix_t		t_ShadowMatrix;
@@ -1960,19 +1959,6 @@ static ID_INLINE void GLSL_SetUniform_LightAttenuationMatrix(shaderProgram_t * p
 
 	glUniformMatrix4fvARB(program->u_LightAttenuationMatrix, 1, GL_FALSE, m);
 }
-
-/*
-static ID_INLINE void GLSL_SetUniform_LightFrustum(shaderProgram_t * program, vec4_t lightFrustum[6])
-{
-	vec4_t          lightFrustum[6];
-#if 1
-	if(memcmp(program->t_LightFrustum, m))
-		return;
-#endif
-
-	glUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
-}
-*/
 
 
 static ID_INLINE void GLSL_SetUniform_ShadowMatrix(shaderProgram_t * program, matrix_t m[MAX_SHADOWMAPS])
