@@ -1578,9 +1578,6 @@ static void R_SetupProjection(qboolean infiniteFarClip)
 		zFar = tr.viewParms.zFar = r_zfar->value;
 	}
 
-//	if(r_shadows->integer == SHADOWING_STENCIL)
-//		zFar = 0;
-
 	yMax = zNear * tan(tr.refdef.fov_y * M_PI / 360.0f);
 	yMin = -yMax;
 
@@ -2200,7 +2197,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 		tr.orientation = tr.viewParms.world;
 	}
 
-	Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qtrue, qtrue, qfalse, -1, 0);
+	Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qtrue, qtrue, -1, 0);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 
 	// Tr3B: former assertion
@@ -2588,23 +2585,6 @@ void R_AddEntitySurfaces(void)
 		{
 			continue;
 		}
-
-		// determine if we need zfail algorithm instead of zpass
-#if 0
-		if(ent->e.renderfx & RF_THIRD_PERSON)
-		{
-			if(r_shadows->integer == SHADOWING_STENCIL && tr.viewParms.isPortal)
-			{
-				ent->needZFail = qtrue;
-			}
-		}
-		else
-		{
-			ent->needZFail = qtrue;
-		}
-#else
-		ent->needZFail = qtrue;
-#endif
 
 		// simple generated models, like sprites and beams, are not culled
 		switch (ent->e.reType)
@@ -3023,7 +3003,7 @@ void R_AddLightInteractions()
 		light->numLightOnlyInteractions = 0;
 		light->noSort = qfalse;
 
-		if(r_deferredShading->integer && r_shadows->integer <= SHADOWING_STENCIL)
+		if(r_deferredShading->integer && r_shadows->integer < SHADOWING_VSM16)
 		{
 			// add one fake interaction for this light
 			// because the renderer backend only loops through interactions

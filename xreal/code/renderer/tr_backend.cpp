@@ -849,6 +849,7 @@ void GL_VertexAttribsState(uint32_t stateBits)
 		}
 	}
 
+#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
 	if(diff & ATTR_PAINTCOLOR)
 	{
 		if(stateBits & ATTR_PAINTCOLOR)
@@ -888,6 +889,7 @@ void GL_VertexAttribsState(uint32_t stateBits)
 			glDisableVertexAttribArrayARB(ATTR_INDEX_LIGHTDIRECTION);
 		}
 	}
+#endif
 
 	if(diff & ATTR_BONE_INDEXES)
 	{
@@ -1106,6 +1108,7 @@ void GL_VertexAttribPointers(uint32_t attribBits)
 		glState.vertexAttribPointersSet |= ATTR_COLOR;
 	}
 
+#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
 	if((attribBits & ATTR_PAINTCOLOR) && !(glState.vertexAttribPointersSet & ATTR_PAINTCOLOR))
 	{
 		if(r_logFile->integer)
@@ -1127,6 +1130,7 @@ void GL_VertexAttribPointers(uint32_t attribBits)
 		glVertexAttribPointerARB(ATTR_INDEX_LIGHTDIRECTION, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(glState.currentVBO->ofsLightDirections));
 		glState.vertexAttribPointersSet |= ATTR_LIGHTDIRECTION;
 	}
+#endif // #if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
 
 	if((attribBits & ATTR_BONE_INDEXES) && !(glState.vertexAttribPointersSet & ATTR_BONE_INDEXES))
 	{
@@ -1368,9 +1372,9 @@ static void RB_RenderDrawSurfaces(bool opaque, bool depthFill, renderDrawSurface
 			}
 
 			if(depthFill)
-				Tess_Begin(Tess_StageIteratorGBuffer, NULL, shader, NULL, qtrue, qfalse, qfalse, lightmapNum, fogNum);
+				Tess_Begin(Tess_StageIteratorGBuffer, NULL, shader, NULL, qtrue, qfalse, lightmapNum, fogNum);
 			else
-				Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, lightmapNum, fogNum);
+				Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, lightmapNum, fogNum);
 
 			oldShader = shader;
 			oldLightmapNum = lightmapNum;
@@ -1508,7 +1512,7 @@ static void RB_RenderOpaqueSurfacesIntoDepth(bool onlyWorld)
 				Tess_End();
 			}
 
-			Tess_Begin(Tess_StageIteratorDepthFill, NULL, shader, NULL, qtrue, qfalse, qfalse, -1, 0);
+			Tess_Begin(Tess_StageIteratorDepthFill, NULL, shader, NULL, qtrue, qfalse, -1, 0);
 
 			oldShader = shader;
 			oldAlphaTest = alphaTest;
@@ -2024,7 +2028,7 @@ static void RB_RenderInteractions()
 		Tess_End();
 
 		// begin a new batch
-		Tess_Begin(Tess_StageIteratorLighting, NULL, shader, light->shader, qfalse, qfalse, qfalse, -1, 0);
+		Tess_Begin(Tess_StageIteratorLighting, NULL, shader, light->shader, qfalse, qfalse, -1, 0);
 
 		// change the modelview matrix if needed
 		if(entity != oldEntity)
@@ -2173,457 +2177,6 @@ static void RB_RenderInteractions()
 		backEnd.pc.c_forwardLightingTime = endTime - startTime;
 	}
 }
-
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-/*
-=================
-RB_RenderInteractionsStencilShadowed
-=================
-*/
-static void RB_RenderInteractionsStencilShadowed()
-{
-	shader_t       *shader, *oldShader;
-	trRefEntity_t  *entity, *oldEntity;
-	trRefLight_t   *light, *oldLight;
-	interaction_t  *ia;
-	int             iaCount;
-	int             iaFirst;
-	surfaceType_t  *surface;
-	qboolean        depthRange, oldDepthRange;
-	vec3_t          tmp;
-	matrix_t        modelToLight;
-	qboolean        drawShadows;
-	int             startTime = 0, endTime = 0;
-
-	if(glConfig.stencilBits < 4)
-	{
-		RB_RenderInteractions();
-		return;
-	}
-
-	GLimp_LogComment("--- RB_RenderInteractionsStencilShadowed ---\n");
-
-	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
-	{
-		glFinish();
-		startTime = ri.Milliseconds();
-	}
-
-	// draw everything
-	oldLight = NULL;
-	oldEntity = NULL;
-	oldShader = NULL;
-	oldDepthRange = qfalse;
-	depthRange = qfalse;
-	drawShadows = qtrue;
-
-	/*
-	   if(glActiveStencilFaceEXT)
-	   {
-	   glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
-	   }
-	 */
-
-	// render interactions
-	for(iaCount = 0, iaFirst = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
-	{
-		backEnd.currentLight = light = ia->light;
-		backEnd.currentEntity = entity = ia->entity;
-		surface = ia->surface;
-		shader = ia->surfaceShader;
-
-		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
-		{
-			// skip all interactions of this light because it failed the occlusion query
-			goto skipInteraction;
-		}
-
-		// only iaCount == iaFirst if first iteration or counters were reset
-		if(iaCount == iaFirst)
-		{
-			if(r_logFile->integer)
-			{
-				// don't just call LogComment, or we will get
-				// a call to va() every frame!
-				GLimp_LogComment(va("----- First Interaction: %i -----\n", iaCount));
-			}
-
-			if(drawShadows)
-			{
-				// set light scissor to reduce fillrate
-				GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
-
-				// set depth test to reduce fillrate
-				if(glDepthBoundsEXT)
-				{
-					if(!ia->noDepthBoundsTest)
-					{
-						glEnable(GL_DEPTH_BOUNDS_TEST_EXT);
-						glDepthBoundsEXT(ia->depthNear, ia->depthFar);
-					}
-					else
-					{
-						glDisable(GL_DEPTH_BOUNDS_TEST_EXT);
-					}
-				}
-
-				if(!light->l.noShadows)
-				{
-					GLimp_LogComment("--- Rendering shadow volumes ---\n");
-
-					// set the reference stencil value
-					GL_ClearStencil(128);
-
-					// reset stencil buffer
-					glClear(GL_STENCIL_BUFFER_BIT);
-
-					// use less compare as depthfunc
-					// don't write to the color buffer or depth buffer
-					// enable stencil testing for this light
-					GL_State(GLS_DEPTHFUNC_LESS | GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
-
-					glStencilFunc(GL_ALWAYS, 128, 255);
-					glStencilMask(255);
-
-					glEnable(GL_POLYGON_OFFSET_FILL);
-					glPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
-
-					// enable shadow volume extrusion shader
-					GL_BindProgram(&tr.shadowExtrudeShader);
-				}
-			}
-			else
-			{
-				GLimp_LogComment("--- Rendering lighting ---\n");
-
-				if(!light->l.noShadows)
-				{
-					glStencilFunc(GL_EQUAL, 128, 255);
-				}
-				else
-				{
-					// don't consider shadow volumes
-					glStencilFunc(GL_ALWAYS, 128, 255);
-				}
-
-				/*
-				   if(glActiveStencilFaceEXT)
-				   {
-				   glActiveStencilFaceEXT(GL_BACK);
-				   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-				   glActiveStencilFaceEXT(GL_FRONT);
-				   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-				   }
-				   else
-				 */
-				{
-					glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-				}
-
-				//glDisable(GL_POLYGON_OFFSET_FILL);
-
-				// disable shadow volume extrusion shader
-				GL_BindProgram(NULL);
-			}
-		}
-
-		if(drawShadows)
-		{
-			if(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK))
-			{
-				goto skipInteraction;
-			}
-
-			if(shader->sort > SS_OPAQUE)
-			{
-				goto skipInteraction;
-			}
-
-			if(shader->noShadows || light->l.noShadows)
-			{
-				goto skipInteraction;
-			}
-
-			if(ia->type == IA_LIGHTONLY)
-			{
-				goto skipInteraction;
-			}
-
-			if(light == oldLight && entity == oldEntity)
-			{
-				if(r_logFile->integer)
-				{
-					// don't just call LogComment, or we will get
-					// a call to va() every frame!
-					GLimp_LogComment(va("----- Batching Shadow Interaction: %i -----\n", iaCount));
-				}
-
-				// fast path, same as previous
-				rb_surfaceTable[*surface] (surface);
-				goto nextInteraction;
-			}
-			else
-			{
-				if(oldLight)
-				{
-					// draw the contents of the last shader batch
-					Tess_End();
-				}
-
-				if(r_logFile->integer)
-				{
-					// don't just call LogComment, or we will get
-					// a call to va() every frame!
-					GLimp_LogComment(va("----- Beginning Shadow Interaction: %i -----\n", iaCount));
-				}
-
-				// we don't need tangent space calculations here
-				Tess_Begin(Tess_StageIteratorStencilShadowVolume, NULL, shader, light->shader, qtrue, qfalse, qtrue, -1, 0);
-			}
-		}
-		else
-		{
-			if(!shader->interactLight)
-			{
-				goto skipInteraction;
-			}
-
-			if(ia->type == IA_SHADOWONLY)
-			{
-				goto skipInteraction;
-			}
-
-			if(light == oldLight && entity == oldEntity && shader == oldShader)
-			{
-				if(r_logFile->integer)
-				{
-					// don't just call LogComment, or we will get
-					// a call to va() every frame!
-					GLimp_LogComment(va("----- Batching Light Interaction: %i -----\n", iaCount));
-				}
-
-				// fast path, same as previous
-				rb_surfaceTable[*surface] (surface);
-				goto nextInteraction;
-			}
-			else
-			{
-				if(oldLight)
-				{
-					// draw the contents of the last shader batch
-					Tess_End();
-				}
-
-				if(r_logFile->integer)
-				{
-					// don't just call LogComment, or we will get
-					// a call to va() every frame!
-					GLimp_LogComment(va("----- Beginning Light Interaction: %i -----\n", iaCount));
-				}
-
-				// begin a new batch
-				Tess_Begin(Tess_StageIteratorStencilLighting, NULL, shader, light->shader, qfalse, qfalse, qfalse, -1, 0);
-			}
-		}
-
-		// change the modelview matrix if needed
-		if(entity != oldEntity)
-		{
-			depthRange = qfalse;
-
-			if(entity != &tr.worldEntity)
-			{
-				// set up the transformation matrix
-				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.orientation);
-
-				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
-				{
-					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
-				}
-			}
-			else
-			{
-				backEnd.orientation = backEnd.viewParms.world;
-			}
-
-			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-
-			if(drawShadows && !light->l.noShadows)
-			{
-				GLSL_SetUniform_ModelViewProjectionMatrix(&tr.shadowExtrudeShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-			}
-
-			// change depthrange if needed
-			if(oldDepthRange != depthRange)
-			{
-				if(depthRange)
-				{
-					glDepthRange(0, 0.3);
-				}
-				else
-				{
-					glDepthRange(0, 1);
-				}
-				oldDepthRange = depthRange;
-			}
-		}
-
-		// change the attenuation matrix if needed
-		if(light != oldLight || entity != oldEntity)
-		{
-			// transform light origin into model space for u_LightOrigin parameter
-			if(entity != &tr.worldEntity)
-			{
-				VectorSubtract(light->origin, backEnd.orientation.origin, tmp);
-				light->transformed[0] = DotProduct(tmp, backEnd.orientation.axis[0]);
-				light->transformed[1] = DotProduct(tmp, backEnd.orientation.axis[1]);
-				light->transformed[2] = DotProduct(tmp, backEnd.orientation.axis[2]);
-			}
-			else
-			{
-				VectorCopy(light->origin, light->transformed);
-			}
-
-			if(drawShadows && !light->l.noShadows)
-			{
-				// set uniform parameter u_LightOrigin for GLSL shader
-				GLSL_SetUniform_LightOrigin(&tr.shadowExtrudeShader, light->transformed);
-			}
-
-			// build the attenuation matrix using the entity transform
-			MatrixMultiply(light->viewMatrix, backEnd.orientation.transformMatrix, modelToLight);
-
-			switch (light->l.rlType)
-			{
-				case RL_PROJ:
-				{
-					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));	// scale
-					break;
-				}
-
-				case RL_OMNI:
-				default:
-				{
-					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
-					break;
-				}
-			}
-			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
-			MatrixMultiply2(light->attenuationMatrix, modelToLight);
-		}
-
-		if(drawShadows)
-		{
-			// add the triangles for this surface
-			rb_surfaceTable[*surface] (surface);
-		}
-		else
-		{
-			// add the triangles for this surface
-			rb_surfaceTable[*surface] (surface);
-		}
-
-	  nextInteraction:
-
-		// remember values
-		oldLight = light;
-		oldEntity = entity;
-		oldShader = shader;
-
-	  skipInteraction:
-		if(!ia->next)
-		{
-			// if ia->next does not point to any other interaction then
-			// this is the last interaction of the current light
-
-			if(r_logFile->integer)
-			{
-				// don't just call LogComment, or we will get
-				// a call to va() every frame!
-				GLimp_LogComment(va("----- Last Interaction: %i -----\n", iaCount));
-			}
-
-			// draw the contents of the last shader batch
-			Tess_End();
-
-			if(drawShadows)
-			{
-				// jump back to first interaction of this light and start lighting
-				ia = &backEnd.viewParms.interactions[iaFirst];
-				iaCount = iaFirst;
-				drawShadows = qfalse;
-			}
-			else
-			{
-				if(iaCount < (backEnd.viewParms.numInteractions - 1))
-				{
-					// jump to next interaction and start shadowing
-					ia++;
-					iaCount++;
-					iaFirst = iaCount;
-					drawShadows = qtrue;
-				}
-				else
-				{
-					// increase last time to leave for loop
-					iaCount++;
-				}
-			}
-
-			// force updates
-			oldLight = NULL;
-			oldEntity = NULL;
-			oldShader = NULL;
-		}
-		else
-		{
-			// just continue
-			ia = ia->next;
-			iaCount++;
-		}
-	}
-
-	// go back to the world modelview matrix
-	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
-	if(depthRange)
-	{
-		glDepthRange(0, 1);
-	}
-
-	// reset scissor clamping
-	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-
-	// reset depth clamping
-	if(glDepthBoundsEXT)
-	{
-		glDisable(GL_DEPTH_BOUNDS_TEST_EXT);
-	}
-
-	/*
-	   if(glActiveStencilFaceEXT)
-	   {
-	   glDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
-	   }
-	 */
-
-	GL_CheckErrors();
-
-	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
-	{
-		glFinish();
-		endTime = ri.Milliseconds();
-		backEnd.pc.c_forwardLightingTime = endTime - startTime;
-	}
-}
-
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
 
 /*
 =================
@@ -3501,7 +3054,7 @@ static void RB_RenderInteractionsShadowMapped()
 						}
 
 						// we don't need tangent space calculations here
-						Tess_Begin(Tess_StageIteratorShadowFill, NULL, shader, light->shader, qtrue, qfalse, qfalse, -1, 0);
+						Tess_Begin(Tess_StageIteratorShadowFill, NULL, shader, light->shader, qtrue, qfalse, -1, 0);
 					}
 					break;
 				}
@@ -3556,7 +3109,7 @@ static void RB_RenderInteractionsShadowMapped()
 				}
 
 				// begin a new batch
-				Tess_Begin(Tess_StageIteratorLighting, NULL, shader, light->shader, light->l.inverseShadows, qfalse, qfalse, -1, 0);
+				Tess_Begin(Tess_StageIteratorLighting, NULL, shader, light->shader, light->l.inverseShadows, qfalse, -1, 0);
 			}
 		}
 
@@ -3919,7 +3472,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 					Tess_End();
 				}
 
-				Tess_Begin(Tess_StageIteratorGBufferNormalsOnly, NULL, shader, NULL, qfalse, qfalse, qfalse, -1, 0);
+				Tess_Begin(Tess_StageIteratorGBufferNormalsOnly, NULL, shader, NULL, qfalse, qfalse, -1, 0);
 				oldShader = shader;
 				oldLightmapNum = lightmapNum;
 			}
@@ -3944,7 +3497,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 					Tess_End();
 				}
 
-				Tess_Begin(Tess_StageIteratorGBuffer, NULL, shader, NULL, qfalse, qfalse, qfalse, lightmapNum, 0);
+				Tess_Begin(Tess_StageIteratorGBuffer, NULL, shader, NULL, qfalse, qfalse, lightmapNum, 0);
 				oldShader = shader;
 				oldLightmapNum = lightmapNum;
 			}
@@ -5911,8 +5464,17 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 					R_ComputeFinalAttenuation(attenuationXYStage, light);
 
-					// set OpenGL state for additive lighting
-					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+					#if 0 // FIXME support darkening shadows as in HL2
+					if(light->l.inverseShadows)
+					{
+						GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
+					}
+					else
+					#endif
+					{
+						// set OpenGL state for additive lighting
+						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+					}
 
 					if(light->clipsNearPlane)
 					{
@@ -6504,7 +6066,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						}
 
 						// we don't need tangent space calculations here
-						Tess_Begin(Tess_StageIteratorShadowFill, NULL, shader, light->shader, qtrue, qfalse, qfalse, -1, 0);
+						Tess_Begin(Tess_StageIteratorShadowFill, NULL, shader, light->shader, qtrue, qfalse, -1, 0);
 					}
 					break;
 				}
@@ -6764,804 +6326,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 }
 
 
-
-#if 0
-static void RB_RenderInteractionsDeferredInverseShadows()
-{
-	interaction_t  *ia;
-	int             iaCount;
-	int             iaFirst;
-	shader_t       *shader, *oldShader;
-	trRefEntity_t  *entity, *oldEntity;
-	trRefLight_t   *light, *oldLight;
-	surfaceType_t  *surface;
-	qboolean        depthRange, oldDepthRange;
-	qboolean        alphaTest, oldAlphaTest;
-	qboolean        drawShadows;
-	int             cubeSide;
-
-	shader_t       *lightShader;
-	shaderStage_t  *attenuationXYStage;
-	shaderStage_t  *attenuationZStage;
-	int             i, j;
-	vec3_t          viewOrigin;
-	vec3_t          lightOrigin;
-	vec4_t          lightColor;
-	vec4_t          lightFrustum[6];
-	cplane_t       *frust;
-	qboolean        shadowCompare;
-	matrix_t        ortho;
-	vec4_t          quadVerts[4];
-	int             startTime = 0, endTime = 0;
-
-	GLimp_LogComment("--- RB_RenderInteractionsDeferredInverseShadows ---\n");
-
-	if(!glConfig2.framebufferObjectAvailable)
-		return;
-
-	if(r_hdrRendering->integer && !glConfig2.textureFloatAvailable)
-		return;
-
-	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
-	{
-		glFinish();
-		startTime = ri.Milliseconds();
-	}
-
-	oldLight = NULL;
-	oldEntity = NULL;
-	oldShader = NULL;
-	oldDepthRange = depthRange = qfalse;
-	oldAlphaTest = alphaTest = qfalse;
-	drawShadows = qtrue;
-	cubeSide = 0;
-
-	// if we need to clear the FBO color buffers then it should be white
-	GL_ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-	// update depth render image
-	if(r_deferredShading->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable &&
-					   glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4)
-	{
-		// no update needed FBO handles it
-		R_BindFBO(tr.deferredRenderFBO);
-	}
-	else if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
-	{
-		// no update needed FBO handles it
-		R_BindFBO(tr.deferredRenderFBO);
-	}
-	else
-	{
-		R_BindNullFBO();
-		GL_SelectTexture(0);
-		GL_Bind(tr.depthRenderImage);
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
-	}
-
-
-	// render interactions
-	for(iaCount = 0, iaFirst = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
-	{
-		backEnd.currentLight = light = ia->light;
-		backEnd.currentEntity = entity = ia->entity;
-		surface = ia->surface;
-		shader = ia->surfaceShader;
-		alphaTest = shader->alphaTest;
-
-		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicLightOcclusionCulling->integer && !ia->occlusionQuerySamples)
-		{
-			// skip all interactions of this light because it failed the occlusion query
-			goto skipInteraction;
-		}
-
-		if(!light->l.inverseShadows)
-		{
-			// we only care about inverse shadows as this is a post process effect
-			goto skipInteraction;
-		}
-
-		// only iaCount == iaFirst if first iteration or counters were reset
-		if(iaCount == iaFirst)
-		{
-			if(drawShadows)
-			{
-				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
-				GL_BindProgram(NULL);
-				GL_State(GLS_DEFAULT);
-				//GL_VertexAttribsState(ATTR_POSITION);
-
-				GL_SelectTexture(0);
-				GL_Bind(tr.whiteImage);
-
-				if(light->l.noShadows || light->shadowLOD < 0)
-				{
-					if(r_logFile->integer)
-					{
-						// don't just call LogComment, or we will get
-						// a call to va() every frame!
-						GLimp_LogComment(va("----- Skipping shadowCube side: %i -----\n", cubeSide));
-					}
-
-					goto skipInteraction;
-				}
-				else
-				{
-					R_BindFBO(tr.shadowMapFBO[light->shadowLOD]);
-
-					switch (light->l.rlType)
-					{
-						case RL_OMNI:
-						{
-							float           xMin, xMax, yMin, yMax;
-							float           width, height, depth;
-							float           zNear, zFar;
-							float           fovX, fovY;
-							qboolean        flipX, flipY;
-							float          *proj;
-							vec3_t          angles;
-							matrix_t        rotationMatrix, transformMatrix, viewMatrix;
-
-							if(r_logFile->integer)
-							{
-								// don't just call LogComment, or we will get
-								// a call to va() every frame!
-								GLimp_LogComment(va("----- Rendering shadowCube side: %i -----\n", cubeSide));
-							}
-
-							R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
-												 tr.shadowCubeFBOImage[light->shadowLOD]->texnum, 0);
-							if(!r_ignoreGLErrors->integer)
-							{
-								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
-							}
-
-							// set the window clipping
-							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-
-							glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-							switch (cubeSide)
-							{
-								case 0:
-								{
-									// view parameters
-									VectorSet(angles, 0, 0, 90);
-
-									// projection parameters
-									flipX = qfalse;
-									flipY = qfalse;
-									break;
-								}
-
-								case 1:
-								{
-									VectorSet(angles, 0, 180, 90);
-									flipX = qtrue;
-									flipY = qtrue;
-									break;
-								}
-
-								case 2:
-								{
-									VectorSet(angles, 0, 90, 0);
-									flipX = qfalse;
-									flipY = qfalse;
-									break;
-								}
-
-								case 3:
-								{
-									VectorSet(angles, 0, -90, 0);
-									flipX = qtrue;
-									flipY = qtrue;
-									break;
-								}
-
-								case 4:
-								{
-									VectorSet(angles, -90, 90, 0);
-									flipX = qfalse;
-									flipY = qfalse;
-									break;
-								}
-
-								case 5:
-								{
-									VectorSet(angles, 90, 90, 0);
-									flipX = qtrue;
-									flipY = qtrue;
-									break;
-								}
-
-								default:
-								{
-									// shut up compiler
-									VectorSet(angles, 0, 0, 0);
-									flipX = qfalse;
-									flipY = qfalse;
-									break;
-								}
-							}
-
-							// Quake -> OpenGL view matrix from light perspective
-							MatrixFromAngles(rotationMatrix, angles[PITCH], angles[YAW], angles[ROLL]);
-							MatrixSetupTransformFromRotation(transformMatrix, rotationMatrix, light->origin);
-							MatrixAffineInverse(transformMatrix, viewMatrix);
-
-							// convert from our coordinate system (looking down X)
-							// to OpenGL's coordinate system (looking down -Z)
-							MatrixMultiply(quakeToOpenGLMatrix, viewMatrix, light->viewMatrix);
-
-							// OpenGL projection matrix
-							fovX = 90;
-							fovY = 90;	//R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-
-							zNear = 1.0;
-							zFar = light->sphereRadius;
-
-							if(!flipX)
-							{
-								xMax = zNear * tan(fovX * M_PI / 360.0f);
-								xMin = -xMax;
-							}
-							else
-							{
-								xMin = zNear * tan(fovX * M_PI / 360.0f);
-								xMax = -xMin;
-							}
-
-							if(!flipY)
-							{
-								yMax = zNear * tan(fovY * M_PI / 360.0f);
-								yMin = -yMax;
-							}
-							else
-							{
-								yMin = zNear * tan(fovY * M_PI / 360.0f);
-								yMax = -yMin;
-							}
-
-							width = xMax - xMin;
-							height = yMax - yMin;
-							depth = zFar - zNear;
-
-							proj = light->projectionMatrix;
-							proj[0] = (2 * zNear) / width;
-							proj[4] = 0;
-							proj[8] = (xMax + xMin) / width;
-							proj[12] = 0;
-							proj[1] = 0;
-							proj[5] = (2 * zNear) / height;
-							proj[9] = (yMax + yMin) / height;
-							proj[13] = 0;
-							proj[2] = 0;
-							proj[6] = 0;
-							proj[10] = -(zFar + zNear) / depth;
-							proj[14] = -(2 * zFar * zNear) / depth;
-							proj[3] = 0;
-							proj[7] = 0;
-							proj[11] = -1;
-							proj[15] = 0;
-
-							GL_LoadProjectionMatrix(light->projectionMatrix);
-							break;
-						}
-
-						case RL_PROJ:
-						{
-							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
-
-							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
-							if(!r_ignoreGLErrors->integer)
-							{
-								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
-							}
-
-							// set the window clipping
-							GL_Viewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							GL_Scissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-
-							glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-							GL_LoadProjectionMatrix(light->projectionMatrix);
-							break;
-						}
-
-						default:
-							break;
-					}
-				}
-
-				if(r_logFile->integer)
-				{
-					// don't just call LogComment, or we will get
-					// a call to va() every frame!
-					GLimp_LogComment(va("----- First Shadow Interaction: %i -----\n", iaCount));
-				}
-			}
-			else
-			{
-				GLimp_LogComment("--- Rendering lighting ---\n");
-
-				if(r_logFile->integer)
-				{
-					// don't just call LogComment, or we will get
-					// a call to va() every frame!
-					GLimp_LogComment(va("----- First Light Interaction: %i -----\n", iaCount));
-				}
-
-				// finally draw light
-				R_BindFBO(tr.deferredRenderFBO);
-
-				// set the window clipping
-				GL_Viewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-							backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-
-				//GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-				//        backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-
-				// set light scissor to reduce fillrate
-				GL_Scissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
-
-				// restore camera matrices
-				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
-				GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-
-				switch (light->l.rlType)
-				{
-					case RL_OMNI:
-					{
-						// reset light view and projection matrices
-						MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
-						MatrixSetupScale(light->projectionMatrix, 1.0 / light->l.radius[0], 1.0 / light->l.radius[1],
-										 1.0 / light->l.radius[2]);
-
-						// build the attenuation matrix
-						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
-						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
-						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
-						break;
-					}
-
-					case RL_PROJ:
-					{
-						// build the attenuation matrix
-						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / Q_min(light->falloffLength, 1.0));	// scale
-						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
-						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
-						break;
-					}
-
-					default:
-						break;
-				}
-
-				// update uniforms
-				VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
-
-				// copy frustum planes for pixel shader
-				for(i = 0; i < 6; i++)
-				{
-					frust = &light->frustum[i];
-
-					VectorCopy(frust->normal, lightFrustum[i]);
-					lightFrustum[i][3] = frust->dist;
-				}
-
-				// set 2D virtual screen size
-				GL_PushMatrix();
-				MatrixOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-												backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-												backEnd.viewParms.viewportY,
-												backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
-				GL_LoadProjectionMatrix(ortho);
-				GL_LoadModelViewMatrix(matrixIdentity);
-
-				// last interaction of current light
-				lightShader = light->shader;
-				attenuationZStage = lightShader->stages[0];
-
-				for(j = 1; j < MAX_SHADER_STAGES; j++)
-				{
-					attenuationXYStage = lightShader->stages[j];
-
-					if(!attenuationXYStage)
-					{
-						break;
-					}
-
-					if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
-					{
-						continue;
-					}
-
-					if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
-					{
-						continue;
-					}
-
-					Tess_ComputeColor(attenuationXYStage);
-					R_ComputeFinalAttenuation(attenuationXYStage, light);
-
-					if(light->l.rlType == RL_OMNI)
-					{
-						// TODO
-					}
-					else if(light->l.rlType == RL_PROJ)
-					{
-
-						GL_BindProgram(&tr.deferredShadowingShader_proj);
-
-						GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
-						GL_Cull(CT_TWO_SIDED);
-
-						// set uniforms
-						VectorCopy(light->origin, lightOrigin);
-						VectorCopy(tess.svars.color, lightColor);
-						shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
-
-						GLSL_SetUniform_LightOrigin(&tr.deferredShadowingShader_proj, lightOrigin);
-						GLSL_SetUniform_LightColor(&tr.deferredShadowingShader_proj, lightColor);
-						GLSL_SetUniform_LightRadius(&tr.deferredShadowingShader_proj, light->sphereRadius);
-						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredShadowingShader_proj, light->attenuationMatrix2);
-
-						GLSL_SetUniform_ShadowMatrix(&tr.deferredShadowingShader_proj, light->shadowMatrices);
-						GLSL_SetUniform_ShadowCompare(&tr.deferredShadowingShader_proj, shadowCompare);
-
-						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredShadowingShader_proj, glState.modelViewProjectionMatrix[glState.stackIndex]);
-						GLSL_SetUniform_UnprojectMatrix(&tr.deferredShadowingShader_proj, backEnd.viewParms.unprojectionMatrix);
-
-						GLSL_SetUniform_PortalClipping(&tr.deferredShadowingShader_proj, backEnd.viewParms.isPortal);
-						if(backEnd.viewParms.isPortal)
-						{
-							float           plane[4];
-
-							// clipping plane in world space
-							plane[0] = backEnd.viewParms.portalPlane.normal[0];
-							plane[1] = backEnd.viewParms.portalPlane.normal[1];
-							plane[2] = backEnd.viewParms.portalPlane.normal[2];
-							plane[3] = backEnd.viewParms.portalPlane.dist;
-
-							GLSL_SetUniform_PortalPlane(&tr.deferredShadowingShader_proj, plane);
-						}
-
-						// bind u_DepthMap
-						GL_SelectTexture(0);
-						GL_Bind(tr.depthRenderImage);
-
-						// bind u_AttenuationMapXY
-						GL_SelectTexture(1);
-						BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-
-						// bind u_AttenuationMapZ
-						GL_SelectTexture(2);
-						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-
-						// bind u_ShadowMap
-						if(shadowCompare)
-						{
-							GL_SelectTexture(3);
-							GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
-						}
-
-						// draw lighting
-						Vector4Set(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
-						Vector4Set(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-						Vector4Set(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						Vector4Set(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-						Tess_InstantQuad(quadVerts);
-					}
-					else
-					{
-						// TODO
-					}
-
-					// end of lighting
-					GL_PopMatrix();
-
-					R_BindNullFBO();
-				}
-			}
-		}						// end if(iaCount == iaFirst)
-
-		if(drawShadows)
-		{
-			if(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK))
-			{
-				goto skipInteraction;
-			}
-
-			if(shader->isSky)
-			{
-				goto skipInteraction;
-			}
-
-			if(shader->sort > SS_OPAQUE)
-			{
-				goto skipInteraction;
-			}
-
-			if(shader->noShadows || light->l.noShadows || light->shadowLOD < 0)
-			{
-				goto skipInteraction;
-			}
-
-			if(light->l.inverseShadows && (entity == &tr.worldEntity))
-			{
-				// this light only casts shadows by its player and their items
-				goto skipInteraction;
-			}
-
-			if(ia->type == IA_LIGHTONLY)
-			{
-				goto skipInteraction;
-			}
-
-			if(light->l.rlType == RL_OMNI && !(ia->cubeSideBits & (1 << cubeSide)))
-			{
-				goto skipInteraction;
-			}
-
-			switch (light->l.rlType)
-			{
-				case RL_OMNI:
-				case RL_PROJ:
-				{
-					if(light == oldLight && entity == oldEntity && (alphaTest ? shader == oldShader : alphaTest == oldAlphaTest))
-					{
-						if(r_logFile->integer)
-						{
-							// don't just call LogComment, or we will get
-							// a call to va() every frame!
-							GLimp_LogComment(va("----- Batching Shadow Interaction: %i -----\n", iaCount));
-						}
-
-						// fast path, same as previous
-						rb_surfaceTable[*surface] (surface);
-						goto nextInteraction;
-					}
-					else
-					{
-						if(oldLight)
-						{
-							// draw the contents of the last shader batch
-							Tess_End();
-						}
-
-						if(r_logFile->integer)
-						{
-							// don't just call LogComment, or we will get
-							// a call to va() every frame!
-							GLimp_LogComment(va("----- Beginning Shadow Interaction: %i -----\n", iaCount));
-						}
-
-						// we don't need tangent space calculations here
-						Tess_Begin(Tess_StageIteratorShadowFill, NULL, shader, light->shader, qtrue, qfalse, -1);
-					}
-					break;
-				}
-
-				default:
-					break;
-			}
-		}
-		else
-		{
-			// jump to !ia->next
-			goto nextInteraction;
-		}
-
-		// change the modelview matrix if needed
-		if(entity != oldEntity)
-		{
-			depthRange = qfalse;
-
-			if(entity != &tr.worldEntity)
-			{
-				// set up the transformation matrix
-				if(drawShadows)
-				{
-					R_RotateEntityForLight(entity, light, &backEnd.orientation);
-				}
-				else
-				{
-					R_RotateEntityForViewParms(entity, &backEnd.viewParms, &backEnd.orientation);
-				}
-
-				if(entity->e.renderfx & RF_DEPTHHACK)
-				{
-					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
-				}
-			}
-			else
-			{
-				// set up the transformation matrix
-				if(drawShadows)
-				{
-					Com_Memset(&backEnd.orientation, 0, sizeof(backEnd.orientation));
-
-					backEnd.orientation.axis[0][0] = 1;
-					backEnd.orientation.axis[1][1] = 1;
-					backEnd.orientation.axis[2][2] = 1;
-					VectorCopy(light->l.origin, backEnd.orientation.viewOrigin);
-
-					MatrixIdentity(backEnd.orientation.transformMatrix);
-					//MatrixAffineInverse(backEnd.orientation.transformMatrix, backEnd.orientation.viewMatrix);
-					MatrixMultiply(light->viewMatrix, backEnd.orientation.transformMatrix, backEnd.orientation.viewMatrix);
-					MatrixCopy(backEnd.orientation.viewMatrix, backEnd.orientation.modelViewMatrix);
-				}
-				else
-				{
-					// transform by the camera placement
-					backEnd.orientation = backEnd.viewParms.world;
-				}
-			}
-
-			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-
-			// change depthrange if needed
-			if(oldDepthRange != depthRange)
-			{
-				if(depthRange)
-				{
-					glDepthRange(0, 0.3);
-				}
-				else
-				{
-					glDepthRange(0, 1);
-				}
-				oldDepthRange = depthRange;
-			}
-		}
-
-		if(drawShadows)
-		{
-			switch (light->l.rlType)
-			{
-				case RL_OMNI:
-				case RL_PROJ:
-				{
-					// add the triangles for this surface
-					rb_surfaceTable[*surface] (surface);
-					break;
-				}
-
-				default:
-					break;
-			}
-		}
-		else
-		{
-			// DO NOTHING
-			//rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
-		}
-
-	  nextInteraction:
-
-		// remember values
-		oldLight = light;
-		oldEntity = entity;
-		oldShader = shader;
-		oldAlphaTest = alphaTest;
-
-	  skipInteraction:
-		if(!ia->next)
-		{
-			// if ia->next does not point to any other interaction then
-			// this is the last interaction of the current light
-
-			if(r_logFile->integer)
-			{
-				// don't just call LogComment, or we will get
-				// a call to va() every frame!
-				GLimp_LogComment(va("----- Last Interaction: %i -----\n", iaCount));
-			}
-
-			if(drawShadows)
-			{
-				// draw the contents of the last shader batch
-				Tess_End();
-
-				switch (light->l.rlType)
-				{
-					case RL_OMNI:
-					{
-						if(cubeSide == 5)
-						{
-							cubeSide = 0;
-							drawShadows = qfalse;
-						}
-						else
-						{
-							cubeSide++;
-						}
-
-						// jump back to first interaction of this light
-						ia = &backEnd.viewParms.interactions[iaFirst];
-						iaCount = iaFirst;
-						break;
-					}
-
-					case RL_PROJ:
-					{
-						// jump back to first interaction of this light and start lighting
-						ia = &backEnd.viewParms.interactions[iaFirst];
-						iaCount = iaFirst;
-						drawShadows = qfalse;
-						break;
-					}
-
-					default:
-						break;
-				}
-			}
-			else
-			{
-#if 0 //VOLUMETRIC_LIGHTING
-				// draw the light volume if needed
-				if(light->shader->volumetricLight)
-				{
-					Render_lightVolume(ia);
-				}
-#endif
-
-				if(iaCount < (backEnd.viewParms.numInteractions - 1))
-				{
-					// jump to next interaction and start shadowing
-					ia++;
-					iaCount++;
-					iaFirst = iaCount;
-					drawShadows = qtrue;
-				}
-				else
-				{
-					// increase last time to leave for loop
-					iaCount++;
-				}
-			}
-
-			// force updates
-			oldLight = NULL;
-			oldEntity = NULL;
-			oldShader = NULL;
-		}
-		else
-		{
-			// just continue
-			ia = ia->next;
-			iaCount++;
-		}
-	}
-
-	// go back to the world modelview matrix
-	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
-	if(depthRange)
-	{
-		glDepthRange(0, 1);
-	}
-
-	// reset scissor clamping
-	GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-
-	// reset clear color
-	GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-	GL_CheckErrors();
-
-	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
-	{
-		glFinish();
-		endTime = ri.Milliseconds();
-		backEnd.pc.c_deferredLightingTime = endTime - startTime;
-	}
-}
-#endif
 
 #ifdef EXPERIMENTAL
 void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
@@ -8004,10 +6768,10 @@ void RB_RenderBloom()
 			}
 
 			// add offscreen processed bloom to screen
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 			if(DS_STANDARD_ENABLED())
 			{
-				R_BindFBO(tr.deferredRenderFBO);
+				R_BindFBO(tr.geometricRenderFBO);
+				glDrawBuffers(1, geometricRenderTargets);
 				
 				gl_screenShader->BindProgram();
 				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
@@ -8018,25 +6782,7 @@ void RB_RenderBloom()
 				GL_SelectTexture(0);
 				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
 			}
-			else if(DS_PREPASS_LIGHTING_ENABLED())
-			{
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-				R_BindFBO(tr.deferredRenderFBO);
-#else
-				R_BindNullFBO();
-#endif
-				gl_screenShader->BindProgram();
-				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
-				glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
-
-				gl_screenShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
-
-				GL_SelectTexture(0);
-				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
-			}
-			else 
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)	
-			if(HDR_ENABLED())
+			else if(HDR_ENABLED())
 			{
 				R_BindFBO(tr.deferredRenderFBO);
 
@@ -10818,7 +9564,7 @@ static void RB_RenderDebugUtils()
 		gl_reflectionShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
 		gl_reflectionShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1, 0);
+		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, -1, 0);
 
 		for(j = 0; j < tr.cubeProbes.currentElements; j++)
 		{
@@ -10871,7 +9617,7 @@ static void RB_RenderDebugUtils()
 			R_FindTwoNearestCubeMaps(backEnd.viewParms.orientation.origin, &cubeProbeNearest, &cubeProbeSecondNearest);
 
 
-			Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1, 0);
+			Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, -1, 0);
 
 			if(cubeProbeNearest == NULL && cubeProbeSecondNearest == NULL)
 			{
@@ -10947,7 +9693,7 @@ static void RB_RenderDebugUtils()
 
 		GL_CheckErrors();
 
-		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1, 0);
+		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, -1, 0);
 
 		for(j = 0; j < tr.world->numLightGridPoints; j++)
 		{
@@ -11176,7 +9922,7 @@ static void RB_RenderDebugUtils()
 
 		GL_CheckErrors();
 
-		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, qfalse, -1, 0);
+		Tess_Begin(Tess_StageIteratorDebug, NULL, NULL, NULL, qtrue, qfalse, -1, 0);
 
 		for(i = 0, dp = backEnd.refdef.decalProjectors; i < backEnd.refdef.numDecalProjectors; i++, dp++)
 		{
@@ -11762,13 +10508,6 @@ static void RB_RenderView(void)
 			// render player shadows if any
 			//RB_RenderInteractionsDeferredInverseShadows();
 		}
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-		else if(r_shadows->integer == SHADOWING_STENCIL)
-		{
-			// render dynamic shadowing and lighting using stencil shadow volumes
-			RB_RenderInteractionsStencilShadowed();
-		}
-#endif
 		else
 		{
 			// render dynamic lighting
@@ -12213,7 +10952,7 @@ const void     *RB_StretchPic(const void *data)
 			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1, 0);
+		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, -1, 0);
 	}
 
 	Tess_CheckOverflow(4, 6);
@@ -12304,7 +11043,7 @@ const void     *RB_Draw2dPolys(const void *data)
 			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1, 0);
+		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, -1, 0);
 	}
 
 	Tess_CheckOverflow(cmd->numverts, (cmd->numverts - 2) * 3);
@@ -12366,7 +11105,7 @@ const void     *RB_RotatedPic(const void *data)
 			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1, 0);
+		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, -1, 0);
 	}
 
 	Tess_CheckOverflow(4, 6);
@@ -12456,7 +11195,7 @@ const void     *RB_StretchPicGradient(const void *data)
 			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, -1, 0);
+		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, -1, 0);
 	}
 
 	Tess_CheckOverflow(4, 6);

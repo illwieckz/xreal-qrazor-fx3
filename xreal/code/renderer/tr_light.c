@@ -1425,14 +1425,6 @@ void R_SetupLightScissor(trRefLight_t * light)
 		return;
 	}
 
-#if 0
-	if(r_shadows->integer != SHADOWING_STENCIL)
-	{
-		// we don't need it for any other mode ...
-		return;
-	}
-#endif
-
 	// transform local light corners to world space -> eye space -> clip space -> window space
 	// and extend the light scissor's mins maxs by resulting window coords
 	light->scissor.coords[0] = 100000000;
