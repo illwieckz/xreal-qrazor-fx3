@@ -73,7 +73,10 @@ protected:
 	{
 		for(std::size_t i = 0; i < _shaderPrograms.size(); i++)
 		{
-			glDeleteObjectARB(_shaderPrograms[i].program);
+			if(_shaderPrograms[i].program)
+			{
+				glDeleteObjectARB(_shaderPrograms[i].program);
+			}
 		}
 	}
 
@@ -1062,6 +1065,7 @@ public:
 								));
 		}
 #endif
+
 
 		glUniform4fvARB(program->u_LightFrustum, 6, &lightFrustum[0][0]);
 	}
