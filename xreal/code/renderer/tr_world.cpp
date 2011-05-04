@@ -1181,6 +1181,12 @@ static void R_MarkLeaves(void)
 				tr.visIndex = i;
 				return;
 			}
+
+			if(tr.refdef.areamaskModified)
+			{
+				// invalidate old visclusters so they will be updated next time
+				tr.visClusters[i] = -1;
+			}
 		}
 	}
 	
@@ -1243,7 +1249,8 @@ static void R_MarkLeaves(void)
 		// check for door connection
 		if((tr.refdef.areamask[leaf->area >> 3] & (1 << (leaf->area & 7))))
 		{
-			continue;			// not visible
+			// not visible
+			continue;
 		}
 
 		// ydnar: don't want to walk the entire bsp to add skybox surfaces
