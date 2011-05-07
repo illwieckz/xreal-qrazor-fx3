@@ -238,23 +238,23 @@ textures/eX/eXmetalFloor02
 	normalMap		textures/eX/eXmetalFloor02_norm
 }
 
-textures/eX/eXmetalFloor02_reflect
-{
-	qer_editorimage		textures/eX/eXmetalFloor02
-
-	mirror
-
-	diffusemap		textures/eX/eXmetalFloor02
-	specularmap		textures/eX/eXmetalFloor02_s
-	normalMap		textures/eX/eXmetalFloor02_norm
-	{
-		stage		screenMap
-		map		_portalRender
-		depthWrite
-		color		1, 1, 1, 1
-		blend		GL_DST_COLOR, GL_ONE
-	}
-}
+//textures/eX/eXmetalFloor02_reflect
+//{
+//	qer_editorimage		textures/eX/eXmetalFloor02
+//
+//	mirror
+//
+//	diffusemap		textures/eX/eXmetalFloor02
+//	specularmap		textures/eX/eXmetalFloor02_s
+//	normalMap		textures/eX/eXmetalFloor02_norm
+//	{
+//		stage		screenMap
+//		map		_portalRender
+//		depthWrite
+//		color		1, 1, 1, 1
+//		blend		GL_DST_COLOR, GL_ONE
+//	}
+//}
 
 
 textures/eX/eX_clangfloor_01 
@@ -326,7 +326,7 @@ textures/eX/eX_wall_panels_08
 textures/eX/eX_wall_pipe 
 {
 	qer_editorimage		textures/eX/eX_wall_pipe
-
+	parallax
 	diffusemap		textures/eX/eX_wall_pipe
 	specularmap		textures/eX/eX_wall_pipe_s
 	bumpmap 		textures/eX/eX_wall_pipe_norm
