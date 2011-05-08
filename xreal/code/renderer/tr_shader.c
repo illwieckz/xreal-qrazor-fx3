@@ -6631,7 +6631,6 @@ static void CreateExternalShaders(void)
 {
 	ri.Printf(PRINT_ALL, "----- CreateExternalShaders -----\n");
 
-	tr.projectionShadowShader = R_FindShader("projectionShadow", SHADER_3D_DYNAMIC, qtrue);
 	tr.flareShader = R_FindShader("flareShader", SHADER_3D_DYNAMIC, qtrue);
 	tr.sunShader = R_FindShader("sun", SHADER_3D_DYNAMIC, qtrue);
 

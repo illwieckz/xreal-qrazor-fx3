@@ -289,6 +289,20 @@ typedef enum
 } stereoFrame_t;
 
 
+// XreaL BEGIN
+
+// cg_shadows modes
+typedef enum
+{
+	SHADOWING_NONE,
+	SHADOWING_BLOB,
+	SHADOWING_VSM16,
+	SHADOWING_VSM32,
+	SHADOWING_EVSM
+} shadowingMode_t;
+// XreaL END
+
+
 /*
 ** glconfig_t
 **
