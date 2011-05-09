@@ -833,7 +833,7 @@ qboolean CG_DrawOldScoreboard(void)
 
 	// put the current date and time at the bottom along with version info
 	trap_RealTime(&tm);
-	Com_sprintf(st, sizeof(st), "%2i:%s%i:%s%i (%i %s %i) " S_COLOR_YELLOW "XreaL v" PRODUCT_VERSION " " S_COLOR_BLUE " http://xreal.sourceforge.net", (1 + (tm.tm_hour + 11) % 12),	// 12 hour format
+	Com_sprintf(st, sizeof(st), "%2i:%s%i:%s%i (%i %s %i) " S_COLOR_RED ENGINE_NAME " v" ENGINE_VERSION " ", tm.tm_hour,	// 12 hour format
 				(tm.tm_min > 9 ? "" : "0"),	// minute padding
 				tm.tm_min, (tm.tm_sec > 9 ? "" : "0"),	// second padding
 				tm.tm_sec, tm.tm_mday, monthStr2[tm.tm_mon], 1900 + tm.tm_year);
