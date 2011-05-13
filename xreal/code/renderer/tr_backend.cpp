@@ -2462,9 +2462,9 @@ static void RB_RenderInteractionsShadowMapped()
 							vec4_t			splitFrustum[6];
 							vec3_t			splitFrustumCorners[8];
 							vec3_t			splitFrustumBounds[2];
-							//vec3_t		splitFrustumViewBounds[2];
+							vec3_t			splitFrustumViewBounds[2];
 							vec3_t			splitFrustumClipBounds[2];
-							//float			splitFrustumRadius;
+							float			splitFrustumRadius;
 							int				numCasters;
 							vec3_t			casterBounds[2];
 							vec3_t			receiverBounds[2];
@@ -2494,7 +2494,6 @@ static void RB_RenderInteractionsShadowMapped()
 							VectorCopy(light->direction, lightDirection);
 							#endif
 
-#if 1
 							if(r_parallelShadowSplits->integer)
 							{
 								// original light direction is from surface to light
@@ -2580,28 +2579,36 @@ static void RB_RenderInteractionsShadowMapped()
 
 
 #if 0
+								//
+								// Scene-Independent Projection
+								//
+
 								// find the bounding box of the current split in the light's view space
 								ClearBounds(splitFrustumViewBounds[0], splitFrustumViewBounds[1]);
-								numCasters = MergeInteractionBounds(light->viewMatrix, ia, iaCount, splitFrustumViewBounds, qtrue);
+								//numCasters = MergeInteractionBounds(light->viewMatrix, ia, iaCount, splitFrustumViewBounds, qtrue);
 								for(j = 0; j < 8; j++)
 								{
 									VectorCopy(splitFrustumCorners[j], point);
 									point[3] = 1;
-#if 0
+
 									MatrixTransform4(light->viewMatrix, point, transf);
 									transf[0] /= transf[3];
 									transf[1] /= transf[3];
 									transf[2] /= transf[3];
-#else
-									MatrixTransformPoint(light->viewMatrix, point, transf);
-#endif
 
 									AddPointToBounds(transf, splitFrustumViewBounds[0], splitFrustumViewBounds[1]);
 								}
 
 								//MatrixScaleTranslateToUnitCube(projectionMatrix, splitFrustumViewBounds[0], splitFrustumViewBounds[1]);
-								MatrixOrthogonalProjectionRH(projectionMatrix, -1, 1, -1, 1, -splitFrustumViewBounds[1][2], -splitFrustumViewBounds[0][2]);
-
+								//MatrixOrthogonalProjectionRH(projectionMatrix, -1, 1, -1, 1, -splitFrustumViewBounds[1][2], -splitFrustumViewBounds[0][2]);
+								#if 1
+								MatrixOrthogonalProjectionRH(projectionMatrix,	splitFrustumViewBounds[0][0],
+																				splitFrustumViewBounds[1][0],
+																				splitFrustumViewBounds[0][1], 
+																				splitFrustumViewBounds[1][1], 
+																				-splitFrustumViewBounds[1][2], 
+																				-splitFrustumViewBounds[0][2]);
+								#endif
 								MatrixMultiply(projectionMatrix, light->viewMatrix, viewProjectionMatrix);
 
 								// find the bounding box of the current split in the light's clip space
@@ -2636,6 +2643,10 @@ static void RB_RenderInteractionsShadowMapped()
 								}
 
 #else
+
+								//
+								// Scene-Dependent Projection
+								//
 
 								// find the bounding box of the current split in the light's view space
 								ClearBounds(cropBounds[0], cropBounds[1]);
@@ -2702,8 +2713,8 @@ static void RB_RenderInteractionsShadowMapped()
 								cropBounds[1][0] = Q_min(Q_min(casterBounds[1][0], receiverBounds[1][0]), splitFrustumClipBounds[1][0]);
 								cropBounds[1][1] = Q_min(Q_min(casterBounds[1][1], receiverBounds[1][1]), splitFrustumClipBounds[1][1]);
 
-								//cropBounds[0][2] = Q_min(casterBounds[0][2], splitFrustumClipBounds[0][2]);
-								cropBounds[0][2] = casterBounds[0][2];
+								cropBounds[0][2] = Q_min(casterBounds[0][2], splitFrustumClipBounds[0][2]);
+								//cropBounds[0][2] = casterBounds[0][2];
 								//cropBounds[0][2] = splitFrustumClipBounds[0][2];
 								cropBounds[1][2] = Q_min(receiverBounds[1][2], splitFrustumClipBounds[1][2]);
 								//cropBounds[1][2] = splitFrustumClipBounds[1][2];
@@ -2723,7 +2734,6 @@ static void RB_RenderInteractionsShadowMapped()
 								GL_LoadProjectionMatrix(light->projectionMatrix);
 							}
 							else
-#endif
 							{
 								// original light direction is from surface to light
 								VectorInverse(lightDirection);
@@ -2750,14 +2760,12 @@ static void RB_RenderInteractionsShadowMapped()
 									point[1] = splitFrustumBounds[(j >> 1) & 1][1];
 									point[2] = splitFrustumBounds[(j >> 2) & 1][2];
 									point[3] = 1;
-#if 1
+
 									MatrixTransform4(light->viewMatrix, point, transf);
 									transf[0] /= transf[3];
 									transf[1] /= transf[3];
 									transf[2] /= transf[3];
-#else
-									MatrixTransformPoint(light->viewMatrix, point, transf);
-#endif
+
 									AddPointToBounds(transf, cropBounds[0], cropBounds[1]);
 								}
 
@@ -8581,7 +8589,7 @@ static void RB_RenderDebugUtils()
 
 		//GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
-		GL_Cull(CT_FRONT_SIDED);
+		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
 		gl_genericShader->SetUniform_ColorModulate(CGEN_CUSTOM_RGB, AGEN_CUSTOM);

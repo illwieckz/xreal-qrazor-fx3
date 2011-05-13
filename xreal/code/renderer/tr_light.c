@@ -1814,6 +1814,12 @@ void R_SetupLightLOD(trRefLight_t * light)
 	int             lod;
 	int             numLods;
 
+	if(light->l.noShadows)
+	{
+		light->shadowLOD = -1;
+		return;
+	}
+
 	numLods = 5;
 
 	// compute projected bounding sphere

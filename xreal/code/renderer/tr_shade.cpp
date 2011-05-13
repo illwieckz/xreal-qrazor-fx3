@@ -335,7 +335,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, const char
 
 		if(r_shadows->integer >= SHADOWING_VSM16 && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable)
 		{
-			if(r_shadows->integer == SHADOWING_EVSM)
+			if(r_shadows->integer == SHADOWING_EVSM16 || r_shadows->integer == SHADOWING_EVSM32)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ESM\n#define ESM 1\n#endif\n");
 
@@ -2984,6 +2984,10 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 		GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
 	}
 
+	// bind u_RandomMap
+	GL_SelectTexture(6);
+	GL_Bind(tr.randomNormalsImage);
+
 	gl_forwardLightingShader_omniXYZ->SetRequiredVertexPointers();
 
 	Tess_DrawElements();
@@ -3185,6 +3189,10 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 		GL_SelectTexture(5);
 		GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
 	}
+
+	// bind u_RandomMap
+	GL_SelectTexture(6);
+	GL_Bind(tr.randomNormalsImage);
 
 	gl_forwardLightingShader_projXYZ->SetRequiredVertexPointers();
 

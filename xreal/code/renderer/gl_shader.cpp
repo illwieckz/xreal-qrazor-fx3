@@ -442,10 +442,13 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 
 		if(r_shadows->integer >= SHADOWING_VSM16 && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable)
 		{
-			if(r_shadows->integer == SHADOWING_EVSM)
+			if(r_shadows->integer == SHADOWING_EVSM16 || r_shadows->integer == SHADOWING_EVSM32)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef EVSM\n#define EVSM 1\n#endif\n");
 
+				// The exponents for the EVSM techniques should be less than ln(FLT_MAX/FILTER_SIZE)/2 {ln(FLT_MAX/1)/2 ~44.3}
+				//         42.9 is the maximum possible value for FILTER_SIZE=15
+				//         42.0 is the truncated value that we pass into the sample
 				Q_strcat(bufferExtra, sizeof(bufferExtra),
 					 va("#ifndef r_EVSMExponents\n#define r_EVSMExponents vec2(%f, %f)\n#endif\n", 42.0f, 42.0f));
 
@@ -508,6 +511,7 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.0001\n#endif\n");
 			}
 
+			/*
 			if(r_softShadows->integer == 1)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_2X2\n#define PCF_2X2 1\n#endif\n");
@@ -528,9 +532,15 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_6X6\n#define PCF_6X6 1\n#endif\n");
 			}
-			else if(r_softShadows->integer == 6)
+			*/
+			if(r_softShadows->integer == 6)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCSS\n#define PCSS 1\n#endif\n");
+			}
+			else if(r_softShadows->integer)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+					va("#ifndef r_PCFSamples\n#define r_PCFSamples %1.1f\n#endif\n", r_softShadows->value + 1.0f));
 			}
 
 			if(r_parallelShadowSplits->integer)
@@ -1745,6 +1755,7 @@ GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
 			{
 				shaderProgram->u_ShadowMap = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap");
 			}
+			shaderProgram->u_RandomMap = glGetUniformLocationARB(shaderProgram->program, "u_RandomMap");
 
 			glUseProgramObjectARB(shaderProgram->program);
 			glUniform1iARB(shaderProgram->u_DiffuseMap, 0);
@@ -1756,6 +1767,7 @@ GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
 			{
 				glUniform1iARB(shaderProgram->u_ShadowMap, 5);
 			}
+			glUniform1iARB(shaderProgram->u_RandomMap, 6);
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);
@@ -1878,6 +1890,7 @@ GLShader_forwardLighting_projXYZ::GLShader_forwardLighting_projXYZ():
 			{
 				shaderProgram->u_ShadowMap0 = glGetUniformLocationARB(shaderProgram->program, "u_ShadowMap0");
 			}
+			shaderProgram->u_RandomMap = glGetUniformLocationARB(shaderProgram->program, "u_RandomMap");
 
 			glUseProgramObjectARB(shaderProgram->program);
 			glUniform1iARB(shaderProgram->u_DiffuseMap, 0);
@@ -1889,6 +1902,7 @@ GLShader_forwardLighting_projXYZ::GLShader_forwardLighting_projXYZ():
 			{
 				glUniform1iARB(shaderProgram->u_ShadowMap0, 5);
 			}
+			glUniform1iARB(shaderProgram->u_RandomMap, 6);
 			glUseProgramObjectARB(0);
 
 			ValidateProgram(shaderProgram->program);

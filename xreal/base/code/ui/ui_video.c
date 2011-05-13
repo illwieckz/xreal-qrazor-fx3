@@ -1195,9 +1195,12 @@ static void GraphicsOptions_SetMenuItems(void)
 		{
 			s_graphicsoptions.shadowType.curvalue = SHADOWING_BLOB;
 		}
-		else if(uis.glconfig.hardwareType != GLHW_NV_DX10 && uis.glconfig.hardwareType != GLHW_ATI_DX10)
+		else if(uis.glconfig.driverType != GLDRV_OPENGL3)
 		{
-			s_graphicsoptions.shadowType.curvalue = SHADOWING_VSM16;
+			if(uis.glconfig.hardwareType != GLHW_NV_DX10 && uis.glconfig.hardwareType != GLHW_ATI_DX10)
+			{
+				s_graphicsoptions.shadowType.curvalue = SHADOWING_EVSM16;
+			}
 		}
 	}
 
@@ -1278,6 +1281,7 @@ void GraphicsOptions_MenuInit(void)
 		"Blob",
 		"VSM 16 bit",
 		"VSM 32 bit",
+		"EVSM 16 bit",
 		"EVSM 32 bit",
 		NULL
 	};
