@@ -6843,7 +6843,7 @@ static void R_KillRedundantInteractions(trRefLight_t * light)
 			continue;
 
 		// HACK: allow fancy alphatest shadows with shadow mapping
-		if(r_shadows->integer >= SHADOWING_VSM16 && surface->shader->alphaTest)
+		if(r_shadows->integer >= SHADOWING_ESM16 && surface->shader->alphaTest)
 			continue;
 
 		for(iaCache2 = light->firstInteractionCache; iaCache2; iaCache2 = iaCache2->next)
@@ -7076,7 +7076,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 	if(!r_vboLighting->integer)
 		return;
 
-	if(r_deferredShading->integer && r_shadows->integer < SHADOWING_VSM16)
+	if(r_deferredShading->integer && r_shadows->integer < SHADOWING_ESM16)
 		return;
 
 	if(!light->firstInteractionCache)
@@ -7375,7 +7375,7 @@ static void R_CreateVBOShadowMeshes(trRefLight_t * light)
 	if(!r_vboShadows->integer)
 		return;
 
-	if(r_shadows->integer < SHADOWING_VSM16)
+	if(r_shadows->integer < SHADOWING_ESM16)
 		return;
 
 	if(!light->firstInteractionCache)
@@ -7737,7 +7737,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 	if(!r_vboShadows->integer)
 		return;
 
-	if(r_shadows->integer < SHADOWING_VSM16)
+	if(r_shadows->integer < SHADOWING_ESM16)
 		return;
 
 	if(!light->firstInteractionCache)
@@ -8251,7 +8251,7 @@ void R_PrecacheInteractions()
 	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_worldData.numInteractions);
 	ri.Printf(PRINT_ALL, "%i interactions were hidden in shadows\n", c_redundantInteractions);
 
-	if(r_shadows->integer >= SHADOWING_VSM16)
+	if(r_shadows->integer >= SHADOWING_ESM16)
 	{
 		// only interesting for omni-directional shadow mapping
 		ri.Printf(PRINT_ALL, "%i omni pyramid tests\n", tr.pc.c_pyramidTests);

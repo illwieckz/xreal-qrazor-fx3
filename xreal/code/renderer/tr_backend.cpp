@@ -1691,7 +1691,7 @@ static void Render_lightVolume(interaction_t * ia)
 			VectorCopy(light->origin, lightOrigin);
 			VectorCopy(tess.svars.color, lightColor);
 
-			shadowCompare = r_shadows->integer >= SHADOWING_VSM16 && !light->l.noShadows && light->shadowLOD >= 0;
+			shadowCompare = r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0;
 
 			GLSL_SetUniform_ViewOrigin(&tr.lightVolumeShader_omni, viewOrigin);
 			GLSL_SetUniform_LightOrigin(&tr.lightVolumeShader_omni, lightOrigin);
@@ -2476,7 +2476,14 @@ static void RB_RenderInteractionsShadowMapped()
 							GLimp_LogComment("--- Rendering directional shadowMap ---\n");
 
 							R_BindFBO(tr.sunShadowMapFBO[splitFrustumIndex]);
-							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.sunShadowMapFBOImage[splitFrustumIndex]->texnum, 0);
+							if(!r_evsmPostProcess->integer)
+							{
+								R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.sunShadowMapFBOImage[splitFrustumIndex]->texnum, 0);
+							}
+							else
+							{
+								R_AttachFBOTextureDepth(tr.sunShadowMapFBOImage[splitFrustumIndex]->texnum);
+							}
 							if(!r_ignoreGLErrors->integer)
 							{
 								R_CheckFBO(tr.sunShadowMapFBO[splitFrustumIndex]);
@@ -5503,7 +5510,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						GL_Cull(CT_FRONT_SIDED);
 					}
 
-					bool shadowCompare = (r_shadows->integer >= SHADOWING_VSM16 && !light->l.noShadows && light->shadowLOD >= 0);
+					bool shadowCompare = (r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0);
 
 					float shadowTexelSize = 1.0f;
 					if(shadowCompare)
@@ -5682,7 +5689,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					}
 					else if(light->l.rlType == RL_DIRECTIONAL)
 					{
-						shadowCompare = (r_shadows->integer >= SHADOWING_VSM16 && !light->l.noShadows);// && light->shadowLOD >= 0);
+						shadowCompare = (r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows);// && light->shadowLOD >= 0);
 
 						// choose right shader program ----------------------------------
 						gl_deferredLightingShader_directionalSun->SetPortalClipping(backEnd.viewParms.isPortal);
@@ -8990,7 +8997,7 @@ static void RB_RenderDebugUtils()
 			GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
 			gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-			if(r_shadows->integer >= SHADOWING_VSM16 && light->l.rlType == RL_OMNI)
+			if(r_shadows->integer >= SHADOWING_ESM16 && light->l.rlType == RL_OMNI)
 			{
 #if 0
 				Vector4Copy(colorMdGrey, lightColor);
@@ -10100,7 +10107,7 @@ static void RB_RenderView(void)
 
 		if(!r_showDeferredRender->integer)
 		{
-			if(r_shadows->integer >= SHADOWING_VSM16)
+			if(r_shadows->integer >= SHADOWING_ESM16)
 			{
 				// render dynamic shadowing and lighting using shadow mapping
 				RB_RenderInteractionsDeferredShadowMapped();
@@ -10501,7 +10508,7 @@ static void RB_RenderView(void)
 		// try to cull lights using hardware occlusion queries
 		RB_RenderLightOcclusionQueries();
 
-		if(r_shadows->integer >= SHADOWING_VSM16)
+		if(r_shadows->integer >= SHADOWING_ESM16)
 		{
 			// render dynamic shadowing and lighting using shadow mapping
 			RB_RenderInteractionsShadowMapped();

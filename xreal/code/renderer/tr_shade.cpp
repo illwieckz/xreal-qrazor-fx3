@@ -333,9 +333,9 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, const char
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GLHW_NV_DX10\n#define GLHW_NV_DX10 1\n#endif\n");
 		}
 
-		if(r_shadows->integer >= SHADOWING_VSM16 && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable)
+		if(r_shadows->integer >= SHADOWING_ESM16 && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable)
 		{
-			if(r_shadows->integer == SHADOWING_EVSM16 || r_shadows->integer == SHADOWING_EVSM32)
+			if(r_shadows->integer == SHADOWING_EVSM32)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ESM\n#define ESM 1\n#endif\n");
 
@@ -2805,7 +2805,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 
 	bool normalMapping = r_normalMapping->integer && (diffuseStage->bundle[TB_NORMALMAP].image[0] != NULL);
 
-	bool shadowCompare = (r_shadows->integer >= SHADOWING_VSM16 && !light->l.noShadows && light->shadowLOD >= 0);
+	bool shadowCompare = (r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0);
 
 	// choose right shader program ----------------------------------
 	gl_forwardLightingShader_omniXYZ->SetPortalClipping(backEnd.viewParms.isPortal);
@@ -3010,7 +3010,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 
 	bool normalMapping = r_normalMapping->integer && (diffuseStage->bundle[TB_NORMALMAP].image[0] != NULL);
 
-	bool shadowCompare = (r_shadows->integer >= SHADOWING_VSM16 && !light->l.noShadows && light->shadowLOD >= 0);
+	bool shadowCompare = (r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0);
 
 	// choose right shader program ----------------------------------
 	gl_forwardLightingShader_projXYZ->SetPortalClipping(backEnd.viewParms.isPortal);
@@ -3217,7 +3217,7 @@ static void Render_forwardLighting_DBS_directional(shaderStage_t * diffuseStage,
 
 	bool normalMapping = r_normalMapping->integer && (diffuseStage->bundle[TB_NORMALMAP].image[0] != NULL);
 
-	bool shadowCompare = (r_shadows->integer >= SHADOWING_VSM16 && !light->l.noShadows && light->shadowLOD >= 0);
+	bool shadowCompare = (r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0);
 
 	// choose right shader program ----------------------------------
 	gl_forwardLightingShader_directionalSun->SetPortalClipping(backEnd.viewParms.isPortal);

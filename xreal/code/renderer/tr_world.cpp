@@ -2583,7 +2583,7 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 			// into this view
 			if(surface->viewCount != tr.viewCountNoReset)
 			{
-				if(r_shadows->integer < SHADOWING_VSM16 || light->l.noShadows)
+				if(r_shadows->integer < SHADOWING_ESM16 || light->l.noShadows)
 					continue;
 				else
 					iaType = IA_SHADOWONLY;
@@ -2612,7 +2612,7 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 			// into this view
 			if(surface->viewCount != tr.viewCountNoReset)
 			{
-				if(r_shadows->integer < SHADOWING_VSM16 || light->l.noShadows)
+				if(r_shadows->integer < SHADOWING_ESM16 || light->l.noShadows)
 					continue;
 				else
 					iaType = IA_SHADOWONLY;

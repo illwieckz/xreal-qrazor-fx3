@@ -4193,6 +4193,8 @@ extern cvar_t  *r_cameraVignette;
 extern cvar_t  *r_cameraFilmGrain;
 extern cvar_t  *r_cameraFilmGrainScale;
 
+extern cvar_t  *r_evsmPostProcess;
+
 //====================================================================
 
 #define IMAGE_FILE_HASH_SIZE      4096

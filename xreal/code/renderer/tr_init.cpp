@@ -314,6 +314,8 @@ cvar_t         *r_cameraVignette;
 cvar_t         *r_cameraFilmGrain;
 cvar_t         *r_cameraFilmGrainScale;
 
+cvar_t         *r_evsmPostProcess;
+
 
 static void AssertCvarRange(cvar_t * cv, float minVal, float maxVal, qboolean shouldBeIntegral)
 {
@@ -1450,7 +1452,7 @@ void R_Register(void)
 	r_shadowMapLuminanceAlpha = ri.Cvar_Get("r_shadowMapLuminanceAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_shadowMapLinearFilter = ri.Cvar_Get("r_shadowMapLinearFilter", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_lightBleedReduction = ri.Cvar_Get("r_lightBleedReduction", "0", CVAR_CHEAT);
-	r_overDarkeningFactor = ri.Cvar_Get("r_overDarkeningFactor", "40.0", CVAR_CHEAT);
+	r_overDarkeningFactor = ri.Cvar_Get("r_overDarkeningFactor", "30.0", CVAR_CHEAT);
 	r_shadowMapDepthScale = ri.Cvar_Get("r_shadowMapDepthScale", "1.41", CVAR_CHEAT);
 
 	r_parallelShadowSplitWeight = ri.Cvar_Get("r_parallelShadowSplitWeight", "0.9", CVAR_CHEAT);
@@ -1524,6 +1526,8 @@ void R_Register(void)
 	r_hdrToneMappingOperator = ri.Cvar_Get("r_hdrToneMappingOperator", "1", CVAR_CHEAT);
 	r_hdrGamma = ri.Cvar_Get("r_hdrGamma", "1.1", CVAR_CHEAT);
 	r_hdrDebug = ri.Cvar_Get("r_hdrDebug", "0", CVAR_CHEAT);
+
+	r_evsmPostProcess = ri.Cvar_Get("r_evsmPostProcess", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 

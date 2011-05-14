@@ -3002,7 +3002,7 @@ void R_AddLightInteractions()
 		light->numLightOnlyInteractions = 0;
 		light->noSort = qfalse;
 
-		if(r_deferredShading->integer && r_shadows->integer < SHADOWING_VSM16)
+		if(r_deferredShading->integer && r_shadows->integer < SHADOWING_ESM16)
 		{
 			// add one fake interaction for this light
 			// because the renderer backend only loops through interactions

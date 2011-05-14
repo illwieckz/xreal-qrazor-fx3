@@ -647,7 +647,7 @@ void R_InitFBOs(void)
 		R_CheckFBO(tr.occlusionRenderFBO);
 	}
 
-	if(r_shadows->integer >= SHADOWING_VSM16 && glConfig2.textureFloatAvailable)
+	if(r_shadows->integer >= SHADOWING_ESM16 && glConfig2.textureFloatAvailable)
 	{
 		// shadowMap FBOs for shadow mapping offscreen rendering
 		for(i = 0; i < MAX_SHADOWMAPS; i++)
@@ -660,13 +660,24 @@ void R_InitFBOs(void)
 
 			if((glConfig.driverType == GLDRV_OPENGL3) || (glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10))
 			{
-				if(r_shadows->integer == SHADOWING_VSM32)
+				if(r_shadows->integer == SHADOWING_ESM32)
+				{
+					R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_ALPHA32F_ARB, 0);
+				}
+				else if(r_shadows->integer == SHADOWING_VSM32)
 				{
 					R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_LUMINANCE_ALPHA32F_ARB, 0);
 				}
 				else if(r_shadows->integer == SHADOWING_EVSM32)
 				{
-					R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_ALPHA32F_ARB, 0);
+					if(r_evsmPostProcess->integer)
+					{
+						R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_ALPHA32F_ARB, 0);
+					}
+					else
+					{
+						R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA32F_ARB, 0);
+					}
 				}
 				else
 				{
@@ -675,13 +686,13 @@ void R_InitFBOs(void)
 			}
 			else
 			{
-				if(r_shadows->integer == SHADOWING_VSM16)
-				{
-					R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_LUMINANCE_ALPHA16F_ARB, 0);
-				}
-				else if(r_shadows->integer == SHADOWING_EVSM16)
+				if(r_shadows->integer == SHADOWING_ESM16)
 				{
 					R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_ALPHA16F_ARB, 0);
+				}
+				else if(r_shadows->integer == SHADOWING_VSM16)
+				{
+					R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_LUMINANCE_ALPHA16F_ARB, 0);
 				}
 				else
 				{
@@ -705,13 +716,20 @@ void R_InitFBOs(void)
 
 			if((glConfig.driverType == GLDRV_OPENGL3) || (glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10))
 			{
-				if(r_shadows->integer == SHADOWING_VSM32)
+				if(r_shadows->integer == SHADOWING_ESM32)
+				{
+					R_CreateFBOColorBuffer(tr.sunShadowMapFBO[i], GL_ALPHA32F_ARB, 0);
+				}
+				else if(r_shadows->integer == SHADOWING_VSM32)
 				{
 					R_CreateFBOColorBuffer(tr.sunShadowMapFBO[i], GL_LUMINANCE_ALPHA32F_ARB, 0);
 				}
 				else if(r_shadows->integer == SHADOWING_EVSM32)
 				{
-					R_CreateFBOColorBuffer(tr.sunShadowMapFBO[i], GL_ALPHA32F_ARB, 0);
+					if(!r_evsmPostProcess->integer)
+					{
+						R_CreateFBOColorBuffer(tr.sunShadowMapFBO[i], GL_RGBA32F_ARB, 0);
+					}
 				}
 				else
 				{
@@ -720,13 +738,13 @@ void R_InitFBOs(void)
 			}
 			else
 			{
-				if(r_shadows->integer == SHADOWING_VSM16)
-				{
-					R_CreateFBOColorBuffer(tr.sunShadowMapFBO[i], GL_LUMINANCE_ALPHA16F_ARB, 0);
-				}
-				else if(r_shadows->integer == SHADOWING_EVSM16)
+				if(r_shadows->integer == SHADOWING_ESM16)
 				{
 					R_CreateFBOColorBuffer(tr.sunShadowMapFBO[i], GL_ALPHA16F_ARB, 0);
+				}
+				else if(r_shadows->integer == SHADOWING_VSM16)
+				{
+					R_CreateFBOColorBuffer(tr.sunShadowMapFBO[i], GL_LUMINANCE_ALPHA16F_ARB, 0);
 				}
 				else
 				{
@@ -735,6 +753,19 @@ void R_InitFBOs(void)
 			}
 
 			R_CreateFBODepthBuffer(tr.sunShadowMapFBO[i], GL_DEPTH_COMPONENT24_ARB);
+
+			if(r_shadows->integer == SHADOWING_EVSM32 && r_evsmPostProcess->integer)
+			{
+				R_AttachFBOTextureDepth(tr.sunShadowMapFBOImage[i]->texnum);
+
+				/*
+				Since we don’t have a color attachment the framebuffer will be considered incomplete. 
+				Consequently, we must inform the driver that we do not wish to render to the color buffer. 
+				We do this with a call to set the draw-buffer and read-buffer to GL_NONE:
+				*/
+				glDrawBuffer(GL_NONE);
+				glReadBuffer(GL_NONE);
+			}
 
 			R_CheckFBO(tr.sunShadowMapFBO[i]);
 		}
