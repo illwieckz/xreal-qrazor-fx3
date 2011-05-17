@@ -1499,7 +1499,7 @@ void R_Register(void)
 	r_mergeClusterCurves = ri.Cvar_Get("r_mergeClusterCurves", "1", CVAR_CHEAT);
 	r_mergeClusterTriangles = ri.Cvar_Get("r_mergeClusterTriangles", "1", CVAR_CHEAT);
 
-	r_dynamicBspOcclusionCulling = ri.Cvar_Get("r_dynamicBspOcclusionCulling", "0", CVAR_CHEAT);
+	r_dynamicBspOcclusionCulling = ri.Cvar_Get("r_dynamicBspOcclusionCulling", "0", CVAR_ARCHIVE);
 	r_dynamicEntityOcclusionCulling = ri.Cvar_Get("r_dynamicEntityOcclusionCulling", "0", CVAR_CHEAT);
 	r_dynamicLightOcclusionCulling = ri.Cvar_Get("r_dynamicLightOcclusionCulling", "0", CVAR_CHEAT);
 	r_chcMaxPrevInvisNodesBatchSize = ri.Cvar_Get("r_chcMaxPrevInvisNodesBatchSize", "50", CVAR_CHEAT);

@@ -1607,7 +1607,7 @@ static void R_SetupProjection(qboolean infiniteFarClip)
 	}
 #else
 
-	if(zFar <= 0 || infiniteFarClip)
+	if(zFar <= 0 || infiniteFarClip || r_showBspNodes->integer)
 	{
 		MatrixPerspectiveProjectionFovXYInfiniteRH(proj, tr.refdef.fov_x, tr.refdef.fov_y, zNear);
 	}
