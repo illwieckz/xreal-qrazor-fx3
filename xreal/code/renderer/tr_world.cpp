@@ -1686,6 +1686,7 @@ static void PullUpVisibility(bspNode_t * node)
 	};
 }
 
+/*
 static void PushNode(link_t * traversalStack, bspNode_t * node)
 {
 	if(node->contents != -1)
@@ -1732,6 +1733,7 @@ static void PushNode(link_t * traversalStack, bspNode_t * node)
 		}
 	}
 }
+*/
 
 static void TraverseNode(link_t * distanceQueue, bspNode_t * node)
 {
@@ -1741,8 +1743,6 @@ static void TraverseNode(link_t * distanceQueue, bspNode_t * node)
 	}
 	else
 	{
-		node->visible[tr.viewCount] = qfalse;
-
 		EnQueue(distanceQueue, node->children[0]);
 		EnQueue(distanceQueue, node->children[1]);
 
@@ -1798,8 +1798,8 @@ static void R_CoherentHierachicalCulling()
 	bspNode_t      *node;
 	bspNode_t      *multiQueryNode;
 
-	link_t			traversalStack;
-//	link_t			distanceQueue;
+//	link_t			traversalStack;
+	link_t			distanceQueue;
 	link_t			occlusionQueryQueue;
 	link_t			visibleQueue; // CHC++
 	link_t			invisibleQueue; // CHC++
@@ -1901,15 +1901,15 @@ static void R_CoherentHierachicalCulling()
 	QueueInit(&tr.occlusionQueryQueue);
 	ClearLink(&tr.occlusionQueryList);
 
-	ClearLink(&traversalStack);
-	//QueueInit(&distanceQueue);
+	//ClearLink(&traversalStack);
+	QueueInit(&distanceQueue);
 	QueueInit(&occlusionQueryQueue);
 	QueueInit(&visibleQueue);
 	QueueInit(&invisibleQueue);
 	//QueueInit(&renderQueue);
 
-	//EnQueue(&distanceQueue, &tr.world->nodes[0]);
-	StackPush(&traversalStack, &tr.world->nodes[0]);
+	EnQueue(&distanceQueue, &tr.world->nodes[0]);
+	//StackPush(&traversalStack, &tr.world->nodes[0]);
 
 	/*
 	ClearLink(&traversalStack);
@@ -1920,17 +1920,15 @@ static void R_CoherentHierachicalCulling()
 	traversalStack.numElements++;
 	*/
 
-	CHCLoop:
-
-	while(!StackEmpty(&traversalStack) || !QueueEmpty(&occlusionQueryQueue))// || !QueueEmpty(&invisibleQueue))
+	while(!QueueEmpty(&distanceQueue) || !QueueEmpty(&occlusionQueryQueue) || !QueueEmpty(&invisibleQueue) || !QueueEmpty(&visibleQueue))
 	{
 		if(r_logFile->integer)
 		{
-			GLimp_LogComment(va("--- (traversalStack = %i, occlusionQueryQueue = %i, visibleQueue = %i, invisibleQueue = %i)\n", traversalStack.numElements, QueueSize(&occlusionQueryQueue), QueueSize(&visibleQueue), QueueSize(&invisibleQueue)));
+			GLimp_LogComment(va("--- (distanceQueue = %i, occlusionQueryQueue = %i, invisibleQueue = %i, visibleQueue = %i)\n", QueueSize(&distanceQueue), QueueSize(&occlusionQueryQueue), QueueSize(&invisibleQueue), QueueSize(&visibleQueue)));
 		}
 
 		//--PART 1: process finished occlusion queries
-		while(!QueueEmpty(&occlusionQueryQueue) && (ResultAvailable((bspNode_t *) QueueFront(&occlusionQueryQueue)->data) || StackEmpty(&traversalStack)))//QueueEmpty(&distanceQueue)))
+		while(!QueueEmpty(&occlusionQueryQueue) && (ResultAvailable((bspNode_t *) QueueFront(&occlusionQueryQueue)->data) || QueueEmpty(&distanceQueue)))
 		{
 			if(ResultAvailable((bspNode_t *) QueueFront(&occlusionQueryQueue)->data))
 			{
@@ -1958,7 +1956,12 @@ static void R_CoherentHierachicalCulling()
 						{
 							node = (bspNode_t *) DeQueue(&multiQueryNode->multiQuery);
 
-							IssueOcclusionQuery(&occlusionQueryQueue, node, qtrue);
+							// it might be possible that a leaf caused this node to be visible by a PullUpVisibility() call
+							// so avoid a further query
+							if(!(node->visible[tr.viewCount] && tr.frameCount == node->lastVisited[tr.viewCount]))
+							{
+								IssueOcclusionQuery(&occlusionQueryQueue, node, qtrue);
+							}
 						}
 					}
 					else
@@ -1968,18 +1971,16 @@ static void R_CoherentHierachicalCulling()
 							GLimp_LogComment(va("single query node %i visible\n", node - tr.world->nodes));
 						}
 
-						if(r_dynamicBspOcclusionCulling->integer == 3)
+						if(r_dynamicBspOcclusionCulling->integer == 1)
 						{
 							if(!WasVisible(node))
 							{
-								//TraverseNode(&distanceQueue, node);
-								PushNode(&traversalStack, node);
+								TraverseNode(&distanceQueue, node);
 							}
 						}
 						else
 						{
-							//TraverseNode(&distanceQueue, node);
-							PushNode(&traversalStack, node);
+							TraverseNode(&distanceQueue, node);
 						}
 
 						PullUpVisibility(node);
@@ -1992,7 +1993,6 @@ static void R_CoherentHierachicalCulling()
 					if(!QueueEmpty(&node->multiQuery))
 					{
 						// node was an invisible multi query node so dequeue all its children
-
 						multiQueryNode = node;
 						while(!QueueEmpty(&multiQueryNode->multiQuery))
 						{
@@ -2005,7 +2005,8 @@ static void R_CoherentHierachicalCulling()
 					}
 				}
 			}
-			else if(r_dynamicBspOcclusionCulling->integer == 3)
+			#if 1
+			else if(r_dynamicBspOcclusionCulling->integer == 1)
 			{
 				if(!QueueEmpty(&visibleQueue))
 				{
@@ -2014,13 +2015,15 @@ static void R_CoherentHierachicalCulling()
 					IssueOcclusionQuery(&occlusionQueryQueue, node, qtrue);
 				}
 			}
+			#endif
+
 		} // end while(!QueueEmpty(&occlusionQueryQueue))
 
 		//--PART 2: hierarchical traversal
-		if(!StackEmpty(&traversalStack)) //if(!QueueEmpty(&distanceQueue))
+		if(!QueueEmpty(&distanceQueue)) //if(!StackEmpty(&traversalStack))
 		{
-			//node = (bspNode_t *) DeQueue(&distanceQueue);
-			node = (bspNode_t *) StackPop(&traversalStack);
+			node = (bspNode_t *) DeQueue(&distanceQueue);
+			//node = (bspNode_t *) StackPop(&traversalStack);
 
 			/*
 			link_t* top = traversalStack.next;
@@ -2042,7 +2045,7 @@ static void R_CoherentHierachicalCulling()
 				// identify previously visible nodes
 				wasVisible = WasVisible(node);
 
-				if(r_dynamicBspOcclusionCulling->integer == 1)
+				if(r_dynamicBspOcclusionCulling->integer > 1)
 				{
 					// reset node's visibility classification
 					node->visible[tr.viewCount] = (qboolean) !QueryReasonable(node);
@@ -2050,7 +2053,6 @@ static void R_CoherentHierachicalCulling()
 
 				// identify nodes that we cannot skip queries for
 
-				// reset node's visibility classification
 				clipsNearPlane = (BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustums[0][FRUSTUM_NEAR]) == 3);
 				if(clipsNearPlane)
 				{
@@ -2061,18 +2063,8 @@ static void R_CoherentHierachicalCulling()
 
 					needsQuery = qfalse;
 				}
-				else if(r_dynamicBspOcclusionCulling->integer == 2 && node->contents == -1)
-				{
-					// setting all BSP nodes to visible will traverse to all leaves
-					// this has the advantage that we can group leaf queries which will save really many occlusion queries
-					node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
-					node->lastQueried[tr.viewCount] = tr.frameCount;
-					node->visible[tr.viewCount] = qtrue;
-
-					needsQuery = qfalse;
-				}
-#if 1
-				else if((r_dynamicBspOcclusionCulling->integer == 1 /*|| r_dynamicBspOcclusionCulling->integer == 3*/) && node->contents != -1)
+#if 0
+				else if((r_dynamicBspOcclusionCulling->integer != 1 /*|| r_dynamicBspOcclusionCulling->integer == 3*/) && node->contents != -1)
 				{
 					// NOTE: this is the fastest dynamic occlusion culling path
 
@@ -2107,7 +2099,7 @@ static void R_CoherentHierachicalCulling()
 
 				if(!wasVisible && !clipsNearPlane)
 				{
-					if(r_dynamicBspOcclusionCulling->integer == 3)
+					if(r_dynamicBspOcclusionCulling->integer == 1)
 					{
 						if(r_logFile->integer)
 						{
@@ -2126,7 +2118,8 @@ static void R_CoherentHierachicalCulling()
 				}
 				else
 				{
-					if(r_dynamicBspOcclusionCulling->integer == 3)
+					#if 1
+					if(r_dynamicBspOcclusionCulling->integer == 1)
 					{
 						if((node->contents != -1) && !clipsNearPlane && QueryReasonable(node))
 						{
@@ -2138,44 +2131,47 @@ static void R_CoherentHierachicalCulling()
 							EnQueue(&visibleQueue, node);
 						}
 					}
+					#endif
 
 					// always traverse a node if it was visible
-					//TraverseNode(&distanceQueue, node);
-					PushNode(&traversalStack, node);
+					TraverseNode(&distanceQueue, node);
+
+					//if(clipsNearPlane)
+					//{
+					//	PullUpVisibility(node);
+					//}
 				}
 			}
 		}
 		
 
-		if(r_dynamicBspOcclusionCulling->integer == 3)
+		if(r_dynamicBspOcclusionCulling->integer == 1)
 		{
-			//if(QueueEmpty(&distanceQueue))
-			if(StackEmpty(&traversalStack))
+			if(QueueEmpty(&distanceQueue))
+			//if(StackEmpty(&traversalStack))
 			{
 				// remaining previously visible node queries
-				IssueMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
+				if(!QueueEmpty(&invisibleQueue))
+				{
+					IssueMultiOcclusionQueries(&invisibleQueue, &occlusionQueryQueue);
+				}
 
-				//ri.Printf(PRINT_ALL, "occlusionQueryQueue.empty() = %i\n", QueueEmpty(&occlusionQueryQueue));
+				if(!QueueEmpty(&visibleQueue))
+				{
+					while(!QueueEmpty(&visibleQueue))
+					{
+						node = (bspNode_t *) DeQueue(&visibleQueue);
+
+						IssueOcclusionQuery(&occlusionQueryQueue, node, qtrue);
+					}
+				}
 			}
 		}
 
 		//ri.Printf(PRINT_ALL, "--- (%i, %i, %i)\n", !StackEmpty(&traversalStack), !QueueEmpty(&occlusionQueryQueue), !QueueEmpty(&invisibleQueue));
 	}
 
-	if(r_dynamicBspOcclusionCulling->integer == 3)
-	{
-		if(!QueueEmpty(&visibleQueue))
-		{
-			while(!QueueEmpty(&visibleQueue))
-			{
-				node = (bspNode_t *) DeQueue(&visibleQueue);
-
-				IssueOcclusionQuery(&occlusionQueryQueue, node, qtrue);
-			}
-
-			//goto CHCLoop;
-		}
-	}
+	
 
 	ClearLink(&tr.traversalStack);
 	BuildNodeTraversalStackPost_r(&tr.world->nodes[0]);
