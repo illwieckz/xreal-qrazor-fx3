@@ -1309,9 +1309,10 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 
 		if(image->filterType == FT_DEFAULT)
 		{
-			if(glConfig.driverType == GLDRV_OPENGL3 || glConfig2.framebufferObjectAvailable)
+			if(glConfig.driverType == GLDRV_OPENGL3)// || glConfig2.framebufferObjectAvailable)
 			{
 				glGenerateMipmap(image->type);
+				glTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilinear
 			}
 			else if(glConfig2.generateMipmapAvailable)
 			{
