@@ -9750,7 +9750,7 @@ static void RB_RenderDebugUtils()
 		bspNode_t      *node;
 		link_t		   *l, *sentinel;
 
-		if(backEnd.refdef.rdflags & (RDF_NOWORLDMODEL))
+		if((backEnd.refdef.rdflags & (RDF_NOWORLDMODEL)) || !tr.world)
 		{
 			return;
 		}
@@ -9764,16 +9764,8 @@ static void RB_RenderDebugUtils()
 
 		gl_genericShader->BindProgram();
 
-		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
-		GL_Cull(CT_TWO_SIDED);
-
 		// set uniforms
 		gl_genericShader->SetUniform_ColorModulate(CGEN_CUSTOM_RGB, AGEN_CUSTOM);
-
-		// set up the transformation matrix
-		backEnd.orientation = backEnd.viewParms.world;
-		GL_LoadModelViewMatrix(backEnd.orientation.modelViewMatrix);
-		gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -9782,110 +9774,298 @@ static void RB_RenderDebugUtils()
 
 		GL_CheckErrors();
 
-		if(r_dynamicBspOcclusionCulling->integer)
+		
+		for(int i = 0; i < 2; i++)
 		{
-			//sentinel = &tr.occlusionQueryList;
-			sentinel = &tr.traversalStack;
-		}
-		else
-		{
-			sentinel = &tr.traversalStack;
-		}
+			float		x, y, w, h;
+			matrix_t	ortho;
+			vec4_t		quadVerts[4];
 
-		for(l = sentinel->next; l != sentinel; l = l->next)
-		{
-			node = (bspNode_t *) l->data;
-
-			if(!r_dynamicBspOcclusionCulling->integer)
+			if(i == 1)
 			{
-				if(node->contents != -1)
-				{
-					if(r_showBspNodes->integer == 3)
-						continue;
+				// set 2D virtual screen size
+				GL_PushMatrix();
+				MatrixOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+											backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+											backEnd.viewParms.viewportY,
+											backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+				GL_LoadProjectionMatrix(ortho);
+				GL_LoadModelViewMatrix(matrixIdentity);
+			
+				GL_Cull(CT_TWO_SIDED);
+				GL_State(GLS_DEPTHTEST_DISABLE);
 
-					if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
-						gl_genericShader->SetUniform_Color(colorGreen);
-					else
-						gl_genericShader->SetUniform_Color(colorRed);
-				}
-				else
-				{
-					if(r_showBspNodes->integer == 2)
-						continue;
+				gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+				gl_genericShader->SetUniform_Color(colorBlack);
 
-					if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
-						gl_genericShader->SetUniform_Color(colorYellow);
-					else
-						gl_genericShader->SetUniform_Color(colorBlue);
+				w = 300;
+				h = 300;
+
+				x = 20;
+				y = 90;
+
+				Vector4Set(quadVerts[0], x, y, 0, 1);
+				Vector4Set(quadVerts[1], x + w, y, 0, 1);
+				Vector4Set(quadVerts[2], x + w, y + h, 0, 1);
+				Vector4Set(quadVerts[3], x, y + h, 0, 1);
+
+				Tess_InstantQuad(quadVerts);
+
+				{
+					int				j;
+					vec4_t			splitFrustum[6];
+					vec3_t          farCorners[4];
+					vec3_t          nearCorners[4];
+					vec3_t			cropBounds[2];
+					vec4_t			point, transf;
+
+					GL_Viewport(x, y, w, h);
+					GL_Scissor(x, y, w, h);
+
+					GL_PushMatrix();
+
+					// calculate top down view projection matrix
+					{
+						vec3_t			forward = {0, 0, -1};
+						vec3_t			up = {1, 0, 0};
+
+						matrix_t		rotationMatrix, transformMatrix, viewMatrix, projectionMatrix;
+						
+						
+						// Quake -> OpenGL view matrix from light perspective
+						#if 0
+						VectorToAngles(lightDirection, angles);
+						MatrixFromAngles(rotationMatrix, angles[PITCH], angles[YAW], angles[ROLL]);
+						MatrixSetupTransformFromRotation(transformMatrix, rotationMatrix, backEnd.viewParms.orientation.origin);
+						MatrixAffineInverse(transformMatrix, viewMatrix);
+						MatrixMultiply(quakeToOpenGLMatrix, viewMatrix, light->viewMatrix);
+						#else
+						MatrixLookAtRH(viewMatrix, backEnd.viewParms.orientation.origin, forward, up);
+						#endif
+
+						//ClearBounds(splitFrustumBounds[0], splitFrustumBounds[1]);
+						//BoundsAdd(splitFrustumBounds[0], splitFrustumBounds[1], backEnd.viewParms.visBounds[0], backEnd.viewParms.visBounds[1]);
+						//BoundsAdd(splitFrustumBounds[0], splitFrustumBounds[1], light->worldBounds[0], light->worldBounds[1]);
+
+						ClearBounds(cropBounds[0], cropBounds[1]);
+						for(j = 0; j < 8; j++)
+						{
+							point[0] = tr.world->models[0].bounds[j & 1][0];
+							point[1] = tr.world->models[0].bounds[(j >> 1) & 1][1];
+							point[2] = tr.world->models[0].bounds[(j >> 2) & 1][2];
+							point[3] = 1;
+
+							MatrixTransform4(viewMatrix, point, transf);
+							transf[0] /= transf[3];
+							transf[1] /= transf[3];
+							transf[2] /= transf[3];
+
+							AddPointToBounds(transf, cropBounds[0], cropBounds[1]);
+						}
+
+						
+						MatrixOrthogonalProjectionRH(projectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], -cropBounds[1][2], -cropBounds[0][2]);
+
+						GL_LoadModelViewMatrix(viewMatrix);
+						GL_LoadProjectionMatrix(projectionMatrix);
+					}
+					
+
+					// set uniforms
+					gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
+					gl_genericShader->SetUniform_Color(colorBlack);
+
+					GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
+					GL_Cull(CT_TWO_SIDED);
+
+					// bind u_ColorMap
+					GL_SelectTexture(0);
+					GL_Bind(tr.whiteImage);
+					gl_genericShader->SetUniform_ColorTextureMatrix(matrixIdentity);
+
+					gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+					tess.multiDrawPrimitives = 0;
+					tess.numIndexes = 0;
+					tess.numVertexes = 0;
+
+					for(j = 0; j < 6; j++)
+					{
+						VectorCopy(backEnd.viewParms.frustums[0][j].normal, splitFrustum[j]);
+						splitFrustum[j][3] = backEnd.viewParms.frustums[0][j].dist;
+					}
+
+					// calculate split frustum corner points
+					PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_NEAR], nearCorners[0]);
+					PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_NEAR], nearCorners[1]);
+					PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_NEAR], nearCorners[2]);
+					PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_NEAR], nearCorners[3]);
+
+					PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_FAR], farCorners[0]);
+					PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_TOP], splitFrustum[FRUSTUM_FAR], farCorners[1]);
+					PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_RIGHT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_FAR], farCorners[2]);
+					PlanesGetIntersectionPoint(splitFrustum[FRUSTUM_LEFT], splitFrustum[FRUSTUM_BOTTOM], splitFrustum[FRUSTUM_FAR], farCorners[3]);
+
+					// draw outer surfaces
+					for(j = 0; j < 4; j++)
+					{
+						Vector4Set(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
+						Vector4Set(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
+						Vector4Set(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
+						Vector4Set(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
+						Tess_AddQuadStamp2(quadVerts, colorCyan);
+					}
+
+					// draw far cap
+					Vector4Set(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+					Vector4Set(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+					Vector4Set(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+					Vector4Set(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+					Tess_AddQuadStamp2(quadVerts, colorBlue);
+
+					// draw near cap
+					Vector4Set(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
+					Vector4Set(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
+					Vector4Set(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
+					Vector4Set(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
+					Tess_AddQuadStamp2(quadVerts, colorGreen);
+
+					Tess_UpdateVBOs(ATTR_POSITION | ATTR_COLOR);
+					Tess_DrawElements();
+
+					gl_genericShader->SetUniform_ColorModulate(CGEN_CUSTOM_RGB, AGEN_CUSTOM);
 				}
-			}
+			} // i == 1
 			else
 			{
-				if(node->lastVisited[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
-					continue;
+				GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
+				GL_Cull(CT_TWO_SIDED);
 
-				if(r_showBspNodes->integer == 5 && node->lastQueried[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
-					continue;
+				// render in world space
+				backEnd.orientation = backEnd.viewParms.world;
 
-				if(node->contents != -1)
+				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+				GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+
+				gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+			}
+
+			// draw BSP nodes
+			sentinel = &tr.traversalStack;
+			for(l = sentinel->next; l != sentinel; l = l->next)
+			{
+				node = (bspNode_t *) l->data;
+
+				if(!r_dynamicBspOcclusionCulling->integer)
 				{
-					if(r_showBspNodes->integer == 3)
-						continue;
+					if(node->contents != -1)
+					{
+						if(r_showBspNodes->integer == 3)
+							continue;
 
-					//if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
-					if(node->visible[backEnd.viewParms.viewCount])
-						gl_genericShader->SetUniform_Color(colorGreen);
+						if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
+							gl_genericShader->SetUniform_Color(colorGreen);
+						else
+							gl_genericShader->SetUniform_Color(colorRed);
+					}
 					else
-						gl_genericShader->SetUniform_Color(colorRed);
+					{
+						if(r_showBspNodes->integer == 2)
+							continue;
+
+						if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
+							gl_genericShader->SetUniform_Color(colorYellow);
+						else
+							gl_genericShader->SetUniform_Color(colorBlue);
+					}
 				}
 				else
 				{
-					if(r_showBspNodes->integer == 2)
+					if(node->lastVisited[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
 						continue;
 
-					//if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
-					if(node->visible[backEnd.viewParms.viewCount])
-						gl_genericShader->SetUniform_Color(colorYellow);
+					if(r_showBspNodes->integer == 5 && node->lastQueried[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
+						continue;
+
+					if(node->contents != -1)
+					{
+						if(r_showBspNodes->integer == 3)
+							continue;
+
+						//if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
+						if(node->visible[backEnd.viewParms.viewCount])
+							gl_genericShader->SetUniform_Color(colorGreen);
+						else
+							gl_genericShader->SetUniform_Color(colorRed);
+					}
 					else
-						gl_genericShader->SetUniform_Color(colorBlue);
+					{
+						if(r_showBspNodes->integer == 2)
+							continue;
+
+						//if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
+						if(node->visible[backEnd.viewParms.viewCount])
+							gl_genericShader->SetUniform_Color(colorYellow);
+						else
+							gl_genericShader->SetUniform_Color(colorBlue);
+					}
+
+					if(r_showBspNodes->integer == 4)
+					{
+						gl_genericShader->SetUniform_Color(g_color_table[ColorIndex(node->occlusionQueryNumbers[backEnd.viewParms.viewCount])]);
+					}
+
+					GL_CheckErrors();
 				}
 
-				if(r_showBspNodes->integer == 4)
+				if(node->contents != -1)
 				{
-					gl_genericShader->SetUniform_Color(g_color_table[ColorIndex(node->occlusionQueryNumbers[backEnd.viewParms.viewCount])]);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					GL_PolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
 				}
 
-				GL_CheckErrors();
+				R_BindVBO(node->volumeVBO);
+				R_BindIBO(node->volumeIBO);
+
+				GL_VertexAttribsState(ATTR_POSITION);
+
+				tess.multiDrawPrimitives = 0;
+				tess.numVertexes = node->volumeVerts;
+				tess.numIndexes = node->volumeIndexes;
+
+				Tess_DrawElements();
+
+				tess.numIndexes = 0;
+				tess.numVertexes = 0;
+
+				if(node->contents != -1)
+				{
+					glDisable(GL_POLYGON_OFFSET_FILL);
+				}
 			}
 
-			if(node->contents != -1)
+			if(i == 1)
 			{
-				glEnable(GL_POLYGON_OFFSET_FILL);
-				GL_PolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
-			}
+				tess.multiDrawPrimitives = 0;
+				tess.numIndexes = 0;
+				tess.numVertexes = 0;
 
-			R_BindVBO(node->volumeVBO);
-			R_BindIBO(node->volumeIBO);
+				GL_PopMatrix();
 
-			GL_VertexAttribsState(ATTR_POSITION);
+				GL_Viewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+							backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
-			tess.multiDrawPrimitives = 0;
-			tess.numVertexes = node->volumeVerts;
-			tess.numIndexes = node->volumeIndexes;
+				GL_Scissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+						   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
-			Tess_DrawElements();
-
-			tess.numIndexes = 0;
-			tess.numVertexes = 0;
-
-			if(node->contents != -1)
-			{
-				glDisable(GL_POLYGON_OFFSET_FILL);
+				GL_PopMatrix();
 			}
 		}
 
 		// go back to the world modelview matrix
 		backEnd.orientation = backEnd.viewParms.world;
+
+		GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
 

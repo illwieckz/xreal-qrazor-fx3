@@ -5236,7 +5236,7 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 		//	ri.Error(ERR_DROP, "leaf %i is empty", j);
 
 		Com_Memset(out->lastVisited, -1, sizeof(out->lastVisited));
-		Com_Memset(out->visible, qtrue, sizeof(out->visible));
+		Com_Memset(out->visible, qfalse, sizeof(out->visible));
 		//out->occlusionQuerySamples[0] = 1;
 
 		InitLink(&out->visChain, out);

@@ -1450,7 +1450,16 @@ static void IssueOcclusionQuery(link_t * queue, bspNode_t * node, qboolean reset
 {
 	if(r_logFile->integer)
 	{
-		GLimp_LogComment(va("--- IssueOcclusionQuery(%i) ---\n", node - tr.world->nodes));
+		if(node->contents != -1)// && !(node->contents & CONTENTS_TRANSLUCENT))
+		{
+			GLimp_LogComment(va("--- IssueOcclusionQuery( leaf = %i ) ---\n", node - tr.world->nodes));
+			gl_genericShader->SetUniform_Color(colorGreen);
+		}
+		else
+		{
+			GLimp_LogComment(va("--- IssueOcclusionQuery( node = %i ) ---\n", node - tr.world->nodes));
+			gl_genericShader->SetUniform_Color(colorMdGrey);
+		}
 	}
 
 	EnQueue(queue, node);
@@ -1460,8 +1469,6 @@ static void IssueOcclusionQuery(link_t * queue, bspNode_t * node, qboolean reset
 	{
 		QueueInit(&node->multiQuery);
 	}
-
-	//Tess_EndBegin();
 
 	GL_CheckErrors();
 
@@ -1500,12 +1507,13 @@ static void IssueOcclusionQuery(link_t * queue, bspNode_t * node, qboolean reset
 	node->occlusionQueryNumbers[tr.viewCount] = tr.pc.c_occlusionQueries;
 	tr.pc.c_occlusionQueries++;
 
+	tess.multiDrawPrimitives = 0;
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 
 	GL_CheckErrors();
 
-	GLimp_LogComment("--- IssueMultiOcclusionQuery end ---\n");
+	GLimp_LogComment("--- IssueOcclusionQuery end ---\n");
 }
 
 static void IssueMultiOcclusionQueries(link_t * multiQueue, link_t * individualQueue)
@@ -1550,6 +1558,15 @@ static void IssueMultiOcclusionQueries(link_t * multiQueue, link_t * individualQ
 	for(l = multiQueue->prev; l != multiQueue; l = l->prev)
 	{
 		node = (bspNode_t *) l->data;
+
+		if(node->contents != -1)// && !(node->contents & CONTENTS_TRANSLUCENT))
+		{
+			gl_genericShader->SetUniform_Color(colorGreen);
+		}
+		else
+		{
+			gl_genericShader->SetUniform_Color(colorMdGrey);
+		}
 
 		//if(r_logFile->integer)
 		//{
@@ -1737,6 +1754,39 @@ static void PushNode(link_t * traversalStack, bspNode_t * node)
 
 static void TraverseNode(link_t * distanceQueue, bspNode_t * node)
 {
+	if(r_logFile->integer)
+	{
+		if(node->contents != -1)
+		{
+			GLimp_LogComment(va("--- TraverseNode( leaf = %i ) ---\n", node - tr.world->nodes));
+
+			gl_genericShader->SetUniform_Color(colorGreen);
+		}
+		else
+		{
+			GLimp_LogComment(va("--- TraverseNode( node = %i ) ---\n", node - tr.world->nodes));
+
+			gl_genericShader->SetUniform_Color(colorMdGrey);
+		}
+
+		// draw bsp leave or node
+		{
+			R_BindVBO(node->volumeVBO);
+			R_BindIBO(node->volumeIBO);
+
+			GL_VertexAttribsState(ATTR_POSITION);
+
+			tess.numVertexes = node->volumeVerts;
+			tess.numIndexes = node->volumeIndexes;
+
+			Tess_DrawElements();
+
+			tess.multiDrawPrimitives = 0;
+			tess.numIndexes = 0;
+			tess.numVertexes = 0;
+		}
+	}
+
 	if(node->contents != -1)
 	{
 		//DrawLeaf(node, tr.refdef.decalBits);
@@ -1761,6 +1811,18 @@ static void BuildNodeTraversalStackPost_r(bspNode_t * node)
 		if(tr.frameCount != node->lastVisited[tr.viewCount])
 		{
 			return;
+		}
+
+		if(r_logFile->integer)
+		{
+			if(node->contents != -1)
+			{
+				GLimp_LogComment(va("--- BuildNodeTraversalStackPost_r( leaf = %i, visible = %i ) ---\n", node - tr.world->nodes, node->visible[tr.viewCount]));
+			}
+			else
+			{
+				GLimp_LogComment(va("--- BuildNodeTraversalStackPost_r( node = %i, visible = %i ) ---\n", node - tr.world->nodes, node->visible[tr.viewCount]));
+			}
 		}
 
 		InsertLink(&node->visChain, &tr.traversalStack);
@@ -1806,10 +1868,6 @@ static void R_CoherentHierachicalCulling()
 	//link_t		renderQueue;
 	int             startTime = 0, endTime = 0;
 
-	bool			wasVisible;
-	bool			clipsNearPlane;
-	bool			needsQuery;
-
 	//ri.Cvar_Set("r_logFile", "1");
 
 	GLimp_LogComment("--- R_CoherentHierachicalCulling ---\n");
@@ -1838,6 +1896,7 @@ static void R_CoherentHierachicalCulling()
 		R_BindNullFBO();
 	}
 
+	gl_genericShader->DisableAlphaTesting();
 	gl_genericShader->DisablePortalClipping();
 	gl_genericShader->DisableVertexSkinning();
 	gl_genericShader->DisableVertexAnimation();
@@ -1888,14 +1947,20 @@ static void R_CoherentHierachicalCulling()
 
 	// draw BSP leaf volumes to depth
 	DrawNode_r(&tr.world->nodes[0], FRUSTUM_CLIPALL);
-
-	GL_State(GLS_COLORMASK_BITS);
-#else
-	// use the depth buffer of the previous frame for occlusion culling
-	GL_State(GLS_COLORMASK_BITS);
 #endif
 
+	if(r_logFile->integer)
+	{
+		GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 
+		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+	}
+	else
+	{
+		// use the depth buffer of the previous frame for occlusion culling
+		GL_State(GLS_COLORMASK_BITS);
+	}
 
 	ClearLink(&tr.traversalStack);
 	QueueInit(&tr.occlusionQueryQueue);
@@ -2043,7 +2108,7 @@ static void R_CoherentHierachicalCulling()
 			)
 			{
 				// identify previously visible nodes
-				wasVisible = WasVisible(node);
+				bool wasVisible = WasVisible(node);
 
 				if(r_dynamicBspOcclusionCulling->integer > 1)
 				{
@@ -2052,32 +2117,33 @@ static void R_CoherentHierachicalCulling()
 				}
 
 				// identify nodes that we cannot skip queries for
+				bool needsQuery;
 
-				clipsNearPlane = (BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustums[0][FRUSTUM_NEAR]) == 3);
+				bool clipsNearPlane = (BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustums[0][FRUSTUM_NEAR]) == 3);
 				if(clipsNearPlane)
 				{
 					// node clips near plane so avoid the occlusion query test
-					node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
-					node->lastQueried[tr.viewCount] = tr.frameCount;
+					//node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
+					//node->lastQueried[tr.viewCount] = tr.frameCount;
 					node->visible[tr.viewCount] = qtrue;
 
-					needsQuery = qfalse;
+					needsQuery = false;
 				}
-#if 0
-				else if((r_dynamicBspOcclusionCulling->integer != 1 /*|| r_dynamicBspOcclusionCulling->integer == 3*/) && node->contents != -1)
+				#if 0
+				else if(r_chcIgnoreLeaves->integer && node->contents != -1)
 				{
 					// NOTE: this is the fastest dynamic occlusion culling path
 
 					// only very few leaves are invisible if we don't traverse through all bsp nodes
 					// so testing these leaves just causes additional occlusion queries which can be avoided
 					// by setting all reached leaves to visible
-					node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
-					node->lastQueried[tr.viewCount] = tr.frameCount;
+					//node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
+					//node->lastQueried[tr.viewCount] = tr.frameCount;
 					node->visible[tr.viewCount] = qtrue;
 
-					needsQuery = qfalse;
+					needsQuery = false;
 				}
-#endif
+				#endif
 				else
 				{
 					// CHC default
@@ -2097,9 +2163,23 @@ static void R_CoherentHierachicalCulling()
 				#endif
 
 
-				if(!wasVisible && !clipsNearPlane)
+				bool leafThatNeedsQuery = node->contents != -1;
+				if(leafThatNeedsQuery)
 				{
-					if(r_dynamicBspOcclusionCulling->integer == 1)
+					if(r_chcIgnoreLeaves->integer)
+						leafThatNeedsQuery = false;
+				}
+				else
+				{
+					leafThatNeedsQuery = true;
+				}
+
+
+				if(r_dynamicBspOcclusionCulling->integer == 1)
+				{
+					// CHC++
+
+					if(!wasVisible && !clipsNearPlane && leafThatNeedsQuery)
 					{
 						if(r_logFile->integer)
 						{
@@ -2113,15 +2193,8 @@ static void R_CoherentHierachicalCulling()
 					}
 					else
 					{
-						IssueOcclusionQuery(&occlusionQueryQueue, node, qtrue);
-					}
-				}
-				else
-				{
-					#if 1
-					if(r_dynamicBspOcclusionCulling->integer == 1)
-					{
-						if((node->contents != -1) && !clipsNearPlane && QueryReasonable(node))
+						#if 1
+						if((node->contents != -1) && !clipsNearPlane && QueryReasonable(node) && leafThatNeedsQuery)
 						{
 							if(r_logFile->integer)
 							{
@@ -2130,16 +2203,31 @@ static void R_CoherentHierachicalCulling()
 
 							EnQueue(&visibleQueue, node);
 						}
+						#endif
+
+						// always traverse a node if it was visible
+						TraverseNode(&distanceQueue, node);
 					}
-					#endif
+				}
+				else
+				{
+					// CHC default
 
-					// always traverse a node if it was visible
-					TraverseNode(&distanceQueue, node);
+					if(needsQuery)//!wasVisible && !clipsNearPlane)
+					{
+						IssueOcclusionQuery(&occlusionQueryQueue, node, qtrue);
+					}
 
-					//if(clipsNearPlane)
-					//{
-					//	PullUpVisibility(node);
-					//}
+					if(wasVisible)
+					{
+						// always traverse a node if it was visible
+						TraverseNode(&distanceQueue, node);
+
+						//if(clipsNearPlane)
+						//{
+						//	PullUpVisibility(node);
+						//}
+					}
 				}
 			}
 		}

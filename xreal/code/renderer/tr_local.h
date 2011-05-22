@@ -4159,6 +4159,7 @@ extern cvar_t  *r_dynamicLightOcclusionCulling;
 extern cvar_t  *r_chcMaxPrevInvisNodesBatchSize;
 extern cvar_t  *r_chcMaxVisibleFrames;
 extern cvar_t  *r_chcVisibilityThreshold;
+extern cvar_t  *r_chcIgnoreLeaves;
 
 extern cvar_t  *r_hdrRendering;
 extern cvar_t  *r_hdrMinLuminance;
