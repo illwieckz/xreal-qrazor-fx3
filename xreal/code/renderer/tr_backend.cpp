@@ -9963,6 +9963,12 @@ static void RB_RenderDebugUtils()
 						if(r_showBspNodes->integer == 3)
 							continue;
 
+						if(node->numMarkSurfaces <= 0)
+							continue;
+
+						//if(node->shrinkedAABB)
+						//	gl_genericShader->SetUniform_Color(colorBlue);
+						//else 
 						if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
 							gl_genericShader->SetUniform_Color(colorGreen);
 						else

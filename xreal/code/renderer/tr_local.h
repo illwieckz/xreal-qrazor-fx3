@@ -2947,6 +2947,7 @@ typedef struct bspNode_s
 	int             cluster;
 	int             area;
 	qboolean		sameAABBAsParent;
+	qboolean		shrinkedAABB;
 
 	int             numMarkSurfaces;
 	bspSurface_t  **markSurfaces;
