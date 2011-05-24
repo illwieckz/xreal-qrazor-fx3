@@ -1368,7 +1368,7 @@ static qboolean InsideViewFrustum(bspNode_t * node, int planeBits)
 }
 
 
-
+//#define DEBUG_CHC 1
 
 static void DrawNode_r(bspNode_t * node, int planeBits)
 {
@@ -1448,6 +1448,7 @@ static void DrawNode_r(bspNode_t * node, int planeBits)
 
 static void IssueOcclusionQuery(link_t * queue, bspNode_t * node, qboolean resetMultiQueryLink)
 {
+#if defined(DEBUG_CHC)
 	if(r_logFile->integer)
 	{
 		if(node->contents != -1)// && !(node->contents & CONTENTS_TRANSLUCENT))
@@ -1461,6 +1462,7 @@ static void IssueOcclusionQuery(link_t * queue, bspNode_t * node, qboolean reset
 			gl_genericShader->SetUniform_Color(colorMdGrey);
 		}
 	}
+#endif
 
 	EnQueue(queue, node);
 
@@ -1754,6 +1756,7 @@ static void PushNode(link_t * traversalStack, bspNode_t * node)
 
 static void TraverseNode(link_t * distanceQueue, bspNode_t * node)
 {
+#if defined(DEBUG_CHC)
 	if(r_logFile->integer)
 	{
 		if(node->contents != -1)
@@ -1786,6 +1789,7 @@ static void TraverseNode(link_t * distanceQueue, bspNode_t * node)
 			tess.numVertexes = 0;
 		}
 	}
+#endif
 
 	if(node->contents != -1)
 	{
@@ -1813,6 +1817,7 @@ static void BuildNodeTraversalStackPost_r(bspNode_t * node)
 			return;
 		}
 
+		#if defined(DEBUG_CHC)
 		if(r_logFile->integer)
 		{
 			if(node->contents != -1)
@@ -1824,6 +1829,7 @@ static void BuildNodeTraversalStackPost_r(bspNode_t * node)
 				GLimp_LogComment(va("--- BuildNodeTraversalStackPost_r( node = %i, visible = %i ) ---\n", node - tr.world->nodes, node->visible[tr.viewCount]));
 			}
 		}
+		#endif
 
 		InsertLink(&node->visChain, &tr.traversalStack);
 
@@ -2123,13 +2129,13 @@ static void R_CoherentHierachicalCulling()
 				if(clipsNearPlane)
 				{
 					// node clips near plane so avoid the occlusion query test
-					//node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
-					//node->lastQueried[tr.viewCount] = tr.frameCount;
+					node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
+					node->lastQueried[tr.viewCount] = tr.frameCount;
 					node->visible[tr.viewCount] = qtrue;
 
 					needsQuery = false;
 				}
-				#if 0
+				#if 1
 				else if(r_chcIgnoreLeaves->integer && node->contents != -1)
 				{
 					// NOTE: this is the fastest dynamic occlusion culling path
@@ -2137,8 +2143,8 @@ static void R_CoherentHierachicalCulling()
 					// only very few leaves are invisible if we don't traverse through all bsp nodes
 					// so testing these leaves just causes additional occlusion queries which can be avoided
 					// by setting all reached leaves to visible
-					//node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
-					//node->lastQueried[tr.viewCount] = tr.frameCount;
+					node->occlusionQuerySamples[tr.viewCount] = r_chcVisibilityThreshold->integer + 1;
+					node->lastQueried[tr.viewCount] = tr.frameCount;
 					node->visible[tr.viewCount] = qtrue;
 
 					needsQuery = false;
