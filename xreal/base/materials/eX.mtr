@@ -348,20 +348,20 @@ textures/eX/eX_deswall_01
 
 	diffusemap		textures/eX/eX_rplates_01_d
 	specularmap		textures/eX/eX_rplates_01_s
-	normalMap		textures/eX/eX_rplates_01_norm
+	normalMap		displaceMap(textures/eX/eX_rplates_01_norm, textures/eX/eX_rplates_01_disp)
 	{
 		stage		diffuseMap
 		map		textures/eX/eX_deswall_01_shadow
 		blend		blend
 	}
-	normalMap		_flat
+	normalMap		displaceMap(_flat, textures/eX/eX_rplates_01_disp)
 	{
 		stage		diffusemap
 		map		textures/eX/eX_deswall_01_d
 		alphaTest	0.5
 	}
 	specularmap		textures/eX/eX_deswall_01_s
-	normalMap		textures/eX/eX_deswall_01_norm
+	normalMap		displaceMap(textures/eX/eX_deswall_01_norm, textures/eX/eX_deswall_01_disp)
 }
 
 textures/eX/eX_wall_b01 
