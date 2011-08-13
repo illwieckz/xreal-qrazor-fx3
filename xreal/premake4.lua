@@ -15,7 +15,7 @@ solution "XreaL"
 		{
 			"OptimizeSpeed",
 			"EnableSSE",
-			"StaticRuntime"
+			--"StaticRuntime"
 		}
 		
 	--configuration "ReleaseReleaseWithSymbols"
@@ -33,7 +33,7 @@ solution "XreaL"
 		flags
 		{
 			"Symbols",
-			"StaticRuntime",
+			--"StaticRuntime",
 			--"NoRuntimeChecks"
 		}
 	
