@@ -22,9 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // cg_local.h
-#include "../../../code/qcommon/q_shared.h"
-#include "../../../code/renderer/tr_types.h"
-#include "../game/bg_public.h"
+#include <q_shared.h>
+#include <tr_types.h>
+#include <bg_public.h>
+
 #include "cg_public.h"
 
 // The entire cgame module is unloaded and reloaded on each level change,

@@ -85,9 +85,9 @@ solution "XreaL"
 --end
 
 include "code/engine"
---include "base/code/game"
---include "base/code/cgame"
---include "base/code/ui"
+include "base/code/game"
+include "base/code/cgame"
+include "base/code/ui"
 
 --include "code/tools/xmap2"
 
