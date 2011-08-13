@@ -134,7 +134,7 @@ public class PredictionManager {
 		// non-predicting local movement will grab the latest angles
 		else if(CVars.cg_nopredict.getBoolean() || CVars.g_synchronousClients.getBoolean())
 		{
-			interpolatePlayerState(false); // FIXME true
+			interpolatePlayerState(true); // FIXME true
 			
 			predictedPlayerEntity.currentState = predictedPlayerState.createEntityState(false);
 			predictedPlayerEntity.nextState = predictedPlayerEntity.currentState;
@@ -412,6 +412,7 @@ public class PredictionManager {
 
 			// TODO
 			//PM_UpdateViewAngles(out, cmd);
+			PlayerController.updateViewAngles(predictedPlayerState, cmd);
 		}
 
 		// if the next frame is a teleport, we can't lerp to it
@@ -449,7 +450,8 @@ public class PredictionManager {
 		predictedPlayerState.velocity.interpolate(prev.getPlayerState().velocity, next.getPlayerState().velocity, f);
 		
 			
-		if (false) {
+		if (false) 
+		{
 			Engine.println("client origin:\t\t\t" + predictedPlayerState.origin.toString());
 			Engine.println("client velocity:\t\t" + predictedPlayerState.velocity.toString());
 			Engine.println("client view angles:\t\t" + predictedPlayerState.viewAngles.toString());

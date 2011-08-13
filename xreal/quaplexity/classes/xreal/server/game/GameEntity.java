@@ -22,7 +22,7 @@ import xreal.server.Server;
  * 
  * @author Robert Beckebans
  */
-public class GameEntity /*extends Thread*/ implements EntityStateAccess {
+class GameEntity /*extends Thread*/ implements EntityStateAccess {
 
 	/**
 	 * Similar to Q3A's G_Spawn()
