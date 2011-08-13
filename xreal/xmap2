@@ -1,3 +1,0 @@
-#!/bin/bash
-BIN='xmap2'
-source ./xreal
