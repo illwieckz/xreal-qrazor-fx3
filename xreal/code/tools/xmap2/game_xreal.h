@@ -40,6 +40,8 @@ content and surface flags
 
 ------------------------------------------------------------------------------- */
 
+// *INDENT-OFF*
+
 /* game flags */
 #define Q_CONT_SOLID				1			/* an eye is never valid in a solid */
 #define Q_CONT_LAVA					8

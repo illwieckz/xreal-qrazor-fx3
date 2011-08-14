@@ -29,13 +29,13 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* marker */
-#ifndef XMAP2_H
-#define XMAP2_H
+#ifndef Q3MAP2_H
+#define Q3MAP2_H
 
 
 
 /* version */
-#define XMAP_VERSION	"2.5.17"
+#define Q3MAP_VERSION	"0.9.0"
 
 
 
@@ -60,6 +60,7 @@ dependencies
 #include <windows.h>
 #endif
 
+#include <glib.h>
 
 /* general */
 //#include "version.h"          /* ttimo: might want to guard that if built outside of the GtkRadiant tree */
@@ -77,8 +78,7 @@ dependencies
 #include "inout.h"
 #include "vfs.h"
 #include "png.h"
-//#include "mhash.h"
-
+//#include "md4.h"
 #include <stdlib.h>
 
 
@@ -800,7 +800,7 @@ typedef struct shaderInfo_s
 	vec3_t          fogDir;		/* ydnar */
 
 	char           *shaderText;	/* ydnar */
-	qb_t            explicit;	/* Tr3B: .mtr material was found */
+	qb_t            explicitDef;	/* Tr3B: .mtr material was found */
 	qb_t            custom;
 	qb_t            finished;
 }
@@ -1602,6 +1602,7 @@ brush_t        *FinishBrush(void);
 
 
 /* portals.c */
+winding_t      *BaseWindingForNode(node_t * node);
 void            MakeHeadnodePortals(tree_t * tree);
 void            MakeNodePortal(node_t * node);
 void            SplitNodePortals(node_t * node);
@@ -1674,7 +1675,7 @@ void            CreateMapFogs(void);
 /* facebsp.c */
 face_t         *MakeStructuralBSPFaceList(brush_t * list);
 face_t         *MakeVisibleBSPFaceList(brush_t * list);
-tree_t         *FaceBSP(face_t * list);
+tree_t         *FaceBSP(face_t * list, qboolean drawDebug);
 
 
 /* model.c */
@@ -1933,11 +1934,9 @@ void            WriteXBSPFile(const char *filename);
 
 
 /* gldraw.c */
-void            Draw_Winding(winding_t * w);
-void            Draw_AuxWinding(winding_t * w);
-void            Draw_Scene(void (*drawFunc) (void));
-void            Draw_AuxWinding(winding_t * w);
+void            Draw_Winding(winding_t * w, float r, float g, float b, float a);
 void			Draw_AABB(const vec3_t origin, const vec3_t mins, const vec3_t maxs, vec4_t color);
+void            Draw_Scene(void (*drawFunc) (void));
 
 /* -------------------------------------------------------------------------------
 
@@ -2012,7 +2011,7 @@ Q_EXTERN qboolean			nofog Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			noHint Q_ASSIGN( qfalse );				/* ydnar */
 Q_EXTERN qboolean			renameModelShaders Q_ASSIGN( qfalse );	/* ydnar */
 Q_EXTERN qboolean			skyFixHack Q_ASSIGN( qfalse );			/* ydnar */
-Q_EXTERN qboolean			bspAlternateSplitWeights Q_ASSIGN( qfalse );			/* 27 */
+Q_EXTERN qboolean			bspAlternateSplitWeights Q_ASSIGN( qtrue );			/* 27 */
 Q_EXTERN qboolean			deepBSP Q_ASSIGN( qfalse );				/* div0 */
 Q_EXTERN qboolean			inlineEntityModels Q_ASSIGN( qfalse );	/* Tr3B */
 Q_EXTERN qboolean			drawBSP Q_ASSIGN( qfalse );				/* Tr3B */
@@ -2425,6 +2424,7 @@ abstracted bsp globals
 Q_EXTERN int				numEntities Q_ASSIGN( 0 );
 Q_EXTERN int				numBSPEntities Q_ASSIGN( 0 );
 Q_EXTERN entity_t			entities[ MAX_MAP_ENTITIES ];
+Q_EXTERN entity_t			convertDetailBrushesEntity;
 
 Q_EXTERN int				numBSPModels Q_ASSIGN( 0 );
 Q_EXTERN int				allocatedBSPModels Q_ASSIGN( 0 );
