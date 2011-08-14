@@ -346,8 +346,8 @@ void BeginMapShaderFile(const char *mapFile)
 	if(len <= 0)
 		return;
 
-	/* append ../scripts/xmap2_<mapname>.shader */
-	sprintf(mapShaderFile, "%s/../%s/xmap2_%s.shader", base, game->shaderPath, mapName);
+	/* append ../scripts/xmap2_<mapname>.mtr */
+	sprintf(mapShaderFile, "%s/../%s/xmap2_%s.mtr", base, game->shaderPath, mapName);
 	Sys_FPrintf(SYS_VRB, "Map has shader script %s\n", mapShaderFile);
 
 	/* remove it */
@@ -2221,7 +2221,7 @@ void LoadShaderInfo(void)
 	/* parse the shader files */
 	for(i = 0; i < numShaderFiles; i++)
 	{
-		sprintf(filename, "%s/%s.shader", game->shaderPath, shaderFiles[i]);
+		sprintf(filename, "%s/%s.mtr", game->shaderPath, shaderFiles[i]);
 		ParseShaderFile(filename);
 		free(shaderFiles[i]);
 	}
