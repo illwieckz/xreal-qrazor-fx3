@@ -2013,7 +2013,7 @@ Q_EXTERN qboolean			renameModelShaders Q_ASSIGN( qfalse );	/* ydnar */
 Q_EXTERN qboolean			skyFixHack Q_ASSIGN( qfalse );			/* ydnar */
 Q_EXTERN qboolean			bspAlternateSplitWeights Q_ASSIGN( qtrue );			/* 27 */
 Q_EXTERN qboolean			deepBSP Q_ASSIGN( qfalse );				/* div0 */
-Q_EXTERN qboolean			inlineEntityModels Q_ASSIGN( qfalse );	/* Tr3B */
+Q_EXTERN qboolean			inlineEntityModels Q_ASSIGN( qtrue );	/* Tr3B */
 Q_EXTERN qboolean			drawBSP Q_ASSIGN( qfalse );				/* Tr3B */
 
 Q_EXTERN int				patchSubdivisions Q_ASSIGN( 8 );		/* ydnar: -patchmeta subdivisions */
