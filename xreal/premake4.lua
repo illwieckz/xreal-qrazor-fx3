@@ -90,4 +90,5 @@ include "base/code/cgame"
 include "base/code/ui"
 
 --include "code/tools/xmap2"
+include "code/tools/master"
 

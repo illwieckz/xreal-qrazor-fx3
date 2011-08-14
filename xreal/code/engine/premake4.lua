@@ -302,24 +302,15 @@ project "XreaL"
 		{
 			--"/NODEFAULTLIB:libcmt.lib",
 			--"/NODEFAULTLIB:libcmtd.lib"
-			"/NODEFAULTLIB:libc"
+			--"/NODEFAULTLIB:libc"
 		}
-		--linkoptions
-		--{
-		--	"/NODEFAULTLIB:libc"
-		--}
 		defines
 		{
 			"WIN32",
 			"_CRT_SECURE_NO_WARNINGS",
-			--"USE_INTERNAL_SPEEX",
-			--"USE_INTERNAL_ZLIB",
-			--"FLOATING_POINT",
-			--"USE_ALLOCA"
 		}
 		
 		
-	configuration { "vs*", "x32" }
 	configuration { "vs*", "x32" }
 		files
 		{
