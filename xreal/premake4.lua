@@ -40,6 +40,12 @@ solution "XreaL"
 --
 -- Options
 --
+newoption
+{
+	trigger = "with-java",
+	description = "Compile with Java game code support"
+}
+
 --newoption
 --{
 --	trigger = "with-omnibot",
@@ -85,9 +91,13 @@ solution "XreaL"
 --end
 
 include "code/engine"
-include "base/code/game"
-include "base/code/cgame"
-include "base/code/ui"
+
+-- Don't build the the C game code if Java is enabled
+if not _OPTIONS["with-java"] then
+	include "base/code/game"
+	include "base/code/cgame"
+	include "base/code/ui"
+end
 
 include "code/tools/xmap2"
 include "code/tools/master"

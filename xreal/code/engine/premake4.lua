@@ -218,6 +218,20 @@ project "XreaL"
 	--
 	-- Options Configurations
 	--
+	configuration "with-java"
+		defines
+		{
+			"USE_JAVA"
+		}
+		files
+		{
+			"qcommon/vm_java.c",
+		}
+		includedirs
+		{
+			"../../jdk/include"
+		}
+	
 	--configuration "with-freetype"
 	--	links        { "freetype" }
 	--	buildoptions { "`pkg-config --cflags freetype2`" }
@@ -466,6 +480,23 @@ project "XreaL-dedicated"
 	
 	configuration "x64"
 		targetdir 	"../../bin64"
+		
+	--
+	-- Options Configurations
+	--
+	configuration "with-java"
+		defines
+		{
+			"USE_JAVA"
+		}
+		files
+		{
+			"qcommon/vm_java.c",
+		}
+		includedirs
+		{
+			"../../jdk/include"
+		}
 	
 	-- 
 	-- Project Configurations
