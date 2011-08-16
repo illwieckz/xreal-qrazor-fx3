@@ -35,10 +35,10 @@ extern "C" {
 #define PRODUCT_NAME            "XreaL" // Case, Spaces allowed
 #define PRODUCT_NAME_UPPPER     "XreaL" // Case, No spaces
 #define PRODUCT_NAME_LOWER      "xreal" // No case, No spaces
-#define PRODUCT_VERSION         "0.8.2"
+#define PRODUCT_VERSION         "0.5.0"
 
 #define ENGINE_NAME             "XreaL Engine"
-#define ENGINE_VERSION          "0.8.2"
+#define ENGINE_VERSION          "0.9.7"
 
 #if 0
 #if !defined(COMPAT_Q3A)
