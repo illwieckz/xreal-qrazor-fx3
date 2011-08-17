@@ -231,6 +231,39 @@ project "XreaL"
 		{
 			"../../jdk/include"
 		}
+		
+	configuration "with-mono"
+		defines
+		{
+			"USE_MONO"
+		}
+		files
+		{
+			"qcommon/vm_mono.c",
+		}
+		includedirs
+		{
+			"../libs/mono/include/mono-2.0"
+		}
+		
+	configuration { "with-mono", "vs*", "x32" }
+		includedirs
+		{
+			
+			"../libs/glib/include/glib-2.0",
+			"../libs/glib/lib/glib-2.0/include",
+		}
+		libdirs
+		{
+			"../libs/glib/lib",
+			"../libs/mono/lib"
+		}
+		links
+		{
+			"glib-2.0",
+			"mono-2.0",
+		}
+		
 	
 	--configuration "with-freetype"
 	--	links        { "freetype" }
@@ -496,6 +529,38 @@ project "XreaL-dedicated"
 		includedirs
 		{
 			"../../jdk/include"
+		}
+		
+	configuration "with-mono"
+		defines
+		{
+			"USE_MONO"
+		}
+		files
+		{
+			"qcommon/vm_mono.c",
+		}
+		includedirs
+		{
+			"../libs/mono/include/mono-2.0"
+		}
+		
+	configuration { "with-mono", "vs*", "x32" }
+		includedirs
+		{
+			
+			"../libs/glib/include/glib-2.0",
+			"../libs/glib/lib/glib-2.0/include",
+		}
+		libdirs
+		{
+			"../libs/glib/lib",
+			"../libs/mono/lib"
+		}
+		links
+		{
+			"glib-2.0",
+			"mono-2.0",
 		}
 	
 	-- 

@@ -46,6 +46,12 @@ newoption
 	description = "Compile with Java game code support"
 }
 
+newoption
+{
+	trigger = "with-mono",
+	description = "Compile with Mono C# game code support"
+}
+
 --newoption
 --{
 --	trigger = "with-omnibot",
@@ -93,7 +99,7 @@ newoption
 include "code/engine"
 
 -- Don't build the the C game code if Java is enabled
-if not _OPTIONS["with-java"] then
+if not _OPTIONS["with-java"] and not _OPTIONS["with-mono"] then
 	include "base/code/game"
 	include "base/code/cgame"
 	include "base/code/ui"

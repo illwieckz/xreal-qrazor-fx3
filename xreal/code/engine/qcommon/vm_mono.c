@@ -893,13 +893,13 @@ static JNINativeMethod Engine_methods[] = {
 static MonoClass* class_Engine;
 void Mono_registerEngine()
 {
-	class_Engine = mono_class_from_name(mono_xrealImage, "XreaL", "Engine"); //(*javaEnv)->FindClass(javaEnv, "xreal/Engine");
+	class_Engine = mono_class_from_name(mono_xrealImage, "XreaL.EngineAccess", "Engine"); //(*javaEnv)->FindClass(javaEnv, "xreal/Engine");
 	if(/*CheckException() ||*/ !class_Engine)
 	{
-		Com_Error(ERR_FATAL, "Couldn't find XreaL.Engine");
+		Com_Error(ERR_FATAL, "Couldn't find XreaL.EngineAccess.Engine");
 	}
 
-	mono_add_internal_call("XreaL.Engine::Print", Mono_XreaL_Engine_Print);
+	mono_add_internal_call("XreaL.EngineAccess.Engine::Print", Mono_XreaL_Engine_Print);
 
 	//(*javaEnv)->RegisterNatives(javaEnv, class_Engine, Engine_methods, sizeof(Engine_methods) / sizeof(Engine_methods[0]));
 	//if(CheckException())
@@ -1037,10 +1037,10 @@ void Mono_Init(void)
 			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), "mono", "etc"));
 
 	Com_sprintf(xrealAssemblyPath, sizeof(xrealAssemblyPath), "%s", 
-			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/Game/bin/Debug/XreaL.dll"));
+			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/XreaL.EngineAccess.dll"));
 
 	Com_sprintf(gameAssemblyPath, sizeof(gameAssemblyPath), "%s", 
-			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/Game/bin/Debug/Game.dll"));
+			FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/XreaL.Game.dll"));
 			//FS_BuildOSPath(Cvar_VariableString("fs_basepath"), Cvar_VariableString("fs_game"), "mono/MonoTerminalTest.exe"));
 
 #if defined(_WIN32)
@@ -1055,8 +1055,8 @@ void Mono_Init(void)
 	// system configuration
 	mono_config_parse(NULL);
 
-	mono_trace_set_level_string("debug");
-	mono_jit_set_trace_options("");
+	//mono_trace_set_level_string("debug");
+	//mono_jit_set_trace_options("");
 
 #if defined(_WIN32)
 	mono_set_dirs(monoAssemblyPath, monoConfigPath);
@@ -1064,11 +1064,13 @@ void Mono_Init(void)
 
 	if(mono_remoteDebugging->integer)
 	{
-		char            options[1024];
+		char            _options[1024];
+		char           *__options = &_options[0];
+		char          **options = &__options;
 
-		Com_sprintf(options, sizeof(options), "--debugger-agent=\"transport=dt_socket,address=127.0.0.1:8000\"");
+		Com_sprintf(_options, sizeof(_options), "--debugger-agent=transport=dt_socket,address=127.0.0.1:8000");
 		
-		mono_jit_parse_options(1, &options);
+		mono_jit_parse_options(1, options);
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 	}
 
@@ -1116,10 +1118,10 @@ void Mono_Init(void)
 		MonoMethod* method;
 		MonoMethodDesc* mdesc;
 		
-		klass = mono_class_from_name(mono_gameImage, "Game", "Game"); //(*javaEnv)->FindClass(javaEnv, "xreal/Engine");
+		klass = mono_class_from_name(mono_gameImage, "XreaL.Game", "Game"); //(*javaEnv)->FindClass(javaEnv, "xreal/Engine");
 		if(/*CheckException() ||*/ !klass)
 		{
-			Com_Error(ERR_FATAL, "Couldn't find Game.Game");
+			Com_Error(ERR_FATAL, "Couldn't find XreaL.Game.Game");
 		}
 
 		mdesc = mono_method_desc_new(":TestEnginePrint()", FALSE);
