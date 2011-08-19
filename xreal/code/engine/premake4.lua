@@ -263,6 +263,19 @@ project "XreaL"
 			"glib-2.0",
 			"mono-2.0",
 		}
+
+	configuration { "with-mono", "gmake" }
+		buildoptions
+		{
+			
+			"`pkg-config --cflags glib-2.0`",
+			"`pkg-config --cflags mono-2`"
+		}
+		linkoptions
+		{
+			"`pkg-config --libs glib-2.0`",
+			"`pkg-config --libs mono-2`"
+		}
 		
 	
 	--configuration "with-freetype"
@@ -561,6 +574,19 @@ project "XreaL-dedicated"
 		{
 			"glib-2.0",
 			"mono-2.0",
+		}
+
+	configuration { "with-mono", "gmake" }
+		buildoptions
+		{
+			
+			"`pkg-config --cflags glib-2.0`",
+			"`pkg-config --cflags mono-2`"
+		}
+		linkoptions
+		{
+			"`pkg-config --libs glib-2.0`",
+			"`pkg-config --libs mono-2`"
 		}
 	
 	-- 
