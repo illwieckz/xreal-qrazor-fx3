@@ -368,6 +368,7 @@ project "XreaL"
 		}
 		linkoptions 
 		{
+			"/LARGEADDRESSAWARE",
 			--"/NODEFAULTLIB:libcmt.lib",
 			--"/NODEFAULTLIB:libcmtd.lib"
 			--"/NODEFAULTLIB:libc"
