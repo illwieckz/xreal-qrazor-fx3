@@ -72,7 +72,7 @@ functions imported from the main executable
 ==================================================================
 */
 
-#define	CGAME_IMPORT_API_VERSION	11
+#define	CGAME_IMPORT_API_VERSION	12
 
 typedef enum
 {
@@ -201,7 +201,9 @@ typedef enum
 	CG_CEIL,
 	CG_TESTPRINTINT,
 	CG_TESTPRINTFLOAT,
-	CG_ACOS
+	CG_ACOS,
+
+	CG_ADDCOMMANDALIAS
 } cgameImport_t;
 
 
