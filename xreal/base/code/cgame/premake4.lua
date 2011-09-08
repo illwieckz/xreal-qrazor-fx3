@@ -91,7 +91,7 @@ project "base_cgame"
 		}
 	
 	configuration { "linux", "x32" }
-		targetname  "cgamex86"
+		targetname  "cgamei386"
 		targetprefix ""
 	
 	configuration { "linux", "x64" }
