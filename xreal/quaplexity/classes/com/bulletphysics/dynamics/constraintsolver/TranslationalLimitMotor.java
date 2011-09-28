@@ -23,7 +23,7 @@
 
 /*
 2007-09-09
-btGeneric6DofConstraint Refactored by Francisco Leon
+btGeneric6DofConstraint Refactored by Francisco Le�n
 email: projectileman@yahoo.com
 http://gimpact.sf.net
 */
@@ -32,7 +32,6 @@ package com.bulletphysics.dynamics.constraintsolver;
 
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.VectorUtil;
-
 
 import javax.vecmath.Vector3f;
 
@@ -83,7 +82,6 @@ public class TranslationalLimitMotor {
 		return (VectorUtil.getCoord(upperLimit, limitIndex) >= VectorUtil.getCoord(lowerLimit, limitIndex));
 	}
 
-	//@StaticAlloc
 	public float solveLinearAxis(float timeStep, float jacDiagABInv, RigidBody body1, Vector3f pointInA, RigidBody body2, Vector3f pointInB, int limit_index, Vector3f axis_normal_on_a, Vector3f anchorPos) {
 		Vector3f tmp = new Vector3f();
 		Vector3f tmpVec = new Vector3f();

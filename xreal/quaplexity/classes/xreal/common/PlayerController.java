@@ -21,6 +21,7 @@ import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.IDebugDraw;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.util.ObjectArrayList;
 
 import xreal.Angle3f;
 import xreal.CVars;
@@ -37,8 +38,8 @@ import xreal.client.game.util.RenderUtils;
  * 
  * @author Robert Beckebans
  */
-public class PlayerController implements ActionInterface {
-	
+public class PlayerController extends ActionInterface 
+{	
 	// all of the locals will be zeroed before each
 	// pmove, just to make damn sure we don't have
 	// any differences when running on client or server
@@ -1206,7 +1207,7 @@ public class PlayerController implements ActionInterface {
 			BroadphasePair collisionPair = ghostObject.getOverlappingPairCache().getOverlappingPairArray().get(i);
 
 			// keep track of the contact manifolds
-			List<PersistentManifold> manifoldArray = new ArrayList<PersistentManifold>();
+			ObjectArrayList<PersistentManifold> manifoldArray = new ObjectArrayList<PersistentManifold>();
 			if(collisionPair.algorithm != null)
 			{
 				collisionPair.algorithm.getAllContactManifolds(manifoldArray);
@@ -1303,7 +1304,7 @@ public class PlayerController implements ActionInterface {
 			BroadphasePair collisionPair = ghostObject.getOverlappingPairCache().getOverlappingPairArray().get(i);
 
 			// keep track of the contact manifolds
-			List<PersistentManifold> manifoldArray = new ArrayList<PersistentManifold>();
+			ObjectArrayList<PersistentManifold> manifoldArray = new ObjectArrayList<PersistentManifold>();
 			if(collisionPair.algorithm != null)
 			{
 				collisionPair.algorithm.getAllContactManifolds(manifoldArray);

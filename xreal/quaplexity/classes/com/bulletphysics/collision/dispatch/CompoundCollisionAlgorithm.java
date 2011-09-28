@@ -24,16 +24,14 @@
 package com.bulletphysics.collision.dispatch;
 
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
-import java.util.ArrayList;
-import java.util.List;
 import com.bulletphysics.collision.broadphase.CollisionAlgorithm;
 import com.bulletphysics.collision.broadphase.CollisionAlgorithmConstructionInfo;
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.CompoundShape;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.util.ObjectPool;
-
 
 /**
  * CompoundCollisionAlgorithm supports collision between {@link CompoundShape}s and
@@ -43,7 +41,7 @@ import com.bulletphysics.util.ObjectPool;
  */
 public class CompoundCollisionAlgorithm extends CollisionAlgorithm {
 
-	private final List<CollisionAlgorithm> childCollisionAlgorithms = new ArrayList<CollisionAlgorithm>();
+	private final ObjectArrayList<CollisionAlgorithm> childCollisionAlgorithms = new ObjectArrayList<CollisionAlgorithm>();
 	private boolean isSwapped;
 	
 	public void init(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1, boolean isSwapped) {
@@ -74,7 +72,7 @@ public class CompoundCollisionAlgorithm extends CollisionAlgorithm {
 		int numChildren = childCollisionAlgorithms.size();
 		for (int i=0; i<numChildren; i++) {
 			//childCollisionAlgorithms.get(i).destroy();
-			dispatcher.freeCollisionAlgorithm(childCollisionAlgorithms.get(i));
+			dispatcher.freeCollisionAlgorithm(childCollisionAlgorithms.getQuick(i));
 		}
 		childCollisionAlgorithms.clear();
 	}
@@ -118,7 +116,7 @@ public class CompoundCollisionAlgorithm extends CollisionAlgorithm {
 			// the contactpoint is still projected back using the original inverted worldtrans
 			CollisionShape tmpShape = colObj.getCollisionShape();
 			colObj.internalSetTemporaryCollisionShape(childShape);
-			childCollisionAlgorithms.get(i).processCollision(colObj, otherObj, dispatchInfo, resultOut);
+			childCollisionAlgorithms.getQuick(i).processCollision(colObj, otherObj, dispatchInfo, resultOut);
 			// revert back
 			colObj.internalSetTemporaryCollisionShape(tmpShape);
 			colObj.setWorldTransform(orgTrans);
@@ -164,7 +162,7 @@ public class CompoundCollisionAlgorithm extends CollisionAlgorithm {
 
 			CollisionShape tmpShape = colObj.getCollisionShape();
 			colObj.internalSetTemporaryCollisionShape(childShape);
-			float frac = childCollisionAlgorithms.get(i).calculateTimeOfImpact(colObj, otherObj, dispatchInfo, resultOut);
+			float frac = childCollisionAlgorithms.getQuick(i).calculateTimeOfImpact(colObj, otherObj, dispatchInfo, resultOut);
 			if (frac < hitFraction) {
 				hitFraction = frac;
 			}
@@ -176,9 +174,9 @@ public class CompoundCollisionAlgorithm extends CollisionAlgorithm {
 	}
 
 	@Override
-	public void getAllContactManifolds(List<PersistentManifold> manifoldArray) {
+	public void getAllContactManifolds(ObjectArrayList<PersistentManifold> manifoldArray) {
 		for (int i=0; i<childCollisionAlgorithms.size(); i++) {
-			childCollisionAlgorithms.get(i).getAllContactManifolds(manifoldArray);
+			childCollisionAlgorithms.getQuick(i).getAllContactManifolds(manifoldArray);
 		}
 	}
 	

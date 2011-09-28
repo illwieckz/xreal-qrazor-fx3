@@ -32,7 +32,6 @@ import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.TriangleCallback;
 import com.bulletphysics.collision.shapes.TriangleShape;
 import com.bulletphysics.linearmath.Transform;
-
 import javax.vecmath.Vector3f;
 
 /**
@@ -41,7 +40,7 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-class ConvexTriangleCallback implements TriangleCallback {
+class ConvexTriangleCallback extends TriangleCallback {
 
 	//protected final BulletStack stack = BulletStack.get();
 	

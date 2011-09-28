@@ -24,7 +24,6 @@
 package com.bulletphysics.util;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -38,7 +37,7 @@ import java.util.Map;
 public class ArrayPool<T> {
 
 	private Class componentType;
-	private ArrayList list = new ArrayList();
+	private ObjectArrayList list = new ObjectArrayList();
 	private Comparator comparator;
 	private IntValue key = new IntValue();
 	

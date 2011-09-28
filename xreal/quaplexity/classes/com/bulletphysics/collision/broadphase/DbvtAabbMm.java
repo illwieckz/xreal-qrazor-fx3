@@ -28,7 +28,6 @@ package com.bulletphysics.collision.broadphase;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
-
 import javax.vecmath.Vector3f;
 
 /**

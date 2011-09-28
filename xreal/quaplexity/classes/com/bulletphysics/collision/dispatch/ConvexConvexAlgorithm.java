@@ -38,8 +38,7 @@ import com.bulletphysics.collision.narrowphase.VoronoiSimplexSolver;
 import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.linearmath.Transform;
-
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Vector3f;
 
 /**
@@ -236,7 +235,7 @@ public class ConvexConvexAlgorithm extends CollisionAlgorithm {
 	}
 
 	@Override
-	public void getAllContactManifolds(List<PersistentManifold> manifoldArray) {
+	public void getAllContactManifolds(ObjectArrayList<PersistentManifold> manifoldArray) {
 		// should we use ownManifold to avoid adding duplicates?
 		if (manifoldPtr != null && ownManifold) {
 			manifoldArray.add(manifoldPtr);

@@ -1056,7 +1056,7 @@ void Mono_Init(void)
 	mono_config_parse(NULL);
 
 	//mono_trace_set_level_string("debug");
-	//mono_jit_set_trace_options("");
+	mono_jit_set_trace_options("");
 
 #if defined(_WIN32)
 	mono_set_dirs(monoAssemblyPath, monoConfigPath);
@@ -1064,18 +1064,20 @@ void Mono_Init(void)
 
 	if(mono_remoteDebugging->integer)
 	{
-		char            _options[1024];
-		char           *__options = &_options[0];
-		char          **options = &__options;
+		//char            _options[1024];
+		//char           *__options = &_options[0];
+		//char          **options = &__options;
 
-		Com_sprintf(_options, sizeof(_options), "--debugger-agent=transport=dt_socket,address=127.0.0.1:8000");
+		//Com_sprintf(_options, sizeof(_options), "--debugger-agent=transport=dt_socket,address=127.0.0.1:10000");
+
+		const char *options = "--debugger-agent=transport=dt_socket,address=127.0.0.1:10000,loglevel=1,suspend=n,server=y";
 		
-		mono_jit_parse_options(1, options);
+		mono_jit_parse_options(1, (char **) &options);
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 	}
 
-	//mono_domain = mono_jit_init_version("system", "v2.0.50727");
-	//mono_domain = mono_jit_init(classPath);
+	//mono_domain = mono_jit_init_version(xrealAssemblyPath, "v2.0.50727");
+	//mono_domain = mono_jit_init(xrealAssemblyPath);
 	mono_domain = mono_jit_init("system");
 	if(!mono_domain)
 	{

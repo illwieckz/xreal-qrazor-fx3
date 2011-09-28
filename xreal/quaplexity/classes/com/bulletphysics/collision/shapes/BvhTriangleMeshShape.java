@@ -27,7 +27,6 @@ import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.util.ObjectPool;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.VectorUtil;
-
 import javax.vecmath.Vector3f;
 
 /**
@@ -243,7 +242,7 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
 	
 	////////////////////////////////////////////////////////////////////////////
 	
-	protected static class MyNodeOverlapCallback implements NodeOverlapCallback {
+	protected static class MyNodeOverlapCallback extends NodeOverlapCallback {
 		public StridingMeshInterface meshInterface;
 		public TriangleCallback callback;
 

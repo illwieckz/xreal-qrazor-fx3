@@ -23,7 +23,7 @@
 
 /*
 2007-09-09
-btGeneric6DofConstraint Refactored by Francisco Leon
+btGeneric6DofConstraint Refactored by Francisco Le�n
 email: projectileman@yahoo.com
 http://gimpact.sf.net
 */
@@ -32,8 +32,6 @@ package com.bulletphysics.dynamics.constraintsolver;
 
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.dynamics.RigidBody;
-
-
 import javax.vecmath.Vector3f;
 
 /**
@@ -134,7 +132,6 @@ public class RotationalLimitMotor {
 	/**
 	 * Apply the correction impulses for two bodies.
 	 */
-	//@StaticAlloc
 	public float solveAngularLimits(float timeStep, Vector3f axis, float jacDiagABInv, RigidBody body0, RigidBody body1) {
 		if (needApplyTorques() == false) {
 			return 0.0f;

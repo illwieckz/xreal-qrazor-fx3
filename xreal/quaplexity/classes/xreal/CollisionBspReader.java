@@ -21,6 +21,7 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.GeometryUtil;
+import com.bulletphysics.util.ObjectArrayList;
 
 import xreal.io.ByteArrayReader;
 
@@ -1021,13 +1022,13 @@ public class CollisionBspReader {
 					continue;
 				}
 
-				List<Vector4f> planeEquations = new ArrayList<Vector4f>();
+				ObjectArrayList<Vector4f> planeEquations = new ObjectArrayList<Vector4f>();
 
 				for (BrushSide s : b.sides) {
 					planeEquations.add(s.plane);
 				}
 
-				List<Vector3f> points = new ArrayList<Vector3f>();
+				ObjectArrayList<Vector3f> points = new ObjectArrayList<Vector3f>();
 				GeometryUtil.getVerticesFromPlaneEquations(planeEquations, points);
 
 				// Engine.println("created " + points.size() +

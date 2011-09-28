@@ -23,6 +23,10 @@
 
 package com.bulletphysics.util;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.AbstractList;
 import java.util.RandomAccess;
 
@@ -30,7 +34,7 @@ import java.util.RandomAccess;
  *
  * @author jezek2
  */
-public class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess {
+public final class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess, Externalizable {
 
 	private T[] array;
 	private int size;
@@ -53,6 +57,31 @@ public class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess 
 		array[size++] = value;
 		return true;
 	}
+
+	@Override
+	public void add(int index, T value) {
+		if (size == array.length) {
+			expand();
+		}
+
+		int num = size - index;
+		if (num > 0) {
+			System.arraycopy(array, index, array, index+1, num);
+		}
+
+		array[index] = value;
+		size++;
+	}
+
+	@Override
+	public T remove(int index) {
+		if (index < 0 || index >= size) throw new IndexOutOfBoundsException();
+		T prev = array[index];
+		System.arraycopy(array, index+1, array, index, size-index-1);
+		array[size-1] = null;
+		size--;
+		return prev;
+    }
 	
 	@SuppressWarnings("unchecked")
 	private void expand() {
@@ -61,17 +90,18 @@ public class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess 
 		array = newArray;
 	}
 
-	@Override
-	public T remove(int index) {
-		if (index >= size) throw new IndexOutOfBoundsException();
-		T old = array[index];
+	public void removeQuick(int index) {
 		System.arraycopy(array, index+1, array, index, size - index - 1);
+		array[size-1] = null;
 		size--;
-		return old;
 	}
 
 	public T get(int index) {
 		if (index >= size) throw new IndexOutOfBoundsException();
+		return array[index];
+	}
+
+	public T getQuick(int index) {
 		return array[index];
 	}
 
@@ -81,6 +111,10 @@ public class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess 
 		T old = array[index];
 		array[index] = value;
 		return old;
+	}
+
+	public void setQuick(int index, T value) {
+		array[index] = value;
 	}
 
 	public int size() {
@@ -98,12 +132,31 @@ public class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess 
 
 	@Override
 	public int indexOf(Object o) {
-		for (int i=0; i<size; i++) {
-			if (o == null? array[i] == null : o.equals(array[i])) {
+		int _size = size;
+		T[] _array = array;
+		for (int i=0; i<_size; i++) {
+			if (o == null? _array[i] == null : o.equals(_array[i])) {
 				return i;
 			}
 		}
 		return -1;
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(size);
+		for (int i=0; i<size; i++) {
+			out.writeObject(array[i]);
+		}
+	}
+
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		size = in.readInt();
+		int cap = 16;
+		while (cap < size) cap <<= 1;
+		array = (T[])new Object[cap];
+		for (int i=0; i<size; i++) {
+			array[i] = (T)in.readObject();
+		}
 	}
 	
 }

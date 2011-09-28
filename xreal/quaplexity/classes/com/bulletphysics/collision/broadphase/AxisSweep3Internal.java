@@ -30,8 +30,7 @@ import com.bulletphysics.BulletStats;
 import com.bulletphysics.collision.broadphase.AxisSweep3Internal.Handle;
 import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.VectorUtil;
-
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Vector3f;
 
 /**
@@ -40,7 +39,7 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public abstract class AxisSweep3Internal implements BroadphaseInterface {
+public abstract class AxisSweep3Internal extends BroadphaseInterface {
 
 	protected int bpHandleMask;
 	protected int handleSentinel;
@@ -374,7 +373,7 @@ public abstract class AxisSweep3Internal implements BroadphaseInterface {
 
 	public void calculateOverlappingPairs(Dispatcher dispatcher) {
 		if (pairCache.hasDeferredRemoval()) {
-			List<BroadphasePair> overlappingPairArray = pairCache.getOverlappingPairArray();
+			ObjectArrayList<BroadphasePair> overlappingPairArray = pairCache.getOverlappingPairArray();
 
 			// perform a sort, to find duplicates and to sort 'invalid' pairs to the end
 			MiscUtil.quickSort(overlappingPairArray, BroadphasePair.broadphasePairSortPredicate);
@@ -390,7 +389,7 @@ public abstract class AxisSweep3Internal implements BroadphaseInterface {
 			previousPair.algorithm = null;
 
 			for (i=0; i<overlappingPairArray.size(); i++) {
-				BroadphasePair pair = overlappingPairArray.get(i);
+				BroadphasePair pair = overlappingPairArray.getQuick(i);
 
 				boolean isDuplicate = (pair.equals(previousPair));
 

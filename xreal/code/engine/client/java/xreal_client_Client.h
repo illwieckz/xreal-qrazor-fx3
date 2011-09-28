@@ -7,6 +7,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef xreal_client_Client_K_CHAR_FLAG
+#define xreal_client_Client_K_CHAR_FLAG 1024L
 #undef xreal_client_Client_CMD_BACKUP
 #define xreal_client_Client_CMD_BACKUP 64L
 #undef xreal_client_Client_CMD_MASK

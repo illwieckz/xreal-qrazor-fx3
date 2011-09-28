@@ -45,6 +45,14 @@ JNIEXPORT void JNICALL Java_xreal_CVar_set0
 
 /*
  * Class:     xreal_CVar
+ * Method:    reset0
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_xreal_CVar_reset0
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     xreal_CVar
  * Method:    getString0
  * Signature: (I)Ljava/lang/String;
  */

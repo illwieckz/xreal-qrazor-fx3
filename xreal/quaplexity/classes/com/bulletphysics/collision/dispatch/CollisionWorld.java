@@ -24,8 +24,6 @@
 package com.bulletphysics.collision.dispatch;
 
 import com.bulletphysics.BulletGlobals;
-import java.util.ArrayList;
-import java.util.List;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
@@ -54,7 +52,7 @@ import com.bulletphysics.linearmath.IDebugDraw;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
 import com.bulletphysics.linearmath.VectorUtil;
-
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
@@ -68,7 +66,7 @@ public class CollisionWorld {
 
 	//protected final BulletStack stack = BulletStack.get();
 	
-	protected List<CollisionObject> collisionObjects = new ArrayList<CollisionObject>();
+	protected ObjectArrayList<CollisionObject> collisionObjects = new ObjectArrayList<CollisionObject>();
 	protected Dispatcher dispatcher1;
 	protected DispatcherInfo dispatchInfo = new DispatcherInfo();
 	//protected btStackAlloc*	m_stackAlloc;
@@ -86,7 +84,7 @@ public class CollisionWorld {
 	public void destroy() {
 		// clean up remaining objects
 		for (int i = 0; i < collisionObjects.size(); i++) {
-			CollisionObject collisionObject = collisionObjects.get(i);
+			CollisionObject collisionObject = collisionObjects.getQuick(i);
 
 			BroadphaseProxy bp = collisionObject.getBroadphaseHandle();
 			if (bp != null) {
@@ -241,7 +239,7 @@ public class CollisionWorld {
 		BulletStats.pushProfile("updateAabbs");
 		try {
 			for (int i=0; i<collisionObjects.size(); i++) {
-				CollisionObject colObj = collisionObjects.get(i);
+				CollisionObject colObj = collisionObjects.getQuick(i);
 
 				// only update aabb of active objects
 				if (colObj.isActive()) {
@@ -551,7 +549,7 @@ public class CollisionWorld {
 				break;
 			}
 
-			CollisionObject collisionObject = collisionObjects.get(i);
+			CollisionObject collisionObject = collisionObjects.getQuick(i);
 			// only perform raycast if filterMask matches
 			if (resultCallback.needsCollision(collisionObject.getBroadphaseHandle())) {
 				//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
@@ -597,26 +595,28 @@ public class CollisionWorld {
 		}
 
 		Transform tmpTrans = new Transform();
+		Vector3f collisionObjectAabbMin = new Vector3f();
+		Vector3f collisionObjectAabbMax = new Vector3f();
+		float[] hitLambda = new float[1];
 
 		// go over all objects, and if the ray intersects their aabb + cast shape aabb,
 		// do a ray-shape query using convexCaster (CCD)
 		for (int i = 0; i < collisionObjects.size(); i++) {
-			CollisionObject collisionObject = collisionObjects.get(i);
+			CollisionObject collisionObject = collisionObjects.getQuick(i);
 
 			// only perform raycast if filterMask matches
 			if (resultCallback.needsCollision(collisionObject.getBroadphaseHandle())) {
 				//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
-				Vector3f collisionObjectAabbMin = new Vector3f();
-				Vector3f collisionObjectAabbMax = new Vector3f();
-				collisionObject.getCollisionShape().getAabb(collisionObject.getWorldTransform(tmpTrans), collisionObjectAabbMin, collisionObjectAabbMax);
+				collisionObject.getWorldTransform(tmpTrans);
+				collisionObject.getCollisionShape().getAabb(tmpTrans, collisionObjectAabbMin, collisionObjectAabbMax);
 				AabbUtil2.aabbExpand(collisionObjectAabbMin, collisionObjectAabbMax, castShapeAabbMin, castShapeAabbMax);
-				float[] hitLambda = new float[]{1f}; // could use resultCallback.closestHitFraction, but needs testing
+				hitLambda[0] = 1f; // could use resultCallback.closestHitFraction, but needs testing
 				Vector3f hitNormal = new Vector3f();
 				if (AabbUtil2.rayAabb(convexFromWorld.origin, convexToWorld.origin, collisionObjectAabbMin, collisionObjectAabbMax, hitLambda, hitNormal)) {
 					objectQuerySingle(castShape, convexFromTrans, convexToTrans,
 					                  collisionObject,
 					                  collisionObject.getCollisionShape(),
-					                  collisionObject.getWorldTransform(tmpTrans),
+					                  tmpTrans,
 					                  resultCallback,
 					                  getDispatchInfo().allowedCcdPenetration);
 				}
@@ -624,7 +624,7 @@ public class CollisionWorld {
 		}
 	}
 
-	public List<CollisionObject> getCollisionObjectArray() {
+	public ObjectArrayList<CollisionObject> getCollisionObjectArray() {
 		return collisionObjects;
 	}
 	

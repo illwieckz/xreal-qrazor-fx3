@@ -29,7 +29,6 @@ import com.bulletphysics.collision.narrowphase.DiscreteCollisionDetectorInterfac
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.linearmath.Transform;
-
 import javax.vecmath.Vector3f;
 
 /**
@@ -37,7 +36,7 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public class ManifoldResult implements DiscreteCollisionDetectorInterface.Result {
+public class ManifoldResult extends DiscreteCollisionDetectorInterface.Result {
 
 	//protected final BulletStack stack = BulletStack.get();
 	protected final ObjectPool<ManifoldPoint> pointsPool = ObjectPool.get(ManifoldPoint.class);

@@ -30,7 +30,6 @@ import com.bulletphysics.linearmath.AabbUtil2;
 import com.bulletphysics.linearmath.ScalarUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
-
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 

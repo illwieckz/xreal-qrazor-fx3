@@ -35,9 +35,8 @@ import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.linearmath.IDebugDraw;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.util.ObjectArrayList;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.vecmath.Vector3f;
 
 /**
@@ -51,7 +50,7 @@ import javax.vecmath.Vector3f;
  * 
  * @author tomrbryn
  */
-public class KinematicCharacterController implements ActionInterface {
+public class KinematicCharacterController extends ActionInterface {
 
 	private static Vector3f[] upAxisDirection = new Vector3f[] {
 		new Vector3f(1.0f, 0.0f, 0.0f),
@@ -67,10 +66,18 @@ public class KinematicCharacterController implements ActionInterface {
 	// to avoid upcast
 	protected ConvexShape convexShape;
 
+	protected float verticalVelocity;
+	protected float verticalOffset;
+	
 	protected float fallSpeed;
 	protected float jumpSpeed;
 	protected float maxJumpHeight;
+	
+	protected float maxSlopeRadians; // Slope angle that is set (used for returning the exact value) 
+	protected float maxSlopeCosine; // Cosine equivalent of m_maxSlopeRadians (calculated once when set, for optimization)
 
+	protected float gravity;
+	
 	protected float turnAngle;
 
 	protected float stepHeight;
@@ -87,11 +94,13 @@ public class KinematicCharacterController implements ActionInterface {
 	protected Vector3f targetPosition = new Vector3f();
 
 	// keep track of the contact manifolds
-	List<PersistentManifold> manifoldArray = new ArrayList<PersistentManifold>();
+	ObjectArrayList<PersistentManifold> manifoldArray = new ObjectArrayList<PersistentManifold>();
 
 	protected boolean touchingContact;
 	protected Vector3f touchingNormal = new Vector3f();
 
+	protected boolean wasOnGround;
+	
 	protected boolean useGhostObjectSweepTest;
 	protected boolean useWalkDirection;
 	protected float velocityTimeInterval;
@@ -114,6 +123,13 @@ public class KinematicCharacterController implements ActionInterface {
 		this.convexShape = convexShape;
 		this.useWalkDirection = true;
 		this.velocityTimeInterval = 0.0f;
+		this.verticalVelocity = 0.0f;
+		this.verticalOffset = 0.0f;
+		this.gravity = 9.8f; // 1G acceleration
+		this.fallSpeed = 55.0f; // Terminal velocity of a sky diver in m/s.
+		this.jumpSpeed = 10.0f; // ?
+		this.wasOnGround = false;
+		setMaxSlope((float)((50.0f/180.0f) * Math.PI));
 	}
 
 	private PairCachingGhostObject getGhostObject() {
@@ -202,6 +218,20 @@ public class KinematicCharacterController implements ActionInterface {
 			//printf("\n");
 			return; // no motion
 		}
+		
+		wasOnGround = onGround();
+		
+		// Update fall velocity.
+		verticalVelocity -= gravity * dt;
+		if(verticalVelocity > 0.0 && verticalVelocity > jumpSpeed)
+		{
+			verticalVelocity = jumpSpeed;
+		}
+		if(verticalVelocity < 0.0 && Math.abs(verticalVelocity) > Math.abs(fallSpeed))
+		{
+			verticalVelocity = -Math.abs(fallSpeed);
+		}
+		verticalOffset = verticalVelocity * dt;
 
 		Transform xform = ghostObject.getWorldTransform(new Transform());
 
@@ -256,6 +286,8 @@ public class KinematicCharacterController implements ActionInterface {
 	
 	public void jump() {
 		if (!canJump()) return;
+		
+		verticalVelocity = jumpSpeed;
 
 		//#if 0
 		//currently no jumping.
@@ -267,9 +299,26 @@ public class KinematicCharacterController implements ActionInterface {
 		//m_rigidBody->applyCentralImpulse (up * magnitude);
 		//#endif
 	}
-
+	
+	public void setGravity(float gravity) {
+		this.gravity = gravity;
+	}
+	
+	public float getGravity() {
+		return gravity;
+	}
+	
+	public void setMaxSlope(float slopeRadians) {
+		maxSlopeRadians = slopeRadians;
+		maxSlopeCosine = (float)Math.cos((float)slopeRadians);
+	}
+	
+	public float getMaxSlope() {
+		return maxSlopeRadians;
+	}
+	
 	public boolean onGround() {
-		return true;
+		return verticalVelocity == 0.0f && verticalOffset == 0.0f;
 	}
 
 	// static helper method
@@ -330,31 +379,32 @@ public class KinematicCharacterController implements ActionInterface {
 		for (int i=0; i<ghostObject.getOverlappingPairCache().getNumOverlappingPairs(); i++) {
 			manifoldArray.clear();
 
-			BroadphasePair collisionPair = ghostObject.getOverlappingPairCache().getOverlappingPairArray().get(i);
+			BroadphasePair collisionPair = ghostObject.getOverlappingPairCache().getOverlappingPairArray().getQuick(i);
 
 			if (collisionPair.algorithm != null) {
 				collisionPair.algorithm.getAllContactManifolds(manifoldArray);
 			}
 
 			for (int j=0; j<manifoldArray.size(); j++) {
-				PersistentManifold manifold = manifoldArray.get(j);
+				PersistentManifold manifold = manifoldArray.getQuick(j);
 				float directionSign = manifold.getBody0() == ghostObject? -1.0f : 1.0f;
 				for (int p=0; p<manifold.getNumContacts(); p++) {
 					ManifoldPoint pt = manifold.getContactPoint(p);
 
-					if (pt.getDistance() < 0.0f) {
-						if (pt.getDistance() < maxPen) {
-							maxPen = pt.getDistance();
+					float dist = pt.getDistance();
+					if (dist < 0.0f) {
+						if (dist < maxPen) {
+							maxPen = dist;
 							touchingNormal.set(pt.normalWorldOnB);//??
 							touchingNormal.scale(directionSign);
 						}
 
-						currentPosition.scaleAdd(directionSign * pt.getDistance() * 0.2f, pt.normalWorldOnB, currentPosition);
+						currentPosition.scaleAdd(directionSign * dist * 0.2f, pt.normalWorldOnB, currentPosition);
 
 						penetration = true;
 					}
 					else {
-						//printf("touching %f\n", pt.getDistance());
+						//printf("touching %f\n", dist);
 					}
 				}
 
@@ -376,16 +426,19 @@ public class KinematicCharacterController implements ActionInterface {
 		// phase 1: up
 		Transform start = new Transform();
 		Transform end = new Transform();
-		targetPosition.scaleAdd(stepHeight, upAxisDirection[upAxis], currentPosition);
+		targetPosition.scaleAdd(stepHeight + (verticalOffset > 0.0?verticalOffset:0.0f), upAxisDirection[upAxis], currentPosition);
 
 		start.setIdentity ();
 		end.setIdentity ();
 
 		/* FIXME: Handle penetration properly */
-		start.origin.scaleAdd(0.1f, upAxisDirection[upAxis], currentPosition);
+		start.origin.scaleAdd(convexShape.getMargin() + addedMargin, upAxisDirection[upAxis], currentPosition);
 		end.origin.set(targetPosition);
-
-		KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject);
+		
+		// Find only sloped/flat surface hits, avoid wall and ceiling hits...
+		Vector3f up = new Vector3f();
+		up.scale(-1f, upAxisDirection[upAxis]);
+		KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, up, 0.0f);
 		callback.collisionFilterGroup = getGhostObject().getBroadphaseHandle().collisionFilterGroup;
 		callback.collisionFilterMask = getGhostObject().getBroadphaseHandle().collisionFilterMask;
 
@@ -400,6 +453,8 @@ public class KinematicCharacterController implements ActionInterface {
 			// we moved up only a fraction of the step height
 			currentStepOffset = stepHeight * callback.closestHitFraction;
 			currentPosition.interpolate(currentPosition, targetPosition, callback.closestHitFraction);
+			verticalVelocity = 0.0f;
+			verticalOffset = 0.0f;
 		}
 		else {
 			currentStepOffset = stepHeight;
@@ -461,11 +516,11 @@ public class KinematicCharacterController implements ActionInterface {
 		float distance2 = distance2Vec.lengthSquared();
 		//printf("distance2=%f\n",distance2);
 
-		if (touchingContact) {
+		/*if (touchingContact) {
 			if (normalizedDirection.dot(touchingNormal) > 0.0f) {
 				updateTargetPositionBasedOnCollision(touchingNormal);
 			}
-		}
+		}*/
 
 		int maxIter = 10;
 
@@ -473,7 +528,7 @@ public class KinematicCharacterController implements ActionInterface {
 			start.origin.set(currentPosition);
 			end.origin.set(targetPosition);
 
-			KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject);
+			KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, upAxisDirection[upAxis], -1.0f);
 			callback.collisionFilterGroup = getGhostObject().getBroadphaseHandle().collisionFilterGroup;
 			callback.collisionFilterMask = getGhostObject().getBroadphaseHandle().collisionFilterMask;
 
@@ -495,16 +550,13 @@ public class KinematicCharacterController implements ActionInterface {
 				// we moved only a fraction
 				Vector3f hitDistanceVec = new Vector3f();
 				hitDistanceVec.sub(callback.hitPointWorld, currentPosition);
-				float hitDistance = hitDistanceVec.length();
-				if (hitDistance < 0.0f) {
-					//printf("neg dist?\n");
-				}
+				//float hitDistance = hitDistanceVec.length();
 
 				// if the distance is farther than the collision margin, move
-				if (hitDistance > addedMargin) {
-					//printf("callback.m_closestHitFraction=%f\n",callback.m_closestHitFraction);
-					currentPosition.interpolate(currentPosition, targetPosition, callback.closestHitFraction);
-				}
+				//if (hitDistance > addedMargin) {
+				//	//printf("callback.m_closestHitFraction=%f\n",callback.m_closestHitFraction);
+				//	currentPosition.interpolate(currentPosition, targetPosition, callback.closestHitFraction);
+				//}
 
 				updateTargetPositionBasedOnCollision(callback.hitNormalWorld);
 
@@ -538,10 +590,12 @@ public class KinematicCharacterController implements ActionInterface {
 		Transform end = new Transform();
 
 		// phase 3: down
+		float additionalDownStep = (wasOnGround /*&& !onGround()*/) ? stepHeight : 0.0f;
 		Vector3f step_drop = new Vector3f();
-		step_drop.scale(currentStepOffset, upAxisDirection[upAxis]);
+		step_drop.scale(currentStepOffset + additionalDownStep, upAxisDirection[upAxis]);
+		float downVelocity = (additionalDownStep == 0.0f && verticalVelocity<0.0f?-verticalVelocity:0.0f) * dt;
 		Vector3f gravity_drop = new Vector3f();
-		gravity_drop.scale(stepHeight, upAxisDirection[upAxis]);
+		gravity_drop.scale(downVelocity, upAxisDirection[upAxis]);
 		targetPosition.sub(step_drop);
 		targetPosition.sub(gravity_drop);
 
@@ -551,7 +605,7 @@ public class KinematicCharacterController implements ActionInterface {
 		start.origin.set(currentPosition);
 		end.origin.set(targetPosition);
 
-		KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject);
+		KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, upAxisDirection[upAxis], maxSlopeCosine);
 		callback.collisionFilterGroup = getGhostObject().getBroadphaseHandle().collisionFilterGroup;
 		callback.collisionFilterMask = getGhostObject().getBroadphaseHandle().collisionFilterMask;
 
@@ -565,6 +619,8 @@ public class KinematicCharacterController implements ActionInterface {
 		if (callback.hasHit()) {
 			// we dropped a fraction of the height -> hit floor
 			currentPosition.interpolate(currentPosition, targetPosition, callback.closestHitFraction);
+			verticalVelocity = 0.0f;
+			verticalOffset = 0.0f;
 		}
 		else {
 			// we dropped the full height
@@ -596,15 +652,33 @@ public class KinematicCharacterController implements ActionInterface {
 
 	private static class KinematicClosestNotMeConvexResultCallback extends CollisionWorld.ClosestConvexResultCallback {
 		protected CollisionObject me;
+		protected final Vector3f up;
+		protected float minSlopeDot;
 
-		public KinematicClosestNotMeConvexResultCallback(CollisionObject me) {
+		public KinematicClosestNotMeConvexResultCallback(CollisionObject me, final Vector3f up, float minSlopeDot) {
 			super(new Vector3f(), new Vector3f());
 			this.me = me;
+			this.up = up;
+			this.minSlopeDot = minSlopeDot;
 		}
 
 		@Override
 		public float addSingleResult(CollisionWorld.LocalConvexResult convexResult, boolean normalInWorldSpace) {
 			if (convexResult.hitCollisionObject == me) {
+				return 1.0f;
+			}
+			
+			Vector3f hitNormalWorld;
+			if (normalInWorldSpace) {
+				hitNormalWorld = convexResult.hitNormalLocal;
+			} else {
+				//need to transform normal into worldspace
+				hitNormalWorld = new Vector3f();
+				hitCollisionObject.getWorldTransform(new Transform()).basis.transform(convexResult.hitNormalLocal, hitNormalWorld);
+			}
+			
+			float dotUp = up.dot(hitNormalWorld);
+			if (dotUp < minSlopeDot) {
 				return 1.0f;
 			}
 

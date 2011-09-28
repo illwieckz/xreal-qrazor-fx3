@@ -23,7 +23,7 @@
 
 /*
 2007-09-09
-btGeneric6DofConstraint Refactored by Francisco Leon
+btGeneric6DofConstraint Refactored by Francisco Le�n
 email: projectileman@yahoo.com
 http://gimpact.sf.net
 */

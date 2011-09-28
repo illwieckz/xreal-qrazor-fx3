@@ -25,11 +25,9 @@ package com.bulletphysics.collision.narrowphase;
 
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.shapes.ConvexShape;
-import com.bulletphysics.collision.shapes.MinkowskiSumShape;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
-
 import javax.vecmath.Vector3f;
 
 /**
@@ -40,7 +38,7 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public class SubsimplexConvexCast implements ConvexCast {
+public class SubsimplexConvexCast extends ConvexCast {
 
 	//protected final BulletStack stack = BulletStack.get();
 	

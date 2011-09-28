@@ -25,8 +25,6 @@ package com.bulletphysics.collision.narrowphase;
 
 import com.bulletphysics.util.ObjectPool;
 import com.bulletphysics.linearmath.VectorUtil;
-
-
 import javax.vecmath.Vector3f;
 
 /**
@@ -36,7 +34,7 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public class VoronoiSimplexSolver implements SimplexSolverInterface {
+public class VoronoiSimplexSolver extends SimplexSolverInterface {
 
 	//protected final BulletStack stack = BulletStack.get();
 	protected final ObjectPool<SubSimplexClosestResult> subsimplexResultsPool = ObjectPool.get(SubSimplexClosestResult.class);
@@ -94,7 +92,6 @@ public class VoronoiSimplexSolver implements SimplexSolverInterface {
 			removeVertex(0);
 	}
 	
-	//@StaticAlloc
 	public boolean updateClosestVectorAndPoints() {
 		if (needsUpdate)
 		{
@@ -273,7 +270,6 @@ public class VoronoiSimplexSolver implements SimplexSolverInterface {
 		return cachedValidClosest;
 	}
 
-	//@StaticAlloc
 	public boolean closestPtPointTriangle(Vector3f p, Vector3f a, Vector3f b, Vector3f c, SubSimplexClosestResult result) {
 		result.usedVertices.reset();
 
@@ -390,7 +386,6 @@ public class VoronoiSimplexSolver implements SimplexSolverInterface {
 	}
 	
 	/// Test if point p and d lie on opposite sides of plane through abc
-	//@StaticAlloc
 	public static int pointOutsideOfPlane(Vector3f p, Vector3f a, Vector3f b, Vector3f c, Vector3f d)
 	{
 		Vector3f tmp = new Vector3f();
@@ -425,7 +420,6 @@ public class VoronoiSimplexSolver implements SimplexSolverInterface {
 		return (signp * signd < 0f)? 1 : 0;
 	}
 	
-	//@StaticAlloc
 	public boolean closestPtPointTetrahedron(Vector3f p, Vector3f a, Vector3f b, Vector3f c, Vector3f d, SubSimplexClosestResult finalResult) {
 		SubSimplexClosestResult tempResult = subsimplexResultsPool.get();
 		tempResult.reset();

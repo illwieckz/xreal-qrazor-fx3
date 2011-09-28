@@ -30,9 +30,8 @@ import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.collision.shapes.StaticPlaneShape;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.util.ObjectPool;
-
-import java.util.List;
 import javax.vecmath.Vector3f;
 
 /**
@@ -139,7 +138,7 @@ public class ConvexPlaneCollisionAlgorithm extends CollisionAlgorithm {
 	}
 
 	@Override
-	public void getAllContactManifolds(List<PersistentManifold> manifoldArray) {
+	public void getAllContactManifolds(ObjectArrayList<PersistentManifold> manifoldArray) {
 		if (manifoldPtr != null && ownManifold) {
 			manifoldArray.add(manifoldPtr);
 		}
