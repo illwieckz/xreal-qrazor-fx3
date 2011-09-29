@@ -15,7 +15,34 @@ project "base_cgame"
 		"../../../code/shared/keycodes.h",
 		"../../../code/shared/surfaceflags.h",
 		
-		"**.c", "**.cpp", "**.h",
+		--"**.c", "**.cpp", "**.h",
+		
+		"cg_animation.c",
+		"cg_consolecmds.c",
+		"cg_draw.c",
+		"cg_drawtools.c",
+		"cg_effects.c",
+		"cg_ents.c",
+		"cg_event.c",
+		"cg_info.c",
+		"cg_localents.c",
+		"cg_lua.c",
+		"cg_main.c",
+		"cg_marks.c",
+		"cg_osd.c",
+		"cg_particles.c",
+		"cg_players.c",
+		"cg_playerstate.c",
+		"cg_predict.c",
+		"cg_scoreboard.c",
+		"cg_servercmds.c",
+		"cg_snapshot.c",
+		"cg_syscalls.c",
+		"cg_view.c",
+		"cg_weapons.c",
+		
+		"lua_cgame.c",
+		"lua_particle.c",
 		
 		"../game/bg_**.c", "../game/bg_**.cpp", "../game/bg_**.h",
 		
@@ -52,12 +79,12 @@ project "base_cgame"
 		"../../../code/libs/lua/src/linit.c",
 		"../../../code/libs/lua/src/loslib.c",
 	}
-	excludes
-	{
-		"cg_unlagged.c",
-		"cg_newdraw.c",
-		"g_bullet.cpp",
-	}
+	--excludes
+	--{
+	--	"cg_unlagged.c",
+	--	"cg_newdraw.c",
+	--	"g_bullet.cpp",
+	--}
 	includedirs
 	{
 		"../../../code/shared",
@@ -68,25 +95,25 @@ project "base_cgame"
 		"LUA",
 	}
 
-	configuration "with-bullet"
-		files
-		{
-			"g_bullet.cpp",
-		
-			"../../../code/libs/bullet/*.h",
-			"../../../code/libs/bullet/LinearMath/**.cpp", "../../../code/libs/bullet/LinearMath/**.h",
-			"../../../code/libs/bullet/BulletCollision/**.cpp", "../../../code/libs/bullet/BulletCollision/**.h",
-			"../../../code/libs/bullet/BulletDynamics/**.cpp", "../../../code/libs/bullet/BulletDynamics/**.h",
-			"../../../code/libs/bullet/BulletSoftBody/**.cpp", "../../../code/libs/bullet/BulletSoftBody/**.h",
-		}
-		includedirs
-		{
-			"../../../code/libs/bullet"
-		}
-		defines
-		{ 
-			"USE_BULLET"
-		}
+	--configuration "with-bullet"
+	--	files
+	--	{
+	--		"cg_bullet.cpp",
+	--	
+	--		"../../../code/libs/bullet/*.h",
+	--		"../../../code/libs/bullet/LinearMath/**.cpp", "../../../code/libs/bullet/LinearMath/**.h",
+	--		"../../../code/libs/bullet/BulletCollision/**.cpp", "../../../code/libs/bullet/BulletCollision/**.h",
+	--		"../../../code/libs/bullet/BulletDynamics/**.cpp", "../../../code/libs/bullet/BulletDynamics/**.h",
+	--		"../../../code/libs/bullet/BulletSoftBody/**.cpp", "../../../code/libs/bullet/BulletSoftBody/**.h",
+	--	}
+	--	includedirs
+	--	{
+	--		"../../../code/libs/bullet"
+	--	}
+	--	defines
+	--	{ 
+	--		"USE_BULLET"
+	--	}
 	
 	--
 	-- Platform Configurations

@@ -24,9 +24,15 @@ project "XreaL"
 		"qcommon/msg.c",
 		"qcommon/vm.c",
 		"qcommon/net_*.c",
-		"qcommon/cm_*.c",
 		"qcommon/unzip.c",
 		"qcommon/parse.c",
+		
+		"qcommon/cm_load.c",
+		"qcommon/cm_patch.c",
+		"qcommon/cm_polylib.c",
+		"qcommon/cm_test.c",
+		"qcommon/cm_trace.c",
+		"qcommon/cm_trisoup.c",
 		
 		"renderer/**.c", "renderer/**.cpp", "renderer/**.h",
 		
@@ -184,7 +190,6 @@ project "XreaL"
 	}
 	excludes
 	{
-		"qcommon/cm_bullet.cpp",
 		"server/sv_rankings.c",
 		"renderer/tr_animation_mdm.c",
 		"renderer/tr_model_mdm.c",
@@ -258,13 +263,13 @@ project "XreaL"
 		}
 		files
 		{
+			"qcommon/cm_bullet.cpp",
+		
 			"../libs/bullet/*.h",
 			"../libs/bullet/LinearMath/**.cpp", "../libs/bullet/LinearMath/**.h",
 			"../libs/bullet/BulletCollision/**.cpp", "../libs/bullet/BulletCollision/**.h",
 			"../libs/bullet/BulletDynamics/**.cpp", "../libs/bullet/BulletDynamics/**.h",
 			"../libs/bullet/BulletSoftBody/**.cpp", "../libs/bullet/BulletSoftBody/**.h",
-			
-			"qcommon/cm_bullet.cpp",
 		}
 		
 	configuration { "with-mono", "vs*", "x32" }
@@ -514,8 +519,14 @@ project "XreaL-dedicated"
 		"qcommon/msg.c",
 		"qcommon/vm.c",
 		"qcommon/net_*.c",
-		"qcommon/cm_*.c",
 		"qcommon/unzip.c",
+		
+		"qcommon/cm_load.c",
+		"qcommon/cm_patch.c",
+		"qcommon/cm_polylib.c",
+		"qcommon/cm_test.c",
+		"qcommon/cm_trace.c",
+		"qcommon/cm_trisoup.c",
 		
 		"../libs/zlib/**.c", "../../libs/zlib/**.h",
 	}
@@ -622,13 +633,13 @@ project "XreaL-dedicated"
 		}
 		files
 		{
+			"qcommon/cm_bullet.cpp",
+		
 			"../libs/bullet/*.h",
 			"../libs/bullet/LinearMath/**.cpp", "../libs/bullet/LinearMath/**.h",
 			"../libs/bullet/BulletCollision/**.cpp", "../libs/bullet/BulletCollision/**.h",
 			"../libs/bullet/BulletDynamics/**.cpp", "../libs/bullet/BulletDynamics/**.h",
 			"../libs/bullet/BulletSoftBody/**.cpp", "../libs/bullet/BulletSoftBody/**.h",
-			
-			"qcommon/cm_bullet.cpp",
 		}
 	
 	-- 
