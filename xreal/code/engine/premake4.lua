@@ -184,6 +184,7 @@ project "XreaL"
 	}
 	excludes
 	{
+		"qcommon/cm_bullet.cpp",
 		"server/sv_rankings.c",
 		"renderer/tr_animation_mdm.c",
 		"renderer/tr_model_mdm.c",
@@ -244,6 +245,26 @@ project "XreaL"
 		includedirs
 		{
 			"../libs/mono/include/mono-2.0"
+		}
+		
+	configuration "with-bullet"
+		defines
+		{
+			"USE_BULLET"
+		}
+		includedirs
+		{
+			"../libs/bullet"
+		}
+		files
+		{
+			"../libs/bullet/*.h",
+			"../libs/bullet/LinearMath/**.cpp", "../libs/bullet/LinearMath/**.h",
+			"../libs/bullet/BulletCollision/**.cpp", "../libs/bullet/BulletCollision/**.h",
+			"../libs/bullet/BulletDynamics/**.cpp", "../libs/bullet/BulletDynamics/**.h",
+			"../libs/bullet/BulletSoftBody/**.cpp", "../libs/bullet/BulletSoftBody/**.h",
+			
+			"qcommon/cm_bullet.cpp",
 		}
 		
 	configuration { "with-mono", "vs*", "x32" }

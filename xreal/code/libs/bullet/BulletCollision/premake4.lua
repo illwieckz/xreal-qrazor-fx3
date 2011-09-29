@@ -1,7 +1,7 @@
 	project "BulletCollision"
 		
 	kind "StaticLib"
-	targetdir "../../lib"
+	targetdir "../lib"
 	includedirs {
 		"..",
 	}

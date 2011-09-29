@@ -52,6 +52,12 @@ newoption
 	description = "Compile with Mono C# game code support"
 }
 
+newoption
+{
+	trigger = "with-bullet",
+	description = "Compile with Bullet physics game code support"
+}
+
 --newoption
 --{
 --	trigger = "with-omnibot",
@@ -103,6 +109,18 @@ if not _OPTIONS["with-java"] and not _OPTIONS["with-mono"] then
 	include "base/code/game"
 	include "base/code/cgame"
 	include "base/code/ui"
+end
+
+if _OPTIONS["with-bullet"] and not _OPTIONS["with-java"] and not _OPTIONS["with-mono"] then
+
+	--include "code/libs/bullet/LinearMath"
+	--include "code/libs/bullet/BulletCollision"
+	--include "code/libs/bullet/BulletDynamics"
+	--include "code/libs/bullet/BulletSoftBody"
+
+	include "bullet/code/game"
+	include "bullet/code/cgame"
+	include "bullet/code/ui"
 end
 
 include "code/tools/xmap2"
