@@ -66,6 +66,24 @@ project "base_cgame"
 	{ 
 		"LUA",
 	}
+
+	configuration "with-bullet"
+		files
+		{
+			"../../../code/libs/bullet/*.h",
+			"../../../code/libs/bullet/LinearMath/**.cpp", "../../../code/libs/bullet/LinearMath/**.h",
+			"../../../code/libs/bullet/BulletCollision/**.cpp", "../../../code/libs/bullet/BulletCollision/**.h",
+			"../../../code/libs/bullet/BulletDynamics/**.cpp", "../../../code/libs/bullet/BulletDynamics/**.h",
+			"../../../code/libs/bullet/BulletSoftBody/**.cpp", "../../../code/libs/bullet/BulletSoftBody/**.h",
+		}
+		includedirs
+		{
+			"../../../code/libs/bullet"
+		}
+		defines
+		{ 
+			"USE_BULLET"
+		}
 	
 	--
 	-- Platform Configurations

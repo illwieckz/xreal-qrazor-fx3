@@ -348,6 +348,10 @@ void QDECL G_Error(const char *fmt, ...)
 	G_LuaShutdown();
 #endif
 
+#if defined(USE_BULLET)
+	G_ShutdownBulletPhysics();
+#endif
+
 	trap_Error(text);
 }
 
@@ -530,6 +534,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		G_Printf("Not logging to disk.\n");
 	}
 
+#if defined(USE_BULLET)
+	G_InitBulletPhysics();
+#endif
+
 #ifdef G_LUA
 	G_LuaInit();
 #endif
@@ -617,10 +625,14 @@ void G_ShutdownGame(int restart)
 {
 	G_Printf("==== ShutdownGame ====\n");
 
-#ifdef G_LUA
+#if defined(G_LUA)
 	// quad - Lua API
 	G_LuaHook_ShutdownGame(restart);
 	G_LuaShutdown();
+#endif
+
+#if defined(USE_BULLET)
+	G_ShutdownBulletPhysics();
 #endif
 
 	if(level.logFile)

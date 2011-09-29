@@ -34,7 +34,7 @@ extern "C"
 #include "BulletDynamics/Dynamics/btDynamicsWorld.h"
 #include "btBulletDynamicsCommon.h"
 
-
+/*
 class BulletLocals
 {
 public:
@@ -42,7 +42,7 @@ public:
 	~BulletLocals()
 	{
 		// delete collision shapes
-		for (int i = 0; i <collisionShapes.size(); i++)
+		for (int i = 0; i < collisionShapes.size(); i++)
 		{
 			btCollisionShape* shape = collisionShapes[i];
 			delete shape;
@@ -53,25 +53,31 @@ public:
 };
 
 static BulletLocals* cm_bulletLocals = NULL;
+*/
 
 void CM_InitBullet()
 {
-	cm_bulletLocals = new BulletLocals();
+	//cm_bulletLocals = new BulletLocals();
 }
 
 void CM_ShutdownBullet()
 {
+	/*
 	if(cm_bulletLocals)
 	{
 		delete cm_bulletLocals;
 		cm_bulletLocals = NULL;
 	}
+	*/
 }
 
 #define USE_MOTIONSTATE 1
 
-void CM_AddWorldBrushesToDynamicsWorld(plDynamicsWorldHandle * dynamicsWorldHandle)
+extern "C" 
 {
+void CM_AddWorldBrushesToDynamicsWorld(void * collisionShapesHandle, plDynamicsWorldHandle * dynamicsWorldHandle)
+{
+	btAlignedObjectArray<btCollisionShape*>* collisionShapes = reinterpret_cast<btAlignedObjectArray<btCollisionShape*>*>(collisionShapesHandle);
 	btDynamicsWorld* dynamicsWorld = reinterpret_cast< btDynamicsWorld* >(dynamicsWorldHandle);
 
 	cm.checkcount++;
@@ -123,7 +129,7 @@ void CM_AddWorldBrushesToDynamicsWorld(plDynamicsWorldHandle * dynamicsWorldHand
 			if(vertices.size() > 0)
 			{
 				btCollisionShape* shape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
-				cm_bulletLocals->collisionShapes.push_back(shape);
+				collisionShapes->push_back(shape);
 
 				float mass = 0.f;
 				btTransform startTransform;
@@ -155,4 +161,4 @@ void CM_AddWorldBrushesToDynamicsWorld(plDynamicsWorldHandle * dynamicsWorldHand
 	}
 }
 
-//} // extern "C"
+} // extern "C"

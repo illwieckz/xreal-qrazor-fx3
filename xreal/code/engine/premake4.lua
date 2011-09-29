@@ -610,6 +610,26 @@ project "XreaL-dedicated"
 			"`pkg-config --libs glib-2.0`",
 			"`pkg-config --libs mono-2`"
 		}
+		
+	configuration "with-bullet"
+		defines
+		{
+			"USE_BULLET"
+		}
+		includedirs
+		{
+			"../libs/bullet"
+		}
+		files
+		{
+			"../libs/bullet/*.h",
+			"../libs/bullet/LinearMath/**.cpp", "../libs/bullet/LinearMath/**.h",
+			"../libs/bullet/BulletCollision/**.cpp", "../libs/bullet/BulletCollision/**.h",
+			"../libs/bullet/BulletDynamics/**.cpp", "../libs/bullet/BulletDynamics/**.h",
+			"../libs/bullet/BulletSoftBody/**.cpp", "../libs/bullet/BulletSoftBody/**.h",
+			
+			"qcommon/cm_bullet.cpp",
+		}
 	
 	-- 
 	-- Project Configurations

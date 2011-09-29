@@ -29,6 +29,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <bg_public.h>
 #include "g_public.h"
 
+#if defined(USE_BULLET)
+#include <Bullet-C-Api.h>
+#endif
+
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
@@ -881,6 +885,22 @@ void            G_LuaShutdown();
 #endif							// G_LUA
 
 
+#if defined(USE_BULLET)
+
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+void			G_InitBulletPhysics();
+void			G_ShutdownBulletPhysics();
+
+#if defined(__cplusplus)
+}
+#endif
+
+#endif // USE_BULLET
+
+
 #include "g_team.h"				// teamplay specific stuff
 
 
@@ -1025,6 +1045,12 @@ void            trap_GetUsercmd(int clientNum, usercmd_t * cmd);
 qboolean        trap_GetEntityToken(char *buffer, int bufferSize);
 
 int             trap_RealTime(qtime_t * qtime);
+
+#if defined(USE_BULLET)
+
+void			trap_Bullet_AddWorldBrushesToDynamicsWorld(void * collisionShapesHandle, plDynamicsWorldHandle * dynamicsWorldHandle);
+
+#endif
 
 #if defined(BRAINWORKS)
 int             trap_BotLibSetup(void);

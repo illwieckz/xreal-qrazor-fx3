@@ -79,5 +79,5 @@ void            CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, 
 #if defined(USE_BULLET)
 #include <Bullet-C-Api.h>
 
-void			CM_AddWorldBrushesToDynamicsWorld(plDynamicsWorldHandle * dynamicsWorld);
+void			CM_AddWorldBrushesToDynamicsWorld(void * collisionShapesHandle, plDynamicsWorldHandle * dynamicsWorld);
 #endif
