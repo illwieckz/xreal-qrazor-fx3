@@ -49,6 +49,7 @@ project "base_game"
 	{
 		"g_unlagged.c",
 		"g_rankings.c",
+		"g_bullet.cpp",
 	}
 	includedirs
 	{
@@ -64,6 +65,8 @@ project "base_game"
 	configuration "with-bullet"
 		files
 		{
+			"g_bullet.cpp",
+		
 			"../../../code/libs/bullet/*.h",
 			"../../../code/libs/bullet/LinearMath/**.cpp", "../../../code/libs/bullet/LinearMath/**.h",
 			"../../../code/libs/bullet/BulletCollision/**.cpp", "../../../code/libs/bullet/BulletCollision/**.h",

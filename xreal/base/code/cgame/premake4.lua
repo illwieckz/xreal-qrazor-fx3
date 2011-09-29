@@ -56,6 +56,7 @@ project "base_cgame"
 	{
 		"cg_unlagged.c",
 		"cg_newdraw.c",
+		"g_bullet.cpp",
 	}
 	includedirs
 	{
@@ -70,6 +71,8 @@ project "base_cgame"
 	configuration "with-bullet"
 		files
 		{
+			"g_bullet.cpp",
+		
 			"../../../code/libs/bullet/*.h",
 			"../../../code/libs/bullet/LinearMath/**.cpp", "../../../code/libs/bullet/LinearMath/**.h",
 			"../../../code/libs/bullet/BulletCollision/**.cpp", "../../../code/libs/bullet/BulletCollision/**.h",
