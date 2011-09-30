@@ -54,7 +54,9 @@ vmCvar_t        g_maxclients;
 vmCvar_t        g_maxGameClients;
 vmCvar_t        g_dedicated;
 vmCvar_t        g_speed;
-vmCvar_t        g_gravity;
+vmCvar_t        g_gravityX;
+vmCvar_t        g_gravityY;
+vmCvar_t        g_gravityZ;
 vmCvar_t        g_cheats;
 vmCvar_t        g_knockback;
 vmCvar_t        g_knockbackZ;
@@ -109,6 +111,10 @@ vmCvar_t        pm_fixedPmoveFPS;
 
 vmCvar_t        lua_modules;
 vmCvar_t        lua_allowedModules;
+
+#if defined(USE_BULLET)
+vmCvar_t		g_physUseCCD;
+#endif
 
 #if defined(ACEBOT)
 vmCvar_t        ace_debug;
@@ -167,7 +173,9 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_dedicated, "dedicated", "0", 0, 0, qfalse},
 
 	{&g_speed, "g_speed", "400", 0, 0, qtrue},
-	{&g_gravity, "g_gravity", DEFAULT_GRAVITY_STRING, CVAR_SYSTEMINFO, 0, qtrue},
+	{&g_gravityX, "g_gravityX", "0", CVAR_SYSTEMINFO, 0, qtrue},
+	{&g_gravityY, "g_gravityY", "0", CVAR_SYSTEMINFO, 0, qtrue},
+	{&g_gravityZ, "g_gravityZ", DEFAULT_GRAVITY_STRING, CVAR_SYSTEMINFO, 0, qtrue},
 	{&g_knockback, "g_knockback", "1000", 0, 0, qtrue},
 	{&g_knockbackZ, "g_knockbackZ", "40", 0, 0, qtrue},
 	{&g_quadfactor, "g_quadfactor", "4", 0, 0, qtrue},
@@ -218,6 +226,10 @@ static cvarTable_t gameCvarTable[] = {
 
 	{&lua_allowedModules, "lua_allowedModules", "", 0, 0, qfalse},
 	{&lua_modules, "lua_modules", "", 0, 0, qfalse},
+
+#if defined(USE_BULLET)
+	{&g_physUseCCD, "g_physUseCCD", "1", 0, 0, qfalse},
+#endif
 
 #if defined(ACEBOT)
 	{&ace_debug, "ace_debug", "0", 0, 0, qfalse},
@@ -2094,6 +2106,9 @@ void G_RunFrame(int levelTime)
 
 	// get any cvar changes
 	G_UpdateCvars();
+
+	// simulate dynamics world
+	G_RunPhysics(msec);
 
 	//
 	// go through all allocated objects

@@ -209,7 +209,7 @@ vmCvar_t        pm_fastWeaponSwitches;
 vmCvar_t        pm_fixedPmove;
 vmCvar_t        pm_fixedPmoveFPS;
 
-vmCvar_t        cg_gravity;
+vmCvar_t        cg_gravityZ;
 
 vmCvar_t        cg_currentSelectedPlayer;
 vmCvar_t        cg_currentSelectedPlayerName;
@@ -366,7 +366,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&pm_fixedPmove, "pm_fixedPmove", "0", 0},
 	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", 0},
 
-	{&cg_gravity, "g_gravity", "0", 0},	// communicated by systeminfo
+	{&cg_gravityZ, "g_gravityZ", "0", 0},	// communicated by systeminfo
 	{&cg_drawPlayerCollision, "cg_drawPlayerCollision", "0", CVAR_CHEAT},
 	{&cg_wallWalkSmoothTime, "cg_wallWalkSmoothTime", "300", CVAR_ARCHIVE},
 };

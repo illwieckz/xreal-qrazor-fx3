@@ -554,7 +554,7 @@ void CG_LaunchGib(vec3_t origin, vec3_t velocity, qhandle_t hModel)
 	re->hModel = hModel;
 
 	le->pos.trType = TR_GRAVITY;
-	le->pos.trAcceleration = cg_gravity.value;
+	le->pos.trAcceleration = -cg_gravityZ.value;
 	VectorCopy(origin, le->pos.trBase);
 	VectorCopy(velocity, le->pos.trDelta);
 	le->pos.trTime = cg.time;

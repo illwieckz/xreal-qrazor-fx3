@@ -739,7 +739,7 @@ gentity_t      *fire_grenade(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_GRAVITY;
-	bolt->s.pos.trAcceleration = g_gravity.value;
+	bolt->s.pos.trAcceleration = -g_gravityZ.value;
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
 	VectorScale(dir, 700, bolt->s.pos.trDelta);
@@ -782,7 +782,7 @@ gentity_t      *fire_flakgrenade(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_GRAVITY;
-	bolt->s.pos.trAcceleration = g_gravity.value;
+	bolt->s.pos.trAcceleration = -g_gravityZ.value;
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
 	VectorScale(dir, 700, bolt->s.pos.trDelta);
@@ -818,7 +818,7 @@ gentity_t      *fire_clustergrenade(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->clipmask = MASK_SHOT;
 
 	bolt->s.pos.trType = TR_GRAVITY;
-	bolt->s.pos.trAcceleration = g_gravity.value;
+	bolt->s.pos.trAcceleration = -g_gravityZ.value;
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
 
@@ -1251,7 +1251,7 @@ gentity_t      *fire_gravnail(gentity_t * self, vec3_t start, vec3_t forward, ve
 
 //	bolt->s.pos.trType = TR_GRAVITY;
 	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trAcceleration = g_gravity.value;
+	bolt->s.pos.trAcceleration = -g_gravityZ.value;
 	bolt->s.pos.trTime = level.time;
 	VectorCopy(start, bolt->s.pos.trBase);
 
@@ -1311,7 +1311,7 @@ gentity_t      *fire_prox(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->s.generic1 = self->client->sess.sessionTeam;
 
 	bolt->s.pos.trType = TR_GRAVITY;
-	bolt->s.pos.trAcceleration = g_gravity.value;
+	bolt->s.pos.trAcceleration = -g_gravityZ.value;
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
 	VectorScale(dir, 700, bolt->s.pos.trDelta);

@@ -147,7 +147,7 @@ void CM_AddWorldBrushesToDynamicsWorld(void * collisionShapesHandle, plDynamicsW
 				btRigidBody* body = new btRigidBody(cInfo);
 
 				// FIXME check this
-				//body->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
+				body->setContactProcessingThreshold(BT_LARGE_FLOAT);
 
 #else
 				btRigidBody* body = new btRigidBody(mass, 0, shape, localInertia);

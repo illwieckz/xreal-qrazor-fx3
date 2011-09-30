@@ -155,6 +155,13 @@ struct gentity_s
 	// when moving.  items and corpses do not collide against
 	// players, for instance
 
+#if defined(USE_BULLET)
+	//plCollisionShapeHandle*	physicsCollisionShape;
+	plRigidBodyHandle*		physicsRigidBody;
+
+	void            (*physics) (gentity_t * self);
+#endif
+
 	// movers
 	moverState_t    moverState;
 	int             soundPos1;
@@ -894,6 +901,10 @@ extern "C" {
 void			G_InitBulletPhysics();
 void			G_ShutdownBulletPhysics();
 
+void			G_RunPhysics(int deltaTime);
+
+void			Cmd_PhysicsTest_ShootBox_f(gentity_t * ent);
+
 #if defined(__cplusplus)
 }
 #endif
@@ -923,7 +934,9 @@ extern vmCvar_t g_capturelimit;
 extern vmCvar_t g_friendlyFire;
 extern vmCvar_t g_password;
 extern vmCvar_t g_needpass;
-extern vmCvar_t g_gravity;
+extern vmCvar_t g_gravityX;
+extern vmCvar_t g_gravityY;
+extern vmCvar_t g_gravityZ;
 extern vmCvar_t g_speed;
 extern vmCvar_t g_knockback;
 extern vmCvar_t g_knockbackZ;
@@ -974,6 +987,10 @@ extern vmCvar_t pm_fixedPmoveFPS;
 
 extern vmCvar_t lua_allowedModules;
 extern vmCvar_t lua_modules;
+
+#if defined(USE_BULLET)
+extern vmCvar_t g_physUseCCD;
+#endif
 
 #if defined(ACEBOT)
 extern vmCvar_t ace_debug;
