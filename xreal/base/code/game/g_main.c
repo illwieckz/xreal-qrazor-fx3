@@ -2107,8 +2107,10 @@ void G_RunFrame(int levelTime)
 	// get any cvar changes
 	G_UpdateCvars();
 
+#if defined(USE_BULLET)
 	// simulate dynamics world
 	G_RunPhysics(msec);
+#endif
 
 	//
 	// go through all allocated objects
