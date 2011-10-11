@@ -58,10 +58,10 @@ JNIEXPORT jint JNICALL Java_xreal_client_renderer_Renderer_registerMaterialLight
 /*
  * Class:     xreal_client_renderer_Renderer
  * Method:    registerModel
- * Signature: (Ljava/lang/String;Z)I
+ * Signature: (Ljava/lang/String;)I
  */
 JNIEXPORT jint JNICALL Java_xreal_client_renderer_Renderer_registerModel
-  (JNIEnv *, jclass, jstring, jboolean);
+  (JNIEnv *, jclass, jstring);
 
 /*
  * Class:     xreal_client_renderer_Renderer

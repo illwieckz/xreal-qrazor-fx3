@@ -1,6 +1,5 @@
 package xreal.client.renderer;
 
-import javax.vecmath.Quat4f;
 import xreal.Color;
 
 /**
@@ -77,12 +76,10 @@ public abstract class Renderer {
 	 * Loads a 3D model if it's not already loaded.
 	 * 
 	 * @param name The model name with the .md3, .md5mesh or .psk suffix
-	 * @param forceStatic Only relevant for .md3 models.
-	 * 			If true it forces to ignore all keyframes by the md3 model and it will only generate a static VBO model for it.
 	 * 
 	 * @return Returns rgb axis if not found.
 	 */
-	public synchronized static native int registerModel(String name, boolean forceStatic);
+	public synchronized static native int registerModel(String name);
 	
 	/**
 	 * Loads a skeletal animation if it's not already loaded.
