@@ -235,7 +235,7 @@ project "XreaL"
 		}
 		includedirs
 		{
-			"../../jdk/include"
+			"../libs/jdk/include"
 		}
 		
 	configuration "with-mono"
@@ -574,7 +574,7 @@ project "XreaL-dedicated"
 		}
 		includedirs
 		{
-			"../../jdk/include"
+			"../libs/jdk/include"
 		}
 		
 	configuration "with-mono"
