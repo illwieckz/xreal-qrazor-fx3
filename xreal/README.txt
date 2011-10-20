@@ -283,10 +283,6 @@ r_hdrRendering					Enable High Dynamic Range lighting (experimental)
 // ----------------------------------------------------------------------------
 HDR variables that are cheat protected but might be interesting for some people
 
-r_hdrToneMapingOperator			Tone mapping method:  
-								1 = Reinhard (Yxy)
-								4 = Exponential
-
 r_hdrKey						Middle gray value used in HDR tone mapping
 								0 computes it dynamically
 								0.72 default
@@ -340,11 +336,7 @@ ___________________________________________________
 10) KNOWN ISSUES
 __________________________________________
 
-	* Omni-bot does not compile for 64 bit targets because the GameMonkey scripting engine does not support it
-	* Broken map loading screen
-	* A few skys are broken (r_fastsky 1 can help with this)
 	* Light bleeding problems with cg_shadows 4 - 5 which are typical for variance shadow mapping
-
 
 ___________________________________________________
 
