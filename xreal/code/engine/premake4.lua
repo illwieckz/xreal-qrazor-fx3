@@ -199,7 +199,6 @@ project "XreaL"
 	-- Platform Configurations
 	-- 	
 	configuration "x32"
-		targetdir 	"../../bin32"
 		files
 		{ 
 			--"code/qcommon/vm_x86.c",
@@ -210,7 +209,7 @@ project "XreaL"
 		}
 	
 	configuration "x64"
-		targetdir 	"../../bin64"
+		--targetdir 	"../../bin64"
 		files
 		{ 
 			--"qcommon/vm_x86_64.c",
@@ -407,6 +406,7 @@ project "XreaL"
 		
 		
 	configuration { "vs*", "x32" }
+		targetdir 	"../../bin/win32"
 		files
 		{
 			"gldraw.c",
@@ -424,6 +424,7 @@ project "XreaL"
 		}
 		
 	configuration { "vs*", "x64" }
+		targetdir 	"../../bin/win64"
 		libdirs
 		{
 			"../libs/sdl/lib64",
@@ -551,14 +552,13 @@ project "XreaL-dedicated"
 	-- Platform Configurations
 	-- 	
 	configuration "x32"
-		targetdir 	"../../bin32"
 		files
 		{ 
 			--"code/qcommon/vm_x86.c",
 		}
 	
-	configuration "x64"
-		targetdir 	"../../bin64"
+	--configuration "x64"
+	--	targetdir 	"../../bin64"
 		
 	--
 	-- Options Configurations
@@ -687,6 +687,12 @@ project "XreaL-dedicated"
 			--"FLOATING_POINT",
 			--"USE_ALLOCA"
 		}
+		
+	configuration { "vs*", "x32" }
+		targetdir 	"../../bin/win32"
+		
+	configuration { "vs*", "x64" }
+		targetdir 	"../../bin/win64"
 
 	configuration { "linux", "gmake" }
 		buildoptions
@@ -697,6 +703,12 @@ project "XreaL-dedicated"
 		{
 			"`pkg-config --libs sdl`",
 		}
+		
+	configuration { "linux", "x32" }
+		targetdir 	"../../bin/linux-x86"
+		
+	configuration { "linux", "x64" }
+		targetdir 	"../../bin/linux-x86_64"
 	
 	configuration "linux"
 		targetname  "xreal-dedicated"
