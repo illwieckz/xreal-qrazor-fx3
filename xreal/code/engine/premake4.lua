@@ -462,6 +462,12 @@ project "XreaL"
 			"openal",
 		}
 	
+	configuration { "linux", "x32" }
+		targetdir 	"../../bin/linux-x86"
+		
+	configuration { "linux", "x64" }
+		targetdir 	"../../bin/linux-x86_64"
+	
 	configuration "linux"
 		targetname  "xreal"
 		files
