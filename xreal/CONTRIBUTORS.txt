@@ -17,6 +17,7 @@ Tony J. White - libcURL http-download redirection support, Win Alt-Tab support
 ensiform - console clock enhancements
 Nicolas “Berserk” Flekenstein - ASElib color support
 Neil “haste” Toronto - Unlagged game and cgame code
+Andrew "DerSaidin" Browne - cgame/game enhancements and fixes, misc other stuff
 
 
 MODELLING
