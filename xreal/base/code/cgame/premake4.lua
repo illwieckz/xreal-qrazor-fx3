@@ -25,6 +25,7 @@ project "base_cgame"
 		"cg_ents.c",
 		"cg_event.c",
 		"cg_info.c",
+		"cg_local.h",
 		"cg_localents.c",
 		"cg_lua.c",
 		"cg_main.c",
@@ -123,6 +124,9 @@ project "base_cgame"
 	
 	configuration "x64"
 		targetname  "cgamex86_64"
+	
+	configuration "native"
+		targetname  "cgamex86_64"
 				
 	-- 
 	-- Project Configurations
@@ -146,4 +150,7 @@ project "base_cgame"
 		targetname  "cgamex86_64"
 		targetprefix ""
 	
+	configuration { "linux", "native" }
+		targetname  "cgamex86_64"
+		targetprefix ""
 	

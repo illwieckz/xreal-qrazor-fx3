@@ -26,7 +26,7 @@ project "XreaL"
 		"qcommon/net_*.c",
 		"qcommon/unzip.c",
 		"qcommon/parse.c",
-		
+
 		"qcommon/cm_load.c",
 		"qcommon/cm_patch.c",
 		"qcommon/cm_polylib.c",
@@ -418,7 +418,7 @@ project "XreaL"
 			--"../libs/curl-7.12.2/lib"
 		}
 		links
-		{ 
+		{
 			--"libcurl",
 			"OpenAL32",
 		}
@@ -432,7 +432,7 @@ project "XreaL"
 			--"../libs/curl-7.12.2/lib"
 		}
 		links
-		{ 
+		{
 			--"libcurl",
 			"OpenAL32",
 		}
@@ -457,7 +457,7 @@ project "XreaL"
 			"`pkg-config --libs libcurl`",
 		}
 		links
-		{ 
+		{
 			--"libcurl",
 			"openal",
 		}
@@ -467,6 +467,9 @@ project "XreaL"
 		
 	configuration { "linux", "x64" }
 		targetdir 	"../../bin/linux-x86_64"
+	
+	configuration { "linux", "native" }
+		targetdir 	"../../bin/linux-native"
 	
 	configuration "linux"
 		targetname  "xreal"
@@ -527,7 +530,7 @@ project "XreaL-dedicated"
 		"qcommon/vm.c",
 		"qcommon/net_*.c",
 		"qcommon/unzip.c",
-		
+
 		"qcommon/cm_load.c",
 		"qcommon/cm_patch.c",
 		"qcommon/cm_polylib.c",
@@ -693,7 +696,7 @@ project "XreaL-dedicated"
 			--"FLOATING_POINT",
 			--"USE_ALLOCA"
 		}
-		
+
 	configuration { "vs*", "x32" }
 		targetdir 	"../../bin/win32"
 		
@@ -709,12 +712,15 @@ project "XreaL-dedicated"
 		{
 			"`pkg-config --libs sdl`",
 		}
-		
+	
 	configuration { "linux", "x32" }
 		targetdir 	"../../bin/linux-x86"
 		
 	configuration { "linux", "x64" }
 		targetdir 	"../../bin/linux-x86_64"
+	
+	configuration { "linux", "native" }
+		targetdir 	"../../bin/linux-native"
 	
 	configuration "linux"
 		targetname  "xreal-dedicated"

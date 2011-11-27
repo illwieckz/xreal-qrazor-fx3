@@ -125,6 +125,9 @@ project "base_game"
 	configuration "x64"
 		targetname  "qagamex86_64"
 				
+	configuration "native"
+		targetname  "qagamex86_64"
+				
 	-- 
 	-- Project Configurations
 	-- 
@@ -144,6 +147,10 @@ project "base_game"
 		targetprefix ""
 	
 	configuration { "linux", "x64" }
+		targetname  "qagamex86_64"
+		targetprefix ""
+	
+	configuration { "linux", "native" }
 		targetname  "qagamex86_64"
 		targetprefix ""
 
