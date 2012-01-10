@@ -42,6 +42,11 @@ solution "XreaL"
 --
 newoption
 {
+	trigger = "with-webp",
+	description = "Compile with webp image format support"
+}
+newoption
+{
 	trigger = "with-java",
 	description = "Compile with Java game code support"
 }
