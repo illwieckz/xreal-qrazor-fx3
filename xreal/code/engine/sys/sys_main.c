@@ -91,8 +91,8 @@ void Sys_SetDefaultInstallPath(const char *path)
 	Q_strreplace(installPath, sizeof(installPath), "bin/win64", "");
 	Q_strreplace(installPath, sizeof(installPath), "bin\\win64", "");
 	
-	Q_strreplace(installPath, sizeof(installPath), "bin/linux-x86", "");
 	Q_strreplace(installPath, sizeof(installPath), "bin/linux-x86_64", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin/linux-x86", "");
 	Q_strreplace(installPath, sizeof(installPath), "bin/linux-native", "");
 }
 
