@@ -68,7 +68,7 @@ typedef struct
 	// a scene is built up by calls to R_ClearScene and the various R_Add functions.
 	// Nothing is drawn until R_RenderScene is called.
 	void            (*ClearScene) (void);
-	void            (*AddRefEntityToScene) (const refEntity_t * ent);
+	void            (*AddRefEntityToScene) (const refEntity_t * re);
 
 	int             (*LightForPoint) (vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
