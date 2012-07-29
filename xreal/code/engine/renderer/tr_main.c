@@ -3488,7 +3488,7 @@ void R_RenderView(viewParms_t * parms)
 	tr.viewParms.interactions = tr.refdef.interactions + firstInteraction;
 	tr.viewParms.numInteractions = tr.refdef.numInteractions - firstInteraction;
 
-	R_SortDrawSurfs(tr.viewParms.drawSurfs, tr.viewParms.numDrawSurfs, tr.viewParms.interactions, tr.viewParms.numInteractions);
+	R_SortDrawSurfs();
 
 	// draw main system development information (surface outlines, etc)
 	R_DebugGraphics();
