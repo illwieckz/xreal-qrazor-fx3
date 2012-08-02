@@ -90,6 +90,12 @@ newoption
 --	}
 --}
 
+newoption
+{
+	trigger = "with-glsl-opt",
+	description = "Compile with glsl-optimizer support"
+}
+
 --		
 -- Platform specific defaults
 --
