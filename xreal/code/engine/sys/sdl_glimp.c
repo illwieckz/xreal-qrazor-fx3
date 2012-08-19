@@ -1690,7 +1690,7 @@ void GLimp_EndFrame(void)
 }
 
 
-void GLimp_LogComment(char *comment)
+void GLimp_LogComment(const char *comment)
 {
 	static char		buf[4096];
 
