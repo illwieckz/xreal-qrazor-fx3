@@ -9283,7 +9283,7 @@ void RE_LoadWorldMap(const char *name)
 	//----(SA)  end
 
 	// build cubemaps after the necessary vbo stuff is done
-	//R_BuildCubeMaps();
+	R_BuildCubeMaps();
 
 	// never move this to RE_BeginFrame because we need it to set it here for the first frame
 	// but we need the information across 2 frames
