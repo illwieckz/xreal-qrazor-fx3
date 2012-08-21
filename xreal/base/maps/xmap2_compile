@@ -1,25 +1,59 @@
 #!/bin/bash
 ################################################################################
 #                                                                              #
-#  XMAP2 map compilation script.                                               #
+#  Q3MAP2 map compilation script.                                              #
 #  By Evan 'Odin' Goers                                                        #
 #                                                                              #
 # To use this script, add your compilation options for each stage(bsp, vis,    #
 # light) to your map's worldspawn entity. You can do this by adding a key      #
-# called xmap_bspopts, xmap_visopts, or xmap_lightopts. An example is as       #
+# called xmap_bspopts, xmap_visopts, or xmap_lightopts. An example is as    #
 # follows:                                                                     #
 #                                                                              #
-#  "xmap_lightopts" "-fast -filter -bounce 2"                                  #
+#  "xmap_lightopts" "-fast -filter -bounce 2"                                 #
 #                                                                              #
 ################################################################################
 
+CONFIGDIR=$HOME/.xreal
+CONFIGFILENAME=xmap2_compilerc
+CONFIGFILE=$CONFIGDIR/$CONFIGFILENAME
 
-# fs_basepath is generally '../..' since xmap2_compile is in the base/maps/ dir.
-FS_BASEPATH='../..'
-# fs_game should be 'base'
+if [ -r $CONFIGFILE ]; then
+	source $CONFIGFILE
+	if [ $CONFIGURED != "yes" ]; then
+		echo "Your $CONFIGFILENAME contains CONFIGURED=$CONFIGURED."
+		echo "Please change CONFIGURED=$CONFIGURED to CONFIGURED=yes"
+		exit
+	fi
+elif [ -w $CONFIGDIR ]; then
+	echo "Creating $CONFIGFILE..."
+
+	echo "# this is the path to q3map2.
+# it is most likely different than the default value specified already.
+COMPILER='/path/to/xmap2'
+
+# fs_basepath is generally '/usr/local/games/tremulous' on linux systems with
+# xreal installed via the official installer from the website.
+# Sometimes this can also be in your home directory, such as '$HOME/games/xreal'.
+FS_BASEPATH='/usr/local/games/xreal'
+
+# fs_game is generally 'base'
 FS_GAME='base'
-# game should be 'xreal'
+
+# game should be 'tremulous'
 GAME='xreal'
+
+# Change this to 'yes' to tell $0 that it is ready to read this configuration.
+CONFIGURED=no" >$CONFIGFILE
+	echo "Please edit $CONFIGFILE to work with your development environment."
+	exit
+else
+	echo "Cannot read $CONFIGFILE. It either does not exist or you don't have read"
+	echo "permissions to access it."
+	exit
+fi
+
+# this is the compile string used to create the compilation commands.
+COMPILE="$COMPILER -fs_basepath $FS_BASEPATH -fs_game $FS_GAME -game $GAME"
 
 # DO NOT EDIT THIS LINE OR THE FOLLOWING LINES. DOING SO MAY RESULT IN
 # UNEXPECTED SCRIPT BEHAVIOR.
@@ -28,7 +62,7 @@ THREADS=`grep processor /proc/cpuinfo | awk '{a++} END {print a}'`
 
 # map_ convention used to prevent possible binary name collision
 map_bsp() {
-	if ! $COMPILE -v -meta -leaktest $BSPOPTS $MAP; then exit 1; fi
+	if ! $COMPILE -v -meta -leaktest -custinfoparms $BSPOPTS $MAP; then exit 1; fi
 }
 
 map_debugportals() {
@@ -40,11 +74,11 @@ map_debugsurfaces() {
 }
 
 map_fastvis() {
-	if ! $COMPILE -vis -threads $THREADS -fast $VISOPTS $MAP; then exit 1; fi
+	if ! $COMPILE -vis -threads $THREADS -fast -saveprt $VISOPTS $MAP; then exit 1; fi
 }
 
 map_vis() {
-	if ! $COMPILE -vis -threads $THREADS $VISOPTS $MAP; then exit 1; fi
+	if ! $COMPILE -vis -threads $THREADS -saveprt $VISOPTS $MAP; then exit 1; fi
 }
 
 map_light() {
@@ -62,19 +96,29 @@ map_package() {
 	PK3NAME=map-$MAP_STRIPPED-$DATE.pk3
 	zip $PK3NAME maps/$MAP_STRIPPED.bsp
 	zip $PK3NAME maps/$MAP_STRIPPED.map
-	zip $PK3NAME maps/$MAP_STRIPPED/*.hdr
-	zip $PK3NAME maps/$MAP_STRIPPED/*.png
-	zip $PK3NAME levelshot/$MAP_STRIPPED.png
+	zip $PK3NAME maps/$MAP_STRIPPED/*.tga # used for external lightmaps, if any
+	zip $PK3NAME maps/$MAP_STRIPPED/*.png # used for external lightmaps, if any
+	zip $PK3NAME levelshot/$MAP_STRIPPED.*
 	zip $PK3NAME scripts/$MAP_STRIPPED.arena
 }
 
 map_readbspopts() {
 	if [ -r $MAP ]; then
+		case $1 in
+			1)	KEY=("xmap_bspopts_test" "xmap_bspopts" "xmap_bspopts_final");;
+			2)	KEY=("xmap_bspopts_final" "xmap_bspopts" "xmap_bspopts_test");;
+			*)	KEY=("xmap_bspopts" "xmap_bspopts_final" "xmap_bspopts_test");;
+		esac
 		#grab the bspopts from the map
-		BSPOPTS=`grep -A 256 "^// entity 0$" $MAP | \
-		grep xmap_bspopts | \
-		head -n1 | \
-		sed -r 's/^"xmap_bspopts" "(.*)"$/\1/'`
+		KEYS=${#KEY[@]}
+		for (( i=0;i<$KEYS;i++ )); do
+			if ! `grep -A 256 "^// entity 0$" $MAP | grep -w "${KEY[${i}]}" >/dev/null`; then continue; fi
+			BSPOPTS=`grep -A 256 "^// entity 0$" $MAP | \
+			grep -w "${KEY[${i}]}" | \
+			head -n1 | \
+			sed -r "s/^\"${KEY[${i}]}\" \"(.*)\"$/\1/"`
+			break
+		done
 		if [[ $BSPOPTS != "" ]]; then
 			echo "BSPOPTS: $BSPOPTS"
 		fi
@@ -86,11 +130,21 @@ map_readbspopts() {
 
 map_readvisopts() {
 	if [ -r $MAP ]; then
+		case $1 in
+			1)	KEY=("xmap_visopts_test" "xmap_visopts" "xmap_visopts_final");;
+			2)	KEY=("xmap_visopts_final" "xmap_visopts" "xmap_visopts_test");;
+			*)	KEY=("xmap_visopts" "xmap_visopts_final" "xmap_visopts_test");;
+		esac
 		#grab the visopts from the map
-		VISOPTS=`grep -A 256 "^// entity 0$" $MAP | \
-		grep xmap_visopts | \
-		head -n1 | \
-		sed -r 's/^"xmap_visopts" "(.*)"$/\1/'`
+		KEYS=${#KEY[@]}
+		for (( i=0;i<$KEYS;i++ )); do
+			if ! `grep -A 256 "^// entity 0$" $MAP | grep -w "${KEY[${i}]}" >/dev/null`; then continue; fi
+			VISOPTS=`grep -A 256 "^// entity 0$" $MAP | \
+			grep -w "${KEY[${i}]}" | \
+			head -n1 | \
+			sed -r "s/^\"${KEY[${i}]}\" \"(.*)\"$/\1/"`
+			break
+		done
 		if [[ $VISOPTS != "" ]]; then
 			echo "VISOPTS: $VISOPTS"
 		fi
@@ -102,15 +156,25 @@ map_readvisopts() {
 
 map_readlightopts() {
 	if [ -r $MAP ]; then
+		case $1 in
+			1)	KEY=("xmap_lightopts_test" "xmap_lightopts" "xmap_lightopts_final");;
+			2)	KEY=("xmap_lightopts_final" "xmap_lightopts" "xmap_lightopts_test");;
+			*)	KEY=("xmap_lightopts" "xmap_lightopts_final" "xmap_lightopts_test");;
+		esac
 		#grab the lightopts from the map
-		LIGHTOPTS=`grep -A 256 "^// entity 0$" $MAP | \
-		grep xmap_lightopts | \
-		head -n1 | \
-		sed -r 's/^"xmap_lightopts" "(.*)"$/\1/'`
+		KEYS=${#KEY[@]}
+		for (( i=0;i<$KEYS;i++ )); do
+			if ! `grep -A 256 "^// entity 0$" $MAP | grep -w "${KEY[${i}]}" >/dev/null`; then continue; fi
+			LIGHTOPTS=`grep -A 256 "^// entity 0$" $MAP | \
+			grep -w "${KEY[${i}]}" | \
+			head -n1 | \
+			sed -r "s/^\"${KEY[${i}]}\" \"(.*)\"$/\1/"`
+			break
+		done
 		if [[ $LIGHTOPTS != "" ]]; then
 			echo "LIGHTOPTS: $LIGHTOPTS"
 		else
-			echo "Forcing '-fast -filter -lightmapsize 1024' as per map standards."
+			echo "Forcing '-fast -filter -lightmapsize 1024' as per map bare minimum."
 			echo "Add 'xmap_lightopts in worldspawn to override."
 			LIGHTOPTS="-fast -filter -lightmapsize 1024"
 		fi
@@ -136,36 +200,31 @@ map_help() {
 	echo "  -light          Calculate light for an existing BSP."
 	echo "  -pk3            Attempt to automatically package a map project."
 	echo "  -all            Short for -bsp -vis -light."
+	echo "  -test           Same as -all, but reads test options instead."
+	echo "  -final          Same as -all, but reads final options instead."
 	echo "  -h              This help message."
+	echo ""
+	echo "This script will compile a map by using q3map2. To change compilation"
+	echo "options, add xmap_bspopts, xmap_visopts, or xmap_lightopts to your"
+	echo "map's worldspawn entity with the compile flags you want."
+	echo ""
+	echo "You may need to modify this script for it to operate correctly in your"
+	echo "development environment."
 	echo ""
 	echo "This compilation script was written by Evan 'Odin' Goers, with"
 	echo "help and additions from DavidSev, and Robert 'Tr3B' Beckebans."
 }
 
 check_compiler() {
-	case `uname -m` in
-		x86_64)
-			COMPILER='../../xmap2.x86_64'
-			;;
-		i386|i486|i586|i686)
-			COMPILER='../../xmap2.i386'
-			;;
-		powerpc|powerpc64)
-			COMPILER='../../xmap2.ppc'
-			;;
-		*)
-			echo "You are not running a supported platform for compiling XreaL maps. If you would like to compile XreaL maps on your platform, please visit http://www.xreal-project.net for contact information."
-			exit 0
-			;;
-	esac
-
 	if [ ! -f $COMPILER ]; then
 		echo "`basename $COMPILER` not found!"
-		echo "Did you build XreaL with scons xmap=1?"
+		echo "Did you enter the correct path for COMPILER?"
 		exit 1
 	fi
-	COMPILE="$COMPILER -fs_basepath $FS_BASEPATH -fs_game $FS_GAME -game $GAME"
+
 }
+
+COMPILE_LEVEL=0
 
 case $1 in
 	-bsp)
@@ -203,16 +262,26 @@ case $1 in
 		;;
 		
 	-pk3)
+		check_compiler;
 		map_package $PACKAGEOTPS;
 		;;
-
-	-all)
+	-all|-test|-final)
 		check_compiler;
-		map_readbspopts;
+		case $1 in
+			-test)
+				COMPILE_LEVEL=1
+				;;
+			-final)
+				COMPILE_LEVEL=2
+				;;
+			*)
+				;;
+		esac
+		map_readbspopts $COMPILE_LEVEL;
 		map_bsp $BSPOPTS;
-		map_readvisopts;
+		map_readvisopts $COMPILE_LEVEL;
 		map_vis $VISOPTS;
-		map_readlightopts;
+		map_readlightopts $COMPILE_LEVEL;
 		map_light $LIGHTOPTS;
 		;;
 	-h)
@@ -222,4 +291,3 @@ case $1 in
 		map_defaultcommand;
 		;;
 esac
-
